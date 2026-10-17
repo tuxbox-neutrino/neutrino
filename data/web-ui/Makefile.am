@@ -19,26 +19,25 @@ nobase_install_DATA = \
 	swagger/index.html
 
 install_DATA = \
-	bouquet-editor.yhtm \
-	bouquets.yhtm \
-	dashboard.yhtm \
-	epg.yhtm \
-	files.yhtm \
+	bouquet-editor.html \
+	bouquets.html \
+	dashboard.html \
+	epg.html \
+	files.html \
 	login.html \
 	password.html \
-	screenshot.yhtm \
-	settings.yhtm \
-	sysinfo.yhtm \
-	timer.yhtm \
-	recordings.yhtm \
-	tools.yhtm \
+	screenshot.html \
+	settings.html \
+	sysinfo.html \
+	timer.html \
+	recordings.html \
+	tools.html \
 	favicon.ico \
 	index.html \
-	wizard.yhtm \
+	wizard.html \
 	robots.txt \
 	Y_Baselib.js \
 	Y_Blocks.txt \
-	Y_Lang.yjs \
 	Y_Main.css \
 	Y_Settings_Infoicons.yhtm \
 	Y_Settings_Plugins_hide.yhtm \

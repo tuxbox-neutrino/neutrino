@@ -256,6 +256,76 @@ TEST_CASE("the sign-in page counts only as the web directory's own", "[nhttpd]")
 	CHECK_FALSE(ystatic::ownLoginPage(&g.hh));
 }
 
+namespace
+{
+// Whether what the URL resolves to waits for the login (pageNeedsLogin), the
+// file opened as openPublic opens it; -1 where it is not open at all.
+int waits(Box &b, const std::string &url)
+{
+	b.ask(url);
+	const ystatic::Target t = ystatic::resolve(&b.hh);
+	const int fd = ystatic::openPublic(&b.hh, t);
+	if (fd < 0)
+		return -1;
+	const bool need = ystatic::pageNeedsLogin(&b.hh, t, fd);
+	close(fd);
+	return need ? 1 : 0;
+}
+} // namespace
+
+TEST_CASE("the interface's own pages wait for the login, what they load does not", "[nhttpd]")
+{
+	Box b;
+	b.file(b.core + "/login.html", "sign in");
+	b.file(b.core + "/dashboard.html", "page");
+	b.file(b.core + "/index.html", "start");
+	b.file(b.core + "/swagger/index.html", "page in a directory");
+	b.file(b.core + "/js/dashboard.js", "script");
+	b.file(b.core + "/css/webui.css", "style");
+	b.file(b.core + "/languages/de.json", "{}");
+	b.file(b.core + "/OLD.HTM", "page under another spelling");
+	CHECK(waits(b, "/login.html") == 0);
+	CHECK(waits(b, "/dashboard.html") == 1);
+	CHECK(waits(b, "/index.html") == 1);
+	CHECK(waits(b, "/") == 1);
+	CHECK(waits(b, "/swagger/index.html") == 1);
+	CHECK(waits(b, "/OLD.HTM") == 1);
+	CHECK(waits(b, "/js/dashboard.js") == 0);
+	CHECK(waits(b, "/css/webui.css") == 0);
+	CHECK(waits(b, "/languages/de.json") == 0);
+
+	// a name that is no page, reaching one, waits as the page does
+	b.link(b.core + "/dashboard.html", b.core + "/css/look.css");
+	CHECK(waits(b, "/css/look.css") == 1);
+
+	// a sign-in page copied into the override directory keeps the pages
+	// behind the login (the copy itself never goes out openly)
+	Box o;
+	o.file(o.core + "/login.html", "sign in");
+	o.file(o.core + "/dashboard.html", "page");
+	o.file(o.over + "/login.html", "override");
+	CHECK(waits(o, "/dashboard.html") == 1);
+	CHECK(waits(o, "/login.html") == -1);
+
+	// the sign-in page reached through a link is the sign-in page, so a
+	// browser sent there is not sent there again
+	Box l;
+	l.file(l.core + "/signin.html", "sign in");
+	l.link(l.core + "/signin.html", l.core + "/login.html");
+	l.file(l.core + "/dashboard.html", "page");
+	CHECK(waits(l, "/login.html") == 0);
+	CHECK(waits(l, "/dashboard.html") == 1);
+
+	// another interface in the web directory's place, without a sign-in
+	// page of its own, signs in by itself: every file of it stays open
+	Box c;
+	c.file(c.core + "/index.html", "<shell>");
+	c.file(c.core + "/assets/app.js", "app");
+	CHECK(waits(c, "/index.html") == 0);
+	CHECK(waits(c, "/") == 0);
+	CHECK(waits(c, "/assets/app.js") == 0);
+}
+
 TEST_CASE("a request let through without a login is not answered from the cache", "[nhttpd]")
 {
 	Box b;

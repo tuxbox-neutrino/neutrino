@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="de" data-theme="dark">
+<html lang="en" data-theme="dark" class="webui-i18n-pending">
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Neutrino-Web-UI - {=L:yw.tools.files=}</title>
+	<title data-l="tools.files" data-l-prefix="Neutrino-Web-UI - ">Neutrino-Web-UI - Files</title>
 	<link rel="icon" href="/favicon/favicon.ico">
 	<script>
 		// Apply the stored theme before first paint: webui-header.js runs
@@ -11,7 +11,7 @@
 		try { document.documentElement.setAttribute('data-theme', localStorage.getItem('webui-theme') || localStorage.getItem('yweb-theme') || 'dark'); } catch (e) {}
 	</script>
 	<link rel="stylesheet" href="/css/pico.min.css">
-	<link rel="stylesheet" href="/css/webui.css?v=89">
+	<link rel="stylesheet" href="/css/webui.css?v=90">
 	<style>
 		/* 2-column grid layout */
 		main.webui-files-grid {
@@ -399,7 +399,7 @@
 					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 						<path d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/>
 					</svg>
-					{=L:yw.fm.dirs=}
+					<span data-l="fm.dirs">Directories</span>
 				</h3>
 				<span class="webui-card-preview" id="sidebarPreview">--</span>
 			</header>
@@ -416,7 +416,7 @@
 						<path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
 						<polyline points="14,2 14,8 20,8"/>
 					</svg>
-					<span id="fileListTitle">{=L:yw.tools.files=}</span>
+					<span id="fileListTitle" data-l="tools.files">Files</span>
 				</h3>
 				<span class="webui-card-preview" id="filesPreview">--</span>
 			</header>
@@ -426,15 +426,15 @@
 
 			<!-- Toolbar -->
 			<div class="webui-files-toolbar">
-				<button class="webui-btn" onclick="showNewFolderInput()" title="{=L:yw.fm.new_folder=}">
+				<button class="webui-btn" onclick="showNewFolderInput()" title="New folder" data-l-title="fm.new_folder">
 					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 						<path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/>
 						<line x1="12" y1="11" x2="12" y2="17"/>
 						<line x1="9" y1="14" x2="15" y2="14"/>
 					</svg>
-					<span class="btn-label">{=L:yw.fm.folder=}</span>
+					<span class="btn-label" data-l="fm.folder">Folder</span>
 				</button>
-				<button class="webui-btn" onclick="toggleUpload()" title="{=L:yw.fm.upload=}">
+				<button class="webui-btn" onclick="toggleUpload()" title="Upload" data-l-title="fm.upload">
 					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 						<path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
 						<polyline points="17,8 12,3 7,8"/>
@@ -442,7 +442,7 @@
 					</svg>
 					<span class="btn-label">Upload</span>
 				</button>
-				<button class="webui-btn" onclick="refreshDir()" title="{=L:yw.si.refresh=}">
+				<button class="webui-btn" onclick="refreshDir()" title="Refresh" data-l-title="si.refresh">
 					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 						<polyline points="23,4 23,10 17,10"/>
 						<path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/>
@@ -457,7 +457,7 @@
 				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;color:var(--webui-accent);flex-shrink:0">
 					<path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/>
 				</svg>
-				<input type="text" id="newFolderName" placeholder="{=L:yw.fm.folder_name=}" onkeydown="handleNewFolderKey(event)">
+				<input type="text" id="newFolderName" placeholder="Folder name..." data-l-placeholder="fm.folder_name" onkeydown="handleNewFolderKey(event)">
 				<button class="webui-btn primary" onclick="createFolder()" style="padding:0.25rem 0.5rem">
 					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px">
 						<polyline points="20,6 9,17 4,12"/>
@@ -479,7 +479,7 @@
 						<polyline points="17,8 12,3 7,8"/>
 						<line x1="12" y1="3" x2="12" y2="15"/>
 					</svg>
-					<div>{=L:yw.fm.drop_here=} <a href="#" onclick="document.getElementById('fileInput').click(); return false;">{=L:yw.fm.choose=}</a></div>
+					<div><span data-l="fm.drop_here">Drop a file here or</span> <a href="#" onclick="document.getElementById('fileInput').click(); return false;" data-l="fm.choose">choose one</a></div>
 					<input type="file" id="fileInput" style="display:none" onchange="uploadFile(this.files[0])">
 				</div>
 				<div class="webui-upload-progress" id="uploadProgress">
@@ -491,7 +491,7 @@
 			<!-- File list -->
 			<div class="webui-card-body">
 				<ul class="webui-plain-list webui-file-list" id="fileList">
-					<li aria-busy="true" style="padding:1rem;text-align:center">{=L:yw.msg.loading=}</li>
+					<li aria-busy="true" style="padding:1rem;text-align:center" data-l="msg.loading">Loading...</li>
 				</ul>
 			</div>
 		</article>
@@ -500,7 +500,7 @@
 		<div class="webui-card-indicator" id="cardIndicator"></div>
 	</main>
 
-	<script src="/Y_Lang.yjs?v=27"></script>
+	<script src="/js/webui-i18n.js?v=2"></script>
 	<script src="/js/webui-header.js?v=62"></script>
 	<script src="/js/webui-dom.js?v=1"></script>
 	<script src="/js/webui-v1.js?v=14"></script>
@@ -593,14 +593,14 @@
 				roots = ((r && r.items) || []).filter(x => x.present).map(x => normPath(x.id));
 			} catch (e) {
 				roots = [];
-				webuiShowToast('{=L:yw.msg.load_fail=}: ' + e.message, true);
+				webuiShowToast(webuiL('msg.load_fail', 'Loading failed') + ': ' + e.message, true);
 			}
 			renderQuickDirs();
 		}
 
 		function renderQuickDirs() {
 			const list = document.getElementById('quickList');
-			const items = [{name: '{=L:yw.fm.roots=}', path: ''}].concat(roots.map(r => ({name: r, path: r})));
+			const items = [{name: webuiL('fm.roots', 'Permitted folders'), path: ''}].concat(roots.map(r => ({name: r, path: r})));
 			list.replaceChildren(...items.map(d => webuiEl('li', {
 				className: 'webui-nav-item webui-quick-item' + (d.path === currentPath ? ' active' : ''),
 				on: {click: () => navigateTo(d.path)}
@@ -612,7 +612,7 @@
 
 		function renderBreadcrumb() {
 			const el = document.getElementById('breadcrumb');
-			const crumbs = [{name: '{=L:yw.fm.roots=}', path: ''}];
+			const crumbs = [{name: webuiL('fm.roots', 'Permitted folders'), path: ''}];
 			const root = rootOf(currentPath);
 			if (root) {
 				crumbs.push({name: root, path: root});
@@ -641,11 +641,11 @@
 			const fullpath = joinPath(currentPath, entry.id);
 			const actions = webuiEl('div', {className: 'webui-file-actions', on: {click: ev => ev.stopPropagation()}});
 			if (!isDir)
-				actions.appendChild(webuiEl('a', {className: 'webui-btn', title: '{=L:yw.fm.download=}',
+				actions.appendChild(webuiEl('a', {className: 'webui-btn', title: webuiL('fm.download', 'Download'),
 					attrs: {href: '/api/v1/storage/file' + storageQuery(fullpath), download: entry.id}}, webuiMarkup(ICONS.download)));
-			actions.appendChild(webuiEl('button', {type: 'button', className: 'webui-btn', title: '{=L:yw.fm.rename=}',
+			actions.appendChild(webuiEl('button', {type: 'button', className: 'webui-btn', title: webuiL('fm.rename', 'Rename'),
 				on: {click: () => startRename(fullpath, entry.id)}}, webuiMarkup(ICONS.rename)));
-			actions.appendChild(webuiEl('button', {type: 'button', className: 'webui-btn', title: '{=L:yw.fm.delete=}',
+			actions.appendChild(webuiEl('button', {type: 'button', className: 'webui-btn', title: webuiL('fm.delete', 'Delete'),
 				style: {color: 'var(--webui-danger)'}, on: {click: () => deleteItem(fullpath, entry.id, isDir)}}, webuiMarkup(ICONS.delete)));
 
 			const size = isDir || !entry.attributes_read ? '' : formatFileSize(entry.size || 0);
@@ -684,14 +684,14 @@
 
 			// The top level: the roots, and a word on why there is nothing else
 			if (!currentPath) {
-				title.textContent = '{=L:yw.fm.roots=}';
+				title.textContent = webuiL('fm.roots', 'Permitted folders');
 				document.getElementById('diskInfo').textContent = '';
-				list.replaceChildren(...roots.map(rootRow), note('{=L:yw.fm.roots_note=}'));
+				list.replaceChildren(...roots.map(rootRow), note(webuiL('fm.roots_note', 'Only these folders and what lies below them can be reached from here.')));
 				return;
 			}
 
 			title.textContent = currentPath.split('/').filter(Boolean).pop() || currentPath;
-			list.replaceChildren(webuiEl('li', {attrs: {'aria-busy': 'true'}, style: {padding: '1rem', 'text-align': 'center'}}, '{=L:yw.msg.loading=}'));
+			list.replaceChildren(webuiEl('li', {attrs: {'aria-busy': 'true'}, style: {padding: '1rem', 'text-align': 'center'}}, webuiL('msg.loading', 'Loading...')));
 
 			try {
 				const data = await webuiV1('GET', '/storage/files', {query: {path: currentPath}});
@@ -714,13 +714,13 @@
 					webuiMarkup(ICONS.parent),
 					webuiEl('div', {className: 'webui-file-info'}, webuiEl('span', {className: 'webui-file-name'}, '..')))];
 				files.forEach(f => rows.push(fileRow(f)));
-				if (!files.length) rows.push(note('{=L:yw.fm.empty=}'));
+				if (!files.length) rows.push(note(webuiL('fm.empty', 'Directory is empty')));
 				list.replaceChildren(...rows);
 
 				loadDiskInfo(mine);
 			} catch (e) {
 				if (mine !== listToken) return;
-				list.replaceChildren(note('{=L:yw.msg.load_fail=}: ' + e.message, 'var(--webui-danger)'));
+				list.replaceChildren(note(webuiL('msg.load_fail', 'Loading failed') + ': ' + e.message, 'var(--webui-danger)'));
 			}
 		}
 
@@ -751,7 +751,7 @@
 				});
 				if (best && best.total > 0) {
 					const pct = Math.round((best.total - best.free) * 100 / best.total) + '%';
-					el.textContent = formatFileSize(best.free) + ' {=L:yw.fm.free=} / ' + formatFileSize(best.total) + ' (' + pct + ')';
+					el.textContent = formatFileSize(best.free) + ' ' + webuiL('fm.free', 'free') + ' / ' + formatFileSize(best.total) + ' (' + pct + ')';
 				} else {
 					el.textContent = '';
 				}
@@ -765,16 +765,16 @@
 		// Delete: a file, a link or an empty directory; the box keeps a
 		// directory that still holds something and says so
 		async function deleteItem(fullpath, name, isDir) {
-			const ok = await askFirst('{=L:yw.fm.delete=}',
-				(isDir ? '{=L:yw.fm.folder=}' : '{=L:yw.fm.file=}') + ' "' + name + '" {=L:yw.fm.delete_confirm=}',
-				'{=L:yw.fm.delete=}');
+			const ok = await askFirst(webuiL('fm.delete', 'Delete'),
+				(isDir ? webuiL('fm.folder', 'Folder') : webuiL('fm.file', 'File')) + ' "' + name + '" ' + webuiL('fm.delete_confirm', 'really delete?'),
+				webuiL('fm.delete', 'Delete'));
 			if (!ok) return;
 			try {
 				await webuiV1('DELETE', '/storage/path', {query: {path: fullpath}});
-				webuiShowToast('{=L:yw.fm.deleted=}');
+				webuiShowToast(webuiL('fm.deleted', 'Deleted'));
 				refreshDir();
 			} catch (e) {
-				webuiShowToast((e.code === 'not-empty' ? '{=L:yw.fm.not_empty=}' : '{=L:yw.fm.delete_fail=}') + ': ' + e.message, true);
+				webuiShowToast((e.code === 'not-empty' ? webuiL('fm.not_empty', 'Folder is not empty') : webuiL('fm.delete_fail', 'Delete failed')) + ': ' + e.message, true);
 			}
 		}
 
@@ -788,7 +788,7 @@
 			nameEl.classList.add('editing');
 			nameEl.replaceChildren(input,
 				webuiEl('button', {type: 'button', className: 'webui-btn primary', style: {padding: '0.15rem 0.3rem'},
-					attrs: {'aria-label': '{=L:yw.fm.rename=}'}, on: {click: go}}, webuiMarkup(ICONS.ok)),
+					attrs: {'aria-label': webuiL('fm.rename', 'Rename')}, on: {click: go}}, webuiMarkup(ICONS.ok)),
 				webuiEl('button', {type: 'button', className: 'webui-btn', style: {padding: '0.15rem 0.3rem'},
 					attrs: {'aria-label': webuiL('msg.cancel', 'Cancel')}, on: {click: () => refreshDir()}}, webuiMarkup(ICONS.cancel)));
 			input.focus();
@@ -808,16 +808,16 @@
 				return;
 			}
 			if (newName.indexOf('/') >= 0) {
-				webuiShowToast('{=L:yw.fm.rename_fail=}: {=L:yw.fm.bad_name=}', true);
+				webuiShowToast(webuiL('fm.rename_fail', 'Rename failed') + ': ' + webuiL('fm.bad_name', 'a name must not contain /'), true);
 				return;
 			}
 			try {
 				const dir = fullpath.substring(0, fullpath.lastIndexOf('/')) || '/';
 				await webuiV1('POST', '/storage/rename', {body: {from: fullpath, to: joinPath(dir, newName)}});
-				webuiShowToast('{=L:yw.fm.renamed=}');
+				webuiShowToast(webuiL('fm.renamed', 'Renamed'));
 				refreshDir();
 			} catch (e) {
-				webuiShowToast('{=L:yw.fm.rename_fail=}: ' + e.message, true);
+				webuiShowToast(webuiL('fm.rename_fail', 'Rename failed') + ': ' + e.message, true);
 			}
 		}
 
@@ -846,16 +846,16 @@
 			const name = input.value.trim();
 			if (!name || !currentPath) return;
 			if (name.indexOf('/') >= 0) {
-				webuiShowToast('{=L:yw.msg.error=}: {=L:yw.fm.bad_name=}', true);
+				webuiShowToast(webuiL('msg.error', 'Error') + ': ' + webuiL('fm.bad_name', 'a name must not contain /'), true);
 				return;
 			}
 			try {
 				await webuiV1('POST', '/storage/directory', {body: {path: joinPath(currentPath, name)}});
 				hideNewFolderInput();
-				webuiShowToast('{=L:yw.fm.folder_created=}');
+				webuiShowToast(webuiL('fm.folder_created', 'Folder created'));
 				refreshDir();
 			} catch (e) {
-				webuiShowToast('{=L:yw.msg.error=}: ' + e.message, true);
+				webuiShowToast(webuiL('msg.error', 'Error') + ': ' + e.message, true);
 			}
 		}
 
@@ -883,7 +883,7 @@
 			const bar = document.getElementById('uploadBar');
 			const status = document.getElementById('uploadStatus');
 			progress.classList.add('active');
-			status.textContent = '{=L:yw.fm.uploading=}: ' + file.name;
+			status.textContent = webuiL('fm.uploading', 'Uploading') + ': ' + file.name;
 			bar.value = 0;
 
 			// the pieces take themselves away when they fail; after that the
@@ -899,22 +899,22 @@
 					await webuiV1('POST', '/storage/rename', {body: {from: part, to: target}});
 				} catch (e) {
 					if (e.code !== 'name-taken') throw e;
-					const replace = await askFirst('{=L:yw.fm.upload=}', '"' + file.name + '" {=L:yw.fm.replace_ask=}', '{=L:yw.fm.replace=}');
-					if (!replace) throw new Error('{=L:yw.fm.not_replaced=}');
+					const replace = await askFirst(webuiL('fm.upload', 'Upload'), '"' + file.name + '" ' + webuiL('fm.replace_ask', 'already exists here. Replace it?'), webuiL('fm.replace', 'Replace'));
+					if (!replace) throw new Error(webuiL('fm.not_replaced', 'the existing file was kept'));
 					await webuiV1('POST', '/storage/rename', {body: {from: part, to: target, overwrite: true}});
 				}
 				uploaded = false;
 
-				status.textContent = '{=L:yw.fm.done=}: ' + file.name;
-				webuiShowToast('{=L:yw.fm.uploaded=}: ' + file.name);
+				status.textContent = webuiL('fm.done', 'Done') + ': ' + file.name;
+				webuiShowToast(webuiL('fm.uploaded', 'Uploaded') + ': ' + file.name);
 				setTimeout(() => {
 					progress.classList.remove('active');
 					document.getElementById('uploadArea').classList.remove('active');
 				}, 2000);
 				if (currentPath === dir) refreshDir();
 			} catch (e) {
-				status.textContent = '{=L:yw.msg.error=}: ' + e.message;
-				webuiShowToast('{=L:yw.fm.upload_fail=}: ' + e.message, true);
+				status.textContent = webuiL('msg.error', 'Error') + ': ' + e.message;
+				webuiShowToast(webuiL('fm.upload_fail', 'Upload error') + ': ' + e.message, true);
 				if (uploaded)
 					webuiV1('DELETE', '/storage/path', {query: {path: part}}).catch(() => {});
 			}
@@ -945,7 +945,7 @@
 		function updatePreviews() {
 			const sidebarPreview = document.getElementById('sidebarPreview');
 			const filesPreview = document.getElementById('filesPreview');
-			const where = currentPath || '{=L:yw.fm.roots=}';
+			const where = currentPath || webuiL('fm.roots', 'Permitted folders');
 			if (sidebarPreview) sidebarPreview.textContent = rootOf(currentPath) || where;
 			if (filesPreview) filesPreview.textContent = where;
 		}
@@ -967,14 +967,14 @@
 
 		// The roots first, so the top level and the breadcrumb know them; an
 		// address with #<path> inside them opens there
-		(async function() {
+		webuiAfterTexts(async function() {
 			await loadQuickDirs();
 			let asked = '';
 			try { asked = decodeURIComponent(location.hash.replace(/^#/, '')); } catch (e) { /* not an address */ }
 			loadDir(asked && rootOf(normPath(asked)) ? asked : '');
-		})();
+		});
 
-		document.addEventListener('DOMContentLoaded', function() {
+		webuiAfterTexts(function() {
 			webuiInitMobileAccordion({
 				cardOrder: ['card-sidebar', 'card-files'],
 				storageKey: 'webui-files-card',

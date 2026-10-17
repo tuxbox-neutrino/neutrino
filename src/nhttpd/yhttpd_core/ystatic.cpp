@@ -177,6 +177,59 @@ bool ownLoginPage(CyhookHandler *hh)
 	return true;
 }
 
+namespace
+{
+// in any case, also compressed, as templateOrScript reads names
+bool htmlPage(const std::string &name)
+{
+	std::string n = name;
+	if (endsWithNoCase(n, ".gz"))
+		n = n.substr(0, n.size() - 3);
+	return endsWithNoCase(n, ".html") || endsWithNoCase(n, ".htm");
+}
+} // namespace
+
+namespace
+{
+// The web directory carries a sign-in page of its own: this interface, as
+// opposed to another one in its place. Asked of the directory itself, so a
+// copy in the override directory, which never goes out openly, leaves the
+// pages behind the login rather than letting them out.
+bool hasOwnSignIn(CyhookHandler *hh)
+{
+	const std::string core = hh->WebserverConfigList["WebsiteMain.directory"];
+	struct stat st;
+	return (stat((core + "/login.html").c_str(), &st) == 0 && S_ISREG(st.st_mode))
+		|| (stat((core + "/login.html.gz").c_str(), &st) == 0 && S_ISREG(st.st_mode));
+}
+
+// Whether fd holds the file the sign-in page goes out from, by what was
+// opened and not by a name, so a link in either place cannot tell it apart.
+bool isSignIn(CyhookHandler *hh, int fd)
+{
+	const int own = openPublic(hh, resolveName(hh, "/", "login.html"));
+	if (own < 0)
+		return false;
+	struct stat a, b;
+	const bool same = fstat(fd, &a) == 0 && fstat(own, &b) == 0
+		&& a.st_dev == b.st_dev && a.st_ino == b.st_ino;
+	close(own);
+	return same;
+}
+} // namespace
+
+bool pageNeedsLogin(CyhookHandler *hh, const Target &t, int fd)
+{
+	std::string below;
+	if (!ownOpened(hh, fd, below))
+		return true;	// what it is cannot be told: behind the login
+	if (!htmlPage(t.file) && !htmlPage(below))
+		return false;
+	if (!hasOwnSignIn(hh))
+		return false;
+	return !isSignIn(hh, fd);
+}
+
 int openPublic(CyhookHandler *hh, const Target &t)
 {
 	if (t.origin != Target::CORE || templateOrScript(t.file))

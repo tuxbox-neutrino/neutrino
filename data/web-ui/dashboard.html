@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="de" data-theme="dark">
+<html lang="en" data-theme="dark" class="webui-i18n-pending">
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -13,7 +13,7 @@
 		try { document.documentElement.setAttribute('data-theme', localStorage.getItem('webui-theme') || localStorage.getItem('yweb-theme') || 'dark'); } catch (e) {}
 	</script>
 	<link rel="stylesheet" href="/css/pico.min.css">
-	<link rel="stylesheet" href="/css/webui.css?v=89">
+	<link rel="stylesheet" href="/css/webui.css?v=90">
 	<style>
 	/* Dashboard Grid — M5d: 12-Track-Basis statt auto-fit, damit der
 	   Balancer (webuiBalanceDashboard) die letzte Reihe auffüllen kann.
@@ -902,7 +902,7 @@
 						<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
 						</svg>
-						{=L:yw.dash.quick=}
+						<span data-l="dash.quick">Quick actions</span>
 					</h3>
 					<span id="actions-preview" class="webui-card-preview">--</span>
 				</header>
@@ -921,28 +921,28 @@
 							<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/>
 							</svg>
-							<span id="mode-switch-text">{=L:yw.dash.to_radio=}</span>
+							<span id="mode-switch-text" data-l="dash.to_radio">Switch to radio</span>
 						</button>
 					</div>
 					<div class="webui-actions">
-						<a href="/screenshot.yhtm" class="webui-action-btn">
+						<a href="/screenshot.html" class="webui-action-btn">
 							<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
 								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
 							</svg>
 							Screenshot
 						</a>
-<a href="/files.yhtm" class="webui-action-btn">
+<a href="/files.html" class="webui-action-btn">
 							<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/>
 							</svg>
-							{=L:yw.tools.files=}
+							<span data-l="tools.files">Files</span>
 						</a>
 						<button class="webui-action-btn" onclick="webuiShowMessageDialog()">
 							<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
 							</svg>
-							{=L:yw.tools.message=}
+							<span data-l="tools.message">Message</span>
 						</button>
 						<button class="webui-action-btn" onclick="webuiShowRemote()">
 							<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -968,13 +968,13 @@
 						<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
 						</svg>
-						{=L:yw.dash.current_channel=}
+						<span data-l="dash.current_channel">Current channel</span>
 					</h3>
 					<span id="channel-preview" class="webui-card-preview">--</span>
 					<span id="rec-indicator" class="webui-recording webui-hidden"><svg viewBox="0 0 12 12" fill="currentColor" style="width:0.55rem;height:0.55rem"><circle cx="6" cy="6" r="5"/></svg> REC</span>
 				</header>
 				<div class="webui-card-body webui-status">
-					<div class="webui-status-channel" id="current-channel" onclick="showCurrentEpgInfo()" style="cursor:pointer" title="{=L:yw.dash.epg_info=}">{=L:yw.msg.loading=}</div>
+					<div class="webui-status-channel" id="current-channel" onclick="showCurrentEpgInfo()" style="cursor:pointer" title="Programme info" data-l-title="dash.epg_info" data-l="msg.loading">Loading...</div>
 					<div class="webui-status-epg" id="current-epg">--</div>
 					<div class="webui-status-progress">
 						<progress id="epg-progress" value="0" max="100"></progress>
@@ -1001,31 +1001,31 @@
 					<div class="webui-play-time" id="play-time">--:--</div>
 				</div>
 				<footer class="webui-card-footer webui-channel-footer">
-					<div class="webui-next-epg">{=L:yw.dash.next_prog=}: <span id="next-epg">--</span></div>
+					<div class="webui-next-epg"><span data-l="dash.next_prog">Next</span>: <span id="next-epg">--</span></div>
 					<div class="webui-channel-actions">
-						<button type="button" class="webui-action-btn" onclick="showCurrentEpgInfo()" title="{=L:yw.dash.epg_info=}">
+						<button type="button" class="webui-action-btn" onclick="showCurrentEpgInfo()" title="Programme info" data-l-title="dash.epg_info">
 							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 								<circle cx="12" cy="12" r="10"/><path d="M12 16v-4m0-4h.01"/>
 							</svg>
 							<span>Info</span>
 						</button>
-						<button type="button" class="webui-action-btn webui-rec-btn" id="rec-btn" onclick="toggleRecording()" title="{=L:yw.dash.record=}">
+						<button type="button" class="webui-action-btn webui-rec-btn" id="rec-btn" onclick="toggleRecording()" title="Record" data-l-title="dash.record">
 							<svg viewBox="0 0 24 24" fill="currentColor">
 								<circle cx="12" cy="12" r="8"/>
 							</svg>
 							<span>Rec</span>
 						</button>
-						<a href="/epg.yhtm" class="webui-action-btn" title="{=L:yw.dash.epg_plus=}">
+						<a href="/epg.html" class="webui-action-btn" title="EPG Plus programme guide" data-l-title="dash.epg_plus">
 							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 								<path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
 							</svg>
 							<span>EPGPlus</span>
 						</a>
-						<a href="bouquets.yhtm" class="webui-action-btn" title="{=L:yw.dash.to_channels=}">
+						<a href="bouquets.html" class="webui-action-btn" title="Go to channel list" data-l-title="dash.to_channels">
 							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 								<path d="M4 6h16M4 12h16M4 18h16"/>
 							</svg>
-							<span>{=L:yw.dash.channels=}</span>
+							<span data-l="dash.channels">Channels</span>
 						</a>
 					</div>
 				</footer>
@@ -1049,7 +1049,7 @@
 					</div>
 				</header>
 				<div class="webui-card-body">
-					<div class="webui-metrics" onclick="location.href='/sysinfo.yhtm'" style="cursor:pointer" title="{=L:yw.dash.sys_details=}">
+					<div class="webui-metrics" onclick="location.href='/sysinfo.html'" style="cursor:pointer" title="Show system details" data-l-title="dash.sys_details">
 						<div class="webui-gauge">
 							<div class="webui-gauge-ring">
 								<svg viewBox="0 0 36 36">
@@ -1110,15 +1110,15 @@
 						<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"/>
 						</svg>
-						{=L:yw.si.network=}
+						<span data-l="si.network">Network</span>
 					</h3>
 					<span id="network-preview" class="webui-card-preview">--</span>
 					<span class="webui-hostname" id="net-hostname">--</span>
 				</header>
 				<div class="webui-card-body">
-					<div class="webui-net-list" id="net-interfaces" onclick="location.href='/sysinfo.yhtm#network'" style="cursor:pointer" title="{=L:yw.dash.net_details=}">
+					<div class="webui-net-list" id="net-interfaces" onclick="location.href='/sysinfo.html#network'" style="cursor:pointer" title="Show network details" data-l-title="dash.net_details">
 						<div class="webui-net-item">
-							<span class="webui-text-muted">{=L:yw.msg.loading=}</span>
+							<span class="webui-text-muted" data-l="msg.loading">Loading...</span>
 						</div>
 					</div>
 				</div>
@@ -1131,22 +1131,22 @@
 						<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
 						</svg>
-						{=L:yw.dash.next_timers=}
+						<span data-l="dash.next_timers">Upcoming timers</span>
 					</h3>
 					<span id="timer-preview" class="webui-card-preview">--</span>
 				</header>
 				<div class="webui-card-body">
 					<div class="webui-timer-list" id="timer-list">
-						<div class="webui-timer-empty">{=L:yw.msg.loading=}</div>
+						<div class="webui-timer-empty" data-l="msg.loading">Loading...</div>
 					</div>
 				</div>
 				<footer class="webui-card-footer webui-channel-footer">
 					<div class="webui-channel-actions">
-						<a href="/timer.yhtm" class="webui-action-btn" title="{=L:yw.dash.all_timers=}">
+						<a href="/timer.html" class="webui-action-btn" title="Show all timers" data-l-title="dash.all_timers">
 							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 								<circle cx="12" cy="12" r="9"/><path d="M12 6v6l4 2"/>
 							</svg>
-							<span>{=L:yw.dash.timer_list=}</span>
+							<span data-l="dash.timer_list">Timer list</span>
 						</a>
 					</div>
 				</footer>
@@ -1189,7 +1189,7 @@
 				<div class="webui-card-body">
 					<div class="webui-stream-info">
 						<div class="webui-stream-item">
-							<span class="webui-stream-label">{=L:yw.bc.resolution=}</span>
+							<span class="webui-stream-label" data-l="bc.resolution">Resolution</span>
 							<span class="webui-stream-value" id="stream-resolution">--</span>
 						</div>
 						<div class="webui-stream-item">
@@ -1217,11 +1217,11 @@
 
 	<footer class="webui-footer">
 		Neutrino-Web-UI <span id="webui-version">--</span> ·
-		<a href="#" onclick="webuiShowAbout(); return false;">{=L:yw.about.link=}</a> ·
+		<a href="#" onclick="webuiShowAbout(); return false;" data-l="about.link">About</a> ·
 		<span id="webui-footer-copyright">Copyright © Tuxbox Project</span>
 	</footer>
 
-	<script src="/Y_Lang.yjs?v=27"></script>
+	<script src="/js/webui-i18n.js?v=2"></script>
 	<script src="/js/webui-header.js?v=62"></script>
 	<script src="/js/webui-dom.js?v=1"></script>
 	<script src="/js/webui-v1.js?v=14"></script>
@@ -1280,10 +1280,8 @@
 	// changed. What v1 has no event for (system, network, tuner signal, stream
 	// details) is still asked on a timer, and only while the page is visible.
 
-	const NO_CHANNEL = '{=L:yw.dash.no_channel=}';
-	const NO_EPG = '{=L:yw.dash.no_epg=}';
-	const NO_TUNER = '{=L:yw.dash.no_tuner=}';
-	const RECORDING = '{=L:yw.bc.recording=}';
+	// set once the texts are in (Init below)
+	let NO_CHANNEL, NO_EPG, NO_TUNER, RECORDING;
 
 	const dash = {
 		channel: null,		// {id, name, kind} of the current channel, null for none
@@ -1480,8 +1478,8 @@
 		const rec = p.recording || {}, file = p.file || {};
 		setText('play-title', (p.source === 'recording' ? (rec.title || rec.channel) : (file.title || file.name)) || '--');
 		setText('play-source', p.source === 'recording'
-			? '{=L:yw.dash.play_recording=}' + (rec.channel ? ' · ' + rec.channel : '')
-			: '{=L:yw.dash.play_file=}');
+			? webuiL('dash.play_recording', 'Playing a recording') + (rec.channel ? ' · ' + rec.channel : '')
+			: webuiL('dash.play_file', 'Playing a file'));
 		let pos = p.position || 0;
 		if (p.state === 'playing' && !p.paused)
 			pos += Math.floor((Date.now() - dash.playbackAt) / 1000) * (p.speed || 1);
@@ -1512,7 +1510,7 @@
 			if (data.cpu && data.cpu.percent !== undefined) {
 				const pct = data.cpu.percent;
 				setText('cpu-percent', pct + '%');
-				setText('cpu-load', data.cpu.cores + ' {=L:yw.dash.cores=}');
+				setText('cpu-load', data.cpu.cores + ' ' + webuiL('dash.cores', 'cores'));
 				updateGauge('gauge-cpu', pct);
 			} else if (data.load && data.load.length >= 1) {
 				// Fallback to load average if cpu.percent not available
@@ -1535,7 +1533,7 @@
 			if (data.disk) {
 				const pct = data.disk.percent || 0;
 				setText('disk-percent', pct + '%');
-				setText('disk-info', formatKB(data.disk.free) + ' {=L:yw.dash.free=}');
+				setText('disk-info', formatKB(data.disk.free) + ' ' + webuiL('dash.free', 'free'));
 				updateGauge('gauge-disk', pct);
 			}
 
@@ -1592,7 +1590,7 @@
 				// interface names and addresses go in as text
 				const netList = document.getElementById('net-interfaces');
 				if (netList && relevant.length === 0) {
-					netList.replaceChildren(webuiEl('div', {className: 'webui-text-muted'}, '{=L:yw.si.no_ifaces=}'));
+					netList.replaceChildren(webuiEl('div', {className: 'webui-text-muted'}, webuiL('si.no_ifaces', 'No interfaces')));
 				} else if (netList) {
 					webuiSync(netList, relevant, function(iface) { return iface.name; }, function(iface) {
 						const isWlan = /^(wlan|wl)/.test(iface.name);
@@ -1604,7 +1602,7 @@
 							webuiEl('div', {className: 'webui-net-icon'}, webuiMarkup(icon)),
 							webuiEl('div', {className: 'webui-net-info'},
 								webuiEl('div', {className: 'webui-net-name'}, iface.name),
-								webuiEl('div', {className: 'webui-net-ip'}, iface.ip || '{=L:yw.dash.no_ip=}'),
+								webuiEl('div', {className: 'webui-net-ip'}, iface.ip || webuiL('dash.no_ip', 'no IP')),
 								macStr ? webuiEl('div', {className: 'webui-net-mac'}, macStr) : null),
 							webuiEl('div', {className: 'webui-net-status' + (iface.up ? ' up' : '')}));
 					});
@@ -1646,7 +1644,7 @@
 		if (recBtn) {
 			recBtn.classList.toggle('recording', isRecording);
 			recBtn.querySelector('span').textContent = isRecording ? 'Stop' : 'Rec';
-			recBtn.title = isRecording ? '{=L:yw.dash.record_stop=}' : '{=L:yw.dash.record=}';
+			recBtn.title = isRecording ? webuiL('dash.record_stop', 'Stop recording') : webuiL('dash.record', 'Record');
 		}
 		if (!rec) return;
 
@@ -1676,9 +1674,9 @@
 	async function toggleStandby(inStandby) {
 		try {
 			await webuiV1('POST', '/system/standby', {body: {on: !inStandby}});
-			webuiShowToast(inStandby ? '{=L:yw.sb.wake=}' : '{=L:yw.sb.sleep=}');
+			webuiShowToast(inStandby ? webuiL('sb.wake', 'Waking the box') : webuiL('sb.sleep', 'Box goes to standby'));
 		} catch (e) {
-			webuiShowToast('{=L:yw.sb.fail=}: ' + e.message, true);
+			webuiShowToast(webuiL('sb.fail', 'Standby failed') + ': ' + e.message, true);
 		}
 	}
 
@@ -1687,12 +1685,12 @@
 			const st = await webuiV1('GET', '/system/standby');
 			const inStandby = !!(st && st.on);
 			if (!inStandby) {
-				webuiShowConfirm('Standby', '{=L:yw.sb.confirm=}', 'Standby', function() { return toggleStandby(false); }, {variant: 'ok'});
+				webuiShowConfirm('Standby', webuiLH('sb.confirm', 'Put the box into standby?'), 'Standby', function() { return toggleStandby(false); }, {variant: 'ok'});
 				return;
 			}
 			await toggleStandby(true);
 		} catch (e) {
-			webuiShowToast('{=L:yw.sb.fail=}: ' + e.message, true);
+			webuiShowToast(webuiL('sb.fail', 'Standby failed') + ': ' + e.message, true);
 		}
 	}
 
@@ -1726,10 +1724,10 @@
 		withEl('mode-current-icon-radio', function(el) { el.style.display = isRadio ? '' : 'none'; });
 
 		// Update switch button text
-		setText('mode-switch-text', isRadio ? '{=L:yw.dash.to_tv=}' : '{=L:yw.dash.to_radio=}');
+		setText('mode-switch-text', isRadio ? webuiL('dash.to_tv', 'Switch to TV') : webuiL('dash.to_radio', 'Switch to radio'));
 
 		// Actions preview - show current mode
-		setText('actions-preview', isRadio ? '{=L:yw.dash.radio_mode=}' : '{=L:yw.dash.tv_mode=}');
+		setText('actions-preview', isRadio ? webuiL('dash.radio_mode', 'Radio mode') : webuiL('dash.tv_mode', 'TV mode'));
 
 		// In radio mode: clear video-specific fields
 		if (isRadio) {
@@ -1757,7 +1755,7 @@
 		const r = await dashGet('/timers');
 		if (!r) {
 			withEl('timer-list', function(el) {
-				el.replaceChildren(webuiEl('div', {className: 'webui-timer-empty'}, '{=L:yw.timer.unavail=}'));
+				el.replaceChildren(webuiEl('div', {className: 'webui-timer-empty'}, webuiL('timer.unavail', 'Timers not available')));
 			});
 			setText('timer-preview', '--');
 			return;
@@ -1781,12 +1779,12 @@
 			.slice(0, Math.max(3 - running.length, 1));
 
 		if (running.length === 0 && future.length === 0) {
-			container.replaceChildren(webuiEl('div', {className: 'webui-timer-empty'}, '{=L:yw.dash.no_timers=}'));
-			setText('timer-preview', '{=L:yw.dash.no_timers_short=}');
+			container.replaceChildren(webuiEl('div', {className: 'webui-timer-empty'}, webuiL('dash.no_timers', 'No timers programmed')));
+			setText('timer-preview', webuiL('dash.no_timers_short', 'No timers'));
 			return;
 		}
 		if (running.length > 0) {
-			setText('timer-preview', '● {=L:yw.bc.rec_running=}');
+			setText('timer-preview', '● ' + webuiL('bc.rec_running', 'recording running'));
 		} else {
 			const at = dayAndClock(future[0].start);
 			setText('timer-preview', at.date + ' ' + at.time);
@@ -2171,8 +2169,12 @@
 		webuiBalanceGrid('.webui-dashboard', {wideClass: 'dash-wide'});
 	}
 
-	// Init
-	document.addEventListener('DOMContentLoaded', function() {
+	// Init, once the texts are in
+	webuiAfterTexts(function() {
+		NO_CHANNEL = webuiL('dash.no_channel', 'No channel');
+		NO_EPG = webuiL('dash.no_epg', 'No EPG data');
+		NO_TUNER = webuiL('dash.no_tuner', 'No tuner');
+		RECORDING = webuiL('bc.recording', 'Recording');
 		webuiInitMobileAccordion({
 			cardOrder: ['card-actions', 'card-channel', 'card-system', 'card-network', 'card-timer', 'card-tuner', 'card-stream'],
 			storageKey: 'webui-active-card',

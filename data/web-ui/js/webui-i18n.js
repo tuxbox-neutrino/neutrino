@@ -3,10 +3,13 @@
 // languages/<code>.json of the language the box shows its pages in, laid
 // over languages/en.json, so a text a translation lacks shows in English.
 // A page writes its English texts into the markup and marks them:
-//   data-l="key"          the element's text
+//   data-l="key"          the element's text, after data-l-prefix where one
+//                         is given (the page's <title>)
 //   data-l-title="key"    an attribute: title, placeholder, aria-label
-// and asks webuiL(key, english) in its scripts. The texts are set as text,
-// never as markup.
+// and asks webuiL(key, english) in its scripts, webuiLH for markup it
+// builds. The texts are set as text, never as markup. They start loading as
+// soon as this script does (window.webuiTexts); whatever needs them runs
+// through webuiAfterTexts.
 
 // The keys this page has, once webuiI18nLoad has read them.
 window.WEBUI_L = window.WEBUI_L || {};
@@ -16,6 +19,13 @@ window.WEBUI_L = window.WEBUI_L || {};
 window.webuiL = window.webuiL || function(key, english) {
 	var v = window.WEBUI_L[key];
 	return (typeof v === 'string' && v !== '') ? v : (english || key);
+};
+
+// The same, for a text a script puts into markup it builds: escaped for it.
+window.webuiLH = window.webuiLH || function(key, english) {
+	return String(webuiL(key, english)).replace(/[&<>"']/g, function(c) {
+		return {'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}[c];
+	});
 };
 
 async function _webuiI18nRead(code) {
@@ -45,12 +55,24 @@ var WEBUI_I18N_ATTRS = ['title', 'placeholder', 'aria-label'];
 function webuiI18nApply(root) {
 	root = root || document;
 	root.querySelectorAll('[data-l]').forEach(function(el) {
-		el.textContent = webuiL(el.getAttribute('data-l'), el.textContent);
+		var prefix = el.getAttribute('data-l-prefix') || '';
+		var shown = el.textContent;
+		if (prefix && shown.indexOf(prefix) === 0)
+			shown = shown.slice(prefix.length);
+		el.textContent = prefix + webuiL(el.getAttribute('data-l'), shown);
 	});
 	WEBUI_I18N_ATTRS.forEach(function(a) {
 		root.querySelectorAll('[data-l-' + a + ']').forEach(function(el) {
 			el.setAttribute(a, webuiL(el.getAttribute('data-l-' + a), el.getAttribute(a) || ''));
 		});
+	});
+}
+
+function _webuiDomReady() {
+	if (document.readyState !== 'loading')
+		return Promise.resolve();
+	return new Promise(function(done) {
+		document.addEventListener('DOMContentLoaded', function() { done(); }, {once: true});
 	});
 }
 
@@ -71,8 +93,19 @@ async function webuiI18nStart() {
 		code = String((navigator.languages && navigator.languages[0]) || navigator.language || 'en')
 			.slice(0, 2).toLowerCase();
 	var now = await webuiI18nLoad(code);
+	await _webuiDomReady();
 	webuiI18nApply();
 	clearTimeout(shown);
 	html.classList.remove('webui-i18n-pending');
 	return now;
+}
+
+// The page's texts, on their way from the moment this script loads. Another
+// script may chain on it (webui-header.js fills its labels that way), so it
+// is read when asked for, not kept.
+window.webuiTexts = webuiI18nStart();
+
+// Runs fn once the document is parsed and the texts are in.
+function webuiAfterTexts(fn) {
+	return Promise.all([_webuiDomReady(), window.webuiTexts]).then(function() { return fn(); });
 }

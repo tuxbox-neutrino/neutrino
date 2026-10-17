@@ -19,19 +19,19 @@
 	</style>
 </head>
 <body>
-	<noscript><a href="/dashboard.yhtm">Neutrino-Web-UI</a></noscript>
+	<noscript><a href="/dashboard.html">Neutrino-Web-UI</a></noscript>
 	<script>
 		// First run (yWeb.conf startup != true) -> setup wizard,
 		// otherwise jump to the configured start page. Any error
 		// falls back to the dashboard so the UI is always reachable.
 		(function () {
-			var fallback = '/dashboard.yhtm';
+			var fallback = '/dashboard.html';
 			// what the classic settings page and the shipped yWeb.conf
 			// write ("none" there), mapped onto the modern pages
 			var classic = {
-				none: 'dashboard.yhtm', bouquets: 'bouquets.yhtm',
-				control: 'dashboard.yhtm', remote: 'screenshot.yhtm',
-				screenshot: 'screenshot.yhtm'
+				none: 'dashboard.html', bouquets: 'bouquets.html',
+				control: 'dashboard.html', remote: 'screenshot.html',
+				screenshot: 'screenshot.html'
 			};
 			// the web interface's own settings, readable from the home network
 			fetch('/api/v1/webui/settings', {credentials: 'same-origin', cache: 'no-store'})
@@ -53,16 +53,19 @@
 					var cfg = {};
 					((data && data.items) || []).forEach(function (it) { cfg[it.key] = it.value; });
 					if (cfg.startup !== 'true') {
-						location.replace('/wizard.yhtm');
+						location.replace('/wizard.html');
 						return;
 					}
 					var page = cfg.start_page || '';
 					if (Object.prototype.hasOwnProperty.call(classic, page))
 						page = classic[page];
+					// the pages were templates before (.yhtm); a start page
+					// kept from then is the page under its present name
+					page = page.replace(/\.yhtm$/, '.html');
 					// a page of this UI only, never an address elsewhere and
 					// never this page itself (it would load itself forever)
-					if (!/^\/?[A-Za-z0-9_-]+\.yhtm$/.test(page))
-						page = 'dashboard.yhtm';
+					if (!/^\/?[A-Za-z0-9_-]+\.html$/.test(page) || /^\/?index\.html$/.test(page))
+						page = 'dashboard.html';
 					if (page.charAt(0) !== '/') page = '/' + page;
 					location.replace(page);
 				})

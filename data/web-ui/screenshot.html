@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="de" data-theme="dark">
+<html lang="en" data-theme="dark" class="webui-i18n-pending">
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,7 +11,7 @@
 		try { document.documentElement.setAttribute('data-theme', localStorage.getItem('webui-theme') || localStorage.getItem('yweb-theme') || 'dark'); } catch (e) {}
 	</script>
 	<link rel="stylesheet" href="/css/pico.min.css">
-	<link rel="stylesheet" href="/css/webui.css?v=89">
+	<link rel="stylesheet" href="/css/webui.css?v=90">
 	<style>
 		/* 2-column grid: Remote (auto) + Screenshot (flex) */
 		.webui-screenshot-grid {
@@ -281,7 +281,7 @@
 						<rect x="7" y="2" width="10" height="20" rx="2"/>
 						<circle cx="12" cy="18" r="1"/>
 					</svg>
-					{=L:yw.tools.remote_sub=}
+					<span data-l="tools.remote_sub">Remote control</span>
 				</h3>
 			</header>
 			<div class="webui-card-body" id="remoteContainer"></div>
@@ -313,7 +313,7 @@
 								<polyline points="3,6 5,6 21,6"/>
 								<path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
 							</svg>
-							<span class="btn-label">{=L:yw.shot.clear=}</span>
+							<span class="btn-label" data-l="shot.clear">Clear</span>
 						</button>
 						<button class="webui-btn" onclick="doGlcdSnapshot(this)" id="btnGlcd" style="display:none">
 							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -360,15 +360,15 @@
 						<circle cx="8.5" cy="8.5" r="1.5"/>
 						<polyline points="21,15 16,10 5,21"/>
 					</svg>
-					<span>{=L:yw.shot.hint=}</span>
+					<span data-l="shot.hint">Click Screenshot to capture an image</span>
 				</div>
-				<p id="loading" aria-busy="true" style="display:none;padding:2rem;text-align:center;color:var(--pico-muted-color)">{=L:yw.shot.busy=}</p>
+				<p id="loading" aria-busy="true" style="display:none;padding:2rem;text-align:center;color:var(--pico-muted-color)" data-l="shot.busy">Taking screenshot...</p>
 				<img id="screenshot" src="" alt="Screenshot" style="display:none">
 			</div>
 		</article>
 	</main>
 
-	<script src="/Y_Lang.yjs?v=27"></script>
+	<script src="/js/webui-i18n.js?v=2"></script>
 	<script src="/js/webui-header.js?v=62"></script>
 	<script src="/js/webui-dom.js?v=1"></script>
 	<script src="/js/webui-v1.js?v=14"></script>
@@ -380,19 +380,21 @@
 
 		// Inject shared remote template; registering via the host keeps
 		// this instance replaceable by a late-loaded skin renderer
-		webuiRenderRemote('remoteContainer', {
-			onKey: 'rcsim',
-			id: 'screenshotRemote'
-		});
+		webuiAfterTexts(function() {
+			webuiRenderRemote('remoteContainer', {
+				onKey: 'rcsim',
+				id: 'screenshotRemote'
+			});
 
-		// Mobile accordion (shared)
-		webuiInitMobileAccordion({
-			cardOrder: ['card-remote', 'card-screenshot'],
-			storageKey: 'webui-screenshot-card',
-			defaultCard: 'card-screenshot',
-			breakpoint: 768,
-			containerSelector: '.webui-screenshot-grid',
-			mode: 'expanded'
+			// Mobile accordion (shared)
+			webuiInitMobileAccordion({
+				cardOrder: ['card-remote', 'card-screenshot'],
+				storageKey: 'webui-screenshot-card',
+				defaultCard: 'card-screenshot',
+				breakpoint: 768,
+				containerSelector: '.webui-screenshot-grid',
+				mode: 'expanded'
+			});
 		});
 
 		// Remote Control Simulation (key press + optional auto-screenshot)
@@ -414,7 +416,7 @@
 			const video = document.getElementById('checkVideo').checked;
 
 			if (!osd && !video) {
-				webuiShowToast('{=L:yw.shot.select=}', true);
+				webuiShowToast(webuiL('shot.select', 'Please select OSD or video!'), true);
 				return false;
 			}
 			return true;
@@ -468,7 +470,7 @@
 			} catch (e) {
 				// another capture still running keeps the picture there is
 				if (e.status !== 409)
-					webuiShowToast('{=L:yw.msg.error=}: ' + e.message, true);
+					webuiShowToast(webuiL('msg.error', 'Error') + ': ' + e.message, true);
 				if (!had) placeholder.style.display = 'flex';
 			}
 			loading.style.display = 'none';
@@ -484,14 +486,14 @@
 				displayProbe = e.status === 403 ? 'signin' : 'none';
 			}
 		}
-		probeDisplay();
+		webuiAfterTexts(probeDisplay);
 
 		async function doGlcdSnapshot(btn) {
 			btn.disabled = true;
 			try {
 				await capture('/osd/display/screenshot');
 			} catch (e) {
-				webuiShowToast('{=L:yw.shot.glcdfail=}: ' + e.message, true);
+				webuiShowToast(webuiL('shot.glcdfail', 'GLCD screenshot failed') + ': ' + e.message, true);
 			}
 			btn.disabled = false;
 		}
@@ -519,8 +521,8 @@
 			}
 		});
 
-		// Initialize
-		doSnapshot();
+		// Initialize, once the texts are in
+		webuiAfterTexts(doSnapshot);
 	</script>
 </body>
 </html>

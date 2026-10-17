@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="de" data-theme="dark">
+<html lang="en" data-theme="dark" class="webui-i18n-pending">
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,7 +11,7 @@
 		try { document.documentElement.setAttribute('data-theme', localStorage.getItem('webui-theme') || localStorage.getItem('yweb-theme') || 'dark'); } catch (e) {}
 	</script>
 	<link rel="stylesheet" href="/css/pico.min.css">
-	<link rel="stylesheet" href="/css/webui.css?v=89">
+	<link rel="stylesheet" href="/css/webui.css?v=90">
 	<style>
 		/* 2-column grid layout for timer. Filterspalte bemisst sich am
 		   laengsten Eintrag (Labels sind lokalisiert und verschieden
@@ -521,7 +521,7 @@
 					</svg>
 					Filter
 				</h3>
-				<span class="webui-card-preview" id="filterPreview">{=L:yw.tm.all=}</span>
+				<span class="webui-card-preview" id="filterPreview" data-l="tm.all">All</span>
 			</header>
 			<div class="webui-card-body">
 				<ul class="webui-plain-list webui-filter-list" id="filterList">
@@ -532,17 +532,17 @@
 							<line x1="2" y1="12" x2="22" y2="12"/>
 							<path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
 						</svg>
-						<span class="webui-nav-name webui-filter-name">{=L:yw.tm.all=}</span>
+						<span class="webui-nav-name webui-filter-name" data-l="tm.all">All</span>
 						<span class="webui-nav-count webui-filter-count" id="count-all">0</span>
 					</li>
 					<li class="webui-nav-item webui-filter-item" data-filter="type-5" onclick="setFilter('type-5')">
 						<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="8"/></svg>
-						<span class="webui-nav-name webui-filter-name">{=L:yw.bc.recording=}</span>
+						<span class="webui-nav-name webui-filter-name" data-l="bc.recording">Recording</span>
 						<span class="webui-nav-count webui-filter-count" id="count-type-5">0</span>
 					</li>
 					<li class="webui-nav-item webui-filter-item" data-filter="type-3" onclick="setFilter('type-3')">
 						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5,3 19,12 5,21"/></svg>
-						<span class="webui-nav-name webui-filter-name">{=L:yw.tm.zap=}</span>
+						<span class="webui-nav-name webui-filter-name" data-l="tm.zap">Zap</span>
 						<span class="webui-nav-count webui-filter-count" id="count-type-3">0</span>
 					</li>
 					<li class="webui-nav-item webui-filter-item" data-filter="type-4" onclick="setFilter('type-4')">
@@ -552,30 +552,30 @@
 					</li>
 					<li class="webui-nav-item webui-filter-item" data-filter="type-6" onclick="setFilter('type-6')">
 						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6 6 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
-						<span class="webui-nav-name webui-filter-name">{=L:yw.tm.remind=}</span>
+						<span class="webui-nav-name webui-filter-name" data-l="tm.remind">Reminder</span>
 						<span class="webui-nav-count webui-filter-count" id="count-type-6">0</span>
 					</li>
 					<li class="webui-filter-group-label">Status</li>
 					<li class="webui-nav-item webui-filter-item" data-filter="state-scheduled" onclick="setFilter('state-scheduled')">
 						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 6v6l4 2"/></svg>
-						<span class="webui-nav-name webui-filter-name">{=L:yw.tm.planned=}</span>
+						<span class="webui-nav-name webui-filter-name" data-l="tm.planned">Planned</span>
 						<span class="webui-nav-count webui-filter-count" id="count-state-scheduled">0</span>
 					</li>
 					<li class="webui-nav-item webui-filter-item" data-filter="state-running" onclick="setFilter('state-running')">
 						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5,3 19,12 5,21"/></svg>
-						<span class="webui-nav-name webui-filter-name">{=L:yw.tm.active=}</span>
+						<span class="webui-nav-name webui-filter-name" data-l="tm.active">Active</span>
 						<span class="webui-nav-count webui-filter-count" id="count-state-running">0</span>
 					</li>
 					<li class="webui-nav-item webui-filter-item" data-filter="state-finished" onclick="setFilter('state-finished')">
 						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22,4 12,14.01 9,11.01"/></svg>
-						<span class="webui-nav-name webui-filter-name">{=L:yw.tm.expired=}</span>
+						<span class="webui-nav-name webui-filter-name" data-l="tm.expired">Expired</span>
 						<span class="webui-nav-count webui-filter-count" id="count-state-finished">0</span>
 					</li>
 				</ul>
 				<div style="padding:0.5rem 0.8rem 0;">
 					<button class="webui-btn" onclick="openTimerModal()" style="display:flex;align-items:center;justify-content:center;gap:0.3rem;width:100%;padding:0.5rem;font-size:0.75rem;cursor:pointer;">
 						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:1rem;height:1rem"><path d="M12 5v14m-7-7h14"/></svg>
-						{=L:yw.timer.new=}
+						<span data-l="timer.new">New timer</span>
 					</button>
 				</div>
 			</div>
@@ -596,7 +596,7 @@
 			</header>
 			<div class="webui-card-body">
 				<ul class="webui-plain-list webui-timer-grid-list" id="timerList">
-					<li aria-busy="true">{=L:yw.tm.loading=}</li>
+					<li aria-busy="true" data-l="tm.loading">Loading timers...</li>
 				</ul>
 			</div>
 		</article>
@@ -605,7 +605,7 @@
 		<div class="webui-card-indicator" id="cardIndicator"></div>
 	</main>
 
-	<script src="/Y_Lang.yjs?v=27"></script>
+	<script src="/js/webui-i18n.js?v=2"></script>
 	<script src="/js/webui-header.js?v=62"></script>
 	<script src="/js/webui-dom.js?v=1"></script>
 	<script src="/js/webui-v1.js?v=14"></script>
@@ -684,7 +684,7 @@
 			} catch (e) {
 				if (read !== timersRead) return;	// a newer read has the list
 				console.error('Failed to load timers:', e);
-				list.replaceChildren(webuiEl('li', {className: 'webui-empty'}, '{=L:yw.timer.unavail=}'));
+				list.replaceChildren(webuiEl('li', {className: 'webui-empty'}, webuiL('timer.unavail', 'Timers not available')));
 			}
 		}
 
@@ -752,8 +752,8 @@
 			countEl.textContent = timers.length + ' Timer';
 
 			if (timers.length === 0) {
-				list.replaceChildren(webuiEl('li', {className: 'webui-empty'}, '{=L:yw.tm.none_found=}'));
-				previewEl.textContent = '{=L:yw.dash.no_timers_short=}';
+				list.replaceChildren(webuiEl('li', {className: 'webui-empty'}, webuiL('tm.none_found', 'No timers found')));
+				previewEl.textContent = webuiL('dash.no_timers_short', 'No timers');
 				return;
 			}
 
@@ -786,22 +786,22 @@
 
 			const actions = [];
 			if (state < 2)
-				actions.push(actionButton('webui-btn webui-btn-edit', SVG_EDIT, '{=L:yw.tm.edit=}', '{=L:yw.tm.edit_title=}', () => editTimer(timer.id)));
+				actions.push(actionButton('webui-btn webui-btn-edit', SVG_EDIT, webuiL('tm.edit', 'Edit'), webuiL('tm.edit_title', 'Edit timer'), () => editTimer(timer.id)));
 			if (state === 2 && isRecording)
-				actions.push(actionButton('webui-btn webui-btn-stop', SVG_STOP, '{=L:yw.tm.stop=}', '{=L:yw.dash.record_stop=}', () => stopRecording(timer.id, title)));
+				actions.push(actionButton('webui-btn webui-btn-stop', SVG_STOP, webuiL('tm.stop', 'Stop'), webuiL('dash.record_stop', 'Stop recording'), () => stopRecording(timer.id, title)));
 			else
-				actions.push(actionButton('webui-btn', SVG_DELETE, '{=L:yw.fm.delete=}', '{=L:yw.tm.delete_title=}', () => deleteTimer(timer.id, title)));
+				actions.push(actionButton('webui-btn', SVG_DELETE, webuiL('fm.delete', 'Delete'), webuiL('tm.delete_title', 'Delete timer'), () => deleteTimer(timer.id, title)));
 
 			const details = [].concat(
-				detail('{=L:yw.tm.type=}', typeLabel),
+				detail(webuiL('tm.type', 'Type'), typeLabel),
 				detail('Status', stateLabel),
 				detail('Start', dateOf(timer.start) + ' ' + clock(timer.start)),
-				timer.stop ? detail('{=L:yw.tm.end=}', dateOf(timer.stop) + ' ' + clock(timer.stop)) : [],
-				timer.announce ? detail('{=L:yw.tm.announce=}', dateOf(timer.announce) + ' ' + clock(timer.announce)) : [],
-				detail('{=L:yw.tm.repeat=}', rep + (timer.repeat && timer.repeat_count ? ' (' + timer.repeat_count + ')' : '')),
-				channel ? detail('{=L:yw.dash.channels=}', channel) : [],
-				channelOf(timer) ? detail('{=L:yw.tm.channel_id=}', timer.channel_id) : [],
-				timer.recording_dir ? detail('{=L:yw.tm.rec_dir=}', timer.recording_dir) : [],
+				timer.stop ? detail(webuiL('tm.end', 'End'), dateOf(timer.stop) + ' ' + clock(timer.stop)) : [],
+				timer.announce ? detail(webuiL('tm.announce', 'Announcement'), dateOf(timer.announce) + ' ' + clock(timer.announce)) : [],
+				detail(webuiL('tm.repeat', 'Repeat'), rep + (timer.repeat && timer.repeat_count ? ' (' + timer.repeat_count + ')' : '')),
+				channel ? detail(webuiL('dash.channels', 'Channels'), channel) : [],
+				channelOf(timer) ? detail(webuiL('tm.channel_id', 'Channel ID'), timer.channel_id) : [],
+				timer.recording_dir ? detail(webuiL('tm.rec_dir', 'Recording folder'), timer.recording_dir) : [],
 				timer.epg_id && timer.epg_id !== '0' ? detail('EPG-ID', timer.epg_id) : [],
 				detail('Timer-ID', String(timer.id)));
 
@@ -841,19 +841,19 @@
 		function ask(heading, text, label, danger) {
 			return new Promise(resolve => {
 				webuiSheet({title: heading, body: webuiEl('p', {}, text),
-					actions: [{label: '{=L:yw.tm.cancel=}', value: false},
+					actions: [{label: webuiL('tm.cancel', 'Cancel'), value: false},
 						{label: label, value: true, primary: true, danger: !!danger}],
 					onClose: result => resolve(result === true)});
 			});
 		}
 
 		async function stopRecording(id, title) {
-			if (await ask('{=L:yw.dash.record_stop=}', '{=L:yw.bc.recording=} "' + title + '" {=L:yw.tm.stop_confirm=}', '{=L:yw.tm.stop=}', true))
+			if (await ask(webuiL('dash.record_stop', 'Stop recording'), webuiL('bc.recording', 'Recording') + ' "' + title + '" ' + webuiL('tm.stop_confirm', 'really stop?'), webuiL('tm.stop', 'Stop'), true))
 				await webuiStopRecording(id);	// the record event reads the list again
 		}
 
 		async function deleteTimer(id, title) {
-			if (!await ask('{=L:yw.tm.delete_title=}', 'Timer "' + title + '" {=L:yw.fm.delete_confirm=}', '{=L:yw.fm.delete=}', true))
+			if (!await ask(webuiL('tm.delete_title', 'Delete timer'), 'Timer "' + title + '" ' + webuiL('fm.delete_confirm', 'really delete?'), webuiL('fm.delete', 'Delete'), true))
 				return;
 			try {
 				await webuiV1('DELETE', '/timers/' + encodeURIComponent(id));
@@ -865,18 +865,20 @@
 
 		// Initialize: the list follows the timer and record events; without
 		// an open stream it is read every minute
-		loadTimers();
-		webuiV1Events({
-			'timer-changed': loadTimers,
-			'record-start': loadTimers,
-			'record-stop': loadTimers
+		webuiAfterTexts(function() {
+			loadTimers();
+			webuiV1Events({
+				'timer-changed': loadTimers,
+				'record-start': loadTimers,
+				'record-stop': loadTimers
+			});
+			setInterval(() => { if (!webuiV1EventsLive()) loadTimers(); }, 60000);
 		});
-		setInterval(() => { if (!webuiV1EventsLive()) loadTimers(); }, 60000);
 		webuiV1('GET', '/channels/current').then(ch => {
 			currentMode = ch && (ch.kind === 'radio' || ch.kind === 'webradio') ? 'radio' : 'tv';
 		}).catch(() => {});
 
-		document.addEventListener('DOMContentLoaded', function() {
+		webuiAfterTexts(function() {
 			webuiInitMobileAccordion({
 				cardOrder: ['card-filter', 'card-timers'],
 				storageKey: 'webui-timer-card',
@@ -924,7 +926,7 @@
 
 			return `
 			<div class="webui-modal-header">
-				<h3 id="timerModalTitle">{=L:yw.tm.new=}</h3>
+				<h3 id="timerModalTitle">${webuiLH('tm.new', 'New timer')}</h3>
 				<button class="webui-modal-close" onclick="closeTimerModal()">
 					<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
 				</button>
@@ -932,12 +934,12 @@
 			<div class="webui-modal-body">
 				<div class="webui-form-section">
 					<div class="webui-form-row">
-						<label for="tmType">{=L:yw.tm.type=}</label>
+						<label for="tmType">${webuiLH('tm.type', 'Type')}</label>
 						<select id="tmType" onchange="onTimerTypeChange()" data-fixed>
-							<option value="5">{=L:yw.bc.recording=}</option>
-							<option value="3">{=L:yw.tm.zap=}</option>
+							<option value="5">${webuiLH('bc.recording', 'Recording')}</option>
+							<option value="3">${webuiLH('tm.zap', 'Zap')}</option>
 							<option value="4">Standby</option>
-							<option value="6">{=L:yw.tm.remind=}</option>
+							<option value="6">${webuiLH('tm.remind', 'Reminder')}</option>
 							<option value="7">Sleeptimer</option>
 							<option value="8">Plugin</option>
 							<option value="1">Shutdown</option>
@@ -955,7 +957,7 @@
 						</div>
 					</div>
 					<div class="webui-form-row" id="tmStopRow">
-						<label for="tmStDate">{=L:yw.tm.end=}</label>
+						<label for="tmStDate">${webuiLH('tm.end', 'End')}</label>
 						<div class="webui-time-group">
 							<input type="date" id="tmStDate" value="${stopDate}">
 							<input type="time" id="tmStTime" value="${stopTime}">
@@ -964,21 +966,21 @@
 				</div>
 
 				<div class="webui-form-section">
-					<div class="webui-form-section-title">{=L:yw.tm.repeat=}</div>
+					<div class="webui-form-section-title">${webuiLH('tm.repeat', 'Repeat')}</div>
 					<div class="webui-form-row">
-						<label for="tmRepeat">{=L:yw.bqe.mode=}</label>
+						<label for="tmRepeat">${webuiLH('bqe.mode', 'Mode')}</label>
 						<select id="tmRepeat" onchange="onRepeatChange()">
-							<option value="0">{=L:yw.tm.once=}</option>
-							<option value="1">{=L:yw.tm.daily=}</option>
-							<option value="2">{=L:yw.tm.weekly=}</option>
-							<option value="3">{=L:yw.tm.biweekly=}</option>
-							<option value="4">{=L:yw.tm.fourweekly=}</option>
-							<option value="5">{=L:yw.tm.monthly=}</option>
-							<option value="256">{=L:yw.tm.weekdays=}</option>
+							<option value="0">${webuiLH('tm.once', 'Once')}</option>
+							<option value="1">${webuiLH('tm.daily', 'Daily')}</option>
+							<option value="2">${webuiLH('tm.weekly', 'Weekly')}</option>
+							<option value="3">${webuiLH('tm.biweekly', 'Every two weeks')}</option>
+							<option value="4">${webuiLH('tm.fourweekly', 'Every four weeks')}</option>
+							<option value="5">${webuiLH('tm.monthly', 'Monthly')}</option>
+							<option value="256">${webuiLH('tm.weekdays', 'Weekdays')}</option>
 						</select>
 					</div>
 					<div class="webui-form-row webui-form-hidden" id="tmWeekdaysRow">
-						<label>{=L:yw.tm.days=}</label>
+						<label>${webuiLH('tm.days', 'Days')}</label>
 						<div class="webui-form-weekdays">
 							<label><input type="checkbox" name="tmWd" value="512"><span>Mo</span></label>
 							<label><input type="checkbox" name="tmWd" value="1024"><span>Di</span></label>
@@ -990,23 +992,23 @@
 						</div>
 					</div>
 					<div class="webui-form-row webui-form-hidden" id="tmRepcountRow">
-						<label for="tmRepcount">{=L:yw.tm.count=}</label>
-						<input type="number" id="tmRepcount" min="0" max="999" value="0" placeholder="{=L:yw.tm.unlimited=}">
+						<label for="tmRepcount">${webuiLH('tm.count', 'Count')}</label>
+						<input type="number" id="tmRepcount" min="0" max="999" value="0" placeholder="${webuiLH('tm.unlimited', '0 = unlimited')}">
 					</div>
 				</div>
 
 				<div class="webui-form-section" id="tmChannelSection">
-					<div class="webui-form-section-title">{=L:yw.msg.channel=}</div>
+					<div class="webui-form-section-title">${webuiLH('msg.channel', 'Channel')}</div>
 					<div class="webui-form-row">
 						<label for="tmBouquet">Bouquet</label>
 						<select id="tmBouquet" onchange="onBouquetChange()" data-fixed>
-							<option value="">{=L:yw.msg.loading=}</option>
+							<option value="">${webuiLH('msg.loading', 'Loading...')}</option>
 						</select>
 					</div>
 					<div class="webui-form-row">
-						<label for="tmChannel">{=L:yw.dash.channels=}</label>
+						<label for="tmChannel">${webuiLH('dash.channels', 'Channels')}</label>
 						<select id="tmChannel" data-fixed>
-							<option value="">{=L:yw.timer.choose_bq=}</option>
+							<option value="">${webuiLH('timer.choose_bq', 'Choose bouquet...')}</option>
 						</select>
 					</div>
 				</div>
@@ -1014,25 +1016,25 @@
 				<div class="webui-form-section" id="tmRecordSection">
 					<div class="webui-form-section-title">Aufnahme-Optionen</div>
 					<div class="webui-form-row">
-						<label for="tmRecDir">{=L:yw.fm.folder=}</label>
+						<label for="tmRecDir">${webuiLH('fm.folder', 'Folder')}</label>
 						<select id="tmRecDir" data-fixed onchange="onRecDirChange(this)">
 							<option value="">Standard</option>
 						</select>
 					</div>
 					<div class="webui-form-check">
 						<input type="checkbox" id="tmRecSafety" checked data-fixed>
-						<label for="tmRecSafety">{=L:yw.tm.safety=}</label>
+						<label for="tmRecSafety">${webuiLH('tm.safety', 'Recording margin (before/after)')}</label>
 					</div>
 					<div class="webui-form-check">
 						<input type="checkbox" id="tmAutoAdjust" data-fixed>
-						<label for="tmAutoAdjust">{=L:yw.tm.auto_adjust=}</label>
+						<label for="tmAutoAdjust">${webuiLH('tm.auto_adjust', 'Adjust to EPG automatically')}</label>
 					</div>
 				</div>
 
 				<div class="webui-form-section webui-form-hidden" id="tmStandbySection">
 					<div class="webui-form-section-title">Standby</div>
 					<div class="webui-form-row">
-						<label>{=L:yw.bqe.mode=}</label>
+						<label>${webuiLH('bqe.mode', 'Mode')}</label>
 						<select id="tmStandbyOn" data-fixed>
 							<option value="1">Einschalten</option>
 							<option value="0">Ausschalten</option>
@@ -1043,7 +1045,7 @@
 				<div class="webui-form-section webui-form-hidden" id="tmMessageSection">
 					<div class="webui-form-section-title">Erinnerung</div>
 					<div class="webui-form-row">
-						<label for="tmMessage">{=L:yw.tools.message=}</label>
+						<label for="tmMessage">${webuiLH('tools.message', 'Message')}</label>
 						<input type="text" id="tmMessage" maxlength="30" placeholder="Nachricht eingeben..." data-fixed>
 					</div>
 				</div>
@@ -1057,8 +1059,8 @@
 				</div>
 			</div>
 			<div class="webui-modal-footer">
-				<button onclick="closeTimerModal()">{=L:yw.tm.cancel=}</button>
-				<button class="btn-primary" id="tmSubmitBtn" onclick="submitTimer()">{=L:yw.bqe.save=}</button>
+				<button onclick="closeTimerModal()">${webuiLH('tm.cancel', 'Cancel')}</button>
+				<button class="btn-primary" id="tmSubmitBtn" onclick="submitTimer()">${webuiLH('bqe.save', 'Save')}</button>
 			</div>`;
 		}
 
@@ -1084,7 +1086,7 @@
 			if (editTimer) {
 				timerModalEditId = editTimer.id;
 				document.getElementById('timerModalTitle').textContent = 'Timer bearbeiten';
-				document.getElementById('tmSubmitBtn').textContent = '{=L:yw.tm.change=}';
+				document.getElementById('tmSubmitBtn').textContent = webuiL('tm.change', 'Change');
 				populateEditData(editTimer);
 			}
 			backdrop.addEventListener('keydown', function(e) {
@@ -1131,11 +1133,11 @@
 				const r = await webuiV1('GET', '/bouquets');
 				const bouquets = ((r && r.items) || []).filter(b =>
 					!b.hidden && (currentMode === 'radio' ? b.radio_count : b.tv_count) > 0);
-				options(sel, [webuiEl('option', {value: ''}, '{=L:yw.timer.choose_bq=}')]
+				options(sel, [webuiEl('option', {value: ''}, webuiL('timer.choose_bq', 'Choose bouquet...'))]
 					.concat(bouquets.map(b => webuiEl('option', {value: String(b.id)}, b.name))));
 				return bouquets;
 			} catch (e) {
-				options(sel, [webuiEl('option', {value: ''}, '{=L:yw.msg.load_fail=}')]);
+				options(sel, [webuiEl('option', {value: ''}, webuiL('msg.load_fail', 'Loading failed'))]);
 				return [];
 			}
 		}
@@ -1145,16 +1147,16 @@
 			const sel = document.getElementById('tmChannel');
 			if (!sel) return;
 			if (!bouquet) {
-				options(sel, [webuiEl('option', {value: ''}, '{=L:yw.timer.choose_bq=}')]);
+				options(sel, [webuiEl('option', {value: ''}, webuiL('timer.choose_bq', 'Choose bouquet...'))]);
 				return;
 			}
-			options(sel, [webuiEl('option', {value: ''}, '{=L:yw.msg.loading=}')]);
+			options(sel, [webuiEl('option', {value: ''}, webuiL('msg.loading', 'Loading...'))]);
 			try {
 				const channels = await webuiV1All('/channels', {mode: currentMode, bouquet: bouquet});
 				options(sel, channels.length ? channels.map(ch => webuiEl('option', {value: ch.id}, ch.name))
-					: [webuiEl('option', {value: ''}, '{=L:yw.bq.no_channels=}')]);
+					: [webuiEl('option', {value: ''}, webuiL('bq.no_channels', 'No channels found'))]);
 			} catch (e) {
-				options(sel, [webuiEl('option', {value: ''}, '{=L:yw.msg.load_fail=}')]);
+				options(sel, [webuiEl('option', {value: ''}, webuiL('msg.load_fail', 'Loading failed'))]);
 			}
 		}
 
@@ -1176,8 +1178,8 @@
 				const items = [webuiEl('option', {value: ''}, 'Standard')]
 					.concat(cachedRecDirs.map(dir => webuiEl('option', {value: dir}, dir)));
 				if (cachedRecPartial)
-					items.push(webuiEl('option', {value: '', disabled: true}, '\u2026 {=L:yw.tm.dir_cut=}'));
-				items.push(webuiEl('option', {value: REC_DIR_OTHER}, '{=L:yw.tm.dir_other=}'));
+					items.push(webuiEl('option', {value: '', disabled: true}, '\u2026 ' + webuiL('tm.dir_cut', 'the box shortened this list')));
+				items.push(webuiEl('option', {value: REC_DIR_OTHER}, webuiL('tm.dir_other', 'Other folder…')));
 				options(sel, items);
 				if (sel.dataset.want) offerDir(sel, sel.dataset.want);
 			} catch (e) {
@@ -1192,17 +1194,17 @@
 				sel.dataset.last = sel.value;
 				return;
 			}
-			const input = webuiEl('input', {type: 'text', value: sel.dataset.last || '/', attrs: {'aria-label': '{=L:yw.tm.dir_ask=}'}});
+			const input = webuiEl('input', {type: 'text', value: sel.dataset.last || '/', attrs: {'aria-label': webuiL('tm.dir_ask', 'Folder on the box')}});
 			const back = function() { sel.value = sel.dataset.last || ''; };
 			webuiSheet({
-				title: '{=L:yw.tm.dir_ask=}',
+				title: webuiL('tm.dir_ask', 'Folder on the box'),
 				body: webuiEl('div', {}, input),
 				actions: [
-					{label: '{=L:yw.msg.cancel=}', value: false},
+					{label: webuiL('msg.cancel', 'Cancel'), value: false},
 					{label: 'OK', primary: true, onClick: function() {
 						const dir = input.value.trim();
 						if (dir.charAt(0) !== '/' || dir.indexOf('/../') >= 0 || /\/\.\.$/.test(dir)) {
-							webuiShowToast('{=L:yw.tm.dir_bad=}', true);
+							webuiShowToast(webuiL('tm.dir_bad', 'Give a whole path on the box, starting with /'), true);
 							return false;
 						}
 						offerDir(sel, dir);
@@ -1252,24 +1254,24 @@
 			const stTime = document.getElementById('tmStTime').value;
 
 			if (!alDate || !alTime) {
-				webuiShowToast('{=L:yw.tm.need_start=}', true);
+				webuiShowToast(webuiL('tm.need_start', 'Please set a start time'), true);
 				return;
 			}
 			const needsStop = type === '5';
 			if (needsStop && (!stDate || !stTime)) {
-				webuiShowToast('{=L:yw.tm.need_end=}', true);
+				webuiShowToast(webuiL('tm.need_end', 'Please set an end time'), true);
 				return;
 			}
 			const needsChannel = type === '5' || type === '3';
 			const channelId = document.getElementById('tmChannel') ? document.getElementById('tmChannel').value : '';
 			if (!timerModalEditId && needsChannel && !channelId) {
-				webuiShowToast('{=L:yw.tm.need_channel=}', true);
+				webuiShowToast(webuiL('tm.need_channel', 'Please pick a channel'), true);
 				return;
 			}
 
 			const repeat = repeatValue();
 			if (repeat === null) {
-				webuiShowToast('{=L:yw.tm.need_day=}', true);
+				webuiShowToast(webuiL('tm.need_day', 'Please tick at least one day'), true);
 				return;
 			}
 			const repcount = parseInt(document.getElementById('tmRepcount').value) || 0;
@@ -1302,11 +1304,11 @@
 					await webuiV1('POST', '/timers', {body: body});
 				const changed = !!timerModalEditId;
 				closeTimerModal();
-				webuiShowToast(changed ? '{=L:yw.tm.changed=}' : '{=L:yw.tm.created=}');
+				webuiShowToast(changed ? webuiL('tm.changed', 'Timer changed') : webuiL('tm.created', 'Timer created'));
 				await loadTimers();
 			} catch (e) {
-				webuiShowToast('{=L:yw.tm.save_fail=}: ' + e.message, true);
-				btn.textContent = timerModalEditId ? '{=L:yw.tm.change=}' : '{=L:yw.bqe.save=}';
+				webuiShowToast(webuiL('tm.save_fail', 'Saving failed') + ': ' + e.message, true);
+				btn.textContent = timerModalEditId ? webuiL('tm.change', 'Change') : webuiL('bqe.save', 'Save');
 				btn.disabled = false;
 			}
 		}
@@ -1314,7 +1316,7 @@
 		function editTimer(timerId) {
 			const timer = allTimers.find(t => t.id === timerId);
 			if (!timer) {
-				webuiShowToast('{=L:yw.tm.not_found=}', true);
+				webuiShowToast(webuiL('tm.not_found', 'Timer not found'), true);
 				return;
 			}
 			openTimerModal(timer);

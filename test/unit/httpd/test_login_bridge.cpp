@@ -98,7 +98,7 @@ TEST_CASE("a session opens the pages, and the targets that change with a GET onl
 		// Where the browser says, nothing else is read: a page of another site
 		// cannot talk its way in through a Referer it chose.
 		a.sec_fetch_site = "cross-site";
-		a.referer = "http://box.lan:8080/dashboard.yhtm";
+		a.referer = "http://box.lan:8080/dashboard.html";
 		REQUIRE_FALSE(login_bridge::sessionAdmits(a));
 		a.sec_fetch_site = "none";
 		REQUIRE_FALSE(login_bridge::sessionAdmits(a));
@@ -113,7 +113,7 @@ TEST_CASE("a session opens the pages, and the targets that change with a GET onl
 	old.origin = "null";
 	REQUIRE_FALSE(login_bridge::sessionAdmits(old));
 	old.origin.clear();
-	old.referer = "HTTP://BOX.LAN:8080/settings.yhtm?x=1";
+	old.referer = "HTTP://BOX.LAN:8080/settings.html?x=1";
 	REQUIRE(login_bridge::sessionAdmits(old));
 	old.referer = "http://box.lan:8080@example.org/";
 	REQUIRE_FALSE(login_bridge::sessionAdmits(old));
@@ -125,7 +125,7 @@ TEST_CASE("a session opens the pages, and the targets that change with a GET onl
 
 	// A page asked to run a template command changes the box like the targets
 	// above, and is held to the same rule.
-	login_bridge::Ask command = askFor("/dashboard.yhtm", token);
+	login_bridge::Ask command = askFor("/dashboard.html", token);
 	command.runs_commands = true;
 	REQUIRE_FALSE(login_bridge::sessionAdmits(command));
 	command.sec_fetch_site = "same-origin";
@@ -260,7 +260,7 @@ TEST_CASE("a change at the box is what every login takes at once, and an empty f
 	REQUIRE_FALSE(login_bridge::change("", "from-elsewhere", &why, &from));
 	REQUIRE_FALSE(why.empty());
 	from.sec_fetch_site = "cross-site";
-	from.referer = "http://box.lan/settings.yhtm";
+	from.referer = "http://box.lan/settings.html";
 	REQUIRE_FALSE(login_bridge::change("", "from-elsewhere", &why, &from));
 	REQUIRE(verifySecret("brand-new", loginInEffect().password_hash));
 	from.sec_fetch_site = "same-origin";

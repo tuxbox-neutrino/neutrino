@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="de" data-theme="dark">
+<html lang="en" data-theme="dark" class="webui-i18n-pending">
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,7 +11,7 @@
 		try { document.documentElement.setAttribute('data-theme', localStorage.getItem('webui-theme') || localStorage.getItem('yweb-theme') || 'dark'); } catch (e) {}
 	</script>
 	<link rel="stylesheet" href="/css/pico.min.css">
-	<link rel="stylesheet" href="/css/webui.css?v=89">
+	<link rel="stylesheet" href="/css/webui.css?v=90">
 	<style>
 		/* Program tile colors. These used to be hard-coded dark slate
 		   values, which left dark text on a dark tile in the light theme.
@@ -417,7 +417,7 @@
 		<!-- Toolbar - kompakt in einer Zeile -->
 		<div class="webui-toolbar webui-epg-toolbar">
 			<select class="webui-select" id="bouquetSelect">
-				<option value="">{=L:yw.nav.bouquets=}...</option>
+				<option value=""><span data-l="nav.bouquets">Bouquets</span>...</option>
 			</select>
 			<select class="webui-select" id="timeSelect"></select>
 			<!-- the time nav belongs next to the time it shifts -->
@@ -430,13 +430,13 @@
 					<polyline points="23,4 23,10 17,10"/>
 					<path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
 				</svg>
-				{=L:yw.si.refresh=}
+				<span data-l="si.refresh">Refresh</span>
 			</button>
 		</div>
 
 		<!-- EPG Grid -->
 		<div class="webui-epg-grid" id="epgGrid">
-			<p aria-busy="true" style="padding:3rem;text-align:center;color:var(--pico-muted-color)">{=L:yw.epg.loading=}</p>
+			<p aria-busy="true" style="padding:3rem;text-align:center;color:var(--pico-muted-color)" data-l="epg.loading">Loading EPG data...</p>
 		</div>
 	</main>
 
@@ -460,31 +460,31 @@
 				<div class="webui-epg-modal-desc" id="modalDesc">-</div>
 			</div>
 			<div class="webui-epg-modal-footer">
-				<button class="webui-btn" onclick="zapNow()" title="{=L:yw.epg.zap_title=}">
+				<button class="webui-btn" onclick="zapNow()" title="Switch to this channel now" data-l-title="epg.zap_title">
 					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 						<polygon points="5,3 19,12 5,21"/>
 					</svg>
-					{=L:yw.epg.zap=}
+					<span data-l="epg.zap">Zap</span>
 				</button>
-				<button class="webui-btn" onclick="setTimerZap()" title="{=L:yw.epg.timer_zap_title=}">
+				<button class="webui-btn" onclick="setTimerZap()" title="Set a zap timer" data-l-title="epg.timer_zap_title">
 					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 						<circle cx="12" cy="12" r="10"/>
 						<polyline points="12,6 12,12 16,14"/>
 					</svg>
 					Timer
 				</button>
-				<button class="webui-btn primary" onclick="setTimerRec()" title="{=L:yw.epg.timer_rec_title=}">
+				<button class="webui-btn primary" onclick="setTimerRec()" title="Set a recording timer" data-l-title="epg.timer_rec_title">
 					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 						<circle cx="12" cy="12" r="10"/>
 						<circle cx="12" cy="12" r="3" fill="currentColor"/>
 					</svg>
-					{=L:yw.bc.recording=}
+					<span data-l="bc.recording">Recording</span>
 				</button>
 			</div>
 		</div>
 	</div>
 
-	<script src="/Y_Lang.yjs?v=27"></script>
+	<script src="/js/webui-i18n.js?v=2"></script>
 	<script src="/js/webui-header.js?v=62"></script>
 	<script src="/js/webui-dom.js?v=1"></script>
 	<script src="/js/webui-v1.js?v=14"></script>
@@ -534,7 +534,7 @@
 				select.replaceChildren.apply(select, bouquets.map(b => webuiEl('option', {value: String(b.id)}, b.name)));
 				currentBouquet = bouquets.length ? String(bouquets[0].id) : '';
 			} catch (e) {
-				select.replaceChildren(webuiEl('option', {}, '{=L:yw.epg.load_fail=}'));
+				select.replaceChildren(webuiEl('option', {}, webuiL('epg.load_fail', 'Loading failed')));
 				console.error('Failed to load bouquets:', e);
 			}
 		}
@@ -561,14 +561,14 @@
 			const token = ++gridToken;
 			const grid = document.getElementById('epgGrid');
 			grid.replaceChildren(webuiEl('p', {attrs: {'aria-busy': 'true'},
-				style: {padding: '3rem', 'text-align': 'center', color: 'var(--pico-muted-color)'}}, '{=L:yw.epg.loading=}'));
+				style: {padding: '3rem', 'text-align': 'center', color: 'var(--pico-muted-color)'}}, webuiL('epg.loading', 'Loading EPG data...')));
 
 			currentBouquet = document.getElementById('bouquetSelect').value;
 			currentStartTime = parseInt(document.getElementById('timeSelect').value);
 			const startTime = currentStartTime;
 			const stopTime = startTime + DISPLAY_HOURS * 3600;
 			if (!currentBouquet) {
-				grid.replaceChildren(webuiEl('p', {className: 'webui-empty'}, '{=L:yw.bq.no_channels=}'));
+				grid.replaceChildren(webuiEl('p', {className: 'webui-empty'}, webuiL('bq.no_channels', 'No channels found')));
 				return;
 			}
 
@@ -587,7 +587,7 @@
 				if (nowInWindow)
 					slots.push(webuiEl('div', {className: 'webui-epg-now-marker', style: {left: 'calc(100px + ' + nowPercent + '%)'}}));
 				const header = webuiEl('div', {className: 'webui-epg-time-header'},
-					webuiEl('div', {className: 'webui-epg-channel-header'}, '{=L:yw.msg.channel=}'),
+					webuiEl('div', {className: 'webui-epg-channel-header'}, webuiL('msg.channel', 'Channel')),
 					webuiEl('div', {className: 'webui-epg-times'}, slots));
 
 				const rows = webuiEl('div', {className: 'webui-epg-channels', style: {position: 'relative'}},
@@ -597,7 +597,7 @@
 					const programs = webuiEl('div', {className: 'webui-epg-programs'});
 					programsOf[channel.id] = {channel: channel, el: programs};
 					rows.appendChild(webuiEl('div', {className: 'webui-epg-row'},
-						webuiEl('div', {className: 'webui-epg-channel-name', title: '{=L:yw.epg.zap_to=} ' + channel.name,
+						webuiEl('div', {className: 'webui-epg-channel-name', title: webuiL('epg.zap_to', 'Switch to') + ' ' + channel.name,
 							on: {click: () => zapTo(channel.id)}},
 							webuiEl('span', {}, channel.name)),
 						programs));
@@ -619,7 +619,7 @@
 				} while (cursor);
 			} catch (e) {
 				if (token !== gridToken) return;
-				grid.replaceChildren(webuiEl('p', {className: 'webui-empty'}, '{=L:yw.epg.load_fail=}'));
+				grid.replaceChildren(webuiEl('p', {className: 'webui-empty'}, webuiL('epg.load_fail', 'Loading failed')));
 				console.error('Failed to load EPG:', e);
 			}
 		}
@@ -661,7 +661,7 @@
 			const full = await webuiV1('GET', '/epg/event', {query: {id: ev.id, start: ev.start}}).catch(() => null);
 			if (selectedProgram !== shown) return;
 			const desc = full ? [full.description, full.long_description].filter(Boolean).join('\n\n') : (ev.description || '');
-			descEl.textContent = desc || '{=L:yw.epg.no_desc=}';
+			descEl.textContent = desc || webuiL('epg.no_desc', 'No description available');
 		}
 
 		function closeModal() {
@@ -685,11 +685,11 @@
 			try {
 				await webuiV1('POST', '/timers', {body: {kind: 'zapto', channel_id: selectedProgram.channelId,
 					start: Math.max(ev.start, Math.floor(Date.now() / 60000) * 60), epg_id: ev.id, epg_start: ev.start}});
-				webuiShowToast('{=L:yw.epg.timer_zap_set=}');
+				webuiShowToast(webuiL('epg.timer_zap_set', 'Zap timer set!'));
 				closeModal();
 				loadEpg();
 			} catch (e) {
-				webuiShowToast('{=L:yw.epg.timer_fail=}: ' + e.message, true);
+				webuiShowToast(webuiL('epg.timer_fail', 'Setting the timer failed') + ': ' + e.message, true);
 			}
 		}
 
@@ -720,8 +720,11 @@
 			if (e.target === this) closeModal();
 		});
 
-		initTimeSelect();
-		loadBouquets().then(loadEpg);
+		// once the texts are in, which the grid is drawn with
+		webuiAfterTexts(function() {
+			initTimeSelect();
+			return loadBouquets().then(loadEpg);
+		});
 
 		if (typeof webuiSetRefreshCallback === 'function') {
 			webuiSetRefreshCallback(function() {

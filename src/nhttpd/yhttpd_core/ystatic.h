@@ -52,6 +52,17 @@ bool templateOrScript(const std::string &name);
 // that is itself behind the login.
 bool ownLoginPage(CyhookHandler *hh);
 
+// Whether the page the descriptor fd holds (opened by openPublic for target
+// t) waits for the login all the same: an HTML page, by the name asked for
+// or the file reached, of a web directory that has a login.html of its own
+// (in the directory itself; a copy in the override directory keeps the pages
+// behind the login), other than the file the sign-in page goes out from. The
+// pages of this interface open once somebody signed in, as they did while
+// they were templates; their scripts, styles, texts and pictures stay open,
+// and so does every file of another interface in the web directory's place,
+// which signs in by itself.
+bool pageNeedsLogin(CyhookHandler *hh, const Target &t, int fd);
+
 // Whether the opened descriptor fd is a regular file of the web directory:
 // inside it as /proc/self/fd names it after every link, not under its
 // extensions/, and not unlinked since (an unlinked file has no name left

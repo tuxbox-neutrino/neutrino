@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="de" data-theme="dark">
+<html lang="en" data-theme="dark" class="webui-i18n-pending">
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Neutrino-Web-UI - {=L:yw.nav.tools=}</title>
+	<title data-l="nav.tools" data-l-prefix="Neutrino-Web-UI - ">Neutrino-Web-UI - Tools</title>
 	<link rel="icon" href="/favicon/favicon.ico">
 	<script>
 		// Apply the stored theme before first paint: webui-header.js runs
@@ -11,7 +11,7 @@
 		try { document.documentElement.setAttribute('data-theme', localStorage.getItem('webui-theme') || localStorage.getItem('yweb-theme') || 'dark'); } catch (e) {}
 	</script>
 	<link rel="stylesheet" href="/css/pico.min.css">
-	<link rel="stylesheet" href="/css/webui.css?v=89">
+	<link rel="stylesheet" href="/css/webui.css?v=90">
 	<style>
 		.webui-tools-grid {
 			display: grid;
@@ -101,12 +101,12 @@
 
 	<main>
 		<div class="webui-tools-grid">
-			<a href="/sysinfo.yhtm" class="webui-tool-card">
+			<a href="/sysinfo.html" class="webui-tool-card">
 				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 					<circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
 				</svg>
 				<span>System Info</span>
-				<small>{=L:yw.tools.sysinfo_sub=}</small>
+				<small data-l="tools.sysinfo_sub">Hardware and software</small>
 			</a>
 
 			<div class="webui-tool-card" onclick="showBoxControl()">
@@ -114,15 +114,15 @@
 					<rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="8" cy="12" r="2"/><line x1="14" y1="10" x2="18" y2="10"/><line x1="14" y1="14" x2="18" y2="14"/>
 				</svg>
 				<span>Boxcontrol</span>
-				<small>{=L:yw.tools.boxcontrol_sub=}</small>
+				<small data-l="tools.boxcontrol_sub">Restart, recording, tuner</small>
 			</div>
 
-			<a href="/bouquet-editor.yhtm" class="webui-tool-card">
+			<a href="/bouquet-editor.html" class="webui-tool-card">
 				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 					<line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/>
 				</svg>
-				<span>{=L:yw.tools.bqedit=}</span>
-				<small>{=L:yw.tools.bqedit_sub=}</small>
+				<span data-l="tools.bqedit">Bouquet editor</span>
+				<small data-l="tools.bqedit_sub">Manage bouquets and channels</small>
 			</a>
 
 			<!-- only where the optional Swagger UI package is installed -->
@@ -130,14 +130,14 @@
 				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 					<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
 				</svg>
-				<span>{=L:yw.tools.apiref=}</span>
-				<small>{=L:yw.tools.apiref_sub=}</small>
+				<span data-l="tools.apiref">API reference</span>
+				<small data-l="tools.apiref_sub">Every route of /api/v1, to read and try</small>
 			</a>
 
 		</div>
 	</main>
 
-	<script src="/Y_Lang.yjs?v=27"></script>
+	<script src="/js/webui-i18n.js?v=2"></script>
 	<script src="/js/webui-header.js?v=62"></script>
 	<script src="/js/webui-dom.js?v=1"></script>
 	<script src="/js/webui-v1.js?v=14"></script>
@@ -158,15 +158,20 @@
 			try {
 				var m = /^(POST|PUT) (\/.*)$/.exec(endpoint);
 				await webuiV1(m[1], m[2], params ? {body: params} : {});
-				webuiShowToast(label + ' {=L:yw.msg.executed=}');
+				webuiShowToast(label + ' ' + webuiL('msg.executed', 'done'));
 			} catch (e) {
-				webuiShowToast('{=L:yw.msg.error=}: ' + e.message, true);
+				webuiShowToast(webuiL('msg.error', 'Error') + ': ' + e.message, true);
 			}
 		}
 
 		// Rueckfrage als webui-Dialog statt nativem confirm(); der
 		// Bestaetigen-Knopf wiederholt den Aktionsnamen (label)
+		// label and confirmText come as keys of the texts (a plain word where
+		// there is none), so no text travels through the markup of a button
 		function bcAction(label, endpoint, params, confirmText) {
+			label = webuiL(label, label);
+			if (confirmText)
+				confirmText = webuiLH(confirmText, confirmText);	// the dialog's message is markup
 			if (confirmText) {
 				webuiShowConfirm(label, confirmText, label, function() { return bcDo(label, endpoint, params); });
 				return;
@@ -186,29 +191,29 @@
 		async function showBoxControl() {
 			var body =
 				'<div class="webui-form-section"><div class="webui-form-section-title">Box</div>' +
-				'<div class="webui-form-row"><label>{=L:yw.bc.restart_gui=}</label><span class="webui-row-actions">' +
-				'<button type="button" class="webui-btn" onclick="bcAction(\'{=L:yw.bc.restart_btn=}\', \'POST /system/restart\', null, \'{=L:yw.bc.restart_confirm=}\')">' + I_REFRESH + '{=L:yw.bc.restart_btn=}</button></span></div>' +
-				'<div class="webui-form-row"><label>{=L:yw.bc.reboot=}</label><span class="webui-row-actions">' +
-				'<button type="button" class="webui-btn danger" onclick="bcAction(\'Reboot\', \'POST /system/reboot\', null, \'{=L:yw.bc.reboot_confirm=}\')">' + I_ROTATE + 'Reboot</button></span></div>' +
-				'<div class="webui-form-row"><label>{=L:yw.bc.shutdown=}</label><span class="webui-row-actions">' +
-				'<button type="button" class="webui-btn danger" onclick="bcAction(\'Shutdown\', \'POST /system/shutdown\', null, \'{=L:yw.bc.shutdown_confirm=}\')">' + I_POWER + '{=L:yw.bc.shutdown_btn=}</button></span></div></div>' +
-				'<div class="webui-form-section"><div class="webui-form-section-title">{=L:yw.bc.recording=} <small id="bcRecState" style="color:var(--pico-muted-color)"></small></div>' +
-				'<div class="webui-form-row"><label>{=L:yw.bc.instant_rec=}</label><span class="webui-row-actions">' +
+				'<div class="webui-form-row"><label>' + webuiLH('bc.restart_gui', 'Restart Neutrino GUI') + '</label><span class="webui-row-actions">' +
+				'<button type="button" class="webui-btn" onclick="bcAction(\'bc.restart_btn\', \'POST /system/restart\', null, \'bc.restart_confirm\')">' + I_REFRESH + webuiLH('bc.restart_btn', 'Restart GUI') + '</button></span></div>' +
+				'<div class="webui-form-row"><label>' + webuiLH('bc.reboot', 'Reboot the box') + '</label><span class="webui-row-actions">' +
+				'<button type="button" class="webui-btn danger" onclick="bcAction(\'Reboot\', \'POST /system/reboot\', null, \'bc.reboot_confirm\')">' + I_ROTATE + 'Reboot</button></span></div>' +
+				'<div class="webui-form-row"><label>' + webuiLH('bc.shutdown', 'Power off the box') + '</label><span class="webui-row-actions">' +
+				'<button type="button" class="webui-btn danger" onclick="bcAction(\'Shutdown\', \'POST /system/shutdown\', null, \'bc.shutdown_confirm\')">' + I_POWER + webuiLH('bc.shutdown_btn', 'Power off') + '</button></span></div></div>' +
+				'<div class="webui-form-section"><div class="webui-form-section-title">' + webuiLH('bc.recording', 'Recording') + ' <small id="bcRecState" style="color:var(--pico-muted-color)"></small></div>' +
+				'<div class="webui-form-row"><label>' + webuiLH('bc.instant_rec', 'Instant recording') + '</label><span class="webui-row-actions">' +
 				'<button type="button" class="webui-btn" onclick="bcRecStart()">' + I_REC + 'Start</button> ' +
 				'<button type="button" class="webui-btn" onclick="bcRecStop()">' + I_STOP + 'Stop</button></span></div></div>' +
 				'<div class="webui-form-section" id="bcVideo" hidden><div class="webui-form-section-title">Video</div>' +
-				'<div class="webui-form-row"><label for="bcVideoMode">{=L:yw.bc.resolution=}</label><span class="webui-row-actions">' +
+				'<div class="webui-form-row"><label for="bcVideoMode">' + webuiLH('bc.resolution', 'Resolution') + '</label><span class="webui-row-actions">' +
 				'<select id="bcVideoMode"></select> ' +
-				'<button type="button" class="webui-btn" onclick="bcVideoApply()">{=L:yw.bqe.apply=}</button></span></div></div>' +
-				'<div class="webui-form-section"><div class="webui-form-section-title">{=L:yw.tools.remote_sub=}</div>' +
-				'<div class="webui-form-row"><label>{=L:yw.bc.rc_at_box=}</label><span class="webui-row-actions">' +
-				'<button type="button" class="webui-btn" onclick="bcAction(\'{=L:yw.bc.lock=}\', \'PUT /osd/remote\', {locked: true})">' + I_LOCK + '{=L:yw.bc.lock=}</button> ' +
-				'<button type="button" class="webui-btn" onclick="bcAction(\'{=L:yw.bc.unlock=}\', \'PUT /osd/remote\', {locked: false})">' + I_UNLOCK + '{=L:yw.bc.unlock=}</button></span></div></div>' +
+				'<button type="button" class="webui-btn" onclick="bcVideoApply()">' + webuiLH('bqe.apply', 'Apply') + '</button></span></div></div>' +
+				'<div class="webui-form-section"><div class="webui-form-section-title">' + webuiLH('tools.remote_sub', 'Remote control') + '</div>' +
+				'<div class="webui-form-row"><label>' + webuiLH('bc.rc_at_box', 'RC at the box') + '</label><span class="webui-row-actions">' +
+				'<button type="button" class="webui-btn" onclick="bcAction(\'bc.lock\', \'PUT /osd/remote\', {locked: true})">' + I_LOCK + webuiLH('bc.lock', 'Lock') + '</button> ' +
+				'<button type="button" class="webui-btn" onclick="bcAction(\'bc.unlock\', \'PUT /osd/remote\', {locked: false})">' + I_UNLOCK + webuiLH('bc.unlock', 'Unlock') + '</button></span></div></div>' +
 				'<div class="webui-form-section"><div class="webui-form-section-title">Zapit</div>' +
-				'<div class="webui-form-row"><label>{=L:yw.bc.reload_channels=}</label><span class="webui-row-actions">' +
-				'<button type="button" class="webui-btn" onclick="bcAction(\'{=L:yw.bc.reload=}\', \'POST /channels/reload\', null)">' + I_REFRESH + '{=L:yw.bc.reload=}</button></span></div>' +
-				'<div class="webui-form-row"><label>{=L:yw.bc.tuner_reset=}</label><span class="webui-row-actions">' +
-				'<button type="button" class="webui-btn" onclick="bcAction(\'{=L:yw.bc.tuner_reset=}\', \'POST /tuner/reset\', null)">' + I_ROTATE + 'Reset</button></span></div></div>';
+				'<div class="webui-form-row"><label>' + webuiLH('bc.reload_channels', 'Reload channel lists') + '</label><span class="webui-row-actions">' +
+				'<button type="button" class="webui-btn" onclick="bcAction(\'bc.reload\', \'POST /channels/reload\', null)">' + I_REFRESH + webuiLH('bc.reload', 'Reload') + '</button></span></div>' +
+				'<div class="webui-form-row"><label>' + webuiLH('bc.tuner_reset', 'Tuner reset') + '</label><span class="webui-row-actions">' +
+				'<button type="button" class="webui-btn" onclick="bcAction(\'bc.tuner_reset\', \'POST /tuner/reset\', null)">' + I_ROTATE + 'Reset</button></span></div></div>';
 			webuiModal('bcModal', 'Boxcontrol', body);
 			bcRecState();
 			bcVideoLoad();
@@ -220,7 +225,7 @@
 			try {
 				var r = await webuiV1('GET', '/recordings');
 				var on = ((r && r.items) || []).some(function(it) { return !it.timeshift; });
-				if (el) el.textContent = on ? '\u2022 {=L:yw.bc.rec_running=}' : '\u2022 {=L:yw.bc.rec_none=}';
+				if (el) el.textContent = on ? '\u2022 ' + webuiL('bc.rec_running', 'recording running') : '\u2022 ' + webuiL('bc.rec_none', 'no recording');
 			} catch (e) {
 				if (el) el.textContent = '';
 			}
@@ -232,17 +237,17 @@
 		async function bcRecStart() {
 			try {
 				var ok = await webuiV1Lifting('/recordings', {}, {
-					title: '{=L:yw.bc.instant_rec=}',
+					title: webuiL('bc.instant_rec', 'Instant recording'),
 					ok: 'Start',
 					stop: '',
-					wake: '{=L:yw.bc.rec_wake=}'
+					wake: webuiL('bc.rec_wake', 'The box is in standby. Switch it on and record what it shows?')
 				});
 				if (!ok) return;
-				webuiShowToast('{=L:yw.bc.recording=}-Start {=L:yw.msg.executed=}');
+				webuiShowToast(webuiL('bc.recording', 'Recording') + '-Start ' + webuiL('msg.executed', 'done'));
 				setTimeout(bcRecState, 1500);
 			} catch (e) {
-				webuiShowToast(e.code === 'recording-running' ? '{=L:yw.bc.rec_already=}' :
-					'{=L:yw.msg.error=}: ' + e.message, true);
+				webuiShowToast(e.code === 'recording-running' ? webuiL('bc.rec_already', 'The channel the box shows is being recorded already') :
+					webuiL('msg.error', 'Error') + ': ' + e.message, true);
 			}
 		}
 
@@ -294,9 +299,9 @@
 				var r = answer && answer.results && answer.results.video_Mode;
 				if (r && r.status >= 300)
 					throw new Error(r.detail || r.code || String(r.status));
-				webuiShowToast('{=L:yw.bc.resolution=}: ' + label);
+				webuiShowToast(webuiL('bc.resolution', 'Resolution') + ': ' + label);
 			} catch (e) {
-				webuiShowToast('{=L:yw.msg.error=}: ' + e.message, true);
+				webuiShowToast(webuiL('msg.error', 'Error') + ': ' + e.message, true);
 			}
 		}
 	</script>

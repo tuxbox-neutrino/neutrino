@@ -1,5 +1,6 @@
 /*
- * Settings Registry — Central field definitions for settings.yhtm
+ * Settings Registry — Central field definitions for settings.html, read
+ * once the texts are in, since every label is stated as the file loads
  * Each category has: id, label, sections with fields
  * Field types: select, bool, bool01, number, text, password,
  *   info   { label, text | key }                    — readonly display

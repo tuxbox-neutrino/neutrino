@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="de" data-theme="dark">
+<html lang="en" data-theme="dark" class="webui-i18n-pending">
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,7 +11,7 @@
 		try { document.documentElement.setAttribute('data-theme', localStorage.getItem('webui-theme') || localStorage.getItem('yweb-theme') || 'dark'); } catch (e) {}
 	</script>
 	<link rel="stylesheet" href="/css/pico.min.css">
-	<link rel="stylesheet" href="/css/webui.css?v=89">
+	<link rel="stylesheet" href="/css/webui.css?v=90">
 	<style>
 		.sysinfo-content {
 			padding: 0.5rem 1rem;
@@ -212,7 +212,7 @@
 		<div class="sysinfo-toolbar">
 			<button class="webui-btn primary" onclick="loadSysInfo()">
 				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:1rem;height:1rem;margin-right:0.3rem"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
-				{=L:yw.si.refresh=}
+				<span data-l="si.refresh">Refresh</span>
 			</button>
 		</div>
 
@@ -225,7 +225,7 @@
 				</div>
 				<div class="sysinfo-card-body">
 					<div class="sysinfo-grid" id="sysinfo-hw">
-						<span class="sysinfo-label">{=L:yw.msg.loading=}</span><span class="sysinfo-value"></span>
+						<span class="sysinfo-label" data-l="msg.loading">Loading...</span><span class="sysinfo-value"></span>
 					</div>
 				</div>
 			</div>
@@ -234,11 +234,11 @@
 			<div class="sysinfo-card">
 				<div class="sysinfo-card-header">
 					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"/><line x1="6" y1="10" x2="6" y2="14"/><line x1="10" y1="10" x2="10" y2="14"/><line x1="14" y1="10" x2="14" y2="14"/></svg>
-					{=L:yw.si.memory=}
+					<span data-l="si.memory">Memory</span>
 				</div>
 				<div class="sysinfo-card-body">
 					<div class="sysinfo-grid" id="sysinfo-mem">
-						<span class="sysinfo-label">{=L:yw.msg.loading=}</span><span class="sysinfo-value"></span>
+						<span class="sysinfo-label" data-l="msg.loading">Loading...</span><span class="sysinfo-value"></span>
 					</div>
 				</div>
 			</div>
@@ -251,7 +251,7 @@
 				</div>
 				<div class="sysinfo-card-body">
 					<div class="sysinfo-grid" id="sysinfo-sys">
-						<span class="sysinfo-label">{=L:yw.msg.loading=}</span><span class="sysinfo-value"></span>
+						<span class="sysinfo-label" data-l="msg.loading">Loading...</span><span class="sysinfo-value"></span>
 					</div>
 				</div>
 			</div>
@@ -264,7 +264,7 @@
 				</div>
 				<div class="sysinfo-card-body">
 					<div class="sysinfo-grid" id="sysinfo-sw">
-						<span class="sysinfo-label">{=L:yw.msg.loading=}</span><span class="sysinfo-value"></span>
+						<span class="sysinfo-label" data-l="msg.loading">Loading...</span><span class="sysinfo-value"></span>
 					</div>
 				</div>
 			</div>
@@ -272,33 +272,34 @@
 			<div class="sysinfo-card sysinfo-card-wide" id="network" tabindex="-1">
 				<div class="sysinfo-card-header">
 					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12.55a11 11 0 0114.08 0"/><path d="M1.42 9a16 16 0 0121.16 0"/><path d="M8.53 16.11a6 6 0 016.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>
-					{=L:yw.si.network=}
+					<span data-l="si.network">Network</span>
 				</div>
 				<div class="sysinfo-card-body" id="sysinfo-net">
-					<span class="sysinfo-label">{=L:yw.msg.loading=}</span>
+					<span class="sysinfo-label" data-l="msg.loading">Loading...</span>
 				</div>
 			</div>
 		</div>
 
 		<!-- Erweitert -->
 		<details class="sysinfo-details" ontoggle="sysInfoToggle(this, 'ps')">
-			<summary>{=L:yw.si.processes_list=}</summary>
-			<pre class="sysinfo-pre" id="sysinfo-ps">{=L:yw.msg.loading=}</pre>
+			<summary data-l="si.processes_list">Process list</summary>
+			<pre class="sysinfo-pre" id="sysinfo-ps" data-l="msg.loading">Loading...</pre>
 		</details>
 
 		<details class="sysinfo-details" ontoggle="sysInfoToggle(this, 'dmesg')">
-			<summary>{=L:yw.si.kernel_log=}</summary>
-			<pre class="sysinfo-pre" id="sysinfo-dmesg">{=L:yw.msg.loading=}</pre>
+			<summary data-l="si.kernel_log">Kernel log</summary>
+			<pre class="sysinfo-pre" id="sysinfo-dmesg" data-l="msg.loading">Loading...</pre>
 		</details>
 	</main>
 
-	<script src="/Y_Lang.yjs?v=27"></script>
+	<script src="/js/webui-i18n.js?v=2"></script>
 	<script src="/js/webui-header.js?v=62"></script>
 	<script src="/js/webui-dom.js?v=1"></script>
 	<script src="/js/webui-v1.js?v=14"></script>
 	<script>
+	// label is text; value is markup, escaped by the caller where it carries data
 	function row(label, value) {
-		return '<span class="sysinfo-label">' + label + '</span><span class="sysinfo-value">' + value + '</span>';
+		return '<span class="sysinfo-label">' + escapeHtml(label) + '</span><span class="sysinfo-value">' + value + '</span>';
 	}
 
 	function bar(label, percent, text) {
@@ -319,12 +320,12 @@
 			// Hardware
 			var hw = '';
 			if (sys.cpu_model) hw += row('CPU', escapeHtml(sys.cpu_model));
-			hw += row('{=L:yw.si.cores=}', sys.cpu.cores);
+			hw += row(webuiL('si.cores', 'Cores'), sys.cpu.cores);
 			// the load where the box could measure it, else its average, else nothing
-			hw += row('{=L:yw.si.load=}', sys.cpu && sys.cpu.percent !== undefined ? sys.cpu.percent + '%'
+			hw += row(webuiL('si.load', 'Load'), sys.cpu && sys.cpu.percent !== undefined ? sys.cpu.percent + '%'
 				: (sys.load ? sys.load[0].toFixed(2) : '–'));
 			if (sys.temperature !== null && sys.temperature !== undefined)
-				hw += row('{=L:yw.si.temperature=}', sys.temperature + '°C');
+				hw += row(webuiL('si.temperature', 'Temperature'), sys.temperature + '°C');
 			if (sys.box) hw += row('Box', escapeHtml(sys.box.vendor + ' ' + sys.box.name + ' (' + sys.box.arch + ')'));
 			document.getElementById('sysinfo-hw').innerHTML = hw;
 
@@ -338,10 +339,10 @@
 				for (var d = 0; d < sys.disks.length; d++) {
 					var dsk = sys.disks[d];
 					var dlabel = (dsk.mount === '/') ? 'Disk /' : escapeHtml(dsk.mount);
-					mem += bar(dlabel, dsk.percent, webuiFormatKB(dsk.free) + ' {=L:yw.si.free_of=} ' + webuiFormatKB(dsk.total));
+					mem += bar(dlabel, dsk.percent, webuiFormatKB(dsk.free) + ' ' + webuiLH('si.free_of', 'free of') + ' ' + webuiFormatKB(dsk.total));
 				}
 			} else if (sys.disk)
-				mem += bar('Disk', sys.disk.percent, webuiFormatKB(sys.disk.free) + ' {=L:yw.si.free_of=} ' + webuiFormatKB(sys.disk.total));
+				mem += bar('Disk', sys.disk.percent, webuiFormatKB(sys.disk.free) + ' ' + webuiLH('si.free_of', 'free of') + ' ' + webuiFormatKB(sys.disk.total));
 			document.getElementById('sysinfo-mem').innerHTML = mem;
 
 			// System
@@ -351,7 +352,7 @@
 			s += row('Kernel', escapeHtml(sys.kernel || ''));
 			if (sys.os) s += row('OS', escapeHtml(sys.os));
 			if (sys.load) s += row('Load', sys.load[0].toFixed(2) + ' / ' + sys.load[1].toFixed(2) + ' / ' + sys.load[2].toFixed(2));
-			if (sys.processes) s += row('{=L:yw.si.processes=}', sys.processes.running + ' {=L:yw.si.active=} / ' + sys.processes.total + ' {=L:yw.si.total=}');
+			if (sys.processes) s += row(webuiL('si.processes', 'Processes'), sys.processes.running + ' ' + webuiLH('si.active', 'active') + ' / ' + sys.processes.total + ' ' + webuiLH('si.total', 'total'));
 			document.getElementById('sysinfo-sys').innerHTML = s;
 
 			// Software
@@ -379,11 +380,11 @@
 					'</div>';
 				}
 			} else {
-				net = '<span class="sysinfo-label">{=L:yw.si.no_ifaces=}</span>';
+				net = '<span class="sysinfo-label">' + webuiLH('si.no_ifaces', 'No interfaces') + '</span>';
 			}
 			document.getElementById('sysinfo-net').innerHTML = net;
 		} catch (e) {
-			document.getElementById('sysinfo-hw').innerHTML = '<span class="sysinfo-value" style="color:var(--webui-danger)">{=L:yw.msg.error=}: ' + e.message + '</span>';
+			document.getElementById('sysinfo-hw').innerHTML = '<span class="sysinfo-value" style="color:var(--webui-danger)">' + webuiLH('msg.error', 'Error') + ': ' + escapeHtml(e.message) + '</span>';
 		}
 		revealHashTarget();
 	}
@@ -421,13 +422,13 @@
 				var log = await webuiV1('GET', '/system/kernel-log');
 				text = ((log && log.items) || []).map(function(l) { return l.text; }).join('\n');
 			}
-			pre.textContent = text.trim() || '{=L:yw.si.no_output=}';
+			pre.textContent = text.trim() || webuiL('si.no_output', '(no output)');
 		} catch (e) {
-			pre.textContent = '{=L:yw.msg.error=}: ' + e.message;
+			pre.textContent = webuiL('msg.error', 'Error') + ': ' + e.message;
 		}
 	}
 
-	loadSysInfo();
+	webuiAfterTexts(loadSysInfo);
 	</script>
 </body>
 </html>

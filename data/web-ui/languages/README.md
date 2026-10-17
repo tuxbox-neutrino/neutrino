@@ -63,17 +63,12 @@ which names the old pages' file and what the language calls itself; `en`,
 
 ## The old pages' files
 
-Plain `key=value`, one entry per line, UTF-8, `#` starting a comment:
-
-- **Legacy keys** (`submit`, `action`, `global.*`, …): the classic pages
-  taken over from the yWeb interface.
-- **`yw.*` keys**: the interface's texts as the pages that are still
-  templates read them (`{=L:yw.…=}`, `Y_Lang.yjs`). They are the keys of
-  `<code>.json` with the `yw.` prefix and go as those pages move to the
-  browser; until then a text changed in one is changed in the other.
-- No double quotes (`"`) in values: they are embedded verbatim into
-  `Y_Lang.yjs`. A missing key falls back to English
-  (`HTTPD_DEFAULT_LANGUAGE`).
+Plain `key=value`, one entry per line, UTF-8, `#` starting a comment.
+They hold the texts of the classic pages taken over from the yWeb
+interface (`submit`, `action`, `global.*`, …), which the server's
+template engine puts in as it sends those pages; a missing key falls
+back to English (`HTTPD_DEFAULT_LANGUAGE`). The interface's own texts
+are not in them.
 
 `Czech`, `Polski`, `Portuguese` and `Slovak` have only legacy keys and
 no `<code>.json`, so the switcher does not offer them.
@@ -87,3 +82,6 @@ no `<code>.json`, so the switcher does not offer them.
   language's code to anybody, so the sign-in page is shown in it.
 - A page reads `en.json` and the active language's file when it loads;
   the header button shows the active language's code.
+- Before signing in, only the pages' own files go out: a `<code>.json`
+  put into the override directory takes effect once somebody signed in,
+  and the sign-in page shows English until then.

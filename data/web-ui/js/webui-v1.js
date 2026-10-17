@@ -1,5 +1,5 @@
 // webui-v1.js - what the modern pages share to talk to the REST interface
-// /api/v1 (load after Y_Lang.yjs and webui-header.js).
+// /api/v1 (load after webui-i18n.js and webui-header.js).
 //
 //   webuiV1('GET', '/bouquets')                            -> parsed JSON
 //   webuiV1('GET', '/channels', {query: {mode: 'tv'}})     -> parsed JSON

@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="de" data-theme="dark">
+<html lang="en" data-theme="dark" class="webui-i18n-pending">
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Neutrino-Web-UI - {=L:yw.nav.recordings=}</title>
+	<title data-l="nav.recordings" data-l-prefix="Neutrino-Web-UI - ">Neutrino-Web-UI - Recordings</title>
 	<link rel="icon" href="/favicon/favicon.ico">
 	<script>
 		// Apply the stored theme before first paint: webui-header.js runs
@@ -11,7 +11,7 @@
 		try { document.documentElement.setAttribute('data-theme', localStorage.getItem('webui-theme') || localStorage.getItem('yweb-theme') || 'dark'); } catch (e) {}
 	</script>
 	<link rel="stylesheet" href="/css/pico.min.css">
-	<link rel="stylesheet" href="/css/webui.css?v=89">
+	<link rel="stylesheet" href="/css/webui.css?v=90">
 	<style>
 		/* Two columns like the timer list: sources and sorting, then the list */
 		main.webui-media-grid {
@@ -188,22 +188,22 @@
 					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 						<path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/>
 					</svg>
-					{=L:yw.media.sources=}
+					<span data-l="media.sources">Sources</span>
 				</h3>
-				<span class="webui-card-preview" id="sourcePreview">{=L:yw.media.all=}</span>
+				<span class="webui-card-preview" id="sourcePreview" data-l="media.all">All recordings</span>
 			</header>
 			<div class="webui-card-body">
 				<div class="webui-media-controls">
-					<input type="search" id="mediaSearch" placeholder="{=L:yw.media.search=}" aria-label="{=L:yw.media.search=}">
+					<input type="search" id="mediaSearch" placeholder="Search titles" data-l-placeholder="media.search" aria-label="Search titles" data-l-aria-label="media.search">
 					<div class="webui-media-sort">
-						<select id="mediaSort" aria-label="{=L:yw.media.sort=}">
-							<option value="start">{=L:yw.media.sort_start=}</option>
-							<option value="title">{=L:yw.media.sort_title=}</option>
-							<option value="channel">{=L:yw.media.sort_channel=}</option>
-							<option value="duration">{=L:yw.media.sort_duration=}</option>
-							<option value="size">{=L:yw.media.sort_size=}</option>
+						<select id="mediaSort" aria-label="Sort" data-l-aria-label="media.sort">
+							<option value="start" data-l="media.sort_start">Date</option>
+							<option value="title" data-l="media.sort_title">Title</option>
+							<option value="channel" data-l="media.sort_channel">Channel</option>
+							<option value="duration" data-l="media.sort_duration">Length</option>
+							<option value="size" data-l="media.sort_size">Size</option>
 						</select>
-						<select id="mediaOrder" aria-label="{=L:yw.media.order=}">
+						<select id="mediaOrder" aria-label="Order" data-l-aria-label="media.order">
 							<option value="">↕</option>
 							<option value="asc">↑</option>
 							<option value="desc">↓</option>
@@ -211,7 +211,7 @@
 					</div>
 				</div>
 				<ul class="webui-plain-list webui-filter-list" id="sourceList">
-					<li aria-busy="true">{=L:yw.msg.loading=}</li>
+					<li aria-busy="true" data-l="msg.loading">Loading...</li>
 				</ul>
 			</div>
 		</article>
@@ -224,17 +224,17 @@
 						<rect x="2" y="4" width="20" height="16" rx="2"/>
 						<path d="M7 4v16M17 4v16M2 9h5M2 15h5M17 9h5M17 15h5"/>
 					</svg>
-					{=L:yw.nav.recordings=}
+					<span data-l="nav.recordings">Recordings</span>
 				</h3>
 				<span class="webui-card-preview" id="mediaPreview">--</span>
 				<span class="webui-timer-count" id="mediaCount"></span>
 			</header>
 			<div class="webui-card-body">
-				<div class="webui-media-note" id="mediaPartial" hidden>{=L:yw.media.partial=}</div>
+				<div class="webui-media-note" id="mediaPartial" hidden data-l="media.partial">A directory is still being read; the list fills in shortly.</div>
 				<ul class="webui-plain-list" id="mediaList">
-					<li aria-busy="true">{=L:yw.media.loading=}</li>
+					<li aria-busy="true" data-l="media.loading">Loading recordings...</li>
 				</ul>
-				<button type="button" class="webui-btn webui-media-more" id="mediaMore" hidden>{=L:yw.media.more=}</button>
+				<button type="button" class="webui-btn webui-media-more" id="mediaMore" hidden data-l="media.more">Load more</button>
 			</div>
 		</article>
 
@@ -242,7 +242,7 @@
 		<div class="webui-card-indicator" id="cardIndicator"></div>
 	</main>
 
-	<script src="/Y_Lang.yjs?v=27"></script>
+	<script src="/js/webui-i18n.js?v=2"></script>
 	<script src="/js/webui-header.js?v=62"></script>
 	<script src="/js/webui-dom.js?v=1"></script>
 	<script src="/js/webui-v1.js?v=14"></script>
@@ -291,7 +291,7 @@
 			const moreBtn = document.getElementById('mediaMore');
 			if (!more) {
 				nextOffset = 0;
-				list.replaceChildren(webuiEl('li', {attrs: {'aria-busy': 'true'}}, '{=L:yw.media.loading=}'));
+				list.replaceChildren(webuiEl('li', {attrs: {'aria-busy': 'true'}}, webuiL('media.loading', 'Loading recordings...')));
 			}
 			if (nextOffset === null) return;
 
@@ -307,7 +307,7 @@
 				page = await webuiV1('GET', '/recordings/archive', {query: query});
 			} catch (e) {
 				if (token !== listToken) return;
-				list.replaceChildren(webuiEl('li', {className: 'webui-empty'}, '{=L:yw.msg.load_fail=}: ' + e.message));
+				list.replaceChildren(webuiEl('li', {className: 'webui-empty'}, webuiL('msg.load_fail', 'Loading failed') + ': ' + e.message));
 				moreBtn.hidden = true;
 				return;
 			}
@@ -318,13 +318,13 @@
 			if (!more) list.replaceChildren();
 			items.forEach(rec => list.appendChild(recordingRow(rec)));
 			if (!more && items.length === 0)
-				list.appendChild(webuiEl('li', {className: 'webui-empty'}, '{=L:yw.media.none=}'));
+				list.appendChild(webuiEl('li', {className: 'webui-empty'}, webuiL('media.none', 'No recordings found')));
 
 			nextOffset = (page && typeof page.next_offset === 'number') ? page.next_offset : null;
 			moreBtn.hidden = nextOffset === null;
 			const total = (page && page.total) || 0;
 			document.getElementById('mediaCount').textContent = String(total);
-			document.getElementById('mediaPreview').textContent = total + ' {=L:yw.nav.recordings=}';
+			document.getElementById('mediaPreview').textContent = total + ' ' + webuiL('nav.recordings', 'Recordings');
 			showSources((page && page.sources) || []);
 
 			// a directory still being read the first time: asked again a few
@@ -356,12 +356,12 @@
 				cover,
 				webuiEl('div', {className: 'webui-media-info'},
 					webuiEl('div', {className: 'webui-media-title'}, rec.title || rec.channel || rec.id,
-						rec.playing ? webuiEl('span', {className: 'webui-media-badge'}, '{=L:yw.media.playing=}') : null),
+						rec.playing ? webuiEl('span', {className: 'webui-media-badge'}, webuiL('media.playing', 'Playing')) : null),
 					webuiEl('div', {className: 'webui-media-meta'}, meta)),
 				webuiEl('div', {className: 'webui-media-actions', on: {click: e => e.stopPropagation()}},
-					button(SVG_PLAY, '{=L:yw.media.play=}', () => play(rec.id)),
+					button(SVG_PLAY, webuiL('media.play', 'Play on TV'), () => play(rec.id)),
 					button(SVG_INFO, 'Info', () => showDetail(rec.id)),
-					button(SVG_DELETE, '{=L:yw.media.delete=}', () => remove(rec), true)));
+					button(SVG_DELETE, webuiL('media.delete', 'Delete'), () => remove(rec), true)));
 		}
 
 		function button(svg, title, onClick, danger) {
@@ -379,7 +379,7 @@
 			const item = (value, label) => webuiEl('li', {className: 'webui-nav-item webui-filter-item' + (value === source ? ' active' : ''),
 				data: {source: value}, on: {click: () => chooseSource(value, label)}},
 				webuiEl('span', {className: 'webui-nav-name webui-filter-name'}, label));
-			list.replaceChildren.apply(list, [item('', '{=L:yw.media.all=}')].concat(sources.map(s => item(s, s))));
+			list.replaceChildren.apply(list, [item('', webuiL('media.all', 'All recordings'))].concat(sources.map(s => item(s, s))));
 		}
 
 		function chooseSource(value, label) {
@@ -406,15 +406,15 @@
 				if (value === undefined || value === null || value === '') return;
 				facts.push(webuiEl('dt', {}, label), webuiEl('dd', {}, String(value)));
 			}
-			fact('{=L:yw.dash.channels=}', rec.channel);
+			fact(webuiL('dash.channels', 'Channels'), rec.channel);
 			fact('Start', when(rec.start));
-			fact('{=L:yw.media.sort_duration=}', length(rec.duration));
-			fact('{=L:yw.media.sort_size=}', bytes(rec.size));
-			fact('{=L:yw.media.year=}', rec.year);
-			fact('{=L:yw.media.country=}', rec.country);
-			if (rec.rating) fact('{=L:yw.media.rating=}', (rec.rating / 10).toFixed(1));
-			if (rec.age && rec.age !== 99) fact('{=L:yw.media.age=}', rec.age);
-			if (rec.audio && rec.audio.length) fact('{=L:yw.media.audio=}', rec.audio.join(', '));
+			fact(webuiL('media.sort_duration', 'Length'), length(rec.duration));
+			fact(webuiL('media.sort_size', 'Size'), bytes(rec.size));
+			fact(webuiL('media.year', 'Year'), rec.year);
+			fact(webuiL('media.country', 'Country'), rec.country);
+			if (rec.rating) fact(webuiL('media.rating', 'Rating'), (rec.rating / 10).toFixed(1));
+			if (rec.age && rec.age !== 99) fact(webuiL('media.age', 'Approved from'), rec.age);
+			if (rec.audio && rec.audio.length) fact(webuiL('media.audio', 'Sound tracks'), rec.audio.join(', '));
 			const text = [rec.description, rec.long_description].filter(Boolean).join('\n\n');
 			const base = '/api/v1' + archive(id);
 			webuiSheet({
@@ -424,13 +424,13 @@
 					webuiEl('dl', {className: 'webui-media-detail-facts'}, facts),
 					text ? webuiEl('div', {className: 'webui-media-detail-text'}, text) : null,
 					webuiEl('div', {className: 'webui-media-detail-links'},
-						webuiEl('a', {attrs: {href: base + '/playlist.m3u', download: ''}}, '{=L:yw.media.playlist=}'),
-						webuiEl('a', {attrs: {href: base + '/file', download: ''}}, '{=L:yw.media.download=}'))
+						webuiEl('a', {attrs: {href: base + '/playlist.m3u', download: ''}}, webuiL('media.playlist', 'Playlist (M3U)')),
+						webuiEl('a', {attrs: {href: base + '/file', download: ''}}, webuiL('media.download', 'Download file')))
 				],
 				actions: [
-					{label: '{=L:yw.media.delete=}', value: 'delete', danger: true},
-					{label: '{=L:yw.msg.close=}', value: 'close'},
-					{label: '{=L:yw.media.play=}', value: 'play', primary: true}
+					{label: webuiL('media.delete', 'Delete'), value: 'delete', danger: true},
+					{label: webuiL('msg.close', 'Close'), value: 'close'},
+					{label: webuiL('media.play', 'Play on TV'), value: 'play', primary: true}
 				],
 				onClose: result => {
 					if (result === 'play') play(id);
@@ -443,12 +443,12 @@
 		async function play(id) {
 			try {
 				const ok = await webuiV1Lifting(archive(id) + '/play', {}, {
-					title: '{=L:yw.media.ask_title=}',
-					ok: '{=L:yw.media.play=}',
-					stop: '{=L:yw.media.ask_stop=}',
-					wake: '{=L:yw.media.ask_wake=}'
+					title: webuiL('media.ask_title', 'Play recording'),
+					ok: webuiL('media.play', 'Play on TV'),
+					stop: webuiL('media.ask_stop', 'The player is playing a file. Stop it and play this recording?'),
+					wake: webuiL('media.ask_wake', 'The box is in standby. Switch it on and play this recording?')
 				});
-				if (ok) webuiShowToast('{=L:yw.media.played=}');
+				if (ok) webuiShowToast(webuiL('media.played', 'Playback started'));
 			} catch (e) {
 				webuiShowToast(e.message, true);
 			}
@@ -459,16 +459,16 @@
 		function remove(rec) {
 			webuiSheet({
 				title: rec.title || rec.channel || rec.id,
-				body: webuiEl('p', {}, '{=L:yw.media.delete_confirm=}'),
+				body: webuiEl('p', {}, webuiL('media.delete_confirm', 'Delete this recording with its file?')),
 				actions: [
-					{label: '{=L:yw.tm.cancel=}', value: false},
-					{label: '{=L:yw.media.delete=}', value: true, primary: true, danger: true}
+					{label: webuiL('tm.cancel', 'Cancel'), value: false},
+					{label: webuiL('media.delete', 'Delete'), value: true, primary: true, danger: true}
 				],
 				onClose: async result => {
 					if (result !== true) return;
 					try {
 						await webuiV1('DELETE', archive(rec.id));
-						webuiShowToast('{=L:yw.media.deleted=}');
+						webuiShowToast(webuiL('media.deleted', 'Recording deleted'));
 						loadList(false);
 					} catch (e) {
 						webuiShowToast(e.message, true);
@@ -487,14 +487,17 @@
 		document.getElementById('mediaOrder').addEventListener('change', () => loadList(false));
 		document.getElementById('mediaMore').addEventListener('click', () => loadList(true));
 
-		loadList(false);
-		// a finished recording joins the library; a playback moves the "playing" mark
-		webuiV1Events({
-			'record-stop': () => loadList(false),
-			playback: playbackChanged
+		// once the texts are in: a finished recording joins the library; a
+		// playback moves the "playing" mark
+		webuiAfterTexts(function() {
+			loadList(false);
+			webuiV1Events({
+				'record-stop': () => loadList(false),
+				playback: playbackChanged
+			});
 		});
 
-		document.addEventListener('DOMContentLoaded', function() {
+		webuiAfterTexts(function() {
 			webuiInitMobileAccordion({
 				cardOrder: ['card-sources', 'card-recordings'],
 				storageKey: 'webui-media-card',

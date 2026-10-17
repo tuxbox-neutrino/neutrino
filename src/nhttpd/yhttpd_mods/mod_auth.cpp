@@ -6,6 +6,7 @@
 #include <cctype>
 #include <cstring>
 #include <cstdlib>
+#include <unistd.h>
 #include "mod_auth.h"
 #include <helper.h>
 #include <httpd/webconfig.h>
@@ -52,9 +53,11 @@ THandleStatus CmAuth::Hook_PrepareResponse(CyhookHandler *hh) {
 	const std::string &url = hh->UrlData["url"];
 
 	// What may be answered without credentials: the files of the web
-	// directory itself (the pages load before anybody signs in, as the
-	// pages of a single-page interface must), the sign-in page among
-	// them. Never through a traversal: analyzeURL
+	// directory itself, which another interface in its place loads before
+	// anybody signs in, as a single-page interface must; of this
+	// interface its scripts, styles, texts and pictures and the sign-in
+	// page, while its other pages wait for the login (pageNeedsLogin), as
+	// they did while they were templates. Never through a traversal: analyzeURL
 	// matches the percent-decoded URL and mod_sendfile does not sanitize
 	// "..". The template parser runs an `execute` parameter (and prints
 	// its trace for `debug`) before it renders a page, and before it even
@@ -70,7 +73,11 @@ THandleStatus CmAuth::Hook_PrepareResponse(CyhookHandler *hh) {
 	if (url.find("..") == std::string::npos && !runs_template
 			&& (hh->Method == M_GET || hh->Method == M_HEAD) && !ystatic::inReservedSpace(url)) {
 		const ystatic::Target target = ystatic::resolve(hh);
-		const int fd = ystatic::openPublic(hh, target);
+		int fd = ystatic::openPublic(hh, target);
+		if (fd >= 0 && ystatic::pageNeedsLogin(hh, target, fd)) {
+			close(fd);
+			fd = -1;
+		}
 		if (fd >= 0) {
 			authfree = true;
 			hh->dropPublicFd();

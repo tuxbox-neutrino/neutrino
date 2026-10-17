@@ -4,6 +4,12 @@
  * Percentage-based responsive layout
  */
 
+/* A page stays hidden until its texts are in (webui-i18n.js), a second at
+   most, so it does not show its English first. */
+html.webui-i18n-pending body {
+	visibility: hidden;
+}
+
 /* ============================================
    CSS Custom Properties (Theme Variables)
    ============================================ */
@@ -2842,7 +2848,7 @@ body.webui-remote-open {
 /* ============================================
    Shared Form Components
    Toggle switch, form rows, form inputs
-   Used by: settings.yhtm, timer.yhtm, etc.
+   Used by: settings.html, timer.html, etc.
    ============================================ */
 
 /* ── Toggle Switch ── */

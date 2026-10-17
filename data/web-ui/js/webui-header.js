@@ -9,15 +9,20 @@ const WEBUI_CONFIG = {
 	title: 'Neutrino-Web-UI'
 };
 
-// i18n helper: reads the server-rendered dictionary from Y_Lang.yjs
-// (window.WEBUI_L, CLanguage chain incl. EN-Fallback). Second argument is
-// the English fallback for pages that do not load the dictionary and for
-// keys the server marks as missing ("# key #").
+// i18n helper: reads the texts webui-i18n.js loaded (window.WEBUI_L, the
+// language's file laid over en.json). Second argument is the English
+// fallback for a page that loads no texts and for a key that is missing.
 function webuiL(key, fallbackEN) {
 	var d = window.WEBUI_L;
 	var v = d && d[key];
 	if (v && v === '# yw.' + key + ' #') v = ''; // CLanguage missing-marker
 	return v || fallbackEN || key;
+}
+
+// The same, for a text put into markup: escaped for it (webui-i18n.js has
+// one too, for the pages without this header).
+function webuiLH(key, fallbackEN) {
+	return escapeHtml(webuiL(key, fallbackEN));
 }
 
 // SVG Icons for menu items
@@ -39,17 +44,20 @@ function _webuiCloseBtn(onclick) {
 	'</button>';
 }
 
-// Footer HTML Template
-const WEBUI_FOOTER_HTML = `
+// Footer HTML, built once the texts are in
+function webuiFooterHTML() {
+	return `
 <footer class="webui-footer">
 	Neutrino-Web-UI <span id="webui-footer-version">--</span> ·
-	<a href="#" onclick="webuiShowAbout(); return false;">${webuiL('about.link', 'About')}</a> ·
+	<a href="#" onclick="webuiShowAbout(); return false;">${webuiLH('about.link', 'About')}</a> ·
 	<span id="webui-footer-copyright">Copyright © Tuxbox Project</span>
 </footer>
 `;
+}
 
-// About Modal HTML Template
-const WEBUI_ABOUT_HTML = `
+// About modal HTML, built once the texts are in
+function webuiAboutHTML() {
+	return `
 <div class="webui-modal-backdrop" id="webui-about-modal" onclick="webuiCloseAbout(event)">
 	<div class="webui-modal" onclick="event.stopPropagation()">
 		<div class="webui-modal-header">
@@ -99,28 +107,29 @@ const WEBUI_ABOUT_HTML = `
 	</div>
 </div>
 `;
+}
 
 // Generate header HTML with optional active page
 function webuiGetHeaderHTML(activePage) {
 	const nav = WEBUI_CONFIG.navigation || [
-		{ page: 'dashboard', href: '/dashboard.yhtm', icon: 'dashboard', label: webuiL('nav.dashboard', 'Dashboard') },
-		{ page: 'bouquets', href: '/bouquets.yhtm', icon: 'bouquets', label: webuiL('nav.bouquets', 'Bouquets') },
-		{ page: 'epg', href: '/epg.yhtm', icon: 'epg', label: webuiL('nav.epg', 'EPG') },
-		{ page: 'timer', href: '/timer.yhtm', icon: 'timer', label: webuiL('nav.timer', 'Timer') },
-		{ page: 'recordings', href: '/recordings.yhtm', icon: 'recordings', label: webuiL('nav.recordings', 'Recordings') },
-		{ page: 'settings', href: '/settings.yhtm', icon: 'settings', label: webuiL('nav.settings', 'Settings') },
-		{ page: 'tools', href: '/tools.yhtm', icon: 'tools', label: webuiL('nav.tools', 'Tools') }
+		{ page: 'dashboard', href: '/dashboard.html', icon: 'dashboard', label: webuiL('nav.dashboard', 'Dashboard') },
+		{ page: 'bouquets', href: '/bouquets.html', icon: 'bouquets', label: webuiL('nav.bouquets', 'Bouquets') },
+		{ page: 'epg', href: '/epg.html', icon: 'epg', label: webuiL('nav.epg', 'EPG') },
+		{ page: 'timer', href: '/timer.html', icon: 'timer', label: webuiL('nav.timer', 'Timer') },
+		{ page: 'recordings', href: '/recordings.html', icon: 'recordings', label: webuiL('nav.recordings', 'Recordings') },
+		{ page: 'settings', href: '/settings.html', icon: 'settings', label: webuiL('nav.settings', 'Settings') },
+		{ page: 'tools', href: '/tools.html', icon: 'tools', label: webuiL('nav.tools', 'Tools') }
 	];
 
 	const navItems = nav.map(item => {
 		const active = item.page === activePage ? ' class="active"' : '';
-		return `<li><a href="${item.href}" data-page="${item.page}"${active}>${WEBUI_ICONS[item.icon]}<span>${item.label}</span></a></li>`;
+		return `<li><a href="${item.href}" data-page="${item.page}"${active}>${WEBUI_ICONS[item.icon]}<span>${escapeHtml(item.label)}</span></a></li>`;
 	}).join('\n\t\t\t');
 
 	return `
 <header class="webui-header">
 	<nav>
-		<a href="/dashboard.yhtm" class="webui-logo">
+		<a href="/dashboard.html" class="webui-logo">
 			<img src="${WEBUI_CONFIG.logo}" alt="" onerror="this.remove()">
 			<span>${WEBUI_CONFIG.title}</span>
 		</a>
@@ -132,14 +141,14 @@ function webuiGetHeaderHTML(activePage) {
 		<div class="webui-header-right">
 			<span class="webui-hostname" id="webui-hostname">--</span>
 			<span class="webui-clock" id="webui-clock">--:--</span>
-			<button class="webui-theme-toggle webui-lang-btn" onclick="webuiToggleLangMenu(event)" title="${webuiL('lang.title', 'Language')}">
+			<button class="webui-theme-toggle webui-lang-btn" onclick="webuiToggleLangMenu(event)" title="${webuiLH('lang.title', 'Language')}">
 				<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 					<circle cx="12" cy="12" r="9" stroke-width="2"/>
 					<path stroke-width="2" d="M3 12h18M12 3a15 15 0 010 18M12 3a15 15 0 000 18"/>
 				</svg>
 				<span class="webui-lang-code" id="webui-lang-code"></span>
 			</button>
-			<button class="webui-theme-toggle" onclick="webuiToggleTheme()" title="${webuiL('theme.toggle', 'Toggle theme')}">
+			<button class="webui-theme-toggle" onclick="webuiToggleTheme()" title="${webuiLH('theme.toggle', 'Toggle theme')}">
 				<svg id="webui-theme-icon-dark" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
 				</svg>
@@ -147,7 +156,7 @@ function webuiGetHeaderHTML(activePage) {
 					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>
 				</svg>
 			</button>
-			<button class="webui-theme-toggle" id="webui-logout-btn" hidden onclick="webuiLogout()" aria-label="${webuiL('hdr.logout', 'Log out')}" title="${webuiL('hdr.logout', 'Log out')}">
+			<button class="webui-theme-toggle" id="webui-logout-btn" hidden onclick="webuiLogout()" aria-label="${webuiLH('hdr.logout', 'Log out')}" title="${webuiLH('hdr.logout', 'Log out')}">
 				<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
 					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
 					<polyline stroke-linecap="round" stroke-linejoin="round" stroke-width="2" points="16 17 21 12 16 7"/>
@@ -163,9 +172,6 @@ function webuiGetHeaderHTML(activePage) {
 	</nav>
 </header>`;
 }
-
-// Legacy: static header HTML (for backward compatibility)
-const WEBUI_HEADER_HTML = webuiGetHeaderHTML();
 
 // Theme Management. The choice was kept under 'yweb-theme' before the
 // interface took its own name; it is read from there until it is set again.
@@ -621,9 +627,9 @@ function webuiInitHeader(pageName) {
 	// Insert header at beginning of body
 	const headerContainer = document.getElementById('webui-header-container');
 	if (headerContainer) {
-		headerContainer.innerHTML = WEBUI_HEADER_HTML;
+		headerContainer.innerHTML = webuiGetHeaderHTML();
 	} else {
-		document.body.insertAdjacentHTML('afterbegin', WEBUI_HEADER_HTML);
+		document.body.insertAdjacentHTML('afterbegin', webuiGetHeaderHTML());
 	}
 
 	// Set theme
@@ -651,8 +657,9 @@ function webuiInitHeader(pageName) {
 // its own first: the box refuses it everything else until then
 // (password_change_required in GET /api/v1/session), so the page goes to
 // where that is done. Asked on every page load, which costs one request; a
-// page without a session is not asked, having signed in with nothing.
-// password.html and login.html do not load this script, so this cannot loop.
+// page without a session is not asked, the server having sent it to the
+// sign-in already (or exempted it). password.html and login.html do not
+// load this script, so this cannot loop.
 function webuiCheckDefaultPassword() {
 	webuiSessionInfo()
 		.then(function(s) {
@@ -700,11 +707,11 @@ function webuiInitFooter() {
 	if (document.querySelector('.webui-footer')) return;
 
 	// Insert footer at end of body
-	document.body.insertAdjacentHTML('beforeend', WEBUI_FOOTER_HTML);
+	document.body.insertAdjacentHTML('beforeend', webuiFooterHTML());
 
 	// Insert about modal
 	if (!document.getElementById('webui-about-modal')) {
-		document.body.insertAdjacentHTML('beforeend', WEBUI_ABOUT_HTML);
+		document.body.insertAdjacentHTML('beforeend', webuiAboutHTML());
 	}
 
 	// Load versions from API
@@ -820,7 +827,7 @@ async function webuiSendKey(key) {
 				: (await webuiApi('standby', {status: ''})).standby === false;
 			if (awake) {
 				// Rueckfrage als webui-Dialog statt nativem confirm()
-				webuiShowConfirm('Standby', webuiL('sb.confirm', 'Put the box into standby?'), 'Standby',
+				webuiShowConfirm('Standby', webuiLH('sb.confirm', 'Put the box into standby?'), 'Standby',
 					send, {variant: 'ok'});
 				return;
 			}
@@ -1170,7 +1177,7 @@ function webuiShowRemote(opts) {
 		var html = '<div class="webui-remote-backdrop" id="webui-remote-modal" onclick="webuiCloseRemote(event)">' +
 			'<div class="webui-remote-dialog" role="dialog" aria-modal="true" aria-labelledby="webui-remote-modal-title" onclick="event.stopPropagation()">' +
 				'<div class="webui-remote-modal-header">' +
-					'<span id="webui-remote-modal-title">' + WEBUI_ICONS.remote + ' ' + webuiL('tools.remote_sub', 'Remote control') + '</span>' +
+					'<span id="webui-remote-modal-title">' + WEBUI_ICONS.remote + ' ' + webuiLH('tools.remote_sub', 'Remote control') + '</span>' +
 					_webuiCloseBtn('webuiCloseRemote()') +
 				'</div>' +
 				'<div id="webui-remote-modal-host"></div>' +
@@ -1261,6 +1268,18 @@ function webuiCloseRemote(event) {
 }
 
 // Also escapes quotes so the result is safe in attribute values.
+// Loads a script and answers once it has run, or fails where it cannot be
+// read.
+function webuiLoadScript(src) {
+	return new Promise(function(done, failed) {
+		var s = document.createElement('script');
+		s.src = src;
+		s.onload = function() { done(); };
+		s.onerror = function() { failed(new Error('cannot load ' + src)); };
+		document.head.appendChild(s);
+	});
+}
+
 function escapeHtml(text) {
 	if (!text) return '';
 	const div = document.createElement('div');
@@ -1268,9 +1287,11 @@ function escapeHtml(text) {
 	return div.innerHTML.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 }
 
+// For a string inside a quoted JavaScript string; put into an attribute it
+// needs escapeHtml as well. The pages pass escapeHtml(JSON.stringify(value)).
 function escapeJs(text) {
 	if (!text) return '';
-	return text.replace(/'/g, "\\'").replace(/"/g, '\\"');
+	return text.replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '\\"');
 }
 
 // Generic modal on the EPG-modal backdrop pattern. Reuses the element
@@ -1333,7 +1354,7 @@ function webuiShowPathPicker(startPath, onPick, opts) {
 		'<ul id="webui-picker-list" style="list-style:none;margin:0;padding:0;max-height:50vh;overflow:auto"></ul>' +
 		'<div class="webui-form-row" style="margin-top:0.8rem"><label></label>' +
 		'<button type="button" class="webui-btn primary" onclick="webuiPickerChoose()">' +
-		webuiL('picker.choose_folder', 'Choose this folder') + '</button></div>');
+		webuiLH('picker.choose_folder', 'Choose this folder') + '</button></div>');
 	webuiPickerLoad(_webuiPickerState.path);
 }
 
@@ -1363,7 +1384,7 @@ async function webuiPickerLoad(path) {
 	var listEl = document.getElementById('webui-picker-list');
 	var crumbEl = document.getElementById('webui-picker-crumb');
 	if (!listEl) return;
-	listEl.innerHTML = '<li style="padding:0.5rem;color:var(--pico-muted-color)">' + webuiL('msg.loading', 'Loading...') + '</li>';
+	listEl.innerHTML = '<li style="padding:0.5rem;color:var(--pico-muted-color)">' + webuiLH('msg.loading', 'Loading...') + '</li>';
 	// both: a page that loads webui-v1.js without webui-dom.js keeps the old list
 	if (typeof webuiV1 === 'function' && typeof webuiEl === 'function') {
 		var rows;
@@ -1423,7 +1444,7 @@ async function webuiPickerLoad(path) {
 		html += '<li><button type="button" class="webui-btn" style="width:100%;text-align:left;border:none" onclick="' + action + '">' +
 			icon + ' ' + escapeHtml(e.name) + '</button></li>';
 	});
-	listEl.innerHTML = html || '<li style="padding:0.5rem;color:var(--pico-muted-color)">' + webuiL('picker.empty', 'empty') + '</li>';
+	listEl.innerHTML = html || '<li style="padding:0.5rem;color:var(--pico-muted-color)">' + webuiLH('picker.empty', 'empty') + '</li>';
 }
 
 function webuiPickerChoose() {
@@ -1443,32 +1464,40 @@ function webuiPickerPickFile(full) {
 
 // Timer constants — shared across all pages. Interne Typnamen (EN,
 // stabil fuer Logik); Anzeige-Labels kommen lokalisiert via webuiL —
-// Y_Lang.yjs ist vor dieser Datei geladen, daher sind die Konstanten
-// hier bereits uebersetzt.
+// The labels are filled once the texts are in (webuiFillTimerLabels, run
+// before any page's own start); a page may keep a reference to the objects.
 const WEBUI_TIMER_TYPES = {
 	1: 'Shutdown', 2: 'Nextprogram', 3: 'Zapto', 4: 'Standby',
 	5: 'Record', 6: 'Remind', 7: 'Sleeptimer', 8: 'Plugin', 9: 'Immediate Record'
 };
 
-const WEBUI_TIMER_TYPE_LABELS = {
-	1: webuiL('timer.type.1', 'Shutdown'), 3: webuiL('timer.type.3', 'Zap'),
-	4: webuiL('timer.type.4', 'Standby'), 5: webuiL('timer.type.5', 'Record'),
-	6: webuiL('timer.type.6', 'Reminder'), 7: webuiL('timer.type.7', 'Sleep timer'),
-	8: webuiL('timer.type.8', 'Plugin'), 9: webuiL('timer.type.9', 'Instant record')
-};
+const WEBUI_TIMER_TYPE_LABELS = {};
+const WEBUI_TIMER_STATE_LABELS = {};
+const WEBUI_REPEAT_LABELS = {};
 
-const WEBUI_TIMER_STATE_LABELS = {
-	0: webuiL('timer.state.0', 'Scheduled'), 1: webuiL('timer.state.1', 'Announced'),
-	2: webuiL('timer.state.2', 'Active'), 3: webuiL('timer.state.3', 'Finished'),
-	4: webuiL('timer.state.4', 'Cancelled')
-};
-
-const WEBUI_REPEAT_LABELS = {
-	'once': webuiL('timer.rep.once', 'Once'), 'daily': webuiL('timer.rep.daily', 'Daily'),
-	'weekly': webuiL('timer.rep.weekly', 'Weekly'), 'biweekly': webuiL('timer.rep.biweekly', 'Every 2 weeks'),
-	'fourweekly': webuiL('timer.rep.fourweekly', 'Every 4 weeks'),
-	'monthly': webuiL('timer.rep.monthly', 'Monthly'), 'byeventdescription': webuiL('timer.rep.bydesc', 'By description')
-};
+function webuiFillTimerLabels() {
+	Object.assign(WEBUI_TIMER_TYPE_LABELS, {
+		1: webuiL('timer.type.1', 'Shutdown'), 3: webuiL('timer.type.3', 'Zap'),
+		4: webuiL('timer.type.4', 'Standby'), 5: webuiL('timer.type.5', 'Record'),
+		6: webuiL('timer.type.6', 'Reminder'), 7: webuiL('timer.type.7', 'Sleep timer'),
+		8: webuiL('timer.type.8', 'Plugin'), 9: webuiL('timer.type.9', 'Instant record')
+	});
+	Object.assign(WEBUI_TIMER_STATE_LABELS, {
+		0: webuiL('timer.state.0', 'Scheduled'), 1: webuiL('timer.state.1', 'Announced'),
+		2: webuiL('timer.state.2', 'Active'), 3: webuiL('timer.state.3', 'Finished'),
+		4: webuiL('timer.state.4', 'Cancelled')
+	});
+	Object.assign(WEBUI_REPEAT_LABELS, {
+		'once': webuiL('timer.rep.once', 'Once'), 'daily': webuiL('timer.rep.daily', 'Daily'),
+		'weekly': webuiL('timer.rep.weekly', 'Weekly'), 'biweekly': webuiL('timer.rep.biweekly', 'Every 2 weeks'),
+		'fourweekly': webuiL('timer.rep.fourweekly', 'Every 4 weeks'),
+		'monthly': webuiL('timer.rep.monthly', 'Monthly'), 'byeventdescription': webuiL('timer.rep.bydesc', 'By description')
+	});
+}
+webuiFillTimerLabels();
+// filled again in the page's language before any page's own start
+if (window.webuiTexts)
+	window.webuiTexts = window.webuiTexts.then(function(code) { webuiFillTimerLabels(); return code; });
 
 // Timer helper functions — shared across all pages
 function webuiGetTimerType(timer) {
@@ -1553,6 +1582,8 @@ async function webuiFetchChannels(bouquetNr) {
 // onConfirm: async function(btn) — called when user clicks confirm, btn shows loading state
 // opts.variant 'ok': Akzent-Knopf fuer nicht-destruktive Rueckfragen
 // (Standby, Neustart-Frage o.ae.); Default bleibt rot (destruktiv)
+// title and confirmLabel are text; message is markup, and a caller escapes
+// what it puts in (webuiLH for a text, escapeHtml for a name).
 function webuiShowConfirm(title, message, confirmLabel, onConfirm, opts) {
 	var confirmClass = (opts && opts.variant === 'ok') ? 'confirm-ok' : 'confirm-delete';
 	var backdrop = document.createElement('div');
@@ -1562,11 +1593,11 @@ function webuiShowConfirm(title, message, confirmLabel, onConfirm, opts) {
 	};
 	backdrop.innerHTML =
 		'<div class="webui-confirm-dialog">' +
-			'<h4>' + title + '</h4>' +
+			'<h4>' + escapeHtml(title) + '</h4>' +
 			'<p>' + message + '</p>' +
 			'<div class="webui-confirm-actions">' +
-				'<button class="confirm-cancel">' + webuiL('msg.cancel', 'Cancel') + '</button>' +
-				'<button class="' + confirmClass + '">' + confirmLabel + '</button>' +
+				'<button class="confirm-cancel">' + webuiLH('msg.cancel', 'Cancel') + '</button>' +
+				'<button class="' + confirmClass + '">' + escapeHtml(confirmLabel) + '</button>' +
 			'</div>' +
 		'</div>';
 	backdrop.querySelector('.confirm-cancel').onclick = function() { backdrop.remove(); };
@@ -1601,7 +1632,7 @@ function webuiShowPrompt(title, label, value, onOk) {
 			'<label class="webui-prompt-label"></label>' +
 			'<input type="text" class="webui-prompt-input" maxlength="255">' +
 			'<div class="webui-confirm-actions">' +
-				'<button class="confirm-cancel">' + webuiL('msg.cancel', 'Cancel') + '</button>' +
+				'<button class="confirm-cancel">' + webuiLH('msg.cancel', 'Cancel') + '</button>' +
 				'<button class="confirm-ok">OK</button>' +
 			'</div>' +
 		'</div>';
@@ -1646,10 +1677,10 @@ function webuiShowMessageDialog() {
 	pop.innerHTML =
 		'<button type="button" class="webui-popover-close" onclick="document.getElementById(\'webui-message-pop\').classList.remove(\'open\')" aria-label="Close">\u00d7</button>' +
 		'<form onsubmit="return false">' +
-			'<input type="text" id="webui-msg-text" placeholder="' + webuiL('tools.message_ph', 'Enter message\u2026') + '" maxlength="255">' +
+			'<input type="text" id="webui-msg-text" placeholder="' + webuiLH('tools.message_ph', 'Enter message\u2026') + '" maxlength="255">' +
 			'<div class="webui-popover-actions">' +
 				'<small id="webui-msg-result">\u00a0</small>' +
-				'<button type="button" class="webui-btn" onclick="webuiSendMessage(\'nmsg\')">' + webuiL('tools.message', 'Message') + '</button>' +
+				'<button type="button" class="webui-btn" onclick="webuiSendMessage(\'nmsg\')">' + webuiLH('tools.message', 'Message') + '</button>' +
 				'<button type="button" class="webui-btn primary" onclick="webuiSendMessage(\'popup\')">Popup</button>' +
 			'</div>' +
 		'</form>';
@@ -1755,7 +1786,7 @@ function webuiShowAbout() {
 				};
 				html += link(data.links.homepage, 'Homepage') + link(data.links.docs, 'Dokumentation') +
 					link(data.links.forum, 'Forum');
-				linksEl.innerHTML = html || '<span class="webui-about-label">' + webuiL('about.no_links', 'No links available') + '</span>';
+				linksEl.innerHTML = html || '<span class="webui-about-label">' + webuiLH('about.no_links', 'No links available') + '</span>';
 			}
 
 			// Update copyright from API
@@ -2122,7 +2153,7 @@ function webuiInit() {
 
 		// Always insert about modal if not present
 		if (!document.getElementById('webui-about-modal')) {
-			document.body.insertAdjacentHTML('beforeend', WEBUI_ABOUT_HTML);
+			document.body.insertAdjacentHTML('beforeend', webuiAboutHTML());
 		}
 
 		// Initialize mobile menu swipe gestures
@@ -2305,7 +2336,7 @@ function selectCard(cardId) {
 		card.scrollIntoView({behavior: 'smooth', block: 'nearest'});
 	}
 }
-/* dashboard.yhtm uses navigateToCard — alias */
+/* dashboard.html uses navigateToCard — alias */
 var navigateToCard = selectCard;
 
 function buildCardIndicator() {
@@ -2354,9 +2385,11 @@ function initMobileAccordion() {
 	updateCardIndicator();
 }
 
-// Auto-detect page from URL and initialize
-// Handle both cases: script in head (DOMContentLoaded) and script at end of body (already ready)
-if (document.readyState === 'loading') {
+// Auto-detect page from URL and initialize, once the document is parsed and,
+// where the page loads webui-i18n.js, its texts are in.
+if (typeof webuiAfterTexts === 'function') {
+	webuiAfterTexts(webuiInit);
+} else if (document.readyState === 'loading') {
 	document.addEventListener('DOMContentLoaded', webuiInit);
 } else {
 	// DOM already loaded, init immediately

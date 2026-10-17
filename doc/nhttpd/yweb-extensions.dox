@@ -148,7 +148,7 @@ Patch als `git rev-list --count v<maj>.<min>..HEAD + 1` (jq auf
 manifest.json), taggt, baut den Tarball und veroeffentlicht das Release
 im selben Job (GITHUB_TOKEN-Pushes triggern keine Folge-Workflows).
 Erweiterungs-Seiten referenzieren Kern-Assets (`/css/webui.css`,
-`/Y_Lang.yjs`, `/js/webui-header.js`) OHNE `?v=`-Parameter — sie koennen
+`/js/webui-i18n.js`, `/js/webui-header.js`) OHNE `?v=`-Parameter — sie koennen
 Kern-Bumps nicht tracken.
 
 \section ywebext_ref Referenz & Einsteiger-Doku
@@ -309,7 +309,7 @@ sets `<maj>.<min>.0` and creates the annotated anchor tag
 `main` as `git rev-list --count v<maj>.<min>..HEAD + 1` (jq on
 manifest.json), tags, builds the tarball and publishes the release in
 the same job (GITHUB_TOKEN pushes trigger no follow-up workflows).
-Extension pages reference core assets (`/css/webui.css`, `/Y_Lang.yjs`,
+Extension pages reference core assets (`/css/webui.css`, `/js/webui-i18n.js`,
 `/js/webui-header.js`) WITHOUT `?v=` parameters — they cannot track core
 bumps.
 

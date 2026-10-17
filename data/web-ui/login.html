@@ -11,10 +11,8 @@
 		try { document.documentElement.setAttribute('data-theme', localStorage.getItem('webui-theme') || localStorage.getItem('yweb-theme') || 'dark'); } catch (e) {}
 	</script>
 	<link rel="stylesheet" href="/css/pico.min.css">
-	<link rel="stylesheet" href="/css/webui.css?v=89">
+	<link rel="stylesheet" href="/css/webui.css?v=90">
 	<style>
-		/* hidden until its texts are in (webui-i18n.js), a second at most */
-		html.webui-i18n-pending body { visibility: hidden; }
 		/* Compact centered auth card after the portal login pattern.
 		   webui.css already makes body a column flexbox with main{flex:1}
 		   — undo the stretch and the fixed height so the card sizes to
@@ -151,11 +149,11 @@
 		<p class="sub login-first" data-l="login.first">First sign-in: user root, password neutrino. You will then be asked for a password of your own.</p>
 	</main>
 
-	<script src="/js/webui-i18n.js?v=1"></script>
+	<script src="/js/webui-i18n.js?v=2"></script>
 	<script>
 		// The texts in the language the box shows its pages in (webui-i18n.js),
 		// the title with them.
-		webuiI18nStart().then(function() {
+		webuiTexts.then(function() {
 			document.title = 'Neutrino-Web-UI - ' + webuiL('login.title', 'Sign in');
 		});
 

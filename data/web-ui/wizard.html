@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en" data-theme="dark" class="webui-i18n-pending">
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Neutrino-Web-UI - {=L:yw.wiz.title=}</title>
+	<title data-l="wiz.title" data-l-prefix="Neutrino-Web-UI - ">Neutrino-Web-UI - Setup</title>
 	<link rel="icon" href="/favicon/favicon.ico">
 	<script>
 		// Apply the stored theme before first paint: webui-header.js runs
@@ -11,7 +11,7 @@
 		try { document.documentElement.setAttribute('data-theme', localStorage.getItem('webui-theme') || localStorage.getItem('yweb-theme') || 'dark'); } catch (e) {}
 	</script>
 	<link rel="stylesheet" href="/css/pico.min.css">
-	<link rel="stylesheet" href="/css/webui.css?v=89">
+	<link rel="stylesheet" href="/css/webui.css?v=90">
 	<style>
 		.wiz-wrap {
 			max-width: 26rem;
@@ -72,60 +72,61 @@
 	</style>
 </head>
 <body>
-	<!-- webui-card statt settings-card: letztere ist settings.yhtm-lokal
+	<!-- webui-card statt settings-card: letztere ist settings.html-lokal
 	     und hier wirkungslos — die Karte war randlos/unsichtbar -->
 	<main class="wiz-wrap webui-card" id="wizCardBasics">
-		<h1>{=L:yw.wiz.welcome=}</h1>
-		<p class="sub">{=L:yw.wiz.intro=}</p>
+		<h1 data-l="wiz.welcome">Welcome to the Neutrino-Web-UI</h1>
+		<p class="sub" data-l="wiz.intro">Choose your language and start page to get going.</p>
 
-		<label for="wizLang">{=L:yw.lang.title=}</label>
+		<label for="wizLang" data-l="lang.title">Language</label>
 		<select id="wizLang"></select>
 
-		<label for="wizPage">{=L:yw.wiz.start_page=}</label>
+		<label for="wizPage" data-l="wiz.start_page">Start page</label>
 		<select id="wizPage">
-			<option value="dashboard.yhtm">{=L:yw.nav.dashboard=}</option>
-			<option value="bouquets.yhtm">{=L:yw.nav.bouquets=}</option>
-			<option value="epg.yhtm">{=L:yw.nav.epg=}</option>
-			<option value="timer.yhtm">{=L:yw.nav.timer=}</option>
-			<option value="tools.yhtm">{=L:yw.nav.tools=}</option>
-			<option value="settings.yhtm">{=L:yw.nav.settings=}</option>
+			<option value="dashboard.html" data-l="nav.dashboard">Dashboard</option>
+			<option value="bouquets.html" data-l="nav.bouquets">Bouquets</option>
+			<option value="epg.html" data-l="nav.epg">EPG</option>
+			<option value="timer.html" data-l="nav.timer">Timer</option>
+			<option value="tools.html" data-l="nav.tools">Tools</option>
+			<option value="settings.html" data-l="nav.settings">Settings</option>
 		</select>
 
 		<small class="wiz-err" id="wizErr0" role="status" tabindex="-1" hidden></small>
-		<button type="button" class="webui-btn primary" id="wizGo" style="width:100%" onclick="wizNext(this)">{=L:yw.wiz.next=}</button>
+		<button type="button" class="webui-btn primary" id="wizGo" style="width:100%" onclick="wizNext(this)" data-l="wiz.next">Continue</button>
 	</main>
 
 	<main class="wiz-wrap webui-card" id="wizCardLogin" hidden>
-		<h1>{=L:yw.wiz.login_title=}</h1>
-		<p class="sub" id="wizLoginIntro">{=L:yw.wiz.login_intro=}</p>
+		<h1 data-l="wiz.login_title">Web interface login</h1>
+		<p class="sub" id="wizLoginIntro" data-l="wiz.login_intro">Protect the web interface with a login. Optional, can be changed later in the settings.</p>
 
-		<label class="wiz-check"><input type="checkbox" id="wizAuth" role="switch">{=L:yw.wiz.login_enable=}</label>
+		<label class="wiz-check"><input type="checkbox" id="wizAuth" role="switch"><span data-l="wiz.login_enable">Require login</span></label>
 
-		<label for="wizUser">{=L:yw.wiz.login_user=}</label>
+		<label for="wizUser" data-l="wiz.login_user">Username</label>
 		<input type="text" id="wizUser" autocomplete="username" value="root" style="margin-bottom:1.2rem">
 
-		<label for="wizPass">{=L:yw.wiz.login_pass=}</label>
+		<label for="wizPass" data-l="wiz.login_pass">Password</label>
 		<div class="wiz-pw-row">
 			<input type="password" id="wizPass" autocomplete="new-password">
-			<button type="button" class="webui-btn" aria-pressed="false" aria-label="{=L:yw.set.pw_show=}" onclick="wizTogglePw('wizPass', this)"></button>
+			<button type="button" class="webui-btn" aria-pressed="false" aria-label="Show password" data-l-aria-label="set.pw_show" onclick="wizTogglePw('wizPass', this)"></button>
 		</div>
 
-		<label for="wizPass2">{=L:yw.wiz.login_pass2=}</label>
+		<label for="wizPass2" data-l="wiz.login_pass2">Repeat password</label>
 		<div class="wiz-pw-row">
 			<input type="password" id="wizPass2" autocomplete="new-password">
-			<button type="button" class="webui-btn" aria-pressed="false" aria-label="{=L:yw.set.pw_show=}" onclick="wizTogglePw('wizPass2', this)"></button>
+			<button type="button" class="webui-btn" aria-pressed="false" aria-label="Show password" data-l-aria-label="set.pw_show" onclick="wizTogglePw('wizPass2', this)"></button>
 		</div>
 
 		<!-- Fehlerelement existiert vorab im DOM, sonst wird nichts angesagt -->
 		<small class="wiz-err" id="wizErr" role="status" tabindex="-1" hidden></small>
-		<small class="wiz-note">{=L:yw.wiz.login_note=}</small>
+		<small class="wiz-note" data-l="wiz.login_note">After saving, the browser asks for the new login. Access from the box itself stays open.</small>
 
 		<div class="wiz-actions">
-			<button type="button" class="webui-btn ghost" id="wizSkip" onclick="wizLoginDone()">{=L:yw.wiz.login_skip=}</button>
-			<button type="button" class="webui-btn primary" onclick="wizLoginSave(this)">{=L:yw.wiz.login_save=}</button>
+			<button type="button" class="webui-btn ghost" id="wizSkip" onclick="wizLoginDone()" data-l="wiz.login_skip">Skip</button>
+			<button type="button" class="webui-btn primary" onclick="wizLoginSave(this)" data-l="wiz.login_save">Save</button>
 		</div>
 	</main>
 
+	<script src="/js/webui-i18n.js?v=2"></script>
 	<script>
 		// Auge-Icons lokal: die Wizard-Seite laedt webui-header.js bewusst nicht
 		var WIZ_EYE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:1rem;height:1rem;vertical-align:middle" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';
@@ -143,7 +144,7 @@
 
 		var wizParams = new URLSearchParams(location.search);
 		var wizLoginOnly = wizParams.get('step') === 'login';
-		var wizTarget = 'dashboard.yhtm';
+		var wizTarget = 'dashboard.html';
 		var wizPwShipped = false;
 
 		// The active language, by its code, so it is only written when it
@@ -243,7 +244,7 @@
 			if (!caller.restarting) return;
 			var note = document.querySelector('#wizCardLogin .wiz-note');
 			var noteWas = note ? note.textContent : '';
-			if (note) note.textContent = '{=L:yw.set.ws_restarting=}';
+			if (note) note.textContent = webuiL('set.ws_restarting', 'The web server restarts with the new settings');
 			var end = Date.now() + 30000;
 			while (Date.now() < end) {
 				await new Promise(function(r) { setTimeout(r, 300); });
@@ -267,7 +268,7 @@
 				finally { clearTimeout(timer); }
 			}
 			if (note) note.textContent = noteWas;
-			throw new Error('{=L:yw.wiz.login_not_back=}');
+			throw new Error(webuiL('wiz.login_not_back', 'Saved, but the web server does not answer again yet. Please press Save again in a moment.'));
 		}
 
 		function wizLoginDone() {
@@ -279,9 +280,9 @@
 			var user = document.getElementById('wizUser').value;
 			var pw = document.getElementById('wizPass').value;
 			var pw2 = document.getElementById('wizPass2').value;
-			if (pw !== pw2) { wizError('{=L:yw.wiz.login_mismatch=}'); return; }
+			if (pw !== pw2) { wizError(webuiL('wiz.login_mismatch', 'Passwords do not match.')); return; }
 			// the page login on and still the password every box ships with: not saved
-			if (auth && !pw && wizPwShipped) { wizError('{=L:yw.wiz.login_needpw=}'); return; }
+			if (auth && !pw && wizPwShipped) { wizError(webuiL('wiz.login_needpw', 'Please enter your own password.')); return; }
 			// skipping while the server restarts would ask for the next page
 			// in the gap: both wait for the save
 			var skip = document.getElementById('wizSkip');
@@ -307,10 +308,12 @@
 			}
 		}
 
-		if (wizLoginOnly)
-			wizShowLogin();
-		wizLoadLanguages();
-		wizLoadLogin();
+		webuiAfterTexts(function() {
+			if (wizLoginOnly)
+				wizShowLogin();
+			wizLoadLanguages();
+			wizLoadLogin();
+		});
 	</script>
 </body>
 </html>

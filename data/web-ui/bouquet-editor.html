@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="de" data-theme="dark">
+<html lang="en" data-theme="dark" class="webui-i18n-pending">
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Neutrino-Web-UI - {=L:yw.tools.bqedit=}</title>
+	<title data-l="tools.bqedit" data-l-prefix="Neutrino-Web-UI - ">Neutrino-Web-UI - Bouquet editor</title>
 	<link rel="icon" href="/favicon/favicon.ico">
 	<script>
 		// Apply the stored theme before first paint: webui-header.js runs
@@ -11,7 +11,7 @@
 		try { document.documentElement.setAttribute('data-theme', localStorage.getItem('webui-theme') || localStorage.getItem('yweb-theme') || 'dark'); } catch (e) {}
 	</script>
 	<link rel="stylesheet" href="/css/pico.min.css">
-	<link rel="stylesheet" href="/css/webui.css?v=89">
+	<link rel="stylesheet" href="/css/webui.css?v=90">
 	<style>
 		/* Randlos wie Dashboard/Settings: der Editor nutzt die volle
 		   Breite, die drei Panels fuellen die Viewport-Hoehe */
@@ -81,7 +81,7 @@
 
 	<main class="bqe-wrap">
 		<div class="bqe-toolbar">
-			<label class="bqe-mode">{=L:yw.bqe.mode=}
+			<label class="bqe-mode"><span data-l="bqe.mode">Mode</span>
 				<select id="bqeMode" onchange="bqeModeChanged()">
 					<option value="TV">TV</option>
 					<option value="RADIO">Radio</option>
@@ -91,13 +91,13 @@
 				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
 					<line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
 				</svg>
-				{=L:yw.bqe.new=}</button>
-			<span class="bqe-dirty" id="bqeDirty">&#9679; {=L:yw.bqe.unsaved=}</span>
+				<span data-l="bqe.new">New bouquet</span></button>
+			<span class="bqe-dirty" id="bqeDirty">&#9679; <span data-l="bqe.unsaved">unsaved changes</span></span>
 		</div>
 
 		<div class="bqe-stale" id="bqeStale" role="status" hidden>
-			<span>{=L:yw.bqe.changed_on_box=}</span>
-			<button type="button" class="bqe-mini attn" onclick="bqeReloadAll(true)" title="{=L:yw.bqe.reload_discard=}">{=L:yw.bqe.reload=}</button>
+			<span data-l="bqe.changed_on_box">The bouquets were changed on the box.</span>
+			<button type="button" class="bqe-mini attn" onclick="bqeReloadAll(true)" title="Reload, discarding the changes not applied" data-l-title="bqe.reload_discard" data-l="bqe.reload">Reload</button>
 		</div>
 
 		<div class="bqe-grid">
@@ -120,14 +120,14 @@
 						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 							<rect x="2" y="7" width="20" height="15" rx="2"/><polyline points="17 2 12 7 7 2"/>
 						</svg>
-						<span id="bqeChTitle">{=L:yw.bqe.channels=}</span>
+						<span id="bqeChTitle" data-l="bqe.channels">Channels</span>
 					</h3>
-					<button type="button" class="bqe-mini" id="bqeApplyBtn" onclick="bqeApplyChannels()" title="{=L:yw.bqe.apply_title=}" disabled>
+					<button type="button" class="bqe-mini" id="bqeApplyBtn" onclick="bqeApplyChannels()" title="Take over the channel list of this bouquet" data-l-title="bqe.apply_title" disabled>
 						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 							<polyline points="20 6 9 17 4 12"/>
 						</svg>
-						{=L:yw.bqe.apply=}</button>
-					<button type="button" class="bqe-mini" id="bqeDiscardBtn" onclick="bqeDiscard()" title="{=L:yw.bqe.discard_title=}" disabled>{=L:yw.bqe.discard=}</button>
+						<span data-l="bqe.apply">Apply</span></button>
+					<button type="button" class="bqe-mini" id="bqeDiscardBtn" onclick="bqeDiscard()" title="Discard the channel changes not applied yet" data-l-title="bqe.discard_title" disabled data-l="bqe.discard">Discard</button>
 				</header>
 				<div class="webui-card-body">
 					<ul class="webui-plain-list bqe-list" id="bqeChannels" ondragover="bqeListOver(event)" ondragleave="bqeListLeave(event)" ondrop="bqeListDrop(event)"></ul>
@@ -139,19 +139,19 @@
 						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 							<rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
 						</svg>
-						{=L:yw.bqe.all_channels=} <small id="bqeAllCount"></small>
+						<span data-l="bqe.all_channels">All channels</span> <small id="bqeAllCount"></small>
 					</h3>
-					<span class="bqe-search"><input id="bqeFilter" placeholder="{=L:yw.bqe.search=}" aria-label="{=L:yw.bqe.search=}" oninput="bqeRenderAll()"></span>
+					<span class="bqe-search"><input id="bqeFilter" placeholder="search..." data-l-placeholder="bqe.search" aria-label="search..." data-l-aria-label="bqe.search" oninput="bqeRenderAll()"></span>
 				</header>
 				<div class="webui-card-body">
 					<ul class="webui-plain-list bqe-list" id="bqeAll"></ul>
 				</div>
 			</article>
 		</div>
-		<p class="bqe-hint">{=L:yw.bqe.hint=}</p>
+		<p class="bqe-hint" data-l="bqe.hint">Reorder channels by dragging and pull them over from "All channels" (double-click adds too). Creating, renaming, moving, hiding, locking and deleting a bouquet is saved on the box at once; a changed channel list with "Apply".</p>
 	</main>
 
-	<script src="/Y_Lang.yjs?v=27"></script>
+	<script src="/js/webui-i18n.js?v=2"></script>
 	<script src="/js/webui-header.js?v=62"></script>
 	<script src="/js/webui-v1.js?v=14"></script>
 	<script>
@@ -268,7 +268,7 @@
 			var shared = !!(bqeSel && bqeShared(bqeSel.name));
 			var apply = document.getElementById('bqeApplyBtn');
 			apply.disabled = shared || bqeApplying || !bqeChanDirty || !bqeChanReady();
-			apply.title = shared ? '{=L:yw.bqe.shared=}' : '{=L:yw.bqe.apply_title=}';
+			apply.title = shared ? webuiL('bqe.shared', 'More than one bouquet carries this name - rename one of them on the box first') : webuiL('bqe.apply_title', 'Take over the channel list of this bouquet');
 		}
 
 		function bqeShowStale(on) {
@@ -279,7 +279,7 @@
 		// there are none or when the user agrees, cancelling changes nothing.
 		function bqeUnlessDirty(go) {
 			if (!bqeChanDirty) { go(); return; }
-			webuiShowConfirm('{=L:yw.bqe.drop_title=}', '{=L:yw.bqe.drop_msg=}', '{=L:yw.bqe.discard=}',
+			webuiShowConfirm(webuiL('bqe.drop_title', 'Discard channel changes?'), webuiLH('bqe.drop_msg', 'The channel list has changes not applied yet. They will be lost.'), webuiL('bqe.discard', 'Discard'),
 				function() { setDirty(false); go(); });
 		}
 
@@ -387,7 +387,7 @@
 				list = (await webuiV1All('/channels', {mode: mode}))
 					.map(function(c) { return {id: c.id, name: c.name}; });
 			} catch (e) {
-				if (read === bqeReads.all) webuiShowToast('{=L:yw.bqe.all_channels=}: ' + e.message, true);
+				if (read === bqeReads.all) webuiShowToast(webuiL('bqe.all_channels', 'All channels') + ': ' + e.message, true);
 			}
 			if (read !== bqeReads.all || list === null) return;
 			bqeAllChan = list;
@@ -409,7 +409,7 @@
 				list = !sel ? [] : (await webuiV1All('/channels', {bouquet: sel.id, mode: mode}))
 					.map(function(c) { return {id: c.id, name: c.name}; });
 			} catch (e) {
-				if (read === bqeReads.chan) webuiShowToast('{=L:yw.bqe.channels=}: ' + e.message, true);
+				if (read === bqeReads.chan) webuiShowToast(webuiL('bqe.channels', 'Channels') + ': ' + e.message, true);
 			}
 			if (read !== bqeReads.chan) return;
 			bqeChanReading = false;
@@ -440,32 +440,32 @@
 			bqeBouquets.forEach(function(b) {
 				var n = radio ? b.radio_count : b.tv_count;
 				var shared = bqeShared(b.name);
-				var off = shared ? ' disabled title="{=L:yw.bqe.shared=}"' : '';
+				var off = shared ? ' disabled title="' + webuiLH('bqe.shared', 'More than one bouquet carries this name - rename one of them on the box first') + '"' : '';
 				function btn(act, cls, title, icon, pressed) {
 					return '<button type="button" class="bqe-mini' + cls + '" data-act="' + act + '"' +
 						(pressed === undefined ? '' : ' aria-pressed="' + pressed + '"') +
-						(shared ? off : ' title="' + title + '"') + ' aria-label="' + title + '">' + icon + '</button>';
+						(shared ? off : ' title="' + escapeHtml(title) + '"') + ' aria-label="' + escapeHtml(title) + '">' + icon + '</button>';
 				}
 				function flag(text, icon) {
-					return '<span role="img" title="' + text + '" aria-label="' + text + '">' + icon + '</span>';
+					return '<span role="img" title="' + escapeHtml(text) + '" aria-label="' + escapeHtml(text) + '">' + icon + '</span>';
 				}
 				var sel = bqeSel && b.id === bqeSel.id;
 				html += '<li tabindex="0" data-id="' + b.id + '"' + (sel ? ' class="sel" aria-current="true"' : '') + '>' +
 					'<span class="nm">' + b.id + ' ' + esc(b.name) + '</span>' +
 					'<span class="flags">' +
-						(shared ? flag('{=L:yw.bqe.shared=}', I_TWIN) : '') +
-						(b.hidden ? flag('{=L:yw.bqe.hidden=}', I_EYEOFF) : '') +
-						(b.locked ? flag('{=L:yw.bqe.locked=}', I_KEY) : '') +
+						(shared ? flag(webuiL('bqe.shared', 'More than one bouquet carries this name - rename one of them on the box first'), I_TWIN) : '') +
+						(b.hidden ? flag(webuiL('bqe.hidden', 'hidden'), I_EYEOFF) : '') +
+						(b.locked ? flag(webuiL('bqe.locked', 'locked'), I_KEY) : '') +
 						' ' + n + '</span>' +
-					btn('up', '', '{=L:yw.bqe.t_up=}', I_UP) +
-					btn('down', '', '{=L:yw.bqe.t_down=}', I_DOWN) +
-					btn('rename', '', '{=L:yw.bqe.t_rename=}', I_EDIT) +
-					btn('hidden', b.hidden ? ' on' : '', b.hidden ? '{=L:yw.bqe.t_show=}' : '{=L:yw.bqe.t_hide=}', b.hidden ? I_EYEOFF : I_EYE, b.hidden ? 'true' : 'false') +
-					btn('locked', b.locked ? ' on' : '', b.locked ? '{=L:yw.bqe.t_unlock=}' : '{=L:yw.bqe.t_lock_on=}', I_KEY, b.locked ? 'true' : 'false') +
-					btn('del', '', '{=L:yw.bqe.t_del=}', I_X) +
+					btn('up', '', webuiL('bqe.t_up', 'up'), I_UP) +
+					btn('down', '', webuiL('bqe.t_down', 'down'), I_DOWN) +
+					btn('rename', '', webuiL('bqe.t_rename', 'rename'), I_EDIT) +
+					btn('hidden', b.hidden ? ' on' : '', b.hidden ? webuiL('bqe.t_show', 'show') : webuiL('bqe.t_hide', 'hide'), b.hidden ? I_EYEOFF : I_EYE, b.hidden ? 'true' : 'false') +
+					btn('locked', b.locked ? ' on' : '', b.locked ? webuiL('bqe.t_unlock', 'unlock') : webuiL('bqe.t_lock_on', 'lock (parental control)'), I_KEY, b.locked ? 'true' : 'false') +
+					btn('del', '', webuiL('bqe.t_del', 'delete'), I_X) +
 					'</li>';
 			});
-			ul.innerHTML = html || '<li class="bqe-empty">{=L:yw.bqe.no_bouquets=}</li>';
+			ul.innerHTML = html || '<li class="bqe-empty">' + webuiLH('bqe.no_bouquets', 'no bouquets') + '</li>';
 			bqeShown = bqeBouquets;
 			if (was) {
 				// by its name when that is its own, else by its position
@@ -502,21 +502,21 @@
 			var ready = bqeChanReady();
 			var off = bqeEditable() ? '' : ' disabled';
 			bqeUpdateApply();
-			document.getElementById('bqeChTitle').textContent = !bqeSel ? '{=L:yw.bqe.channels=}' :
-				('{=L:yw.bqe.channels=}: ' + bqeSel.name + (ready ? ' (' + bqeChan.length + ')' : ''));
+			document.getElementById('bqeChTitle').textContent = !bqeSel ? webuiL('bqe.channels', 'Channels') :
+				(webuiL('bqe.channels', 'Channels') + ': ' + bqeSel.name + (ready ? ' (' + bqeChan.length + ')' : ''));
 			var html = '';
 			bqeChan.forEach(function(c, i) {
 				html += '<li draggable="true" ondragstart="bqeDragMove(event, ' + i + ')"' +
 					' ondragover="bqeRowOver(event, ' + i + ')" ondragleave="bqeRowLeave(event)" ondrop="bqeRowDrop(event, ' + i + ')">' +
 					'<span class="flags">' + (i + 1) + '</span>' +
 					'<span class="nm">' + esc(c.name) + '</span>' +
-					'<button type="button" class="bqe-mini" data-act="up"' + off + ' title="{=L:yw.bqe.t_up=}" aria-label="{=L:yw.bqe.t_up=}" onclick="bqeChMove(' + i + ', -1)">' + I_UP + '</button>' +
-					'<button type="button" class="bqe-mini" data-act="down"' + off + ' title="{=L:yw.bqe.t_down=}" aria-label="{=L:yw.bqe.t_down=}" onclick="bqeChMove(' + i + ', 1)">' + I_DOWN + '</button>' +
-					'<button type="button" class="bqe-mini" data-act="remove"' + off + ' title="{=L:yw.bqe.t_remove=}" aria-label="{=L:yw.bqe.t_remove=}" onclick="bqeChRemove(' + i + ')">' + I_X + '</button></li>';
+					'<button type="button" class="bqe-mini" data-act="up"' + off + ' title="' + webuiLH('bqe.t_up', 'up') + '" aria-label="' + webuiLH('bqe.t_up', 'up') + '" onclick="bqeChMove(' + i + ', -1)">' + I_UP + '</button>' +
+					'<button type="button" class="bqe-mini" data-act="down"' + off + ' title="' + webuiLH('bqe.t_down', 'down') + '" aria-label="' + webuiLH('bqe.t_down', 'down') + '" onclick="bqeChMove(' + i + ', 1)">' + I_DOWN + '</button>' +
+					'<button type="button" class="bqe-mini" data-act="remove"' + off + ' title="' + webuiLH('bqe.t_remove', 'remove') + '" aria-label="' + webuiLH('bqe.t_remove', 'remove') + '" onclick="bqeChRemove(' + i + ')">' + I_X + '</button></li>';
 			});
 			ul.innerHTML = html || '<li class="bqe-empty">' +
-				(!bqeSel ? '{=L:yw.bqe.pick_left=}' : ready ? '{=L:yw.bqe.empty_drop=}' :
-				 bqeChanReading ? '…' : '{=L:yw.bqe.not_read=}') + '</li>';
+				(!bqeSel ? webuiLH('bqe.pick_left', 'Pick a bouquet on the left') : ready ? webuiLH('bqe.empty_drop', 'empty — drag channels here from the right list or add them with +') :
+				 bqeChanReading ? '…' : webuiLH('bqe.not_read', 'Channel list not read - choose the bouquet again')) + '</li>';
 		}
 
 		// Channel names go into data attributes and are read back from there,
@@ -537,16 +537,16 @@
 				shown++;
 				html += '<li draggable="true" data-id="' + esc(c.id) + '" data-name="' + esc(c.name) + '">' +
 					'<span class="nm">' + esc(c.name) + '</span>' +
-					(inBq[c.id] ? '<span class="flags">{=L:yw.bqe.in_bouquet=}</span>' :
-					'<button type="button" class="bqe-mini" data-act="add"' + can + ' title="{=L:yw.bqe.t_add=}" aria-label="{=L:yw.bqe.t_add=}">' + I_PLUS + '</button>') +
+					(inBq[c.id] ? '<span class="flags">' + webuiLH('bqe.in_bouquet', 'in bouquet') + '</span>' :
+					'<button type="button" class="bqe-mini" data-act="add"' + can + ' title="' + webuiLH('bqe.t_add', 'add') + '" aria-label="' + webuiLH('bqe.t_add', 'add') + '">' + I_PLUS + '</button>') +
 					'</li>';
 			}
 			if (hits > shown)
-				html += '<li class="bqe-empty">+' + (hits - shown) + ' {=L:yw.bqe.more_hits=}</li>';
+				html += '<li class="bqe-empty">+' + (hits - shown) + ' ' + webuiLH('bqe.more_hits', 'more matches — narrow the search') + '</li>';
 			document.getElementById('bqeAllCount').textContent =
 				f ? (hits + '/' + bqeAllChan.length) : String(bqeAllChan.length);
 			document.getElementById('bqeAll').innerHTML = html || '<li class="bqe-empty">' +
-				(bqeAllOf === bqeMode() ? '{=L:yw.bqe.no_hits=}' : '…') + '</li>';
+				(bqeAllOf === bqeMode() ? webuiLH('bqe.no_hits', 'no matches') : '…') + '</li>';
 		}
 
 		function bqeAllEvent(e) {
@@ -695,7 +695,7 @@
 			if (had) bqeFocusRow(ul.children[Math.min(i, bqeChan.length - 1)], 'remove');
 		}
 		function bqeChAdd(id, name) {
-			if (!bqeSel) { webuiShowToast('{=L:yw.bqe.pick_first=}', true); return; }
+			if (!bqeSel) { webuiShowToast(webuiL('bqe.pick_first', 'Pick a bouquet first'), true); return; }
 			if (!bqeEditable() || bqeAllOf !== bqeMode()) return;
 			if (bqeChan.some(function(c) { return c.id === id; })) return;
 			bqeChan.push({id: id, name: name});
@@ -707,7 +707,7 @@
 		// leaves out a channel no other bouquet holds would take that channel
 		// off the box, so the box refuses it until the user has said so here.
 		async function bqeApplyChannels(remove, fromQuestion) {
-			if (!bqeSel) { webuiShowToast('{=L:yw.bqe.none_picked=}', true); return; }
+			if (!bqeSel) { webuiShowToast(webuiL('bqe.none_picked', 'No bouquet selected'), true); return; }
 			if (bqeApplying || !bqeChanDirty || !bqeChanReady() || bqeShared(bqeSel.name)) return;
 			// while the question is open, only its answer sends the list
 			if (!fromQuestion && document.querySelector('.webui-confirm-backdrop')) return;
@@ -721,14 +721,14 @@
 					body: sent.ids
 				});
 				setDirty(false);
-				webuiShowToast('{=L:yw.bqe.applied=}');
+				webuiShowToast(webuiL('bqe.applied', 'Channel list applied and saved on the box'));
 				bqeApplying = false;
 				await bqeReloadAll();
 			} catch (e) {
 				if (e.code === 'channel-would-be-removed' && !remove)
 					bqeAskRemove(e.message, sent);
 				else
-					webuiShowToast('{=L:yw.msg.error=}: ' + e.message, true);
+					webuiShowToast(webuiL('msg.error', 'Error') + ': ' + e.message, true);
 			} finally {
 				bqeApplying = false;
 				bqeRenderChannels();
@@ -745,8 +745,8 @@
 					if (bqeAllChan[i].id === id) return esc(bqeAllChan[i].name);
 				return esc(id);
 			}).join(', ') + (m[2] ? ', …' : '');
-			webuiShowConfirm('{=L:yw.bqe.gone_title=}', '{=L:yw.bqe.gone_msg=}<br><strong>' + which + '<\/strong>',
-				'{=L:yw.bqe.gone_btn=}', function() {
+			webuiShowConfirm(webuiL('bqe.gone_title', 'Remove channels from the box?'), webuiLH('bqe.gone_msg', 'No other bouquet holds these channels, which the list leaves out. The box forgets a channel that leaves its last bouquet, and only a channel scan brings it back:') + '<br><strong>' + which + '<\/strong>',
+				webuiL('bqe.gone_btn', 'Remove from the box'), function() {
 					// a list that changed since it was refused is asked about again
 					var same = bqeSel === sent.sel && bqeMode() === sent.mode &&
 						bqeChan.length === sent.ids.length &&
@@ -766,22 +766,22 @@
 				await bqeOwnRequest(method, path, body === undefined ? {} : {body: body});
 				return true;
 			} catch (e) {
-				webuiShowToast('{=L:yw.msg.error=}: ' + e.message, true);
+				webuiShowToast(webuiL('msg.error', 'Error') + ': ' + e.message, true);
 				return false;
 			}
 		}
 
 		function bqeAddBouquet() {
-			webuiShowPrompt('{=L:yw.bqe.new=}', '{=L:yw.bqe.new_name=}', '', async function(name) {
+			webuiShowPrompt(webuiL('bqe.new', 'New bouquet'), webuiL('bqe.new_name', 'Name of the new bouquet'), '', async function(name) {
 				if (await bqeChange('POST', '/bouquets', {name: name})) {
-					webuiShowToast('{=L:yw.bqe.created=}');
+					webuiShowToast(webuiL('bqe.created', 'Bouquet created'));
 					await bqeLoadBouquets();
 				}
 			});
 		}
 
 		function bqeRename(b) {
-			webuiShowPrompt(b.name, '{=L:yw.bqe.rename_name=}', b.name, async function(name) {
+			webuiShowPrompt(b.name, webuiL('bqe.rename_name', 'New name'), b.name, async function(name) {
 				if (name === b.name) return;
 				var mine = bqeSel && bqeSel.name === b.name ? bqeSel : null;
 				if (mine) mine.renaming = name;
@@ -791,7 +791,7 @@
 					if (done && bqeSel === mine) mine.name = name;
 				}
 				if (done) {
-					webuiShowToast('{=L:yw.bqe.renamed=}');
+					webuiShowToast(webuiL('bqe.renamed', 'Renamed'));
 					await bqeLoadBouquets();
 				}
 			});
@@ -810,14 +810,14 @@
 		// The list is read again either way: a delete the box refused may
 		// mean the bouquet went or changed meanwhile.
 		function bqeDelete(b) {
-			webuiShowConfirm('{=L:yw.bqe.del_title=}', '{=L:yw.bqe.del_msg=} "' + esc(b.name) + '"?', '{=L:yw.bqe.del_btn=}',
+			webuiShowConfirm(webuiL('bqe.del_title', 'Delete bouquet'), webuiLH('bqe.del_msg', 'Really delete this bouquet:') + ' "' + esc(b.name) + '"?', webuiL('bqe.del_btn', 'Delete'),
 				async function() {
 					var done = await bqeChange('DELETE', bqePath(b.name));
 					if (done && bqeSel && bqeSel.name === b.name) { bqeSel = null; bqeChanClear(); }
 					await bqeLoadBouquets();
 					bqeRenderChannels();
 					bqeRenderAll();
-					if (done) webuiShowToast('{=L:yw.bqe.deleted=}');
+					if (done) webuiShowToast(webuiL('bqe.deleted', 'Deleted'));
 				});
 		}
 
@@ -850,9 +850,12 @@
 		document.getElementById('bqeAll').addEventListener('click', bqeAllEvent);
 		document.getElementById('bqeAll').addEventListener('dblclick', bqeAllEvent);
 		document.getElementById('bqeAll').addEventListener('dragstart', bqeAllEvent);
-		webuiInitHeader('tools');
-		webuiV1Events({'bouquets-changed': bqeBouquetsChanged});
-		bqeReloadAll(true);
+		// once the texts are in, which the header and the lists are drawn with
+		webuiAfterTexts(function() {
+			webuiInitHeader('tools');
+			webuiV1Events({'bouquets-changed': bqeBouquetsChanged});
+			bqeReloadAll(true);
+		});
 	</script>
 </body>
 </html>

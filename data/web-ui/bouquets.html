@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="de" data-theme="dark">
+<html lang="en" data-theme="dark" class="webui-i18n-pending">
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,7 +11,7 @@
 		try { document.documentElement.setAttribute('data-theme', localStorage.getItem('webui-theme') || localStorage.getItem('yweb-theme') || 'dark'); } catch (e) {}
 	</script>
 	<link rel="stylesheet" href="/css/pico.min.css">
-	<link rel="stylesheet" href="/css/webui.css?v=89">
+	<link rel="stylesheet" href="/css/webui.css?v=90">
 	<style>
 		/* 2-column grid layout for bouquets. Bouquetspalte bemisst
 		   sich am laengsten Namen (wie Timer-Filter), Deckel 22rem —
@@ -359,7 +359,7 @@
 			</header>
 			<div class="webui-card-body">
 				<ul class="webui-plain-list webui-bouquet-list" id="bouquetList">
-					<li aria-busy="true">{=L:yw.bq.loading_bouquets=}</li>
+					<li aria-busy="true" data-l="bq.loading_bouquets">Loading bouquets...</li>
 				</ul>
 			</div>
 		</article>
@@ -372,14 +372,14 @@
 						<rect x="2" y="7" width="20" height="15" rx="2" ry="2"/>
 						<polyline points="17,2 12,7 7,2"/>
 					</svg>
-					<span id="currentBouquetName">{=L:yw.dash.channels=}</span>
+					<span id="currentBouquetName" data-l="dash.channels">Channels</span>
 				</h3>
 				<span class="webui-card-preview" id="channelPreview">--</span>
 				<span class="webui-channel-count" id="channelCount"></span>
 			</header>
 			<div class="webui-card-body">
 				<ul class="webui-plain-list webui-channel-grid" id="channelList">
-					<li aria-busy="true">{=L:yw.bq.loading_channels=}</li>
+					<li aria-busy="true" data-l="bq.loading_channels">Loading channels...</li>
 				</ul>
 			</div>
 		</article>
@@ -388,7 +388,7 @@
 		<div class="webui-card-indicator" id="cardIndicator"></div>
 	</main>
 
-	<script src="/Y_Lang.yjs?v=27"></script>
+	<script src="/js/webui-i18n.js?v=2"></script>
 	<script src="/js/webui-header.js?v=62"></script>
 	<script src="/js/webui-dom.js?v=1"></script>
 	<script src="/js/webui-v1.js?v=14"></script>
@@ -441,7 +441,7 @@
 				renderBouquetList(active || (bouquetsData[0] ? String(bouquetsData[0].id) : ''));
 			} catch (e) {
 				console.error('Failed to load bouquets:', e);
-				list.replaceChildren(webuiEl('li', {className: 'webui-empty'}, '{=L:yw.msg.load_fail=}'));
+				list.replaceChildren(webuiEl('li', {className: 'webui-empty'}, webuiL('msg.load_fail', 'Loading failed')));
 			}
 		}
 
@@ -450,7 +450,7 @@
 			const items = [webuiEl('li', {className: 'webui-nav-item webui-bouquet-item' + (activeBouquet === '' ? ' active' : ''),
 				on: {click: () => selectBouquet('')}},
 				webuiMarkup(SVG_GLOBE),
-				webuiEl('span', {className: 'webui-nav-name webui-bouquet-name'}, '{=L:yw.bq.all_channels=}'))];
+				webuiEl('span', {className: 'webui-nav-name webui-bouquet-name'}, webuiL('bq.all_channels', 'All channels')))];
 			bouquetsData.forEach(b => {
 				items.push(webuiEl('li', {className: 'webui-nav-item webui-bouquet-item' + (String(activeBouquet) === String(b.id) ? ' active' : ''),
 					data: {bouquet: String(b.id)}, on: {click: () => selectBouquet(String(b.id))}},
@@ -494,12 +494,12 @@
 						webuiEl('div', {className: 'webui-channel-epg'}),
 						webuiEl('div', {className: 'webui-channel-progress'}, webuiEl('div', {className: 'webui-channel-progress-bar'}))),
 					webuiEl('div', {className: 'webui-channel-actions', on: {click: event => event.stopPropagation()}},
-						actionButton(SVG_PLAY, '{=L:yw.epg.zap=}', '{=L:yw.bq.zap_title=}', () => zapTo(ch.id)),
-						actionButton(SVG_INFO, 'Info', '{=L:yw.dash.epg_info=}', () => showEpg(ch.id, ch.name)),
-						actionButton(SVG_REC, 'Rec', '{=L:yw.bq.rec_title=}', () => webuiRecordEvent(ch.id, ch.name, epgNow[ch.id]), true),
-						actionButton(SVG_STREAM, 'Stream', '{=L:yw.bq.stream_title=}', () => webuiStreamChannel(ch.id, ch.name)))),
+						actionButton(SVG_PLAY, webuiL('epg.zap', 'Zap'), webuiL('bq.zap_title', 'Switch channel'), () => zapTo(ch.id)),
+						actionButton(SVG_INFO, 'Info', webuiL('dash.epg_info', 'Programme info'), () => showEpg(ch.id, ch.name)),
+						actionButton(SVG_REC, 'Rec', webuiL('bq.rec_title', 'Record programme'), () => webuiRecordEvent(ch.id, ch.name, epgNow[ch.id]), true),
+						actionButton(SVG_STREAM, 'Stream', webuiL('bq.stream_title', 'Start stream'), () => webuiStreamChannel(ch.id, ch.name)))),
 				webuiEl('div', {className: 'webui-channel-detail', id: 'detail-' + ch.id},
-					webuiEl('div', {className: 'webui-channel-detail-loading'}, '{=L:yw.bq.tap_info=}')));
+					webuiEl('div', {className: 'webui-channel-detail-loading'}, webuiL('bq.tap_info', 'Tap to load programme info...'))));
 			// a logo only while the box hands them out; one that fails leaves the placeholder text
 			if (logosOffered) {
 				const img = webuiEl('img', {attrs: {src: '/api/v1/channels/' + encodeURIComponent(ch.id) + '/logo', alt: '', loading: 'lazy'},
@@ -538,13 +538,13 @@
 			const list = document.getElementById('channelList');
 			const countEl = document.getElementById('channelCount');
 			const titleEl = document.getElementById('currentBouquetName');
-			list.replaceChildren(webuiEl('li', {attrs: {'aria-busy': 'true'}}, '{=L:yw.bq.loading_channels=}'));
+			list.replaceChildren(webuiEl('li', {attrs: {'aria-busy': 'true'}}, webuiL('bq.loading_channels', 'Loading channels...')));
 
 			if (bouquet === '') {
-				titleEl.textContent = '{=L:yw.bq.all_channels=}';
+				titleEl.textContent = webuiL('bq.all_channels', 'All channels');
 			} else {
 				const bq = bouquetsData.find(b => String(b.id) === String(bouquet));
-				titleEl.textContent = bq ? bq.name : '{=L:yw.dash.channels=}';
+				titleEl.textContent = bq ? bq.name : webuiL('dash.channels', 'Channels');
 			}
 
 			try {
@@ -553,9 +553,9 @@
 				const channels = await webuiV1All('/channels', query);
 				if (token !== channelsToken) return;	// another bouquet was chosen meanwhile
 
-				countEl.textContent = channels.length + ' {=L:yw.bq.channels_unit=}';
+				countEl.textContent = channels.length + ' ' + webuiL('bq.channels_unit', 'channels');
 				if (channels.length === 0) {
-					list.replaceChildren(webuiEl('li', {className: 'webui-empty'}, '{=L:yw.bq.no_channels=}'));
+					list.replaceChildren(webuiEl('li', {className: 'webui-empty'}, webuiL('bq.no_channels', 'No channels found')));
 					return;
 				}
 				if (logosOffered) await checkLogos(channels[0].id);
@@ -577,7 +577,7 @@
 				loadEpgInfo(channels, bouquet, token);
 			} catch (e) {
 				if (token !== channelsToken) return;
-				list.replaceChildren(webuiEl('li', {className: 'webui-empty'}, '{=L:yw.msg.load_fail=}'));
+				list.replaceChildren(webuiEl('li', {className: 'webui-empty'}, webuiL('msg.load_fail', 'Loading failed')));
 				console.error('Failed to load channels:', e);
 			}
 		}
@@ -703,16 +703,16 @@
 				let ev = epgNow[channelId];
 				if (!ev) ev = await webuiV1('GET', '/epg/current', {query: {channel: channelId}}).catch(() => null);
 				if (!ev) {
-					content('{=L:yw.bq.no_epg=}');
+					content(webuiL('bq.no_epg', 'No EPG data available'));
 					return;
 				}
 				const full = await webuiV1('GET', '/epg/event', {query: {id: ev.id, start: ev.start}}).catch(() => ev);
 				const desc = [full.description, full.long_description].filter(Boolean).join('\n\n');
 				if (desc) content(desc);
-				else content('{=L:yw.epg.no_desc=}', true);
+				else content(webuiL('epg.no_desc', 'No description available'), true);
 			} catch (e) {
 				console.error('Failed to load channel detail:', e);
-				content('{=L:yw.msg.load_fail=}');
+				content(webuiL('msg.load_fail', 'Loading failed'));
 			}
 		}
 
@@ -749,10 +749,11 @@
 			}
 		}
 
-		// Initialize; a zap from anywhere else (remote control, timer) moves the mark
-		loadCurrentChannel().then(() => loadBouquets());
+		// Initialize once the texts are in; a zap from anywhere else (remote
+		// control, timer) moves the mark
+		webuiAfterTexts(() => loadCurrentChannel().then(() => loadBouquets()));
 		let zapRead = 0;	// an older answer arriving after a newer one is dropped
-		webuiV1Events({
+		webuiAfterTexts(() => webuiV1Events({
 			zap: async function() {
 				const read = ++zapRead;
 				const mode = currentMode;
@@ -763,9 +764,9 @@
 				if (currentMode !== mode) loadBouquets();	// the box switched lists
 				else markCurrent();
 			}
-		});
+		}));
 
-		document.addEventListener('DOMContentLoaded', function() {
+		webuiAfterTexts(function() {
 			webuiInitMobileAccordion({
 				cardOrder: ['card-bouquets', 'card-channels'],
 				storageKey: 'webui-bouquets-card',
