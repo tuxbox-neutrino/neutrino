@@ -39,6 +39,7 @@
 #include <cerrno>
 #include <cstdio>
 #include <cstring>
+#include <fstream>
 #include <map>
 #include <string>
 #include <vector>
@@ -2269,6 +2270,127 @@ ServerOptions currentServerOptions()
 	if (!heldServerPath().empty())
 		readServerOptions(heldServerPath(), o);
 	return o;
+}
+
+namespace
+{
+
+/* Every language the pages have a file for (data/web-ui/languages): its code, the
+   name of its file, which is what nhttpd.conf names, and what it calls itself. A
+   file under a name not here is one this server has no code for. */
+struct LanguageRow
+{
+	const char *code;
+	const char *file;
+	const char *name;
+};
+
+const LanguageRow kLanguages[] = {
+	{ "en", "English",    "English" },
+	{ "de", "Deutsch",    "Deutsch" },
+	{ "cs", "Czech",      "\xc4\x8c" "e\xc5\xa1tina" },
+	{ "pl", "Polski",     "Polski" },
+	{ "pt", "Portuguese", "Portugu\xc3\xaas" },
+	{ "sk", "Slovak",     "Sloven\xc4\x8dina" },
+};
+
+const char kServerLanguage[]    = "Language.selected";
+const char kServerLanguageDir[] = "Language.directory";
+const char kServerDirectory[]   = "WebsiteMain.directory";
+
+// nhttpd's own defaults for these (yconfig.h, HTTPD_DEFAULT_LANGUAGE and
+// HTTPD_LANGUAGEDIR), for a file that names none.
+const char kDefaultLanguage[]    = "English";
+const char kDefaultLanguageDir[] = "languages";
+
+/* The line a language file carries once it holds the interface's own texts, the
+   one the old language menu looked for too (mod_yparser.cpp). */
+const char kInterfaceTextLine[] = "yw.nav.dashboard=";
+
+// nhttpd.conf through nhttpd's own reader, empty where there is no such file,
+// none was named or it does not parse, so every default applies.
+void readServerFileInto(CConfigFile &file)
+{
+	if (!heldServerPath().empty())
+		file.loadConfig(heldServerPath());
+}
+
+/* The language directory where nhttpd looks for it (CLanguage::getLanguageDir):
+   under the override directory where it is there, else under the pages' own. */
+std::string languageDirectory(CConfigFile &file)
+{
+	const std::string sub = "/" + file.getString(kServerLanguageDir, kDefaultLanguageDir);
+	const std::string over = file.getString(kServerOverride, PUBLIC_HTTPDDIR) + sub;
+	if (::access(over.c_str(), R_OK) == 0)
+		return over;
+	return file.getString(kServerDirectory, PRIVATE_HTTPDDIR) + sub;
+}
+
+bool carriesInterfaceTexts(const std::string &path)
+{
+	struct stat st;
+	if (::stat(path.c_str(), &st) != 0 || !S_ISREG(st.st_mode))
+		return false;
+	std::ifstream in(path.c_str());
+	std::string line;
+	while (std::getline(in, line))
+		if (line.compare(0, sizeof(kInterfaceTextLine) - 1, kInterfaceTextLine) == 0)
+			return true;
+	return false;
+}
+
+} // namespace
+
+std::vector<WebLanguage> webLanguages()
+{
+	CConfigFile file(',');
+	readServerFileInto(file);
+	const std::string dir = languageDirectory(file);
+
+	std::vector<WebLanguage> offered;
+	for (size_t i = 0; i < sizeof(kLanguages) / sizeof(kLanguages[0]); ++i)
+	{
+		if (!carriesInterfaceTexts(dir + "/" + kLanguages[i].file))
+			continue;
+		WebLanguage l;
+		l.code = kLanguages[i].code;
+		l.name = kLanguages[i].name;
+		offered.push_back(l);
+	}
+	return offered;
+}
+
+std::string webLanguage()
+{
+	CConfigFile file(',');
+	readServerFileInto(file);
+	const std::string named = file.getString(kServerLanguage, kDefaultLanguage);
+	for (size_t i = 0; i < sizeof(kLanguages) / sizeof(kLanguages[0]); ++i)
+		if (named == kLanguages[i].file)
+			return kLanguages[i].code;
+	return "en";
+}
+
+bool setWebLanguage(const std::string &code)
+{
+	bool offered = false;
+	const std::vector<WebLanguage> all = webLanguages();
+	for (size_t i = 0; i < all.size(); ++i)
+		offered = offered || all[i].code == code;
+	if (!offered || heldServerPath().empty())
+		return false;
+
+	for (size_t i = 0; i < sizeof(kLanguages) / sizeof(kLanguages[0]); ++i)
+	{
+		if (code != kLanguages[i].code)
+			continue;
+		std::vector<ServerLine> lines(1);
+		lines[0].key = kServerLanguage;
+		lines[0].value = kLanguages[i].file;
+		ServerFileLock hold;
+		return writeServerLines(heldServerPath(), lines);
+	}
+	return false;
 }
 
 bool newPasswordAwaitsLoad()

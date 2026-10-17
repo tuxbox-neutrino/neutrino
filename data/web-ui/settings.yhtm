@@ -469,7 +469,7 @@
 	<!-- Reihenfolge: Registry-Labels rufen webuiL (webui-header.js) auf, das
 	     window.WEBUI_L aus Y_Lang.yjs liest — Registry muss zuletzt laden -->
 	<script src="/Y_Lang.yjs?v=27"></script>
-	<script src="/js/webui-header.js?v=61"></script>
+	<script src="/js/webui-header.js?v=62"></script>
 	<script src="/js/webui-dom.js?v=1"></script>
 	<script src="/js/webui-v1.js?v=14"></script>
 	<script src="/js/settings-registry.js?v=17"></script>

@@ -106,6 +106,8 @@ const FieldDesc kSessionStateFields[] = {
 		"how many seconds the session has left before it runs out, 0 for a caller holding none"),
 	HTTPD_MEMBER("password_change_required", FieldType::Bool,
 		"whether the caller may write while the box still opens to a password it shipped with: it is to set a password of its own with PUT /api/v1/account/password, and nothing else answers it until then; false for a caller that may not write"),
+	HTTPD_MEMBER("language", FieldType::String,
+		"the code of the language the pages are shown in, such as en or de, said whatever the caller holds, so the sign-in page and the page asking for a new password are shown in it before anything else answers; GET /api/v1/webui/language names the ones there are"),
 };
 
 const Schema kSessionStateSchema = { "session-state", HTTPD_FIELDS(kSessionStateFields) };
@@ -139,6 +141,10 @@ void writeSessionState(Json &j, bool authenticated, AuthLevel level,
 	j.value((unsigned long long) expires_in);
 	j.key("password_change_required");
 	j.value(change_required);
+	// said whatever the caller holds, like csrf_header: the language is the pages'
+	// and not any session's, and a page that has none yet is shown in it
+	j.key("language");
+	j.value(webLanguage());
 	j.endObject();
 }
 

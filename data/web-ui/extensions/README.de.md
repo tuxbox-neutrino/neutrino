@@ -79,15 +79,16 @@ ohne `success`-Text erscheint die Script-Ausgabe als Toast-Feedback.
 ### Optional: eigenes Sprachpaket (`languages/`)
 
 Eine Erweiterung kann sich selbst lokalisieren — flache JSON-Wörterbücher
-pro Sprache, benannt wie die Kern-Sprachdateien:
+pro Sprache, benannt nach dem Code der Sprache (`en`, `de`, der Code, den
+`GET /api/v1/webui/language` nennt):
 
 ```
 meine-erweiterung/
 ├── manifest.json
 ├── index.html
 └── languages/
-    ├── English.json
-    └── Deutsch.json
+    ├── en.json
+    └── de.json
 ```
 
 ```json

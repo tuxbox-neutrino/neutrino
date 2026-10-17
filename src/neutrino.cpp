@@ -214,6 +214,8 @@ extern void *nhttpd_main_thread(void *data);
 // the two hands of the API layer's server seam (yhttpd.cpp)
 extern int nhttpd_server_start(int port, const char *bind);
 extern bool nhttpd_server_stop(void);
+// and nhttpd reading its file again, the way the old language switch has it
+extern void yhttpd_reload_config();
 
 //#define DISABLE_SECTIONSD
 
@@ -3390,6 +3392,8 @@ TIMER_START();
 	 * answer that names a new configuration really moves this server
 	 * (stop, reload, start on what the file now says). */
 	httpd::installNhttpdServerControl(&nhttpd_server_start, &nhttpd_server_stop);
+	// so the old pages' texts follow a language a route wrote
+	httpd::installNhttpdConfigReload(&yhttpd_reload_config);
 
 	pthread_t nhttpd_thread;
 	if (!pthread_create (&nhttpd_thread, NULL, nhttpd_main_thread, (void *) NULL))

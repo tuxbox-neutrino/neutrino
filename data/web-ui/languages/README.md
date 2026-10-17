@@ -86,7 +86,10 @@ switcher. To bring one back:
 ## Runtime notes
 
 - The active language is stored as `Language.selected` in `nhttpd.conf`
-  and switched at runtime via the header globe button (→ `set-lang.yhtm`),
-  which reloads the yWeb config.
+  and switched at runtime via the header globe button or the setup wizard
+  (→ `PUT /api/v1/webui/language`, by the language's code), which has the
+  server read its file again. `GET /api/v1/webui/language` lists the
+  languages whose file carries the `yw.*` keys, and `GET /api/v1/session`
+  says the active one's code.
 - No client-side changes are needed: `Y_Lang.yjs` and `webuiL()` read the
-  same keys, and the header button shows the active language's short code.
+  same keys, and the header button shows the active language's code.

@@ -344,7 +344,3 @@ window.WEBUI_L = {
 	"timer.rep.monthly": "{=L:yw.timer.rep.monthly=}",
 	"timer.rep.bydesc": "{=L:yw.timer.rep.bydesc=}"
 };
-
-// Installierte Sprachen als option-Liste (aktive Sprache selected);
-// der Header baut daraus das Sprachwechsler-Menue
-window.WEBUI_LANGS_HTML = '{=func:get_languages_as_dropdown nonl=}';

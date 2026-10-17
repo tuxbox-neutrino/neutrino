@@ -243,7 +243,7 @@
 	</main>
 
 	<script src="/Y_Lang.yjs?v=27"></script>
-	<script src="/js/webui-header.js?v=61"></script>
+	<script src="/js/webui-header.js?v=62"></script>
 	<script src="/js/webui-dom.js?v=1"></script>
 	<script src="/js/webui-v1.js?v=14"></script>
 	<script>

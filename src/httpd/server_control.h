@@ -38,6 +38,12 @@ int boundPort();
 void installNhttpdServerControl(int (*start_thread)(int port, const char *bind),
                                 bool (*stop_thread)(void));
 
+/* nhttpd reading nhttpd.conf again (yhttpd.cpp, yhttpd_reload_config), the way
+   the old pages' language switch has it, so the texts it puts into those pages
+   follow a language a route wrote. Installed once by the program; where nothing
+   installed it - openapi_dump, the unit suite - nothing is read again. */
+void installNhttpdConfigReload(void (*reload)(void));
+void reloadNhttpdConfig();
 /* Carries a sent answer's reload path off the connection thread: a
    webserver cannot be stopped from a thread it owns, so a runner of its
    own does it once the bytes are gone. */

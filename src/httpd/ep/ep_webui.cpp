@@ -12,7 +12,9 @@
 #include "httpd/http.h"
 #include "httpd/json.h"
 #include "httpd/schema.h"
+#include "httpd/server_control.h"
 #include "httpd/status.h"
+#include "httpd/webconfig.h"
 
 #include "coreapi/base/errors.h"
 #include "coreapi/base/result.h"
@@ -113,6 +115,91 @@ Response writeWebui(const Request &r)
 		return problemFor(done.error());
 	return answer(done.value());
 }
+
+/* The language the pages are shown in. Not a key of the file above: it is the
+   server's own, kept in nhttpd.conf, where the old pages and the server's texts
+   read it, and named there by a file of the language directory (webconfig.h). */
+
+const FieldDesc kLanguageFields[] = {
+	HTTPD_MEMBER("code", FieldType::String, "the language's code, as a browser and a translation name it: en, de"),
+	HTTPD_MEMBER("name", FieldType::String, "what the language calls itself, for a menu"),
+};
+
+const Schema kLanguageSchema = { "web-language", HTTPD_FIELDS(kLanguageFields) };
+
+const FieldDesc kLanguagesFields[] = {
+	HTTPD_MEMBER("selected", FieldType::String,
+		"the code of the language the pages are shown in now, and en where the server's file names "
+		"one this server knows no code for, which the pages show in English"),
+	HTTPD_LIST_OF("items", &kLanguageSchema,
+		"every language the pages can be shown in: those whose file carries the interface's own "
+		"texts, not only the old pages'"),
+};
+
+const Schema kLanguagesSchema = { "web-languages", HTTPD_FIELDS(kLanguagesFields) };
+
+bool languageOffered(const std::vector<WebLanguage> &all, const std::string &code)
+{
+	for (size_t i = 0; i < all.size(); ++i)
+		if (all[i].code == code)
+			return true;
+	return false;
+}
+
+Response answerLanguages()
+{
+	const std::vector<WebLanguage> all = webLanguages();
+	Response out = okJson();
+	Json j(out.body, 48 + 48 * all.size());
+	j.beginObject();
+	j.key("selected");
+	j.value(webLanguage());
+	j.key("items");
+	j.beginArray();
+	for (size_t i = 0; i < all.size(); ++i)
+	{
+		j.beginObject();
+		j.key("code");
+		j.value(all[i].code);
+		j.key("name");
+		j.value(all[i].name);
+		j.endObject();
+	}
+	j.endArray();
+	j.endObject();
+	return out;
+}
+
+Response readLanguages(const Request &)
+{
+	return answerLanguages();
+}
+
+Response writeLanguage(const Request &r)
+{
+	const std::string code = r.asString("language");
+	if (!languageOffered(webLanguages(), code))
+		return problemResponse(StatusBadRequest, coreapi::ErrorCode::NotAListedValue,
+		                       "the pages cannot be shown in that language; GET names the ones they can");
+	if (!setWebLanguage(code))
+		return problemResponse(StatusInternalServerError, coreapi::ErrorCode::SettingNotWritten,
+		                       "the server's file could not be written, and it is left as it was");
+	// the lock is released by now, and nhttpd's read takes it again
+	reloadNhttpdConfig();
+	return answerLanguages();
+}
+
+const Param kLanguageParams[] = {
+	HTTPD_BODY_REQUIRED_TEXT("language",
+		"the code of the language to show the pages in, one GET names", 8),
+};
+
+const RouteRefusal kLanguageRefusals[] = {
+	HTTPD_REFUSES(InvalidArgument, NotAListedValue,
+		"the pages cannot be shown in that language; GET names the ones they can"),
+	HTTPD_REFUSES(Internal, SettingNotWritten,
+		"the server's file could not be written, and it is left as it was"),
+};
 
 const Param kWriteParams[] = {
 	HTTPD_BODY_IS_MAP_OF("settings", ParamType::String,
@@ -323,6 +410,30 @@ const Endpoint kWebuiEndpoints[] = {
 	  "**Related:** `POST /api/v1/webui/extensions`.",
 	  HTTPD_PARAMS(kExtensionParams), NULL, &removeExtension, false,
 	  Answers204, HTTPD_REFUSALS(kRemoveRefusals) },
+	{ Method::Get, "/api/v1/webui/language", AuthLevel::Read,
+	  "the language the pages are shown in, and the ones they can be",
+	  "Reads the language the pages are shown in, as its code, and every language they can be "
+	  "shown in: those whose file in the pages' language directory carries the interface's own "
+	  "texts. A file holding only the old pages' texts is not offered, as the interface would show "
+	  "English throughout. The server keeps the language in its own file, `nhttpd.conf`, not with "
+	  "the web interface's settings, and `GET /api/v1/session` says it to a caller that has not "
+	  "signed in yet.\n\n"
+	  "**Related:** `PUT /api/v1/webui/language`, `GET /api/v1/session`.",
+	  NULL, 0, &kLanguagesSchema, &readLanguages, false,
+	  Answers200, HTTPD_NO_REFUSALS },
+	{ Method::Put, "/api/v1/webui/language", AuthLevel::System,
+	  "shows the pages in another language, answering the languages as GET does",
+	  "Writes the language to show the pages in, by its code, into the server's own file and has "
+	  "the server read that file again, so the old pages' texts change with it; the pages read "
+	  "their texts when they load. System, because it writes the server's own file.\n\n"
+	  "**Refusals:**\n"
+	  "- `400 not-a-listed-value`: the pages cannot be shown in that language; `GET` names the ones "
+	  "they can.\n"
+	  "- `500 setting-not-written`: the server's file could not be written, and it is left as it "
+	  "was.\n\n"
+	  "**Related:** `GET /api/v1/webui/language`.",
+	  HTTPD_PARAMS(kLanguageParams), &kLanguagesSchema, &writeLanguage, false,
+	  Answers200, HTTPD_REFUSALS_AND_BODY(kLanguageRefusals, "{\"language\":\"de\"}") },
 };
 
 } // namespace

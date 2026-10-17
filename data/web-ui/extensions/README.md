@@ -79,15 +79,16 @@ the script output is shown as toast feedback.
 ### Optional: own language pack (`languages/`)
 
 An extension can localize itself — flat JSON dictionaries per language,
-named like the core language files:
+named by the language's code (`en`, `de`, the code
+`GET /api/v1/webui/language` names):
 
 ```
 my-extension/
 ├── manifest.json
 ├── index.html
 └── languages/
-    ├── English.json
-    └── Deutsch.json
+    ├── en.json
+    └── de.json
 ```
 
 ```json

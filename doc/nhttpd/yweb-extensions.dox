@@ -41,16 +41,17 @@ Der Loader lebt in `data/web-ui/js/webui-header.js` (`webuiDiscoverExtensions` /
 \section ywebext_lang Sprachpakete (languages/)
 
 Erweiterungen lokalisieren sich selbst ueber flache JSON-Woerterbuecher
-`<ordner>/languages/<Sprache>.json` (Dateiname wie die Kern-Sprachdatei,
-z.B. `English.json`, `Deutsch.json`). Helfer in `webui-header.js`:
+`<ordner>/languages/<code>.json`, benannt nach dem Code der Sprache
+(`en.json`, `de.json`; die Codes nennt `GET /api/v1/webui/language`).
+Helfer in `webui-header.js`:
 
-- `webuiActiveLangName()` — aktiver Sprachname (aus der Dropdown-Liste,
-  Fallback `English`).
+- `webuiActiveLangCode()` — Code der aktiven Sprache (aus
+  `GET /api/v1/session`, Feld `language`, Fallback `en`).
 - `webuiExtLangLoad(dir)` — laedt das Woerterbuch der aktiven Sprache
   (`cache: no-cache`, pro Seitenaufruf gecacht); fehlendes Paket ist
   KEIN Fehler (leeres Objekt).
 - `webuiExtL(dir, key, fallbackEN)` — Lookup mit englischem
-  Inline-Fallback; es gibt bewusst keinen Zweit-Fetch auf English.json.
+  Inline-Fallback; es gibt bewusst keinen Zweit-Fetch auf en.json.
 
 Konventionen:
 - Reserved Keys `manifest.name` / `manifest.description` uebersetzen
@@ -134,7 +135,7 @@ Version nicht. Repo-Layout:
 yweb-extension-<name>/
 ├── manifest.json            (kanonische Version)
 ├── <entry>.html             (entfaellt bei settings-only)
-├── languages/English.json + Deutsch.json
+├── languages/en.json + de.json
 ├── scripts/*.sh             (optional, siehe tar.gz-Vertrag)
 ├── README.md + README.de.md, LICENSE (GPL-2.0)
 └── .github/workflows/{version-bump,version-line}.yaml
@@ -201,17 +202,17 @@ init of every modern page.
 \section ywebext_en_lang Language packs (languages/)
 
 Extensions localize themselves through flat JSON dictionaries
-`<folder>/languages/<Language>.json` (named like the core language
-file, e.g. `English.json`, `Deutsch.json`). Helpers in
-`webui-header.js`:
+`<folder>/languages/<code>.json`, named by the language's code
+(`en.json`, `de.json`; `GET /api/v1/webui/language` names the codes).
+Helpers in `webui-header.js`:
 
-- `webuiActiveLangName()` — active language name (from the dropdown
-  data, fallback `English`).
+- `webuiActiveLangCode()` — the active language's code (from
+  `GET /api/v1/session`, member `language`, fallback `en`).
 - `webuiExtLangLoad(dir)` — fetches the active language's dictionary
   (`cache: no-cache`, cached per page view); a missing pack is NOT an
   error (empty object).
 - `webuiExtL(dir, key, fallbackEN)` — lookup with the English inline
-  fallback; there is deliberately no second fetch of English.json.
+  fallback; there is deliberately no second fetch of en.json.
 
 Conventions:
 - Reserved keys `manifest.name` / `manifest.description` translate
@@ -296,7 +297,7 @@ version. Repo layout:
 yweb-extension-<name>/
 ├── manifest.json            (canonical version)
 ├── <entry>.html             (omitted for settings-only)
-├── languages/English.json + Deutsch.json
+├── languages/en.json + de.json
 ├── scripts/*.sh             (optional, see tar.gz contract)
 ├── README.md + README.de.md, LICENSE (GPL-2.0)
 └── .github/workflows/{version-bump,version-line}.yaml

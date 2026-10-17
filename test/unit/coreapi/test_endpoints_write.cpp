@@ -1433,7 +1433,7 @@ TEST_CASE("every route that changes something asks for more than a read", "[writ
 	}
 	// A walk that found nothing would pass this whatever the tables held, and a
 	// route added at a level below a write has to move this number by hand.
-	REQUIRE(changing == 65);
+	REQUIRE(changing == 66);
 }
 
 TEST_CASE("a caller on the local network cannot zap, reboot or write a setting", "[write]")
@@ -6288,6 +6288,82 @@ TEST_CASE("the web interface's own settings are read and written whole, held to 
 	REQUIRE(stat(occupied.c_str(), &st) == 0);
 	REQUIRE(S_ISDIR(st.st_mode));
 	REQUIRE(access((occupied + ".tmp").c_str(), F_OK) != 0);
+}
+
+namespace
+{
+
+/* A pages directory of a case's own with the language files named, taken away
+   whole on the way out. */
+struct LanguagePages
+{
+	std::string root;
+	std::vector<std::string> made;
+
+	LanguagePages()
+	{
+		char dir[] = "/tmp/ni-webroute-pages-XXXXXX";
+		REQUIRE(::mkdtemp(dir) != NULL);
+		root = dir;
+		const std::string langs = root + "/languages";
+		REQUIRE(::mkdir(langs.c_str(), 0755) == 0);
+		made.push_back(langs);
+	}
+
+	void language(const std::string &name, const std::string &text)
+	{
+		const std::string path = root + "/languages/" + name;
+		WebFile::put(path, text);
+		made.push_back(path);
+	}
+
+	~LanguagePages()
+	{
+		for (size_t i = made.size(); i > 0; --i)
+			if (::unlink(made[i - 1].c_str()) != 0)
+				::rmdir(made[i - 1].c_str());
+		::rmdir(root.c_str());
+	}
+};
+
+} // namespace
+
+TEST_CASE("the pages' language is read and written by its code, and the session says it", "[write][webui]")
+{
+	ShippedRoutes shipped;
+	LanguagePages pages;
+	pages.language("English", "yw.nav.dashboard=Dashboard\n");
+	pages.language("Deutsch", "yw.nav.dashboard=Dashboard\n");
+	pages.language("Polski", "Y_Old=stare\n");
+	WebFile web("language", kWebFileHead, std::string(kServerFileHead) + "Language.selected=English\n"
+		"WebsiteMain.directory=" + pages.root + "\nWebsiteMain.override_directory=" + pages.root + "/none\n");
+
+	const Reply read = authedGet("/api/v1/webui/language");
+	REQUIRE(read.code == 200);
+	REQUIRE(read.body == "{\"selected\":\"en\",\"items\":[{\"code\":\"en\",\"name\":\"English\"},"
+		"{\"code\":\"de\",\"name\":\"Deutsch\"}]}");
+	REQUIRE(send(Get, "/api/v1/webui/language", "", AuthLevel::Read, "192.168.1.9").code == 200);
+
+	// written by its code, kept by its file's name, and answered as GET reads it
+	const Reply wrote = authedPut("/api/v1/webui/language", "{\"language\":\"de\"}");
+	REQUIRE(wrote.code == 200);
+	REQUIRE(wrote.body.find("\"selected\":\"de\"") != std::string::npos);
+	REQUIRE(wholeOf(web.server).find("Language.selected=Deutsch\n") != std::string::npos);
+
+	// the session says it to a caller that holds nothing yet
+	const Reply session = send(Get, "/api/v1/session", "", AuthLevel::Public, "192.168.1.9");
+	REQUIRE(session.code == 200);
+	REQUIRE(session.body.find("\"language\":\"de\"") != std::string::npos);
+
+	// what the pages cannot be shown in, and a caller below system, change nothing
+	const std::string before = wholeOf(web.server);
+	const Reply old = authedPut("/api/v1/webui/language", "{\"language\":\"pl\"}");
+	REQUIRE(old.code == 400);
+	REQUIRE(old.body.find("not-a-listed-value") != std::string::npos);
+	REQUIRE(authedPut("/api/v1/webui/language", "{\"language\":\"Deutsch\"}").code == 400);
+	REQUIRE(authedPut("/api/v1/webui/language", "{}").code == 400);
+	REQUIRE(send(Put, "/api/v1/webui/language", "{\"language\":\"en\"}", AuthLevel::Write, "127.0.0.1").code == 403);
+	REQUIRE(wholeOf(web.server) == before);
 }
 
 TEST_CASE("a device on the box's network is woken with the packet its card listens for", "[write][network]")

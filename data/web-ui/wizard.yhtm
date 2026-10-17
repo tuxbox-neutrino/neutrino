@@ -79,7 +79,7 @@
 		<p class="sub">{=L:yw.wiz.intro=}</p>
 
 		<label for="wizLang">{=L:yw.lang.title=}</label>
-		<select id="wizLang">{=func:get_languages_as_dropdown=}</select>
+		<select id="wizLang"></select>
 
 		<label for="wizPage">{=L:yw.wiz.start_page=}</label>
 		<select id="wizPage">
@@ -146,14 +146,9 @@
 		var wizTarget = 'dashboard.yhtm';
 		var wizPwShipped = false;
 
-		// Remember the active language so we only switch when it changes
-		// (switching triggers a webserver config reload on the box).
-		var wizStartLang = (function () {
-			var s = document.getElementById('wizLang');
-			for (var i = 0; i < s.options.length; i++)
-				if (s.options[i].selected) return s.options[i].value;
-			return s.value;
-		})();
+		// The active language, by its code, so it is only written when it
+		// changes (a write has the web server read its file again).
+		var wizStartLang = '';
 
 		/* /api/v1 with the session this page has, and its second token for a
 		   change. Without one, the sign-in; with one that still owes the
@@ -183,6 +178,22 @@
 			return data;
 		}
 
+		// The languages the pages can be shown in, the active one chosen.
+		async function wizLoadLanguages() {
+			try {
+				var l = await wizV1('GET', '/webui/language');
+				var sel = document.getElementById('wizLang');
+				(l.items || []).forEach(function(it) {
+					var o = document.createElement('option');
+					o.value = it.code;
+					o.textContent = it.name;
+					o.selected = it.code === l.selected;
+					sel.appendChild(o);
+				});
+				wizStartLang = l.selected || '';
+			} catch (e) {}
+		}
+
 		async function wizLoadLogin() {
 			try {
 				var w = await wizV1('GET', '/system/webserver');
@@ -204,7 +215,7 @@
 			try {
 				await wizV1('PATCH', '/webui/settings', {startup: 'true', start_page: wizTarget});
 				if (lang && lang !== wizStartLang)
-					await fetch('/set-lang.yhtm?' + encodeURIComponent(lang), {cache: 'no-store'});
+					await wizV1('PUT', '/webui/language', {language: lang});
 				wizShowLogin();
 			} catch (e) {
 				btn.disabled = false;
@@ -298,6 +309,7 @@
 
 		if (wizLoginOnly)
 			wizShowLogin();
+		wizLoadLanguages();
 		wizLoadLogin();
 	</script>
 </body>

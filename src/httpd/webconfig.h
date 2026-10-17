@@ -433,6 +433,35 @@ bool saveServerFile(const std::string &path, const std::map<std::string, std::st
    where it says nothing, where there is no such file, or where none was named. */
 ServerOptions currentServerOptions();
 
+/* THE LANGUAGE THE PAGES ARE SHOWN IN.
+
+   nhttpd.conf keeps it under Language.selected as the name of a file in the pages'
+   language directory (English, Deutsch), which is what the old pages and the
+   server's own texts read. A page is told and tells it as the code of that
+   language (en, de), the name a browser and a translation go by; the table behind
+   these calls maps one onto the other. */
+struct WebLanguage
+{
+	std::string code; // en, de, ...
+	std::string name; // what the language calls itself, for a menu
+};
+
+/* The languages the pages can be shown in, in the order of the table: those whose
+   file in the language directory carries the interface's own texts. A file
+   holding only the old pages' texts is left out, as the old language menu left it
+   out, since the interface would show English throughout. */
+std::vector<WebLanguage> webLanguages();
+
+/* The code of the language nhttpd.conf names, and "en" where it names one this
+   server knows no code for, which the pages show in English. */
+std::string webLanguage();
+
+/* Writes the language of a code webLanguages() offers into nhttpd.conf, holding
+   ServerFileLock. False where the code is none it offers or the file could not be
+   written, the file then left as it was. The caller has nhttpd read the file
+   again (reloadNhttpdConfig in server_control.h) after it released the lock. */
+bool setWebLanguage(const std::string &code);
+
 /* The settings somebody changes at the box itself, which are fewer than the file
    holds and fewer than the structure at the top of this header.
 

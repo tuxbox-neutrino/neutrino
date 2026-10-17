@@ -3039,3 +3039,100 @@ TEST_CASE("every writer of nhttpd.conf writes it whole or leaves it", "[webconf]
 	::rmdir(working.c_str());
 	REQUIRE(readFile(server.path()) == "Language.selected=Deutsch\nWebsiteMain.port=8082\n");
 }
+
+namespace
+{
+
+/* A pages directory of a case's own, with a language directory and the files
+   named in it, taken away whole on the way out. */
+struct PagesWithLanguages
+{
+	std::string root;
+	std::vector<std::string> made;
+
+	PagesWithLanguages()
+	{
+		char dir[] = "/tmp/httpd-pages-XXXXXX";
+		REQUIRE(::mkdtemp(dir) != NULL);
+		root = dir;
+	}
+
+	void file(const std::string &rel, const std::string &text)
+	{
+		const std::string path = root + "/" + rel;
+		for (size_t slash = rel.find('/'); slash != std::string::npos; slash = rel.find('/', slash + 1))
+		{
+			const std::string dir = root + "/" + rel.substr(0, slash);
+			if (::mkdir(dir.c_str(), 0755) == 0)
+				made.push_back(dir);
+		}
+		writeFile(path, text);
+		made.push_back(path);
+	}
+
+	~PagesWithLanguages()
+	{
+		for (size_t i = made.size(); i > 0; --i)
+			if (::unlink(made[i - 1].c_str()) != 0)
+				::rmdir(made[i - 1].c_str());
+		::rmdir(root.c_str());
+	}
+};
+
+} // namespace
+
+TEST_CASE("the pages' language is said as its code and written as the name of its file", "[webconf]")
+{
+	/* nhttpd.conf names the language by its file (Deutsch), which the old pages and
+	   the server's texts read; a page is told and tells it by its code (de). A file
+	   with only the old pages' texts is not offered, nor one this server has no
+	   code for. */
+	Restore back;
+	PagesWithLanguages pages;
+	pages.file("languages/English", "yw.nav.dashboard=Dashboard\n");
+	pages.file("languages/Deutsch", "Y_Old=alt\nyw.nav.dashboard=Dashboard\n");
+	pages.file("languages/Polski", "Y_Old=stare\n");
+	pages.file("languages/Klingon", "yw.nav.dashboard=x\n");
+	const std::string where = "WebsiteMain.directory=" + pages.root + "\n"
+		"WebsiteMain.override_directory=" + pages.root + "/nothing-here\n";
+
+	Temp conf("conf"), server("server");
+	writeFile(conf.path(), "username=admin\n");
+	writeFile(server.path(), "Language.selected=Deutsch\n" + where);
+	REQUIRE(httpd::load(conf.path(), server.path()));
+
+	std::vector<httpd::WebLanguage> offered = httpd::webLanguages();
+	REQUIRE(offered.size() == 2);
+	REQUIRE(offered[0].code == "en");
+	REQUIRE(offered[1].code == "de");
+	REQUIRE(offered[1].name == "Deutsch");
+	REQUIRE(httpd::webLanguage() == "de");
+
+	// written as the file's name, every other line as it was
+	REQUIRE(httpd::setWebLanguage("en"));
+	REQUIRE(readFile(server.path()).find("Language.selected=English\n") != std::string::npos);
+	REQUIRE(readFile(server.path()).find("WebsiteMain.directory=" + pages.root + "\n") != std::string::npos);
+	REQUIRE(httpd::webLanguage() == "en");
+
+	// what is not offered is not written: old texts only, no code, nothing at all
+	const std::string before = readFile(server.path());
+	REQUIRE_FALSE(httpd::setWebLanguage("pl"));
+	REQUIRE_FALSE(httpd::setWebLanguage("Klingon"));
+	REQUIRE_FALSE(httpd::setWebLanguage("Deutsch"));
+	REQUIRE_FALSE(httpd::setWebLanguage(""));
+	REQUIRE(readFile(server.path()) == before);
+
+	// a file this server knows no code for is said as English, which the pages show
+	writeFile(server.path(), "Language.selected=Klingon\n" + where);
+	REQUIRE(httpd::load(conf.path(), server.path()));
+	REQUIRE(httpd::webLanguage() == "en");
+
+	// where the override directory has a language directory, nhttpd reads that one
+	pages.file("over/languages/Deutsch", "yw.nav.dashboard=Dashboard\n");
+	writeFile(server.path(), "Language.selected=Deutsch\nWebsiteMain.directory=" + pages.root + "\n"
+		"WebsiteMain.override_directory=" + pages.root + "/over\n");
+	REQUIRE(httpd::load(conf.path(), server.path()));
+	offered = httpd::webLanguages();
+	REQUIRE(offered.size() == 1);
+	REQUIRE(offered[0].code == "de");
+}

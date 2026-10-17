@@ -27,7 +27,6 @@ install_DATA = \
 	login.yhtm \
 	password.yhtm \
 	screenshot.yhtm \
-	set-lang.yhtm \
 	settings.yhtm \
 	sysinfo.yhtm \
 	timer.yhtm \

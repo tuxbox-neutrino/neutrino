@@ -137,7 +137,7 @@ function webuiGetHeaderHTML(activePage) {
 					<circle cx="12" cy="12" r="9" stroke-width="2"/>
 					<path stroke-width="2" d="M3 12h18M12 3a15 15 0 010 18M12 3a15 15 0 000 18"/>
 				</svg>
-				<span class="webui-lang-code">${webuiActiveLangLabel()}</span>
+				<span class="webui-lang-code" id="webui-lang-code"></span>
 			</button>
 			<button class="webui-theme-toggle" onclick="webuiToggleTheme()" title="${webuiL('theme.toggle', 'Toggle theme')}">
 				<svg id="webui-theme-icon-dark" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -181,58 +181,43 @@ function webuiSetTheme(theme) {
 }
 
 // ═══ Sprachwechsler ═══
-// Sprachliste kommt aus Y_Lang.yjs (window.WEBUI_LANGS_HTML, yparsed
-// option-Liste des languages/-Verzeichnisses, aktive Sprache selected)
-// Kuerzel der aktiven Sprache fuer den Header-Button (EN, DE, ...).
-// Der Globus allein war nicht als Sprachumschalter erkennbar; das aktive
-// Kuerzel daneben macht den Button eindeutig. Bekannte Sprachen werden auf
-// ihr ISO-Kuerzel gemappt, unbekannte auf die ersten zwei Buchstaben.
-function webuiActiveLangLabel() {
-	var langs = webuiGetLanguages();
-	var name = '';
-	for (var i = 0; i < langs.length; i++)
-		if (langs[i].active) { name = langs[i].name; break; }
-	if (!name && langs.length) name = langs[0].name;
-	if (!name) return '';
-	var codes = {
-		English: 'EN', Deutsch: 'DE', Czech: 'CS', Polski: 'PL',
-		Slovak: 'SK', Portuguese: 'PT'
-	};
-	return codes[name] || name.slice(0, 2).toUpperCase();
+// The language the pages are shown in comes as its code (en, de) with the
+// session document (GET /api/v1/session, language), which every page with
+// this header asks for anyway; the header button shows that code beside the
+// globe, which alone was not recognisable as the language switch. The list
+// of languages is asked for when the menu opens (GET /api/v1/webui/language).
+var _webuiSession = null;
+
+// The session document, asked once per page: whether a password is owed,
+// whether a session is open, and the language of the pages.
+function webuiSessionInfo() {
+	if (!_webuiSession)
+		_webuiSession = fetch('/api/v1/session', {credentials: 'same-origin', cache: 'no-store'})
+			.then(function(r) { return r.ok ? r.json() : null; })
+			.catch(function() { return null; });
+	return _webuiSession;
 }
 
-function webuiGetLanguages() {
-	var langs = [];
-	if (!window.WEBUI_LANGS_HTML) return langs;
-	var sel = document.createElement('select');
-	sel.innerHTML = window.WEBUI_LANGS_HTML;
-	for (var i = 0; i < sel.options.length; i++)
-		langs.push({name: sel.options[i].value, active: sel.options[i].hasAttribute('selected')});
-	return langs;
+async function webuiActiveLangCode() {
+	var s = await webuiSessionInfo();
+	return (s && s.language) || 'en';
 }
 
 // ═══ Per-extension language packs ═══
 // Extensions ship their own dictionaries as flat JSON:
-// <ext>/languages/<Language>.json — named like the core language file
-// (English.json, Deutsch.json, ...). English texts live inline in the
-// markup/manifest as fallback; there is deliberately no second fetch
-// of English.json. Reserved keys manifest.name/manifest.description
-// localize tile/nav/manager (hook in webuiDiscoverExtensions).
+// <ext>/languages/<code>.json — named by the language's code (en.json,
+// de.json, ...). English texts live inline in the markup/manifest as
+// fallback; there is deliberately no second fetch of en.json. Reserved
+// keys manifest.name/manifest.description localize tile/nav/manager
+// (hook in webuiDiscoverExtensions).
 var _webuiExtLang = {};
-
-function webuiActiveLangName() {
-	var langs = webuiGetLanguages();
-	for (var i = 0; i < langs.length; i++)
-		if (langs[i].active) return langs[i].name;
-	return 'English';
-}
 
 async function webuiExtLangLoad(dir) {
 	if (_webuiExtLang[dir]) return _webuiExtLang[dir];
 	var dict = {};
 	try {
 		var resp = await fetch('/extensions/' + encodeURIComponent(dir) +
-			'/languages/' + encodeURIComponent(webuiActiveLangName()) + '.json',
+			'/languages/' + encodeURIComponent(await webuiActiveLangCode()) + '.json',
 			{cache: 'no-cache'});
 		if (resp.ok) dict = (await resp.json()) || {};
 	} catch (ignore) {} // a missing language pack is NOT an error
@@ -246,15 +231,21 @@ function webuiExtL(dir, key, fallbackEN) {
 	return v || fallbackEN || key;
 }
 
-function webuiToggleLangMenu(ev) {
+async function webuiToggleLangMenu(ev) {
 	ev.stopPropagation();
 	var menu = document.getElementById('webui-lang-menu');
 	if (menu) { menu.remove(); return; }
-	var langs = webuiGetLanguages();
+	var r = ev.currentTarget.getBoundingClientRect();
+	var answer = null;
+	try {
+		answer = await _webuiV1Read('/webui/language');
+	} catch (ignore) {}
+	var langs = (answer && answer.items) || [];
 	if (!langs.length) {
 		webuiShowToast(webuiL('lang.none', 'No languages installed'), true);
 		return;
 	}
+	if (document.getElementById('webui-lang-menu')) return;
 	menu = document.createElement('div');
 	menu.id = 'webui-lang-menu';
 	menu.className = 'webui-lang-menu';
@@ -262,11 +253,11 @@ function webuiToggleLangMenu(ev) {
 		var b = document.createElement('button');
 		b.type = 'button';
 		b.textContent = l.name;
-		if (l.active) b.classList.add('active');
-		b.onclick = function() { webuiSetLanguage(l.name); };
+		b.lang = l.code;
+		if (l.code === answer.selected) b.classList.add('active');
+		b.onclick = function() { webuiSetLanguage(l.code); };
 		menu.appendChild(b);
 	});
-	var r = ev.currentTarget.getBoundingClientRect();
 	menu.style.top = (r.bottom + 4) + 'px';
 	menu.style.right = Math.max(4, window.innerWidth - r.right) + 'px';
 	document.body.appendChild(menu);
@@ -279,11 +270,22 @@ function webuiToggleLangMenu(ev) {
 	}, 0);
 }
 
-async function webuiSetLanguage(lang) {
+// The server writes the language into its own file and reads that again,
+// so the old pages follow; this page reads its texts when it loads. A page
+// that loads the header alone (an extension's) has no webuiV1 and sends the
+// write itself, with the session's second token.
+async function webuiSetLanguage(code) {
 	try {
-		// set-lang.yhtm ruft set_language: schreibt nhttpd.conf und
-		// laedt die Sprachdateien im Webserver neu; danach Reload
-		await fetch('/set-lang.yhtm?' + encodeURIComponent(lang), {cache: 'no-store'});
+		if (typeof webuiV1 === 'function') {
+			await webuiV1('PUT', '/webui/language', {body: {language: code}});
+		} else {
+			var s = (await webuiSessionInfo()) || {};
+			var headers = {'Content-Type': 'application/json'};
+			if (s.csrf_header) headers[s.csrf_header] = s.csrf;
+			var r = await fetch('/api/v1/webui/language', {method: 'PUT', credentials: 'same-origin',
+				cache: 'no-store', headers: headers, body: JSON.stringify({language: code})});
+			if (!r.ok) throw new Error('HTTP ' + r.status);
+		}
 		location.reload();
 	} catch (e) {
 		webuiShowToast('Error: ' + e.message, true);
@@ -652,9 +654,10 @@ function webuiInitHeader(pageName) {
 // page without a session is not asked, having signed in with nothing.
 // password.yhtm and login.yhtm do not load this script, so this cannot loop.
 function webuiCheckDefaultPassword() {
-	fetch('/api/v1/session', {credentials: 'same-origin', cache: 'no-store'})
-		.then(function(r) { return r.ok ? r.json() : null; })
+	webuiSessionInfo()
 		.then(function(s) {
+			var code = document.getElementById('webui-lang-code');
+			if (code) code.textContent = ((s && s.language) || 'en').toUpperCase();
 			if (s && s.password_change_required) {
 				location.replace('/password.yhtm?next=' + encodeURIComponent(location.pathname + location.search));
 				return;

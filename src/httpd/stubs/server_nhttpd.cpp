@@ -48,6 +48,8 @@ unsigned started = 0;
 // The two hands, empty until the program installs them.
 int  (*start_hand)(int port, const char *bind) = 0;
 bool (*stop_hand)(void) = 0;
+// nhttpd's own reading of its file, empty until the program installs it.
+void (*config_reload_hand)(void) = 0;
 
 /* The runner a sent reload answer is carried by. Its own thread, because
    the connection thread that sent the answer belongs to the webserver
@@ -161,6 +163,17 @@ void installNhttpdServerControl(int (*start_thread)(int port, const char *bind),
 {
 	start_hand = start_thread;
 	stop_hand = stop_thread;
+}
+
+void installNhttpdConfigReload(void (*reload)(void))
+{
+	config_reload_hand = reload;
+}
+
+void reloadNhttpdConfig()
+{
+	if (config_reload_hand)
+		config_reload_hand();
 }
 
 void scheduleReloadAndRestart(const std::string &path)
