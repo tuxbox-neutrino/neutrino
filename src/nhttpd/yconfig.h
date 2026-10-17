@@ -27,11 +27,12 @@
 //-----------------------------------------------------------------------------
 // General central Definitions <configure!>
 //-----------------------------------------------------------------------------
+/* The one version the server reports. The yhttpd core it grew from was last
+   versioned 1.3.2 and has changed a great deal here since, so it is no line of
+   its own any more. */
 #define HTTPD_VERSION 			"4.0.0"		// Webserver version  (can be overloaded)
-#define YHTTPD_VERSION			"1.3.2"		// Webserver version  (Version of yhttpd-core!)
 #define IADDR_LOCAL			"127.0.0.1"	// local IP
 #define HTTPD_NAME			"yhttpd"	// Webserver name (can be overloaded)
-#define YHTTPD_NAME			"yhttpd_core"	// Webserver name (Name of yhttpd-core!)
 #define AUTH_NAME_MSG			"yhttpd"	// Name in Authentication Dialogue
 #define CONF_VERSION			6		// Version of yhttpd-conf file
 #define HTTPD_KEEPALIVE_TIMEOUT		500000		// Timeout for Keep-Alive in mircoseconds
@@ -126,6 +127,6 @@
 //-----------------------------------------------------------------------------
 // Aggregated definitions
 //-----------------------------------------------------------------------------
-#define WEBSERVERNAME HTTPD_NAME "/" HTTPD_VERSION " (" YHTTPD_NAME "/" YHTTPD_VERSION ")"
+#define WEBSERVERNAME HTTPD_NAME "/" HTTPD_VERSION
 
 #endif // __yconfig_h__

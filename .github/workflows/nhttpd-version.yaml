@@ -39,12 +39,12 @@ name: nhttpd Version Bump
 #     the evaluated list and start none. So the rule below is "almost
 #     always", not "always". A run that seems to contradict it at that size
 #     is the platform, not a bug here.
-#   - The trigger now overlaps what YHTTPD_VERSION (yconfig.h) covers, since
-#     yhttpd_core/ is in it -- but it is wider: yhttpd_mods/, yhttpd.cpp,
+#   - The trigger covers yhttpd_core/ and is wider: yhttpd_mods/, yhttpd.cpp,
 #     nhttpd.conf.in, Makefile.am and any future subdirectory count too, and
-#     all of them move HTTPD_VERSION. That is intended: HTTPD_VERSION is the
-#     Neutrino integration's line, YHTTPD_VERSION the upstream core's, and
-#     the latter stays hand-set.
+#     all of them move HTTPD_VERSION. There is no second line for the core:
+#     the yhttpd core this server grew from was last versioned 1.3.2, has
+#     changed a great deal here since, and HTTPD_VERSION is the one version
+#     the server reports.
 #
 # There is deliberately no concurrency group. A group holds at most one
 # pending run and evicts it when another run queues, and an evicted run can
@@ -138,8 +138,8 @@ jobs:
 
           # HTTPD_VERSION is one quoted string, not three integer defines:
           # #define HTTPD_VERSION 			"3.6.0"		// Webserver version
-          # An exact $2 match keeps this off YHTTPD_VERSION on the next line,
-          # which carries the yhttpd core's own, hand-set version.
+          # An exact $2 match keeps this off any other define whose name
+          # merely contains it.
           read_version() {
             awk '$1 == "#define" && $2 == "HTTPD_VERSION" { gsub(/"/, "", $3); print $3 }' "$HDR"
           }

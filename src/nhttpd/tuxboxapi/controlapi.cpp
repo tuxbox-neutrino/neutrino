@@ -3244,7 +3244,8 @@ void CControlAPI::VersionsCGI(CyhookHandler *hh)
 	hh->printf("  \"neutrino_git\": \"%s\",\n", PACKAGE_VERSION_GIT);
 #endif
 	hh->printf("  \"api\": \"%s\",\n", HTTPD_VERSION);
-	hh->printf("  \"yhttpd\": \"%s\",\n", YHTTPD_VERSION);
+	// Kept for readers that ask for it; the core has no version of its own any more.
+	hh->printf("  \"yhttpd\": \"%s\",\n", HTTPD_VERSION);
 	if (!yweb_version.empty())
 	{
 		hh->printf("  \"yweb\": \"%s\",\n", yweb_version.c_str());

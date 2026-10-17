@@ -452,10 +452,6 @@ void CImageInfo::initAPIVersions()
 	s_api	+= HTTPD_NAME;
 	s_api	+= + " ";
 	s_api	+= HTTPD_VERSION;
-	s_api	+= + ", ";
-	s_api	+= YHTTPD_NAME;
-	s_api	+= + " ";
-	s_api	+= YHTTPD_VERSION;
 	v_info.push_back({g_Locale->getText(LOCALE_IMAGEINFO_API),	s_api});
 }
 

@@ -74,7 +74,7 @@ bool CmWebLog::OpenLogFile() {
 		if (isNew) {
 			if (LogFormat == "ELF") {
 				printf("#Version: 1.0\n");
-				printf("#Remarks: yhttpd" WEBSERVERNAME "\n");
+				printf("#Remarks: " WEBSERVERNAME "\n");
 				printf("#Fields: c-ip username date time x-request cs-uri sc-status cs-method bytes time-taken x-time-request x-time-response cached\n");
 			}
 		}
