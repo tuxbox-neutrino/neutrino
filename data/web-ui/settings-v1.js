@@ -34,6 +34,7 @@ var V1SET = {
 	dissolved: Object.create(null),	// registry category id -> section it went into
 	regLabels: Object.create(null),	// key -> registry label, for rows without one
 	keys: null,			// [{code, name}] the box names for key rows, null when unread
+	channels: Object.create(null),	// channel list -> promise of [{id, name}], read when first drawn
 	unavailable: Object.create(null),	// keys the box declares and does not have
 	saving: false,
 	rereadDue: false,
@@ -255,6 +256,106 @@ function v1setDeclared(key) {
 	return !!(V1SET.items[key] || V1SET.unavailable[key]);
 }
 
+// ---- pairs ------------------------------------------------------------------
+
+// The other half of a setting that is one fact in two parts and how the box
+// takes the two; null for a setting in no pair the page holds both halves of.
+function _v1setPair(item) {
+	if (!item || !item.pair || !V1SET.items[item.pair])
+		return null;
+	if (item.pair_writes !== 'id' && item.pair_writes !== 'both')
+		return null;
+	return {partner: item.pair, writes: item.pair_writes};
+}
+
+// A start channel is one line: its named half chooses a channel and writes
+// the channel's identifier, and the box writes the name from its channel
+// list. The identifier's half, which has no label, is not drawn on its own.
+function _v1setIdHalf(item) {
+	var p = _v1setPair(item);
+	return !!(p && p.writes === 'id' && !item.label);
+}
+
+// The setting a row's control writes: the identifier for the named half of a
+// start channel, the row's own setting otherwise.
+function _v1setWrites(item) {
+	var p = _v1setPair(item);
+	return (p && p.writes === 'id' && item.label) ? p.partner : item.id;
+}
+
+// an identifier as the box stores it: hexadecimal, small, no leading zeros
+function _v1setChannelId(v) {
+	return String(v === undefined || v === null ? '' : v).toLowerCase().replace(/^0+(?=.)/, '');
+}
+
+// Every channel of one list, read a page at a time the first time a start
+// channel of that list is drawn and kept for the page's life; a read that
+// fails is tried again the next time.
+function _v1setChannels(kind) {
+	if (!V1SET.channels[kind]) {
+		V1SET.channels[kind] = (async function() {
+			var out = [];
+			var cursor = null;
+			for (var pages = 0; pages < 200; pages++) {
+				var query = {mode: kind, limit: 500};
+				if (cursor)
+					query.cursor = cursor;
+				var page = await ywebV1('GET', '/channels', {query: query});
+				((page && page.items) || []).forEach(function(c) {
+					out.push({id: _v1setChannelId(c.id), name: String(c.name || '')});
+				});
+				cursor = page && page.next_cursor;
+				if (!cursor)
+					break;
+			}
+			return out;
+		})();
+		V1SET.channels[kind].catch(function() { delete V1SET.channels[kind]; });
+	}
+	return V1SET.channels[kind];
+}
+
+// The named half of a start channel: a choice of the channels of its list
+// whose value is the identifier the box takes. What it holds is offered at
+// once under the name the box keeps beside it, the list follows once read; a
+// list that cannot be read leaves the identifier to be typed.
+function _v1setChannelChoice(item, idKey, id) {
+	var none = ywebL('set.no_channel', 'none');
+	var current = _v1setChannelId(_v1setShown(V1SET.items[idKey]));
+	var name = _v1setShown(item);
+	var sel = ywebEl('select', {id: id, data: {v1key: idKey}});
+	sel.appendChild(ywebEl('option', {value: current}, current === '0' ? none : (name || current)));
+	sel.value = current;
+	_v1setChannels(item.channel_kind === 'radio' ? 'radio' : 'tv').then(function(list) {
+		if (!sel.isConnected)
+			return;
+		var keep = sel.value;
+		while (sel.firstChild)
+			sel.removeChild(sel.firstChild);
+		sel.appendChild(ywebEl('option', {value: '0'}, none));
+		var listed = keep === '0';
+		list.forEach(function(c) {
+			listed = listed || c.id === keep;
+			sel.appendChild(ywebEl('option', {value: c.id}, c.name || c.id));
+		});
+		// a channel the list has lost since stays what it is, under its name
+		if (!listed)
+			sel.appendChild(ywebEl('option', {value: keep},
+				(name || keep) + ' (' + ywebL('set.unknown_value', 'not offered') + ')'));
+		sel.value = keep;
+	}, function() {
+		if (!sel.isConnected)
+			return;
+		var input = ywebEl('input', {type: 'text', id: id, value: sel.value, data: {v1key: idKey},
+			attrs: {spellcheck: 'false'}});
+		input.disabled = sel.disabled;
+		if (sel.dataset.v1fixed)
+			input.dataset.v1fixed = sel.dataset.v1fixed;
+		sel.replaceWith(input);
+	});
+	return sel;
+}
+
 // ---- rows -----------------------------------------------------------------
 
 function v1setId(key) {
@@ -349,6 +450,9 @@ function _v1setIsFolder(item) {
 
 function _v1setControl(item, id, val) {
 	var data = {v1key: item.id};
+	var pair = _v1setPair(item);
+	if (pair && pair.writes === 'id' && item.label)
+		return _v1setChannelChoice(item, pair.partner, id);
 	if (item.type === 'bool')
 		return ywebEl('label', {className: 'yweb-toggle'},
 			ywebEl('input', {type: 'checkbox', id: id, checked: _v1setIsOn(val), data: data}),
@@ -469,7 +573,7 @@ function v1setRow(item) {
 	}
 
 	var row = ywebEl('div', {className: 'yweb-form-row', data: {v1row: item.id}}, labelCell, control, help);
-	var p = V1SET.pending[item.id];
+	var p = V1SET.pending[_v1setWrites(item)];
 	if (p && p.error) {
 		row.appendChild(ywebEl('div', {className: 'yweb-set-error', id: id + '_err'}, p.error));
 		var field = row.querySelector('[data-v1key]');
@@ -484,7 +588,7 @@ function v1setRow(item) {
 function v1setPanel(section, extra) {
 	var rows = ywebEl('div', {className: 'yweb-form-section'});
 	(V1SET.bySection[section] || []).forEach(function(item) {
-		if (!V1SET.claimed[item.id])
+		if (!V1SET.claimed[item.id] && !_v1setIdHalf(item))
 			rows.appendChild(v1setRow(item));
 	});
 	var card = ywebEl('div', {className: 'settings-card'},
@@ -505,7 +609,7 @@ function v1setSlot(key) {
 function v1setFillSlots(root) {
 	root.querySelectorAll('[data-v1-slot]').forEach(function(slot) {
 		var item = V1SET.items[slot.getAttribute('data-v1-slot')];
-		if (item)
+		if (item && !_v1setIdHalf(item))
 			slot.replaceWith(v1setRow(item));
 		else
 			slot.remove();
@@ -566,7 +670,7 @@ function v1setApplyConditions() {
 // A refused value whose panel is not drawn (the redraw after a save draws
 // only the open one) is a change as well, and goes into the next save.
 function v1setDirty() {
-	var out = {bySection: Object.create(null), count: 0};
+	var out = {bySection: Object.create(null), count: 0, brought: Object.create(null)};
 	if (!V1SET.ok)
 		return out;
 	var add = function(item, v) {
@@ -588,6 +692,19 @@ function v1setDirty() {
 	Object.keys(V1SET.pending).forEach(function(key) {
 		if (!drawn[key] && V1SET.items[key])
 			add(V1SET.items[key], V1SET.pending[key].value);
+	});
+	// The two halves of a place are taken together or not at all, so a half
+	// changed brings the other as it stands.
+	Object.keys(out.bySection).forEach(function(section) {
+		var body = out.bySection[section];
+		Object.keys(body).forEach(function(key) {
+			var p = _v1setPair(V1SET.items[key]);
+			if (p && p.writes === 'both' && body[p.partner] === undefined &&
+			    V1SET.items[p.partner].section === section) {
+				body[p.partner] = _v1setLive(p.partner);
+				out.brought[p.partner] = true;
+			}
+		});
 	});
 	return out;
 }
@@ -629,6 +746,12 @@ async function v1setSave(dirty) {
 						var r = answer.results[k];
 						if (r && r.status >= 300)
 							failed[k] = r.detail || r.code || String(r.status);
+						// a start channel whose name the box could not store
+						// is not the channel the box starts on
+						var p = _v1setPair(V1SET.items[k]);
+						var named = p && p.writes === 'id' ? answer.results[p.partner] : null;
+						if (failed[k] === undefined && named && named.status >= 300)
+							failed[k] = named.detail || named.code || String(named.status);
 					});
 			} catch (e) {
 				// one key refused, or the request as a whole
@@ -641,7 +764,9 @@ async function v1setSave(dirty) {
 					return;
 				}
 				delete V1SET.pending[k];
-				res.saved++;
+				// the other half of a place went along and is no change of its own
+				if (!dirty.brought || !dirty.brought[k])
+					res.saved++;
 				if (V1SET.items[k].needs_restart)
 					res.restart = true;
 				// a credential reads empty again once the box holds it, so
@@ -666,7 +791,7 @@ async function v1setRefresh() {
 	await v1setReread();
 	document.querySelectorAll('#settingsContent [data-v1row]').forEach(function(row) {
 		var item = V1SET.items[row.dataset.v1row];
-		if (item && (V1SET.pending[item.id] || row.querySelector('.yweb-set-error')))
+		if (item && (V1SET.pending[_v1setWrites(item)] || row.querySelector('.yweb-set-error')))
 			row.replaceWith(v1setRow(item));
 	});
 	v1setApplyConditions();
