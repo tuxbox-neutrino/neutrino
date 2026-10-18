@@ -183,10 +183,10 @@ constexpr EnumValue kSleeptimerMin[] =
 // The two modes that scan live are offered only with more than one tuner switched on.
 constexpr EnumValue kEpgScanMode[] =
 {
-	option(EPG_SCAN_MODE_OFF).label("options.off"),
-	option(EPG_SCAN_MODE_STANDBY).label("miscsettings.epg_scan_standby"),
-	option(EPG_SCAN_MODE_LIVE).label("miscsettings.epg_scan_live").availableIf(severalTunersEnabled),
-	option(EPG_SCAN_MODE_ALWAYS).label("miscsettings.epg_scan_always").availableIf(severalTunersEnabled)
+	option(0).label("options.off"),
+	option(2).label("miscsettings.epg_scan_standby"),
+	option(1).label("miscsettings.epg_scan_live").availableIf(severalTunersEnabled),
+	option(3).label("miscsettings.epg_scan_always").availableIf(severalTunersEnabled)
 };
 
 constexpr Descriptor kMisc[] =
@@ -322,6 +322,9 @@ constexpr Descriptor kMisc[] =
 		.values(kEpgScan)
 		.changeableWhen(kEpgScanOn)
 		.field(COREAPI_NUMBER_FIELD(epg_scan)),
+	/* The value is a pair of bits, live and standby, src/driver/scanepg.h:39,
+	   in the order the screen offers them, src/gui/miscsettings_menu.cpp:245;
+	   the two that scan live only with more than one tuner switched on, :535. */
 	// src/neutrino.cpp:789 src/gui/miscsettings_menu.cpp:527
 	enumRow("epg_scan_mode")
 		.section("misc")

@@ -788,6 +788,8 @@ struct TunerSource
 
 TunerSource &tunerSource();
 void setTunerSource(TunerSource *s);
+// Whether one is installed, asked without ending the process, as for the system source.
+bool tunerSourceInstalled();
 
 // Binds the accessors above to the frontends the box has.
 void installRealTunerSource();

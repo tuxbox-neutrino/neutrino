@@ -104,6 +104,8 @@ TunerSource &tunerSource()
 }
 
 void setTunerSource(TunerSource *s) { g_tuner_source = s; }
+
+bool tunerSourceInstalled() { return g_tuner_source != 0; }
 static InputDevice *g_input_device = 0;
 
 InputDevice &inputDevice()

@@ -23,9 +23,9 @@ body members the examples carry	25
 bounds compared against a screen	28
 bounds read off the screens	46
 bounds read with both ends resolved	44
-choice value names compared	224
+choice value names compared	241
 choices compared against a screen	56
-choices named as unreadable	0
+choices named as unreadable	4
 chooser call sites read	199
 chooser call sites read whole	189
 conditions checked	43

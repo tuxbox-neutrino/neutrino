@@ -56,7 +56,7 @@ BoxCapabilities capabilities(bool *ok = NULL)
 bool formats(const char *fs)
 {
 	std::vector<std::string> tools;
-	if (systemSource().formatTools(tools) != Status::Ok)
+	if (!systemSourceInstalled() || systemSource().formatTools(tools) != Status::Ok)
 		return false;
 	return std::find(tools.begin(), tools.end(), fs) != tools.end();
 }
@@ -224,7 +224,7 @@ bool severalTunersFitted()
 bool severalTunersEnabled()
 {
 	unsigned n = 0;
-	return tunerSource().enabledCount(n) == Status::Ok && n > 1;
+	return tunerSourceInstalled() && tunerSource().enabledCount(n) == Status::Ok && n > 1;
 }
 
 bool formatsExt4() { return formats("ext4"); }

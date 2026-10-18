@@ -39,16 +39,19 @@ namespace
 constexpr EnumValue kVideoFormat[] =
 {
 	option(1).label("videomenu.videoformat_43"),
-	option(2).label("videomenu.videoformat_149"),
+	option(2).label("videomenu.videoformat_149").availableIf(canAspect149),
 	option(3).label("videomenu.videoformat_169")
 };
 
+/* The screen's four modes, src/gui/videosettings.cpp:122, under the numbers
+   every hardware library gives them; pan and scan 14:9 only where the box can,
+   as the screen copies its table without it, :1085. */
 constexpr EnumValue kVideo43Mode[] =
 {
-	option(DISPLAY_AR_MODE_PANSCAN).label("videomenu.panscan"),
-	option(DISPLAY_AR_MODE_PANSCAN2).label("videomenu.panscan2").availableIf(canPanScan149),
-	option(DISPLAY_AR_MODE_LETTERBOX).label("videomenu.letterbox"),
-	option(DISPLAY_AR_MODE_NONE).label("videomenu.fullscreen")
+	option(0).label("videomenu.panscan"),
+	option(3).label("videomenu.panscan2").availableIf(canPanScan149),
+	option(1).label("videomenu.letterbox"),
+	option(2).label("videomenu.fullscreen")
 };
 
 // src/gui/videosettings.cpp:350
@@ -116,9 +119,8 @@ constexpr EnumValue kHdmiColorimetry[] =
 
 constexpr Descriptor kVideo[] =
 {
-	/* The screen drops the third choice where the box cannot draw 14:9, which
-	   is a capability read at run time and not a setting to condition on.
-	   src/gui/videosettings.cpp:441 */
+	/* 14:9 is offered only where the box can show it, as the screen offers it,
+	   src/gui/videosettings.cpp:629. */
 	// src/neutrino.cpp:489 src/gui/videosettings.cpp:441
 	enumRow("video_Format")
 		.section("video")

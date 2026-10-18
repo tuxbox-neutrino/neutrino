@@ -78,6 +78,9 @@ constexpr EnumValue kHddFs[] =
 
 constexpr Descriptor kHdd[] =
 {
+	/* Which file system the box writes when it formats a disk, as a position in
+	   the tool table the screen walks, src/gui/hdd_menu.cpp:92; the screen offers
+	   the ones whose mkfs it found, :628, which is what the entries ask too. */
 	// src/neutrino.cpp:657 src/gui/hdd_menu.cpp:663
 	enumRow("hdd_fs")
 		.section("hdd")

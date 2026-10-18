@@ -309,8 +309,8 @@ constexpr EnumValue kScreenshotFormat[] =
 
 constexpr EnumValue kOsdResolution[] =
 {
-	option(OSDMODE_720).text("1280x720").availableIf(drawsOsd720),
-	option(OSDMODE_1080).text("1920x1080").availableIf(drawsOsd1080)
+	option(0).text("1280x720").availableIf(drawsOsd720),
+	option(1).text("1920x1080").availableIf(drawsOsd1080)
 };
 
 constexpr Descriptor kOsd[] =
@@ -876,6 +876,10 @@ constexpr Descriptor kOsd[] =
 	   OSDMODE_720 and OSDMODE_1080, src/gui/osd_helpers.h:7. Every driver
 	   builds its list in that order and what reads the value reads it as a
 	   mode, src/neutrino.cpp:1431.
+
+	   Named by the sizes in pixels, as the screen names the ones it reads off
+	   the framebuffer, src/gui/osd_setup.cpp:726, and offered where the
+	   framebuffer has that size.
 
 	   The default is the one the pass that loads the settings falls back to,
 	   src/neutrino.cpp:1060. The pass that sets the framebuffer up reads the
