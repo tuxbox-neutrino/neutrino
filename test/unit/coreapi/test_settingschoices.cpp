@@ -199,6 +199,36 @@ std::string describe(const std::vector<Site> &v)
 	return t;
 }
 
+/* Choices whose screen states its values in a way no scan can read, each named with
+   the place and the reason. The rule above is that a row the scan cannot read either
+   gets a scan that can, or is named; these are the ones named. A row named here that
+   the scan reads after all fails the case, so none stays here once it could be held to
+   its screen. What holds them instead is the case over their entries' availability. */
+struct Unreadable
+{
+	const char *key;
+	const char *why;
+};
+
+const Unreadable kUnreadable[] =
+{
+	{ "epg_scan_mode", "src/gui/miscsettings_menu.cpp:245 states one value as CEpgScan::MODE_STANDBY, "
+	                   "a name four headers give different values" },
+	{ "hdd_fs", "src/gui/hdd_menu.cpp:628 fills its table from the tools the box has" },
+	{ "osd_resolution", "src/gui/osd_setup.cpp:719 fills its table from the sizes the framebuffer has" },
+	{ "video_43mode", "src/gui/videosettings.cpp:1080 copies its table without the entry the box cannot show" },
+};
+
+const Unreadable *namedUnreadable(const char *key)
+{
+	for (size_t i = 0; i < sizeof(kUnreadable) / sizeof(kUnreadable[0]); ++i)
+	{
+		if (std::strcmp(kUnreadable[i].key, key) == 0)
+			return &kUnreadable[i];
+	}
+	return NULL;
+}
+
 /* The words one value is offered under, written the way the script writes a
    screen's: a locale by its name, and words an entry carries of its own in the
    quotes the screen's source states them in. Empty for an entry with neither,
@@ -293,8 +323,10 @@ TEST_CASE("every value a declared choice offers is one the screen offers", "[set
 	size_t checked = 0;
 	size_t rows = 0;
 	size_t asked = 0;
+	size_t named = 0;
 	std::string unread;
 	std::string unoffered;
+	std::string readable;
 
 	for (size_t i = 0; i < settingsTableCount(); ++i)
 	{
@@ -341,11 +373,22 @@ TEST_CASE("every value a declared choice offers is one the screen offers", "[set
 				holds = true;
 		}
 
+		const Unreadable *why = namedUnreadable(d.key);
 		if (!comparable)
 		{
+			if (why != NULL)
+			{
+				++named;
+				continue;
+			}
 			unread += (unread.empty() ? "" : ", ");
 			unread += d.key;
 			continue;
+		}
+		if (why != NULL)
+		{
+			readable += (readable.empty() ? "" : ", ");
+			readable += d.key;
 		}
 
 		++checked;
@@ -353,6 +396,10 @@ TEST_CASE("every value a declared choice offers is one the screen offers", "[set
 		     << ", the screens offer " << describe(it->second));
 		CHECK(holds);
 	}
+
+	INFO("rows named as unreadable that the scan reads: " << readable);
+	CHECK(readable.empty());
+	recordCount("choices named as unreadable", named);
 
 	/* A row the scan stopped reading is a row that stopped being checked, and
 	   with a handful declared that is a green run either way. So it fails here

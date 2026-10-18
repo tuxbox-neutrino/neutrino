@@ -25,6 +25,7 @@ bounds read off the screens	46
 bounds read with both ends resolved	44
 choice value names compared	224
 choices compared against a screen	56
+choices named as unreadable	0
 chooser call sites read	199
 chooser call sites read whole	189
 conditions checked	43
