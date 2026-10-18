@@ -668,6 +668,23 @@ function _v1setLive(key) {
 }
 
 function _v1setHolds(c) {
+	// a group holds while any one of its comparisons does
+	if (c.any)
+		return c.any.some(_v1setHolds);
+	// A credential reads as nothing, so only what was typed into it here can
+	// be judged; untouched, it is the box that judges it on the write.
+	var target = V1SET.items[c.key];
+	if (target && target.secret) {
+		var field = _v1setControlOf(c.key);
+		var typed = field ? _v1setControlValue(field) : '';
+		if (!typed || c.op !== 'text-valid')
+			return true;
+		return typed !== (c.text || '');
+	}
+	if (c.op === 'text-valid') {
+		var text = String(_v1setLive(c.key) || '');
+		return text !== '' && text !== (c.text || '');
+	}
 	var v = parseInt(_v1setLive(c.key), 10);
 	if (isNaN(v))
 		return true;	// nothing to hold it against
@@ -696,9 +713,11 @@ function v1setApplyConditions() {
 		row.classList.toggle('is-disabled', off);
 		if (off)
 			row.title = webuiL('set.cond_off', 'No effect with the current value of') + ': ' +
-				failing.map(function(c) {
-					var it = V1SET.items[c.key];
-					return it ? _v1setLabel(it) : c.key;
+				failing.reduce(function(keys, c) {
+					return keys.concat(c.any ? c.any.map(function(a) { return a.key; }) : [c.key]);
+				}, []).map(function(key) {
+					var it = V1SET.items[key];
+					return it ? _v1setLabel(it) : key;
 				}).join(', ');
 		else
 			row.removeAttribute('title');

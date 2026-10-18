@@ -1738,7 +1738,7 @@ webuiAfterTexts(async function() {
 	DEP_HINT = webuiL('set.dep_locked', 'Controlled by the entry above — no effect while that one is enabled');
 	await webuiDiscoverExtensions();
 	await webuiLoadScript('/js/settings-registry.js?v=19');
-	await webuiLoadScript('/js/settings-v1.js?v=7');
+	await webuiLoadScript('/js/settings-v1.js?v=8');
 	// Was anderswo gespeichert wird (am Geraet, von einer zweiten Seite),
 	// liest die Seite nach
 	webuiV1Events({'settings-changed': v1setChanged, open: v1setStreamOpen});
