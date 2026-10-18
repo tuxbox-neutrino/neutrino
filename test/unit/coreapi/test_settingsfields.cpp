@@ -2,6 +2,7 @@
  * test_settingsfields.cpp - tests for the settings fields
  *
  * Copyright (C) 2026 NI-Team
+ * Copyright (C) 2026 Tuxbox-Project (fixes, tests)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -507,10 +508,14 @@ TEST_CASE("a setting whose values nobody can state takes none", "[settingsfields
 
 /* A row carrying its own list answers the same shape, with each label already
    the text the box would show: a caller draws a chooser from one answer and
-   never has to tell the two kinds apart. */
+   never has to tell the two kinds apart. The box shows 14:9, so all three of
+   its entries are offered. */
 TEST_CASE("a setting carrying its own list answers the same shape", "[settingsfields]")
 {
 	RealStore store;
+	FakeSystemSource box;
+	InstalledSystemSource installed_box(&box);
+	box.caps.can_ar_14_9 = 1;
 	FakeLocaleSource catalog;
 	InstalledLocaleSource installed(&catalog);
 	catalog.texts["videomenu.videoformat_43"] = "4:3";
