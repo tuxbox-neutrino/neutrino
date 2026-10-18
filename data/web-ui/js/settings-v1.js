@@ -457,9 +457,30 @@ function _v1setDefaultText(item) {
 }
 
 // a folder the setting names (epg_dir, network_nfs_moviedir, update_dir_opkg):
-// offer the folder picker beside the field; a file path gets none
+// offer the folder picker beside the field; a file path gets none. The box's
+// rule says so where the row has one, the name only where it has none.
 function _v1setIsFolder(item) {
+	if (item.text_kind)
+		return item.text_kind === 'directory';
 	return /(^|_)dir_|dir$/i.test(item.id);
+}
+
+// What the box's rule for a text lets the browser hold the field to: its
+// length, its characters and, for digits, the keypad. The box checks the
+// same rule again on every write.
+function _v1setTextAttrs(item, attrs) {
+	if (item.max_length > 0)
+		attrs.maxlength = item.max_length;
+	if (item.min_length > 0)
+		attrs.minlength = item.min_length;
+	if (item.allowed_chars) {
+		var chars = item.allowed_chars.replace(/[\\\]\[^-]/g, '\\$&');
+		attrs.pattern = '[' + chars + ']*';
+		attrs.title = webuiL('set.allowed_chars', 'Allowed characters') + ': ' + item.allowed_chars;
+	}
+	if (item.text_kind === 'pin' || item.text_kind === 'number')
+		attrs.inputmode = 'numeric';
+	return attrs;
 }
 
 function _v1setControl(item, id, val) {
@@ -526,7 +547,7 @@ function _v1setControl(item, id, val) {
 		// a credential reads as nothing: empty leaves it as it is, and
 		// emptying it is a button of its own
 		var pw = webuiEl('input', {type: 'password', id: id, value: val, data: data,
-			attrs: {autocomplete: 'new-password', placeholder: webuiL('set.secret_keep', 'unchanged')}});
+			attrs: _v1setTextAttrs(item, {autocomplete: 'new-password', placeholder: webuiL('set.secret_keep', 'unchanged')})});
 		var cell = webuiEl('span', {}, pw);
 		if (typeof togglePwField === 'function') {
 			var eye = webuiEl('button', {type: 'button', className: 'webui-btn webui-set-act',
@@ -538,7 +559,7 @@ function _v1setControl(item, id, val) {
 			on: {click: function() { v1setClearSecret(item); }}}, webuiL('set.secret_clear', 'Clear')));
 		return cell;
 	}
-	var input = webuiEl('input', {type: 'text', id: id, value: val, data: data});
+	var input = webuiEl('input', {type: 'text', id: id, value: val, data: data, attrs: _v1setTextAttrs(item, {})});
 	if (!_v1setIsFolder(item) || typeof webuiPickInto !== 'function')
 		return input;
 	return webuiEl('span', {}, input, webuiEl('button', {type: 'button', className: 'webui-btn webui-set-act',

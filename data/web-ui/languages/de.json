@@ -411,6 +411,7 @@
 	"set.sec_update": "Software-Aktualisierung",
 	"set.help": "Hilfe",
 	"set.default": "Standard",
+	"set.allowed_chars": "Erlaubte Zeichen",
 	"set.restart_title": "Wirkt erst nach einem Neustart",
 	"set.saved_restart": "einige wirken erst nach einem Neustart",
 	"set.save_some_fail": "Nicht alle Einstellungen wurden gespeichert, siehe die markierten Felder",

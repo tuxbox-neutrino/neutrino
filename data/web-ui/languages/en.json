@@ -411,6 +411,7 @@
 	"set.sec_update": "Software update",
 	"set.help": "Help",
 	"set.default": "Default",
+	"set.allowed_chars": "Allowed characters",
 	"set.restart_title": "Takes effect after a restart",
 	"set.saved_restart": "some take effect after a restart",
 	"set.save_some_fail": "Not every setting was saved, see the marked fields",
