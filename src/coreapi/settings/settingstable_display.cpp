@@ -72,14 +72,21 @@ constexpr EnumValue kLcd4lSupport[] =
 	option(2).label("lcd4l_support_on")
 };
 
-/* The four panels the box can drive, named by their sizes and not by words a
-   locale would carry. The numbers are those of the driver's panel enum. */
+/* The panels and outputs the screen offers, src/gui/lcd4l_setup.cpp:64, under
+   the numbers the driver gives them, src/driver/lcd4l.h:48. The VU+ Solo 4K
+   panel is offered only by a build for that box. */
 constexpr EnumValue kLcd4lDisplayType[] =
 {
 	option(0).text("320x240 Pearl DPF"),
 	option(1).text("800x480 Samsung SPF"),
 	option(2).text("800x600 Samsung SPF"),
-	option(3).text("1024x600 Samsung SPF")
+	option(3).text("1024x600 Samsung SPF"),
+#if defined BOXMODEL_VUSOLO4K
+	option(4).text("480x320 VUSolo4K"),
+#endif
+	option(5).text("800x480 PNG"),
+	option(6).text("800x600 PNG"),
+	option(7).text("1024x600 PNG")
 };
 
 #if defined(ENABLE_GRAPHLCD) || defined(ENABLE_LCD4LINUX)
