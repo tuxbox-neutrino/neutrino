@@ -145,6 +145,7 @@ void withhold(Descriptor &d)
 		return;
 	d.default_string = "";
 	d.default_int = 0;
+	d.default_fn = NULL;
 }
 
 /* Whether the row allows the value, which is not the question the store asks.
