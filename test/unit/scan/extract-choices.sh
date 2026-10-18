@@ -41,7 +41,12 @@ MARK='@@file@@'
 
 find "$@" -name '*.cpp' -o -name '*.h' | LC_ALL=C sort > "$tmp/files"
 xargs awk -v keepstrings=0 -v mark="$MARK" -f "$STRIP" < "$tmp/files" > "$tmp/code"
-awk -v mark="$MARK" -f "$HERE/keyvals.awk" "$tmp/code" > "$tmp/entries"
+# The tables are read with their literals kept, because an entry can name its
+# value in words of its own; only the files that name a table at all, which
+# spares a second pass over the whole tree.
+xargs grep -l 'keyval' < "$tmp/files" > "$tmp/tablefiles" || :
+xargs awk -v keepstrings=1 -v mark="$MARK" -f "$STRIP" < "$tmp/tablefiles" > "$tmp/text"
+awk -v mark="$MARK" -f "$HERE/keyvals.awk" "$tmp/text" > "$tmp/entries"
 awk -v mark="$MARK" -f "$HERE/choices.awk" "$tmp/code" > "$tmp/sites"
 
 [ -s "$tmp/entries" ] || { echo "extract-choices.sh: no table of choices was read at all" >&2; exit 1; }
@@ -55,7 +60,8 @@ fi
 
 # The names a value can be written under, and the words a label stands for. Both
 # maps are the ones the scans beside this read, so a name resolves here to what
-# it resolves to there.
+# it resolves to there. A label the table states as a literal is its own words
+# and is handed on in its quotes, which is what tells it from a locale.
 sh "$HERE/extract-constants.sh" "$@" > "$tmp/names"
 sh "$HERE/extract-bounds.sh" -m "$SRC" > "$tmp/locale"
 
@@ -70,7 +76,7 @@ awk -F'	' -v namefile="$tmp/names" -v locfile="$tmp/locale" '
 	FILENAME == namefile { num[$1] = $2; next }
 	FILENAME == locfile { loc[$1] = $2; next }
 	{
-		e = resolve($2) "=" (($3 in loc) ? loc[$3] : "?") ($4 == 1 ? "!" : "")
+		e = resolve($2) "=" label($3) ($4 == 1 ? "!" : "")
 		site = $1 "\t" $5
 		if (site in text)
 			text[site] = text[site] "," e
@@ -84,6 +90,10 @@ awk -F'	' -v namefile="$tmp/names" -v locfile="$tmp/locale" '
 			split(order[i], p, "\t")
 			print p[1] "\t" text[order[i]]
 		}
+	}
+	function label(x) {
+		if (x in loc) return loc[x]
+		return (x ~ /^"[^"]*"$/) ? x : "?"
 	}
 	# a name qualified by the type that declares it stands for the same value as
 	# the bare one, and a value two declarations disagree on is in neither map

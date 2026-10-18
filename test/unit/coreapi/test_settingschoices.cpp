@@ -2,6 +2,7 @@
  * test_settingschoices.cpp - tests for the choices a setting offers
  *
  * Copyright (C) 2026 NI-Team
+ * Copyright (C) 2026 Tuxbox-Project (tests)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -198,6 +199,17 @@ std::string describe(const std::vector<Site> &v)
 	return t;
 }
 
+/* The words one value is offered under, written the way the script writes a
+   screen's: a locale by its name, and words an entry carries of its own in the
+   quotes the screen's source states them in. Empty for an entry with neither,
+   which no screen's label matches. */
+std::string wordsOf(const EnumValue &e)
+{
+	if (e.label_text != NULL)
+		return std::string("\"") + e.label_text + "\"";
+	return e.label_key != NULL ? e.label_key : "";
+}
+
 std::string declared(const Descriptor &d)
 {
 	std::string t;
@@ -207,7 +219,8 @@ std::string declared(const Descriptor &d)
 		snprintf(n, sizeof(n), "%d", d.values[i].value);
 		t += (i > 0 ? "," : "");
 		t += n;
-		t += std::string("=") + (d.values[i].label_key ? d.values[i].label_key : "(none)");
+		const std::string w = wordsOf(d.values[i]);
+		t += "=" + (w.empty() ? std::string("(none)") : w);
 	}
 	return t;
 }
@@ -224,8 +237,8 @@ bool agrees(const Descriptor &d, const Site &s)
 		for (size_t j = 0; !found && j < s.choices.size(); ++j)
 		{
 			found = s.choices[j].value == d.values[i].value &&
-			        d.values[i].label_key != NULL &&
-			        s.choices[j].label == std::string(d.values[i].label_key);
+			        !wordsOf(d.values[i]).empty() &&
+			        s.choices[j].label == wordsOf(d.values[i]);
 		}
 		if (!found)
 			return false;
