@@ -27,8 +27,10 @@ namespace settings
 
 long lcd4lBrightnessCeiling(long display_type)
 {
-	// The Samsung panels take ten; the Pearl one, and any type not known, seven.
-	return (display_type >= 1 && display_type <= 3) ? 10 : 7;
+	/* The Pearl panel, and any type not known, seven; every other panel the driver
+	   knows ten: the Samsung ones, the VU+ Solo 4K one and the PNG outputs,
+	   src/driver/lcd4l.cpp:269. */
+	return (display_type >= 1 && display_type <= 7) ? 10 : 7;
 }
 
 } // namespace settings

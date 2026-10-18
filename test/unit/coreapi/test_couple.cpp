@@ -379,12 +379,18 @@ TEST_CASE("the pairs name each other and the start channels their list", "[coupl
 }
 
 // The panel limits the rows state and the coupling holds every write path to.
-TEST_CASE("the Pearl panel takes brightness up to seven and the Samsung panels up to ten", "[couple][lcd4l]")
+TEST_CASE("the Pearl panel takes brightness up to seven and every other panel up to ten", "[couple][lcd4l]")
 {
 	CHECK(settings::lcd4lBrightnessCeiling(0) == 7);
 	CHECK(settings::lcd4lBrightnessCeiling(1) == 10);
 	CHECK(settings::lcd4lBrightnessCeiling(2) == 10);
 	CHECK(settings::lcd4lBrightnessCeiling(3) == 10);
+	// The VU+ Solo 4K panel and the three PNG outputs take ten as well.
+	CHECK(settings::lcd4lBrightnessCeiling(4) == 10);
+	CHECK(settings::lcd4lBrightnessCeiling(5) == 10);
+	CHECK(settings::lcd4lBrightnessCeiling(6) == 10);
+	CHECK(settings::lcd4lBrightnessCeiling(7) == 10);
+	CHECK(settings::lcd4lBrightnessCeiling(8) == 7);
 	// A type nobody knows gets the lower ceiling, as the screen gave it.
 	CHECK(settings::lcd4lBrightnessCeiling(9) == 7);
 }

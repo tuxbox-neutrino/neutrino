@@ -395,9 +395,9 @@ constexpr Descriptor kSettings[] =
 		.hint("menu.hint_lcd4l_skin_radio")
 		.defaultValue(0)
 		.field(COREAPI_NUMBER_FIELD(lcd4l_skin_radio)),
-	/* The ceiling is the panel's and the box asks it at run time,
-	   src/driver/lcd4l.cpp:270: seven for the Pearl panel and ten for the three
-	   Samsung ones. Ten is the wider and holds every value either offers. */
+	/* The ceiling is the panel's, src/driver/lcd4l.cpp:269: seven for the Pearl
+	   panel and ten for every other. It is read as a write is checked, and ten,
+	   the wider, stays the outer limit. */
 	// src/neutrino.cpp:441 src/gui/lcd4l_setup.cpp:318
 	intRow("lcd4l_brightness")
 		.section("display")

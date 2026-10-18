@@ -198,9 +198,11 @@ const FieldDesc kSettingFields[] = {
 		"the help the box shows beside the setting on its own screen; absent where there is no "
 		"hint or the catalog carries no text for it"),
 	HTTPD_MEMBER_OPTIONAL("min", FieldType::Int,
-		"the lowest whole number this setting accepts, present only when type is int or key"),
+		"the lowest whole number this setting accepts on this box now, present only when type is int or "
+		"key; where the box decides the range as it runs, this is the range as it stands"),
 	HTTPD_MEMBER_OPTIONAL("max", FieldType::Int,
-		"the highest whole number this setting accepts, present only when type is int or key"),
+		"the highest whole number this setting accepts on this box now, present only when type is int or "
+		"key; where the box decides the range as it runs, this is the range as it stands"),
 	HTTPD_MEMBER_OPTIONAL("unit", FieldType::String,
 		"the name of the text that follows the number, such as unit.short.hour, for the box's own "
 		"language catalog and not the text itself; present only when type is int and the box shows "
