@@ -1,10 +1,10 @@
 #!/bin/sh
-# Every label_key and hint_key a settings row declares, and every label_key one of
-# an Enum's own choices declares, held to the catalog each is said to be a name in:
-# data/locale/english.locale. check-fieldtypes.sh and check-sections.sh both read
-# these same tables and neither opens the catalog, so a key mistyped here compiles,
-# links, passes both of them, and answers on the wire as the very spelling this
-# route exists to translate away.
+# Every label_key, hint_key and unit_key a settings row declares, and every
+# label_key one of an Enum's own choices declares, held to the catalog each is said
+# to be a name in: data/locale/english.locale. check-fieldtypes.sh and
+# check-sections.sh both read these same tables and neither opens the catalog, so a
+# key mistyped here compiles, links, passes both of them, and answers on the wire as
+# the very spelling this route exists to translate away.
 #
 # The catalog is what CLocaleManager::getLocale (src/system/localize.cpp) resolves a
 # name against by way of locale_real_names, the compiled table src/system/
@@ -58,10 +58,10 @@ if [ "$cn" -lt 3000 ]; then
 	exit 1
 fi
 
-# A row names its label_key and hint_key with .label() and .hint(), each a
-# builder call on a line of its own.
-grep -oE '^[ 	]*\.(label|hint)\("[^"]*"\)' "$tmp/stripped" \
-	| sed -E 's/^[ 	]*\.(label|hint)\("([^"]*)"\)$/\2/' | LC_ALL=C sort -u > "$tmp/labelhint"
+# A row names its label_key, hint_key and unit_key with .label(), .hint() and
+# .unit(), each a builder call on a line of its own.
+grep -oE '^[ 	]*\.(label|hint|unit)\("[^"]*"\)' "$tmp/stripped" \
+	| sed -E 's/^[ 	]*\.(label|hint|unit)\("([^"]*)"\)$/\2/' | LC_ALL=C sort -u > "$tmp/labelhint"
 
 # An Enum's own choices are a table of their own instead, one choice per line,
 # option(value).label("name"). Kept apart from the rows rather than merged in
@@ -79,7 +79,7 @@ ch=`wc -l < "$tmp/choices"`
 # that has stopped matching either shape reads as a fault here rather than
 # as a quiet pass over nothing.
 if [ "$lh" -lt 300 ]; then
-	echo "check-locale-catalog.sh: $lh distinct label_key/hint_key names read, out of `wc -l < "$tmp/stripped"` lines," >&2
+	echo "check-locale-catalog.sh: $lh distinct label_key/hint_key/unit_key names read, out of `wc -l < "$tmp/stripped"` lines," >&2
 	echo "  the scan has stopped matching that shape" >&2
 	exit 1
 fi
@@ -94,11 +94,11 @@ used=`wc -l < "$tmp/used"`
 
 missing=`comm -23 "$tmp/used" "$tmp/catalog"`
 if [ -n "$missing" ]; then
-	echo "check-locale-catalog.sh: a label_key, hint_key or choice label the tables declare that the catalog does not carry:" >&2
+	echo "check-locale-catalog.sh: a label_key, hint_key, unit_key or choice label the tables declare that the catalog does not carry:" >&2
 	printf '%s\n' "$missing" | sed 's/^/  /' >&2
 	exit 1
 fi
 
-echo "settings label_key/hint_key held to the catalog             $used"
+echo "settings label_key/hint_key/unit_key held to the catalog    $used"
 echo "  of which the choices' own labels                          $ch"
 exit 0

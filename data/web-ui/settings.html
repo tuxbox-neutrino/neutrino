@@ -193,6 +193,15 @@
 			flex-shrink: 1;
 			overflow-wrap: anywhere;
 		}
+		/* the unit a number is shown with, right after its field */
+		.webui-set-number {
+			display: inline-flex;
+			align-items: center;
+			gap: 0.4rem;
+		}
+		.webui-set-unit {
+			color: var(--pico-muted-color);
+		}
 		/* a row the parental lock holds says so beside its name */
 		.webui-set-locked {
 			flex: none;
@@ -473,6 +482,6 @@
 	<script src="/js/webui-header.js?v=64"></script>
 	<script src="/js/webui-dom.js?v=1"></script>
 	<script src="/js/webui-v1.js?v=14"></script>
-	<script src="/js/settings.js?v=2"></script>
+	<script src="/js/settings.js?v=3"></script>
 </body>
 </html>

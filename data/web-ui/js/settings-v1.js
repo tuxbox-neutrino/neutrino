@@ -427,6 +427,17 @@ function _v1setOptValue(c) {
 	return (c.text !== undefined && c.text !== null) ? String(c.text) : String(c.value);
 }
 
+// The short unit a number is shown with, by the name the box gives it (the
+// schema's unit). A name this page does not know shows nothing.
+var V1SET_UNITS = {
+	'unit.short.hour': 'h', 'unit.short.minute': 'min', 'unit.short.second': 's',
+	'unit.short.millisecond': 'ms', 'unit.short.percent': '%', 'unit.short.megabyte': 'MB'
+};
+
+function _v1setUnit(item) {
+	return (item.type === 'int' && item.unit && V1SET_UNITS[item.unit]) || '';
+}
+
 function _v1setDefaultText(item) {
 	var d = (item.default === undefined || item.default === null) ? '' : String(item.default);
 	if (item.type === 'bool')
@@ -439,7 +450,10 @@ function _v1setDefaultText(item) {
 		if (k)
 			return k.name || d;
 	}
-	return d === '' ? '–' : d;
+	if (d === '')
+		return '–';
+	var unit = _v1setUnit(item);
+	return unit ? d + ' ' + unit : d;
 }
 
 // a folder the setting names (epg_dir, network_nfs_moviedir, update_dir_opkg):
@@ -482,14 +496,21 @@ function _v1setControl(item, id, val) {
 		if (item.min !== undefined) attrs.min = item.min;
 		if (item.max !== undefined) attrs.max = item.max;
 		var named = (item.values || []).filter(function(c) { return c.text === undefined; });
-		if (!named.length)
-			return webuiEl('input', {type: 'number', id: id, value: val, data: data, attrs: attrs});
+		var unit = _v1setUnit(item);
+		var unitText = unit ? webuiEl('span', {className: 'webui-set-unit', attrs: {'aria-hidden': 'true'}}, unit) : null;
+		if (unit)
+			attrs['aria-label'] = _v1setLabel(item) + ' (' + unit + ')';
+		if (!named.length) {
+			var number = webuiEl('input', {type: 'number', id: id, value: val, data: data, attrs: attrs});
+			return unit ? webuiEl('span', {className: 'webui-set-number'}, number, unitText) : number;
+		}
 		attrs.list = id + '_names';
 		var names = webuiEl('datalist', {id: id + '_names'});
 		named.forEach(function(c) {
 			names.appendChild(webuiEl('option', {value: String(c.value)}, c.label || String(c.value)));
 		});
-		return webuiEl('span', {}, webuiEl('input', {type: 'number', id: id, value: val, data: data, attrs: attrs}), names);
+		return webuiEl('span', {className: unit ? 'webui-set-number' : ''},
+			webuiEl('input', {type: 'number', id: id, value: val, data: data, attrs: attrs}), unitText, names);
 	}
 	if (item.values && item.values.length) {
 		var sel = webuiEl('select', {id: id, data: data});
