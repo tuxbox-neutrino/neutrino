@@ -19,8 +19,11 @@
 #include "coreapi/settings/settingstable.h"
 #include "support/fakes.h"
 
+#include <cstdio>
 #include <set>
 #include <string>
+#include <utility>
+#include <vector>
 
 using namespace coreapi;
 
@@ -300,4 +303,188 @@ TEST_CASE("the parental lock holds its four rows while the box is locked, and th
 	setSystemSource(NULL);
 	CHECK(settings::lockedNow("parentallock_lockage"));
 	CHECK_FALSE(settings::lockedNow("parentallock_pincode"));
+}
+
+namespace
+{
+
+/* What a setting offers on this box, in the order it offers it: each value with
+   the catalog name it is offered under, or with its own words where it has no
+   such name. The words are the ones its screen shows, and four of these screens
+   are ones no scan can read, so these cases are what holds the pairing. */
+std::string offeredValues(const char *key)
+{
+	Result<std::vector<SettingChoice> > r = settings::choices(key);
+	if (!r.ok())
+		return "(none)";
+	std::string t;
+	for (size_t i = 0; i < r.value().size(); ++i)
+	{
+		const SettingChoice &c = r.value()[i];
+		char n[24];
+		snprintf(n, sizeof(n), "%ld", c.value);
+		t += (i > 0 ? "," : "") + std::string(n) + "=" + (c.label_key.empty() ? c.label : c.label_key);
+	}
+	return t;
+}
+
+// A write the box turns down for the value, leaving the store as it was.
+void refusedAsUnlisted(FakeSettingsSource &store, const char *key, const char *value)
+{
+	INFO(key << " = " << value);
+	const size_t before = store.ints.count(key);
+	const long was = before ? store.ints[key] : 0;
+	Result<void> r = settings::set(key, value);
+	REQUIRE_FALSE(r.ok());
+	CHECK(r.error().code == ErrorCode::NotAListedValue);
+	CHECK(store.ints.count(key) == before);
+	if (before)
+		CHECK(store.ints[key] == was);
+}
+
+} // namespace
+
+/* Entries only some boxes have. Each is offered where the box has what it needs
+   and turned down on a write where it does not, as the screen leaves it out; the
+   rest of the choice stays as it is. */
+TEST_CASE("the EPG scan modes that scan live need a second tuner switched on", "[available]")
+{
+	FakeSettingsSource store;
+	setSettingsSource(&store);
+	FakeSystemSource box;
+	InstalledSystemSource installed(&box);
+	struct Restore { ~Restore() { setSettingsSource(NULL); } } restore;
+	REQUIRE(settings::describe("epg_scan_mode").ok());
+
+	// No tuner source at all is a box that cannot say, which offers no second tuner.
+	CHECK(offeredValues("epg_scan_mode") == "0=options.off,2=miscsettings.epg_scan_standby");
+
+	FakeTunerSource tuners;
+	InstalledTunerSource installed_tuners(&tuners);
+	tuners.enabled = 1;
+	CHECK(offeredValues("epg_scan_mode") == "0=options.off,2=miscsettings.epg_scan_standby");
+	refusedAsUnlisted(store, "epg_scan_mode", "1");
+	refusedAsUnlisted(store, "epg_scan_mode", "3");
+	REQUIRE(settings::set("epg_scan_mode", "2").ok());
+	CHECK(store.ints["epg_scan_mode"] == 2);
+
+	tuners.enabled = 2;
+	CHECK(offeredValues("epg_scan_mode") ==
+	      "0=options.off,2=miscsettings.epg_scan_standby,"
+	      "1=miscsettings.epg_scan_live,3=miscsettings.epg_scan_always");
+	REQUIRE(settings::set("epg_scan_mode", "3").ok());
+	CHECK(store.ints["epg_scan_mode"] == 3);
+
+	// A count the tuners could not give is a box that cannot say, whatever it wrote.
+	tuners.enabled_status = Status::Internal;
+	CHECK(offeredValues("epg_scan_mode") == "0=options.off,2=miscsettings.epg_scan_standby");
+}
+
+TEST_CASE("the disk format offers the file systems the box can write", "[available]")
+{
+	FakeSettingsSource store;
+	setSettingsSource(&store);
+	FakeSystemSource box;
+	InstalledSystemSource installed(&box);
+	struct Restore { ~Restore() { setSettingsSource(NULL); } } restore;
+	REQUIRE(settings::describe("hdd_fs").ok());
+
+	box.format_tools.push_back("ext4");
+	box.format_tools.push_back("vfat");
+	CHECK(offeredValues("hdd_fs") == "0=ext4,4=vfat");
+	refusedAsUnlisted(store, "hdd_fs", "1");
+	REQUIRE(settings::set("hdd_fs", "4").ok());
+	CHECK(store.ints["hdd_fs"] == 4);
+
+	// Every tool the table names, in the order of the disk menu's own table.
+	box.format_tools.clear();
+	const char *const all[] = { "xfs", "exfat", "vfat", "f2fs", "ext2", "ext3", "ext4" };
+	for (size_t i = 0; i < sizeof(all) / sizeof(all[0]); ++i)
+		box.format_tools.push_back(all[i]);
+	CHECK(offeredValues("hdd_fs") == "0=ext4,1=ext3,2=ext2,3=f2fs,4=vfat,5=exfat,6=xfs");
+
+	// A box that can format nothing offers nothing, and takes nothing.
+	box.format_tools.clear();
+	CHECK(offeredValues("hdd_fs") == "(none)");
+	refusedAsUnlisted(store, "hdd_fs", "0");
+
+	box.format_tools.push_back("ext4");
+	box.format_tools_status = Status::Internal;
+	CHECK(offeredValues("hdd_fs") == "(none)");
+}
+
+TEST_CASE("the OSD size offers the sizes the box draws its screen at", "[available]")
+{
+	FakeSettingsSource store;
+	setSettingsSource(&store);
+	FakeSystemSource box;
+	InstalledSystemSource installed(&box);
+	FakeOsdResolution osd;
+	InstalledOsdResolution installed_osd(&osd);
+	struct Restore { ~Restore() { setSettingsSource(NULL); } } restore;
+	REQUIRE(settings::describe("osd_resolution").ok());
+
+	CHECK(offeredValues("osd_resolution") == "0=1280x720,1=1920x1080");
+
+	osd.sizes.clear();
+	osd.sizes.push_back(std::make_pair(1280, 720));
+	CHECK(offeredValues("osd_resolution") == "0=1280x720");
+	Result<void> r = settings::set("osd_resolution", "1");
+	REQUIRE_FALSE(r.ok());
+	CHECK(r.error().code == ErrorCode::NotAListedValue);
+	CHECK(osd.writes == 0);
+
+	osd.sizes_status = Status::NotSupported;
+	CHECK(offeredValues("osd_resolution") == "(none)");
+}
+
+TEST_CASE("the 4:3 mode and the picture format offer 14:9 where the box shows it", "[available]")
+{
+	FakeSettingsSource store;
+	setSettingsSource(&store);
+	FakeSystemSource box;
+	InstalledSystemSource installed(&box);
+	struct Restore { ~Restore() { setSettingsSource(NULL); } } restore;
+	REQUIRE(settings::describe("video_43mode").ok());
+	REQUIRE(settings::describe("video_Format").ok());
+
+	box.caps.can_ps_14_9 = 0;
+	box.caps.can_ar_14_9 = 0;
+	CHECK(offeredValues("video_43mode") == "0=videomenu.panscan,1=videomenu.letterbox,2=videomenu.fullscreen");
+	CHECK(offeredValues("video_Format") == "1=videomenu.videoformat_43,3=videomenu.videoformat_169");
+	refusedAsUnlisted(store, "video_43mode", "3");
+	refusedAsUnlisted(store, "video_Format", "2");
+
+	box.caps.can_ps_14_9 = 1;
+	CHECK(offeredValues("video_43mode") ==
+	      "0=videomenu.panscan,3=videomenu.panscan2,1=videomenu.letterbox,2=videomenu.fullscreen");
+	CHECK(offeredValues("video_Format") == "1=videomenu.videoformat_43,3=videomenu.videoformat_169");
+	REQUIRE(settings::set("video_43mode", "3").ok());
+	CHECK(store.ints["video_43mode"] == 3);
+
+	box.caps.can_ar_14_9 = 1;
+	CHECK(offeredValues("video_Format") ==
+	      "1=videomenu.videoformat_43,2=videomenu.videoformat_149,3=videomenu.videoformat_169");
+	REQUIRE(settings::set("video_Format", "2").ok());
+	CHECK(store.ints["video_Format"] == 2);
+}
+
+// Decided by the hardware family the build is for, and asked of nothing at run time.
+TEST_CASE("the web stream size offers the larger two where the build decodes them", "[available]")
+{
+	FakeSettingsSource store;
+	setSettingsSource(&store);
+	struct Restore { ~Restore() { setSettingsSource(NULL); } } restore;
+	REQUIRE(settings::describe("livestreamResolution").ok());
+
+#if HAVE_CST_HARDWARE
+	CHECK(offeredValues("livestreamResolution") == "1920=1920x1080,1280=1280x720,854=854x480,640=640x360,480=480x270");
+	refusedAsUnlisted(store, "livestreamResolution", "3840");
+#else
+	CHECK(offeredValues("livestreamResolution") ==
+	      "3840=3840x2160,2560=2560x1440,1920=1920x1080,1280=1280x720,854=854x480,640=640x360,480=480x270");
+	REQUIRE(settings::set("livestreamResolution", "3840").ok());
+	CHECK(store.ints["livestreamResolution"] == 3840);
+#endif
+	refusedAsUnlisted(store, "livestreamResolution", "1000");
 }

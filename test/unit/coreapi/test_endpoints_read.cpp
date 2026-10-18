@@ -1711,6 +1711,59 @@ TEST_CASE("the schema names every value a number shows in words", "[endpoints]")
 	CHECK(values[1]["label"].asString() == "off");
 }
 
+namespace
+{
+bool g_fixture_entry = false;
+bool fixtureEntryOffered() { return g_fixture_entry; }
+
+constexpr coreapi::EnumValue kFixtureEntries[] =
+{
+	coreapi::option(0).label("options.off"),
+	coreapi::option(1).text("1280x720"),
+	coreapi::option(2).text("1920x1080").availableIf(fixtureEntryOffered)
+};
+const coreapi::Descriptor kFixtureEntryRows[] =
+{
+	coreapi::enumRow("fixture_entries").section("fixture").defaultValue(0).values(kFixtureEntries)
+		.field(COREAPI_NO_FIELD)
+};
+} // namespace
+
+/* An entry the box lacks is left out of the schema as a write turns it down, and
+   an entry with words of its own answers them as its label, the same in every
+   language. */
+TEST_CASE("the schema leaves out an entry the box lacks and words a fixed one as it stands", "[endpoints]")
+{
+	FakeSystemSource unlocked;
+	InstalledSystemSource installed_unlocked(&unlocked);
+	FakeTunerSource tuner;
+	InstalledTunerSource installed_tuner(&tuner);
+	ShippedRoutes shipped;
+	FakeLocaleSource cat;
+	cat.texts["options.off"] = "off";
+	InstalledLocaleSource installed(&cat);
+	InstalledSettingsTable table(kFixtureEntryRows, 1);
+	struct Reset { ~Reset() { g_fixture_entry = false; } } reset;
+
+	g_fixture_entry = false;
+	::Json::Value items = parsed(get("/api/v1/settings/schema").body)["items"];
+	REQUIRE(items.size() == 1);
+	::Json::Value values = items[0]["values"];
+	REQUIRE(values.size() == 2);
+	CHECK(values[0]["value"].asInt() == 0);
+	CHECK(values[0]["label"].asString() == "off");
+	CHECK(values[1]["value"].asInt() == 1);
+	CHECK(values[1]["label"].asString() == "1280x720");
+
+	g_fixture_entry = true;
+	items = parsed(get("/api/v1/settings/schema").body)["items"];
+	REQUIRE(items.size() == 1);
+	values = items[0]["values"];
+	REQUIRE(values.size() == 3);
+	CHECK(values[2]["value"].asInt() == 2);
+	CHECK(values[2]["label"].asString() == "1920x1080");
+}
+
 /* The one place a caller other than the tables themselves reads label_key: the
    wire. Before this the field carried label_key's own spelling, such as
    videomenu.videoformat_169 for the choice a screen shows as 16:9, and these
