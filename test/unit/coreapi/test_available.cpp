@@ -491,3 +491,78 @@ TEST_CASE("the web stream size offers the larger two where the build decodes the
 #endif
 	refusedAsUnlisted(store, "livestreamResolution", "1000");
 }
+
+/* A number whose list the box supplies: the tuners the module can be bound to are the
+   ones the box has, and a write is held to them. The default and the value stored are
+   the way back and pass whatever the list says. */
+TEST_CASE("the module's tuner is one of the tuners the box has", "[available]")
+{
+	FakeSettingsSource store;
+	setSettingsSource(&store);
+	FakeSystemSource box;
+	InstalledSystemSource installed(&box);
+	struct Restore { ~Restore() { setSettingsSource(NULL); } } restore;
+	REQUIRE(settings::describe("ci_tuner").ok());
+
+	// No tuner source is a box that cannot say: no list, and the range alone holds.
+	CHECK(offeredValues("ci_tuner") == "(none)");
+	REQUIRE(settings::set("ci_tuner", "5").ok());
+
+	FakeTunerSource tuners;
+	InstalledTunerSource installed_tuners(&tuners);
+	FrontendInfo first;
+	first.number = 0;
+	first.name = "Si2166";
+	tuners.tuners.push_back(first);
+	FrontendInfo second;
+	second.number = 1;
+	second.name = "Si2169";
+	tuners.tuners.push_back(second);
+	CHECK(offeredValues("ci_tuner") == "-1=options.off,0=1: Si2166,1=2: Si2169");
+
+	REQUIRE(settings::set("ci_tuner", "1").ok());
+	CHECK(store.ints["ci_tuner"] == 1);
+	refusedAsUnlisted(store, "ci_tuner", "2");
+	REQUIRE(settings::set("ci_tuner", "-1").ok());
+	store.ints["ci_tuner"] = 5;
+	REQUIRE(settings::set("ci_tuner", "5").ok());
+	refusedAsUnlisted(store, "ci_tuner", "3");
+
+	// A list the tuners cannot give is a box that cannot say again.
+	tuners.list_status = Status::Internal;
+	CHECK(offeredValues("ci_tuner") == "(none)");
+	REQUIRE(settings::set("ci_tuner", "3").ok());
+}
+
+/* A value a box holds and a choice no longer offers, for an entry the box lacks now or
+   a number a range left behind before the setting became a choice: writing it back is
+   no new pick, so it passes, as the default does. Anything else not offered is refused,
+   so a client may send back what it read and nothing more. */
+TEST_CASE("a choice takes back the value it holds and its default, whatever it offers now", "[available]")
+{
+	FakeSettingsSource store;
+	setSettingsSource(&store);
+	FakeSystemSource box;
+	InstalledSystemSource installed(&box);
+	FakeTunerSource tuners;
+	InstalledTunerSource installed_tuners(&tuners);
+	struct Restore { ~Restore() { setSettingsSource(NULL); } } restore;
+
+	// A live mode, stored while a second tuner was switched on.
+	tuners.enabled = 1;
+	store.ints["epg_scan_mode"] = 1;
+	CHECK(offeredValues("epg_scan_mode") == "0=options.off,2=miscsettings.epg_scan_standby");
+	REQUIRE(settings::set("epg_scan_mode", "1").ok());
+	refusedAsUnlisted(store, "epg_scan_mode", "3");
+	REQUIRE(settings::set("epg_scan_mode", "2").ok());
+	CHECK(store.ints["epg_scan_mode"] == 2);
+	// Once something else is stored, the old value is just one the choice lacks.
+	refusedAsUnlisted(store, "epg_scan_mode", "1");
+
+	// A number no list of it ever had, left by the range the setting had before.
+	store.ints["sleeptimer_min"] = 45;
+	REQUIRE(settings::set("sleeptimer_min", "45").ok());
+	refusedAsUnlisted(store, "sleeptimer_min", "50");
+	REQUIRE(settings::set("sleeptimer_min", "0").ok());
+	CHECK(store.ints["sleeptimer_min"] == 0);
+}

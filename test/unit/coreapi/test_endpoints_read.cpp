@@ -2108,6 +2108,60 @@ TEST_CASE("the schema states the range the box has now", "[endpoints][bounds]")
 	CHECK(parsed(moved.body)["items"][0]["max"].asInt() == 300);
 }
 
+/* A number whose list the box supplies is answered with that list and marked as taking
+   nothing else, so a page offers it as a choice; while the box cannot say, the list is
+   empty and the mark absent, and a page offers the number. */
+TEST_CASE("the schema answers a number's own list and marks it listed", "[endpoints]")
+{
+	ShippedRoutes shipped;
+	FakeSystemSource box;
+	InstalledSystemSource installed_box(&box);
+	FakeLocaleSource cat;
+	cat.texts["options.off"] = "off";
+	InstalledLocaleSource installed(&cat);
+
+	{
+		const ::Json::Value items = parsed(get("/api/v1/settings/schema").body)["items"];
+		bool seen = false;
+		for (::Json::ArrayIndex i = 0; i < items.size(); ++i)
+		{
+			if (items[i]["id"].asString() != "ci_tuner")
+				continue;
+			seen = true;
+			REQUIRE(items[i].isMember("values"));
+			CHECK(items[i]["values"].size() == 0);
+			CHECK_FALSE(items[i].isMember("listed"));
+		}
+		REQUIRE(seen);
+	}
+
+	FakeTunerSource tuner;
+	InstalledTunerSource installed_tuner(&tuner);
+	coreapi::FrontendInfo one;
+	one.number = 0;
+	one.name = "Si2166";
+	tuner.tuners.push_back(one);
+
+	const ::Json::Value items = parsed(get("/api/v1/settings/schema").body)["items"];
+	bool seen = false;
+	for (::Json::ArrayIndex i = 0; i < items.size(); ++i)
+	{
+		if (items[i]["id"].asString() != "ci_tuner")
+			continue;
+		seen = true;
+		const ::Json::Value &values = items[i]["values"];
+		REQUIRE(values.size() == 2);
+		CHECK(values[0]["value"].asInt() == -1);
+		CHECK(values[0]["label"].asString() == "off");
+		CHECK(values[1]["value"].asInt() == 0);
+		CHECK(values[1]["label"].asString() == "1: Si2166");
+		CHECK_FALSE(values[1].isMember("text"));
+		REQUIRE(items[i].isMember("listed"));
+		CHECK(items[i]["listed"].asBool());
+	}
+	REQUIRE(seen);
+}
+
 TEST_CASE("the schema describes a key row by its bounds", "[endpoints]")
 {
 	FakeSystemSource box;
