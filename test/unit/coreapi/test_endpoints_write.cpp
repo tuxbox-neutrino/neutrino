@@ -2543,6 +2543,20 @@ TEST_CASE("a write of a setting the box lacks is refused as setting-not-on-this-
 	REQUIRE(box.store.ints["fan_speed"] == 3);
 }
 
+/* A setting whose values the box decides, while nothing says what they are: the route
+   takes nothing new and says why, so a client can tell it from a value the box does not
+   offer. */
+TEST_CASE("a setting whose values nobody can state is refused as such through the route", "[write]")
+{
+	ShippedRoutes shipped;
+	BoxFixture box;
+
+	const Reply r = authedPatch("/api/v1/settings/video", "{\"video_Mode\":\"13\"}");
+	REQUIRE(r.code == 400);
+	CHECK(r.body.find("choices-unavailable") != std::string::npos);
+	CHECK(box.store.ints.count("video_Mode") == 0);
+}
+
 /* An id written alone has to bring a name, so the route answers for the channel it
    names: none the box holds, one of the other list, or a list that cannot be read.
    Nothing of the pair is stored in any of the three. */

@@ -217,7 +217,9 @@ const FieldDesc kSettingFields[] = {
 		"text the setting's other rules allow is taken"),
 	HTTPD_MEMBER_OPTIONAL("listed", FieldType::Bool,
 		"present and true only for an int whose values are every number it accepts on this box, "
-		"each named, such as the tuners it has; a client offers it as that list and not as a number"),
+		"each named, such as the tuners it has, beside the value already stored and the default, "
+		"which are taken too; a client offers it as that list and not as a number, and an int "
+		"without it treats its values as names for some numbers of its range"),
 	HTTPD_MEMBER_OPTIONAL("text_kind", FieldType::String,
 		"what sort of text a string setting holds, present only for a string setting with a rule: "
 		"plain, directory, file, pin, host, number, name or paths"),
@@ -430,7 +432,8 @@ void appendDescriptor(Json &j, const coreapi::Descriptor &d)
 		   Every row reaching this branch is a choice, and one whose values are the box's own
 		   answers nothing while the box cannot be asked. A caller that finds it empty has a
 		   setting it cannot draw a chooser for at this moment, not one it may offer as free
-		   text, and a write of any value is refused for as long as that lasts. */
+		   text, and a write is refused for as long as that lasts, but for the value already
+		   stored and the default, which are no new pick. */
 		j.key("values");
 		j.beginArray();
 		if (d.field.choices != NULL)
@@ -1122,6 +1125,8 @@ const RouteRefusal kSettingsWriteRefusals[] = {
 		"the channel is a radio channel, and this start channel takes a television one"),
 	HTTPD_REFUSES(Internal, ChannelListUnavailable,
 		"the channel list could not be read"),
+	HTTPD_REFUSES(InvalidArgument, ChoicesUnavailable,
+		"the values this setting offers are the box's own and nothing has said what they are"),
 	HTTPD_REFUSES(Conflict, SettingLocked,
 		"the box's parental lock fixes this setting"),
 	HTTPD_REFUSES(Conflict, SettingNotOnThisBox,
@@ -1257,6 +1262,8 @@ const Endpoint kSettingsEndpoints[] = {
 	  "- `400 empty-credential`: a key marked a credential was sent an empty value; clear it with "
 	  "`POST /api/v1/settings/secret/clear` instead.\n"
 	  "- `400 missing-parameter`: the body names no setting at all.\n"
+	  "- `400 choices-unavailable`: the setting's values are the box's own and the box cannot say "
+	  "now what they are; only the value already stored and the default are taken then.\n"
 	  "- `400 not-a-listed-value`: the value is not one the setting offers, among them the id of a "
 	  "radio channel sent for the television start channel or the other way round.\n"
 	  "- `400 out-of-range`: a whole number value falls outside the min and max the schema states for "

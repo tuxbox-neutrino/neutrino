@@ -245,9 +245,13 @@ bool providedChoices(const Descriptor &d, std::vector<SettingChoice> &out)
 	std::vector<SettingChoice> kept;
 	kept.reserve(listed.size());
 	bool nameless = false;
+	// A number outside the row's range is one a write refuses, so it is not offered either.
+	const Bounds range = boundsNow(d);
 	for (size_t i = 0; i < listed.size(); ++i)
 	{
 		SettingChoice &one = listed[i];
+		if (d.type == ValueType::Int && (one.value < range.min || one.value > range.max))
+			continue;
 		/* A String entry stands for its text. One without it is a provider that filled the
 		   number and the label like a number row's, and every write would be refused for it
 		   without a word, so it is left out and said once. */
@@ -299,23 +303,6 @@ Result<void> holdsOffered(ChoiceSource from, const std::string &text, const std:
 		    "the setting does not offer that value");
 }
 
-Result<void> holdsOfferedNumber(ChoiceSource from, long number, const long *always)
-{
-	if (always != NULL && *always == number)
-		return ok();
-
-	std::vector<SettingChoice> listed;
-	if (!from(listed) || listed.empty())
-		return ok();
-
-	for (size_t i = 0; i < listed.size(); ++i)
-	{
-		if (listed[i].value == number)
-			return ok();
-	}
-	return fail(Status::InvalidArgument, ErrorCode::NotAListedValue,
-		    "the setting does not offer that value");
-}
 
 /* The values a row offers, whichever of the places they come from. One
    function, because the write is held to the same set a read answers with:
@@ -698,17 +685,17 @@ Result<void> heldToRow(const Descriptor *d, const std::string &value, long &numb
 	}
 	else if (d->choices_from != NULL)
 	{
-		// As for text: the default is offered, and the stored number is read only on a refusal.
-		const long fallback = defaultInt(*d);
-		Result<void> offered = holdsOfferedNumber(d->choices_from, number, &fallback);
-		if (!offered.ok())
-		{
-			long stored = 0;
-			if (settingsSource().readInt(d->key, stored) == Status::Ok && stored == number)
-				offered = ok();
-		}
-		if (!offered.ok())
-			return fail(offered.error());
+		/* Held to the list a read answers, so the two cannot disagree. A list the box
+		   cannot give, and one with no entry the range takes, leave the range alone to
+		   hold, as the read then offers a free number. The default and the stored value
+		   pass, the store read only on a refusal. */
+		std::vector<SettingChoice> offered;
+		bool listed = !valuesOffered(*d, offered);
+		for (size_t i = 0; !listed && i < offered.size(); ++i)
+			listed = offered[i].value == number;
+		if (!listed && !keptValue(*d, number))
+			return fail(Status::InvalidArgument, ErrorCode::NotAListedValue,
+				    "the setting does not offer that value");
 	}
 
 	return ok();

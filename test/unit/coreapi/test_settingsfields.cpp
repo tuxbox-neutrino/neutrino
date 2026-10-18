@@ -28,6 +28,7 @@
 #include "coreapi/settings/settingstable.h"
 #include "support/fakes.h"
 
+#include <cstdio>
 #include <string>
 
 #include <timerdclient/timerdtypes.h>
@@ -484,7 +485,7 @@ TEST_CASE("a value the box does not offer is refused", "[settingsfields]")
    so the safe direction is to refuse rather than to let anything through; only
    the mode the box holds and its default pass, since writing either is no new
    pick. */
-TEST_CASE("a setting whose values nobody can state takes none", "[settingsfields]")
+TEST_CASE("a setting whose values nobody can state takes nothing new", "[settingsfields]")
 {
 	RealStore store;
 	store.values.video_Mode = 5;
@@ -499,6 +500,15 @@ TEST_CASE("a setting whose values nobody can state takes none", "[settingsfields
 	CHECK(other.error().code == ErrorCode::ChoicesUnavailable);
 	applyPendingSettings();
 	CHECK(store.values.video_Mode == 5);
+
+	// The default, which differs by family, is the way back.
+	const Result<Descriptor> row = settings::describe("video_Mode");
+	REQUIRE(row.ok());
+	char fallback[24];
+	snprintf(fallback, sizeof(fallback), "%ld", defaultInt(row.value()));
+	CHECK(settings::set("video_Mode", fallback).ok());
+	applyPendingSettings();
+	CHECK(store.values.video_Mode == defaultInt(row.value()));
 
 	// And an empty answer is the same thing as no answer: a set nothing offers
 	// a value for is a setting nothing can be drawn from.

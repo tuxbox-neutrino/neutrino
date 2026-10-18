@@ -566,3 +566,66 @@ TEST_CASE("a choice takes back the value it holds and its default, whatever it o
 	REQUIRE(settings::set("sleeptimer_min", "0").ok());
 	CHECK(store.ints["sleeptimer_min"] == 0);
 }
+
+namespace
+{
+// Five numbers, of which a row whose range ends at two takes three.
+bool fiveNumbers(std::vector<SettingChoice> &out)
+{
+	for (long v = 0; v < 5; ++v)
+	{
+		SettingChoice one;
+		one.value = v;
+		char words[16];
+		snprintf(words, sizeof(words), "entry %ld", v);
+		one.label = words;
+		out.push_back(one);
+	}
+	return true;
+}
+
+// Two numbers, neither of which a row whose range ends at two takes.
+bool numbersAboveTwo(std::vector<SettingChoice> &out)
+{
+	SettingChoice three;
+	three.value = 3;
+	out.push_back(three);
+	SettingChoice four;
+	four.value = 4;
+	out.push_back(four);
+	return true;
+}
+
+const Descriptor kNarrowListed[] =
+{
+	intRow("fixture_narrow").section("fixture").range(0, 2).defaultValue(0).choicesFrom(fiveNumbers)
+		.field(COREAPI_NO_FIELD),
+	intRow("fixture_beyond").section("fixture").range(0, 2).defaultValue(0).choicesFrom(numbersAboveTwo)
+		.field(COREAPI_NO_FIELD)
+};
+} // namespace
+
+/* A list the box supplies can name more than the row's range takes, such as a display
+   configuration with more panels than the setting counts. What a write refuses is not
+   offered, so the list a read answers and the values a write takes stay one set. */
+TEST_CASE("a number's own list offers only what its range takes", "[available]")
+{
+	FakeSettingsSource store;
+	setSettingsSource(&store);
+	struct Restore { ~Restore() { setSettingsSource(NULL); } } restore;
+	InstalledSettingsTable table(kNarrowListed, 2);
+
+	CHECK(offeredValues("fixture_narrow") == "0=entry 0,1=entry 1,2=entry 2");
+	Result<void> r = settings::set("fixture_narrow", "3");
+	REQUIRE_FALSE(r.ok());
+	CHECK(r.error().code == ErrorCode::OutOfRange);
+
+	// A list with no entry the range takes is no list: the read offers a free number and
+	// the write takes any the range does, as the two always agree.
+	CHECK(offeredValues("fixture_beyond") == "(none)");
+	REQUIRE(settings::set("fixture_beyond", "1").ok());
+	CHECK(store.ints["fixture_beyond"] == 1);
+	Result<void> beyond = settings::set("fixture_beyond", "3");
+	REQUIRE_FALSE(beyond.ok());
+	CHECK(beyond.error().code == ErrorCode::OutOfRange);
+}
