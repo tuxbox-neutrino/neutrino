@@ -387,7 +387,7 @@ constexpr Descriptor kOsd[] =
 		.label("miscsettings.infobar_logo_hdd_dir")
 		.hint("menu.hint_infobar_logo_dir")
 		.defaultValue(TARGET_ROOT "/media/sda1/logos")
-		.text(kRuleDirectory)
+		.text(kRuleDirectoryExists)
 		.field(COREAPI_TEXT_FIELD(logo_hdd_dir)),
 	// src/neutrino.cpp:1302 src/gui/osd_setup.cpp:1283
 	enumRow("channellist_show_channellogo")
@@ -763,7 +763,7 @@ constexpr Descriptor kOsd[] =
 		.label("screensaver.dir")
 		.hint("menu.hint_screensaver_dir")
 		.defaultValue(ICONSDIR "/screensaver")
-		.text(kRuleDirectory)
+		.text(kRuleDirectoryExists)
 		.changeableWhen(kScreensaverImage)
 		.field(COREAPI_TEXT_FIELD(screensaver_dir)),
 	// src/neutrino.cpp:734 src/gui/osd_setup.cpp:1882

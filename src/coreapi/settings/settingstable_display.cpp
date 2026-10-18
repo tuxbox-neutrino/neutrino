@@ -242,7 +242,7 @@ constexpr Descriptor kSettings[] =
 		.section("display")
 		.label("glcd.logodir")
 		.defaultValue(TARGET_ROOT "/media/sda1/logos")
-		.text(kRuleDirectory)
+		.text(kRuleDirectoryExists)
 		.field(COREAPI_TEXT_FIELD(glcd_logodir)),
 	// src/neutrino.cpp:418 src/gui/glcdsetup.cpp:413
 	intRow("glcd_brightness")
@@ -320,7 +320,7 @@ constexpr Descriptor kSettings[] =
 		.label("lcd4l_logodir")
 		.hint("menu.hint_lcd4l_logodir")
 		.defaultValue(TARGET_ROOT "/media/sda1/logos")
-		.text(kRuleDirectory)
+		.text(kRuleDirectoryExists)
 		.field(COREAPI_TEXT_FIELD(lcd4l_logodir)),
 	/* A number and not a choice: the screen names the four panels with literal
 	   sizes rather than locales, src/gui/lcd4l_setup.cpp:63, so a choice here

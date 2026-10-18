@@ -563,15 +563,16 @@ Result<void> heldToRow(const Descriptor *d, const std::string &value, long &numb
 
 		if (d->text != NULL)
 		{
-			Result<void> rule = holdsTextRule(*d->text, value);
-			/* The store is asked only for a value the rule refused, since what is already
-			   stored passes again however the place is mounted now. */
-			if (!rule.ok())
-			{
-				std::string stored;
-				if (settingsSource().readString(d->key, stored) == Status::Ok)
-					rule = holdsTextRule(*d->text, value, &stored);
-			}
+			/* What is stored passes again however the place is mounted now. A rule that
+			   looks for the place reads it first: asked only after a refusal, a folder on
+			   a disk that does not answer would hold the write up in that look. Every other
+			   rule asks the store only for a value it refused. */
+			std::string stored;
+			const bool looks = d->text->must_exist != MustExist::No;
+			const bool have_stored = looks && settingsSource().readString(d->key, stored) == Status::Ok;
+			Result<void> rule = holdsTextRule(*d->text, value, have_stored ? &stored : NULL);
+			if (!rule.ok() && !looks && settingsSource().readString(d->key, stored) == Status::Ok)
+				rule = holdsTextRule(*d->text, value, &stored);
 			if (!rule.ok())
 				return fail(rule.error());
 		}

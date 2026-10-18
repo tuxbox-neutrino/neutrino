@@ -1746,8 +1746,10 @@ TEST_CASE("a text row is held to its length, characters and place", "[settings][
 	CHECK(refusedAs(settings::set("network_nfs_audioplayerdir", "/no/such/folder-4711"), ErrorCode::BadString));
 	CHECK(refusedAs(settings::set("network_nfs_audioplayerdir", "/etc/passwd"), ErrorCode::BadString));
 	REQUIRE(settings::set("network_nfs_audioplayerdir", "/usr").ok());
-	// A folder row that tests nothing takes any place.
-	REQUIRE(settings::set("logo_hdd_dir", "/no/such/folder-4711").ok());
+	// A folder its screen picks through the browser exists, and is a folder.
+	CHECK(refusedAs(settings::set("logo_hdd_dir", "/no/such/folder-4711"), ErrorCode::BadString));
+	CHECK(refusedAs(settings::set("logo_hdd_dir", "/etc/passwd"), ErrorCode::BadString));
+	REQUIRE(settings::set("logo_hdd_dir", "/usr").ok());
 	// Empty means none and is not looked for.
 	REQUIRE(settings::set("timeshiftdir", "").ok());
 

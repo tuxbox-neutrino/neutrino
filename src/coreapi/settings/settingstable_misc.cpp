@@ -443,7 +443,7 @@ constexpr Descriptor kMisc[] =
 		.label("plugins.hdd_dir")
 		.hint("menu.hint_plugins_hdd_dir")
 		.defaultValue(TARGET_ROOT "/media/sda1/plugins")
-		.text(kRuleDirectory)
+		.text(kRuleDirectoryExists)
 		.field(COREAPI_TEXT_FIELD(plugin_hdd_dir)),
 	// The name of a plugin, and the default is what the screen offers as none.
 	// src/neutrino.cpp:1033 src/gui/miscsettings_menu.cpp:726
@@ -731,7 +731,7 @@ constexpr Descriptor kMisc[] =
 	textRow("backup_dir")
 		.section("misc")
 		.defaultValue(TARGET_ROOT "/media")
-		.text(kRuleDirectory)
+		.text(kRuleDirectoryExists)
 		.field(COREAPI_TEXT_FIELD(backup_dir)),
 };
 

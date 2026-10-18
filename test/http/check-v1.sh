@@ -454,7 +454,14 @@ before = recordingdir()
 if not before:
 	print('FAIL media token: the recording directory could not be read')
 	sys.exit(0)
-probe_dir = tempfile.mkdtemp(prefix='check-v1-media-')
+# Moved away, a folder that is not there could not be set again: the box
+# refuses one that does not exist. A box whose folder is on a share this
+# host does not have is left as it is.
+if not os.path.isdir(before):
+	print('SKIP media token: the recording directory %s is not on this host' % before)
+	sys.exit(0)
+# On a disk: the recording folder is refused in memory, and /tmp often is.
+probe_dir = tempfile.mkdtemp(prefix='check-v1-media-', dir=os.environ.get('CHECKV1_DURABLE_DIR', '/var/tmp'))
 name = os.path.join(probe_dir, 'probe.ts')
 moved = False
 try:
@@ -488,6 +495,7 @@ PYEOF
 `
 case "$r17" in
 	PASS) pass "media token: minted, reads the file, tokenless is refused";;
+	SKIP*) echo "$r17";;
 	*) fail "media token: $r17";;
 esac
 

@@ -323,7 +323,7 @@ constexpr Descriptor kRecording[] =
 		.section("recording")
 		.label("moviebrowser.dir")
 		.defaultValue(TARGET_ROOT "/media/sda1/movies")
-		.text(kRuleDirectory)
+		.text(kRuleDirectoryExists)
 		.field(COREAPI_TEXT_FIELD(network_nfs_moviedir)),
 	/* Whether a direct recording asks where to put itself, and how far it
 	   asks: the recorder reads one and two apart, src/driver/record.cpp:2318

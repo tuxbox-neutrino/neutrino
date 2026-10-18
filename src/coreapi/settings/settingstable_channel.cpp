@@ -207,7 +207,7 @@ constexpr Descriptor kChannel[] =
 		.section("channel")
 		.label("livestream.scriptpath")
 		.defaultValue(WEBTVDIR)
-		.text(kRuleDirectory)
+		.text(kRuleDirectoryExists)
 		.field(COREAPI_TEXT_FIELD(livestreamScriptPath)),
 
 	/* The two below are the list the box was left in, which it writes whenever
@@ -249,13 +249,13 @@ constexpr Descriptor kChannel[] =
 	textRow("last_webtv_dir")
 		.section("channel")
 		.defaultValue(WEBTVDIR_VAR)
-		.text(kRuleDirectory)
+		.text(kRuleDirectoryExists)
 		.field(COREAPI_TEXT_FIELD(last_webtv_dir)),
 	// src/neutrino.cpp:999
 	textRow("last_webradio_dir")
 		.section("channel")
 		.defaultValue(WEBRADIODIR_VAR)
-		.text(kRuleDirectory)
+		.text(kRuleDirectoryExists)
 		.field(COREAPI_TEXT_FIELD(last_webradio_dir)),
 };
 

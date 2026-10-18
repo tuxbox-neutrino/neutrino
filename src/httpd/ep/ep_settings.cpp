@@ -1046,6 +1046,8 @@ const RouteRefusal kSettingsSectionRefusals[] = {
 const RouteRefusal kClearSecretRefusals[] = {
 	HTTPD_REFUSES(InvalidArgument, NotACredential,
 		"the setting is not a credential and is not cleared here"),
+	HTTPD_REFUSES(InvalidArgument, BadString,
+		"the credential's text rule does not take an empty value"),
 	HTTPD_REFUSES(NotFound, UnknownSetting,
 		"no setting is declared under that key"),
 };
@@ -1145,7 +1147,8 @@ const Endpoint kSettingsEndpoints[] = {
 	  "read of a credential always shows.\n"
 	  "\n"
 	  "**Preconditions:** `key` must name a setting the schema marks `secret`, and it must be a string "
-	  "typed setting, which every credential in this program is.\n"
+	  "typed setting, which every credential in this program is. A credential whose text rule wants "
+	  "more than nothing, such as a pin of four digits, cannot be emptied.\n"
 	  "\n"
 	  "**Side effects:** takes the empty value at once, so a read answers with it from then on; the "
 	  "box carries it into its running settings and saves its configuration file on its own loop, "
@@ -1154,6 +1157,7 @@ const Endpoint kSettingsEndpoints[] = {
 	  "**Refusals:**\n"
 	  "- `400 not-a-credential`: the setting is not a credential, or is a credential of a kind that has "
 	  "nothing to clear; this route is not a second way to write any other setting.\n"
+	  "- `400 bad-string`: the credential's text rule does not take an empty value, such as a pin.\n"
 	  "- `404 no-such-setting`: no setting is declared under that key. Take keys from "
 	  "`GET /api/v1/settings/schema`.\n"
 	  "\n"

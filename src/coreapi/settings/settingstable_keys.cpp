@@ -24,6 +24,8 @@
 #include "predicates.h"
 #include "settingsfield.h"
 
+#include "coreapi/base/deps.h"
+
 // The remote control codes a keybinding stores, as the program names them, so
 // that no default here is a number copied by hand.
 #include <driver/rcinput.h>
@@ -83,6 +85,16 @@ constexpr EnumValue kLeftRightKeyTv[] =
 long keyFavoritesDefault()
 {
 	return boxdefault::kFavoritesIsVideo ? (int32_t) CRCInput::RC_video : (int32_t) CRCInput::RC_favorites;
+}
+
+/* The movie browser's cover key falls back to the favourites key as it is set,
+   which the loader reads first, and only without one to that key's own default. */
+long mbKeyCoverDefault()
+{
+	long favorites = 0;
+	if (settingsSource().readInt("key_favorites", favorites) == Status::Ok)
+		return favorites;
+	return keyFavoritesDefault();
 }
 
 long keyTimeshiftDefault()
@@ -576,7 +588,7 @@ constexpr Descriptor kSettings[] =
 		.hint("menu.hint_mbkey_cover")
 		.range(kKeyNone, kKeyMax)
 		.defaultValue((int32_t) CRCInput::RC_favorites)
-		.defaultFrom(keyFavoritesDefault)
+		.defaultFrom(mbKeyCoverDefault)
 		.field(COREAPI_NUMBER_FIELD(mbkey_cover)),
 	// src/neutrino.cpp:6294 src/gui/keybind_setup.cpp:526
 	enumRow("bouquetlist_mode")

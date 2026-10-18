@@ -2,6 +2,7 @@
  * test_settingstable.cpp - tests for the settings table
  *
  * Copyright (C) 2026 NI-Team
+ * Copyright (C) 2026 Tuxbox-Project (fixes, tests)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -690,20 +691,20 @@ const TextRuleExpectation kTextRules[] = {
 	{ "timezone", TextKind::NameFromList, 0, 0, NULL, MustExist::No, NULL, false },
 	{ "startchanneltv_id", TextKind::Plain, 1, 16, "0123456789abcdefABCDEF", MustExist::No, NULL, false },
 	{ "startchannelradio_id", TextKind::Plain, 1, 16, "0123456789abcdefABCDEF", MustExist::No, NULL, false },
-	{ "livestreamScriptPath", TextKind::Directory, 0, 0, NULL, MustExist::No, NULL, false },
-	{ "last_webtv_dir", TextKind::Directory, 0, 0, NULL, MustExist::No, NULL, false },
-	{ "last_webradio_dir", TextKind::Directory, 0, 0, NULL, MustExist::No, NULL, false },
+	{ "livestreamScriptPath", TextKind::Directory, 0, 0, NULL, MustExist::Yes, NULL, false },
+	{ "last_webtv_dir", TextKind::Directory, 0, 0, NULL, MustExist::Yes, NULL, false },
+	{ "last_webradio_dir", TextKind::Directory, 0, 0, NULL, MustExist::Yes, NULL, false },
 	{ "lcd_dim_time", TextKind::NumberAsText, 0, 3, kDigitsSpace, MustExist::No, NULL, false },
-	{ "glcd_logodir", TextKind::Directory, 0, 0, NULL, MustExist::No, NULL, false },
+	{ "glcd_logodir", TextKind::Directory, 0, 0, NULL, MustExist::Yes, NULL, false },
 	{ "glcd_brightness_dim_time", TextKind::NumberAsText, 0, 5, kDigitsSpace, MustExist::No, NULL, false },
-	{ "lcd4l_logodir", TextKind::Directory, 0, 0, NULL, MustExist::No, NULL, false },
+	{ "lcd4l_logodir", TextKind::Directory, 0, 0, NULL, MustExist::Yes, NULL, false },
 	{ "glcd_theme_name", TextKind::NameFromList, 0, 0, NULL, MustExist::No, NULL, false },
 	{ "epg_dir", TextKind::Directory, 0, 0, NULL, MustExist::YesNotTmpfs, NULL, false },
 	{ "tmdb_api_key", TextKind::Plain, 0, 32, NULL, MustExist::No, NULL, false },
 	{ "omdb_api_key", TextKind::Plain, 0, 8, NULL, MustExist::No, NULL, false },
 	{ "shoutcast_dev_id", TextKind::Plain, 0, 16, NULL, MustExist::No, NULL, false },
 	{ "youtube_api_key", TextKind::Plain, 0, 39, NULL, MustExist::No, NULL, false },
-	{ "plugin_hdd_dir", TextKind::Directory, 0, 0, NULL, MustExist::No, NULL, false },
+	{ "plugin_hdd_dir", TextKind::Directory, 0, 0, NULL, MustExist::Yes, NULL, false },
 	{ "movieplayer_plugin", TextKind::NameFromList, 0, 0, NULL, MustExist::No, NULL, false },
 	{ "personalize_pincode", TextKind::Pin, 4, 4, kDigits, MustExist::No, NULL, false },
 	{ "plugins_disabled", TextKind::PathList, 0, 0, NULL, MustExist::No, NULL, false },
@@ -711,16 +712,16 @@ const TextRuleExpectation kTextRules[] = {
 	{ "plugins_lua", TextKind::PathList, 0, 0, NULL, MustExist::No, NULL, false },
 	{ "plugins_script", TextKind::PathList, 0, 0, NULL, MustExist::No, NULL, false },
 	{ "plugins_tool", TextKind::PathList, 0, 0, NULL, MustExist::No, NULL, false },
-	{ "backup_dir", TextKind::Directory, 0, 0, NULL, MustExist::No, NULL, false },
+	{ "backup_dir", TextKind::Directory, 0, 0, NULL, MustExist::Yes, NULL, false },
 	{ "ifname", TextKind::NameFromList, 0, 0, NULL, MustExist::No, NULL, false },
 	{ "network_ntpserver", TextKind::Host, 0, 0, NULL, MustExist::No, NULL, false },
 	{ "network_ntprefresh", TextKind::NumberAsText, 0, 3, kDigitsSpace, MustExist::No, NULL, false },
 	{ "softupdate_proxyserver", TextKind::Host, 0, 0, NULL, MustExist::No, NULL, false },
 	{ "font_file", TextKind::File, 0, 0, NULL, MustExist::Yes, "ttf", false },
 	{ "font_file_monospace", TextKind::File, 0, 0, NULL, MustExist::Yes, "ttf", false },
-	{ "logo_hdd_dir", TextKind::Directory, 0, 0, NULL, MustExist::No, NULL, false },
+	{ "logo_hdd_dir", TextKind::Directory, 0, 0, NULL, MustExist::Yes, NULL, false },
 	{ "screenshot_dir", TextKind::Directory, 0, 0, NULL, MustExist::YesNotTmpfs, NULL, false },
-	{ "screensaver_dir", TextKind::Directory, 0, 0, NULL, MustExist::No, NULL, false },
+	{ "screensaver_dir", TextKind::Directory, 0, 0, NULL, MustExist::Yes, NULL, false },
 	{ "theme_name", TextKind::NameFromList, 0, 0, NULL, MustExist::No, NULL, false },
 	{ "parentallock_pincode", TextKind::Pin, 4, 4, kDigits, MustExist::No, NULL, false },
 	{ "network_nfs_audioplayerdir", TextKind::Directory, 0, 0, NULL, MustExist::Yes, NULL, false },
@@ -729,7 +730,7 @@ const TextRuleExpectation kTextRules[] = {
 	{ "subs_charset", TextKind::NameFromList, 0, 0, NULL, MustExist::No, NULL, false },
 	{ "network_nfs_recordingdir", TextKind::Directory, 0, 0, NULL, MustExist::YesNotTmpfs, NULL, false },
 	{ "timeshiftdir", TextKind::Directory, 0, 0, NULL, MustExist::YesNotTmpfs, NULL, true },
-	{ "network_nfs_moviedir", TextKind::Directory, 0, 0, NULL, MustExist::No, NULL, false },
+	{ "network_nfs_moviedir", TextKind::Directory, 0, 0, NULL, MustExist::Yes, NULL, false },
 #ifdef USE_SMS_INPUT
 	{ "softupdate_url_file", TextKind::File, 0, 30, NULL, MustExist::No, NULL, true },
 #else
@@ -781,4 +782,29 @@ TEST_CASE("every String row holds the rule its screen enforces", "[settingstable
 	   rows compared is held by the counts file and not by the length of the list:
 	   a renamed row drops out of the number and fails there. */
 	recordCount("text rules compared against a screen", ruled);
+}
+
+/* The loader gives the movie browser's cover key the favourites key as it is
+   set, so the default the schema states follows that setting and falls back to
+   the favourites key's own default only while the store holds none. */
+TEST_CASE("the cover key's default follows the favourites key as it is set", "[settingstable]")
+{
+	const Descriptor *cover = NULL;
+	const Descriptor *favorites = NULL;
+	for (size_t i = 0; i < settingsTableCount(); ++i)
+	{
+		if (std::string(settingsTable()[i].key) == "mbkey.cover")
+			cover = &settingsTable()[i];
+		if (std::string(settingsTable()[i].key) == "key_favorites")
+			favorites = &settingsTable()[i];
+	}
+	REQUIRE(cover != NULL);
+	REQUIRE(favorites != NULL);
+
+	CHECK(defaultInt(*cover) == defaultInt(*favorites));
+
+	FakeSettingsSource store;
+	InstalledSettingsSource installed(&store);
+	store.ints["key_favorites"] = defaultInt(*favorites) + 1;
+	CHECK(defaultInt(*cover) == defaultInt(*favorites) + 1);
 }
