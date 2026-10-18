@@ -378,7 +378,7 @@ TEST_CASE("the pairs name each other and the start channels their list", "[coupl
 	}
 }
 
-// The panel limits the rows state and the coupling holds every write path to.
+// The ceiling the two brightness rows state, which every write path is held to.
 TEST_CASE("the Pearl panel takes brightness up to seven and every other panel up to ten", "[couple][lcd4l]")
 {
 	CHECK(settings::lcd4lBrightnessCeiling(0) == 7);

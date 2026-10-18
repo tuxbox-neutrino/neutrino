@@ -37,8 +37,8 @@ namespace
 
    Two thirds of these sit behind a build condition, because that is where the
    settings struct puts the fields: src/system/settings.h:316 for the graphical
-   LCD and :334 for LCD4Linux. Neither condition is one check-hardware.sh reads,
-   so the rows behind them are compiled by nothing that runs here.
+   LCD and :334 for LCD4Linux. The build that runs the cases sets neither, so
+   what compiles the rows behind them is check-hardware.sh, once per condition.
 
    lcd_scroll is offered twice and is one setting either way: how many times a
    line too long for the panel is scrolled past, which the driver writes to
@@ -94,12 +94,14 @@ constexpr EnumValue kLcd4lDisplayType[] =
 #ifdef ENABLE_LCD4LINUX
 /* The panel's ceiling, read as a write is checked, so the screen and every write path stop at
    the same number. A write that names the panel too is judged on that one. Ten is the wider
-   panel's, which the row's constants keep as the outer limit. */
+   panel's, which the row's constants keep as the outer limit, and also what a type nobody
+   can read leaves: the direction that refuses nothing a panel takes. */
 long lcd4lBrightnessMax(const ValueLookup *now)
 {
 	long type = 0;
-	const bool read = now != NULL ? now->read("lcd4l_display_type", &type, now->context)
-	                              : settingsSource().readInt("lcd4l_display_type", type) == Status::Ok;
+	const bool read = now != NULL && now->read != NULL
+	                      ? now->read("lcd4l_display_type", &type, now->context)
+	                      : settingsSource().readInt("lcd4l_display_type", type) == Status::Ok;
 	if (!read)
 		return 10;
 	return settings::lcd4lBrightnessCeiling(type);
@@ -398,7 +400,7 @@ constexpr Descriptor kSettings[] =
 	/* The ceiling is the panel's, src/driver/lcd4l.cpp:269: seven for the Pearl
 	   panel and ten for every other. It is read as a write is checked, and ten,
 	   the wider, stays the outer limit. */
-	// src/neutrino.cpp:441 src/gui/lcd4l_setup.cpp:318
+	// src/neutrino.cpp:461 src/gui/lcd4l_setup.cpp:310
 	intRow("lcd4l_brightness")
 		.section("display")
 		.label("lcd4l_brightness")
@@ -407,7 +409,7 @@ constexpr Descriptor kSettings[] =
 		.maxNow(lcd4lBrightnessMax)
 		.defaultValue(7)
 		.field(COREAPI_NUMBER_FIELD(lcd4l_brightness)),
-	// src/neutrino.cpp:442 src/gui/lcd4l_setup.cpp:322
+	// src/neutrino.cpp:462 src/gui/lcd4l_setup.cpp:314
 	intRow("lcd4l_brightness_standby")
 		.section("display")
 		.label("lcd4l_brightness_standby")

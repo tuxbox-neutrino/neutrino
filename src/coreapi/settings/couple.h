@@ -66,7 +66,7 @@ const char *pairPartner(const std::string &key, const char **writes = NULL);
 const char *startChannelKind(const std::string &key);
 
 /* What the panel of the LCD4Linux display takes, by its type as the driver numbers it:
-   the highest brightness and whether a skin is one the panel has. */
+   the highest brightness. */
 long lcd4lBrightnessCeiling(long display_type);
 
 } // namespace settings

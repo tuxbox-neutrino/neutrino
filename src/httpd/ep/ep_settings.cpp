@@ -199,10 +199,12 @@ const FieldDesc kSettingFields[] = {
 		"hint or the catalog carries no text for it"),
 	HTTPD_MEMBER_OPTIONAL("min", FieldType::Int,
 		"the lowest whole number this setting accepts on this box now, present only when type is int or "
-		"key; where the box decides the range as it runs, this is the range as it stands"),
+		"key; where the box decides the range as it runs, this is the range as it stands, and the value "
+		"already stored and the default are still taken outside it once the box has moved it"),
 	HTTPD_MEMBER_OPTIONAL("max", FieldType::Int,
 		"the highest whole number this setting accepts on this box now, present only when type is int or "
-		"key; where the box decides the range as it runs, this is the range as it stands"),
+		"key; where the box decides the range as it runs, this is the range as it stands, and the value "
+		"already stored and the default are still taken outside it once the box has moved it"),
 	HTTPD_MEMBER_OPTIONAL("unit", FieldType::String,
 		"the name of the text that follows the number, such as unit.short.hour, for the box's own "
 		"language catalog and not the text itself; present only when type is int and the box shows "
@@ -1246,7 +1248,8 @@ const Endpoint kSettingsEndpoints[] = {
 	  "- `400 not-a-listed-value`: the value is not one the setting offers, among them the id of a "
 	  "radio channel sent for the television start channel or the other way round.\n"
 	  "- `400 out-of-range`: a whole number value falls outside the min and max the schema states for "
-	  "that key.\n"
+	  "that key, and is neither the value already stored nor the default, which stay writable after the "
+	  "box moved a range.\n"
 	  "- `404 no-such-name`: the section itself is not one the schema declares. Take section ids from "
 	  "`GET /api/v1/settings/sections`.\n"
 	  "- `404 no-such-channel`: the id sent alone for a start channel names no channel the box holds, "
