@@ -30,6 +30,7 @@ var V1SET = {
 	bySection: Object.create(null),	// section id -> [item]
 	values: Object.create(null),	// key -> value as last read
 	pending: Object.create(null),	// key -> {value, error} after a refused save
+	cleared: Object.create(null),	// credentials emptied here, so known to hold nothing
 	claimed: Object.create(null),	// keys a kept registry category draws
 	dissolved: Object.create(null),	// registry category id -> section it went into
 	regLabels: Object.create(null),	// key -> registry label, for rows without one
@@ -677,7 +678,12 @@ function _v1setHolds(c) {
 	if (target && target.secret) {
 		var field = _v1setControlOf(c.key);
 		var typed = field ? _v1setControlValue(field) : '';
-		if (!typed || c.op !== 'text-valid')
+		if (c.op !== 'text-valid')
+			return true;
+		// emptied here, so known to hold nothing
+		if (!typed && V1SET.cleared[c.key])
+			return false;
+		if (!typed)
 			return true;
 		return typed !== (c.text || '');
 	}
@@ -825,6 +831,8 @@ async function v1setSave(dirty) {
 					return;
 				}
 				delete V1SET.pending[k];
+				// a credential just written holds what was sent, not nothing
+				delete V1SET.cleared[k];
 				// the other half of a place went along and is no change of its own
 				if (!dirty.brought || !dirty.brought[k])
 					res.saved++;
@@ -894,6 +902,7 @@ async function v1setClearSecret(item) {
 			settingsBusy(false);
 	}
 	delete V1SET.pending[item.id];
+	V1SET.cleared[item.id] = true;
 	var el = _v1setControlOf(item.id);
 	if (el) {
 		var row = el.closest('[data-v1row]');

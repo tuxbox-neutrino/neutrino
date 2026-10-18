@@ -278,7 +278,11 @@ constexpr long kVideoStdAuto = 20;	// libarmbox and libmipsbox video_lib.h
 constexpr long kVideoStdAuto = 12;	// hd1/libcoolstream/video_cs.h, libgeneric-pc and libraspi video_lib.h
 #endif
 
-// The larger size is not offered while the box picks the video standard itself.
+/* The larger size is not offered while the box picks the video standard itself.
+   The screen also asks the decoder whether the standard it shows now is a 1080
+   one and whether the box has more than one size, src/gui/osd_setup.cpp:738;
+   that is the box's state and not a setting, so this is the part of the screen's
+   rule a row can state. */
 constexpr Condition kVideoModeNotAuto[] =
 {
 	when("video_Mode").isNot(kVideoStdAuto)

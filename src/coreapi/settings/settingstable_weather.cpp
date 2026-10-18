@@ -55,10 +55,10 @@ constexpr Condition kWeatherKeyEntered[] =
 
 constexpr Descriptor kWeather[] =
 {
-	/* The screen offers this one only where the key beside it passes a check
-	   that reads the key itself, which is a function call and not a comparison
-	   against another setting, so it carries no condition. The loader turns it
-	   off the same way at load, src/neutrino.cpp:1162. */
+	/* The screen offers this one only where the key beside it is filled in and
+	   is not its placeholder, src/system/setting_helpers.h:164, which the
+	   condition states where the box keeps a key of its own to enter. The loader
+	   turns it off the same way at load, src/neutrino.cpp:1162. */
 	// src/neutrino.cpp:1161 src/gui/weather_setup.cpp:97
 	boolRow("weather_enabled")
 		.section("weather")

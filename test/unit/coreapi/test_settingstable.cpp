@@ -75,6 +75,24 @@ const Descriptor kSound[] =
 	}
 };
 
+// A text test on a number row, which no reader can answer.
+const Condition kTextOfNumber[] =
+{
+	{ "fixture_flag", CompareOp::TextValid, 0, NULL, 0, "XXXX", NULL, 0 }
+};
+
+const Descriptor kWrongKind[] =
+{
+	{
+		"fixture_flag", ValueType::Bool, "fixture", "fixture.flag", NULL,
+		0, 1, NULL, 0, 0, NULL, false, false, COREAPI_ALWAYS, COREAPI_NO_FIELD, NULL, NULL, NULL, NULL, NULL, NULL, NULL
+	},
+	{
+		"fixture_gated", ValueType::Int, "fixture", "fixture.gated", NULL,
+		0, 9, NULL, 0, 0, NULL, false, false, COREAPI_CONDITIONS(kTextOfNumber), COREAPI_NO_FIELD, NULL, NULL, NULL, NULL, NULL, NULL, NULL
+	}
+};
+
 const Descriptor kDangling[] =
 {
 	{
@@ -87,10 +105,6 @@ const Descriptor kDangling[] =
 	}
 };
 
-// Every condition of the installed table that names a key the table declares,
-// and how many were looked at. Written once and driven over the fixtures as
-// well as over the shipped table, so what the case below asserts is what it
-// proves it can refuse.
 // Every comparison a row carries, those inside a group included, because a
 // group names no key of its own.
 std::vector<const Condition *> comparisonsOf(const Descriptor &d)
@@ -165,6 +179,12 @@ TEST_CASE("a condition naming a key nothing declares is caught", "[settingstable
 
 	{
 		InstalledSettingsTable dangling(kDangling, sizeof(kDangling) / sizeof(kDangling[0]));
+		REQUIRE(danglingConditions(looked) == 1);
+		REQUIRE(looked == 1);
+	}
+
+	{
+		InstalledSettingsTable wrong(kWrongKind, sizeof(kWrongKind) / sizeof(kWrongKind[0]));
 		REQUIRE(danglingConditions(looked) == 1);
 		REQUIRE(looked == 1);
 	}

@@ -86,7 +86,9 @@ constexpr Condition kShutdownRealOff[] =
 	when("shutdown_real").is(0)
 };
 
-// The scan has bouquets to walk only while it is switched on; 0 is off.
+/* The scan has bouquets to walk only while it is switched on; 0 is off. As the
+   screen's notifier has it, src/gui/miscsettings_menu.cpp:856; the item itself
+   opens active, :533, until the mode beside it is changed. */
 constexpr Condition kEpgScanOn[] =
 {
 	when("epg_scan_mode").isNot(0)
