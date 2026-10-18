@@ -27,7 +27,7 @@ choice value names compared	177
 choices compared against a screen	51
 chooser call sites read	199
 chooser call sites read whole	182
-conditions checked	34
+conditions checked	43
 defaults compared against the program	236
 error codes the header declares	170
 fields the bound scan read	45

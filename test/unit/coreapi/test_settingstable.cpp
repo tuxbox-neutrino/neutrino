@@ -28,6 +28,7 @@
 #include "support/fakes.h"
 
 #include <cstdio>
+#include <hardware/video.h>
 #include <map>
 #include <string>
 #include <vector>
@@ -850,3 +851,16 @@ TEST_CASE("the cover key's default follows the favourites key as it is set", "[s
 	CHECK(defaultInt(*cover) == defaultInt(*favorites) + 1);
 }
 
+/* The OSD's larger size waits for a video standard the box does not pick
+   itself. The table spells that standard as a number, which each video library
+   numbers differently; on the build the suite runs on it is the library's own. */
+TEST_CASE("the OSD size waits for the video standard this build calls automatic", "[settingstable]")
+{
+	const Result<Descriptor> d = settings::describe("osd_resolution");
+	REQUIRE(d.ok());
+	REQUIRE(d.value().condition_count == 1);
+	const Condition &c = d.value().conditions[0];
+	CHECK(std::string(c.key) == "video_Mode");
+	CHECK(c.op == CompareOp::Ne);
+	CHECK(c.value == (long) VIDEO_STD_AUTO);
+}
