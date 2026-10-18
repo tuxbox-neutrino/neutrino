@@ -105,10 +105,11 @@ const char *channelKindName(const char *kind)
 	return "tv";
 }
 
-/* label is not optional here the way the setting's own is: an Enum's own choice never
-   leaves label_key NULL, and check-locale-catalog.sh holds every one of those to the
-   catalog they name. appendDescriptor still guards against absence rather than
-   trusting that guard from a distance. */
+/* label is not optional here the way the setting's own is: every choice carries words,
+   either the catalog text its key names or fixed text of its own, and label is always
+   that text. check-locale-catalog.sh holds every key a choice names to the catalog.
+   appendDescriptor still guards against absence rather than trusting that guard from a
+   distance. */
 const FieldDesc kEnumValueFields[] = {
 	HTTPD_MEMBER("value", FieldType::Int,
 		"the number the box stores when this choice is picked, matched against the setting's own stored value; "
@@ -117,7 +118,8 @@ const FieldDesc kEnumValueFields[] = {
 		"what a text setting stores when this choice is picked, matched against its stored value; "
 		"present only for a setting of type string"),
 	HTTPD_MEMBER("label", FieldType::String,
-		"the text the box shows for this choice, already resolved into the box's configured language"),
+		"the text the box shows for this choice: its catalog text resolved into the box's configured "
+		"language, or the fixed words the box shows in every language, such as a size or a format name"),
 };
 
 const Schema kEnumValueSchema = { "setting-choice", HTTPD_FIELDS(kEnumValueFields) };

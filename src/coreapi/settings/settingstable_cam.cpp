@@ -41,6 +41,7 @@ constexpr EnumValue kCiMode[] =
 	option(2).label("ci.mode_2")
 };
 
+#if BOXMODEL_VUPLUS_ALL
 constexpr EnumValue kCiDelay[] =
 {
 	option(16).text("16"),
@@ -49,6 +50,7 @@ constexpr EnumValue kCiDelay[] =
 	option(128).text("128"),
 	option(256).text("256")
 };
+#endif
 
 constexpr Descriptor kCam[] =
 {
@@ -94,8 +96,8 @@ constexpr Descriptor kCam[] =
 		.field(COREAPI_NUMBER_FIELD(ci_tuner)),
 #if BOXMODEL_VUPLUS_ALL
 	/* Behind the arm the settings struct puts the field behind,
-	   src/system/settings.h:423. The five values the screen offers,
-	   src/gui/cam_menu.cpp:88. */
+	   src/system/settings.h:525. The five values the screen offers,
+	   src/gui/cam_menu.cpp:90. */
 	// src/neutrino.cpp:588 src/gui/cam_menu.cpp:160
 	enumRow("ci_delay")
 		.section("cam")

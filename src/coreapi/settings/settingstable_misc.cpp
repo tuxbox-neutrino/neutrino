@@ -236,7 +236,7 @@ constexpr Descriptor kMisc[] =
 		.defaultValue(0)
 		.field(COREAPI_NUMBER_FIELD_ON(shutdown_block_while_recording, canShutdown, NULL)),
 	/* Minutes, and nought says the box takes the length off the programme it is
-	   showing. The six the screen offers, src/gui/miscsettings_menu.cpp:253. */
+	   showing. The six the screen offers, src/gui/miscsettings_menu.cpp:254. */
 	// src/neutrino.cpp:723 src/gui/miscsettings_menu.cpp:455
 	enumRow("sleeptimer_min")
 		.section("misc")
@@ -553,7 +553,7 @@ constexpr Descriptor kMisc[] =
 		.defaultValue(1)
 		.field(COREAPI_NUMBER_FIELD(streaming_decryptmode)),
 
-	/* The thirteen steps the screen offers, src/gui/miscsettings_menu.cpp:218.
+	/* The thirteen steps the screen offers, src/gui/miscsettings_menu.cpp:220.
 	   Both rows are offered only where the box can change its clock, and the
 	   loader forces a value where it cannot, nought for the first and fifty for
 	   the second. */

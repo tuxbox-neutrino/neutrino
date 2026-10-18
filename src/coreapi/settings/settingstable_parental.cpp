@@ -60,8 +60,8 @@ constexpr EnumValue kPrompt[] =
 
 constexpr Descriptor kSettings[] =
 {
-	/* The three the screen offers, src/gui/parentallock_setup.cpp:78; the fourth
-	   of the enum, src/system/settings.h:1425-1428, sits in an arm the screen
+	/* The three the screen offers, src/gui/parentallock_setup.cpp:74; the fourth
+	   of the enum, src/system/settings.h:1521-1524, sits in an arm the screen
 	   never takes and names a locale the program no longer has. */
 	// src/neutrino.cpp:1129 src/gui/parentallock_setup.cpp:111
 	enumRow("parentallock_prompt")

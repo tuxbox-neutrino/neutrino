@@ -9,27 +9,33 @@
 # Reads the source with its literals kept. A keyval_ext entry can name its value in words
 # of its own rather than by a locale, and those words are what the screen shows beside
 # it; a comma or a brace inside a literal is passed over rather than counted.
-BEGIN { collecting = 0; pending = 0; dead = 0; q = ""; sq = sprintf("%c", 39) }
+BEGIN { collecting = 0; pending = 0; dead = 0; lvl = 0; q = ""; sq = sprintf("%c", 39) }
 
 # the name of the file the lines after it came from, and a boundary no table
 # spans
-mark != "" && index($0, mark) == 1 { where = substr($0, length(mark) + 1); collecting = 0; pending = 0; dead = 0; fline = FNR; next }
+mark != "" && index($0, mark) == 1 { where = substr($0, length(mark) + 1); collecting = 0; pending = 0; dead = 0; lvl = 0; fline = FNR; next }
 
-# An arm no build takes, followed to its end through the arms nested in it. An
-# arm after it is one a build does take, and it is counted as gating what it
-# holds like any other, which also keeps its #endif balanced against the count.
+# An arm no build takes, followed to its end through the arms nested in it.
+# What its #else holds every build compiles, so that gates nothing; what an
+# #elif holds is an arm like any other.
 dead && /^[ \t]*#[ \t]*(if|ifdef|ifndef)/ { dead++; next }
-dead && /^[ \t]*#[ \t]*(else|elif)/ { if (dead == 1) { dead = 0; if (collecting) ppdepth++ } next }
+dead && /^[ \t]*#[ \t]*elif/ { if (dead == 1) { dead = 0; arm(collecting) } next }
+dead && /^[ \t]*#[ \t]*else/ { if (dead == 1) { dead = 0; arm(0) } next }
 dead && /^[ \t]*#[ \t]*endif/ { dead--; next }
 dead { next }
 /^[ \t]*#[ \t]*if[ \t]+0[ \t]*$/ { dead = 1; next }
 
 # The arms are counted rather than followed: which of them a build takes is not
-# something this can know, and the flag says only that one gates the entry.
-/^[ \t]*#[ \t]*(if|ifdef|ifndef)/ { if (collecting) ppdepth++; next }
-/^[ \t]*#[ \t]*(else|elif)/ { if (collecting && ppdepth == 0) ppdepth++; next }
-/^[ \t]*#[ \t]*endif/ { if (collecting && ppdepth > 0) ppdepth--; next }
+# something this can know, and the flag says only that one gates the entry. Each
+# level remembers whether it counts, so its #endif takes back only what it
+# added: an arm opened before the table starts gates nothing until an #else of
+# it falls inside.
+/^[ \t]*#[ \t]*(if|ifdef|ifndef)/ { arm(collecting); next }
+/^[ \t]*#[ \t]*(else|elif)/ { if (collecting && lvl > 0 && !gates[lvl]) { gates[lvl] = 1; ppdepth++ } next }
+/^[ \t]*#[ \t]*endif/ { if (lvl > 0) { if (gates[lvl] && ppdepth > 0) ppdepth--; lvl-- } next }
 /^[ \t]*#/ { next }
+
+function arm(g) { lvl++; gates[lvl] = g ? 1 : 0; if (g) ppdepth++ }
 
 {
 	line = $0

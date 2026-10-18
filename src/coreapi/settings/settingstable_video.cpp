@@ -90,7 +90,6 @@ long zappingModeDefault()
 {
 	return boxdefault::kZappingModeTwo ? 2 : 0;
 }
-#endif
 
 constexpr EnumValue kHdmiColorimetry[] =
 {
@@ -105,6 +104,7 @@ constexpr EnumValue kHdmiColorimetry[] =
 	option(3).label("videomenu.hdmi_colorimetry_bt709")
 #endif
 };
+#endif
 
 constexpr Descriptor kVideo[] =
 {
@@ -156,7 +156,7 @@ constexpr Descriptor kVideo[] =
 		.values(kZappingMode)
 		.field(COREAPI_NUMBER_FIELD_ON(zappingmode, takesZappingMode, NULL)),
 	/* The same stored number names a different colorimetry on the two arms of
-	   the list: src/gui/videosettings.cpp:369 offers three, :377 offers four. */
+	   the list: src/gui/videosettings.cpp:567 offers three, :575 offers four. */
 	// src/neutrino.cpp:575 src/gui/videosettings.cpp:560
 	enumRow("hdmi_colorimetry")
 		.section("video")
