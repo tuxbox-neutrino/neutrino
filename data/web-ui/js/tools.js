@@ -130,8 +130,12 @@ async function bcRecStop() {
 var bcVideoSection = null;
 async function bcVideoLoad() {
 	try {
-		var schema = await webuiV1('GET', '/settings/schema');
+		var schema = await webuiV1('GET', '/settings/schema?section=video');
 		var item = ((schema && schema.items) || []).find(function(it) { return it.id === 'video_Mode'; });
+		// a list several settings share is stated once, beside the items
+		var lists = (schema && schema.value_lists) || {};
+		if (item && item.values_from && Array.isArray(lists[item.values_from]))
+			item.values = lists[item.values_from];
 		if (!item || !(item.values && item.values.length)) return;
 		var now = await webuiV1('GET', '/settings/' + encodeURIComponent(item.section));
 		var cur = ((now && now.items) || []).find(function(it) { return it.id === 'video_Mode'; });
