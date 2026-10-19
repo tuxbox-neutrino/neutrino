@@ -338,6 +338,22 @@ double cpuSecondsOf(void (*run)())
 	return (double)(b.tv_sec - a.tv_sec) + (double)(b.tv_nsec - a.tv_nsec) / 1e9;
 }
 
+/* The quickest of five runs. Processor time still moves with the clock the processor runs
+   at, which a busy host changes from one run to the next by more than the factor of two the
+   cases below allow; the quickest run is the one least slowed by that, and the cost of the
+   work itself is what remains in it. */
+double bestCpuSecondsOf(void (*run)())
+{
+	double best = cpuSecondsOf(run);
+	for (int i = 1; i < 5; ++i)
+	{
+		const double t = cpuSecondsOf(run);
+		if (t < best)
+			best = t;
+	}
+	return best;
+}
+
 const int kTimingRounds = 32;
 
 /* Every round starts with the gate cleared, in all three of these and not only
@@ -1207,9 +1223,9 @@ TEST_CASE("a wrong password takes as long as a right one", "[write]")
 	ShippedRoutes shipped;
 	ConfigFixture cfg;
 
-	const double right = cpuSecondsOf(&manyRightLogins);
-	const double wrong = cpuSecondsOf(&manyWrongLogins);
-	const double name = cpuSecondsOf(&manyWrongNames);
+	const double right = bestCpuSecondsOf(&manyRightLogins);
+	const double wrong = bestCpuSecondsOf(&manyWrongLogins);
+	const double name = bestCpuSecondsOf(&manyWrongNames);
 
 	INFO("right " << right << " wrong " << wrong << " unknown name " << name);
 	REQUIRE(right > 0.0);
