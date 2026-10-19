@@ -107,11 +107,12 @@ class CLuaMenuKeyboardinput : public CLuaMenuForwarder
 		const char *name;
 		const char *icon;
 		int size;
+		bool masked;
 		CChangeObserver *observ;
 		std::string help, help2;
-		void Init(const char *_name, std::string *_value, int _size, CChangeObserver *_observ, const char *_icon, std::string _help, std::string _help2);
+		void Init(const char *_name, std::string *_value, int _size, CChangeObserver *_observ, const char *_icon, std::string _help, std::string _help2, bool _masked);
 	public:
-		CLuaMenuKeyboardinput(lua_State *_L, std::string _luaAction, std::string _luaId, const char *_name, std::string *_value, int _size, CChangeObserver *_observ, const char *_icon, std::string _help, std::string _help2);
+		CLuaMenuKeyboardinput(lua_State *_L, std::string _luaAction, std::string _luaId, const char *_name, std::string *_value, int _size, CChangeObserver *_observ, const char *_icon, std::string _help, std::string _help2, bool _masked = false);
 		int exec(CMenuTarget* parent=NULL, const std::string & actionKey="");
 };
 

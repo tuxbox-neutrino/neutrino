@@ -255,16 +255,17 @@ int CLuaMenuStringinput::exec(CMenuTarget* /*parent*/, const std::string & /*act
 	return res;
 }
 
-CLuaMenuKeyboardinput::CLuaMenuKeyboardinput(lua_State *_L, std::string _luaAction, std::string _luaId, const char *_name, std::string *_value, int _size, CChangeObserver *_observ, const char *_icon, std::string _help, std::string _help2) : CLuaMenuForwarder(_L, _luaAction, _luaId)
+CLuaMenuKeyboardinput::CLuaMenuKeyboardinput(lua_State *_L, std::string _luaAction, std::string _luaId, const char *_name, std::string *_value, int _size, CChangeObserver *_observ, const char *_icon, std::string _help, std::string _help2, bool _masked) : CLuaMenuForwarder(_L, _luaAction, _luaId)
 {
-	Init(_name, _value, _size, _observ, _icon, _help, _help2);
+	Init(_name, _value, _size, _observ, _icon, _help, _help2, _masked);
 }
 
-void CLuaMenuKeyboardinput::Init(const char *_name, std::string *_value, int _size, CChangeObserver *_observ, const char *_icon, std::string _help, std::string _help2)
+void CLuaMenuKeyboardinput::Init(const char *_name, std::string *_value, int _size, CChangeObserver *_observ, const char *_icon, std::string _help, std::string _help2, bool _masked)
 {
 	name   = _name;
 	value  = _value;
 	size   = _size;
+	masked = _masked;
 	icon   = _icon;
 	observ = _observ;
 	help   = _help;
@@ -276,6 +277,7 @@ int CLuaMenuKeyboardinput::exec(CMenuTarget* /*parent*/, const std::string & /*a
 	int res = menu_return::RETURN_REPAINT;
 	CKeyboardInput *i;
 	i = new CKeyboardInput((char *)name, value, size, observ, icon, help, help2);
+	i->setMasked(masked);
 	i->exec(NULL, "");
 	delete i;
 	if (!luaAction.empty()) {
@@ -476,8 +478,11 @@ int CLuaInstMenu::MenuAddItem(lua_State *L)
 			lua_Integer size = 0;	tableLookup(L, "size", size);
 			std::string help = "";	tableLookup(L, "help", help);
 			std::string help2 = "";	tableLookup(L, "help2", help2);
-			CLuaMenuKeyboardinput *keyboardinput = new CLuaMenuKeyboardinput(L, action, id, b->name.c_str(), &b->str_val, size, D->observ, icon, help, help2);
+			lua_Integer masked = 0;	tableLookup(L, "masked", masked);
+			CLuaMenuKeyboardinput *keyboardinput = new CLuaMenuKeyboardinput(L, action, id, b->name.c_str(), &b->str_val, size, D->observ, icon, help, help2, masked != 0);
 			mi = new CMenuForwarder(b->name, enabled, b->str_val, keyboardinput, NULL/*ActionKey*/, directkey, icon, right_icon);
+			if (masked)
+				static_cast<CMenuForwarder *>(mi)->setOption("********");
 			D->targets.push_back(keyboardinput);
 		} else if (type == "filebrowser") {
 			b->str_val = value;
