@@ -53,7 +53,7 @@ namespace
 /* One name each, so that whatever hands a session out and whatever reads one
    back cannot be written against two spellings. The header carries the same
    two out to whoever writes the endpoint that hands one out. */
-const char kSessionCookie[] = "ni-web-session";
+const char kSessionCookie[] = "nhttpd-session";
 const char kCsrfHeader[]    = "X-CSRF-Token";
 
 /* The name a token travels under in a query. Plain, because the three that read it are a

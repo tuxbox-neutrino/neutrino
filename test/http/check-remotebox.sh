@@ -125,10 +125,10 @@ command -v python3 >/dev/null 2>&1 || { fail "needs python3 to read the box's an
 # sees these credentials other than in its address
 LOGIN_BODY=`python3 -c 'import json,sys; print(json.dumps({"user":sys.argv[1],"password":sys.argv[2]}))' "$AUTH_USER" "$AUTH_PASS"`
 $CURL -c "$T/jar" -o "$T/bl" -H 'Content-Type: application/json' -d "$LOGIN_BODY" "$BASE/api/v1/login"
-SID=`awk '$6 == "ni-web-session" {print $7}' "$T/jar" | tail -1`
+SID=`awk '$6 == "nhttpd-session" {print $7}' "$T/jar" | tail -1`
 CSRF_H=`jq1 "$T/bl" csrf_header`; CSRF_V=`jq1 "$T/bl" csrf`
 [ -n "$SID" ] && [ -n "$CSRF_H" ] && [ -n "$CSRF_V" ] || { SID=""; fail "script session: no login (`cat "$T/bl"`)"; finish 1; }
-AUTH_C="Cookie: ni-web-session=$SID"
+AUTH_C="Cookie: nhttpd-session=$SID"
 AUTH_X="$CSRF_H: $CSRF_V"
 
 # 1. margins the client can see: the box is set to 3 and 7 minutes for the

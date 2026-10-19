@@ -27,7 +27,7 @@ AUTH_USER="${CHECKV1_USER:-root}"
 AUTH_PASS="${CHECKV1_PASS:-root}"
 curl -s -c "$T/jar" -D "$T/hl" -o "$T/bl" -H 'Content-Type: application/json' \
 	-d "{\"user\":\"$AUTH_USER\",\"password\":\"$AUTH_PASS\"}" "$BASE/api/v1/login"
-SID=`awk '$6 == "ni-web-session" {print $7}' "$T/jar" | tail -1`
+SID=`awk '$6 == "nhttpd-session" {print $7}' "$T/jar" | tail -1`
 CSRF_H=`python3 -c 'import json,sys; d=json.load(open(sys.argv[1])); print(d.get("csrf_header",""))' "$T/bl" 2>/dev/null`
 CSRF_V=`python3 -c 'import json,sys; d=json.load(open(sys.argv[1])); print(d.get("csrf",""))' "$T/bl" 2>/dev/null`
 if [ -n "$SID" ] && [ -n "$CSRF_H" ] && [ -n "$CSRF_V" ]; then
@@ -36,7 +36,7 @@ else
 	fail "login: `head -1 $T/hl | tr -d '\r'` body `cat $T/bl`"
 	echo "failures: $fails"; exit 1
 fi
-AUTH_C="Cookie: ni-web-session=$SID"
+AUTH_C="Cookie: nhttpd-session=$SID"
 AUTH_X="$CSRF_H: $CSRF_V"
 export CV1_SID="$SID" CV1_CSRF_H="$CSRF_H" CV1_CSRF_V="$CSRF_V"
 hdr() { grep -i "^$2:" "$1" | tr -d '\r' | sed 's/^[^:]*: *//'; }
@@ -197,7 +197,7 @@ import socket, sys
 base, path = sys.argv[1], sys.argv[2]
 host = base.split('://', 1)[-1].split(':')[0]; port = int(base.rsplit(':', 1)[-1])
 s = socket.create_connection((host, port), timeout=15)
-s.sendall(("HEAD /api/v1/storage/file?path=" + path + " HTTP/1.0\r\nCookie: ni-web-session=" + __import__("os").environ.get("CV1_SID", "") + "\r\nRange: bytes=1000-1999\r\n\r\n").encode())
+s.sendall(("HEAD /api/v1/storage/file?path=" + path + " HTTP/1.0\r\nCookie: nhttpd-session=" + __import__("os").environ.get("CV1_SID", "") + "\r\nRange: bytes=1000-1999\r\n\r\n").encode())
 data = b''
 while True:
 	c = s.recv(4096)
@@ -259,7 +259,7 @@ def put_volume(value):
 	import os
 	code = subprocess.check_output(['curl', '-s', '-o', '/dev/null',
 		'-w', '%{http_code}', '--max-time', '10', '-X', 'PUT',
-		'-H', 'Cookie: ni-web-session=' + os.environ.get('CV1_SID', ''),
+		'-H', 'Cookie: nhttpd-session=' + os.environ.get('CV1_SID', ''),
 		'-H', os.environ.get('CV1_CSRF_H', 'X-CSRF-Token') + ': ' + os.environ.get('CV1_CSRF_V', ''),
 		'-H', 'Content-Type: application/json',
 		'-d', '{"percent":%d}' % value, base + '/api/v1/osd/volume'],
@@ -417,11 +417,11 @@ curl -s -D "$T/h16d" -o "$T/b16d" -H "$AUTH_C" "$BASE/api/v1/session"
 # a second session, closed again, so the main one stays for the sections above
 curl -s -c "$T/jar2" -o "$T/bl2" -H 'Content-Type: application/json' \
 	-d "{\"user\":\"$AUTH_USER\",\"password\":\"$AUTH_PASS\"}" "$BASE/api/v1/login"
-SID2=`awk '$6 == "ni-web-session" {print $7}' "$T/jar2" | tail -1`
+SID2=`awk '$6 == "nhttpd-session" {print $7}' "$T/jar2" | tail -1`
 C2H=`python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["csrf_header"])' "$T/bl2"`
 C2V=`python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["csrf"])' "$T/bl2"`
-curl -s -D "$T/h16e" -o /dev/null -X POST -H "Cookie: ni-web-session=$SID2" -H "$C2H: $C2V" "$BASE/api/v1/logout"
-curl -s -D "$T/h16f" -o /dev/null -X PUT -H "Cookie: ni-web-session=$SID2" -H "$C2H: $C2V" -H 'Content-Type: application/json' -d '{"percent":50}' "$BASE/api/v1/osd/volume"
+curl -s -D "$T/h16e" -o /dev/null -X POST -H "Cookie: nhttpd-session=$SID2" -H "$C2H: $C2V" "$BASE/api/v1/logout"
+curl -s -D "$T/h16f" -o /dev/null -X PUT -H "Cookie: nhttpd-session=$SID2" -H "$C2H: $C2V" -H 'Content-Type: application/json' -d '{"percent":50}' "$BASE/api/v1/osd/volume"
 [ "`status $T/h16e`" = 204 ] && [ "`status $T/h16f`" = 403 ] && pass "logout ends the session (`status $T/h16e`, then `status $T/h16f`)" || fail "logout: `status $T/h16e` then `status $T/h16f`"
 
 # 17. the scoped media token, end to end: minted over the session, read as
@@ -432,7 +432,7 @@ base = sys.argv[1]
 sid = os.environ.get('CV1_SID', '')
 csrf_h = os.environ.get('CV1_CSRF_H', 'X-CSRF-Token')
 csrf_v = os.environ.get('CV1_CSRF_V', '')
-auth = ['-H', 'Cookie: ni-web-session=' + sid, '-H', csrf_h + ': ' + csrf_v]
+auth = ['-H', 'Cookie: nhttpd-session=' + sid, '-H', csrf_h + ': ' + csrf_v]
 def curl(args):
 	return subprocess.check_output(['curl', '-s', '--max-time', '10'] + args, timeout=15)
 def recordingdir():
@@ -513,7 +513,7 @@ new_port = old_port + 1
 sid = os.environ.get('CV1_SID', '')
 csrf_h = os.environ.get('CV1_CSRF_H', 'X-CSRF-Token')
 csrf_v = os.environ.get('CV1_CSRF_V', '')
-auth = ['-H', 'Cookie: ni-web-session=' + sid, '-H', csrf_h + ': ' + csrf_v]
+auth = ['-H', 'Cookie: nhttpd-session=' + sid, '-H', csrf_h + ': ' + csrf_v]
 def curl(args):
 	return subprocess.check_output(['curl', '-s', '--max-time', '10'] + args, timeout=15)
 def webserver_on(port):
