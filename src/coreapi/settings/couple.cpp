@@ -239,11 +239,15 @@ bool CoupledBatch::requirePair(const char *first, const char *second)
 namespace
 {
 
-/* The couplings this tree has: the two pairs it keeps together and the LCD4Linux panel
-   with its brightness. The source's others (the guide, the screen, the plugin lists and
-   the CI) come with the settings they couple. */
+/* The couplings this tree has: the guide's save with its read, the two pairs it keeps
+   together and the LCD4Linux panel with its brightness. Of the source's others, the
+   screen's rules have no setting here (the SCART fix is a flag file, the ECM line and the
+   infobar icons no screen of this tree). The coupling that keeps a plugin in one of the
+   five plugin lists is left for a step of its own, and the CI pins wait for their rows,
+   which this tree's tables do not have yet. */
 const Coupling kCouplings[] =
 {
+	coupleEpg,
 	coupleChannel,
 	coupleWeather,
 	coupleLcd4l

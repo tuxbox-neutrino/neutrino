@@ -635,3 +635,57 @@ TEST_CASE("a new panel brings the standby brightness down while standby is switc
 	CHECK(box.settings.ints["lcd4l_display_type"] == 0);
 	CHECK(box.settings.ints["lcd4l_brightness_standby"] == 7);
 }
+
+TEST_CASE("turning the guide's saving on turns its reading on", "[couple][epg]")
+{
+	FakeSettingsSource settings;
+	setSettingsSource(&settings);
+	struct Restore { ~Restore() { setSettingsSource(NULL); } } restore;
+	settings.ints["epg_save"] = 0;
+	settings.ints["epg_read"] = 0;
+
+	std::vector<BatchMember> batch;
+	add(batch, "epg_save", "1");
+	std::vector<BatchRefusal> refused;
+	keepTogether(batch, refused);
+	CHECK(refused.empty());
+	const BatchMember *read = member(batch, "epg_read");
+	REQUIRE(read != NULL);
+	CHECK(read->value == "1");
+	CHECK(read->because == "epg_save");
+
+	// Saving turned off asks nothing of the reading.
+	batch.clear();
+	refused.clear();
+	add(batch, "epg_save", "0");
+	settings.ints["epg_save"] = 1;
+	keepTogether(batch, refused);
+	CHECK(refused.empty());
+	CHECK(member(batch, "epg_read") == NULL);
+}
+
+TEST_CASE("the guide's reading turned off with its saving turned on is refused with it", "[couple][epg]")
+{
+	FakeSettingsSource settings;
+	setSettingsSource(&settings);
+	struct Restore { ~Restore() { setSettingsSource(NULL); } } restore;
+	settings.ints["epg_save"] = 0;
+	settings.ints["epg_read"] = 1;
+
+	std::vector<BatchMember> batch;
+	add(batch, "epg_save", "1");
+	add(batch, "epg_read", "0");
+	std::vector<BatchRefusal> refused;
+	keepTogether(batch, refused);
+	CHECK(batch.empty());
+	CHECK(refusal(refused, "epg_save") != NULL);
+	CHECK(refusal(refused, "epg_read") != NULL);
+
+	// The same value as the save brings is no contradiction.
+	batch.clear();
+	refused.clear();
+	add(batch, "epg_save", "1");
+	add(batch, "epg_read", "1");
+	keepTogether(batch, refused);
+	CHECK(refused.empty());
+}

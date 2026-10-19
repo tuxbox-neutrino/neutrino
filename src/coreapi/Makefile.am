@@ -101,6 +101,7 @@ libcoreapi_a_SOURCES = \
 	settings/settings.cpp \
 	settings/couple.cpp \
 	settings/couple_channel.cpp \
+	settings/couple_epg.cpp \
 	settings/couple_lcd4l.cpp \
 	settings/couple_weather.cpp \
 	settings/predicates.cpp \
