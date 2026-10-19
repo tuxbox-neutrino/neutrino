@@ -60,11 +60,20 @@ function showPicture(blob) {
 	document.getElementById('placeholder').style.display = 'none';
 }
 
+// Which capture this is, as part of the address, so that two captures are
+// two addresses (the fetch skips the browser's cache as well). The box
+// reads the number as a whole number of its own width, four bytes on most
+// boxes, so the milliseconds since 1970 do not fit there. These fit, and
+// they repeat only every eleven and a half days.
+function captureMark() {
+	return Date.now() % 1000000000;
+}
+
 async function capture(path, query) {
 	if (shotBusy) return false;	// the running one answers
 	shotBusy = true;
 	try {
-		showPicture(await webuiV1Blob(path, Object.assign({at: Date.now()}, query || {})));
+		showPicture(await webuiV1Blob(path, Object.assign({at: captureMark()}, query || {})));
 	} finally {
 		shotBusy = false;
 	}
@@ -106,7 +115,7 @@ async function doSnapshot() {
 // The front display only where the box can read it: 501 says it cannot
 async function probeDisplay() {
 	try {
-		await webuiV1Blob('/osd/display/screenshot', {at: Date.now()}, {quiet: true});
+		await webuiV1Blob('/osd/display/screenshot', {at: captureMark()}, {quiet: true});
 		document.getElementById('btnGlcd').style.display = '';
 		displayProbe = 'shown';
 	} catch (e) {
