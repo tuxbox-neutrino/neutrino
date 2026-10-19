@@ -911,10 +911,15 @@ Result<void> set(const std::string &key, const std::string &value, const BatchOv
 	if (!held.ok())
 		return held;
 
-	// Last, as in the source: a value the row refuses is wrong whatever the others hold.
-	Result<void> allowed = allowedByConditions(*d, after, &value);
-	if (!allowed.ok() && !sameAsStored(*d, value))
-		return allowed;
+	/* Last, as in the source: a value the row refuses is wrong whatever the others hold. Only
+	   for a write of this one setting: with after, settleBatch() has judged the conditions on
+	   that same batch already, and a value a coupling added there is held to no condition. */
+	if (after == NULL)
+	{
+		Result<void> allowed = allowedByConditions(*d, after, &value);
+		if (!allowed.ok() && !sameAsStored(*d, value))
+			return allowed;
+	}
 
 	const Status written = d->type == ValueType::String ? settingsSource().writeString(d->key, value)
 	                                                    : settingsSource().writeInt(d->key, number);
@@ -1050,6 +1055,17 @@ void settleBatch(BatchOverlay &batch, Refusals &refused, bool keepUnchanged)
 			const Descriptor *row = settings::row(made.values[i].first);
 			if (row == NULL)
 				continue;
+			/* A value a coupling added is held to its row by put(), but not to the row's
+			   conditions: those grey out what a person may pick on a screen, and an added
+			   value is no pick but what follows from a member that was judged, as when a new
+			   LCD4Linux panel brings the standby brightness down while standby is the box
+			   switched off. The screen brings it down then too. This tree's own, not the
+			   source's: there such an addition takes its trigger down. */
+			bool asked = false;
+			for (size_t n = 0; n < named.values.size() && !asked; ++n)
+				asked = named.values[n].first == made.values[i].first;
+			if (!asked)
+				continue;
 			Result<void> allowed = allowedByConditions(*row, &made, &made.values[i].second);
 			if (allowed.ok())
 				continue;
@@ -1068,42 +1084,14 @@ void settleBatch(BatchOverlay &batch, Refusals &refused, bool keepUnchanged)
 			return;
 		}
 
-		bool progress = false;
+		/* Only members the caller named are judged, so each one failing is one of them and
+		   leaves, and the next round is made from what is left. The source also judges what a
+		   coupling added and takes its trigger down with it; that branch and its fallback for
+		   an addition nobody owns have nothing to do here. */
 		for (size_t f = 0; f < failing.size(); ++f)
 		{
-			if (eraseMember(named, failing[f]))
-			{
-				refuseByCondition(refused, failing[f], why[f]);
-				progress = true;
-				continue;
-			}
-
-			/* Not named by the caller: a coupling put it. It is reported under its own key, and
-			   what asked for it is refused with it, since one without the other is the state the
-			   coupling exists to prevent. */
+			eraseMember(named, failing[f]);
 			refuseByCondition(refused, failing[f], why[f]);
-			for (size_t a = 0; a < added.size(); ++a)
-			{
-				if (added[a].key != failing[f])
-					continue;
-				if (eraseMember(named, added[a].trigger))
-				{
-					refuseByCondition(refused, added[a].trigger,
-						conditionRefusal("the setting it brings with it cannot be set",
-								 std::vector<std::string>(1, failing[f])));
-					progress = true;
-				}
-			}
-		}
-
-		/* An addition nobody is recorded as owning cannot be traced to a member, so it alone
-		   is left out rather than looping on it. */
-		if (!progress)
-		{
-			for (size_t f = 0; f < failing.size(); ++f)
-				eraseMember(made, failing[f]);
-			leaveSettled(batch, made, named, keepUnchanged);
-			return;
 		}
 	}
 }

@@ -194,14 +194,19 @@ TEST_CASE("the conditions are judged on what the write leaves behind", "[setting
 	Fixture f;
 
 	const BatchOverlay on = overlay("t_switch", "1");
-	CHECK(set("t_dependent", "5", &on).ok());
 	CHECK(settleOne("t_dependent", "6", on.values).ok());
 
 	// What the write leaves behind wins over what the store holds.
 	f.store.ints["t_switch"] = 1;
 	const BatchOverlay off = overlay("t_switch", "0");
-	CHECK(set("t_dependent", "9", &off).error().code == ErrorCode::SettingConditionNotMet);
 	CHECK(settleOne("t_dependent", "9", off.values).error().code == ErrorCode::SettingConditionNotMet);
+
+	/* set() with what the write leaves behind is the write after the settling, which has
+	   judged the conditions on that batch; written alone, set() judges them on the store. */
+	f.store.ints["t_switch"] = 0;
+	CHECK(set("t_dependent", "9").error().code == ErrorCode::SettingConditionNotMet);
+	CHECK(set("t_dependent", "5", &on).ok());
+	CHECK(f.store.ints["t_dependent"] == 5);
 }
 
 TEST_CASE("an entry offered only while another setting allows it is read and written so", "[settings][conditions]")

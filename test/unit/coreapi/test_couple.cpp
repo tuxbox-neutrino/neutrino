@@ -15,6 +15,7 @@
 #include "coreapi/base/errors.h"
 #include "coreapi/settings/couple.h"
 #include "coreapi/settings/settings.h"
+#include "coreapi/settings/settingsfield.h"
 #include "support/fakes.h"
 #include "support/settle.h"
 
@@ -459,4 +460,178 @@ TEST_CASE("the Pearl panel takes brightness up to seven and every other panel up
 	CHECK(settings::lcd4lBrightnessCeiling(8) == 7);
 	// A type nobody knows gets the lower ceiling, as the screen gave it.
 	CHECK(settings::lcd4lBrightnessCeiling(9) == 7);
+}
+
+namespace
+{
+
+/* The three LCD4Linux rows the coupling reads, under their own keys: the unit build has no
+   LCD4Linux, so the box's own rows are not declared here. */
+// As the box's row: the standby brightness is greyed out while standby is the box switched off.
+const Condition kNotRealShutdown[] = { when("shutdown_real").is(0) };
+
+const EnumValue kPanels[] =
+{
+	option(0).text("320x240 Pearl DPF"),
+	option(1).text("800x480 Samsung SPF")
+};
+
+const Descriptor kLcd4lRows[] =
+{
+	enumRow("lcd4l_display_type")
+		.section("fixture")
+		.label("label")
+		.defaultValue(0)
+		.values(kPanels)
+		.field(COREAPI_NUMBER_FIELD(repeat_blocker)),
+	intRow("lcd4l_brightness")
+		.section("fixture")
+		.label("label")
+		.range(1, 10)
+		.defaultValue(5)
+		.field(COREAPI_NUMBER_FIELD(repeat_blocker)),
+	intRow("lcd4l_brightness_standby")
+		.section("fixture")
+		.label("label")
+		.range(1, 10)
+		.defaultValue(3)
+		.changeableWhen(kNotRealShutdown)
+		.field(COREAPI_NUMBER_FIELD(repeat_blocker)),
+	boolRow("shutdown_real")
+		.section("fixture")
+		.label("label")
+		.defaultValue(0)
+		.field(COREAPI_NUMBER_FIELD(repeat_blocker)),
+};
+
+struct Lcd4lBox
+{
+	InstalledSettingsTable table;
+	FakeSettingsSource settings;
+
+	Lcd4lBox() : table(kLcd4lRows, sizeof(kLcd4lRows) / sizeof(kLcd4lRows[0])) { setSettingsSource(&settings); }
+	~Lcd4lBox() { setSettingsSource(NULL); }
+};
+
+} // anonymous namespace
+
+TEST_CASE("a write of the LCD4Linux panel brings both brightnesses inside it", "[couple][lcd4l]")
+{
+	Lcd4lBox box;
+	box.settings.ints["lcd4l_display_type"] = 1;
+	box.settings.ints["lcd4l_brightness"] = 9;
+	box.settings.ints["lcd4l_brightness_standby"] = 8;
+
+	std::vector<BatchMember> batch;
+	add(batch, "lcd4l_display_type", "0");
+	std::vector<BatchRefusal> refused;
+	keepTogether(batch, refused);
+
+	CHECK(refused.empty());
+	const BatchMember *on = member(batch, "lcd4l_brightness");
+	REQUIRE(on != NULL);
+	CHECK(on->value == "7");
+	CHECK(on->because == "lcd4l_display_type");
+	const BatchMember *standby = member(batch, "lcd4l_brightness_standby");
+	REQUIRE(standby != NULL);
+	CHECK(standby->value == "7");
+}
+
+TEST_CASE("a brightness inside the new panel stays as it is", "[couple][lcd4l]")
+{
+	Lcd4lBox box;
+	box.settings.ints["lcd4l_display_type"] = 0;
+	box.settings.ints["lcd4l_brightness"] = 5;
+	box.settings.ints["lcd4l_brightness_standby"] = 3;
+
+	std::vector<BatchMember> batch;
+	add(batch, "lcd4l_display_type", "1");
+	std::vector<BatchRefusal> refused;
+	keepTogether(batch, refused);
+
+	CHECK(refused.empty());
+	REQUIRE(batch.size() == 1);
+	CHECK(batch[0].key == "lcd4l_display_type");
+}
+
+TEST_CASE("a brightness the panel does not take is refused, naming the panel", "[couple][lcd4l]")
+{
+	Lcd4lBox box;
+	box.settings.ints["lcd4l_display_type"] = 0;
+
+	std::vector<BatchMember> batch;
+	add(batch, "lcd4l_brightness", "9");
+	std::vector<BatchRefusal> refused;
+	keepTogether(batch, refused);
+
+	CHECK(batch.empty());
+	REQUIRE(refused.size() == 1);
+	CHECK(refused[0].key == "lcd4l_brightness");
+	CHECK(refused[0].error.code == ErrorCode::SettingConditionNotMet);
+	REQUIRE(refused[0].depends_on.size() == 1);
+	CHECK(refused[0].depends_on[0] == "lcd4l_display_type");
+
+	// With the panel that takes it, in the same write, both land.
+	batch.clear();
+	refused.clear();
+	add(batch, "lcd4l_brightness", "9");
+	add(batch, "lcd4l_display_type", "1");
+	keepTogether(batch, refused);
+	CHECK(refused.empty());
+	CHECK(batch.size() == 2);
+}
+
+TEST_CASE("a brightness above the new panel written with it contradicts it", "[couple][lcd4l]")
+{
+	Lcd4lBox box;
+	box.settings.ints["lcd4l_display_type"] = 1;
+
+	std::vector<BatchMember> batch;
+	add(batch, "lcd4l_display_type", "0");
+	add(batch, "lcd4l_brightness", "9");
+	std::vector<BatchRefusal> refused;
+	keepTogether(batch, refused);
+
+	// The panel would bring it to seven, and the write names nine: both are refused.
+	CHECK(batch.empty());
+	CHECK(refusal(refused, "lcd4l_display_type") != NULL);
+	CHECK(refusal(refused, "lcd4l_brightness") != NULL);
+}
+
+TEST_CASE("a new panel brings the standby brightness down while standby is switched off", "[couple][lcd4l]")
+{
+	Lcd4lBox box;
+	box.settings.ints["lcd4l_display_type"] = 1;
+	box.settings.ints["lcd4l_brightness"] = 5;
+	box.settings.ints["lcd4l_brightness_standby"] = 9;
+	box.settings.ints["shutdown_real"] = 1;
+
+	// The standby brightness is greyed out, and what the panel brings is no pick: both land.
+	std::vector<BatchMember> batch;
+	add(batch, "lcd4l_display_type", "0");
+	std::vector<BatchRefusal> refused;
+	keepTogether(batch, refused);
+	CHECK(refused.empty());
+	CHECK(member(batch, "lcd4l_display_type") != NULL);
+	const BatchMember *standby = member(batch, "lcd4l_brightness_standby");
+	REQUIRE(standby != NULL);
+	CHECK(standby->value == "7");
+
+	// Named by the caller, the greyed standby brightness is still refused.
+	batch.clear();
+	refused.clear();
+	add(batch, "lcd4l_brightness_standby", "4");
+	keepTogether(batch, refused);
+	REQUIRE(refused.size() == 1);
+	CHECK(refused[0].error.code == ErrorCode::SettingConditionNotMet);
+	CHECK(refused[0].depends_on[0] == "shutdown_real");
+
+	// Written, as the route writes: the panel and the brightness it brings both land.
+	std::vector<std::pair<std::string, std::string> > members;
+	members.push_back(std::make_pair(std::string("lcd4l_display_type"), std::string("0")));
+	Refusals failed;
+	writeBatch(members, failed);
+	CHECK(failed.empty());
+	CHECK(box.settings.ints["lcd4l_display_type"] == 0);
+	CHECK(box.settings.ints["lcd4l_brightness_standby"] == 7);
 }

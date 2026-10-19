@@ -92,13 +92,14 @@ struct BatchOverlay
    A secret row refuses an empty value, so a form redrawn from a read that answered nothing
    cannot clear the credential; emptying one is clearSecret.
 
-   A value that passed all three is still refused with setting-condition-not-met where the
-   row's conditions do not hold, its depends_on naming the settings that refused it, and with
-   not-a-listed-value where it names an entry whose own conditions do not hold. Both are
-   judged on after first and the store after it, after being what the whole write leaves
-   behind (NULL for a write of this one setting), so the order of a write's settings does not
-   matter. A value the store already holds passes them: writing back what a row holds is no
-   change for the conditions to judge.
+   Written alone (after NULL), a value that passed all three is still refused with
+   setting-condition-not-met where the row's conditions do not hold on the store, its
+   depends_on naming the settings that refused it, and with not-a-listed-value where it names
+   an entry whose own conditions do not hold. A value the store already holds passes them:
+   writing back what a row holds is no change for the conditions to judge. A write of several
+   hands in after, what the whole write leaves behind: settleBatch() has judged the conditions
+   on it, so the order of the settings does not matter, and they are not judged again here;
+   the entries a value may name are still read on after.
 
    ok says the value passed all three, the store took it, and the box was asked on its own
    loop to put it into the program's settings, save them and tell whoever applies that

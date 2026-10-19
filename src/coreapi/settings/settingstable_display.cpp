@@ -78,6 +78,18 @@ constexpr EnumValue kLcd4lSupport[] =
 /* The panels and outputs the screen offers, src/gui/lcd4l_setup.cpp:64, under
    the numbers the driver gives them, src/driver/lcd4l.h:48. The VU+ Solo 4K
    panel is offered only by a build for that box. */
+/* The skins the screen offers, one list for every panel, src/gui/lcd4l_setup.cpp:79-87 and
+   302: the standard layout, four themes and the user's own. */
+constexpr EnumValue kLcd4lSkin[] =
+{
+	option(0).label("lcd4l_skin_0"),
+	option(1).label("lcd4l_skin_1"),
+	option(2).label("lcd4l_skin_2"),
+	option(3).label("lcd4l_skin_3"),
+	option(4).label("lcd4l_skin_4"),
+	option(100).label("lcd4l_skin_100")
+};
+
 constexpr EnumValue kLcd4lDisplayType[] =
 {
 	option(0).text("320x240 Pearl DPF"),
@@ -380,17 +392,13 @@ constexpr Descriptor kSettings[] =
 		.defaultValue(0)
 		.values(kLcd4lDisplayType)
 		.field(COREAPI_NUMBER_FIELD(lcd4l_display_type)),
-	/* A number and not a choice for a different reason: the screen offers two
-	   different lists for it and picks by the panel,
-	   src/gui/lcd4l_setup.cpp:307-310. The ceiling is the highest either lists
-	   and the values between are ones neither offers. */
-	// src/neutrino.cpp:439 src/gui/lcd4l_setup.cpp:308
-	intRow("lcd4l_skin")
+	// src/neutrino.cpp:439 src/gui/lcd4l_setup.cpp:302
+	enumRow("lcd4l_skin")
 		.section("display")
 		.label("lcd4l_skin")
 		.hint("menu.hint_lcd4l_skin")
-		.range(0, 100)
 		.defaultValue(0)
+		.values(kLcd4lSkin)
 		.field(COREAPI_NUMBER_FIELD(lcd4l_skin)),
 	// src/neutrino.cpp:440 src/gui/lcd4l_setup.cpp:314
 	boolRow("lcd4l_skin_radio")

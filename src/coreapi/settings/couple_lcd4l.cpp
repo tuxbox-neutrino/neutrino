@@ -72,9 +72,10 @@ void keepBrightness(CoupledBatch &b, const char *key, long type, bool moved)
 
 }
 
-/* The panel decides what the brightness and the skin may be. A write of the type brings
-   the values it leaves behind back inside, as the screen did when it opened, and a value
-   the batch names that the panel does not take is refused, whichever way it was written. */
+/* The panel decides what the brightness may be. A write of the type brings the values it
+   leaves behind back inside, as the screen did when it opened, and a value the batch names
+   that the panel does not take is refused, whichever way it was written. The skin is no
+   panel's here: this tree's screen offers every skin on every panel. */
 void coupleLcd4l(CoupledBatch &b)
 {
 	long type = 0;

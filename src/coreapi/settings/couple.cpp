@@ -239,13 +239,14 @@ bool CoupledBatch::requirePair(const char *first, const char *second)
 namespace
 {
 
-/* The couplings this tree has: the two pairs it keeps together. The source's others (the
-   guide, the screen, the plugin lists, the CI and the LCD4Linux display) come with the
-   settings they couple. */
+/* The couplings this tree has: the two pairs it keeps together and the LCD4Linux panel
+   with its brightness. The source's others (the guide, the screen, the plugin lists and
+   the CI) come with the settings they couple. */
 const Coupling kCouplings[] =
 {
 	coupleChannel,
-	coupleWeather
+	coupleWeather,
+	coupleLcd4l
 };
 
 void partnersFrom(const KeyPair *pairs, size_t n, std::vector<std::string> &keys)

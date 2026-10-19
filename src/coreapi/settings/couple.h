@@ -144,9 +144,9 @@ void coupleCi(CoupledBatch &b);
 void coupleLcd4l(CoupledBatch &b);
 
 /* What the panel of the LCD4Linux display takes, by its type as the driver numbers it:
-   the highest brightness and whether a skin is one the panel has. */
+   the highest brightness. The source also asks whether a skin is one the panel has; this
+   tree's screen offers every skin on every panel. */
 long lcd4lBrightnessCeiling(long display_type);
-bool lcd4lSkinOffered(long display_type, long skin);
 
 } // namespace settings
 } // namespace coreapi
