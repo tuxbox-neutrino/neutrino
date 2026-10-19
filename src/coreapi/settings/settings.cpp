@@ -473,11 +473,8 @@ std::vector<std::string> failingKeys(const Descriptor &d, const ValueLookup &loo
 Result<void> allowedByConditions(const Descriptor &d, const BatchOverlay *batch, const std::string *value = NULL)
 {
 	const ValueLookup after_batch = lookupAfter(batch);
-	/* The source leaves a pair to its couplings where the row's conditions read only its
-	   partner. No row of this tree has such conditions (the start channel and the weather
-	   place read uselastchannel and weather_enabled), and its couplings judge none, so
-	   every row is judged by its own conditions here. */
-	if (!conditionsHold(d, after_batch))
+	// A batch has been through the couplings, and for such a pair theirs is the answer.
+	if (!(batch != NULL && judgedByCoupling(d)) && !conditionsHold(d, after_batch))
 		return Result<void>::failure(conditionRefusal("the settings this one depends on do not allow it to be set",
 							      failingKeys(d, after_batch)));
 
@@ -876,21 +873,6 @@ bool entryOfferedNow(const EnumValue &e)
 	return entryOffered(e, lookupAfter(NULL));
 }
 
-Result<void> conditionsAllow(const std::string &key, const std::string &value, const BatchOverlay &after)
-{
-	const Descriptor *d = row(key);
-	if (d == NULL)
-		return fail(Status::NotFound, ErrorCode::UnknownSetting,
-			    "no setting is declared under that key");
-	/* As in the source: asked, and the answer dropped for a value the store holds, since
-	   writing back what a row holds is no change for the conditions to judge, and a client
-	   that sends a whole section back must not be refused for a row it did not touch. */
-	Result<void> allowed = allowedByConditions(*d, &after, &value);
-	if (!allowed.ok() && sameAsStored(*d, value))
-		return ok();
-	return allowed;
-}
-
 bool lockedNow(const std::string &key)
 {
 	if (!heldByParentalLock(key.c_str()))
@@ -952,6 +934,12 @@ Result<void> set(const std::string &key, const std::string &value, const BatchOv
 	   is asked by whatever carries the write. An applier run here would read the value the box
 	   was running on before. */
 	return ok();
+}
+
+bool holdsStored(const std::string &key, const std::string &value)
+{
+	const Descriptor *d = row(key);
+	return d != NULL && check(key, value).ok() && sameAsStored(*d, value);
 }
 
 namespace
@@ -1059,7 +1047,7 @@ void settleBatch(BatchOverlay &batch, Refusals &refused, bool keepUnchanged)
 		std::vector<Error> why;
 		for (size_t i = 0; i < made.values.size(); ++i)
 		{
-			const Descriptor *row = findRow(made.values[i].first);
+			const Descriptor *row = settings::row(made.values[i].first);
 			if (row == NULL)
 				continue;
 			Result<void> allowed = allowedByConditions(*row, &made, &made.values[i].second);
@@ -1120,8 +1108,7 @@ void settleBatch(BatchOverlay &batch, Refusals &refused, bool keepUnchanged)
 	}
 }
 
-void writeBatch(const std::vector<std::pair<std::string, std::string> > &members, Refusals &failed,
-		bool onLoop)
+void writeBatch(const std::vector<std::pair<std::string, std::string> > &members, Refusals &failed)
 {
 	/* The three passes of one write, so every caller that writes more than one setting gets
 	   the couplings and the settling and none can leave them out. The first refuses what is
@@ -1143,7 +1130,7 @@ void writeBatch(const std::vector<std::pair<std::string, std::string> > &members
 
 	for (size_t i = 0; i < batch.values.size(); ++i)
 	{
-		Result<void> done = set(batch.values[i].first, batch.values[i].second, &batch, onLoop);
+		Result<void> done = set(batch.values[i].first, batch.values[i].second, &batch);
 		if (!done.ok())
 			failed.push_back(std::make_pair(batch.values[i].first, done.error()));
 	}

@@ -111,11 +111,6 @@ struct BatchOverlay
    other. The one thing it cannot promise is that nothing landed. */
 Result<void> set(const std::string &key, const std::string &value, const BatchOverlay *after = NULL);
 
-/* The conditions set() holds a value to, asked for a write of several settings before any
-   of them is stored: what after leaves behind is what they are judged on. ok for a value the
-   store already holds. */
-Result<void> conditionsAllow(const std::string &key, const std::string &value, const BatchOverlay &after);
-
 /* Whether a row's entry is offered with the settings as they stand: the box has what it
    stands for and the settings its own conditions read allow it. */
 bool entryOfferedNow(const EnumValue &e);
@@ -134,9 +129,14 @@ bool availableNow(const Descriptor &d);
    refuses with the same answer, and ok says set() would come as far as the store. For a
    write of several settings that must not land in part, which asks each of them first.
    The conditions are left out, the row's and those of the entry a value names: they are
-   judged on what the whole write leaves behind, which conditionsAllow() asks once every
-   member has passed here. */
+   judged on what the whole write leaves behind, which settleBatch() asks once every member
+   has passed here. */
 Result<void> check(const std::string &key, const std::string &value);
+
+/* Whether value is what the row holds now, the default for a key never stored, for a value
+   nobody has checked yet, as in the source: one check() refuses is not the stored value, and
+   no value of a credential counts, so a guess at one is not told apart. */
+bool holdsStored(const std::string &key, const std::string &value);
 
 /* The second pass of a write of several settings, between check() and set(). First runs the
    couplings over batch, which are the settings that cannot be written apart:
@@ -177,8 +177,7 @@ void settleBatch(BatchOverlay &batch, Refusals &refused, bool keepUnchanged = fa
    skip a coupling. Each key may be named once. Every setting that did not land, whichever pass
    refused it, is in failed with the answer its own write would have had, and what the
    couplings added is among them when it fails. */
-void writeBatch(const std::vector<std::pair<std::string, std::string> > &members, Refusals &failed,
-		bool onLoop = false);
+void writeBatch(const std::vector<std::pair<std::string, std::string> > &members, Refusals &failed);
 
 /* Empties a credential, the one thing set() will not do. The two rules that protect one
    leave no way to remove it: a read answers nothing, so a form redrawn from what it read

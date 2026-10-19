@@ -16,6 +16,7 @@
 #include "coreapi/settings/couple.h"
 #include "coreapi/settings/settings.h"
 #include "support/fakes.h"
+#include "support/settle.h"
 
 #include <string>
 #include <vector>
@@ -259,7 +260,10 @@ TEST_CASE("a name its row cannot hold refuses the id that brought it", "[couple]
 	CHECK(refused[0].error.code == ErrorCode::BadString);
 }
 
-TEST_CASE("a half refused before the pairs are looked at takes the other half down", "[couple]")
+/* A name refused before the pairs are looked at never reaches them, so the id is an id
+   written alone: it lands and brings the name of its channel, as in the source. The pair the
+   box keeps is the channel's, and the refused name stays refused. */
+TEST_CASE("a name refused before the pairs are looked at leaves the id to bring its own", "[couple]")
 {
 	Box box;
 	std::vector<BatchMember> batch;
@@ -271,13 +275,12 @@ TEST_CASE("a half refused before the pairs are looked at takes the other half do
 	refused.push_back(before);
 
 	keepTogether(batch, refused);
-	CHECK(batch.empty());
-	REQUIRE(refused.size() == 2);
-	const BatchRefusal *id = refusal(refused, "startchanneltv_id");
-	REQUIRE(id != NULL);
-	CHECK(id->error.code == ErrorCode::SettingConditionNotMet);
-	REQUIRE(id->depends_on.size() == 1);
-	CHECK(id->depends_on[0] == "startchanneltv");
+	REQUIRE(refused.size() == 1);
+	CHECK(refused[0].key == "startchanneltv");
+	const BatchMember *name = member(batch, "startchanneltv");
+	REQUIRE(name != NULL);
+	CHECK(name->value == "First Channel Television HD");
+	CHECK(name->because == "startchanneltv_id");
 }
 
 TEST_CASE("the city and the location of the weather are written together or not at all", "[couple]")

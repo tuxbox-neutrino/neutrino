@@ -2655,6 +2655,56 @@ TEST_CASE("a write is held to the conditions of the rows it writes", "[write][co
 
 /* What the write brought is answered under its own key, and a half taken down by the
    other names it, in an answer a parser reads back with every key once. */
+/* A start channel id sent with a name its row refuses: the name keeps its refusal, and the id
+   lands as one sent alone, with the name of its channel written beside it, so the store never
+   holds the new id beside the old name. */
+TEST_CASE("a refused start channel name leaves the id to write its channel's name", "[write][conditions]")
+{
+	ShippedRoutes shipped;
+	BoxFixture box;
+	box.store.ints["uselastchannel"] = 0;
+	box.store.strings["startchanneltv_id"] = "1e2404020001b002";
+	box.store.strings["startchanneltv"] = "Old Name";
+	coreapi::ChannelInfo tv;
+	tv.id = 0x1e2404020001a001ULL;
+	tv.name = "First Channel Television HD";
+	tv.kind = coreapi::ServiceKind::Tv;
+	box.channels.channels.push_back(tv);
+
+	const Reply r = authedPatch("/api/v1/settings/channel",
+	                            "{\"startchanneltv_id\":\"1e2404020001a001\",\"startchanneltv\":\"Name #3\"}");
+	REQUIRE(r.code == 207);
+	const ::Json::Value results = parsed(r.body)["results"];
+	CHECK(results["startchanneltv_id"]["status"].asInt() == 200);
+	CHECK(results["startchanneltv"]["status"].asInt() == 400);
+	CHECK(box.store.strings["startchanneltv_id"] == "1e2404020001a001");
+	CHECK(box.store.strings["startchanneltv"] == "First Channel Television HD");
+}
+
+/* A start channel id written alone while the box starts on the last channel: the name it would
+   have brought falls with it, and the one key sent is answered as itself, naming what greys it
+   out. */
+TEST_CASE("a start channel written alone while it is greyed out is answered as itself", "[write][conditions]")
+{
+	ShippedRoutes shipped;
+	BoxFixture box;
+	box.store.ints["uselastchannel"] = 1;
+	coreapi::ChannelInfo tv;
+	tv.id = 0x1e2404020001a001ULL;
+	tv.name = "First Channel Television HD";
+	tv.kind = coreapi::ServiceKind::Tv;
+	box.channels.channels.push_back(tv);
+
+	const Reply r = authedPatch("/api/v1/settings/channel", "{\"startchanneltv_id\":\"1e2404020001a001\"}");
+	REQUIRE(r.code == 409);
+	const ::Json::Value refused = parsed(r.body);
+	CHECK(refused["type"].asString() == "/errors/setting-condition-not-met");
+	REQUIRE(refused["depends_on"].size() == 1);
+	CHECK(refused["depends_on"][0].asString() == "uselastchannel");
+	CHECK(box.store.strings.count("startchanneltv_id") == 0);
+	CHECK(box.store.strings.count("startchanneltv") == 0);
+}
+
 TEST_CASE("an answer with a result per key names what a write brought and what took a half down", "[write]")
 {
 	ShippedRoutes shipped;

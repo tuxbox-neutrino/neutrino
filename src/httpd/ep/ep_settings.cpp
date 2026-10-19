@@ -1012,8 +1012,11 @@ Response settingsWrite(const Request &r)
 		return problemResponse(StatusNotFound, coreapi::ErrorCode::NoSuchName,
 		                       "no settings are declared under a section of that name");
 
-	std::vector<coreapi::settings::BatchMember> batch;
-	std::vector<coreapi::settings::BatchRefusal> refused;
+	/* The three passes of a write of several settings, as the settings layer's writeBatch()
+	   makes them, here and not through it because this answer names every key: check() on
+	   each member, settleBatch() over what passed, set() on what is left. */
+	coreapi::settings::BatchOverlay batch;
+	coreapi::settings::Refusals refused;
 
 	for (size_t i = 0; i < members.size(); ++i)
 	{
@@ -1021,8 +1024,6 @@ Response settingsWrite(const Request &r)
 		   result a caller cannot match to what it sent is one it cannot act on. Everything that
 		   reaches the answer goes through the writer, which escapes it. */
 		const std::string &key = members[i].name;
-		coreapi::settings::BatchRefusal no;
-		no.key = key;
 
 		const coreapi::Descriptor *d = rowFor(rows, key);
 		if (d == NULL || d->section == NULL || section != d->section)
@@ -1030,9 +1031,9 @@ Response settingsWrite(const Request &r)
 			/* One answer for a key nothing declares and for a key declared on another page. Both
 			   are the same act from where the caller sits, and a second code for it would tell a
 			   caller which keys exist elsewhere on the box, one guess at a time. */
-			no.error = coreapi::Error(coreapi::Status::NotFound, coreapi::ErrorCode::UnknownSetting,
-			                          "this section declares no setting under that key");
-			refused.push_back(no);
+			refused.push_back(std::make_pair(key,
+				coreapi::Error(coreapi::Status::NotFound, coreapi::ErrorCode::UnknownSetting,
+				               "this section declares no setting under that key")));
 			continue;
 		}
 
@@ -1043,82 +1044,116 @@ Response settingsWrite(const Request &r)
 		   substituted is a round trip that never settles. */
 		if (!isUtf8(members[i].text.data(), members[i].text.size()))
 		{
-			no.error = coreapi::Error(coreapi::Status::InvalidArgument, coreapi::ErrorCode::BadString,
-			                          "the value is not text this server can answer back unchanged");
-			refused.push_back(no);
+			refused.push_back(std::make_pair(key,
+				coreapi::Error(coreapi::Status::InvalidArgument, coreapi::ErrorCode::BadString,
+				               "the value is not text this server can answer back unchanged")));
 			continue;
 		}
 
-		coreapi::settings::BatchMember m;
-		m.key = key;
-		m.value = members[i].text;
-		batch.push_back(m);
+		/* Every other rule about the value is the layer below's: what one line of the settings
+		   file can carry, what the row declares, and what the field behind it holds. That
+		   includes the one this route exists beside: a row marked secret refuses an empty
+		   value, so a form redrawn from a read that answered nothing cannot wipe the
+		   credential. Only what passed goes on, since a value that never lands must not allow
+		   another one. */
+		coreapi::Result<void> checked = coreapi::settings::check(key, members[i].text);
+		if (!checked.ok())
+		{
+			refused.push_back(std::make_pair(key, checked.error()));
+			continue;
+		}
+		batch.values.push_back(std::make_pair(key, members[i].text));
 	}
 
-	/* Every other rule about the value is the layer below's: what one line of the settings
-	   file can carry, what the row declares, and what the field behind it holds. That
-	   includes the one this route exists beside: a row marked secret refuses an empty value,
-	   so a form redrawn from a read that answered nothing cannot wipe the credential. The
-	   layer also holds the write to the settings that are one fact in two parts, and asks
-	   every value before any is stored, so a pair does not land in part for a value it could
-	   have refused beforehand. */
-	coreapi::settings::keepTogether(batch, refused);
-
-	/* What the write leaves behind, which every value is judged on as it is stored, so a
-	   condition reading a setting the same write changes is asked against the new value
-	   whichever of the two is stored first. */
-	coreapi::settings::BatchOverlay after;
-	for (size_t b = 0; b < batch.size(); ++b)
-		after.values.push_back(std::make_pair(batch[b].key, batch[b].value));
+	/* The couplings and the conditions, judged on what the whole write leaves behind, so a
+	   pair does not land in part and a setting and the one that allows it can be sent in
+	   either order. What falls is in refused under its own key; a member the box holds
+	   already is left out, as done. */
+	coreapi::settings::settleBatch(batch, refused);
 
 	std::vector<Written> results;
-	results.reserve(members.size() + batch.size());
+	results.reserve(members.size() + batch.values.size());
 	bool all_ok = true;
 
 	/* The caller's keys in the caller's order, then what the write brought with them, which
-	   a caller finds in the answer under its own key. Only the store can still refuse one
-	   of these, which nothing beforehand can foresee. */
+	   a caller finds in the answer under its own key. What a coupling would have brought and
+	   the settling took out fell with the member that brought it, whose answer says why, so
+	   it is not answered again. Only the store can still refuse one written here, which
+	   nothing beforehand can foresee. */
 	for (size_t round = 0; round < 2; ++round)
 	{
-		const size_t count = round == 0 ? members.size() : batch.size();
+		const size_t count = round == 0 ? members.size() : batch.values.size();
 		for (size_t i = 0; i < count; ++i)
 		{
 			Written w;
-			std::string value;
+			const std::string *value = NULL;
 			if (round == 0)
 			{
 				w.key = members[i].name;
-				const coreapi::settings::BatchRefusal *no = NULL;
+				const coreapi::Error *no = NULL;
 				for (size_t n = 0; no == NULL && n < refused.size(); ++n)
 				{
-					if (refused[n].key == w.key)
-						no = &refused[n];
+					if (refused[n].first == w.key)
+						no = &refused[n].second;
 				}
 				if (no != NULL)
 				{
 					w.failed = true;
-					w.error = no->error;
+					w.error = *no;
 					w.depends_on = no->depends_on;
 					w.code = httpStatus(w.error.status);
 					all_ok = false;
 					results.push_back(w);
 					continue;
 				}
-				for (size_t b = 0; b < batch.size(); ++b)
+				for (size_t b = 0; value == NULL && b < batch.values.size(); ++b)
 				{
-					if (batch[b].key == w.key)
-						value = batch[b].value;
+					if (batch.values[b].first == w.key)
+						value = &batch.values[b].second;
+				}
+				// Left out by the settling as the value the box holds already: done.
+				if (value == NULL)
+				{
+					results.push_back(w);
+					continue;
 				}
 			}
-			else
+			bool answered = false;
+			if (round == 1)
 			{
-				if (batch[i].because.empty())
+				/* A key the caller named is answered in the first round. One whose own value
+				   was refused can still be here, put back by a coupling, as the name of the
+				   channel an id written alone brings: that value is written, or the pair would
+				   land in part, and the caller's refusal stays its answer. */
+				w.key = batch.values[i].first;
+				value = &batch.values[i].second;
+				bool named = false;
+				bool own_refused = false;
+				for (size_t m = 0; !named && m < members.size(); ++m)
+					named = members[m].name == w.key;
+				for (size_t f = 0; named && !own_refused && f < refused.size(); ++f)
+					own_refused = refused[f].first == w.key;
+				if (named && !own_refused)
 					continue;
-				w.key = batch[i].key;
-				value = batch[i].value;
+				answered = named;
+				/* What a coupling brought that the box holds already is no change: answered as
+				   written and not written again, as the source's write does. */
+				if (coreapi::settings::holdsStored(w.key, *value))
+				{
+					if (!answered)
+						results.push_back(w);
+					continue;
+				}
 			}
 
-			coreapi::Result<void> done = coreapi::settings::set(w.key, value, &after);
+			coreapi::Result<void> done = coreapi::settings::set(w.key, *value, &batch);
+			if (answered)
+			{
+				// The key has its answer; a store that failed here split the pair after all.
+				if (!done.ok())
+					all_ok = false;
+				continue;
+			}
 			if (!done.ok())
 			{
 				w.failed = true;
@@ -1392,8 +1427,10 @@ const Endpoint kSettingsEndpoints[] = {
 	  "Two settings that are one fact in two parts carry `pair` and `pair_writes` in the schema. "
 	  "The id of a start channel sent alone is taken, and the box writes the name beside it from its "
 	  "channel list; that name is answered under its own key like a key that was sent. The name sent "
-	  "alone is refused. The city and the location of the weather are refused when sent without each "
-	  "other, and sending them empties `weather_postalcode`; a postal code sent with text in the same "
+	  "alone is refused, and a name sent with the id that its own row refuses is answered so while "
+	  "the id is taken as sent alone and the name of its channel is written beside it. The city and the location of the weather are refused when sent without each "
+	  "other, and sending a place other than the one the box holds empties `weather_postalcode`; a "
+	  "postal code sent with text in the same "
 	  "request is refused together with the city. Every value of a request is checked before any of "
 	  "them is taken, so a pair is not left half written by a value that could be refused beforehand; "
 	  "only a failure to store can still split one. A setting refused because another one was is "
@@ -1403,15 +1440,16 @@ const Endpoint kSettingsEndpoints[] = {
 	  "A setting is also held to the `conditions` the schema states for it, the ones a screen of the "
 	  "box greys the setting out by: while they do not hold, it is refused "
 	  "`setting-condition-not-met`, and `depends_on` names the settings its conditions read that do "
-	  "not allow it. An entry of `values` that carries conditions of its own is refused "
-	  "`not-a-listed-value` while they do not hold. Both are judged on what the whole request leaves "
+	  "not allow it. An entry of `values` that carries conditions of its own is refused the same "
+	  "way while they do not hold, with no `depends_on`. Both are judged on what the whole request leaves "
 	  "behind, so a setting and the one that allows it can be sent together in either order; in "
 	  "separate requests, the one that allows it goes first. A key refused for any reason counts as "
 	  "not sent, so what depends on it is refused too. A key that passes every check and then fails "
 	  "to be saved cannot be foreseen, so a setting depending on it may still land. A value equal "
 	  "to the one the box holds, or to the default of a key it never stored, passes the conditions "
 	  "of its setting, so a page may send a whole section back; for an entry with conditions of its "
-	  "own, the default passes as well. A credential is never taken as unchanged.\n"
+	  "own, the default passes as well. Such a value is answered as written and not written again. "
+	  "A credential is never taken as unchanged.\n"
 	  "\n"
 	  "A setting marked `needs_restart` in the schema takes effect only the next time the box "
 	  "restarts, whatever this answers.\n"
@@ -1433,8 +1471,7 @@ const Endpoint kSettingsEndpoints[] = {
 	  "- `400 choices-unavailable`: the setting's values are the box's own and the box cannot say "
 	  "now what they are; only the value already stored and the default are taken then.\n"
 	  "- `400 not-a-listed-value`: the value is not one the setting offers, among them the id of a "
-	  "radio channel sent for the television start channel or the other way round, and an entry "
-	  "offered only while other settings allow it, which they do not.\n"
+	  "radio channel sent for the television start channel or the other way round.\n"
 	  "- `400 out-of-range`: a whole number value falls outside the min and max the schema states for "
 	  "that key, and is neither the value already stored nor the default, which stay writable after the "
 	  "box moved a range.\n"
@@ -1449,9 +1486,10 @@ const Endpoint kSettingsEndpoints[] = {
 	  "- `409 setting-not-on-this-box`: the schema marks the key not `available`; this box does not "
 	  "have what it controls.\n"
 	  "- `409 setting-condition-not-met`: the setting's `conditions` do not hold on what the request "
-	  "leaves behind, or one half of a pair was sent without the other, together with a value that "
-	  "contradicts it, or beside a partner that was refused; `depends_on` and `detail` name the "
-	  "other settings, in a single refusal as in a `207`.\n"
+	  "leaves behind, or the entry the value names is offered only while other settings allow it, "
+	  "or one half of a pair was sent without the other, together with a value that contradicts "
+	  "it, or beside a partner that was refused; `depends_on` and `detail` name the other "
+	  "settings, in a single refusal as in a `207`.\n"
 	  "- `500 channel-list-unavailable`: the id of a start channel was sent alone and the channel list "
 	  "could not be read to name it.\n"
 	  "\n"

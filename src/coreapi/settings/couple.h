@@ -21,51 +21,6 @@ namespace coreapi
 namespace settings
 {
 
-/* One setting of a write of several: one the caller named, or one the write added
-   because of the member named in because, which is empty for the caller's own. */
-struct BatchMember
-{
-	std::string key;
-	std::string value;
-	std::string because;
-};
-
-/* A member the write does not store, with the answer for it and the settings that took
-   it down, none where its own value was refused. */
-struct BatchRefusal
-{
-	std::string key;
-	Error error;
-	std::vector<std::string> depends_on;
-};
-
-/* Holds a write of several settings to the ones that are one fact in two parts, before
-   anything is stored.
-
-   A start channel is what the box zaps to, its identifier, and the name beside it is what
-   a person reads and follows from the channel list. The identifier written alone is taken
-   and brings the name of its channel with it; the name written alone names no channel and
-   is refused; both together are taken as sent, the way the box's own chooser writes them.
-
-   The weather reads only the location, so a city written without it renames the forecast
-   and leaves it where it was: the two are written together or not at all. A place written
-   that is not the one the box holds also empties the postal code a search had entered,
-   which no longer describes it, and a postal code the same write gives with text is
-   refused with the city.
-
-   Then every member is held to check(), and what passed to its conditions, the row's and
-   those of the entry its value names, judged on what the members left leave behind
-   (conditionsAllow()). One refused takes down what belongs with it: its partner, what it
-   brought, and what brought it, so a pair never lands in part for a value that could have
-   been foreseen. refused may already hold members the caller
-   refused by rules of its own; those count as written for the pairs and take their
-   partners down the same way. What is left in batch is what the caller stores. */
-void keepTogether(std::vector<BatchMember> &batch, std::vector<BatchRefusal> &refused);
-
-/* setting-condition-not-met naming the settings that refused it, in the detail after
-   message and in depends_on. */
-Error conditionRefusal(const char *message, const std::vector<std::string> &because_of);
-
 /* The other half of a setting that is one fact in two parts, NULL for any other. writes,
    where given, says how the two are written: "id" where the identifier alone is written
    and the box fills in the other half, "both" where the two are written together. */
@@ -73,10 +28,6 @@ const char *pairPartner(const std::string &key, const char **writes = NULL);
 
 // "tv" or "radio" for a start channel row, which list its channel comes from; NULL for any other.
 const char *startChannelKind(const std::string &key);
-
-/* What the panel of the LCD4Linux display takes, by its type as the driver numbers it:
-   the highest brightness. */
-long lcd4lBrightnessCeiling(long display_type);
 
 /* A setting a coupling added to the batch and the member that made it do so, so that
    an addition which cannot land takes its trigger down with it and a trigger which
@@ -122,11 +73,6 @@ public:
 	   setting with another value asked for two things that cannot both hold, so both
 	   members are refused; the same value is no contradiction and is taken as sent. */
 	bool imply(const char *key, const std::string &value, const char *because);
-
-	/* Empties the credential key because the member named because went off. The only way a
-	   batch writes nothing to a credential; held to the other rules of the row, and where it
-	   fails the member named because is refused with that answer, as for put(). */
-	bool clear(const char *key, const char *because);
 
 	// Notes that the addition under key is also due to the member named because.
 	void link(const char *key, const char *because);

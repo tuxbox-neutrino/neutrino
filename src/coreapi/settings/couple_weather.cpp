@@ -40,6 +40,13 @@ void coupleWeather(CoupledBatch &b)
 {
 	if (!b.requirePair(kWeatherPairs[0].first, kWeatherPairs[0].second))
 		return;
+	/* The place the box already holds, written back as it was, moves nothing, so it brings
+	   nothing either, as the start channel the box already starts on does. Bringing the
+	   empty postal code all the same would hold a write that changes nothing to the
+	   conditions of a setting it never named, which refuse it while the weather is off. */
+	if (b.written("weather_postalcode") == NULL && !b.changes(kWeatherPairs[0].first) &&
+	    !b.changes(kWeatherPairs[0].second))
+		return;
 	b.imply("weather_postalcode", "", "weather_city");
 	b.link("weather_postalcode", "weather_location");
 }

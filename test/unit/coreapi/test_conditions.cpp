@@ -18,6 +18,7 @@
 #include "coreapi/settings/settings.h"
 #include "coreapi/settings/settingsfield.h"
 #include "support/fakes.h"
+#include "support/settle.h"
 
 #include <string>
 #include <vector>
@@ -184,8 +185,8 @@ TEST_CASE("a value the setting already holds passes its conditions", "[settings]
 
 	// Any other value is still refused.
 	CHECK(set("t_dependent", "8").error().code == ErrorCode::SettingConditionNotMet);
-	CHECK(conditionsAllow("t_dependent", "8", BatchOverlay()).error().code == ErrorCode::SettingConditionNotMet);
-	CHECK(conditionsAllow("t_dependent", "0", BatchOverlay()).ok());
+	CHECK(settleOne("t_dependent", "8").error().code == ErrorCode::SettingConditionNotMet);
+	CHECK(settleOne("t_dependent", "0").ok());
 }
 
 TEST_CASE("the conditions are judged on what the write leaves behind", "[settings][conditions]")
@@ -194,13 +195,13 @@ TEST_CASE("the conditions are judged on what the write leaves behind", "[setting
 
 	const BatchOverlay on = overlay("t_switch", "1");
 	CHECK(set("t_dependent", "5", &on).ok());
-	CHECK(conditionsAllow("t_dependent", "6", on).ok());
+	CHECK(settleOne("t_dependent", "6", on.values).ok());
 
 	// What the write leaves behind wins over what the store holds.
 	f.store.ints["t_switch"] = 1;
 	const BatchOverlay off = overlay("t_switch", "0");
 	CHECK(set("t_dependent", "9", &off).error().code == ErrorCode::SettingConditionNotMet);
-	CHECK(conditionsAllow("t_dependent", "9", off).error().code == ErrorCode::SettingConditionNotMet);
+	CHECK(settleOne("t_dependent", "9", off.values).error().code == ErrorCode::SettingConditionNotMet);
 }
 
 TEST_CASE("an entry offered only while another setting allows it is read and written so", "[settings][conditions]")
@@ -228,10 +229,15 @@ TEST_CASE("an entry offered only while another setting allows it is read and wri
 	CHECK_FALSE(offers("t_choice", 2));
 	CHECK(set("t_choice", "2").ok());
 
-	// check() leaves the entry's own conditions to the pass that has the batch.
+	/* check() leaves the entry's own conditions to the settling, which has the batch. The
+	   settling answers it as a condition that does not hold, as the source does: the value is
+	   one the row lists, only not while the other setting is off. */
 	f.store.ints["t_choice"] = 1;
 	CHECK(check("t_choice", "2").ok());
-	CHECK(conditionsAllow("t_choice", "2", BatchOverlay()).error().code == ErrorCode::NotAListedValue);
+	Result<void> settled = settleOne("t_choice", "2");
+	REQUIRE_FALSE(settled.ok());
+	CHECK(settled.error().code == ErrorCode::SettingConditionNotMet);
+	CHECK(settled.error().depends_on.empty());
 }
 
 TEST_CASE("settings written together are judged together whatever their order", "[couple][conditions]")
@@ -319,7 +325,7 @@ TEST_CASE("a refusal by a condition is asked again until no answer changes", "[c
 	keepTogether(batch, refused);
 	CHECK(batch.empty());
 	REQUIRE(refused.size() == 2);
-	CHECK(refusalOf(refused, "t_choice")->error.code == ErrorCode::NotAListedValue);
+	CHECK(refusalOf(refused, "t_choice")->error.code == ErrorCode::SettingConditionNotMet);
 	CHECK(refusalOf(refused, "t_dependent")->error.code == ErrorCode::SettingConditionNotMet);
 }
 
@@ -347,4 +353,29 @@ TEST_CASE("two settings whose new values refuse each other are both refused in e
 	keepTogether(one, none);
 	CHECK(none.empty());
 	CHECK(one.size() == 1);
+}
+
+TEST_CASE("writeBatch writes what settles and answers what falls", "[settings][conditions]")
+{
+	Fixture f;
+
+	std::vector<std::pair<std::string, std::string> > both;
+	both.push_back(std::make_pair(std::string("t_dependent"), std::string("5")));
+	both.push_back(std::make_pair(std::string("t_switch"), std::string("1")));
+	Refusals failed;
+	writeBatch(both, failed);
+	CHECK(failed.empty());
+	CHECK(f.store.ints["t_dependent"] == 5);
+	CHECK(f.store.ints["t_switch"] == 1);
+
+	// Alone and with the switch off, the dependent value is refused and nothing is written.
+	f.store.ints["t_switch"] = 0;
+	std::vector<std::pair<std::string, std::string> > alone;
+	alone.push_back(std::make_pair(std::string("t_dependent"), std::string("6")));
+	failed.clear();
+	writeBatch(alone, failed);
+	REQUIRE(failed.size() == 1);
+	CHECK(failed[0].first == "t_dependent");
+	CHECK(failed[0].second.code == ErrorCode::SettingConditionNotMet);
+	CHECK(f.store.ints["t_dependent"] == 5);
 }
