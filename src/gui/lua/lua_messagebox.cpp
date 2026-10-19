@@ -91,24 +91,28 @@ int CLuaInstMessagebox::MessageboxExec(lua_State *L)
 
 	lua_pushstring(L, "buttons");
 	lua_gettable(L, -2);
-	for (lua_pushnil(L); lua_next(L, -2); lua_pop(L, 2)) {
-		lua_pushvalue(L, -2);
-		const char *val = lua_tostring(L, -2);
-		table_key mb[] = {
-			{ "yes",	CMsgBox::mbYes },
-			{ "no",		CMsgBox::mbNo },
-			{ "cancel",	CMsgBox::mbCancel },
-			{ "all",	CMsgBox::mbAll },
-			{ "back",	CMsgBox::mbBack },
-			{ "ok",		CMsgBox::mbOk },
-			{ NULL,		0 }
-		};
-		for (int i = 0; mb[i].name; i++)
-			if (!strcmp(mb[i].name, val)) {
-				show_buttons |= mb[i].code;
-				break;
-			}
-	}
+	// "buttons" may be left out; walking anything but a table crashes
+	if (lua_istable(L, -1))
+		for (lua_pushnil(L); lua_next(L, -2); lua_pop(L, 2)) {
+			lua_pushvalue(L, -2);
+			const char *val = lua_tostring(L, -2);
+			if (val == NULL)
+				continue;
+			table_key mb[] = {
+				{ "yes",	CMsgBox::mbYes },
+				{ "no",		CMsgBox::mbNo },
+				{ "cancel",	CMsgBox::mbCancel },
+				{ "all",	CMsgBox::mbAll },
+				{ "back",	CMsgBox::mbBack },
+				{ "ok",		CMsgBox::mbOk },
+				{ NULL,		0 }
+			};
+			for (int i = 0; mb[i].name; i++)
+				if (!strcmp(mb[i].name, val)) {
+					show_buttons |= mb[i].code;
+					break;
+				}
+		}
 	lua_pop(L, 1);
 	if ((show_buttons & 0xFF) == 0)
 		show_buttons |= CMsgBox::mbAll;
