@@ -443,7 +443,8 @@ const char *badNumberSays(ParamType t)
 {
 	switch (t)
 	{
-		case ParamType::UInt:      return "is not a whole number of none or more";
+		case ParamType::UInt:
+		case ParamType::Size:      return "is not a whole number of none or more";
 		case ParamType::ChannelId: return "is not a hexadecimal identifier";
 		case ParamType::Time:      return "is not a whole number of seconds";
 		case ParamType::Int:
@@ -529,6 +530,7 @@ bool checkValue(const Param &p, const std::string &text, Value &v, Response &ref
 			return true;
 		}
 		case ParamType::UInt:
+		case ParamType::Size:
 		{
 			unsigned long long n = 0;
 			if (!parseUnsignedDec(text, n))
@@ -537,8 +539,9 @@ bool checkValue(const Param &p, const std::string &text, Value &v, Response &ref
 				return false;
 			}
 			// The same narrowing as above, and unexercised here for the same
-			// reason.
-			if ((unsigned long long)(unsigned long) n != n)
+			// reason. A size is read into sixty four bits on every box, so it
+			// meets no such ceiling.
+			if (p.type == ParamType::UInt && (unsigned long long)(unsigned long) n != n)
 			{
 				refusal = badParam(coreapi::ErrorCode::OutOfRange, p.name, kTooWide);
 				return false;
@@ -1291,7 +1294,7 @@ bool endpointIsSane(const Endpoint &ep, Shape &shape, std::string *why)
 		}
 
 		const bool numeric = (p.type == ParamType::Int || p.type == ParamType::UInt ||
-		                      p.type == ParamType::Time);
+		                      p.type == ParamType::Time || p.type == ParamType::Size);
 		if (whole)
 		{
 			/* Read as a count of what the body carries and not as bounds on one value, there
@@ -1306,7 +1309,7 @@ bool endpointIsSane(const Endpoint &ep, Shape &shape, std::string *why)
 		{
 			if (p.min > p.max)
 				return say(why, where + "parameter " + p.name + " is bounded below above its ceiling");
-			if (p.type == ParamType::UInt && p.min < 0)
+			if ((p.type == ParamType::UInt || p.type == ParamType::Size) && p.min < 0)
 				return say(why, where + "parameter " + p.name + " is bounded below zero and holds none or more");
 		}
 		else if (p.type == ParamType::String)
@@ -1498,10 +1501,13 @@ void parameterRefusals(const Endpoint &ep,
 		if (p.in != In::Path && p.required && required == NULL)
 			required = &p;
 		const bool numeric = p.type == ParamType::Int || p.type == ParamType::UInt ||
-		                     p.type == ParamType::Time;
+		                     p.type == ParamType::Time || p.type == ParamType::Size;
 		if ((numeric || p.type == ParamType::ChannelId) && number == NULL)
 			number = &p;
-		if (numeric && ranged == NULL)
+		// A size the row does not bound has no range to leave: it is read into
+		// sixty four bits, and a number past those is not a number here at all.
+		const bool unbounded_size = p.type == ParamType::Size && p.min == 0 && p.max == 0;
+		if (numeric && !unbounded_size && ranged == NULL)
 			ranged = &p;
 		if (p.type == ParamType::Bool && flag == NULL)
 			flag = &p;

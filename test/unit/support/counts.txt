@@ -54,7 +54,7 @@ locale names the program has	3083
 memory backed folders tried	1
 options an applier or its notifier branches on	49
 parameters the document describes	186
-refusals the document states against a route	1215
+refusals the document states against a route	1214
 refusals the routes declare of their own	225
 refusals the shipped routes were seen to give	315
 routes the document describes	131

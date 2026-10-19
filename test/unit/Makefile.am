@@ -116,6 +116,7 @@ coreapi_tests_SOURCES = \
 	httpd/test_login_bridge.cpp \
 	httpd/test_netmatch.cpp \
 	httpd/test_webconfig.cpp \
+	httpd/test_size_param.cpp \
 	nhttpd/yhttpd_stubs.cpp \
 	support/counts.cpp \
 	support/answers.cpp \

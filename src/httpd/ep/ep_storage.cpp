@@ -366,7 +366,7 @@ Response appendFile(const Request &r)
 {
 	confine();
 	coreapi::Result<void> done = coreapi::storage::appendFile(r.asString("path"),
-								  (uint64_t) r.asUInt("offset"), r.body());
+								  r.asSize("offset"), r.body());
 	if (!done.ok())
 		return problemFor(done.error());
 	return noContent();
@@ -617,7 +617,7 @@ const Param kRenameParams[] = {
 const Param kAppendParams[] = {
 	HTTPD_QUERY_REQUIRED("path", ParamType::String,
 		"the file to add to, a plain file inside the roots"),
-	HTTPD_QUERY_REQUIRED("offset", ParamType::UInt,
+	HTTPD_QUERY_REQUIRED("offset", ParamType::Size,
 		"where the piece goes, which has to be the file's length now: what the earlier pieces add up to"),
 	HTTPD_BODY_IS_BYTES("piece", "the next bytes of the file, sent as they are and not wrapped in anything", 0, 0),
 };
@@ -921,7 +921,9 @@ const Endpoint kStorageEndpoints[] = {
 	  "`PUT /api/v1/storage/file` under a name of its own, every further one is added here at "
 	  "the length the file has reached, and `POST /api/v1/storage/rename` gives it its real name "
 	  "at the end. A piece sent twice or one that went missing is refused, and the file is left "
-	  "as it was; its length says where to go on from. `204` means the bytes are in the file.\n\n"
+	  "as it was; its length says where to go on from. `204` means the bytes are in the file. "
+	  "`offset` is read as sixty four bits on every box, so a file goes past 4 GiB on one "
+	  "whose own numbers are thirty two bits wide.\n\n"
 	  "**Preconditions:** `path` has to resolve inside one of the roots, name a plain file and "
 	  "not be the web server's own access store; `offset` has to be its length now.\n\n"
 	  "**Side effects:** makes the named file longer by the body.\n\n"

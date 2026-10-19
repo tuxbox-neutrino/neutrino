@@ -105,6 +105,14 @@ time_t Request::asTime(const char *name) const
 	return (time_t) b->value.number;
 }
 
+uint64_t Request::asSize(const char *name) const
+{
+	const Bound *b = find(name);
+	if (b == NULL || b->value.type != ParamType::Size)
+		return 0;
+	return (uint64_t) b->value.unumber;
+}
+
 // The text of any type, so a handler that wants the bytes a number arrived as
 // can have them, and the one type whose value is only ever text.
 const std::string &Request::asString(const char *name) const

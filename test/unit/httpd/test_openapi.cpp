@@ -127,6 +127,7 @@ std::string wireType(ParamType t)
 		case ParamType::String:    return "string";
 		case ParamType::Enum:      return "string";
 		case ParamType::ChannelId: return "string";
+		case ParamType::Size:      return "integer";
 	}
 	return "";
 }
@@ -416,6 +417,16 @@ Constraints impliedBy(const Param &p)
 				c.has_max = true; c.max = p.max;
 			}
 			break;
+		// Local resolution: a kind this tree adds, a UInt named sixty four bits wide.
+		case ParamType::Size:
+			c.has_format = true;
+			c.has_min = true;
+			c.min = (bounded && p.min > 0) ? p.min : 0;
+			if (bounded)
+			{
+				c.has_max = true; c.max = p.max;
+			}
+			break;
 		case ParamType::String:
 			c.has_max_length = (p.max > 0);
 			/* A set the build decides, which the table does not state and the document
@@ -469,7 +480,7 @@ void checkConstraints(const ::Json::Value &schema, const Param &p)
 
 	REQUIRE(schema.isMember("format") == c.has_format);
 	if (c.has_format)
-		REQUIRE(schema["format"].asString() == "unix-time");
+		REQUIRE(schema["format"].asString() == (p.type == ParamType::Size ? "int64" : "unix-time"));
 
 	REQUIRE(schema.isMember("enum") == !c.values.empty());
 	if (!c.values.empty())
@@ -1563,7 +1574,7 @@ TEST_CASE("the body a reader starts from carries every member the route takes", 
 				if (p.type == ParamType::Bool)
 					REQUIRE(value.isBool());
 				else if (p.type == ParamType::Int || p.type == ParamType::UInt ||
-				         p.type == ParamType::Time)
+				         p.type == ParamType::Time || p.type == ParamType::Size)
 					REQUIRE(value.isIntegral());
 				else
 					REQUIRE(value.isString());
@@ -1571,7 +1582,8 @@ TEST_CASE("the body a reader starts from carries every member the route takes", 
 					REQUIRE(listedIn(body["schema"]["properties"][p.name]["enum"], value.asString()));
 				if (p.min != 0 || p.max != 0)
 				{
-					if (p.type == ParamType::Int || p.type == ParamType::UInt || p.type == ParamType::Time)
+					if (p.type == ParamType::Int || p.type == ParamType::UInt || p.type == ParamType::Time ||
+					    p.type == ParamType::Size)
 					{
 						REQUIRE(value.asLargestInt() >= p.min);
 						REQUIRE(value.asLargestInt() <= p.max);

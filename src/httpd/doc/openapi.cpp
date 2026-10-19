@@ -458,6 +458,22 @@ void appendParamType(Json &j, const Param &p, bool with_bounds = true)
 				j.value(p.max);
 			}
 			return;
+		case ParamType::Size:
+			/* A number like UInt, and named sixty four bits wide, which is the whole of
+			   why it is its own kind: past 4 GiB where a box holds a long in four bytes.
+			   A browser's number holds a size exactly up to 8 PiB. */
+			j.key("type");
+			j.value("integer");
+			j.key("format");
+			j.value("int64");
+			j.key("minimum");
+			j.value((bounded && p.min > 0) ? p.min : 0L);
+			if (bounded)
+			{
+				j.key("maximum");
+				j.value(p.max);
+			}
+			return;
 	}
 	/* No default above, and an unhandled enumerator is an error in this
 	   directory, so a kind added without a description stops the build and
@@ -789,6 +805,7 @@ void appendExampleValue(Json &j, const Param &p, unsigned nth)
 	{
 		case ParamType::Int:
 		case ParamType::UInt:
+		case ParamType::Size:
 			j.value(bounded ? p.min : 0L);
 			return;
 		case ParamType::Time:

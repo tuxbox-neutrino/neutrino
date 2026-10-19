@@ -54,7 +54,11 @@ enum class ParamType
 	String,
 	Enum,
 	ChannelId,
-	Time
+	Time,
+	/* A count of bytes, or a place in a file counted in bytes. Read into sixty four
+	   bits on every box, where UInt holds what a long does: four bytes on a box like
+	   the H7, which ends it at 4 GiB, below the size of a recording. */
+	Size
 };
 
 /* What a caller has to be to reach an endpoint. The order of the members is the
@@ -274,7 +278,7 @@ struct Value
 	ParamType          type;
 	std::string        text;      // as it arrived, once decoded
 	long long          number;    // Int and Time
-	unsigned long long unumber;   // UInt and ChannelId
+	unsigned long long unumber;   // UInt, ChannelId and Size
 	bool               flag;      // Bool
 
 	Value() : type(ParamType::String), number(0), unumber(0), flag(false) {}
@@ -299,6 +303,7 @@ class Request
 		bool          asBool(const char *name) const;
 		uint64_t      asChannelId(const char *name) const;
 		time_t        asTime(const char *name) const;
+		uint64_t      asSize(const char *name) const;
 		const std::string &asString(const char *name) const;
 
 		/* The bytes of the body as they arrived and as nothing here changed them.

@@ -6528,6 +6528,29 @@ TEST_CASE("a file too large for one request goes up in pieces and takes its name
 	REQUIRE(readText(name) == "newer");
 }
 
+/* Past 4 GiB the offset is read as sixty four bits on every box. The file is made that
+   long as a hole, so the case writes a few bytes and not four gigabytes. */
+TEST_CASE("a piece goes on past 4 GiB, and its offset is never read short", "[write][storage]")
+{
+	ShippedRoutes shipped;
+	RootsFixture roots;
+	const std::string part = roots.box.at(".huge.bin.upload");
+	REQUIRE(authedPut("/api/v1/storage/file?path=" + part, "x").code == 201);
+
+	/* A file one byte long refuses a piece at 2^32 + 1 as the wrong place. Cut to
+	   thirty two bits, that offset would be 1 and the piece would land. */
+	const Reply cut = authedPatch("/api/v1/storage/file?path=" + part + "&offset=4294967297", "y");
+	REQUIRE(cut.code == 409);
+	REQUIRE(cut.body.find("offset-mismatch") != std::string::npos);
+	REQUIRE(readText(part) == "x");
+
+	REQUIRE(::truncate(part.c_str(), (off_t) 4294967297LL) == 0);
+	REQUIRE(authedPatch("/api/v1/storage/file?path=" + part + "&offset=4294967297", "tail").code == 204);
+	struct stat st;
+	REQUIRE(::stat(part.c_str(), &st) == 0);
+	REQUIRE((unsigned long long) st.st_size == 4294967301ULL);
+}
+
 TEST_CASE("the roots route names every root and whether it is there", "[write][storage]")
 {
 	ShippedRoutes shipped;
