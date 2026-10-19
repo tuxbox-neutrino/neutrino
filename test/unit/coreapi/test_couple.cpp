@@ -49,6 +49,9 @@ struct Box
 	Box() : in_channels(&channels)
 	{
 		setSettingsSource(&settings);
+		/* The start channels are changeable only while the box does not start on the last
+		   channel, which is what it does by default. */
+		settings.ints["uselastchannel"] = 0;
 		channels.channels.push_back(mk(kTv, "First Channel Television HD", ServiceKind::Tv));
 		channels.channels.push_back(mk(kRadio, "First Channel Radio Programme", ServiceKind::Radio));
 		// A number sign is what no line of the settings file can hold.
@@ -109,6 +112,33 @@ TEST_CASE("the id of a start channel written alone brings the name of its channe
 	REQUIRE(radio != NULL);
 	CHECK(radio->value == "First Channel Radio Programme");
 	CHECK(radio->because == "startchannelradio_id");
+}
+
+TEST_CASE("a start channel is refused while the box starts on the last channel", "[couple][conditions]")
+{
+	Box box;
+	box.settings.ints["uselastchannel"] = 1;
+	std::vector<BatchMember> batch;
+	add(batch, "startchanneltv_id", hex(kTv));
+	std::vector<BatchRefusal> refused;
+	keepTogether(batch, refused);
+
+	// The id and what it brought are refused together, naming the setting that greys them out.
+	CHECK(batch.empty());
+	const BatchRefusal *id = refusal(refused, "startchanneltv_id");
+	REQUIRE(id != NULL);
+	CHECK(id->error.code == ErrorCode::SettingConditionNotMet);
+	REQUIRE(id->depends_on.size() == 1);
+	CHECK(id->depends_on[0] == "uselastchannel");
+
+	// Written with the switch that allows it, both land.
+	batch.clear();
+	refused.clear();
+	add(batch, "startchanneltv_id", hex(kTv));
+	add(batch, "uselastchannel", "0");
+	keepTogether(batch, refused);
+	CHECK(refused.empty());
+	CHECK(member(batch, "startchanneltv") != NULL);
 }
 
 TEST_CASE("a start channel's name written alone is refused as one fact with its id", "[couple]")
@@ -283,6 +313,39 @@ TEST_CASE("the city and the location of the weather are written together or not 
 	REQUIRE(postal != NULL);
 	CHECK(postal->value.empty());
 	CHECK(postal->because == "weather_city");
+}
+
+TEST_CASE("the place written back unchanged passes while the weather is off", "[couple][conditions]")
+{
+	Box box;
+	box.settings.ints["weather_enabled"] = 0;
+	box.settings.strings["weather_city"] = "Berlin";
+	box.settings.strings["weather_location"] = "52.52,13.40";
+	box.settings.strings["weather_postalcode"] = "10178";
+
+	// What a reader sent back as it read it changes nothing and brings nothing.
+	std::vector<BatchMember> batch;
+	add(batch, "weather_city", "Berlin");
+	add(batch, "weather_location", "52.52,13.40");
+	std::vector<BatchRefusal> refused;
+	keepTogether(batch, refused);
+	CHECK(refused.empty());
+	CHECK(batch.size() == 2);
+	CHECK(member(batch, "weather_postalcode") == NULL);
+
+	// Another place is a change, which the weather being off refuses, naming it.
+	batch.clear();
+	refused.clear();
+	add(batch, "weather_city", "Hamburg");
+	add(batch, "weather_location", "53.55,9.99");
+	keepTogether(batch, refused);
+	CHECK(batch.empty());
+	const BatchRefusal *city = refusal(refused, "weather_city");
+	REQUIRE(city != NULL);
+	CHECK(city->error.code == ErrorCode::SettingConditionNotMet);
+	REQUIRE(city->depends_on.size() == 1);
+	CHECK(city->depends_on[0] == "weather_enabled");
+	CHECK(refusal(refused, "weather_location") != NULL);
 }
 
 TEST_CASE("a postal code with text contradicts the place written with it", "[couple]")

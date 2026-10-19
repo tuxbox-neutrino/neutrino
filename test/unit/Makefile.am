@@ -52,6 +52,7 @@ coreapi_tests_SOURCES = \
 	coreapi/test_result.cpp \
 	coreapi/test_keys.cpp \
 	coreapi/test_choicesources.cpp \
+	coreapi/test_conditions.cpp \
 	coreapi/test_couple.cpp \
 	coreapi/test_available.cpp \
 	lib/connection/test_basicclient.cpp \

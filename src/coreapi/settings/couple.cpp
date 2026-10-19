@@ -114,11 +114,7 @@ void refuseWith(std::vector<BatchMember> &batch, std::vector<BatchRefusal> &refu
 void refuseFor(std::vector<BatchMember> &batch, std::vector<BatchRefusal> &refused,
 	       const std::string &key, const char *message, const std::vector<std::string> &because_of)
 {
-	std::string said = message;
-	for (size_t i = 0; i < because_of.size(); ++i)
-		said += (i == 0 ? ": " : ", ") + because_of[i];
-	refuseWith(batch, refused, key, Error(Status::Conflict, ErrorCode::SettingConditionNotMet, said),
-		   because_of);
+	refuseWith(batch, refused, key, conditionRefusal(message, because_of), because_of);
 }
 
 void refuseFor(std::vector<BatchMember> &batch, std::vector<BatchRefusal> &refused,
@@ -226,6 +222,19 @@ void coupleWeather(std::vector<BatchMember> &batch, std::vector<BatchRefusal> &r
 	}
 	if (refusedBefore(refused, kPostalCode))
 		return;
+
+	/* The place the box already holds, written back as it was, moves nothing, so it brings
+	   nothing either, as the start channel the box already starts on does. Bringing the
+	   empty postal code all the same would hold a write that changes nothing to the
+	   conditions of a setting it never named, which refuse it while the weather is off. */
+	const BatchMember *city = find(batch, kCity);
+	const BatchMember *location = find(batch, kLocation);
+	Result<std::string> city_was = get(kCity);
+	Result<std::string> location_was = get(kLocation);
+	if (city != NULL && location != NULL && city_was.ok() && location_was.ok() &&
+	    city->value == city_was.value() && location->value == location_was.value())
+		return;
+
 	BatchMember brought;
 	brought.key = kPostalCode;
 	brought.because = kCity;
@@ -270,6 +279,43 @@ void keepTogether(std::vector<BatchMember> &batch, std::vector<BatchRefusal> &re
 		batch.erase(batch.begin() + i);
 		refuseWith(batch, refused, because, fits.error(), std::vector<std::string>());
 		i = 0;
+	}
+
+	/* Then the conditions, the row's and those of the entry a value names, judged on what
+	   the members left would leave behind. Every member they refuse in a round is taken out
+	   together, as the source's settling does, so the order of the members does not decide
+	   which of two that refuse each other lands: both are refused. A member taken out no
+	   longer lands, so the rest are asked again until no answer changes; the members only
+	   ever leave, so this ends. What the write brought answers for what brought it, as
+	   above. */
+	for (bool again = true; again;)
+	{
+		BatchOverlay after;
+		for (size_t i = 0; i < batch.size(); ++i)
+			after.values.push_back(std::make_pair(batch[i].key, batch[i].value));
+		std::vector<BatchMember> failing;
+		std::vector<Error> why;
+		for (size_t i = 0; i < batch.size(); ++i)
+		{
+			Result<void> allowed = conditionsAllow(batch[i].key, batch[i].value, after);
+			if (allowed.ok())
+				continue;
+			failing.push_back(batch[i]);
+			why.push_back(allowed.error());
+		}
+		for (size_t f = 0; f < failing.size(); ++f)
+		{
+			if (failing[f].because.empty())
+			{
+				refuseWith(batch, refused, failing[f].key, why[f], why[f].depends_on);
+				continue;
+			}
+			BatchMember *brought = find(batch, failing[f].key.c_str());
+			if (brought != NULL)
+				batch.erase(batch.begin() + (brought - &batch[0]));
+			refuseWith(batch, refused, failing[f].because, why[f], why[f].depends_on);
+		}
+		again = !failing.empty();
 	}
 
 	/* A refused half takes the rest of its pair down, and what the write brought for it.

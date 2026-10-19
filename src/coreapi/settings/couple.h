@@ -47,12 +47,15 @@ struct BatchRefusal
 
    The weather reads only the location, so a city written without it renames the forecast
    and leaves it where it was: the two are written together or not at all. A place written
-   also empties the postal code a search had entered, which no longer describes it, and a
-   postal code the same write gives with text is refused with the city.
+   that is not the one the box holds also empties the postal code a search had entered,
+   which no longer describes it, and a postal code the same write gives with text is
+   refused with the city.
 
-   Then every member is held to check(). One the row refuses takes down what belongs with
-   it: its partner, what it brought, and what brought it, so a pair never lands in part
-   for a value that could have been foreseen. refused may already hold members the caller
+   Then every member is held to check(), and what passed to its conditions, the row's and
+   those of the entry its value names, judged on what the members left leave behind
+   (conditionsAllow()). One refused takes down what belongs with it: its partner, what it
+   brought, and what brought it, so a pair never lands in part for a value that could have
+   been foreseen. refused may already hold members the caller
    refused by rules of its own; those count as written for the pairs and take their
    partners down the same way. What is left in batch is what the caller stores. */
 void keepTogether(std::vector<BatchMember> &batch, std::vector<BatchRefusal> &refused);

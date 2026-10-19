@@ -430,7 +430,7 @@ void valuesOf(const coreapi::Descriptor &d, RowValues &out)
 		for (size_t i = 0; d.values != NULL && i < d.value_count; ++i)
 		{
 			// An entry this box lacks is not offered, as the write turns it down.
-			if (!coreapi::entryOffered(d.values[i]))
+			if (!coreapi::settings::entryOfferedNow(d.values[i]))
 				continue;
 			j.beginObject();
 			j.key("value");
@@ -905,7 +905,8 @@ struct Written
 
 Response oneKeyRefused(const Written &w)
 {
-	return problemResponse(w.code, w.error.code, w.error.message);
+	// The whole error, so the settings a condition names go back as in a 207.
+	return problemResponse(w.code, w.error);
 }
 
 /* Several outcomes as one answer, with a result per key.
@@ -1063,6 +1064,13 @@ Response settingsWrite(const Request &r)
 	   have refused beforehand. */
 	coreapi::settings::keepTogether(batch, refused);
 
+	/* What the write leaves behind, which every value is judged on as it is stored, so a
+	   condition reading a setting the same write changes is asked against the new value
+	   whichever of the two is stored first. */
+	coreapi::settings::BatchOverlay after;
+	for (size_t b = 0; b < batch.size(); ++b)
+		after.values.push_back(std::make_pair(batch[b].key, batch[b].value));
+
 	std::vector<Written> results;
 	results.reserve(members.size() + batch.size());
 	bool all_ok = true;
@@ -1110,11 +1118,12 @@ Response settingsWrite(const Request &r)
 				value = batch[i].value;
 			}
 
-			coreapi::Result<void> done = coreapi::settings::set(w.key, value);
+			coreapi::Result<void> done = coreapi::settings::set(w.key, value, &after);
 			if (!done.ok())
 			{
 				w.failed = true;
 				w.error = done.error();
+				w.depends_on = done.error().depends_on;
 				w.code = httpStatus(w.error.status);
 				all_ok = false;
 			}
@@ -1391,6 +1400,19 @@ const Endpoint kSettingsEndpoints[] = {
 	  "answered `setting-condition-not-met`, and in a `207` its `depends_on` lists the settings that "
 	  "took it down.\n"
 	  "\n"
+	  "A setting is also held to the `conditions` the schema states for it, the ones a screen of the "
+	  "box greys the setting out by: while they do not hold, it is refused "
+	  "`setting-condition-not-met`, and `depends_on` names the settings its conditions read that do "
+	  "not allow it. An entry of `values` that carries conditions of its own is refused "
+	  "`not-a-listed-value` while they do not hold. Both are judged on what the whole request leaves "
+	  "behind, so a setting and the one that allows it can be sent together in either order; in "
+	  "separate requests, the one that allows it goes first. A key refused for any reason counts as "
+	  "not sent, so what depends on it is refused too. A key that passes every check and then fails "
+	  "to be saved cannot be foreseen, so a setting depending on it may still land. A value equal "
+	  "to the one the box holds, or to the default of a key it never stored, passes the conditions "
+	  "of its setting, so a page may send a whole section back; for an entry with conditions of its "
+	  "own, the default passes as well. A credential is never taken as unchanged.\n"
+	  "\n"
 	  "A setting marked `needs_restart` in the schema takes effect only the next time the box "
 	  "restarts, whatever this answers.\n"
 	  "\n"
@@ -1411,7 +1433,8 @@ const Endpoint kSettingsEndpoints[] = {
 	  "- `400 choices-unavailable`: the setting's values are the box's own and the box cannot say "
 	  "now what they are; only the value already stored and the default are taken then.\n"
 	  "- `400 not-a-listed-value`: the value is not one the setting offers, among them the id of a "
-	  "radio channel sent for the television start channel or the other way round.\n"
+	  "radio channel sent for the television start channel or the other way round, and an entry "
+	  "offered only while other settings allow it, which they do not.\n"
 	  "- `400 out-of-range`: a whole number value falls outside the min and max the schema states for "
 	  "that key, and is neither the value already stored nor the default, which stay writable after the "
 	  "box moved a range.\n"
@@ -1425,9 +1448,10 @@ const Endpoint kSettingsEndpoints[] = {
 	  "changes it.\n"
 	  "- `409 setting-not-on-this-box`: the schema marks the key not `available`; this box does not "
 	  "have what it controls.\n"
-	  "- `409 setting-condition-not-met`: one half of a pair was sent without the other, together "
-	  "with a value that contradicts it, or beside a partner that was refused; `detail` names the "
-	  "other settings.\n"
+	  "- `409 setting-condition-not-met`: the setting's `conditions` do not hold on what the request "
+	  "leaves behind, or one half of a pair was sent without the other, together with a value that "
+	  "contradicts it, or beside a partner that was refused; `depends_on` and `detail` name the "
+	  "other settings, in a single refusal as in a `207`.\n"
 	  "- `500 channel-list-unavailable`: the id of a start channel was sent alone and the channel list "
 	  "could not be read to name it.\n"
 	  "\n"

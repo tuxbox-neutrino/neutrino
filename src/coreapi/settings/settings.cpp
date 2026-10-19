@@ -24,8 +24,10 @@
 #include "coreapi/base/deps.h"
 #include "coreapi/base/errors.h"
 #include "coreapi/base/eventbus.h"
+#include "coreapi/settings/couple.h"
 #include "settingstable.h"
 
+#include <algorithm>
 #include <mutex>
 #include <set>
 #include <vector>
@@ -66,6 +68,12 @@ std::string decimal(long value)
 	char out[32];
 	snprintf(out, sizeof(out), "%ld", value);
 	return std::string(out);
+}
+
+// The kinds whose value travels as text: the rest are numbers, a key code too.
+bool holdsText(const Descriptor &d)
+{
+	return d.type == ValueType::String;
 }
 
 /* Strict, because the whole of the value is what was offered: a parse that
@@ -385,9 +393,8 @@ const std::string *batchValue(const BatchOverlay *batch, const Descriptor &row)
    cannot see must not be what refuses its write. */
 bool readNumberAfterBatch(const char *key, long *value, void *context)
 {
-	const Descriptor *row = findRow(key);
-	if (row == NULL || holdsText(*row) || row->type == ValueType::List ||
-	    row->type == ValueType::Records)
+	const Descriptor *row = settings::row(key);
+	if (row == NULL || holdsText(*row))
 		return false;
 
 	const std::string *sent = batchValue(static_cast<const BatchOverlay *>(context), *row);
@@ -406,7 +413,7 @@ bool readNumberAfterBatch(const char *key, long *value, void *context)
 
 bool readTextAfterBatch(const char *key, std::string *value, void *context)
 {
-	const Descriptor *row = findRow(key);
+	const Descriptor *row = settings::row(key);
 	if (row == NULL || !holdsText(*row))
 		return false;
 
@@ -466,8 +473,11 @@ std::vector<std::string> failingKeys(const Descriptor &d, const ValueLookup &loo
 Result<void> allowedByConditions(const Descriptor &d, const BatchOverlay *batch, const std::string *value = NULL)
 {
 	const ValueLookup after_batch = lookupAfter(batch);
-	// A batch has been through the couplings, and for such a pair theirs is the answer.
-	if (!(batch != NULL && judgedByCoupling(d)) && !conditionsHold(d, after_batch))
+	/* The source leaves a pair to its couplings where the row's conditions read only its
+	   partner. No row of this tree has such conditions (the start channel and the weather
+	   place read uselastchannel and weather_enabled), and its couplings judge none, so
+	   every row is judged by its own conditions here. */
+	if (!conditionsHold(d, after_batch))
 		return Result<void>::failure(conditionRefusal("the settings this one depends on do not allow it to be set",
 							      failingKeys(d, after_batch)));
 
@@ -692,7 +702,8 @@ namespace
 
 /* Every rule set() holds a value to before the store, with the number a number row
    stores in number. Shared by set() and check(), so the two cannot come to disagree. */
-Result<void> heldToRow(const Descriptor *d, const std::string &value, long &number)
+Result<void> heldToRow(const Descriptor *d, const std::string &value, long &number,
+		       const BatchOverlay *batch = NULL, bool ignoreWhen = false)
 {
 	// Ahead of every rule about the value: a row the lock fixes takes none.
 	if (lockedNow(d->key))
@@ -796,7 +807,7 @@ Result<void> heldToRow(const Descriptor *d, const std::string &value, long &numb
 	{
 		std::vector<SettingChoice> offered;
 		bool listed = false;
-		const bool stated = valuesOffered(*d, offered);
+		const bool stated = valuesOffered(*d, offered, batch, ignoreWhen);
 		for (size_t i = 0; stated && !listed && i < offered.size(); ++i)
 			listed = offered[i].value == number;
 		/* The default and the stored value pass again, as for a number: what a box
@@ -817,7 +828,7 @@ Result<void> heldToRow(const Descriptor *d, const std::string &value, long &numb
 		   hold, as the read then offers a free number. The default and the stored value
 		   pass, the store read only on a refusal. */
 		std::vector<SettingChoice> offered;
-		bool listed = !valuesOffered(*d, offered);
+		bool listed = !valuesOffered(*d, offered, batch, ignoreWhen);
 		for (size_t i = 0; !listed && i < offered.size(); ++i)
 			listed = offered[i].value == number;
 		if (!listed && !keptValue(*d, number))
@@ -828,7 +839,57 @@ Result<void> heldToRow(const Descriptor *d, const std::string &value, long &numb
 	return ok();
 }
 
+/* Whether value is what the row holds now, the default for a key the store has never
+   held. A value the store cannot be asked about is no match, and neither is any value of a
+   credential: answering ok to a guess that matched would tell it apart from one that did
+   not. */
+bool sameAsStored(const Descriptor &d, const std::string &value)
+{
+	if (d.secret)
+		return false;
+	if (holdsText(d))
+	{
+		std::string stored;
+		const Status s = settingsSource().readString(d.key, stored);
+		if (s == Status::NotFound)
+			stored = d.default_string != NULL ? d.default_string : "";
+		else if (s != Status::Ok)
+			return false;
+		return stored == value;
+	}
+	long number = 0;
+	if (!parseNumber(value, number))
+		return false;
+	long stored = 0;
+	const Status s = settingsSource().readInt(d.key, stored);
+	if (s == Status::NotFound)
+		stored = defaultInt(d);
+	else if (s != Status::Ok)
+		return false;
+	return stored == number;
+}
+
 } // anonymous namespace
+
+bool entryOfferedNow(const EnumValue &e)
+{
+	return entryOffered(e, lookupAfter(NULL));
+}
+
+Result<void> conditionsAllow(const std::string &key, const std::string &value, const BatchOverlay &after)
+{
+	const Descriptor *d = row(key);
+	if (d == NULL)
+		return fail(Status::NotFound, ErrorCode::UnknownSetting,
+			    "no setting is declared under that key");
+	/* As in the source: asked, and the answer dropped for a value the store holds, since
+	   writing back what a row holds is no change for the conditions to judge, and a client
+	   that sends a whole section back must not be refused for a row it did not touch. */
+	Result<void> allowed = allowedByConditions(*d, &after, &value);
+	if (!allowed.ok() && sameAsStored(*d, value))
+		return ok();
+	return allowed;
+}
 
 bool lockedNow(const std::string &key)
 {
@@ -853,10 +914,10 @@ Result<void> check(const std::string &key, const std::string &value)
 			    "no setting is declared under that key");
 	long number = 0;
 	// The entries' own conditions wait for the batch, which the first pass of a batch has not got.
-	return heldToRow(d, value, number);
+	return heldToRow(d, value, number, NULL, true);
 }
 
-Result<void> set(const std::string &key, const std::string &value)
+Result<void> set(const std::string &key, const std::string &value, const BatchOverlay *after)
 {
 	const Descriptor *d = row(key);
 	if (d == NULL)
@@ -864,9 +925,14 @@ Result<void> set(const std::string &key, const std::string &value)
 			    "no setting is declared under that key");
 
 	long number = 0;
-	Result<void> held = heldToRow(d, value, number);
+	Result<void> held = heldToRow(d, value, number, after);
 	if (!held.ok())
 		return held;
+
+	// Last, as in the source: a value the row refuses is wrong whatever the others hold.
+	Result<void> allowed = allowedByConditions(*d, after, &value);
+	if (!allowed.ok() && !sameAsStored(*d, value))
+		return allowed;
 
 	const Status written = d->type == ValueType::String ? settingsSource().writeString(d->key, value)
 	                                                    : settingsSource().writeInt(d->key, number);

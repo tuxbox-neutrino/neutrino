@@ -89,6 +89,14 @@ struct BatchOverlay
    A secret row refuses an empty value, so a form redrawn from a read that answered nothing
    cannot clear the credential; emptying one is clearSecret.
 
+   A value that passed all three is still refused with setting-condition-not-met where the
+   row's conditions do not hold, its depends_on naming the settings that refused it, and with
+   not-a-listed-value where it names an entry whose own conditions do not hold. Both are
+   judged on after first and the store after it, after being what the whole write leaves
+   behind (NULL for a write of this one setting), so the order of a write's settings does not
+   matter. A value the store already holds passes them: writing back what a row holds is no
+   change for the conditions to judge.
+
    ok says the value passed all three, the store took it, and the box was asked on its own
    loop to put it into the program's settings, save them and tell whoever applies that
    section. It does not say the file has been written or that anything has been applied: the
@@ -98,7 +106,16 @@ struct BatchOverlay
    call wrote is taken back rather than left for a later write of some other setting to carry
    in. What is taken back is this call's own write, so two requests at once do not undo each
    other. The one thing it cannot promise is that nothing landed. */
-Result<void> set(const std::string &key, const std::string &value);
+Result<void> set(const std::string &key, const std::string &value, const BatchOverlay *after = NULL);
+
+/* The conditions set() holds a value to, asked for a write of several settings before any
+   of them is stored: what after leaves behind is what they are judged on. ok for a value the
+   store already holds. */
+Result<void> conditionsAllow(const std::string &key, const std::string &value, const BatchOverlay &after);
+
+/* Whether a row's entry is offered with the settings as they stand: the box has what it
+   stands for and the settings its own conditions read allow it. */
+bool entryOfferedNow(const EnumValue &e);
 
 /* Whether the parental lock holds this row right now. Also true when whether the
    box is locked cannot be read, so a failed read never unlocks a row. Asks the
@@ -112,7 +129,10 @@ bool availableNow(const Descriptor &d);
 
 /* Every rule set() holds a value to, without the store: what set() would refuse, check()
    refuses with the same answer, and ok says set() would come as far as the store. For a
-   write of several settings that must not land in part, which asks each of them first. */
+   write of several settings that must not land in part, which asks each of them first.
+   The conditions are left out, the row's and those of the entry a value names: they are
+   judged on what the whole write leaves behind, which conditionsAllow() asks once every
+   member has passed here. */
 Result<void> check(const std::string &key, const std::string &value);
 
 /* Empties a credential, the one thing set() will not do. The two rules that protect one

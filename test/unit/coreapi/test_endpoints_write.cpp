@@ -2488,6 +2488,8 @@ TEST_CASE("a write keeps the start channel and the weather place together", "[wr
 {
 	ShippedRoutes shipped;
 	BoxFixture box;
+	// The start channels are changeable only while the box does not start on the last one.
+	box.store.ints["uselastchannel"] = 0;
 	coreapi::ChannelInfo tv;
 	tv.id = 0x1e2404020001a001ULL;
 	tv.name = "First Channel Television HD";
@@ -2587,12 +2589,62 @@ TEST_CASE("a start channel id that brings no name is refused for the channel it 
 	CHECK(box.store.strings.find("startchanneltv") == box.store.strings.end());
 }
 
+/* A row's conditions through the route: a setting the screen greys out is refused with the
+   settings that grey it out, written together with the one that allows it in either order
+   it is taken, and a value it already holds is taken back unasked. */
+TEST_CASE("a write is held to the conditions of the rows it writes", "[write][conditions]")
+{
+	ShippedRoutes shipped;
+	BoxFixture box;
+	box.store.ints["srs_enable"] = 0;
+
+	const Reply alone = authedPatch("/api/v1/settings/audio", "{\"srs_algo\":\"0\"}");
+	REQUIRE(alone.code == 409);
+	const ::Json::Value refused = parsed(alone.body);
+	CHECK(refused["type"].asString() == "/errors/setting-condition-not-met");
+	REQUIRE(refused["depends_on"].size() == 1);
+	CHECK(refused["depends_on"][0].asString() == "srs_enable");
+	CHECK(box.store.ints.count("srs_algo") == 0);
+
+	// What the row holds goes back unasked, as when a page sends a whole section.
+	const Reply held = authedPatch("/api/v1/settings/audio", "{\"srs_algo\":\"1\"}");
+	CHECK(held.code == 200);
+
+	const Reply both = authedPatch("/api/v1/settings/audio", "{\"srs_algo\":\"0\",\"srs_enable\":\"1\"}");
+	REQUIRE(both.code == 200);
+	CHECK(box.store.ints["srs_algo"] == 0);
+	CHECK(box.store.ints["srs_enable"] == 1);
+
+	box.store.ints["srs_enable"] = 0;
+	box.store.ints.erase("srs_algo");
+	const Reply reversed = authedPatch("/api/v1/settings/audio", "{\"srs_enable\":\"1\",\"srs_algo\":\"0\"}");
+	CHECK(reversed.code == 200);
+	CHECK(box.store.ints["srs_algo"] == 0);
+
+	// Mixed: the independent key lands, the refused one names what refused it.
+	box.store.ints["srs_enable"] = 0;
+	box.store.ints.erase("srs_algo");
+	box.store.ints["audio_DolbyDigital"] = 0;
+	const Reply mixed = authedPatch("/api/v1/settings/audio", "{\"srs_algo\":\"0\",\"audio_DolbyDigital\":\"1\"}");
+	REQUIRE(mixed.code == 207);
+	const ::Json::Value results = parsed(mixed.body)["results"];
+	CHECK(results["srs_algo"]["status"].asInt() == 409);
+	CHECK(results["srs_algo"]["code"].asString() == "setting-condition-not-met");
+	REQUIRE(results["srs_algo"]["depends_on"].size() == 1);
+	CHECK(results["srs_algo"]["depends_on"][0].asString() == "srs_enable");
+	CHECK(results["audio_DolbyDigital"]["status"].asInt() == 200);
+	CHECK(box.store.ints.count("srs_algo") == 0);
+	CHECK(box.store.ints["audio_DolbyDigital"] == 1);
+}
+
 /* What the write brought is answered under its own key, and a half taken down by the
    other names it, in an answer a parser reads back with every key once. */
 TEST_CASE("an answer with a result per key names what a write brought and what took a half down", "[write]")
 {
 	ShippedRoutes shipped;
 	BoxFixture box;
+	// The start channels are changeable only while the box does not start on the last one.
+	box.store.ints["uselastchannel"] = 0;
 	coreapi::ChannelInfo tv;
 	tv.id = 0x1e2404020001a001ULL;
 	tv.name = "First Channel Television HD";
