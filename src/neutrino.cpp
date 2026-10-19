@@ -4986,8 +4986,13 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 		}
 	}
 	else if (msg == NeutrinoMessages::EVT_START_PLUGIN) {
-		g_Plugins->startPlugin((const char *)data);
-		if (!g_Plugins->getScriptOutput().empty()) {
+		/* A request from outside (web interface, timer) reaches this also
+		 * from the message loop of a plugin that is still running, and
+		 * a plugin started in there runs inside the first one. Plugins
+		 * nested like that can hang the box, so the request is dropped. */
+		if (!g_Plugins->startPluginIfIdle((const char *)data))
+			printf("[neutrino] plugin %s not started: another plugin is running\n", (const char *)data);
+		else if (!g_Plugins->getScriptOutput().empty()) {
 			ShowMsg(LOCALE_PLUGINS_RESULT, g_Plugins->getScriptOutput(), CMsgBox::mbrBack,CMsgBox::mbBack,NEUTRINO_ICON_SHELL);
 		}
 

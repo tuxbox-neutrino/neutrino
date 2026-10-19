@@ -70,6 +70,7 @@ CPlugins::CPlugins()
 {
 	frameBuffer = NULL;
 	number_of_plugins = 0;
+	running = 0;
 }
 
 bool CPlugins::plugin_exists(const std::string &filename)
@@ -416,6 +417,30 @@ int CPlugins::startLuaPlugin(int number)
 }
 
 int CPlugins::startPlugin(int number)
+{
+	running++;
+	int ret = runPlugin(number);
+	running--;
+	return ret;
+}
+
+bool CPlugins::startPluginIfIdle(const char *const filename)
+{
+	/* Checked and taken in one step: besides the main loop, a Lua
+	 * thread waiting for input can pass a request on to here. */
+	int idle = 0;
+	if (!running.compare_exchange_strong(idle, 1))
+		return false;
+	int pluginnr = find_plugin(filename);
+	if (pluginnr > -1)
+		runPlugin(pluginnr);
+	else
+		printf("[CPlugins] could not find %s\n", filename);
+	running--;
+	return true;
+}
+
+int CPlugins::runPlugin(int number)
 {
 	// always delete old output
 	delScriptOutput();

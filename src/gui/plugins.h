@@ -27,6 +27,7 @@
 
 #include <plugin.h>
 
+#include <atomic>
 #include <string>
 #include <vector>
 
@@ -83,7 +84,9 @@ class CPlugins
 		OpenThreads::Mutex plugin_list_mutex;
 		std::string plugin_dir;
 		std::string scriptOutput;
+		std::atomic<int> running;	// plugins started and not returned yet
 
+		int runPlugin(int number);
 		bool parseCfg(plugin *plugin_data);
 		void scanDir(const char *dir);
 		bool plugin_exists(const std::string &filename);
@@ -138,6 +141,10 @@ class CPlugins
 		bool overrideType(plugin *plugin_data, const std::string &setting, p_type type);
 
 		int startPlugin(int number);				// start plugins by number
+		/* Starts the plugin unless one started here has not returned
+		 * yet, of any type, and answers whether it was free to. For a
+		 * request from outside, which must not run inside a plugin. */
+		bool startPluginIfIdle(const char *const filename);
 		int startPlugin(const char *const filename);		// start plugins by filename
 		int startPlugin_by_name(const std::string &name);	// start plugins by "name=" in .cfg
 		int startScriptPlugin(int number);
