@@ -16,7 +16,7 @@ let listToken = 0;		// a newer read makes an older answer stale
 let partialRetry = null;
 let partialTries = 0;		// a directory still read the first time is asked about a few times, not for ever
 let pagesShown = 0;		// pages on screen, so a reread does not throw away what "more" loaded
-let sourcesShown = '';
+let sourcesShown = null;	// nothing drawn yet: an empty list is drawn too
 
 function archive(id) {
 	return '/recordings/archive/' + encodeURIComponent(id);
