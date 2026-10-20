@@ -157,7 +157,6 @@ async function netfsLoad() {
 	netfsTabs();
 	try {
 		var r = await webuiV1('GET', '/storage/netfs/' + table);
-		await netfsReadMounts();
 		if (mine !== netfsShown) return;
 		netfsLast = r;
 		netfsShowFile(r);
@@ -165,7 +164,16 @@ async function netfsLoad() {
 	} catch (e) {
 		if (mine !== netfsShown) return;
 		list.replaceChildren(webuiEl('p', {className: 'netfs-note'}, webuiL('msg.error', 'Error') + ': ' + e.message));
+		return;
 	}
+	/* What is mounted only after the forms: a share that is slow to say how
+	   large it is holds up the summaries, not the page. */
+	await netfsReadMounts();
+	if (mine !== netfsShown || !netfsLast) return;
+	((netfsLast && netfsLast.items) || []).forEach(function(e) {
+		var summary = document.getElementById('netfs_summary_' + e.slot);
+		if (summary) summary.textContent = netfsSummary(table, e);
+	});
 }
 
 /* The forms of the other file go at once, before its own are read: nothing
