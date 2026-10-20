@@ -9,14 +9,16 @@
    follows a switch to light: the viewer's own light look is that theme,
    and the colours below are for the dark one. */
 var theme = "dark";
-try { theme = localStorage.getItem("webui-theme") || localStorage.getItem("yweb-theme") || "dark"; } catch (e) {}
+try { theme = localStorage.getItem("webui-mode"); if (theme !== "light" && theme !== "dark") theme = (localStorage.getItem("webui-theme") || localStorage.getItem("yweb-theme")) === "light" || matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark"; } catch (e) {}
 document.documentElement.setAttribute("data-theme", theme);
 </script>
 <style>
-/* In both themes: the accent, and the one warning on this page. */
-:root { --webui-accent: #fd6d13; --webui-accent-hover: #e55a00; }
+/* The accent of the interface, as webui.css sets it, which this page does
+   not load: lighter on the dark theme, darker on the light one. */
+:root { --webui-accent: #79a6e8; --webui-accent-hover: #93b8ee; --webui-on-accent: #0b1220; }
+[data-theme="light"] { --webui-accent: #2f5f9e; --webui-accent-hover: #264e83; --webui-on-accent: #ffffff; }
 .swagger-ui .btn.execute { background: var(--webui-accent); border-color: var(--webui-accent);
-  color: #17120c; }
+  color: var(--webui-on-accent); }
 .swagger-ui .btn.execute:hover { background: var(--webui-accent-hover); }
 .swagger-ui .btn.authorize { color: var(--webui-accent); border-color: var(--webui-accent); }
 .swagger-ui .btn.authorize svg { fill: var(--webui-accent); }
