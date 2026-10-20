@@ -13,7 +13,6 @@ install_DATA = \
 	settings-registry.js \
 	settings-v1.js \
 	settings.js \
-	sysinfo.js \
 	timer.js \
 	tools.js \
 	webui-dom.js \

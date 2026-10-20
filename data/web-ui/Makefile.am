@@ -26,7 +26,6 @@ install_DATA = \
 	password.html \
 	screenshot.html \
 	settings.html \
-	sysinfo.html \
 	timer.html \
 	recordings.html \
 	tools.html \
