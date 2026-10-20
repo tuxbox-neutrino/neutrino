@@ -82,13 +82,19 @@ function askFirst(title, text, ok) {
 
 // ===== Quick Access Sidebar: the roots =====
 
+// why the roots could not be read, for the top level to say instead of
+// showing nothing ('' once they were read)
+let rootsWhy = '';
+
 async function loadQuickDirs() {
 	try {
 		const r = await webuiV1('GET', '/storage/roots');
 		roots = ((r && r.items) || []).filter(x => x.present).map(x => normPath(x.id));
+		rootsWhy = '';
 	} catch (e) {
 		roots = [];
-		webuiShowToast(webuiL('msg.load_fail', 'Loading failed') + ': ' + e.message, true);
+		rootsWhy = webuiErrText(e);
+		webuiToastError(webuiL('msg.load_fail', 'Loading failed'), e);
 	}
 	renderQuickDirs();
 }
@@ -181,7 +187,9 @@ async function loadDir(path) {
 	if (!currentPath) {
 		title.textContent = webuiL('fm.roots', 'Permitted folders');
 		document.getElementById('diskInfo').textContent = '';
-		list.replaceChildren(...roots.map(rootRow), note(webuiL('fm.roots_note', 'Only these folders and what lies below them can be reached from here.')));
+		list.replaceChildren(...roots.map(rootRow), rootsWhy
+			? note(webuiL('msg.load_fail', 'Loading failed') + ': ' + rootsWhy, 'var(--webui-danger)')
+			: note(webuiL('fm.roots_note', 'Only these folders and what lies below them can be reached from here.')));
 		return;
 	}
 
@@ -215,7 +223,7 @@ async function loadDir(path) {
 		loadDiskInfo(mine);
 	} catch (e) {
 		if (mine !== listToken) return;
-		list.replaceChildren(note(webuiL('msg.load_fail', 'Loading failed') + ': ' + e.message, 'var(--webui-danger)'));
+		list.replaceChildren(note(webuiL('msg.load_fail', 'Loading failed') + ': ' + webuiErrText(e), 'var(--webui-danger)'));
 	}
 }
 
@@ -269,7 +277,7 @@ async function deleteItem(fullpath, name, isDir) {
 		webuiShowToast(webuiL('fm.deleted', 'Deleted'));
 		refreshDir();
 	} catch (e) {
-		webuiShowToast((e.code === 'not-empty' ? webuiL('fm.not_empty', 'Folder is not empty') : webuiL('fm.delete_fail', 'Delete failed')) + ': ' + e.message, true);
+		webuiToastError(webuiL('fm.delete_fail', 'Delete failed'), e);
 	}
 }
 
@@ -312,7 +320,7 @@ async function doRename(fullpath, origName, newName) {
 		webuiShowToast(webuiL('fm.renamed', 'Renamed'));
 		refreshDir();
 	} catch (e) {
-		webuiShowToast(webuiL('fm.rename_fail', 'Rename failed') + ': ' + e.message, true);
+		webuiToastError(webuiL('fm.rename_fail', 'Rename failed'), e);
 	}
 }
 
@@ -350,7 +358,7 @@ async function createFolder() {
 		webuiShowToast(webuiL('fm.folder_created', 'Folder created'));
 		refreshDir();
 	} catch (e) {
-		webuiShowToast(webuiL('msg.error', 'Error') + ': ' + e.message, true);
+		webuiToastError(webuiL('msg.error', 'Error'), e);
 	}
 }
 
@@ -408,8 +416,8 @@ async function uploadFile(file) {
 		}, 2000);
 		if (currentPath === dir) refreshDir();
 	} catch (e) {
-		status.textContent = webuiL('msg.error', 'Error') + ': ' + e.message;
-		webuiShowToast(webuiL('fm.upload_fail', 'Upload error') + ': ' + e.message, true);
+		status.textContent = webuiL('msg.error', 'Error') + ': ' + webuiErrText(e);
+		webuiToastError(webuiL('fm.upload_fail', 'Upload error'), e);
 		if (uploaded)
 			webuiV1('DELETE', '/storage/path', {query: {path: part}}).catch(() => {});
 	}
