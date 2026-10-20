@@ -62,7 +62,8 @@
 			}
 		} catch (e) {
 			// set as text, never as markup: an answer is data
-			put('hBox', L('page.error', 'The box did not answer') + ': ' + e.message);
+			// the header's words for why: also for a box that did not answer
+			put('hBox', webuiL('msg.error', 'Error') + ': ' + webuiErrText(e));
 		}
 	})();
 	</script>

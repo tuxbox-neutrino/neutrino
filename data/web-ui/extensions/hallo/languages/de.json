@@ -13,6 +13,5 @@
 	"page.box": "Box",
 	"page.neutrino": "Neutrino",
 	"page.uptime": "Läuft seit",
-	"page.greeting_default": "Schön, dass du da bist.",
-	"page.error": "Die Box hat nicht geantwortet"
+	"page.greeting_default": "Schön, dass du da bist."
 }

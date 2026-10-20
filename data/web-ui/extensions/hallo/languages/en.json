@@ -13,6 +13,5 @@
 	"page.box": "Box",
 	"page.neutrino": "Neutrino",
 	"page.uptime": "Up for",
-	"page.greeting_default": "Nice to see you.",
-	"page.error": "The box did not answer"
+	"page.greeting_default": "Nice to see you."
 }
