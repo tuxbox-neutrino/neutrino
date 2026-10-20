@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark" class="webui-i18n-pending">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title data-l="tools.bqedit" data-l-prefix="Neutrino-Web-UI - ">Neutrino-Web-UI - Bouquet editor</title>
+	<link rel="icon" href="/favicon/favicon.ico">
+	<script>
+		// Apply the stored theme before first paint: webui-header.js runs
+		// too late, and some pages never load it at all.
+		try { document.documentElement.setAttribute('data-theme', localStorage.getItem('webui-theme') || localStorage.getItem('yweb-theme') || 'dark'); } catch (e) {}
+	</script>
+	<link rel="stylesheet" href="/css/pico.min.css">
+	<link rel="stylesheet" href="/css/webui.css">
+	<style>
+		/* Randlos wie Dashboard/Settings: der Editor nutzt die volle
+		   Breite, die drei Panels fuellen die Viewport-Hoehe */
+		.bqe-wrap { max-width: none; margin: 0; padding: 0.8rem 1.2rem; }
+		.bqe-toolbar { display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center; margin-bottom: 0.8rem; }
+		/* Modus-Select auf .webui-btn-Metrik (Schrift/Padding/Hoehe),
+		   sonst steht die Leiste nicht auf einer Linie: Pico gibt dem
+		   select 1rem-Schrift + Margins → 4px hoeher und 7px tiefer
+		   zentriert als die Speichern-Buttons daneben */
+		.bqe-mode { display: flex; align-items: center; gap: 0.3rem; margin: 0; font-size: var(--webui-font-xs); }
+		.bqe-mode select { margin: 0; padding: 0.3rem 0.5rem; height: auto; font-size: var(--webui-font-xs); line-height: normal; border-radius: var(--webui-radius); }
+		.bqe-dirty { display: none; align-items: center; gap: 0.3rem; color: var(--webui-accent); border: 1px solid var(--webui-accent); border-radius: 999px; padding: 0.1rem 0.6rem; font-size: 0.75rem; }
+		.bqe-dirty.on { display: inline-flex; }
+		.bqe-grid { display: grid; grid-template-columns: minmax(260px, 320px) 1fr 1fr; gap: 0.8rem; }
+		.bqe-pane { min-height: 320px; height: calc(100dvh - 200px); }
+		.bqe-pane .webui-card-body { padding: 0.25rem 0.3rem; }
+		.bqe-pane .webui-card-title small { color: var(--pico-muted-color); font-weight: 400; }
+		/* Kompakte Zeilen: Picos li-Margin und die button-margin-bottom
+		   (1rem!) neutralisieren, sonst blaehen Zeilen mit Knoepfen auf
+		   ~51px auf; Ziel ~30px. min-height haelt Zeilen ohne sichtbare
+		   Knoepfe gleich hoch — sonst waechst die Zeile bei Hover/
+		   Auswahl (Knoepfe erscheinen) und die Liste verrutscht */
+		.bqe-list li { display: flex; align-items: center; gap: 0.3rem; margin: 0; padding: 0.22rem 0.4rem; min-height: 1.85rem; border-radius: 4px; font-size: 0.78rem; line-height: 1.3; cursor: pointer; }
+		.bqe-list li:hover { background: rgba(255,255,255,0.04); }
+		[data-theme="light"] .bqe-list li:hover { background: rgba(0,0,0,0.05); }
+		.bqe-list li.sel { background: var(--webui-accent-light); outline: 1px solid var(--webui-accent); }
+		.bqe-list li .nm { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+		.bqe-list li .flags { color: var(--pico-muted-color); font-size: 0.68rem; font-variant-numeric: tabular-nums; }
+		.bqe-list li .flags svg { width: 11px; height: 11px; vertical-align: -1px; }
+		.bqe-list li.bqe-empty { color: var(--pico-muted-color); cursor: default; }
+		.bqe-mini { display: inline-flex; align-items: center; justify-content: center; gap: 0.25rem; margin: 0; background: none; border: 1px solid var(--pico-muted-border-color); border-radius: 4px; color: var(--pico-muted-color); cursor: pointer; padding: 0.1rem 0.25rem; font-size: 0.75rem; line-height: 1.5; }
+		.bqe-mini:hover { color: var(--webui-accent); border-color: var(--webui-accent); }
+		.bqe-mini svg { width: 12px; height: 12px; flex-shrink: 0; }
+		.bqe-mini.attn { color: #fff; background: var(--webui-accent); border-color: var(--webui-accent); }
+		/* Bouquet-Zeilen: Aktionen erst bei Hover bzw. Auswahl zeigen,
+		   sonst frisst die Knopfleiste die Spalte auf und die Namen
+		   trunkieren zu "1…" (Touch: Tap waehlt aus → Aktionen) */
+		#bqeBouquets li .bqe-mini { display: none; }
+		#bqeBouquets li:hover .bqe-mini,
+		#bqeBouquets li.sel .bqe-mini,
+		#bqeBouquets li:focus-within .bqe-mini { display: inline-flex; }
+		.bqe-mini.on { color: var(--webui-accent); border-color: var(--webui-accent); }
+		.bqe-mini:disabled { opacity: 0.5; cursor: default; }
+		.bqe-stale { display: flex; align-items: center; gap: 0.6rem; margin: 0 0 0.8rem; padding: 0.4rem 0.8rem; border: 1px solid var(--webui-accent); border-radius: var(--webui-radius); font-size: var(--webui-font-xs); }
+		.bqe-stale[hidden] { display: none; }
+		/* Drag & Drop: Einfuegelinie oben/unten, Ziel-Rahmen der Liste */
+		.bqe-list li[draggable="true"] { cursor: grab; }
+		.bqe-list li[draggable="true"]:active { cursor: grabbing; }
+		.bqe-list li.drop-top { box-shadow: inset 0 2px 0 var(--webui-accent); }
+		.bqe-list li.drop-bottom { box-shadow: inset 0 -2px 0 var(--webui-accent); }
+		#bqeChannels.drop-hover { outline: 1px dashed var(--webui-accent); outline-offset: -2px; border-radius: 4px; }
+		.bqe-search { flex: 1; min-width: 140px; }
+		/* Flach genug fuer die 2.4rem-Kopfhoehe (webui.css), sonst ist
+		   dieses Panel hoeher als seine Nachbarn */
+		.bqe-search input { width: 100%; padding: 0.15rem 0.5rem !important; height: auto !important; margin: 0 !important; font-size: 0.8rem; line-height: 1.2; }
+		.bqe-hint { color: var(--pico-muted-color); font-size: 0.75rem; margin-top: 0.6rem; }
+		@media (max-width: 900px) {
+			.bqe-grid { grid-template-columns: 1fr; }
+			.bqe-pane { min-height: 240px; height: auto; }
+			.bqe-pane .webui-card-body { max-height: calc(100vh - 300px); }
+		}
+	</style>
+</head>
+<body>
+	<div class="webui-header-wrapper" data-page="ext-bouquet-editor"></div>
+	<div class="webui-header-spacer"></div>
+
+	<main class="bqe-wrap">
+		<div class="bqe-toolbar">
+			<label class="bqe-mode"><span data-l="bqe.mode">Mode</span>
+				<select id="bqeMode" onchange="bqeModeChanged()">
+					<option value="TV">TV</option>
+					<option value="RADIO">Radio</option>
+				</select>
+			</label>
+			<button type="button" class="webui-btn" onclick="bqeAddBouquet()">
+				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+					<line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+				</svg>
+				<span data-l="bqe.new">New bouquet</span></button>
+			<span class="bqe-dirty" id="bqeDirty">&#9679; <span data-l="bqe.unsaved">unsaved changes</span></span>
+		</div>
+
+		<div class="bqe-stale" id="bqeStale" role="status" hidden>
+			<span data-l="bqe.changed_on_box">The bouquets were changed on the box.</span>
+			<button type="button" class="bqe-mini attn" onclick="bqeReloadAll(true)" title="Reload, discarding the changes not applied" data-l-title="bqe.reload_discard" data-l="bqe.reload">Reload</button>
+		</div>
+
+		<div class="bqe-grid">
+			<article class="webui-card webui-panel-card webui-card-sm bqe-pane">
+				<header class="webui-card-header">
+					<h3 class="webui-card-title">
+						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+							<line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/>
+						</svg>
+						Bouquets <small id="bqeBqCount"></small>
+					</h3>
+				</header>
+				<div class="webui-card-body">
+					<ul class="webui-plain-list bqe-list" id="bqeBouquets"></ul>
+				</div>
+			</article>
+			<article class="webui-card webui-panel-card webui-card-sm bqe-pane">
+				<header class="webui-card-header">
+					<h3 class="webui-card-title">
+						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+							<rect x="2" y="7" width="20" height="15" rx="2"/><polyline points="17 2 12 7 7 2"/>
+						</svg>
+						<span id="bqeChTitle" data-l="bqe.channels">Channels</span>
+					</h3>
+					<button type="button" class="bqe-mini" id="bqeApplyBtn" onclick="bqeApplyChannels()" title="Take over the channel list of this bouquet" data-l-title="bqe.apply_title" disabled>
+						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+							<polyline points="20 6 9 17 4 12"/>
+						</svg>
+						<span data-l="bqe.apply">Apply</span></button>
+					<button type="button" class="bqe-mini" id="bqeDiscardBtn" onclick="bqeDiscard()" title="Discard the channel changes not applied yet" data-l-title="bqe.discard_title" disabled data-l="bqe.discard">Discard</button>
+				</header>
+				<div class="webui-card-body">
+					<ul class="webui-plain-list bqe-list" id="bqeChannels" ondragover="bqeListOver(event)" ondragleave="bqeListLeave(event)" ondrop="bqeListDrop(event)"></ul>
+				</div>
+			</article>
+			<article class="webui-card webui-panel-card webui-card-sm bqe-pane">
+				<header class="webui-card-header">
+					<h3 class="webui-card-title">
+						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+							<rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
+						</svg>
+						<span data-l="bqe.all_channels">All channels</span> <small id="bqeAllCount"></small>
+					</h3>
+					<span class="bqe-search"><input id="bqeFilter" placeholder="search..." data-l-placeholder="bqe.search" aria-label="search..." data-l-aria-label="bqe.search" oninput="bqeRenderAll()"></span>
+				</header>
+				<div class="webui-card-body">
+					<ul class="webui-plain-list bqe-list" id="bqeAll"></ul>
+				</div>
+			</article>
+		</div>
+		<p class="bqe-hint" data-l="bqe.hint">Reorder channels by dragging and pull them over from "All channels" (double-click adds too). Creating, renaming, moving, hiding, locking and deleting a bouquet is saved on the box at once; a changed channel list with "Apply".</p>
+	</main>
+
+	<script src="/js/webui-i18n.js"></script>
+	<script src="/js/webui-header.js"></script>
+	<script src="/js/webui-v1.js"></script>
+	<script src="bouquet-editor.js"></script>
+</body>
+</html>

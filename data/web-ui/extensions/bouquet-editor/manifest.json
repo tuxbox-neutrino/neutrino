@@ -1,0 +1,9 @@
+{
+	"name": "Bouquet editor",
+	"version": "1.0.0",
+	"slot": "tools",
+	"entry": "index.html",
+	"icon": "icon.svg",
+	"description": "Manage bouquets and channels",
+	"default": "on"
+}
