@@ -656,3 +656,43 @@ TEST_CASE("a name with %, + or ? comes back whole from the second URL pass", "[n
 	CHECK(url.find('?') == std::string::npos);
 	CHECK(decodeString(url) == name);
 }
+
+TEST_CASE("a page and a script or style named without its version are asked for again", "[nhttpd]")
+{
+	struct Case { const char *mime; const char *ext; const char *v; bool kept; const char *asked; };
+	const Case cases[] = {
+		{ "text/html", "html", "", false, NULL },
+		{ "text/html; charset=UTF-8", "html", "abc", false, NULL },
+		// an extension's page names the interface's own files without a version
+		{ "text/css", "css", "", false, NULL },
+		{ "application/javascript", "js", "", false, NULL },
+		{ "application/javascript", "mjs", "", false, NULL },
+		// the same answered from its .gz carries gz as its extension, its type stays
+		{ "text/css", "gz", "", false, NULL },
+		// a type the configuration changed, the name still says what it is
+		{ "text/plain", "js", "", false, NULL },
+		// both at once: sent from its .gz under a configured type, known by
+		// the extension it was asked by
+		{ "text/plain", "gz", "", false, "js" },
+		{ "application/x-javascript", "gz", "", false, "js" },
+		{ "application/gzip", "gz", "", true, "gz" },
+		// named by its version: kept, the next version is another address
+		{ "text/css", "css", "1f20aec2", true, NULL },
+		{ "application/javascript", "js", "1f20aec2", true, NULL },
+		// anything else is kept as before
+		{ "image/png", "png", "", true, NULL },
+		{ "font/woff2", "woff2", "", true, NULL },
+	};
+	for (size_t i = 0; i < sizeof(cases) / sizeof(cases[0]); ++i)
+	{
+		CyhookHandler hh;
+		hh.ResponseMimeType = cases[i].mime;
+		hh.UrlData["fileext"] = cases[i].ext;
+		if (*cases[i].v)
+			hh.ParamList["v"] = cases[i].v;
+		if (cases[i].asked != NULL)
+			hh.HookVarList["sendfile.ext"] = cases[i].asked;
+		INFO(cases[i].mime << " ." << cases[i].ext << " v=" << cases[i].v);
+		CHECK(ystatic::mayBeKept(&hh) == cases[i].kept);
+	}
+}

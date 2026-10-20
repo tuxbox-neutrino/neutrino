@@ -23,6 +23,7 @@
 #include "yconnection.h"
 #include "helper.h"
 #include "yhook.h"
+#include "ystatic.h"
 
 #ifdef Y_CONFIG_HAVE_SENDFILE
 #include <sys/sendfile.h>
@@ -182,11 +183,11 @@ bool CWebserverResponse::SendResponse() {
 		bool cache = !Connection->HookHandler.cached;
 		//		if(Connection->HookHandler.UrlData["path"] == "/tmp/")//TODO: un-cachable dirs
 		//			cache = false;
-		/* A page is asked for again every time (no-cache, answered 304 while
-		   it is unchanged): it names the scripts and styles it loads by
-		   their version, so an update reaches the browser with the next
-		   page it opens instead of a day later. */
-		if (Connection->HookHandler.ResponseMimeType.compare(0, 9, "text/html") == 0)
+		/* A page, and a script or style named without its version, is asked
+		   for again every time (no-cache, answered 304 while it is
+		   unchanged), so an update reaches the browser with the next page
+		   it opens instead of a day later (ystatic::mayBeKept). */
+		if (!ystatic::mayBeKept(&Connection->HookHandler))
 			cache = false;
 		Write(Connection->HookHandler.BuildHeader(cache));
 		const off_t length = (Connection->HookHandler.RangeStart == 0 && Connection->HookHandler.RangeEnd == -1)

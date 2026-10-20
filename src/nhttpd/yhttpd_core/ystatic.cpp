@@ -228,6 +228,23 @@ bool templateOrScript(const std::string &name)
 		|| endsWithNoCase(n, ".sh");
 }
 
+bool mayBeKept(CyhookHandler *hh)
+{
+	const std::string &mime = hh->ResponseMimeType;
+	if (mime.compare(0, 9, "text/html") == 0)
+		return false;
+	// by the type the request's name was given, and by the extension it was
+	// asked by: mod_sendfile keeps that one, since an answer sent from its .gz
+	// carries gz as its extension, and a configured type may say text/plain
+	const std::string asked = hh->HookVarList["sendfile.ext"];
+	const std::string ext = asked.empty() ? hh->UrlData["fileext"] : asked;
+	const bool code = mime.compare(0, 8, "text/css") == 0
+		|| mime.compare(0, 22, "application/javascript") == 0
+		|| mime.compare(0, 15, "text/javascript") == 0
+		|| ext == "css" || ext == "js" || ext == "mjs";
+	return !(code && hh->ParamList["v"].empty());
+}
+
 bool ownOpened(CyhookHandler *hh, int fd, std::string &below)
 {
 	const std::string core = hh->WebserverConfigList["WebsiteMain.directory"];

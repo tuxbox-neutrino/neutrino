@@ -68,6 +68,15 @@ bool inReservedSpace(const std::string &url);
 // .gz): such a file is never handed out without a login.
 bool templateOrScript(const std::string &name);
 
+// Whether the browser may keep the static answer the handler holds for a day
+// instead of asking again (no-cache, which a 304 answers while the file is
+// unchanged). Not a page: it names the scripts and styles it loads by their
+// version, so an update reaches the browser with the next page it opens. Not a
+// script or style named without its version (?v=) either: the pages of an
+// extension name the interface's own files that way, and would otherwise go on
+// with the copy from before an update for a day.
+bool mayBeKept(CyhookHandler *hh);
+
 // Whether the web directory has its own sign-in page, /login.html, that goes
 // out without a login (openPublic). Only to that page are browsers sent to
 // sign in: a web directory without one (another interface in its place), or

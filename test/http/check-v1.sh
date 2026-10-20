@@ -767,5 +767,19 @@ for u in '/../../../../../../etc/passwd' '/css/../../../../../../etc/passwd' \
 	else fail "$u: $c"; fi
 done
 
+# 26. a script or style named without its version, as an extension's page names
+#     the interface's own files, is asked for again like a page (no-cache);
+#     named by its version it may be kept for a day.
+for u in '/index.html' '/js/webui-header.js' '/css/webui.css'; do
+	curl -s -D "$T/h26" -o /dev/null -H "$AUTH_C" "$BASE$u"
+	if grep -qi '^cache-control: no-cache' "$T/h26" && ! grep -qi '^expires:' "$T/h26"; then pass "$u without a version is asked for again"
+	else fail "$u without a version: `grep -i -E '^(cache-control|expires):' $T/h26 | tr -d '\r' | tr '\n' ' '`"; fi
+done
+for u in '/js/webui-header.js?v=check26' '/css/webui.css?v=check26'; do
+	curl -s -D "$T/h26" -o /dev/null -H "$AUTH_C" "$BASE$u"
+	if grep -qi '^expires:' "$T/h26" && ! grep -qi '^cache-control: no-cache' "$T/h26"; then pass "$u with a version may be kept"
+	else fail "$u with a version: `grep -i -E '^(cache-control|expires):' $T/h26 | tr -d '\r' | tr '\n' ' '`"; fi
+done
+
 echo "failures: $fails"
 [ "$fails" -eq 0 ]

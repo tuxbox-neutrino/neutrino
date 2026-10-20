@@ -197,7 +197,10 @@ THandleStatus CmodSendfile::Hook_PrepareResponse(CyhookHandler *hh) {
 					aprintf("mod_sendfile: Client requested range '%s' which is outside of [0,%lld]\n", range, hh->ContentLength - 1);
 				} else {
 					// the name only for the header's sake (e.g. .gz):
-					// what goes out is this descriptor
+					// what goes out is this descriptor. The extension it
+					// was asked by is kept beside it, since the name sent
+					// from a .gz carries gz (ystatic::mayBeKept).
+					hh->HookVarList["sendfile.ext"] = ext;
 					hh->SendOpenedFile(filed, ystatic::reparseSafe(fullfilename));
 					hh->ResponseMimeType = mime;
 					/* Every range that was asked for and is served goes out as
