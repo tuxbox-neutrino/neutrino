@@ -1,12 +1,17 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en" data-theme="dark" class="webui-i18n-pending">
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>m3u Converter</title>
+	<title>Neutrino-Web-UI - m3u Converter</title>
 	<link rel="icon" href="/favicon/favicon.ico">
+	<script>
+		// Apply the stored theme before first paint: webui-header.js runs
+		// too late, and some pages never load it at all.
+		try { document.documentElement.setAttribute('data-theme', localStorage.getItem('webui-theme') || localStorage.getItem('yweb-theme') || 'dark'); } catch (e) {}
+	</script>
 	<link rel="stylesheet" href="/css/pico.min.css">
-	<link rel="stylesheet" href="/css/yweb.css">
+	<link rel="stylesheet" href="/css/webui.css">
 	<style>
 		.m3u-wrap { max-width: 920px; margin: 0 auto; padding: 1rem; }
 		.m3u-wrap textarea { width: 100%; font-family: monospace; font-size: 0.8rem; }
@@ -18,184 +23,70 @@
 	</style>
 </head>
 <body>
-	<div class="yweb-header-wrapper" data-page="tools"></div>
-	<div class="yweb-header-spacer"></div>
+	<div class="webui-header-wrapper" data-page="ext-m3u-converter"></div>
+	<div class="webui-header-spacer"></div>
 
 	<main class="m3u-wrap">
-		<article class="yweb-card yweb-card-sm">
-			<header class="yweb-card-header">
-				<h3 class="yweb-card-title">
+		<article class="webui-card webui-card-sm">
+			<header class="webui-card-header">
+				<h3 class="webui-card-title">
 					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 						<polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/>
 					</svg>
 					m3u &rarr; WebTV-XML
 				</h3>
 			</header>
-			<div class="yweb-card-body">
+			<div class="webui-card-body">
 				<p class="m3u-intro">
-					<span id="m3uIntro1">Converts m3u playlists (EXTINF) into the format of</span> <code>webtv_usr.xml</code>.
-					<span id="m3uIntro2">Then add the file under Settings, WebTV sources.</span></p>
+					<span data-l="m3u.intro1">Converts m3u playlists (EXTINF) into the format of</span> <code>webtv_usr.xml</code>.
+					<span data-l="m3u.intro2">Then add the file under Settings, WebTV sources.</span></p>
 
-				<div class="yweb-form-section-title"><span id="m3uStep1">1. Paste streams</span></div>
+				<div class="webui-form-section-title"><span data-l="m3u.step1_nr">1. Paste streams</span></div>
 				<textarea id="m3uInput" rows="9" placeholder="#EXTM3U&#10;#EXTINF:0,DE:Beispiel&#10;http://server:8000/live/377.ts"></textarea>
 				<div class="m3u-actions">
-					<label class="yweb-file">
+					<label class="webui-file">
 						<input type="file" id="m3uFile" accept=".m3u,.m3u8,.txt" multiple onchange="m3uFiles(this)">
-						<span class="yweb-file-btn" id="m3uLoadBtn">Load m3u file</span>
-						<span class="yweb-file-name">&ndash;</span>
+						<span class="webui-file-btn" data-l="m3u.load_file">Load m3u file</span>
+						<span class="webui-file-name">&ndash;</span>
 					</label>
 				</div>
 
-				<div class="yweb-form-section-title"><span id="m3uStep2">2. Metadata</span></div>
+				<div class="webui-form-section-title"><span data-l="m3u.step2_nr">2. Metadata</span></div>
 				<div class="m3u-meta">
-					<label><span id="m3uTitleLabel">Title</span> <input id="m3uTitle" value="my streams"></label>
-					<label><span id="m3uDescLabel">Description</span> <input id="m3uDesc" value="webtv"></label>
+					<label><span data-l="m3u.title">Title</span> <input id="m3uTitle" value="my streams"></label>
+					<label><span data-l="m3u.desc">Description</span> <input id="m3uDesc" value="webtv"></label>
 					<label>Genre <input id="m3uGenre" value="Movie"></label>
-					<label><span id="m3uNameLabel">File name</span> <input id="m3uName" value="webtv_usr.xml"></label>
+					<label><span data-l="m3u.filename">File name</span> <input id="m3uName" value="webtv_usr.xml"></label>
 				</div>
 
 				<div class="m3u-actions">
-					<button type="button" class="yweb-btn primary" onclick="m3uConvert()">
+					<button type="button" class="webui-btn primary" onclick="m3uConvert()">
 						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 							<polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/>
 						</svg>
-						<span id="m3uConvertLabel">Convert</span></button>
-					<button type="button" class="yweb-btn" onclick="m3uDownload()">
+						<span data-l="m3u.convert">Convert</span></button>
+					<button type="button" class="webui-btn" onclick="m3uDownload()">
 						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 							<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
 						</svg>
-						<span id="m3uDownloadLabel">Download as file</span></button>
-					<button type="button" class="yweb-btn" onclick="m3uSaveToBox(this)">
+						<span data-l="m3u.download">Download as file</span></button>
+					<button type="button" class="webui-btn" onclick="m3uSaveToBox(this)">
 						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 							<path d="M22 12H2"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/><line x1="6" x2="6.01" y1="16" y2="16"/><line x1="10" x2="10.01" y1="16" y2="16"/>
 						</svg>
-						<span id="m3uSaveLabel">Save on the box</span></button>
+						<span data-l="m3u.save_box">Save on the box</span></button>
 				</div>
 
-				<div class="yweb-form-section-title"><span id="m3uStep3">3. Result</span></div>
-				<textarea id="m3uOutput" rows="10" placeholder="(webtv_usr.xml appears here)"></textarea>
+				<div class="webui-form-section-title"><span data-l="m3u.step3_nr">3. Result</span></div>
+				<textarea id="m3uOutput" rows="10" placeholder="(webtv_usr.xml appears here)" data-l-placeholder="m3u.out_ph"></textarea>
 			</div>
 		</article>
 	</main>
 
-	<script src="/Y_Lang.yjs"></script>
-	<script src="/yweb-header.js"></script>
-	<script>
-		// i18n pattern: English lives inline as fallback, the extension's
-		// language pack provides translations (languages/<Language>.json)
-		var EXT = 'm3u-converter';
-		function L(k, en) { return ywebExtL(EXT, k, en); }
-
-		(async function() {
-			await ywebExtLangLoad(EXT);
-			var t = function(id, key, en) {
-				var el = document.getElementById(id);
-				if (el) el.textContent = L(key, en);
-			};
-			t('m3uIntro1', 'm3u.intro1', 'Converts m3u playlists (EXTINF) into the format of');
-			t('m3uIntro2', 'm3u.intro2', 'Then add the file under Settings, WebTV sources.');
-			t('m3uStep1', 'm3u.step1_nr', '1. Paste streams');
-			t('m3uLoadBtn', 'm3u.load_file', 'Load m3u file');
-			t('m3uStep2', 'm3u.step2_nr', '2. Metadata');
-			t('m3uTitleLabel', 'm3u.title', 'Title');
-			t('m3uDescLabel', 'm3u.desc', 'Description');
-			t('m3uNameLabel', 'm3u.filename', 'File name');
-			t('m3uConvertLabel', 'm3u.convert', 'Convert');
-			t('m3uDownloadLabel', 'm3u.download', 'Download as file');
-			t('m3uSaveLabel', 'm3u.save_box', 'Save on the box');
-			t('m3uStep3', 'm3u.step3_nr', '3. Result');
-			document.getElementById('m3uOutput').placeholder = L('m3u.out_ph', '(webtv_usr.xml appears here)');
-			// prefill only while untouched (English default from the markup)
-			var ti = document.getElementById('m3uTitle');
-			if (ti.value === 'my streams') ti.value = L('m3u.title_default', 'my streams');
-		})();
-
-		// .yweb-file companion: show a count instead of names for multi-select
-		function m3uFiles(sel) {
-			var files = sel.files;
-			if (files.length > 1) {
-				sel.closest('.yweb-file').querySelector('.yweb-file-name').textContent =
-					files.length + ' ' + L('m3u.files', 'files');
-			} else {
-				ywebFileName(sel);
-			}
-			var inp = document.getElementById('m3uInput');
-			var pending = files.length;
-			for (var i = 0; i < files.length; i++) {
-				var r = new FileReader();
-				r.onload = function(ev) {
-					inp.value += (inp.value ? '\n' : '') + ev.target.result;
-					if (--pending === 0) ywebShowToast(files.length + ' ' + L('m3u.loaded', 'file(s) loaded'));
-				};
-				r.readAsText(files[i]);
-			}
-		}
-
-		// port of the Y_Tools_m3uConvert logic: #EXTINF provides the name,
-		// the following line the URL; udp://@ becomes udp/, & is XML-escaped
-		function m3uConvert() {
-			var lines = document.getElementById('m3uInput').value.split('\n');
-			var title = document.getElementById('m3uTitle').value;
-			var desc = document.getElementById('m3uDesc').value;
-			var genre = document.getElementById('m3uGenre').value;
-			var s = '<?xml version="1.0"?>\n<webtvs name="[' + title + '] ">\n';
-			var name = '';
-			var count = 0;
-			for (var i = 0; i < lines.length; i++) {
-				var v = lines[i].trim();
-				if (v === '') continue;
-				if (v.indexOf('#') !== -1) {
-					if (v.toUpperCase().indexOf('#EXTINF') !== -1) {
-						var ci = v.indexOf(',');
-						if (ci !== -1) name = v.substr(ci + 1);
-					}
-					continue;
-				}
-				var url = (v.toUpperCase().indexOf('UDP:') !== -1) ? v.replace('udp://@', 'udp/') : v;
-				name = name.replace(/#EXTINF:|[0-9],|-[1-9],|,/g, '').replace(/^\s+/g, '');
-				if (name === '') name = L('m3u.channel', 'Channel') + ' ' + i;
-				s += '    <webtv title="' + name + '" url="' + url +
-					'" epgid="" genre="' + genre + '" description="' + desc + '" />\n';
-				name = '';
-				count++;
-			}
-			s += '</webtvs>';
-			s = s.split('&').join('&amp;');
-			document.getElementById('m3uOutput').value = s;
-			ywebShowToast(count + ' ' + L('m3u.converted', 'streams converted'));
-		}
-
-		function m3uDownload() {
-			var out = document.getElementById('m3uOutput').value;
-			if (!out) { ywebShowToast(L('m3u.convert_first', 'Convert first'), true); return; }
-			var name = document.getElementById('m3uName').value || 'webtv_usr.xml';
-			var a = document.createElement('a');
-			a.href = URL.createObjectURL(new Blob([out], {type: 'text/xml'}));
-			a.download = name;
-			a.click();
-			URL.revokeObjectURL(a.href);
-		}
-
-		async function m3uSaveToBox(btn) {
-			var out = document.getElementById('m3uOutput').value;
-			if (!out) { ywebShowToast(L('m3u.convert_first', 'Convert first'), true); return; }
-			var name = document.getElementById('m3uName').value || 'webtv_usr.xml';
-			btn.disabled = true;
-			try {
-				var paths = await ywebApi('paths');
-				var target = (paths.configdir || '/var/tuxbox/config');
-				var fd = new FormData();
-				fd.append('file', new Blob([out], {type: 'text/xml'}), name);
-				var up = await fetch('/api/v4/file?action=upload&path=' + encodeURIComponent(target), {method: 'POST', body: fd});
-				if (!up.ok) throw new Error(L('m3u.upfail', 'Upload failed'));
-				ywebShowToast(L('m3u.saved', 'Saved') + ': ' + target + '/' + name + ' — ' + L('m3u.add_source', 'add it as a source!'));
-			} catch (e) {
-				ywebShowToast(ywebL('msg.error', 'Error') + ': ' + e.message, true);
-			}
-			btn.disabled = false;
-		}
-
-		ywebInitHeader('tools');
-	</script>
+	<script src="/js/webui-i18n.js"></script>
+	<script src="/js/webui-header.js"></script>
+	<script src="/js/webui-dom.js"></script>
+	<script src="/js/webui-v1.js"></script>
+	<script src="m3u-convert.js"></script>
 </body>
 </html>

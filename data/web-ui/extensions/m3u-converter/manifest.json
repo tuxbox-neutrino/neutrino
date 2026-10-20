@@ -3,5 +3,6 @@
 	"version": "1.0.0",
 	"slot": "tools",
 	"entry": "m3u-convert.html",
+	"icon": "icon.svg",
 	"description": "Playlist to WebTV XML"
 }

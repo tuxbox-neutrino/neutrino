@@ -22,5 +22,6 @@
 	"m3u.converted": "Streams umgewandelt",
 	"m3u.channel": "Kanal",
 	"m3u.files": "Dateien",
-	"m3u.upfail": "Upload fehlgeschlagen"
+	"m3u.upfail": "Upload fehlgeschlagen",
+	"msg.error": "Fehler"
 }
