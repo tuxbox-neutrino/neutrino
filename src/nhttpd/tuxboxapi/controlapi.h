@@ -164,7 +164,9 @@ protected:
 	void ExecuteV4(CyhookHandler *hh);
 
 public:
-	static const unsigned int PLUGIN_DIR_COUNT = 9;
+	/* Where /control/exec looks for a script: the folders plugins are
+	   installed into, and nothing the web server serves. */
+	static const unsigned int PLUGIN_DIR_COUNT = 5;
 	static std::string PLUGIN_DIRS[PLUGIN_DIR_COUNT];
 
 	// constructor & deconstructor

@@ -12,7 +12,9 @@
 # Prints one line per check, PASS or FAIL, and exits non-zero on any FAIL.
 # Needs curl, gzip, cmp and python3 (for the raw-socket cases).
 # CHECKV1_WEBROOT, where set, names the folder the server serves its pages
-# from; the template checks (19) put probe files there and remove them.
+# from; the template and exec checks (19, 20) put probe files there and
+# remove them. CHECKV1_PLUGINDIR, where set, names a plugin folder of the box
+# for the one script that has to run (20).
 
 BASE="$1"; DOC="$2"; BEFORE="$3"
 [ -n "$BASE" ] && [ -f "$DOC" ] || { echo "usage: $0 <base-url> <openapi.json> [before-dir]" >&2; exit 2; }
@@ -658,6 +660,46 @@ if [ -n "$CHECKV1_WEBROOT" ] && [ -d "$CHECKV1_WEBROOT" ]; then
 	done
 else
 	echo "SKIP template files: CHECKV1_WEBROOT names no folder the server serves"
+fi
+
+# 20. /control/exec runs a script of the plugin folders only. One of the same
+#     name in the web folder, in its scripts/ or in an extension's scripts/ is
+#     not found and does not run; where CHECKV1_PLUGINDIR names a plugin folder
+#     of the box, the same script there still runs. The script leaves a mark,
+#     so a run is seen even where its answer would not say so.
+if [ -n "$CHECKV1_WEBROOT" ] && [ -d "$CHECKV1_WEBROOT" ]; then
+	m20="$T/ran20"
+	for d in "" scripts extensions/check-v1-probe20/scripts; do
+		made=""
+		[ -n "$d" ] && [ ! -d "$CHECKV1_WEBROOT/$d" ] && { mkdir -p "$CHECKV1_WEBROOT/$d"; made=1; }
+		f="$CHECKV1_WEBROOT/${d:+$d/}check-v1-probe20.sh"
+		printf '#!/bin/sh
+echo ran > %s
+echo ran20
+' "$m20" > "$f"; chmod 755 "$f"
+		c=`curl -s -o "$T/b20" -w '%{http_code}' -H "$AUTH_C" "$BASE/control/exec?check-v1-probe20"`
+		rm -f "$f"
+		[ -n "$made" ] && rmdir "$CHECKV1_WEBROOT/$d" 2>/dev/null
+		[ "$d" = extensions/check-v1-probe20/scripts ] && rmdir "$CHECKV1_WEBROOT/extensions/check-v1-probe20" 2>/dev/null
+		where="the web folder${d:+/$d}"
+		if [ "$c" = 404 ] && [ ! -e "$m20" ] && ! grep -q ran20 "$T/b20"; then pass "a script in $where does not run over /control/exec"
+		else fail "a script in $where over /control/exec: $c, ran: `[ -e "$m20" ] && echo yes || echo no`"; fi
+		rm -f "$m20"
+	done
+	if [ -n "$CHECKV1_PLUGINDIR" ] && [ -d "$CHECKV1_PLUGINDIR" ]; then
+		f="$CHECKV1_PLUGINDIR/check-v1-probe20.sh"
+		printf '#!/bin/sh
+echo ran > %s
+echo ran20
+' "$m20" > "$f"; chmod 755 "$f"
+		c=`curl -s -o "$T/b20" -w '%{http_code}' -H "$AUTH_C" "$BASE/control/exec?check-v1-probe20"`
+		rm -f "$f"
+		if [ "$c" = 200 ] && [ -e "$m20" ] && grep -q ran20 "$T/b20"; then pass "a script in a plugin folder still runs over /control/exec"
+		else fail "a script in a plugin folder over /control/exec: $c"; fi
+		rm -f "$m20"
+	fi
+else
+	echo "SKIP /control/exec: CHECKV1_WEBROOT names no folder the server serves"
 fi
 
 echo "failures: $fails"

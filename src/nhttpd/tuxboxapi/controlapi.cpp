@@ -134,19 +134,21 @@ CControlAPI::CControlAPI(CNeutrinoAPI *_NeutrinoAPI)
 	seedLegacyUsage();
 }
 //-----------------------------------------------------------------------------
-void CControlAPI::init(CyhookHandler *hh)
+/* The plugin folders only. The web folder, the override folder and the
+   scripts/ below them used to be searched first, for the scripts the
+   template pages ran; those pages are gone, and a script put where the
+   web server serves files, an extension's among them, is no longer one
+   this route runs. An extension's own scripts run through
+   POST /api/v1/webui/extensions/{dir}/scripts/{name}. */
+void CControlAPI::init(CyhookHandler *)
 {
 	if(PLUGIN_DIRS[0].empty())
-	{	// given in nhttpd.conf
-		PLUGIN_DIRS[0]=PLUGIN_DIRS[1]=hh->WebserverConfigList["WebsiteMain.override_directory"];
-		PLUGIN_DIRS[1].append("/scripts");
-		PLUGIN_DIRS[2]=PLUGIN_DIRS[3]=hh->WebserverConfigList["WebsiteMain.directory"];
-		PLUGIN_DIRS[3].append("/scripts");
-		PLUGIN_DIRS[4]=GAMESDIR;
-		PLUGIN_DIRS[5]=settingsText(g_settings.plugin_hdd_dir);
-		PLUGIN_DIRS[6]=PLUGINDIR_MNT;
-		PLUGIN_DIRS[7]=PLUGINDIR_VAR;
-		PLUGIN_DIRS[8]=PLUGINDIR;
+	{
+		PLUGIN_DIRS[0]=GAMESDIR;
+		PLUGIN_DIRS[1]=settingsText(g_settings.plugin_hdd_dir);
+		PLUGIN_DIRS[2]=PLUGINDIR_MNT;
+		PLUGIN_DIRS[3]=PLUGINDIR_VAR;
+		PLUGIN_DIRS[4]=PLUGINDIR;
 	}
 }
 
