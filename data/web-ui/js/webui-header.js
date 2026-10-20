@@ -39,9 +39,10 @@ const WEBUI_ICONS = {
 	more: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M5 12h.01M12 12h.01M19 12h.01"/></svg>'
 };
 
-// Shared modal close button
+// Shared modal close button; its name is set once the texts are in
+// (webuiDialogA11y), as some dialogs are built before
 function _webuiCloseBtn(onclick) {
-	return '<button type="button" class="webui-modal-close" aria-label="Close" onclick="' + onclick + '">' +
+	return '<button type="button" class="webui-modal-close" aria-label="Close" data-l-aria-label="msg.close" onclick="' + onclick + '">' +
 		'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" focusable="false"><path d="M6 18L18 6M6 6l12 12"/></svg>' +
 	'</button>';
 }
@@ -68,7 +69,7 @@ function webuiAboutHTML() {
 		</div>
 		<div class="webui-modal-body">
 			<div class="webui-about-section">
-				<h4>Versionen</h4>
+				<h4>${webuiLH('about.versions', 'Versions')}</h4>
 				<div class="webui-about-grid">
 					<span class="webui-about-label">Neutrino-Web-UI</span>
 					<span class="webui-about-value" id="about-webui">--</span>
@@ -79,30 +80,30 @@ function webuiAboutHTML() {
 				</div>
 			</div>
 			<div class="webui-about-section">
-				<h4>System</h4>
+				<h4>${webuiLH('about.system', 'System')}</h4>
 				<div class="webui-about-grid">
 					<span class="webui-about-label">Box</span>
 					<span class="webui-about-value" id="about-box">--</span>
-					<span class="webui-about-label">Architektur</span>
+					<span class="webui-about-label">${webuiLH('about.arch', 'Architecture')}</span>
 					<span class="webui-about-value" id="about-arch">--</span>
-					<span class="webui-about-label">Betriebssystem</span>
+					<span class="webui-about-label">${webuiLH('about.os', 'Operating system')}</span>
 					<span class="webui-about-value" id="about-os">--</span>
 				</div>
 			</div>
 			<div class="webui-about-section">
-				<h4>Links</h4>
+				<h4>${webuiLH('about.links', 'Links')}</h4>
 				<div class="webui-about-links" id="about-links">
-					<span class="webui-about-label">Laden...</span>
+					<span class="webui-about-label">${webuiLH('msg.loading', 'Loading...')}</span>
 				</div>
 			</div>
 			<div class="webui-about-section">
-				<h4>Lizenz &amp; Copyright</h4>
+				<h4>${webuiLH('about.license', 'License & copyright')}</h4>
 				<div class="webui-about-legal">
-					<p><strong>Neutrino-Web-UI</strong> - based on yWeb by yjogol<br>
+					<p><strong>Neutrino-Web-UI</strong> - ${webuiLH('about.based_on', 'based on yWeb by yjogol')}<br>
 					<span id="about-copyright">Copyright © Tuxbox Project</span></p>
-					<p>Lizenziert unter der <a href="https://www.gnu.org/licenses/old-licenses/gpl-2.0.html" target="_blank">GNU GPL v2</a></p>
-					<p><strong>Icons:</strong> Teile der Icons basieren auf <a href="https://www.famfamfam.com/lab/icons/silk/" target="_blank">Silk Icons</a> von famfamfam, lizenziert unter <a href="https://creativecommons.org/licenses/by/2.5/" target="_blank">CC BY 2.5</a></p>
-					<p><strong>CSS Framework:</strong> <a href="https://picocss.com" target="_blank">Pico.css</a> (MIT License)</p>
+					<p>${webuiLH('about.licensed', 'Licensed under the')} <a href="https://www.gnu.org/licenses/old-licenses/gpl-2.0.html" target="_blank" rel="noopener">GNU GPL v2</a></p>
+					<p><strong>${webuiLH('about.icons', 'Icons')}:</strong> ${webuiLH('about.icons_from', 'Parts of the icons are based on')} <a href="https://www.famfamfam.com/lab/icons/silk/" target="_blank" rel="noopener">Silk Icons</a> ${webuiLH('about.icons_by', 'by famfamfam, licensed under')} <a href="https://creativecommons.org/licenses/by/2.5/" target="_blank" rel="noopener">CC BY 2.5</a></p>
+					<p><strong>${webuiLH('about.css', 'CSS framework')}:</strong> <a href="https://picocss.com" target="_blank" rel="noopener">Pico.css</a> (${webuiLH('about.mit', 'MIT License')})</p>
 				</div>
 			</div>
 		</div>
@@ -365,8 +366,8 @@ function webuiGetHeaderHTML(activePage) {
 		<div class="webui-header-right">
 			<span class="webui-hostname" id="webui-hostname">--</span>
 			<span class="webui-clock" id="webui-clock">--:--</span>
-			<button class="webui-theme-toggle webui-lang-btn" onclick="webuiToggleLangMenu(event)" title="${webuiLH('lang.title', 'Language')}">
-				<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+			<button class="webui-theme-toggle webui-lang-btn" id="webui-lang-btn" onclick="webuiToggleLangMenu(event)" title="${webuiLH('lang.title', 'Language')}" aria-label="${webuiLH('lang.title', 'Language')}" aria-haspopup="true" aria-expanded="false">
+				<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true" focusable="false">
 					<circle cx="12" cy="12" r="9" stroke-width="2"/>
 					<path stroke-width="2" d="M3 12h18M12 3a15 15 0 010 18M12 3a15 15 0 000 18"/>
 				</svg>
@@ -528,9 +529,16 @@ async function webuiExtTexts(dir) {
 
 async function webuiToggleLangMenu(ev) {
 	ev.stopPropagation();
+	var opener = ev.currentTarget;
 	var menu = document.getElementById('webui-lang-menu');
-	if (menu) { menu.remove(); return; }
-	var r = ev.currentTarget.getBoundingClientRect();
+	var shut = function(back) {
+		var m = document.getElementById('webui-lang-menu');
+		if (m) m.remove();
+		opener.setAttribute('aria-expanded', 'false');
+		if (back) opener.focus();
+	};
+	if (menu) { shut(false); return; }
+	var r = opener.getBoundingClientRect();
 	var answer = null;
 	try {
 		answer = await _webuiV1Read('/webui/language');
@@ -544,23 +552,45 @@ async function webuiToggleLangMenu(ev) {
 	menu = document.createElement('div');
 	menu.id = 'webui-lang-menu';
 	menu.className = 'webui-lang-menu';
+	menu.setAttribute('role', 'group');
+	menu.setAttribute('aria-label', webuiL('lang.title', 'Language'));
+	var chosen = null;
 	langs.forEach(function(l) {
 		var b = document.createElement('button');
 		b.type = 'button';
 		b.textContent = l.name;
 		b.lang = l.code;
-		if (l.code === answer.selected) b.classList.add('active');
+		if (l.code === answer.selected) {
+			b.classList.add('active');
+			b.setAttribute('aria-current', 'true');
+			chosen = b;
+		}
 		b.onclick = function() { webuiSetLanguage(l.code); };
 		menu.appendChild(b);
+	});
+	// Escape closes it and hands the focus back to the button, and so does
+	// Tab on its last entry, as the menu is the last thing on the page;
+	// leaving it by Shift+Tab closes it as well
+	menu.addEventListener('keydown', function(e) {
+		var all = menu.querySelectorAll('button');
+		if (e.key === 'Escape' || (e.key === 'Tab' && !e.shiftKey && document.activeElement === all[all.length - 1])) {
+			e.preventDefault();
+			shut(true);
+		}
+	});
+	menu.addEventListener('focusout', function(e) {
+		if (e.relatedTarget && !menu.contains(e.relatedTarget) && e.relatedTarget !== opener)
+			shut(false);
 	});
 	menu.style.top = (r.bottom + 4) + 'px';
 	menu.style.right = Math.max(4, window.innerWidth - r.right) + 'px';
 	document.body.appendChild(menu);
+	opener.setAttribute('aria-expanded', 'true');
+	(chosen || menu.querySelector('button')).focus();
 	setTimeout(function() {
 		document.addEventListener('click', function close() {
 			document.removeEventListener('click', close);
-			var m = document.getElementById('webui-lang-menu');
-			if (m) m.remove();
+			shut(false);
 		});
 	}, 0);
 }
@@ -1402,6 +1432,71 @@ function escapeJs(text) {
 	return text.replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '\\"');
 }
 
+var _webuiDialogSeq = 0;
+
+/* Makes a dialog drawn by hand behave as one: its role, named by its title,
+   the focus inside it (on opts.focus, else on its first control), Tab kept
+   within it, Escape calling opts.close, and once released the focus back
+   where it was. opts.alert makes it an alertdialog, for a question that
+   wants an answer. Returns release(). */
+function webuiDialogA11y(dialog, opts) {
+	opts = opts || {};
+	var before = document.activeElement;
+	dialog.setAttribute('role', opts.alert ? 'alertdialog' : 'dialog');
+	dialog.setAttribute('aria-modal', 'true');
+	var title = dialog.querySelector('h1, h2, h3, h4');
+	if (title) {
+		if (!title.id)
+			title.id = 'webui-dialog-' + (++_webuiDialogSeq);
+		dialog.setAttribute('aria-labelledby', title.id);
+	}
+	dialog.querySelectorAll('[data-l-aria-label]').forEach(function(el) {
+		el.setAttribute('aria-label', webuiL(el.getAttribute('data-l-aria-label'), el.getAttribute('aria-label') || ''));
+	});
+	var controls = function() {
+		return Array.prototype.filter.call(
+			dialog.querySelectorAll('a[href], button, input, select, textarea, [tabindex]:not([tabindex="-1"])'),
+			function(el) { return !el.disabled && el.offsetParent !== null; });
+	};
+	var onKey = function(e) {
+		if (e.key === 'Escape' && opts.close) {
+			e.preventDefault();
+			e.stopPropagation();
+			opts.close();
+			return;
+		}
+		if (e.key !== 'Tab')
+			return;
+		var all = controls();
+		if (!all.length) {
+			e.preventDefault();
+			return;
+		}
+		if (e.shiftKey && document.activeElement === all[0]) {
+			e.preventDefault();
+			all[all.length - 1].focus();
+		} else if (!e.shiftKey && document.activeElement === all[all.length - 1]) {
+			e.preventDefault();
+			all[0].focus();
+		}
+	};
+	dialog.addEventListener('keydown', onKey);
+	var start = opts.focus || controls()[0];
+	if (start) {
+		start.focus();
+	} else {
+		dialog.tabIndex = -1;
+		dialog.focus();
+	}
+	// back only to what can still take the focus: an opener that went or
+	// was hidden meanwhile leaves it to the caller
+	return function release() {
+		dialog.removeEventListener('keydown', onKey);
+		if (before && typeof before.focus === 'function' && document.contains(before) && before.getClientRects().length)
+			before.focus();
+	};
+}
+
 // Generic modal on the EPG-modal backdrop pattern. Reuses the element
 // per id and replaces title/body on every call (reset on reopen).
 function webuiModal(id, title, bodyHtml) {
@@ -1423,12 +1518,22 @@ function webuiModal(id, title, bodyHtml) {
 	backdrop.querySelector('.webui-epg-modal-body').innerHTML = bodyHtml;
 	backdrop.classList.add('open');
 	document.body.style.overflow = 'hidden';
+	if (backdrop._webuiRelease)
+		backdrop._webuiRelease();
+	backdrop._webuiRelease = webuiDialogA11y(backdrop.querySelector('.webui-epg-modal'),
+		{close: function() { webuiCloseModal(id); }});
 	return backdrop;
 }
 
 function webuiCloseModal(id) {
 	var backdrop = document.getElementById(id);
-	if (backdrop) backdrop.classList.remove('open');
+	if (backdrop) {
+		backdrop.classList.remove('open');
+		if (backdrop._webuiRelease) {
+			backdrop._webuiRelease();
+			backdrop._webuiRelease = null;
+		}
+	}
 	document.body.style.overflow = '';
 }
 
@@ -1686,125 +1791,204 @@ async function webuiFetchChannels(bouquetNr) {
 }
 
 // Confirm dialog — shared across all pages
-// Returns a Promise that resolves when confirmed, rejects when cancelled
 // onConfirm: async function(btn) — called when user clicks confirm, btn shows loading state
 // opts.variant 'ok': Akzent-Knopf fuer nicht-destruktive Rueckfragen
-// (Standby, Neustart-Frage o.ae.); Default bleibt rot (destruktiv)
+// (Standby, Neustart-Frage o.ae.); Default bleibt rot (destruktiv), and
+// then the focus starts on Cancel, so Enter does not destroy anything.
 // title and confirmLabel are text; message is markup, and a caller escapes
-// what it puts in (webuiLH for a text, escapeHtml for a name).
+// what it puts in (webuiLH for a text, escapeHtml for a name). Where
+// onConfirm throws, the dialog stays and says why below the question.
 function webuiShowConfirm(title, message, confirmLabel, onConfirm, opts) {
 	var confirmClass = (opts && opts.variant === 'ok') ? 'confirm-ok' : 'confirm-delete';
 	var backdrop = document.createElement('div');
 	backdrop.className = 'webui-confirm-backdrop';
-	backdrop.onclick = function(e) {
-		if (e.target === backdrop) backdrop.remove();
-	};
 	backdrop.innerHTML =
 		'<div class="webui-confirm-dialog">' +
 			'<h4>' + escapeHtml(title) + '</h4>' +
 			'<p>' + message + '</p>' +
+			'<p class="webui-confirm-why" role="alert" hidden></p>' +
 			'<div class="webui-confirm-actions">' +
-				'<button class="confirm-cancel">' + webuiLH('msg.cancel', 'Cancel') + '</button>' +
-				'<button class="' + confirmClass + '">' + escapeHtml(confirmLabel) + '</button>' +
+				'<button type="button" class="confirm-cancel">' + webuiLH('msg.cancel', 'Cancel') + '</button>' +
+				'<button type="button" class="' + confirmClass + '">' + escapeHtml(confirmLabel) + '</button>' +
 			'</div>' +
 		'</div>';
-	backdrop.querySelector('.confirm-cancel').onclick = function() { backdrop.remove(); };
-	backdrop.querySelector('.' + confirmClass).onclick = async function() {
+	var release = null;
+	var close = function() {
+		backdrop.remove();
+		if (release) release();
+	};
+	backdrop.onclick = function(e) {
+		if (e.target === backdrop) close();
+	};
+	var cancelBtn = backdrop.querySelector('.confirm-cancel');
+	var okBtn = backdrop.querySelector('.' + confirmClass);
+	var why = backdrop.querySelector('.webui-confirm-why');
+	cancelBtn.onclick = close;
+	okBtn.onclick = async function() {
 		var btn = this;
-		btn.textContent = '...';
 		btn.disabled = true;
+		btn.setAttribute('aria-busy', 'true');
+		why.hidden = true;
 		try {
 			await onConfirm(btn);
-			backdrop.remove();
+			close();
 		} catch (e) {
 			console.error('Confirm action failed:', e);
-			btn.textContent = webuiL('msg.error', 'Error');
-			setTimeout(function() { backdrop.remove(); }, 1500);
+			btn.disabled = false;
+			btn.removeAttribute('aria-busy');
+			if (!e || !e.cancelled) {
+				why.textContent = webuiErrText(e);
+				why.hidden = false;
+			}
+			btn.focus();
 		}
 	};
 	document.body.appendChild(backdrop);
+	release = webuiDialogA11y(backdrop.querySelector('.webui-confirm-dialog'),
+		{alert: true, close: close, focus: confirmClass === 'confirm-ok' ? okBtn : cancelBtn});
 }
 
 // Prompt dialog — shared: Textfeld mit OK/Abbrechen im Look des
 // Confirm-Dialogs, Ersatz fuer natives prompt(). onOk(value) darf
 // async sein; Enter bestaetigt, Escape/Backdrop bricht ab.
+// The field is named by label, else by the title; an empty field or a
+// refusal keeps the dialog open and what was typed, and says why.
 function webuiShowPrompt(title, label, value, onOk) {
 	var backdrop = document.createElement('div');
 	backdrop.className = 'webui-confirm-backdrop';
-	backdrop.onclick = function(e) {
-		if (e.target === backdrop) backdrop.remove();
-	};
+	var fieldId = 'webui-prompt-' + (++_webuiDialogSeq);
 	backdrop.innerHTML =
 		'<div class="webui-confirm-dialog">' +
 			'<h4></h4>' +
-			'<label class="webui-prompt-label"></label>' +
-			'<input type="text" class="webui-prompt-input" maxlength="255">' +
+			'<label class="webui-prompt-label" for="' + fieldId + '"></label>' +
+			'<input type="text" class="webui-prompt-input" id="' + fieldId + '" maxlength="255">' +
+			'<p class="webui-confirm-why" role="alert" hidden></p>' +
 			'<div class="webui-confirm-actions">' +
-				'<button class="confirm-cancel">' + webuiLH('msg.cancel', 'Cancel') + '</button>' +
-				'<button class="confirm-ok">OK</button>' +
+				'<button type="button" class="confirm-cancel">' + webuiLH('msg.cancel', 'Cancel') + '</button>' +
+				'<button type="button" class="confirm-ok">' + webuiLH('msg.ok', 'OK') + '</button>' +
 			'</div>' +
 		'</div>';
-	backdrop.querySelector('h4').textContent = title;
+	var dialog = backdrop.querySelector('.webui-confirm-dialog');
+	dialog.querySelector('h4').textContent = title;
 	var lab = backdrop.querySelector('.webui-prompt-label');
-	if (label) lab.textContent = label; else lab.remove();
 	var inp = backdrop.querySelector('.webui-prompt-input');
+	var why = backdrop.querySelector('.webui-confirm-why');
+	if (label) {
+		lab.textContent = label;
+	} else {
+		lab.remove();
+		inp.setAttribute('aria-label', title);
+	}
 	inp.value = value || '';
+	var release = null;
+	var close = function() {
+		backdrop.remove();
+		if (release) release();
+	};
+	var say = function(text) {
+		why.textContent = text;
+		why.hidden = !text;
+		if (text)
+			inp.setAttribute('aria-invalid', 'true');
+		else
+			inp.removeAttribute('aria-invalid');
+	};
 	var ok = async function(btn) {
 		// Enter while the first OK is still running would send it twice
 		if (btn.disabled) return;
-		if (!inp.value.trim()) { inp.focus(); return; }
+		if (!inp.value.trim()) {
+			say(webuiL('msg.empty_field', 'Please fill this in'));
+			inp.focus();
+			return;
+		}
+		say('');
 		btn.disabled = true;
+		btn.setAttribute('aria-busy', 'true');
 		try {
 			await onOk(inp.value.trim());
-			backdrop.remove();
+			close();
 		} catch (e) {
 			console.error('Prompt action failed:', e);
-			btn.textContent = webuiL('msg.error', 'Error');
-			setTimeout(function() { backdrop.remove(); }, 1500);
+			btn.disabled = false;
+			btn.removeAttribute('aria-busy');
+			if (!e || !e.cancelled)
+				say(webuiErrText(e));
+			inp.focus();
 		}
 	};
-	backdrop.querySelector('.confirm-cancel').onclick = function() { backdrop.remove(); };
+	backdrop.onclick = function(e) {
+		if (e.target === backdrop) close();
+	};
+	backdrop.querySelector('.confirm-cancel').onclick = close;
 	backdrop.querySelector('.confirm-ok').onclick = function() { ok(this); };
 	inp.onkeydown = function(e) {
 		if (e.key === 'Enter') ok(backdrop.querySelector('.confirm-ok'));
-		if (e.key === 'Escape') backdrop.remove();
 	};
 	document.body.appendChild(backdrop);
-	inp.focus();
+	release = webuiDialogA11y(dialog, {close: close, focus: inp});
 	inp.select();
 }
 
-// Message popover — send ticker or popup messages to the box
+// Message popover — send ticker or popup messages to the box. A small
+// dialog beside the page: named, the field labelled, Escape closes it and
+// gives the focus back.
+var _webuiMessageOpener = null;
+
+function _webuiCloseMessage() {
+	var pop = document.getElementById('webui-message-pop');
+	if (!pop || !pop.classList.contains('open'))
+		return;
+	pop.classList.remove('open');
+	if (_webuiMessageOpener && document.contains(_webuiMessageOpener))
+		_webuiMessageOpener.focus();
+	_webuiMessageOpener = null;
+}
+
 function webuiShowMessageDialog() {
 	var pop = document.getElementById('webui-message-pop');
-	if (pop) { pop.classList.toggle('open'); return; }
+	if (pop && pop.classList.contains('open')) {
+		_webuiCloseMessage();
+		return;
+	}
+	_webuiMessageOpener = document.activeElement;
+	if (pop) {
+		pop.classList.add('open');
+		pop.querySelector('#webui-msg-text').focus();
+		return;
+	}
 
 	pop = document.createElement('div');
 	pop.id = 'webui-message-pop';
 	pop.className = 'webui-popover open';
+	pop.setAttribute('role', 'dialog');
+	pop.setAttribute('aria-label', webuiL('tools.message', 'Message'));
 	pop.innerHTML =
-		'<button type="button" class="webui-popover-close" onclick="document.getElementById(\'webui-message-pop\').classList.remove(\'open\')" aria-label="Close">\u00d7</button>' +
+		'<button type="button" class="webui-popover-close" onclick="_webuiCloseMessage()" aria-label="' + webuiLH('msg.close', 'Close') + '">\u00d7</button>' +
 		'<form onsubmit="return false">' +
-			'<input type="text" id="webui-msg-text" placeholder="' + webuiLH('tools.message_ph', 'Enter message\u2026') + '" maxlength="255">' +
+			'<input type="text" id="webui-msg-text" aria-label="' + webuiLH('tools.message', 'Message') + '" placeholder="' + webuiLH('tools.message_ph', 'Enter message\u2026') + '" maxlength="255">' +
 			'<div class="webui-popover-actions">' +
-				'<small id="webui-msg-result">\u00a0</small>' +
+				'<small id="webui-msg-result" role="status">\u00a0</small>' +
 				'<button type="button" class="webui-btn" onclick="webuiSendMessage(\'nmsg\')">' + webuiLH('tools.message', 'Message') + '</button>' +
-				'<button type="button" class="webui-btn primary" onclick="webuiSendMessage(\'popup\')">Popup</button>' +
+				'<button type="button" class="webui-btn primary" onclick="webuiSendMessage(\'popup\')">' + webuiLH('msg.popup', 'Popup') + '</button>' +
 			'</div>' +
 		'</form>';
 	document.body.appendChild(pop);
+	pop.addEventListener('keydown', function(e) {
+		if (e.key === 'Escape') {
+			e.preventDefault();
+			_webuiCloseMessage();
+		}
+	});
 
 	var input = pop.querySelector('#webui-msg-text');
 	input.onkeydown = function(e) { if (e.key === 'Enter') webuiSendMessage('nmsg'); };
 	input.focus();
 
-	// Close on outside click
+	// Close on outside click; listened for after the click that opened it
 	setTimeout(function() {
-		document.addEventListener('click', function close(e) {
-			if (!pop.contains(e.target) && !e.target.closest('[onclick*="webuiShowMessageDialog"]')) {
-				pop.classList.remove('open');
-				document.removeEventListener('click', close);
-			}
+		document.addEventListener('click', function(e) {
+			if (pop.classList.contains('open') && !pop.contains(e.target) && !e.target.closest('[onclick*="webuiShowMessageDialog"]'))
+				_webuiCloseMessage();
 		});
 	}, 10);
 }
@@ -1824,7 +2008,7 @@ async function webuiSendMessage(mode) {
 			params[mode] = text;
 			await webuiApi('message', params);
 		}
-		result.textContent = 'Gesendet';
+		result.textContent = webuiL('msg.sent', 'Sent');
 		result.style.color = 'var(--webui-success)';
 		input.value = '';
 		setTimeout(function() { result.textContent = '\u00a0'; result.style.color = ''; }, 2500);
@@ -2011,8 +2195,8 @@ function webuiShowAbout() {
 				var link = function(url, text) {
 					return /^https?:\/\//.test(url) ? '<a href="' + escapeHtml(url) + '" target="_blank" rel="noopener">' + text + '</a>' : '';
 				};
-				html += link(data.links.homepage, 'Homepage') + link(data.links.docs, 'Dokumentation') +
-					link(data.links.forum, 'Forum');
+				html += link(data.links.homepage, webuiLH('about.homepage', 'Homepage')) + link(data.links.docs, webuiLH('about.docs', 'Documentation')) +
+					link(data.links.forum, webuiLH('about.forum', 'Forum'));
 				linksEl.innerHTML = html || '<span class="webui-about-label">' + webuiLH('about.no_links', 'No links available') + '</span>';
 			}
 
@@ -2022,7 +2206,12 @@ function webuiShowAbout() {
 				setEl('webui-footer-copyright', data.copyright.text);
 			}
 		})
-		.catch(() => {});
+		.catch(() => {
+			// nothing to offer then, instead of a loading text for good
+			const linksEl = document.getElementById('about-links');
+			if (linksEl)
+				linksEl.innerHTML = '<span class="webui-about-label">' + webuiLH('about.no_links', 'No links available') + '</span>';
+		});
 
 	// the box and its system, over /api/v1/system/info
 	webuiSystemInfoOnce()
@@ -2039,12 +2228,21 @@ function webuiShowAbout() {
 
 	modal.classList.add('open');
 	document.body.style.overflow = 'hidden';
+	if (modal._webuiRelease)
+		modal._webuiRelease();
+	modal._webuiRelease = webuiDialogA11y(modal.querySelector('.webui-modal'), {close: function() { webuiCloseAbout(); }});
 }
 
 function webuiCloseAbout(event) {
 	if (event && event.target !== event.currentTarget) return;
 	const modal = document.getElementById('webui-about-modal');
-	if (modal) modal.classList.remove('open');
+	if (modal) {
+		modal.classList.remove('open');
+		if (modal._webuiRelease) {
+			modal._webuiRelease();
+			modal._webuiRelease = null;
+		}
+	}
 	document.body.style.overflow = '';
 }
 

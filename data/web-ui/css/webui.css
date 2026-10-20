@@ -944,6 +944,16 @@ body:not(.has-subheader) .webui-header-spacer {
 	font-size: var(--webui-font-sm);
 }
 
+/* why the action asked for failed, the dialog still open */
+.webui-confirm-dialog .webui-confirm-why {
+	color: var(--webui-danger);
+	font-weight: 550;
+}
+
+.webui-confirm-dialog .webui-confirm-why[hidden] {
+	display: none;
+}
+
 .webui-confirm-actions {
 	display: flex;
 	gap: 0.5rem;

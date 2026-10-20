@@ -470,8 +470,10 @@ function _webuiV1Open() {
 // Shared by the dashboard, the channel list and the timer list. Channel ids
 // are v1's: hexadecimal without leading zeros.
 
-// EPG Info Modal HTML Template
-const WEBUI_EPG_MODAL_HTML = `
+// EPG Info Modal HTML Template, built on its first opening, once the texts
+// are in
+function _webuiEpgModalHTML() {
+	return `
 <div class="webui-epg-modal-backdrop" id="webuiEpgModal" onclick="webuiCloseEpgModal(event)">
 	<div class="webui-epg-modal" onclick="event.stopPropagation()">
 		<div class="webui-epg-modal-header">
@@ -480,38 +482,39 @@ const WEBUI_EPG_MODAL_HTML = `
 		</div>
 		<div class="webui-epg-modal-body">
 			<div class="webui-epg-current">
-				<div class="webui-epg-title" id="webuiEpgCurrentTitle">Lade...</div>
+				<div class="webui-epg-title" id="webuiEpgCurrentTitle">${webuiLH('msg.loading', 'Loading...')}</div>
 				<div class="webui-epg-time" id="webuiEpgCurrentTime">--:-- - --:--</div>
-				<div class="webui-epg-progress">
+				<div class="webui-epg-progress" aria-hidden="true">
 					<div class="webui-epg-progress-bar" id="webuiEpgProgressBar" style="width: 0%"></div>
 				</div>
 				<div class="webui-epg-description" id="webuiEpgCurrentDesc"></div>
 			</div>
 			<div class="webui-epg-next" id="webuiEpgNextSection" style="display: none;">
-				<div class="webui-epg-next-label">Danach</div>
+				<div class="webui-epg-next-label">${webuiLH('epg.after', 'Next')}</div>
 				<div class="webui-epg-next-title" id="webuiEpgNextTitle">--</div>
 				<div class="webui-epg-next-time" id="webuiEpgNextTime">--:-- - --:--</div>
 			</div>
 		</div>
 		<div class="webui-epg-modal-footer">
-			<button class="webui-btn" onclick="webuiCloseEpgModal()">Schließen</button>
-			<button class="webui-btn" id="webuiEpgRecBtn" onclick="webuiEpgModalToggleRec()" style="color:var(--webui-danger,#ef4444)">
-				<svg viewBox="0 0 24 24" fill="currentColor" style="width:1rem;height:1rem;margin-right:0.3rem">
+			<button type="button" class="webui-btn" onclick="webuiCloseEpgModal()">${webuiLH('msg.close', 'Close')}</button>
+			<button type="button" class="webui-btn" id="webuiEpgRecBtn" onclick="webuiEpgModalToggleRec()" style="color:var(--webui-danger,#ef4444)">
+				<svg viewBox="0 0 24 24" fill="currentColor" style="width:1rem;height:1rem;margin-right:0.3rem" aria-hidden="true">
 					<circle cx="12" cy="12" r="8"/>
 				</svg>
-				<span>Aufnehmen</span>
+				<span>${webuiLH('rec.start', 'Record')}</span>
 			</button>
-			<button class="webui-btn primary" onclick="webuiStreamChannel()">
-				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:1rem;height:1rem;margin-right:0.3rem">
+			<button type="button" class="webui-btn primary" onclick="webuiStreamChannel()">
+				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:1rem;height:1rem;margin-right:0.3rem" aria-hidden="true">
 					<path d="M5 17H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-1"/>
 					<polygon points="12,15 17,21 7,21"/>
 				</svg>
-				Stream
+				${webuiLH('msg.stream', 'Stream')}
 			</button>
 		</div>
 	</div>
 </div>
 `;
+}
 
 // The channel and the guide event the dialog shows, for its buttons
 let webuiEpgModalChannelId = null;
@@ -535,7 +538,7 @@ function _webuiV1Maybe(path, query) {
 // What runs now on a channel, its long text and what follows
 async function webuiShowEpgModal(channelId, channelName) {
 	if (!document.getElementById('webuiEpgModal'))
-		document.body.insertAdjacentHTML('beforeend', WEBUI_EPG_MODAL_HTML);
+		document.body.insertAdjacentHTML('beforeend', _webuiEpgModalHTML());
 
 	const modal = document.getElementById('webuiEpgModal');
 	const titleEl = document.getElementById('webuiEpgCurrentTitle');
@@ -561,6 +564,9 @@ async function webuiShowEpgModal(channelId, channelName) {
 
 	modal.classList.add('open');
 	document.body.style.overflow = 'hidden';
+	if (modal._webuiRelease)
+		modal._webuiRelease();
+	modal._webuiRelease = webuiDialogA11y(modal.querySelector('.webui-epg-modal'), {close: function() { webuiCloseEpgModal(); }});
 
 	webuiEpgModalUpdateRecBtn(false);
 	webuiCheckRecordingForChannel(channelId).then(function(rec) {
@@ -607,7 +613,13 @@ async function webuiShowEpgModal(channelId, channelName) {
 function webuiCloseEpgModal(event) {
 	if (event && event.target !== event.currentTarget) return;
 	const modal = document.getElementById('webuiEpgModal');
-	if (modal) modal.classList.remove('open');
+	if (modal) {
+		modal.classList.remove('open');
+		if (modal._webuiRelease) {
+			modal._webuiRelease();
+			modal._webuiRelease = null;
+		}
+	}
 	document.body.style.overflow = '';
 	// what it showed is no event a later Rec elsewhere may take
 	webuiEpgModalEvent = null;

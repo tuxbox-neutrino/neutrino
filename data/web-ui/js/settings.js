@@ -683,6 +683,13 @@ async function loadExtensionsPanel() {
 	el.innerHTML = html;
 }
 
+// After an install the panel is drawn anew, and the button that opened the
+// dialog with it: the focus goes to the new one instead of the page.
+function extFocusInstall() {
+	var b = document.querySelector('#extPanel button[onclick="extInstallDialog()"]');
+	if (b) b.focus();
+}
+
 // The install dialog: an extension from the signed index, or an archive the
 // user takes unsigned after a warning. The browser loads index and archive
 // and uploads them; the box checks the index against its signature and the
@@ -807,6 +814,7 @@ async function extInstallUpload(btn) {
 			webuiShowToast(webuiL('set.extinst_ok', 'Installed') + ': ' + (res && res.dir));
 			webuiCloseModal('extInstallModal');
 			await loadExtensionsPanel();
+			extFocusInstall();
 		} catch (e) { webuiToastError(webuiL('set.extinst_fail', 'Installation failed'), e); }
 		btn.disabled = false;
 	}, {variant: 'ok'});
@@ -853,6 +861,7 @@ async function extInstallOffered(id, btn) {
 		webuiShowToast(webuiL('set.extinst_ok', 'Installed') + ': ' + (res && res.dir) + ' v' + e.version);
 		webuiCloseModal('extInstallModal');
 		await loadExtensionsPanel();
+		extFocusInstall();
 	} catch (err) { webuiToastError(webuiL('set.extinst_fail', 'Installation failed'), err); }
 	btn.disabled = false;
 }
