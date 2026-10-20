@@ -41,7 +41,9 @@ function m3uConvert() {
 	for (var i = 0; i < lines.length; i++) {
 		var v = lines[i].trim();
 		if (v === '') continue;
-		if (v.indexOf('#') !== -1) {
+		// a line is a tag or a comment when it starts with #; an address
+		// may hold one further on (a fragment) and stays an address
+		if (v.charAt(0) === '#') {
 			if (v.toUpperCase().indexOf('#EXTINF') !== -1) {
 				var ci = v.indexOf(',');
 				if (ci !== -1) name = v.substr(ci + 1);
