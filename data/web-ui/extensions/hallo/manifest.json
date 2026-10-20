@@ -2,6 +2,7 @@
 	"name": "Hello",
 	"version": "1.0.0",
 	"slot": "tools",
+	"area": "system",
 	"entry": "index.html",
 	"icon": "icon.svg",
 	"description": "An example to start an extension from",
