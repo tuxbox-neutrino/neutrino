@@ -97,8 +97,14 @@ function renderField(f, opts) {
 	   extension's manifest, a translation), and escaped here, where it is put
 	   into markup; the optional (i) hint follows it (native title tooltip). */
 	var labelHtml = escapeHtml(f.label) +
-		(f.hint ? ' <span class="webui-hint" title="' + escapeHtml(f.hint) + '">&#9432;</span>' : '');
+		(f.hint ? ' <span class="webui-hint" title="' + escapeHtml(f.hint) + '" aria-hidden="true">&#9432;</span>' : '');
 	var id = ('cfg_' + (opts.idPrefix || '') + String(f.key || f.id || '').replace(/\./g, '__')).replace(/[^A-Za-z0-9_-]/g, '_');	// a manifest's key too
+	/* A field is named by its row's label and described by the hint, which
+	   the (i) only shows to the mouse. */
+	var hintId = f.hint ? id + '_hint' : '';
+	var described = hintId ? ' aria-describedby="' + hintId + '"' : '';
+	var labelFor = '<label for="' + id + '">' + labelHtml + '</label>' +
+		(hintId ? '<span id="' + hintId + '" hidden>' + escapeHtml(f.hint) + '</span>' : '');
 	var ext = opts.dataConfig ? ' data-extcfg="' + escapeHtml(opts.dataConfig) + '"' : '';
 
 	// Observer-Abhaengigkeit: Zeile wird gerendert, aber gesperrt, solange
@@ -136,8 +142,8 @@ function renderField(f, opts) {
 		var opts = f.options.map(function(o) {
 			return '<option value="' + escapeHtml(o.v) + '"' + (val === o.v ? ' selected' : '') + '>' + escapeHtml(o.l) + '</option>';
 		}).join('');
-		return row + '<label>' + labelHtml + '</label>' +
-			'<select id="' + id + '" data-key="' + escapeHtml(f.key) + '"' + ext + dis + '>' + opts + '</select></div>';
+		return row + labelFor +
+			'<select id="' + id + '" data-key="' + escapeHtml(f.key) + '"' + ext + dis + described + '>' + opts + '</select></div>';
 	}
 	// ACCESS-Domaene (personalize.h): nur 0 = ohne PIN und 2 = mit PIN.
 	// Der Eintrag ist immer sichtbar (personalize.cpp:1006), die 0 heisst
@@ -145,36 +151,36 @@ function renderField(f, opts) {
 	// 2 aus (personalize.cpp:961) — jeder andere Wert bedeutet 'ohne PIN'.
 	if (f.type === 'access') {
 		var pin = (val === '2');
-		return row + '<label>' + labelHtml + '</label>' +
-			'<select id="' + id + '" data-key="' + escapeHtml(f.key) + '"' + ext + dis + '>' +
+		return row + labelFor +
+			'<select id="' + id + '" data-key="' + escapeHtml(f.key) + '"' + ext + dis + described + '>' +
 			'<option value="0"' + (pin ? '' : ' selected') + '>' + webuiLH('pers.no', 'No') + '</option>' +
 			'<option value="2"' + (pin ? ' selected' : '') + '>' + webuiLH('pers.yes', 'Yes') + '</option>' +
 			'</select></div>';
 	}
 	if (f.type === 'bool') {
 		var isTrue = (val === 'true' || val === '1');
-		return row + '<label>' + labelHtml + '</label>' +
-			'<label class="webui-toggle"><input type="checkbox" id="' + id + '" data-key="' + escapeHtml(f.key) + '" data-on="true" data-off="false"' + ext + dis + (isTrue ? ' checked' : '') + '>' +
+		return row + labelFor +
+			'<label class="webui-toggle"><input type="checkbox" id="' + id + '" data-key="' + escapeHtml(f.key) + '" data-on="true" data-off="false"' + ext + dis + described + (isTrue ? ' checked' : '') + '>' +
 			'<span class="webui-toggle-slider"></span></label></div>';
 	}
 	if (f.type === 'bool01') {
 		var isOne = (val === '1');
-		return row + '<label>' + labelHtml + '</label>' +
-			'<label class="webui-toggle"><input type="checkbox" id="' + id + '" data-key="' + escapeHtml(f.key) + '" data-on="1" data-off="0"' + ext + dis + (isOne ? ' checked' : '') + '>' +
+		return row + labelFor +
+			'<label class="webui-toggle"><input type="checkbox" id="' + id + '" data-key="' + escapeHtml(f.key) + '" data-on="1" data-off="0"' + ext + dis + described + (isOne ? ' checked' : '') + '>' +
 			'<span class="webui-toggle-slider"></span></label></div>';
 	}
 	if (f.type === 'number') {
 		var attrs = 'type="number"';
 		if (f.min !== undefined) attrs += ' min="' + escapeHtml(String(f.min)) + '"';
 		if (f.max !== undefined) attrs += ' max="' + escapeHtml(String(f.max)) + '"';
-		return row + '<label>' + labelHtml + '</label>' +
-			'<input ' + attrs + ' id="' + id + '" data-key="' + escapeHtml(f.key) + '"' + ext + dis + ' value="' + escapeHtml(val) + '"></div>';
+		return row + labelFor +
+			'<input ' + attrs + ' id="' + id + '" data-key="' + escapeHtml(f.key) + '"' + ext + dis + described + ' value="' + escapeHtml(val) + '"></div>';
 	}
 	if (f.type === 'password') {
 		var pattr = f.pattern ? ' pattern="' + escapeHtml(f.pattern) + '"' : '';
 		if (f.maxlength) pattr += ' maxlength="' + escapeHtml(String(f.maxlength)) + '"';
-		return row + '<label>' + labelHtml + '</label><span>' +
-			'<input type="password" id="' + id + '" data-key="' + escapeHtml(f.key) + '"' + ext + dis + pattr + ' autocomplete="new-password" value="' + val.replace(/"/g, '&quot;') + '">' +
+		return row + labelFor + '<span>' +
+			'<input type="password" id="' + id + '" data-key="' + escapeHtml(f.key) + '"' + ext + dis + described + pattr + ' autocomplete="new-password" value="' + val.replace(/"/g, '&quot;') + '">' +
 			' <button type="button" class="webui-btn" aria-pressed="false" aria-label="' + webuiLH('set.pw_show', 'Show password') + '" onclick="togglePwField(\'' + id + '\', this)">' + EYEOFF_ICON + '</button></span></div>';
 	}
 	// text — optional mit Verzeichnis-Picker (f.picker: true)
@@ -182,14 +188,15 @@ function renderField(f, opts) {
 	if (f.picker) {
 		var pstart = val || '/';
 		pick = ' <button type="button" class="webui-btn" title="' + webuiLH('picker.title', 'Choose folder') +
+			'" aria-label="' + webuiLH('picker.title', 'Choose folder') +
 			'" onclick="webuiPickInto(\'' + id + '\', ' + escapeHtml(JSON.stringify(pstart)) + ')">' + FOLDER_ICON + '</button>';
 	}
-	return row + '<label>' + labelHtml + '</label><span>' +
-		'<input type="text" id="' + id + '" data-key="' + escapeHtml(f.key) + '"' + ext + dis + ' value="' + val.replace(/"/g, '&quot;') + '">' + pick + '</span></div>';
+	return row + labelFor + '<span>' +
+		'<input type="text" id="' + id + '" data-key="' + escapeHtml(f.key) + '"' + ext + dis + described + ' value="' + val.replace(/"/g, '&quot;') + '">' + pick + '</span></div>';
 }
 
 // kleines Ordner-Icon fuer Picker-Buttons
-var FOLDER_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:1rem;height:1rem;vertical-align:middle"><path d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/></svg>';
+var FOLDER_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:1rem;height:1rem;vertical-align:middle" aria-hidden="true"><path d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/></svg>';
 
 // Auge-Icons fuer Passwortfelder (Feather-Geometrie wie bouquet-editor)
 var EYE_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:1rem;height:1rem;vertical-align:middle" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';

@@ -2996,6 +2996,10 @@ body.webui-remote-open {
 	flex-wrap: wrap;
 	min-width: 0;
 }
+/* a field's hint, read to a screen reader through aria-describedby */
+.webui-form-row > span[hidden] {
+	display: none;
+}
 .webui-form-row .webui-row-actions {
 	display: flex;
 	gap: 0.5rem;
