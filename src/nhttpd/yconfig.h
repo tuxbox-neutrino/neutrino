@@ -55,7 +55,7 @@
 #define Y_CONFIG_USE_HOSTEDWEB y			// Add Feature: Use HOSTED Web
 //#define Y_CONFIG_USE_OPEN_SSL y			// Add Feature: use openSSL
 //#define Y_CONFIG_FEATURE_KEEP_ALIVE y			// Add Feature: Keep-alive //FIXME: does not work correctly now
-#define Y_CONFIG_FEATUE_SENDFILE_CAN_ACCESS_ALL y	// Add Feature: every file can be accessed (use carefully: security!!)
+#define Y_CONFIG_FEATUE_SENDFILE_CAN_ACCESS_ALL y	// Add Feature: files outside the web folders, where the program lets them (ystatic::setRawPlaceTest)
 //#define Y_CONFIG_FEATURE_CHROOT y			// Add Feature: Use Change Root for Security
 //#define Y_CONFIG_FEATURE_HTTPD_USER y			// Add Feature: Set User for yhttpd-Process
 #define Y_CONFIG_FEATURE_THREADING y			// Build with possibility for multi threading

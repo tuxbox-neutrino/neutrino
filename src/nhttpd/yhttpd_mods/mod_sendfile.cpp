@@ -102,8 +102,16 @@ THandleStatus CmodSendfile::Hook_PrepareResponse(CyhookHandler *hh) {
 	if (((!mime.empty()) || (hh->WebserverConfigList["mod_sendfile.sendAll"] == "true"))
 			&& !(hh->UrlData["fileext"] == "yhtm" || hh->UrlData["fileext"] == "yjs" || hh->UrlData["fileext"] == "ysh")) {
 		const std::string fullfilename = target.file;
-		if (filed < 0)
+		if (filed < 0) {
 			filed = OpenFile(hh, fullfilename);
+			// a file outside the web folders: the one opened is tested
+			// again, so a link put in its place meanwhile goes nowhere
+			if (filed >= 0 && target.origin == ystatic::Target::RAW
+					&& !ystatic::rawOpenedAllowed(hh, filed)) {
+				close(filed);
+				filed = -1;
+			}
+		}
 		if (filed != -1) //can access file?
 		{
 			struct stat statbuf;

@@ -23,9 +23,11 @@
 
 #include <configfile.h>
 
+#include <climits>
 #include <cstdlib>
 #include <cstring>
 #include <string>
+#include <vector>
 
 #include <fcntl.h>
 #include <ftw.h>
@@ -144,6 +146,112 @@ TEST_CASE("a file is looked for in the override directory first, then in the web
 	CHECK(gz.origin == ystatic::Target::CORE);
 	CHECK(gz.file == b.core + "/js/c.js.gz");
 	CHECK(ystatic::resolveName(&b.hh, "/css/", "none.css").origin != ystatic::Target::CORE);
+}
+
+namespace {
+
+// the one folder the test below lets through, by its real path
+std::string rawLogos;
+
+bool rawLogosOnly(const std::string &real)
+{
+	return ystatic::rawPlaceAllowed(real, std::vector<std::string>(1, rawLogos), "/nonexistent-tmp");
+}
+
+std::string realOf(const std::string &name)
+{
+	char buf[PATH_MAX];
+	return realpath(name.c_str(), buf) ? std::string(buf) : std::string();
+}
+
+} // namespace
+
+TEST_CASE("a file outside the web folders is found only where the program's test lets it through", "[nhttpd]")
+{
+	Box b;
+	b.file(b.outside + "/logos/1.png", "logo");
+	b.file(b.outside + "/secret.txt", "secret");
+	b.link(b.outside + "/secret.txt", b.outside + "/logos/2.png");
+	rawLogos = b.outside + "/logos";
+
+	// without a test, which is how a server starts: none at all
+	ystatic::setRawPlaceTest(NULL);
+	CHECK(ystatic::resolveName(&b.hh, b.outside + "/logos/", "1.png").origin == ystatic::Target::NONE);
+
+	ystatic::setRawPlaceTest(rawLogosOnly);
+	const ystatic::Target logo = ystatic::resolveName(&b.hh, b.outside + "/logos/", "1.png");
+	CHECK(logo.origin == ystatic::Target::RAW);
+	CHECK(logo.file == realOf(b.outside + "/logos/1.png"));
+	// a link inside the folder that leads out of it is judged by where it leads
+	CHECK(ystatic::resolveName(&b.hh, b.outside + "/logos/", "2.png").origin == ystatic::Target::NONE);
+	CHECK(ystatic::resolveName(&b.hh, b.outside + "/", "secret.txt").origin == ystatic::Target::NONE);
+	CHECK(ystatic::resolveName(&b.hh, b.outside + "/logos/../", "secret.txt").origin == ystatic::Target::NONE);
+	ystatic::setRawPlaceTest(NULL);
+}
+
+TEST_CASE("the hosted folder is served by its own name with or without the program's test", "[nhttpd]")
+{
+	Box b;
+	b.file(b.outside + "/hosted/app/index.html", "hosted");
+	b.file(b.outside + "/secret.txt", "secret");
+	b.hh.WebserverConfigList["WebsiteMain.hosted_directory"] = b.outside + "/hosted";
+	ystatic::setRawPlaceTest(NULL);
+
+	const ystatic::Target hosted = ystatic::resolveName(&b.hh, b.outside + "/hosted/app/", "index.html");
+	CHECK(hosted.origin == ystatic::Target::RAW);
+	CHECK(hosted.file == realOf(b.outside + "/hosted/app/index.html"));
+	CHECK(ystatic::resolveName(&b.hh, b.outside + "/", "secret.txt").origin == ystatic::Target::NONE);
+	// an empty hosted folder setting holds nothing
+	b.hh.WebserverConfigList["WebsiteMain.hosted_directory"] = "";
+	CHECK(ystatic::resolveName(&b.hh, b.outside + "/hosted/app/", "index.html").origin == ystatic::Target::NONE);
+}
+
+TEST_CASE("the file opened for a name outside the web folders is tested once more", "[nhttpd]")
+{
+	Box b;
+	b.file(b.outside + "/logos/1.png", "logo");
+	b.file(b.outside + "/secret.txt", "secret");
+	rawLogos = b.outside + "/logos";
+	ystatic::setRawPlaceTest(rawLogosOnly);
+
+	int fd = open((b.outside + "/logos/1.png").c_str(), O_RDONLY);
+	REQUIRE(fd >= 0);
+	CHECK(ystatic::rawOpenedAllowed(&b.hh, fd));
+	close(fd);
+	// what a link swapped in after the test would open
+	fd = open((b.outside + "/secret.txt").c_str(), O_RDONLY);
+	REQUIRE(fd >= 0);
+	CHECK_FALSE(ystatic::rawOpenedAllowed(&b.hh, fd));
+	close(fd);
+	CHECK_FALSE(ystatic::rawOpenedAllowed(&b.hh, -1));
+	ystatic::setRawPlaceTest(NULL);
+}
+
+TEST_CASE("the box's raw places: inside a logo folder, or a .png directly in /tmp", "[nhttpd]")
+{
+	Box b;
+	b.file(b.outside + "/logos/sub/1.png", "logo");
+	b.file(b.outside + "/logos-not/1.png", "neighbour");
+	b.file(b.root + "/tmp/shot.png", "png");
+	b.file(b.root + "/tmp/sub/shot.png", "png");
+	b.file(b.root + "/tmp/list.m3u", "m3u");
+	b.file(b.root + "/tmp/.png", "nameless");
+	const std::vector<std::string> dirs(1, b.outside + "/logos");
+	const std::string tmp = b.root + "/tmp";
+
+	CHECK(ystatic::rawPlaceAllowed(realOf(b.outside + "/logos/sub/1.png"), dirs, tmp));
+	CHECK_FALSE(ystatic::rawPlaceAllowed(realOf(b.outside + "/logos"), dirs, tmp));
+	CHECK_FALSE(ystatic::rawPlaceAllowed(realOf(b.outside + "/logos-not/1.png"), dirs, tmp));
+	CHECK(ystatic::rawPlaceAllowed(realOf(tmp + "/shot.png"), dirs, tmp));
+	CHECK_FALSE(ystatic::rawPlaceAllowed(realOf(tmp + "/sub/shot.png"), dirs, tmp));
+	CHECK_FALSE(ystatic::rawPlaceAllowed(realOf(tmp + "/list.m3u"), dirs, tmp));
+	CHECK_FALSE(ystatic::rawPlaceAllowed(realOf(tmp + "/.png"), dirs, tmp));
+	CHECK_FALSE(ystatic::rawPlaceAllowed("relative/1.png", dirs, tmp));
+	// an empty folder or / in the list lets nothing through
+	std::vector<std::string> wide;
+	wide.push_back("");
+	wide.push_back("/");
+	CHECK_FALSE(ystatic::rawPlaceAllowed(realOf(b.outside + "/logos/sub/1.png"), wide, "/nonexistent-tmp"));
 }
 
 TEST_CASE("the spaces other hooks answer are reserved as themselves and with anything below", "[nhttpd]")

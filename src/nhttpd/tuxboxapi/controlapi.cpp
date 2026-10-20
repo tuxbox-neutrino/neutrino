@@ -61,6 +61,7 @@ extern CPictureViewer *g_PicViewer;
 #include <ytypes_globals.h>
 #include <ylogging.h>
 #include <helper.h>
+#include <ystatic.h>
 // nhttpd
 #include "neutrinoapi.h"
 #include "controlapi.h"
@@ -128,10 +129,24 @@ static const char *getVersionInfoPath()
 //=============================================================================
 // constructor und destructor
 //=============================================================================
+/* The files outside the web folders the old clients read by their own
+   name, and no others: the channel logos /control/get_logo and logolist
+   name, in the folders the logos are looked up in, and the pictures
+   /control/screenshot writes to /tmp. */
+static bool boxRawPlace(const std::string &real)
+{
+	std::vector<std::string> dirs;
+	dirs.push_back(settingsText(g_settings.logo_hdd_dir));
+	dirs.push_back(LOGODIR_VAR);
+	dirs.push_back(LOGODIR);
+	return ystatic::rawPlaceAllowed(real, dirs);
+}
+
 CControlAPI::CControlAPI(CNeutrinoAPI *_NeutrinoAPI)
 {
 	NeutrinoAPI = _NeutrinoAPI;
 	seedLegacyUsage();
+	ystatic::setRawPlaceTest(boxRawPlace);
 }
 //-----------------------------------------------------------------------------
 /* The plugin folders only. The web folder, the override folder and the

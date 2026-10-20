@@ -7,6 +7,7 @@
 #define __yhttpd_ystatic_h__
 
 #include <string>
+#include <vector>
 
 class CyhookHandler;
 
@@ -16,18 +17,39 @@ namespace ystatic
 // Where the file a request names lies, in the order the server has always
 // looked: the override directory, then the web directory, each also as .gz,
 // then, with Y_CONFIG_FEATUE_SENDFILE_CAN_ACCESS_ALL, the name as it stands
-// anywhere on the box.
+// elsewhere on the box: in the hosted folder, or where the test the program
+// set (setRawPlaceTest) lets its real path through; without a test, in the
+// hosted folder only.
 struct Target
 {
 	enum Origin { NONE, CORE, OVERRIDE, RAW };
 	Origin origin;
-	std::string file;	// the file to open, as found
+	std::string file;	// the file to open, as found (for RAW, its real path)
 	bool fallback;		// the web directory's index.html for a page path
 	Target() : origin(NONE), fallback(false) {}
 };
 
 // path and filename as the request's UrlData holds them.
 Target resolveName(CyhookHandler *hh, const std::string &path, const std::string &filename);
+
+// Which files outside the web folders a request may read by their own name,
+// asked with the real path after every link is followed. Set once by the
+// program that runs the server; until then, and in a server without one,
+// no such file goes out.
+typedef bool (*RawPlaceTest)(const std::string &real);
+void setRawPlaceTest(RawPlaceTest test);
+
+// The rule the box sets: a file inside one of dirs (each taken by its own
+// real path; an empty one counts for nothing), or a .png directly in tmp,
+// where the box writes the pictures of its screens. real is a real path, as
+// realpath answers it.
+bool rawPlaceAllowed(const std::string &real, const std::vector<std::string> &dirs,
+		     const std::string &tmp = "/tmp");
+
+// Whether the file opened for a RAW target is still one of those places, as
+// /proc/self/fd names it after the open: a link swapped in between the test
+// and the open does not take the request along. Without /proc, no.
+bool rawOpenedAllowed(CyhookHandler *hh, int fd);
 
 // The request's own file, or, with WebsiteMain.spa_fallback switched on, the
 // web directory's index.html for a GET or HEAD whose last path segment has
@@ -41,7 +63,7 @@ Target resolve(CyhookHandler *hh);
 // /login and /logout, each as itself or with anything below it.
 bool inReservedSpace(const std::string &url);
 
-// A template the parser runs or a script, by its name (any case, also as
+// A template of the old pages or a script, by its name (any case, also as
 // .gz): such a file is never handed out without a login.
 bool templateOrScript(const std::string &name);
 

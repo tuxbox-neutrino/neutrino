@@ -720,5 +720,25 @@ else
 	echo "SKIP build_playlist: no channel is playing"
 fi
 
+# 22. a file outside the web folders goes out by its own name only where old
+#     clients read it that way: a logo folder, and a .png directly in /tmp,
+#     where /control/screenshot leaves its pictures. The box's other files
+#     stay in, also one in a folder below /tmp.
+c=`curl -s -o "$T/b22" -w '%{http_code}' -H "$AUTH_C" "$BASE/etc/passwd"`
+if [ "$c" = 404 ] && ! grep -q 'root:' "$T/b22"; then pass "/etc/passwd does not go out"
+else fail "/etc/passwd: $c"; fi
+p22="/tmp/check-v1-probe22-$$.png"
+printf 'PNG22' > "$p22"
+c=`curl -s -o "$T/b22" -w '%{http_code}' -H "$AUTH_C" "$BASE$p22"`
+rm -f "$p22"
+if [ "$c" = 200 ] && [ "`cat $T/b22`" = PNG22 ]; then pass "a .png directly in /tmp still goes out"
+else fail "a .png directly in /tmp: $c"; fi
+for f in probe22.png probe22.txt; do
+	printf 'IN22' > "$T/$f"
+	c=`curl -s -o "$T/b22" -w '%{http_code}' -H "$AUTH_C" "$BASE$T/$f"`
+	if [ "$c" = 404 ] && ! grep -q IN22 "$T/b22"; then pass "a $f in a folder below /tmp does not go out"
+	else fail "a $f below /tmp: $c"; fi
+done
+
 echo "failures: $fails"
 [ "$fails" -eq 0 ]

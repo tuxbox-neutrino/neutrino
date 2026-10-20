@@ -30,6 +30,39 @@ bool readable(const std::string &name)
 	return access(name.c_str(), R_OK) == 0;
 }
 
+RawPlaceTest rawPlaceTest = NULL;
+
+// name with every link followed, or empty where that cannot be said
+std::string realOf(const std::string &name)
+{
+	char buf[PATH_MAX];
+	if (name.empty() || realpath(name.c_str(), buf) == NULL)
+		return std::string();
+	return buf;
+}
+
+// whether the real path real lies below the folder dir, taken by its own
+// real path; an empty folder or / holds nothing here
+bool insideDir(const std::string &real, const std::string &dir)
+{
+	const std::string d = realOf(dir);
+	if (d.empty() || d == "/")
+		return false;
+	return real.size() > d.size() && real.compare(0, d.size(), d) == 0 && real[d.size()] == '/';
+}
+
+/* A file outside the web folders that a request may read by its own name:
+   one in the hosted folder, which the server serves as a web folder of its
+   own under /hosted/, or one the program's test lets through. */
+bool rawAllowed(CyhookHandler *hh, const std::string &real)
+{
+	if (real.empty())
+		return false;
+	if (insideDir(real, hh->WebserverConfigList["WebsiteMain.hosted_directory"]))
+		return true;
+	return rawPlaceTest && rawPlaceTest(real);
+}
+
 bool endsWithNoCase(const std::string &s, const char *tail)
 {
 	const size_t n = strlen(tail);
@@ -80,11 +113,51 @@ Target resolveName(CyhookHandler *hh, const std::string &path, const std::string
 	}
 #ifdef Y_CONFIG_FEATUE_SENDFILE_CAN_ACCESS_ALL
 	else if (readable(name)) {
-		t.origin = Target::RAW;
-		t.file = name;
+		// the real path is what is tested and what is opened, so a link
+		// that leads out of the places does not take the request along;
+		// rawOpenedAllowed tests the opened file once more
+		const std::string real = realOf(name);
+		if (rawAllowed(hh, real)) {
+			t.origin = Target::RAW;
+			t.file = real;
+		}
 	}
 #endif
 	return t;
+}
+
+void setRawPlaceTest(RawPlaceTest test)
+{
+	rawPlaceTest = test;
+}
+
+bool rawOpenedAllowed(CyhookHandler *hh, int fd)
+{
+	struct stat st;
+	if (fd < 0 || fstat(fd, &st) != 0 || !S_ISREG(st.st_mode) || st.st_nlink == 0)
+		return false;
+	char link[48];
+	char opened[PATH_MAX];
+	snprintf(link, sizeof(link), "/proc/self/fd/%d", fd);
+	const ssize_t n = readlink(link, opened, sizeof(opened) - 1);
+	if (n <= 0)
+		return false;
+	opened[n] = '\0';
+	return rawAllowed(hh, opened);
+}
+
+bool rawPlaceAllowed(const std::string &real, const std::vector<std::string> &dirs,
+		     const std::string &tmp)
+{
+	if (real.empty() || real[0] != '/')
+		return false;
+	for (size_t i = 0; i < dirs.size(); i++)
+		if (insideDir(real, dirs[i]))
+			return true;
+	const std::string t = realOf(tmp);
+	const size_t slash = real.rfind('/');
+	return !t.empty() && t != "/" && slash == t.size() && real.compare(0, t.size(), t) == 0
+		&& endsWithNoCase(real, ".png") && real.size() > t.size() + 1 + 4;
 }
 
 Target resolve(CyhookHandler *hh)
