@@ -98,7 +98,7 @@ async function svcLoad() {
 	} catch (e) {
 		note.hidden = false;
 		note.removeAttribute('data-l');
-		note.textContent = webuiL('msg.error', 'Error') + ': ' + e.message;
+		note.textContent = webuiL('msg.error', 'Error') + ': ' + webuiErrText(e);
 		return false;
 	}
 }
@@ -128,7 +128,7 @@ async function svcDo(id, verb) {
 		delete svcBusy[id];
 		svcShow(svcLast);
 		svcRefocus(id, verb);
-		webuiShowToast(svcTitle(id) + ': ' + e.message, true);
+		webuiToastError(svcTitle(id), e);
 		return;
 	}
 	await svcLoad();
