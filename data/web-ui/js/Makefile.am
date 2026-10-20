@@ -9,7 +9,6 @@ install_DATA = \
 	login.js \
 	password.js \
 	recordings.js \
-	screenshot.js \
 	settings-registry.js \
 	settings-v1.js \
 	settings.js \

@@ -7,16 +7,17 @@
 	var fallback = '/dashboard.html';
 	// the interface's own pages a start page can be
 	var core = ['dashboard', 'bouquets', 'epg', 'timer', 'recordings', 'tools',
-		'settings', 'screenshot', 'bouquet-editor'];
+		'settings', 'bouquet-editor'];
 	// what the classic settings page and the shipped yWeb.conf
 	// write ("none" there), mapped onto the modern pages
 	var classic = {
 		none: 'dashboard.html', bouquets: 'bouquets.html',
-		control: 'dashboard.html', remote: 'screenshot.html',
-		screenshot: 'screenshot.html',
+		control: 'dashboard.html', remote: 'extensions/screenshot/index.html',
+		screenshot: 'extensions/screenshot/index.html',
 		// pages that became extensions (WEBUI_MOVED_PAGES in webui-header.js)
 		'files.html': 'extensions/files/index.html',
-		'sysinfo.html': 'extensions/sysinfo/index.html'
+		'sysinfo.html': 'extensions/sysinfo/index.html',
+		'screenshot.html': 'extensions/screenshot/index.html'
 	};
 	// the web interface's own settings, readable from the home network
 	fetch('/api/v1/webui/settings', {credentials: 'same-origin', cache: 'no-store'})

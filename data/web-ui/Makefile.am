@@ -24,7 +24,6 @@ install_DATA = \
 	epg.html \
 	login.html \
 	password.html \
-	screenshot.html \
 	settings.html \
 	timer.html \
 	recordings.html \

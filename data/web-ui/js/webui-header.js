@@ -1856,7 +1856,6 @@ var WEBUI_START_PAGES = [
 	['recordings.html', 'nav.recordings', 'Recordings'],
 	['tools.html', 'nav.tools', 'Tools'],
 	['settings.html', 'nav.settings', 'Settings'],
-	['screenshot.html', 'tools.screenshot', 'Screenshot'],
 	['bouquet-editor.html', 'tools.bqedit', 'Bouquet editor']
 ];
 
@@ -1865,7 +1864,8 @@ var WEBUI_START_PAGES = [
    as the start page loads nothing but its own script. */
 var WEBUI_MOVED_PAGES = {
 	'files.html': 'extensions/files/index.html',
-	'sysinfo.html': 'extensions/sysinfo/index.html'
+	'sysinfo.html': 'extensions/sysinfo/index.html',
+	'screenshot.html': 'extensions/screenshot/index.html'
 };
 
 /* What a start page can be, for a choice: the pages above and the page of
