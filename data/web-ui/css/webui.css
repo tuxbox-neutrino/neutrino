@@ -3446,3 +3446,75 @@ dialog.webui-sheet footer button.danger {
 	outline: 2px solid var(--webui-focus-color);
 	outline-offset: 1px;
 }
+
+/* The "more" button of a row and the menu it opens (webuiMenuButton) */
+.webui-menu-btn {
+	justify-content: center;
+	min-width: 2.25rem;
+	padding-left: 0.4rem;
+	padding-right: 0.4rem;
+}
+
+.webui-menu-btn svg {
+	width: 1.1rem;
+	height: 1.1rem;
+}
+
+.webui-menu {
+	position: fixed;
+	z-index: 1050;
+	display: grid;
+	min-width: 13rem;
+	max-width: calc(100vw - 16px);
+	padding: 0.3rem;
+	border: 1px solid var(--pico-muted-border-color);
+	border-radius: var(--webui-radius);
+	background: var(--pico-card-background-color);
+	box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
+}
+
+.webui-menu button {
+	--pico-color: inherit;
+	display: flex;
+	gap: 0.6rem;
+	align-items: center;
+	width: 100%;
+	margin: 0;
+	padding: 0.5rem 0.7rem;
+	border: 0;
+	border-radius: calc(var(--webui-radius) - 2px);
+	background: none;
+	box-shadow: none;
+	color: var(--pico-color);
+	font-size: var(--webui-font-sm);
+	text-align: left;
+}
+
+.webui-menu button svg {
+	flex: none;
+	width: 1rem;
+	height: 1rem;
+	color: var(--pico-muted-color);
+}
+
+.webui-menu button:hover,
+.webui-menu button:focus-visible {
+	background: var(--webui-bg-elevated);
+	outline: none;
+}
+
+.webui-menu button:focus-visible {
+	box-shadow: inset 0 0 0 2px var(--webui-focus-color);
+}
+
+.webui-menu button.danger {
+	color: var(--webui-danger);
+}
+
+.webui-menu button[disabled] {
+	opacity: 0.5;
+}
+
+.webui-menu hr {
+	margin: 0.25rem 0;
+}

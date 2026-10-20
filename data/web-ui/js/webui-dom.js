@@ -331,3 +331,108 @@ function webuiRowActions(actions) {
 	});
 	return group;
 }
+
+// webuiMenuButton(label, items) -> a "more" button that opens a menu of the
+//   actions a row has beside its main one. items: [{label, icon, onClick,
+//   danger, disabled}], null for a rule, or a function that answers them
+//   when the menu opens. label names the button for a screen reader and as
+//   its tooltip. The menu (role menu) opens below the button, above it where
+//   the window ends; arrows, Home and End move between its entries, Escape
+//   and Tab close it with the focus back on the button, and a click
+//   elsewhere, a scroll or a resize close it too. A click on an entry closes
+//   it and calls onClick(event).
+
+var WEBUI_MORE_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true" focusable="false"><path d="M5 12h.01M12 12h.01M19 12h.01"/></svg>';
+var _webuiMenuShown = null;
+
+function _webuiMenuClose(back) {
+	var shown = _webuiMenuShown;
+	if (!shown)
+		return;
+	_webuiMenuShown = null;
+	shown.menu.remove();
+	shown.btn.setAttribute('aria-expanded', 'false');
+	document.removeEventListener('click', shown.away, true);
+	document.removeEventListener('scroll', shown.gone, true);
+	window.removeEventListener('resize', shown.gone);
+	if (back && document.contains(shown.btn))
+		shown.btn.focus();
+}
+
+function _webuiMenuOpen(btn, items) {
+	var again = _webuiMenuShown && _webuiMenuShown.btn === btn;
+	_webuiMenuClose(false);
+	if (again)
+		return;
+	var menu = webuiEl('div', {className: 'webui-menu', attrs: {role: 'menu', 'aria-label': btn.getAttribute('aria-label') || ''}});
+	(typeof items === 'function' ? items() : items || []).forEach(function(it) {
+		if (!it) {
+			menu.appendChild(webuiEl('hr', {attrs: {role: 'separator'}}));
+			return;
+		}
+		menu.appendChild(webuiEl('button', {type: 'button', className: it.danger ? 'danger' : '', disabled: !!it.disabled,
+			attrs: {role: 'menuitem', tabindex: '-1'},
+			on: {click: function(ev) {
+				ev.stopPropagation();
+				_webuiMenuClose(true);
+				if (it.onClick)
+					it.onClick(ev);
+			}}}, it.icon ? webuiMarkup(it.icon) : null, webuiEl('span', {}, it.label)));
+	});
+	document.body.appendChild(menu);
+	var r = btn.getBoundingClientRect();
+	var top = r.bottom + 4;
+	if (top + menu.offsetHeight > window.innerHeight - 8 && r.top - menu.offsetHeight - 4 > 8)
+		top = r.top - menu.offsetHeight - 4;
+	menu.style.top = top + 'px';
+	menu.style.left = Math.max(8, Math.min(window.innerWidth - menu.offsetWidth - 8, r.right - menu.offsetWidth)) + 'px';
+
+	var entries = function() {
+		return Array.prototype.filter.call(menu.querySelectorAll('[role="menuitem"]'), function(e) { return !e.disabled; });
+	};
+	menu.addEventListener('keydown', function(e) {
+		var all = entries();
+		var i = all.indexOf(document.activeElement);
+		if (!all.length)
+			return;
+		if (e.key === 'ArrowDown')
+			all[(i + 1) % all.length].focus();
+		else if (e.key === 'ArrowUp')
+			all[(i - 1 + all.length) % all.length].focus();
+		else if (e.key === 'Home')
+			all[0].focus();
+		else if (e.key === 'End')
+			all[all.length - 1].focus();
+		else if (e.key === 'Escape' || e.key === 'Tab')
+			_webuiMenuClose(true);
+		else
+			return;
+		e.preventDefault();
+	});
+	var away = function(e) {
+		if (!menu.contains(e.target) && !btn.contains(e.target))
+			_webuiMenuClose(false);
+	};
+	var gone = function(e) {
+		if (!e || !e.target || !menu.contains(e.target))
+			_webuiMenuClose(false);
+	};
+	document.addEventListener('click', away, true);
+	document.addEventListener('scroll', gone, true);
+	window.addEventListener('resize', gone);
+	_webuiMenuShown = {btn: btn, menu: menu, away: away, gone: gone};
+	btn.setAttribute('aria-expanded', 'true');
+	var first = entries()[0];
+	if (first)
+		first.focus();
+}
+
+function webuiMenuButton(label, items) {
+	var btn = webuiEl('button', {type: 'button', className: 'webui-btn webui-menu-btn', title: label,
+		attrs: {'aria-label': label, 'aria-haspopup': 'menu', 'aria-expanded': 'false'}}, webuiMarkup(WEBUI_MORE_ICON));
+	btn.addEventListener('click', function(ev) {
+		ev.stopPropagation();
+		_webuiMenuOpen(btn, items);
+	});
+	return btn;
+}
