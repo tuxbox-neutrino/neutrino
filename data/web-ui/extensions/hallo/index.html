@@ -7,7 +7,7 @@
 	<link rel="icon" href="/favicon/favicon.ico">
 	<script>
 		// The stored theme before the first paint: the header script runs too late for it.
-		try { document.documentElement.setAttribute('data-theme', localStorage.getItem('webui-theme') || 'dark'); } catch (e) {}
+		try { var m = localStorage.getItem('webui-mode'); if (m !== 'light' && m !== 'dark') m = (localStorage.getItem('webui-theme') || localStorage.getItem('yweb-theme')) === 'light' || matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'; document.documentElement.setAttribute('data-theme', m); } catch (e) {}
 	</script>
 	<link rel="stylesheet" href="/css/pico.min.css">
 	<link rel="stylesheet" href="/css/webui.css">
