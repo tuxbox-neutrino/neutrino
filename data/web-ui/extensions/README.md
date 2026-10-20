@@ -188,10 +188,13 @@ Key points:
 - Styling: link Pico CSS + `/css/webui.css` — use the ready-made classes
   (`webui-card`, `webui-form-row`, `webui-btn`).
 - Apply the theme **before** those stylesheets, otherwise the page paints
-  dark first and then jumps to the user's theme:
+  in one theme first and then jumps to the other. Light or dark is the
+  device's setting until somebody picks one with the header's toggle,
+  which keeps that choice under `webui-mode` (from the keys before it,
+  only a kept `light` counts):
   ```html
   <script>
-  try { document.documentElement.setAttribute('data-theme', localStorage.getItem('webui-theme') || 'dark'); } catch (e) {}
+  try { var m = localStorage.getItem('webui-mode'); if (m !== 'light' && m !== 'dark') m = (localStorage.getItem('webui-theme') || localStorage.getItem('yweb-theme')) === 'light' || matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'; document.documentElement.setAttribute('data-theme', m); } catch (e) {}
   </script>
   ```
 - **Talk to the box only through `/api/v1/`**, with the helper from

@@ -188,11 +188,14 @@ Kernpunkte:
   Header auf die Seite.
 - Styling: Pico CSS + `/css/webui.css` verlinken — fertige Klassen
   (`webui-card`, `webui-form-row`, `webui-btn`) nutzen.
-- Theme **vor** diesen Stylesheets setzen, sonst malt die Seite erst
-  dunkel und springt dann auf das Theme des Benutzers:
+- Theme **vor** diesen Stylesheets setzen, sonst malt die Seite erst in
+  einem Theme und springt dann ins andere. Hell oder dunkel folgt dem
+  Gerät, bis jemand mit dem Schalter im Kopf eines wählt; die Wahl steht
+  dann unter `webui-mode` (von den Schlüsseln davor zählt nur ein
+  gespeichertes `light`):
   ```html
   <script>
-  try { document.documentElement.setAttribute('data-theme', localStorage.getItem('webui-theme') || 'dark'); } catch (e) {}
+  try { var m = localStorage.getItem('webui-mode'); if (m !== 'light' && m !== 'dark') m = (localStorage.getItem('webui-theme') || localStorage.getItem('yweb-theme')) === 'light' || matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'; document.documentElement.setAttribute('data-theme', m); } catch (e) {}
   </script>
   ```
 - **Mit der Box nur über `/api/v1/`** sprechen, mit dem Helfer aus

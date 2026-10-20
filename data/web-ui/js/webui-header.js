@@ -173,18 +173,70 @@ function webuiGetHeaderHTML(activePage) {
 </header>`;
 }
 
-// Theme Management. The choice was kept under 'yweb-theme' before the
-// interface took its own name; it is read from there until it is set again.
-function webuiGetTheme() {
-	return localStorage.getItem('webui-theme') || localStorage.getItem('yweb-theme') || 'dark';
+/* Theme Management. Light or dark is the device's setting
+   (prefers-color-scheme) and follows it when it changes, until somebody
+   picks one with the toggle: that choice is kept under 'webui-mode', and
+   choosing what the device says anyway drops it again. The keys before it,
+   'webui-theme' and 'yweb-theme', were written on every page view, so only
+   a light kept there was somebody's choice (dark was the default); it counts
+   until a choice is made again. The pages set the same before their first
+   paint (the snippet in each page's head). */
+function webuiSystemTheme() {
+	try {
+		return window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+	} catch (e) {
+		return 'dark';
+	}
 }
 
-function webuiSetTheme(theme) {
+function webuiChosenTheme() {
+	try {
+		var t = localStorage.getItem('webui-mode');
+		if (t === 'light' || t === 'dark')
+			return t;
+		if ((localStorage.getItem('webui-theme') || localStorage.getItem('yweb-theme')) === 'light')
+			return 'light';
+	} catch (e) { /* no site data: the device decides */ }
+	return null;
+}
+
+function webuiGetTheme() {
+	return webuiChosenTheme() || webuiSystemTheme();
+}
+
+// shown, not kept
+function webuiApplyTheme(theme) {
 	document.documentElement.setAttribute('data-theme', theme);
-	localStorage.setItem('webui-theme', theme);
-	localStorage.removeItem('yweb-theme');
 	webuiUpdateThemeIcon(theme);
 }
+
+// somebody's choice: kept, unless it is what the device says anyway
+function webuiSetTheme(theme) {
+	try {
+		if (theme === webuiSystemTheme())
+			localStorage.removeItem('webui-mode');
+		else
+			localStorage.setItem('webui-mode', theme);
+		localStorage.removeItem('webui-theme');
+		localStorage.removeItem('yweb-theme');
+	} catch (e) { /* not kept then */ }
+	webuiApplyTheme(theme);
+}
+
+// while nobody chose, the page follows the device as it changes
+(function() {
+	try {
+		var mq = window.matchMedia('(prefers-color-scheme: light)');
+		var follow = function() {
+			if (!webuiChosenTheme())
+				webuiApplyTheme(webuiSystemTheme());
+		};
+		if (mq.addEventListener)
+			mq.addEventListener('change', follow);
+		else if (mq.addListener)
+			mq.addListener(follow);
+	} catch (e) { /* an old browser keeps what it showed */ }
+})();
 
 // ═══ Sprachwechsler ═══
 // The language the pages are shown in comes as its code (en, de) with the
@@ -659,7 +711,7 @@ function webuiInitHeader(pageName) {
 	}
 
 	// Set theme
-	webuiSetTheme(webuiGetTheme());
+	webuiApplyTheme(webuiGetTheme());
 
 	// Set active page
 	if (pageName) {
@@ -2315,7 +2367,7 @@ function webuiInit() {
 	// Initialize if header exists (either pre-rendered or just generated)
 	if (document.querySelector('.webui-header')) {
 		// Set theme
-		webuiSetTheme(webuiGetTheme());
+		webuiApplyTheme(webuiGetTheme());
 
 		// Start clock
 		webuiUpdateClock();
