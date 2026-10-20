@@ -2007,6 +2007,13 @@ async function webuiInjectExtensions(pageName) {
 		el.hidden = false;
 	});
 
+	/* The page of an extension that hangs under Tools marks Tools in the
+	   navigation, as the interface's own tool pages do; one with a nav entry
+	   of its own marks that entry below. */
+	var shown = exts.find(function(x) { return pageName === 'ext-' + x.dir; });
+	if (shown && shown.enabled && shown.slot === 'tools')
+		webuiSetActivePage('tools');
+
 	// Runtime scripts (entry_js): loaded for every enabled extension on
 	// every modern page, independent of slot/url (the slot only governs
 	// UI links). async=false keeps execution in insertion order; sorting

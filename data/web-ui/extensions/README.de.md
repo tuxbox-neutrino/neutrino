@@ -182,7 +182,8 @@ Kernpunkte:
   `<div class="webui-header-wrapper" data-page="ext-<ordner>"></div>` +
   `<script src="/js/webui-header.js"></script>` — das Skript baut den
   Header von selbst in dieses Element; mit `slot: "nav"` ist der
-  Nav-Eintrag der Erweiterung dann als gezeigte Seite markiert.
+  Nav-Eintrag der Erweiterung dann als gezeigte Seite markiert, mit
+  `slot: "tools"` der Eintrag Werkzeuge.
   `webuiInitHeader()` nicht zusätzlich aufrufen: Es setzte einen zweiten
   Header auf die Seite.
 - Styling: Pico CSS + `/css/webui.css` verlinken — fertige Klassen
