@@ -234,6 +234,7 @@ EXTRA_DIST = interop/peer/README support/catch.hpp support/run-tests.sh support/
 	scan/check-locale-catalog.sh \
 	scan/check-bouquet-save-atomic.sh \
 	scan/check-access-store.sh \
+	scan/check-web-old-files.sh \
 	scan/check-mute-source.sh \
 	scan/check-channel-content-lock.sh \
 	scan/check-bouquet-vector-lock.sh \
@@ -395,6 +396,7 @@ check-local: check-TESTS
 	@$(SHELL) $(srcdir)/scan/check-bouquet-vector-lock.sh $(top_srcdir)
 	@$(SHELL) $(srcdir)/scan/check-list-reader-lock.sh $(top_srcdir)
 	@$(SHELL) $(srcdir)/scan/check-settings-text-lock.sh $(top_srcdir)
+	@$(SHELL) $(srcdir)/scan/check-web-old-files.sh $(top_srcdir)
 	@$(SHELL) $(srcdir)/scan/check-settings-text-copies.sh $(top_srcdir)
 	@$(SHELL) $(srcdir)/scan/check-exception-boundary.sh $(top_srcdir)
 	@$(SHELL) $(srcdir)/scan/check-standby-display.sh $(top_srcdir)
