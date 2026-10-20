@@ -4921,10 +4921,11 @@ void CControlAPI::build_live_url(CyhookHandler *hh)
 	url += to_string(g_settings.streaming_port);
 	url += "/id=";
 
-	// response url
+	// the list itself, as the answer: it used to go to /tmp/vlc.m3u and the
+	// client was sent there, which needed the server to hand out any file
 	if(!hh->ParamList["vlc_link"].empty())
 	{
-		write_to_file("/tmp/vlc.m3u", "#EXTM3U\n");
+		std::string m3u = "#EXTM3U\n";
 		int cached_bsize_vlc = (int) g_bouquetManager->Bouquets.size();
 		for (int i = 0; i < cached_bsize_vlc; i++)
 		{
@@ -4942,12 +4943,13 @@ void CControlAPI::build_live_url(CyhookHandler *hh)
 				{
 					CZapitChannel * channel = chanlist[j];
 					//printf("---> %s/n",channel->getName().c_str());
-					write_to_file("/tmp/vlc.m3u", "#EXTINF:-1,"+channel->getName()+"\n",true);
-					write_to_file("/tmp/vlc.m3u", url+string_printf(PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS, channel->getChannelID())+"\n",true);
+					m3u += "#EXTINF:-1,"+channel->getName()+"\n";
+					m3u += url+string_printf(PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS, channel->getChannelID())+"\n";
 				}
 			}
 		}
-		hh->SendRedirect("/tmp/vlc.m3u");
+		hh->SetHeader(HTTP_OK, "audio/x-mpegurl; charset=UTF-8");
+		hh->Write(m3u);
 	} else
 		hh->SendError();
 }
@@ -4974,22 +4976,9 @@ void CControlAPI::build_playlist(CyhookHandler *hh)
 		url += hh->ParamList["id"];
 		t_channel_id channel_id;
 		sscanf(hh->ParamList["id"].c_str(), SCANF_CHANNEL_ID_TYPE, &channel_id);
-		std::string chan_name = NeutrinoAPI->Zapit->getChannelName(channel_id);
-		std::string illegalChars = "\\/:?\"<>|+ ";
-		std::string::iterator it;
-		for (it = chan_name.begin() ; it < chan_name.end() ; ++it)
-		{
-			bool found = illegalChars.find(*it) != std::string::npos;
-			if (found)
-			{
-				*it = '_';
-			}
-		}
-		std::string m3u = "/tmp/" + chan_name + ".m3u";
-		write_to_file(m3u, "#EXTM3U\n");
-		write_to_file(m3u, "#EXTINF:-1," + NeutrinoAPI->Zapit->getChannelName(channel_id) + "\n", true);
-		write_to_file(m3u, url, true);
-		hh->SendRedirect(m3u);
+		// the list itself, as the answer, as build_live_url sends it
+		hh->SetHeader(HTTP_OK, "audio/x-mpegurl; charset=UTF-8");
+		hh->Write("#EXTM3U\n#EXTINF:-1," + NeutrinoAPI->Zapit->getChannelName(channel_id) + "\n" + url + "\n");
 	}
 	else
 		hh->SendError();

@@ -702,5 +702,23 @@ else
 	echo "SKIP /control/exec: CHECKV1_WEBROOT names no folder the server serves"
 fi
 
+# 21. the two playlists of /control/ come as the answer itself, no longer by
+#     a redirect to a file the server writes to /tmp.
+c=`curl -s -D "$T/h21" -o "$T/b21" -w '%{http_code}' -H "$AUTH_C" "$BASE/control/build_live_url?vlc_link=1"`
+if [ "$c" = 200 ] && [ "`head -1 $T/b21`" = '#EXTM3U' ] && grep -qi '^content-type: audio/x-mpegurl' "$T/h21"; then
+	pass "build_live_url answers the playlist itself"
+else fail "build_live_url: $c `head -c 80 $T/b21`"; fi
+cur21=`curl -s -H "$AUTH_C" "$BASE/api/v1/channels/current" | python3 -c 'import json,sys
+try: print(json.load(sys.stdin).get("id",""))
+except Exception: print("")'`
+if [ -n "$cur21" ]; then
+	c=`curl -s -D "$T/h21" -o "$T/b21" -w '%{http_code}' -H "$AUTH_C" "$BASE/control/build_playlist?id=$cur21"`
+	if [ "$c" = 200 ] && [ "`head -1 $T/b21`" = '#EXTM3U' ] && grep -q "/id=$cur21" "$T/b21" && grep -qi '^content-type: audio/x-mpegurl' "$T/h21"; then
+		pass "build_playlist answers the channel's playlist itself"
+	else fail "build_playlist: $c `head -c 80 $T/b21`"; fi
+else
+	echo "SKIP build_playlist: no channel is playing"
+fi
+
 echo "failures: $fails"
 [ "$fails" -eq 0 ]
