@@ -1,0 +1,20 @@
+{
+	"manifest.name": "Systeminformation",
+	"manifest.description": "Hardware und Software",
+	"msg.error": "Fehler",
+	"msg.loading": "Lade...",
+	"si.active": "aktiv",
+	"si.cores": "Kerne",
+	"si.free_of": "frei von",
+	"si.kernel_log": "Kernel-Log",
+	"si.load": "Auslastung",
+	"si.memory": "Speicher",
+	"si.network": "Netzwerk",
+	"si.no_ifaces": "Keine Interfaces",
+	"si.no_output": "(keine Ausgabe)",
+	"si.processes": "Prozesse",
+	"si.processes_list": "Prozessliste",
+	"si.refresh": "Aktualisieren",
+	"si.temperature": "Temperatur",
+	"si.total": "gesamt"
+}

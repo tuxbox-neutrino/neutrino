@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark" class="webui-i18n-pending">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Neutrino-Web-UI - System Info</title>
+	<link rel="icon" href="/favicon/favicon.ico">
+	<script>
+		// Apply the stored theme before first paint: webui-header.js runs
+		// too late, and some pages never load it at all.
+		try { document.documentElement.setAttribute('data-theme', localStorage.getItem('webui-theme') || localStorage.getItem('yweb-theme') || 'dark'); } catch (e) {}
+	</script>
+	<link rel="stylesheet" href="/css/pico.min.css">
+	<link rel="stylesheet" href="/css/webui.css">
+	<style>
+		.sysinfo-content {
+			padding: 0.5rem 1rem;
+		}
+
+		.sysinfo-cards {
+			display: grid;
+			grid-template-columns: repeat(2, 1fr);
+			gap: 1rem;
+		}
+
+		.sysinfo-card {
+			background: var(--pico-card-background-color);
+			border-radius: var(--webui-radius-lg);
+			box-shadow: var(--webui-shadow);
+			overflow: hidden;
+		}
+
+		[data-theme="light"] .sysinfo-card {
+			border: 1px solid var(--webui-border-subtle);
+		}
+
+		/* Card the page was jumped to (e.g. #network from the dashboard):
+		   accent ring that fades out once it has been seen */
+		.sysinfo-card.sysinfo-card-target {
+			outline: 2px solid var(--webui-accent);
+			outline-offset: 2px;
+			animation: sysinfo-target-fade 2.4s ease-out forwards;
+		}
+
+		.sysinfo-card:focus {
+			outline: none;
+		}
+
+		@keyframes sysinfo-target-fade {
+			0%, 60% { outline-color: var(--webui-accent); }
+			100% { outline-color: transparent; }
+		}
+
+		/* Kopfmasse wie .webui-card-header (webui.css) — gleiche Hoehe
+		   und Titelgroesse wie auf allen anderen Seiten */
+		.sysinfo-card-header {
+			display: flex;
+			align-items: center;
+			gap: 0.5rem;
+			padding: 0.4rem 0.75rem;
+			min-height: 2.4rem;
+			border-bottom: 1px solid var(--pico-muted-border-color);
+			font-weight: 600;
+			font-size: var(--webui-font-sm);
+		}
+
+		.sysinfo-card-header svg {
+			width: 16px;
+			height: 16px;
+			color: var(--webui-accent);
+			flex-shrink: 0;
+		}
+
+		.sysinfo-card-body {
+			padding: 0.5rem 0.75rem;
+		}
+
+		.sysinfo-grid {
+			display: grid;
+			grid-template-columns: auto 1fr;
+			gap: 0.25rem 1rem;
+			align-items: center;
+		}
+
+		.sysinfo-label {
+			font-size: 0.82rem;
+			color: var(--pico-muted-color);
+			white-space: nowrap;
+		}
+
+		.sysinfo-value {
+			font-size: 0.82rem;
+			font-weight: 500;
+			word-break: break-word;
+		}
+
+		.sysinfo-bar {
+			height: 6px;
+			background: var(--pico-muted-border-color);
+			border-radius: 3px;
+			margin-bottom: 0.15rem;
+		}
+
+		.sysinfo-bar-fill {
+			height: 100%;
+			background: var(--webui-accent);
+			border-radius: 3px;
+			transition: width 0.3s ease;
+		}
+
+		.sysinfo-value small {
+			font-size: 0.75rem;
+			color: var(--pico-muted-color);
+			font-weight: 400;
+		}
+
+		.sysinfo-card-wide {
+			grid-column: 1 / -1;
+		}
+
+		.sysinfo-iface {
+			display: flex;
+			align-items: center;
+			gap: 0.75rem;
+			padding: 0.5rem 0;
+			border-bottom: 1px solid var(--pico-muted-border-color);
+			font-size: 0.82rem;
+		}
+
+		.sysinfo-iface:last-child {
+			border-bottom: none;
+		}
+
+		.sysinfo-iface-name {
+			font-weight: 600;
+			min-width: 6rem;
+		}
+
+		.sysinfo-iface-status {
+			display: inline-block;
+			width: 8px;
+			height: 8px;
+			border-radius: 50%;
+			flex-shrink: 0;
+		}
+
+		.sysinfo-iface-status.up { background: var(--webui-success); }
+		.sysinfo-iface-status.down { background: var(--pico-muted-color); }
+
+		.sysinfo-iface-detail {
+			color: var(--pico-muted-color);
+		}
+
+		/* Erweitert section */
+		.sysinfo-details {
+			margin-top: 1rem;
+			border: 1px solid var(--pico-muted-border-color);
+			border-radius: var(--webui-radius);
+			background: var(--pico-card-background-color);
+			box-shadow: var(--webui-shadow);
+		}
+
+		[data-theme="light"] .sysinfo-details {
+			border: 1px solid var(--webui-border-subtle);
+		}
+
+		.sysinfo-details summary {
+			padding: 0.6rem 1rem;
+			font-size: 0.85rem;
+			font-weight: 600;
+			cursor: pointer;
+			user-select: none;
+		}
+
+		.sysinfo-details summary:hover {
+			color: var(--webui-accent);
+		}
+
+		.sysinfo-pre {
+			margin: 0;
+			padding: 0.75rem 1rem;
+			font-size: 0.7rem;
+			line-height: 1.4;
+			max-height: 400px;
+			overflow: auto;
+			background: var(--pico-card-sectioning-background-color);
+			border-top: 1px solid var(--pico-muted-border-color);
+			white-space: pre;
+		}
+
+		/* Toolbar */
+		.sysinfo-toolbar {
+			display: flex;
+			align-items: center;
+			justify-content: flex-end;
+			gap: 0.5rem;
+			margin-bottom: 1rem;
+		}
+
+		@media (max-width: 600px) {
+			.sysinfo-cards {
+				grid-template-columns: 1fr;
+			}
+		}
+	</style>
+</head>
+<body>
+	<div class="webui-header-wrapper" data-page="ext-sysinfo"></div>
+	<div class="webui-header-spacer"></div>
+
+	<main class="sysinfo-content">
+		<div class="sysinfo-toolbar">
+			<button class="webui-btn primary" onclick="loadSysInfo()">
+				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:1rem;height:1rem;margin-right:0.3rem"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
+				<span data-l="si.refresh">Refresh</span>
+			</button>
+		</div>
+
+		<div class="sysinfo-cards" id="sysinfo-cards">
+			<!-- Hardware -->
+			<div class="sysinfo-card">
+				<div class="sysinfo-card-header">
+					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"/></svg>
+					Hardware
+				</div>
+				<div class="sysinfo-card-body">
+					<div class="sysinfo-grid" id="sysinfo-hw">
+						<span class="sysinfo-label" data-l="msg.loading">Loading...</span><span class="sysinfo-value"></span>
+					</div>
+				</div>
+			</div>
+
+			<!-- Speicher -->
+			<div class="sysinfo-card">
+				<div class="sysinfo-card-header">
+					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"/><line x1="6" y1="10" x2="6" y2="14"/><line x1="10" y1="10" x2="10" y2="14"/><line x1="14" y1="10" x2="14" y2="14"/></svg>
+					<span data-l="si.memory">Memory</span>
+				</div>
+				<div class="sysinfo-card-body">
+					<div class="sysinfo-grid" id="sysinfo-mem">
+						<span class="sysinfo-label" data-l="msg.loading">Loading...</span><span class="sysinfo-value"></span>
+					</div>
+				</div>
+			</div>
+
+			<!-- System -->
+			<div class="sysinfo-card">
+				<div class="sysinfo-card-header">
+					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+					System
+				</div>
+				<div class="sysinfo-card-body">
+					<div class="sysinfo-grid" id="sysinfo-sys">
+						<span class="sysinfo-label" data-l="msg.loading">Loading...</span><span class="sysinfo-value"></span>
+					</div>
+				</div>
+			</div>
+
+			<!-- Software -->
+			<div class="sysinfo-card">
+				<div class="sysinfo-card-header">
+					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+					Software
+				</div>
+				<div class="sysinfo-card-body">
+					<div class="sysinfo-grid" id="sysinfo-sw">
+						<span class="sysinfo-label" data-l="msg.loading">Loading...</span><span class="sysinfo-value"></span>
+					</div>
+				</div>
+			</div>
+			<!-- Netzwerk -->
+			<div class="sysinfo-card sysinfo-card-wide" id="network" tabindex="-1">
+				<div class="sysinfo-card-header">
+					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12.55a11 11 0 0114.08 0"/><path d="M1.42 9a16 16 0 0121.16 0"/><path d="M8.53 16.11a6 6 0 016.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>
+					<span data-l="si.network">Network</span>
+				</div>
+				<div class="sysinfo-card-body" id="sysinfo-net">
+					<span class="sysinfo-label" data-l="msg.loading">Loading...</span>
+				</div>
+			</div>
+		</div>
+
+		<!-- Erweitert -->
+		<details class="sysinfo-details" ontoggle="sysInfoToggle(this, 'ps')">
+			<summary data-l="si.processes_list">Process list</summary>
+			<pre class="sysinfo-pre" id="sysinfo-ps" data-l="msg.loading">Loading...</pre>
+		</details>
+
+		<details class="sysinfo-details" ontoggle="sysInfoToggle(this, 'dmesg')">
+			<summary data-l="si.kernel_log">Kernel log</summary>
+			<pre class="sysinfo-pre" id="sysinfo-dmesg" data-l="msg.loading">Loading...</pre>
+		</details>
+	</main>
+
+	<script src="/js/webui-i18n.js"></script>
+	<script src="/js/webui-header.js"></script>
+	<script src="/js/webui-dom.js"></script>
+	<script src="/js/webui-v1.js"></script>
+	<script src="sysinfo.js"></script>
+</body>
+</html>

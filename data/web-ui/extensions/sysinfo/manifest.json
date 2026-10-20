@@ -1,0 +1,9 @@
+{
+	"name": "System information",
+	"version": "1.0.0",
+	"slot": "tools",
+	"entry": "index.html",
+	"icon": "icon.svg",
+	"description": "Hardware and software",
+	"default": "on"
+}
