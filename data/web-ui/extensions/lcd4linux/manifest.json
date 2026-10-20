@@ -2,6 +2,7 @@
 	"name": "LCD4Linux",
 	"version": "1.0.0",
 	"slot": "tools",
+	"area": "now",
 	"entry": "index.html",
 	"icon": "icon.svg",
 	"description": "The picture of the front display",
