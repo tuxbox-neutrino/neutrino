@@ -2549,10 +2549,12 @@ async function webuiInjectExtensions(pageName) {
 		if (m.slot === 'dashboard') {
 			var dash = document.querySelector('.webui-dashboard');
 			if (dash) {
-				var card = document.createElement('div');
+				// a tile like the overview's own, its name and its link as text
+				var card = document.createElement('section');
 				card.className = 'webui-card';
-				card.innerHTML = '<h3>' + escapeHtml(m.name) + '</h3>' +
-					'<p><a href="' + escapeHtml(m.url) + '">' + escapeHtml(m.description || webuiL('ext.open', 'Open extension')) + '</a></p>';
+				card.innerHTML = '<header class="webui-card-header"><h2 class="webui-card-title">' + escapeHtml(m.name) + '</h2></header>' +
+					'<div class="webui-card-body"><a class="webui-btn" href="' + escapeHtml(m.url) + '">' +
+					escapeHtml(m.description || webuiL('ext.open', 'Open extension')) + '</a></div>';
 				dash.appendChild(card);
 			}
 		}
