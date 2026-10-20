@@ -47,7 +47,6 @@ public:
 	void hooks_attach(); 			// Add a Hook-Class to HookList
 	void hooks_detach(); 			// Remove a Hook-Class from HookList
 	void ReadConfig(void); 			// Read the config file for the webserver
-	void ReadLanguage(void); 		// Read Language Files
 };
 
 /* The two hands the API layer's server seam drives the webserver with

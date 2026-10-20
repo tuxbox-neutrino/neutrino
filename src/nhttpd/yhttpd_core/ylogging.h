@@ -18,9 +18,8 @@ class CWebserverConnection;
 //-----------------------------------------------------------------------------
 //	1 : Connection Information (called URL)
 //	2 : Parameters?? 
-//	3 : yParser Main Infos
-//	5 : ycmd: Every yParser Loop Command expansion
-//	6 : yresult: Every yParser Loop Command expansion
+//	3 : Configuration and requests
+//	6 : Request bodies
 //  	8 : Central Functions Detailed
 //  	9 : Socket Operations 
 //-----------------------------------------------------------------------------

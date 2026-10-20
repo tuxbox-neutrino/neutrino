@@ -1168,8 +1168,6 @@ void CControlAPI::BoxInfoCGI(CyhookHandler *hh)
 	/*
 	   I don't know the current legal situation.
 	   So better let's change the vendor's name to CST.
-
-	   After change this, you'll have to align code in Y_Blocks.txt
 	*/
 
 	if (vendor.compare("Coolstream") == 0) {

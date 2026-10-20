@@ -398,10 +398,9 @@ bool sameServerOptions(const ServerOptions &a, const ServerOptions &b);
 
 /* Held by every writer of nhttpd.conf in this program from its read to its write:
    the save below, the restart that puts a port back, the menu at the box
-   (gui/nhttpd_setup.cpp), the old config route (controlapi.cpp), the pages'
-   language switch (mod_yparser.cpp) and nhttpd reading its file when it starts or
-   is told to read it again (yhttpd.cpp, ReadConfig), which with its hooks writes
-   defaults back.
+   (gui/nhttpd_setup.cpp), the old config route (controlapi.cpp) and nhttpd
+   reading its file when it starts or is told to read it again (yhttpd.cpp,
+   ReadConfig), which with its hooks writes defaults back.
    Each of them rewrites the whole file, so two at once would have the second
    write back what the first just changed.
 

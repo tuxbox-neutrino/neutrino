@@ -283,7 +283,6 @@ public:
 	std::string outObject(std::string _key,std::string  _content, bool _next = false);
 	std::string outValue(std::string _content, bool _xml_cdata = true);
 	std::string outNext();
-	friend class CyParser;
 };
 
 #endif /*__yhttpd_yhook_h__*/

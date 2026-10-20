@@ -12,7 +12,6 @@
 
 // nhttpd
 #include <helper.h>
-#include "neutrinoyparser.h"
 #include "controlapi.h"
 #include <OpenThreads/ScopedLock>
 
@@ -89,13 +88,11 @@ public:
 	CNeutrinoAPI();
 	~CNeutrinoAPI(void);
 
-	CNeutrinoYParser	*NeutrinoYParser;
 	CControlAPI		*ControlAPI;
 	void Lock() { pmutex->lock(); }
 	void Unlock() { pmutex->unlock(); }
 	void GetChannelEvent(t_channel_id channel_id, CChannelEvent &event);
 
-	//friend class CNeutrinoYParser; // Backreference
 	//friend class CControlAPI;
 };
 

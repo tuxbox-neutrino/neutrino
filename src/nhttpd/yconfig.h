@@ -42,7 +42,6 @@
 //-----------------------------------------------------------------------------
 // modules
 //-----------------------------------------------------------------------------
-#define Y_CONFIG_USE_YPARSER y				// Add mod: "y-Parsing"
 #define Y_CONFIG_USE_AUTHHOOK y				// Add mod: "Authentication"
 #define Y_CONFIG_USE_WEBLOG y				// Add mod: "WebLogging"
 #define Y_CONFIG_USE_CACHE y				// Add mod: Can cache production pages
@@ -54,7 +53,6 @@
 #define Y_CONFIG_HAVE_SENDFILE y			// System: Have *IX SendFile
 #define Y_CONFIG_FEATURE_UPLOAD y			// Add Feature: File Upload POST Command
 #define Y_CONFIG_USE_HOSTEDWEB y			// Add Feature: Use HOSTED Web
-#define Y_CONFIG_FEATURE_SHOW_SERVER_CONFIG y		// Add Feature (in yParser): add /y/server-config
 //#define Y_CONFIG_USE_OPEN_SSL y			// Add Feature: use openSSL
 //#define Y_CONFIG_FEATURE_KEEP_ALIVE y			// Add Feature: Keep-alive //FIXME: does not work correctly now
 #define Y_CONFIG_FEATUE_SENDFILE_CAN_ACCESS_ALL y	// Add Feature: every file can be accessed (use carefully: security!!)
@@ -71,7 +69,6 @@
 
 #ifdef CONFIG_SYSTEM_TUXBOX
 #define Y_CONFIG_FEATURE_UPLOAD y
-#define Y_CONFIG_USE_YPARSER y
 #define Y_CONFIG_USE_AUTHHOOK y
 #endif
 

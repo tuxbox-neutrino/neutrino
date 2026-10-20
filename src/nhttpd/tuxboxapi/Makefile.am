@@ -23,6 +23,5 @@ noinst_LIBRARIES = libnhttpd_tuxboxapi.a
 
 libnhttpd_tuxboxapi_a_SOURCES = \
 	controlapi.cpp \
-	neutrinoapi.cpp \
-	neutrinoyparser.cpp
+	neutrinoapi.cpp
 	

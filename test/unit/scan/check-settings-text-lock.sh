@@ -258,12 +258,12 @@ fi
 # are reached from those threads: the two download helpers, one behind the
 # redirect a timer follows and one behind everything else that fetches a URL; the
 # logo lookup the logo adapter calls; and the plugin scan, which a request for a
-# reload runs outright. nhttpd's language lookup answers on those threads as
-# well, the stream server's thread runs the Lua calls that fetch a URL, and the
-# icon lookup is asked from threads that paint. Each of the rest is reached from a
-# thread of its own that paints a front display or the icons over it. Every
-# mention of a text field in these has to stand inside one of the four accessors.
-READERS='src/nhttpd/tuxboxapi/controlapi.cpp src/nhttpd/yhttpd_core/ylanguage.cpp src/system/httptool.cpp src/system/helpers.cpp src/gui/plugins.cpp src/gui/lua/lua_curl.cpp src/gui/lua/luainstance.cpp src/driver/fb_generic.cpp src/driver/pictureviewer/pictureviewer.cpp src/driver/lcdd.cpp src/driver/vfd.cpp src/driver/simple_display.cpp src/driver/glcd/glcd.cpp src/driver/glcd/simpleclock.cpp src/driver/glcd/weather.cpp src/driver/lcd4l.cpp src/gui/screensaver.cpp'
+# reload runs outright. The stream server's thread runs the Lua calls that fetch
+# a URL, and the icon lookup is asked from threads that paint. Each of the rest is
+# reached from a thread of its own that paints a front display or the icons over
+# it. Every mention of a text field in these has to stand inside one of the four
+# accessors.
+READERS='src/nhttpd/tuxboxapi/controlapi.cpp src/system/httptool.cpp src/system/helpers.cpp src/gui/plugins.cpp src/gui/lua/lua_curl.cpp src/gui/lua/luainstance.cpp src/driver/fb_generic.cpp src/driver/pictureviewer/pictureviewer.cpp src/driver/lcdd.cpp src/driver/vfd.cpp src/driver/simple_display.cpp src/driver/glcd/glcd.cpp src/driver/glcd/simpleclock.cpp src/driver/glcd/weather.cpp src/driver/lcd4l.cpp src/gui/screensaver.cpp'
 for f in $READERS; do
 	[ -r "$SRC/$f" ] || {
 		echo "check-settings-text-lock.sh: cannot read $SRC/$f" >&2

@@ -20,16 +20,10 @@
 #include <system/helpers.h>
 // yhttpd
 #include <ylogging.h>
-#include <ylanguage.h>
 #include <yhook.h>
 #include <httpd/nhttpd_bridge.h>
 #include <httpd/server_control.h>
 #include <httpd/webconfig.h>
-
-#ifdef Y_CONFIG_USE_YPARSER
-#include <mod_yparser.h>
-static CyParser yParser;
-#endif
 
 //-----------------------------------------------------------------------------
 // Setting yhttpd Instance
@@ -170,7 +164,6 @@ Cyhttpd::Cyhttpd() {
 Cyhttpd::~Cyhttpd() {
 	if (webserver)
 		delete webserver;
-	CLanguage::deleteInstance();
 	webserver = NULL;
 }
 
@@ -325,12 +318,7 @@ void Cyhttpd::hooks_attach() {
 
 #ifdef CONFIG_SYSTEM_TUXBOX
 	NeutrinoAPI = new CNeutrinoAPI();
-	CyhookHandler::attach(NeutrinoAPI->NeutrinoYParser);
 	CyhookHandler::attach(NeutrinoAPI->ControlAPI);
-#else
-#ifdef Y_CONFIG_USE_YPARSER
-	CyhookHandler::attach(&yParser);
-#endif
 #endif
 
 #ifdef Y_CONFIG_USE_CACHE
@@ -361,14 +349,6 @@ void Cyhttpd::hooks_detach() {
 		delete api_bridge;
 		api_bridge = NULL;
 	}
-
-#ifdef CONFIG_SYSTEM_TUXBOX
-	CyhookHandler::detach(NeutrinoAPI->NeutrinoYParser);
-#else
-#ifdef Y_CONFIG_USE_YPARSER
-	CyhookHandler::detach(&yParser);
-#endif
-#endif
 
 #ifdef Y_CONFIG_USE_CACHE
 	CyhookHandler::detach(&mod_cache);
@@ -526,11 +506,6 @@ void Cyhttpd::ReadConfig(void) {
 	ConfigList["server.group_name"] = Config->getString("server.group_name", "");
 	ConfigList["server.chroot"] = Config->getString("server.chroot", "");
 
-	// language
-	ConfigList["Language.directory"] = Config->getString("Language.directory", HTTPD_LANGUAGEDIR);
-	ConfigList["Language.selected"] = Config->getString("Language.selected", HTTPD_DEFAULT_LANGUAGE);
-	yhttpd->ReadLanguage();
-
 	// Read App specifig settings by Hook
 	CyhookHandler::Hooks_ReadConfig(Config, ConfigList);
 
@@ -539,15 +514,6 @@ void Cyhttpd::ReadConfig(void) {
 		httpd::saveServerFile(HTTPD_CONFIGFILE, Config->getConfigDataMap());
 	log_level_printf(3, "ReadConfig End\n");
 	delete Config;
-}
-//-----------------------------------------------------------------------------
-// Read Webserver Configurationfile for languages
-//-----------------------------------------------------------------------------
-void Cyhttpd::ReadLanguage(void) {
-	// Init Class vars
-	CLanguage *lang = CLanguage::getInstance();
-	log_level_printf(3, "ReadLanguage:%s\n", ConfigList["Language.selected"].c_str());
-	lang->setLanguage(ConfigList["Language.selected"]);
 }
 
 //-----------------------------------------------------------------------------

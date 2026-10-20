@@ -22,6 +22,5 @@ libyhttpdmods_a_SOURCES = \
 	mod_auth.cpp \
 	mod_cache.cpp \
 	mod_sendfile.cpp \
-	mod_weblog.cpp \
-	mod_yparser.cpp
+	mod_weblog.cpp
 

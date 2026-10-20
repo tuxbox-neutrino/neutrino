@@ -11,6 +11,8 @@
 #
 # Prints one line per check, PASS or FAIL, and exits non-zero on any FAIL.
 # Needs curl, gzip, cmp and python3 (for the raw-socket cases).
+# CHECKV1_WEBROOT, where set, names the folder the server serves its pages
+# from; the template checks (19) put probe files there and remove them.
 
 BASE="$1"; DOC="$2"; BEFORE="$3"
 [ -n "$BASE" ] && [ -f "$DOC" ] || { echo "usage: $0 <base-url> <openapi.json> [before-dir]" >&2; exit 2; }
@@ -627,6 +629,36 @@ case "$r18" in
 	PASS*) pass "webserver table: truth, port moved and back, v6 bind refused, taken port falls back";;
 	*) fail "webserver table: $r18";;
 esac
+
+# 19. the template engine is gone from the server: /y/ answers nothing of its
+#     own, execute= is read nowhere (httpd_change, which replaced the server
+#     with another program, among it), and a template left in the web folder,
+#     as on a box updated over an old install, is neither run nor sent as its
+#     source. The files need the folder the server serves (CHECKV1_WEBROOT);
+#     without it only the addresses are checked.
+c=`curl -s -o "$T/b19" -w '%{http_code}' -H "$AUTH_C" "$BASE/y/cgi?execute=func:get_request_data%20probe19"`
+if [ "$c" = 404 ] && ! grep -q probe19 "$T/b19"; then pass "/y/cgi with execute= answers 404"
+else fail "/y/cgi with execute=: $c `head -c 200 $T/b19`"; fi
+c=`curl -s -o "$T/b19" -w '%{http_code}' -H "$AUTH_C" "$BASE/y/cgi?tmpl=index.html"`
+if [ "$c" = 404 ]; then pass "/y/cgi with a template answers 404"; else fail "/y/cgi with a template: $c"; fi
+curl -s -o "$T/i19a" -H "$AUTH_C" "$BASE/index.html"
+c=`curl -s -o "$T/i19b" -w '%{http_code}' -H "$AUTH_C" "$BASE/index.html?execute=func:httpd_change%20/bin/false"`
+if [ "$c" = 200 ] && [ -s "$T/i19a" ] && cmp -s "$T/i19a" "$T/i19b"; then pass "execute= on a page is not read: the page as it is"
+else fail "execute= on a page: $c"; fi
+c=`curl -s -o /dev/null -w '%{http_code}' "$BASE/api/v1/system/info"`
+if [ "$c" = 200 ]; then pass "the server answers on after asking it for httpd_change"; else fail "after httpd_change: $c"; fi
+if [ -n "$CHECKV1_WEBROOT" ] && [ -d "$CHECKV1_WEBROOT" ]; then
+	for ext in yhtm yjs ysh; do
+		f="$CHECKV1_WEBROOT/check-v1-probe19.$ext"
+		printf '{=var-set:p=PARSED19=}{=var-get:p=}\n' > "$f"
+		c=`curl -s -o "$T/b19" -w '%{http_code}' -H "$AUTH_C" "$BASE/check-v1-probe19.$ext"`
+		rm -f "$f"
+		if [ "$c" = 404 ] && ! grep -q -e PARSED19 "$T/b19"; then pass "a .$ext file in the web folder is neither run nor sent"
+		else fail "a .$ext file in the web folder: $c `head -c 200 $T/b19`"; fi
+	done
+else
+	echo "SKIP template files: CHECKV1_WEBROOT names no folder the server serves"
+fi
 
 echo "failures: $fails"
 [ "$fails" -eq 0 ]
