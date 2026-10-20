@@ -8,7 +8,7 @@
 	<script>
 		// Apply the stored theme before first paint: webui-header.js runs
 		// too late, and some pages never load it at all.
-		try { document.documentElement.setAttribute('data-theme', localStorage.getItem('webui-theme') || localStorage.getItem('yweb-theme') || 'dark'); } catch (e) {}
+		try { var m = localStorage.getItem('webui-mode'); if (m !== 'light' && m !== 'dark') m = (localStorage.getItem('webui-theme') || localStorage.getItem('yweb-theme')) === 'light' || matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'; document.documentElement.setAttribute('data-theme', m); } catch (e) {}
 	</script>
 	<link rel="stylesheet" href="/css/pico.min.css">
 	<link rel="stylesheet" href="/css/webui.css">
@@ -45,7 +45,7 @@
 		.bqe-mini { display: inline-flex; align-items: center; justify-content: center; gap: 0.25rem; margin: 0; background: none; border: 1px solid var(--pico-muted-border-color); border-radius: 4px; color: var(--pico-muted-color); cursor: pointer; padding: 0.1rem 0.25rem; font-size: 0.75rem; line-height: 1.5; }
 		.bqe-mini:hover { color: var(--webui-accent); border-color: var(--webui-accent); }
 		.bqe-mini svg { width: 12px; height: 12px; flex-shrink: 0; }
-		.bqe-mini.attn { color: #fff; background: var(--webui-accent); border-color: var(--webui-accent); }
+		.bqe-mini.attn { color: var(--webui-on-accent); background: var(--webui-accent); border-color: var(--webui-accent); }
 		/* Bouquet-Zeilen: Aktionen erst bei Hover bzw. Auswahl zeigen,
 		   sonst frisst die Knopfleiste die Spalte auf und die Namen
 		   trunkieren zu "1…" (Touch: Tap waehlt aus → Aktionen) */
