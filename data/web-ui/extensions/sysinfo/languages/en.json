@@ -10,6 +10,7 @@
 	"si.load": "Load",
 	"si.memory": "Memory",
 	"si.network": "Network",
+	"si.no_answer": "not answering",
 	"si.no_ifaces": "No interfaces",
 	"si.no_output": "(no output)",
 	"si.processes": "Processes",

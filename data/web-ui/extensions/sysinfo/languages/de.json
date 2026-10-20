@@ -10,6 +10,7 @@
 	"si.load": "Auslastung",
 	"si.memory": "Speicher",
 	"si.network": "Netzwerk",
+	"si.no_answer": "antwortet nicht",
 	"si.no_ifaces": "Keine Interfaces",
 	"si.no_output": "(keine Ausgabe)",
 	"si.processes": "Prozesse",

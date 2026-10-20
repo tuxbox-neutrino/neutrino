@@ -42,7 +42,11 @@ async function loadSysInfo() {
 			for (var d = 0; d < sys.disks.length; d++) {
 				var dsk = sys.disks[d];
 				var dlabel = (dsk.mount === '/') ? 'Disk /' : escapeHtml(dsk.mount);
-				mem += bar(dlabel, dsk.percent, webuiFormatKB(dsk.free) + ' ' + webuiLH('si.free_of', 'free of') + ' ' + webuiFormatKB(dsk.total));
+				if (dsk.answered === false)
+					mem += '<span class="sysinfo-label">' + dlabel + '</span><span class="sysinfo-value webui-text-muted">' +
+						webuiLH('si.no_answer', 'not answering') + '</span>';
+				else
+					mem += bar(dlabel, dsk.percent, webuiFormatKB(dsk.free) + ' ' + webuiLH('si.free_of', 'free of') + ' ' + webuiFormatKB(dsk.total));
 			}
 		} else if (sys.disk)
 			mem += bar('Disk', sys.disk.percent, webuiFormatKB(sys.disk.free) + ' ' + webuiLH('si.free_of', 'free of') + ' ' + webuiFormatKB(sys.disk.total));
