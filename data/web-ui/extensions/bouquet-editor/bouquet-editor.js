@@ -616,12 +616,13 @@ async function bqeChange(method, path, body) {
 	}
 }
 
+// A name the box refuses (one taken already) stays in the prompt, with
+// what was typed and why: the refusal is the prompt's, not a toast.
 function bqeAddBouquet() {
 	webuiShowPrompt(webuiL('bqe.new', 'New bouquet'), webuiL('bqe.new_name', 'Name of the new bouquet'), '', async function(name) {
-		if (await bqeChange('POST', '/bouquets', {name: name})) {
-			webuiShowToast(webuiL('bqe.created', 'Bouquet created'));
-			await bqeLoadBouquets();
-		}
+		await bqeOwnRequest('POST', '/bouquets', {body: {name: name}});
+		webuiShowToast(webuiL('bqe.created', 'Bouquet created'));
+		await bqeLoadBouquets();
 	});
 }
 
@@ -630,15 +631,14 @@ function bqeRename(b) {
 		if (name === b.name) return;
 		var mine = bqeSel && bqeSel.name === b.name ? bqeSel : null;
 		if (mine) mine.renaming = name;
-		var done = await bqeChange('PUT', bqePath(b.name, 'name'), {name: name});
-		if (mine) {
-			delete mine.renaming;
-			if (done && bqeSel === mine) mine.name = name;
+		try {
+			await bqeOwnRequest('PUT', bqePath(b.name, 'name'), {body: {name: name}});
+		} finally {
+			if (mine) delete mine.renaming;
 		}
-		if (done) {
-			webuiShowToast(webuiL('bqe.renamed', 'Renamed'));
-			await bqeLoadBouquets();
-		}
+		if (mine && bqeSel === mine) mine.name = name;
+		webuiShowToast(webuiL('bqe.renamed', 'Renamed'));
+		await bqeLoadBouquets();
 	});
 }
 
