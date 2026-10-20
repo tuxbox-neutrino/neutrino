@@ -33,7 +33,8 @@ function initTimeSelect() {
 	currentStartTime = parseInt(select.value);
 }
 
-// The bouquets of the list the box plays from, hidden and empty ones left out
+// The bouquets of the list the box plays from, hidden and empty ones left out;
+// shown first is the one holding the channel the box plays, as in the channel list
 async function loadBouquets() {
 	const select = document.getElementById('bouquetSelect');
 	try {
@@ -43,7 +44,13 @@ async function loadBouquets() {
 		const bouquets = ((r && r.items) || []).filter(b =>
 			!b.hidden && (currentMode === 'radio' ? b.radio_count : b.tv_count) > 0);
 		select.replaceChildren.apply(select, bouquets.map(b => webuiEl('option', {value: String(b.id)}, b.name)));
-		currentBouquet = bouquets.length ? String(bouquets[0].id) : '';
+		let found = null;
+		if (ch && ch.id) {
+			const holding = await webuiV1('GET', '/bouquets', {query: {holds: ch.id}}).catch(() => null);
+			found = holding && (holding.items || []).find(x => bouquets.some(b => b.id === x.id));
+		}
+		currentBouquet = found ? String(found.id) : (bouquets.length ? String(bouquets[0].id) : '');
+		select.value = currentBouquet;
 	} catch (e) {
 		select.replaceChildren(webuiEl('option', {}, webuiL('epg.load_fail', 'Loading failed')));
 		console.error('Failed to load bouquets:', e);
