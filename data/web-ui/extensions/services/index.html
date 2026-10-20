@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark" class="webui-i18n-pending">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Neutrino-Web-UI - Services</title>
+	<link rel="icon" href="/favicon/favicon.ico">
+	<script>
+		// Apply the stored theme before first paint: webui-header.js runs
+		// too late, and some pages never load it at all.
+		try { document.documentElement.setAttribute('data-theme', localStorage.getItem('webui-theme') || localStorage.getItem('yweb-theme') || 'dark'); } catch (e) {}
+	</script>
+	<link rel="stylesheet" href="/css/pico.min.css">
+	<link rel="stylesheet" href="/css/webui.css">
+	<style>
+		.svc-content {
+			padding: 0.5rem 1rem;
+			max-width: 60rem;
+		}
+
+		.svc-toolbar {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			gap: 1rem;
+			margin-bottom: 1rem;
+		}
+
+		.svc-lead {
+			margin: 0;
+			font-size: 0.85rem;
+			color: var(--pico-muted-color);
+		}
+
+		.svc-card {
+			background: var(--pico-card-background-color);
+			border-radius: var(--webui-radius-lg);
+			box-shadow: var(--webui-shadow);
+			overflow: hidden;
+		}
+
+		[data-theme="light"] .svc-card {
+			border: 1px solid var(--webui-border-subtle);
+		}
+
+		.svc-row {
+			display: flex;
+			align-items: center;
+			gap: 0.75rem;
+			padding: 0.6rem 0.9rem;
+			border-bottom: 1px solid var(--pico-muted-border-color);
+			font-size: 0.85rem;
+		}
+
+		.svc-row:last-child {
+			border-bottom: none;
+		}
+
+		.svc-dot {
+			width: 9px;
+			height: 9px;
+			border-radius: 50%;
+			flex-shrink: 0;
+			background: var(--pico-muted-color);
+		}
+
+		.svc-row.running .svc-dot {
+			background: var(--webui-success);
+		}
+
+		.svc-text {
+			flex: 1;
+			min-width: 0;
+		}
+
+		.svc-name {
+			font-weight: 600;
+		}
+
+		.svc-id {
+			font-weight: 400;
+			color: var(--pico-muted-color);
+		}
+
+		.svc-desc {
+			color: var(--pico-muted-color);
+			font-size: 0.8rem;
+		}
+
+		.svc-state {
+			min-width: 6rem;
+			color: var(--pico-muted-color);
+		}
+
+		.svc-row.running .svc-state {
+			color: var(--webui-success);
+		}
+
+		.svc-actions {
+			display: flex;
+			gap: 0.4rem;
+			flex-wrap: wrap;
+		}
+
+		.svc-row[aria-busy="true"] .svc-actions {
+			opacity: 0.6;
+		}
+
+		.svc-missing-box {
+			margin-top: 1rem;
+			border: 1px solid var(--pico-muted-border-color);
+			border-radius: var(--webui-radius);
+			background: var(--pico-card-background-color);
+		}
+
+		.svc-missing-box summary {
+			padding: 0.6rem 1rem;
+			font-size: 0.85rem;
+			font-weight: 600;
+			cursor: pointer;
+			user-select: none;
+		}
+
+		.svc-missing-box p {
+			margin: 0 1rem 0.5rem;
+			font-size: 0.8rem;
+			color: var(--pico-muted-color);
+		}
+
+		.svc-missing {
+			opacity: 0.75;
+		}
+
+		.svc-empty, .svc-note {
+			padding: 0.75rem 1rem;
+			font-size: 0.85rem;
+			color: var(--pico-muted-color);
+		}
+
+		@media (max-width: 600px) {
+			.svc-row {
+				flex-wrap: wrap;
+			}
+
+			.svc-actions {
+				width: 100%;
+			}
+		}
+	</style>
+</head>
+<body>
+	<div class="webui-header-wrapper" data-page="ext-services"></div>
+	<div class="webui-header-spacer"></div>
+
+	<main class="svc-content">
+		<div class="svc-toolbar">
+			<p class="svc-lead" data-l="svc.lead">Services that run in the background on the box. Running means a process of the name runs right now.</p>
+			<button type="button" class="webui-btn primary" onclick="svcLoad()">
+				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:1rem;height:1rem;margin-right:0.3rem"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
+				<span data-l="svc.refresh">Refresh</span>
+			</button>
+		</div>
+
+		<div class="svc-card">
+			<div class="svc-note" id="svc-note" data-l="msg.loading">Loading...</div>
+			<div id="svc-list" aria-live="polite"></div>
+			<div class="svc-empty" id="svc-none" data-l="svc.none" hidden>This box carries none of these services.</div>
+		</div>
+
+		<details class="svc-missing-box" id="svc-missing" hidden>
+			<summary><span data-l="svc.missing">Not on this box</span> (<span id="svc-missing-count">0</span>)</summary>
+			<p data-l="svc.missing_note">This image was built without them.</p>
+			<div id="svc-missing-list"></div>
+		</details>
+	</main>
+
+	<script src="/js/webui-i18n.js"></script>
+	<script src="/js/webui-header.js"></script>
+	<script src="/js/webui-dom.js"></script>
+	<script src="/js/webui-v1.js"></script>
+	<script src="services.js"></script>
+</body>
+</html>

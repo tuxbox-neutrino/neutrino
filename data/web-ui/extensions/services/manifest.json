@@ -1,0 +1,9 @@
+{
+	"name": "Services",
+	"version": "1.0.0",
+	"slot": "tools",
+	"entry": "index.html",
+	"icon": "icon.svg",
+	"description": "Start and stop the box's services",
+	"default": "on"
+}
