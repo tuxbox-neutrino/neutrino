@@ -14,17 +14,16 @@ html.webui-i18n-pending body {
    CSS Custom Properties (Theme Variables)
    ============================================ */
 :root {
-	/* Brand colors */
-	--webui-accent: #fd6d13;
-	--webui-accent-hover: #e55a00;
-	--webui-accent-light: rgba(253, 109, 19, 0.15);
-	/* Focus outline colour — theme-dependent for 3:1 contrast: plain
-	   accent clears 3:1 on the dark form background, the darker hover
-	   accent is needed on the light one (see [data-theme="light"]). */
+	/* Brand colors: a blue in both themes, lighter on the dark one so it
+	   keeps its contrast; text on it at least 4.5:1 in both (Phase 4). */
+	--webui-accent: #79a6e8;
+	--webui-accent-hover: #93b8ee;
+	--webui-accent-light: rgba(121, 166, 232, 0.15);
+	/* Focus outline colour: the accent clears 3:1 on both backgrounds. */
 	--webui-focus-color: var(--webui-accent);
 
 	/* Text on accent (for buttons, active states) */
-	--webui-on-accent: #ffffff;
+	--webui-on-accent: #0b1220;
 
 	/* Status colors */
 	--webui-success: #2ecc71;
@@ -64,15 +63,66 @@ html.webui-i18n-pending body {
 
 /* Light theme - override variables */
 [data-theme="light"] {
-	--webui-accent-light: rgba(253, 109, 19, 0.12);
-	--webui-focus-color: var(--webui-accent-hover);
-	--webui-on-accent: #1a1a1a;
-	--webui-text-primary: #1a1a1a;
-	--webui-text-secondary: #4b5563;
-	--webui-bg-elevated: #f3f4f6;
-	--webui-border-subtle: #e5e7eb;
-	--webui-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-	--webui-shadow-hover: 0 4px 16px rgba(0, 0, 0, 0.12);
+	--webui-accent: #2f5f9e;
+	--webui-accent-hover: #264e83;
+	--webui-accent-light: rgba(47, 95, 158, 0.10);
+	--webui-on-accent: #ffffff;
+	--webui-text-primary: #17202b;
+	--webui-text-secondary: #556372;
+	--webui-bg-elevated: #f6f8fb;
+	--webui-border-subtle: #d3dbe4;
+	--webui-shadow: 0 1px 2px rgba(23, 32, 43, 0.06), 0 2px 8px rgba(23, 32, 43, 0.05);
+	--webui-shadow-hover: 0 4px 16px rgba(23, 32, 43, 0.10);
+}
+
+/* Pico's own palette from the same values: a calm, near-black page with
+   cards a step lighter in dark, a page tinted grey-blue with white cards in
+   light, fields with an edge of at least 3:1, and Pico's primary colour the
+   accent, so links and Pico's own controls match the rest. Pico declares
+   its palette on the same attribute; this file comes after it. */
+[data-theme="dark"] {
+	--pico-background-color: #0e1116;
+	--pico-card-background-color: #161b22;
+	--pico-card-sectioning-background-color: #1c232c;
+	--pico-muted-border-color: #2a333f;
+	--pico-color: #e6ebf1;
+	--pico-muted-color: #9aa7b5;
+	--pico-form-element-background-color: #161b22;
+	--pico-form-element-border-color: #667385;
+	--pico-form-element-focus-color: var(--webui-accent);
+	--pico-form-element-active-border-color: var(--webui-accent);
+	--pico-primary: var(--webui-accent);
+	--pico-primary-background: var(--webui-accent);
+	--pico-primary-border: var(--webui-accent);
+	--pico-primary-underline: rgba(121, 166, 232, 0.5);
+	--pico-primary-hover: var(--webui-accent-hover);
+	--pico-primary-hover-background: var(--webui-accent-hover);
+	--pico-primary-hover-border: var(--webui-accent-hover);
+	--pico-primary-hover-underline: var(--webui-accent-hover);
+	--pico-primary-focus: rgba(121, 166, 232, 0.25);
+	--pico-primary-inverse: var(--webui-on-accent);
+}
+[data-theme="light"] {
+	--pico-background-color: #eef2f6;
+	--pico-card-background-color: #ffffff;
+	--pico-card-sectioning-background-color: #f6f8fb;
+	--pico-muted-border-color: #d3dbe4;
+	--pico-color: #17202b;
+	--pico-muted-color: #556372;
+	--pico-form-element-background-color: #ffffff;
+	--pico-form-element-border-color: #7f8c9b;
+	--pico-form-element-focus-color: var(--webui-accent);
+	--pico-form-element-active-border-color: var(--webui-accent);
+	--pico-primary: var(--webui-accent);
+	--pico-primary-background: var(--webui-accent);
+	--pico-primary-border: var(--webui-accent);
+	--pico-primary-underline: rgba(47, 95, 158, 0.5);
+	--pico-primary-hover: var(--webui-accent-hover);
+	--pico-primary-hover-background: var(--webui-accent-hover);
+	--pico-primary-hover-border: var(--webui-accent-hover);
+	--pico-primary-hover-underline: var(--webui-accent-hover);
+	--pico-primary-focus: rgba(47, 95, 158, 0.25);
+	--pico-primary-inverse: var(--webui-on-accent);
 }
 
 /* Light theme component overrides - using centralized variables */
@@ -160,7 +210,7 @@ html.webui-i18n-pending body {
 [data-theme="light"] .webui-channel-btn:hover {
 	background: var(--webui-accent);
 	border-color: var(--webui-accent);
-	color: white;
+	color: var(--webui-on-accent);
 }
 
 [data-theme="light"] .webui-channel-btn svg {
@@ -176,7 +226,7 @@ html.webui-i18n-pending body {
 
 [data-theme="light"] .webui-bouquet-dropdown:focus {
 	border-color: var(--webui-accent);
-	box-shadow: 0 0 0 2px rgba(253, 109, 19, 0.2);
+	box-shadow: 0 0 0 2px var(--webui-accent-light);
 }
 
 /* Light theme - Channel row */
@@ -189,7 +239,7 @@ html.webui-i18n-pending body {
 }
 
 [data-theme="light"] .webui-channel-row.current {
-	background: rgba(253, 109, 19, 0.08);
+	background: var(--webui-accent-light);
 }
 
 /* Light theme - Remote control buttons (see Remote Control section below) */
@@ -886,7 +936,7 @@ body:not(.has-subheader) .webui-header-spacer {
 .webui-modal-footer .btn-primary {
 	background: var(--webui-accent);
 	border-color: var(--webui-accent);
-	color: white;
+	color: var(--webui-on-accent);
 }
 
 .webui-modal-footer .btn-primary:disabled {
@@ -963,7 +1013,7 @@ body:not(.has-subheader) .webui-header-spacer {
 .webui-confirm-actions .confirm-ok {
 	background: var(--webui-accent);
 	border-color: var(--webui-accent);
-	color: white;
+	color: var(--webui-on-accent);
 }
 
 .webui-confirm-dialog .webui-prompt-label {
@@ -1657,13 +1707,13 @@ textarea:focus-visible {
 .webui-btn.primary {
 	background: var(--webui-accent);
 	border-color: var(--webui-accent);
-	color: white;
+	color: var(--webui-on-accent);
 }
 
 .webui-btn.primary:hover {
 	background: var(--webui-accent-hover);
 	border-color: var(--webui-accent-hover);
-	color: white;
+	color: var(--webui-on-accent);
 }
 
 .webui-btn.danger {
@@ -1673,7 +1723,7 @@ textarea:focus-visible {
 }
 
 /* Eigener Hover: der generische .webui-btn:hover faerbt sonst
-   destruktive Knoepfe akzent-orange um */
+   destruktive Knoepfe in den Akzent um */
 .webui-btn.danger:hover {
 	background: var(--webui-danger-hover);
 	border-color: var(--webui-danger-hover);
@@ -1731,12 +1781,12 @@ textarea:focus-visible {
 [data-theme="light"] .webui-btn.primary {
 	background: var(--webui-accent);
 	border-color: var(--webui-accent);
-	color: white;
+	color: var(--webui-on-accent);
 }
 
 [data-theme="light"] .webui-btn.primary:hover {
 	background: var(--webui-accent-hover);
-	color: white;
+	color: var(--webui-on-accent);
 }
 
 /* danger braucht wie primary einen Light-Override, sonst gewinnt
@@ -1899,7 +1949,7 @@ textarea:focus-visible {
 
 .webui-nav-item.active .webui-nav-count {
 	background: var(--webui-accent);
-	color: white;
+	color: var(--webui-on-accent);
 }
 
 [data-theme="light"] .webui-nav-item {
@@ -2907,10 +2957,8 @@ body.webui-remote-open {
 	transition: transform 0.2s;
 }
 .webui-toggle input:checked + .webui-toggle-slider {
-	/* softened accent — a wall of solid-orange pills dominates the
-	   panel; color-mix falls back to the plain accent line above */
+	/* the full accent: "on" has to stand out from "off" at a glance */
 	background: var(--webui-accent);
-	background: color-mix(in srgb, var(--webui-accent) 62%, var(--pico-card-background-color));
 }
 .webui-toggle input:checked + .webui-toggle-slider::before {
 	transform: translateX(16px);
