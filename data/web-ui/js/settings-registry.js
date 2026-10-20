@@ -168,7 +168,7 @@ var SETTINGS_REGISTRY = [
 				title: 'LCD Display',
 				fields: [
 					{ key: 'lcd_power', label: webuiL('reg.lcd_power', 'LCD on/off'), type: 'bool01' },
-					{ key: 'lcd_inverse', label: webuiL('reg.invert', 'Invert'), type: 'bool01' },
+					{ key: 'lcd_inverse', label: webuiL('reg.lcd_invert', 'Invert the LCD'), type: 'bool01' },
 					{ key: 'lcd_brightness', label: webuiL('reg.brightness', 'Brightness'), type: 'number', min: 0, max: 255 },
 					{ key: 'lcd_standbybrightness', label: webuiL('reg.standby_brightness', 'Standby brightness'), type: 'number', min: 0, max: 255 },
 					{ key: 'lcd_contrast', label: webuiL('reg.contrast', 'Contrast'), type: 'number', min: 0, max: 63 },
@@ -195,7 +195,7 @@ var SETTINGS_REGISTRY = [
 				title: 'Graphic LCD',
 				fields: [
 					{ key: 'glcd_enable', label: webuiL('reg.glcd_power', 'GLCD on/off'), type: 'bool01' },
-					{ key: 'glcd_inverse', label: webuiL('reg.invert', 'Invert'), type: 'bool01' },
+					{ key: 'glcd_inverse', label: webuiL('reg.glcd_invert', 'Invert the graphic LCD'), type: 'bool01' },
 					{ key: 'glcd_brightness', label: webuiL('reg.brightness', 'Brightness'), type: 'number', min: 0, max: 10 },
 					{ key: 'glcd_brightness_standby', label: webuiL('reg.standby_brightness', 'Standby brightness'), type: 'number', min: 0, max: 10 },
 					{ key: 'glcd_brightness_dim', label: webuiL('reg.dim_brightness', 'Dim brightness'), type: 'number', min: 0, max: 10 },
@@ -491,20 +491,14 @@ var SETTINGS_REGISTRY = [
 		config: 'webui',
 		sections: [
 			{
+				/* Only what this interface reads. The box name and colour, the
+				   screenshot key, the framebuffer mode and the management address
+				   were read by the old pages alone and stay in webui.conf for
+				   whoever still asks for them. */
 				title: webuiL('reg.ui', 'User interface'),
 				fields: [
 					{ key: 'start_page', label: webuiL('reg.start_page', 'Start page'), type: 'select', options: webuiStartPages() },
-					{ key: 'yweb_box_name', label: webuiL('reg.box_name', 'Box name'), type: 'text' },
-					{ key: 'yweb_box_color', label: webuiL('reg.box_color', 'Box color'), type: 'text' }
-				]
-			},
-			{
-				title: webuiL('reg.screenshot_control', 'Screenshot and control'),
-				fields: [
-					{ key: 'screenshot_timeout', label: webuiL('reg.screenshot_timeout', 'Screenshot timeout (sec.)'), type: 'number', min: 0 },
-					{ key: 'screenshot_rc', label: webuiL('reg.screenshot_rc', 'Screenshot via RC key'), type: 'text' },
-					{ key: 'fb', label: webuiL('reg.fb_mode', 'Framebuffer mode'), type: 'text' },
-					{ key: 'management_ip', label: 'Management-IP', type: 'text' }
+					{ key: 'screenshot_timeout', label: webuiL('reg.screenshot_timeout', 'Screenshot timeout (sec.)'), type: 'number', min: 0 }
 				]
 			}
 		]
