@@ -91,7 +91,7 @@ async function loadSysInfo() {
 		}
 		document.getElementById('sysinfo-net').innerHTML = net;
 	} catch (e) {
-		document.getElementById('sysinfo-hw').innerHTML = '<span class="sysinfo-value" style="color:var(--webui-danger)">' + webuiLH('msg.error', 'Error') + ': ' + escapeHtml(e.message) + '</span>';
+		document.getElementById('sysinfo-hw').innerHTML = '<span class="sysinfo-value" style="color:var(--webui-danger)">' + webuiLH('msg.error', 'Error') + ': ' + escapeHtml(webuiErrText(e)) + '</span>';
 	}
 	revealHashTarget();
 }
@@ -131,7 +131,7 @@ async function sysInfoToggle(details, type) {
 		}
 		pre.textContent = text.trim() || webuiL('si.no_output', '(no output)');
 	} catch (e) {
-		pre.textContent = webuiL('msg.error', 'Error') + ': ' + e.message;
+		pre.textContent = webuiL('msg.error', 'Error') + ': ' + webuiErrText(e);
 	}
 }
 
