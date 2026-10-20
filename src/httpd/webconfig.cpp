@@ -2213,7 +2213,7 @@ ServerOptions::ServerOptions()
 	  threading(true),
 	  override_directory(PUBLIC_HTTPDDIR),
 	  hosted_directory(HOSTED_HTTPDDIR),
-	  send_all_types(true)
+	  send_all_types(false)
 {
 }
 

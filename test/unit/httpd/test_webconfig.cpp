@@ -2878,7 +2878,7 @@ TEST_CASE("the rest of nhttpd.conf is read the way nhttpd reads it", "[webconf]"
 	REQUIRE(d.threading);
 	REQUIRE(d.override_directory == PUBLIC_HTTPDDIR);
 	REQUIRE(d.hosted_directory == HOSTED_HTTPDDIR);
-	REQUIRE(d.send_all_types);
+	REQUIRE_FALSE(d.send_all_types);
 	REQUIRE(httpd::sameServerOptions(d, httpd::ServerOptions()));
 }
 

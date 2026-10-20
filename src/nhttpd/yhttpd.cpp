@@ -442,6 +442,15 @@ void Cyhttpd::ReadConfig(void) {
 			Config->setInt32("configfile.version", 6);
 			httpd::saveServerFile(HTTPD_CONFIGFILE, Config->getConfigDataMap());
 		}
+		// Version 7: a file of a type the server has no name for is no
+		// longer sent all the same. It was on by default and saved so;
+		// switched off once here, and whoever switches it on again later
+		// keeps it on.
+		if (Config->getInt32("configfile.version") < 7) {
+			Config->setString("mod_sendfile.sendAll", "false");
+			Config->setInt32("configfile.version", 7);
+			httpd::saveServerFile(HTTPD_CONFIGFILE, Config->getConfigDataMap());
+		}
 	}
 	if (Config->getString("WebsiteMain.host", "").empty()) {
 		Config->setString("WebsiteMain.host", HTTPD_DEFAULT_HOST);

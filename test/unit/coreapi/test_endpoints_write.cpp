@@ -3923,7 +3923,7 @@ TEST_CASE("the lines of nhttpd.conf the settings page offers are read and writte
 	REQUIRE_FALSE(was["page_login"].asBool());
 	REQUIRE(was["no_login_prefix"].asString().empty());
 	REQUIRE(was["threading"].asBool());
-	REQUIRE(was["send_all_types"].asBool());
+	REQUIRE_FALSE(was["send_all_types"].asBool());
 	REQUIRE(was["hosted_directory"].asString() == ServerOptions().hosted_directory);
 	REQUIRE(was.isMember("password_shipped"));
 
