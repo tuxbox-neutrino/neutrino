@@ -2,6 +2,7 @@
  * storage_internal.h - storage internals shared by the endpoints and the tests
  *
  * Copyright (C) 2026 NI-Team
+ * Copyright (C) 2026 Tuxbox-Project (bounded size queries)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -84,6 +85,30 @@ void setWriteProbeForTest(Probe p);
    not take it; against those the file manager's refusal of a side file that is
    already there is the only guard. */
 OpenThreads::Mutex &wholeFileWriteMutex();
+
+/* How long mounts() waits for the filesystems to say how large they are, all of
+   them together; a negative value puts the shipped one back. Each is asked on a
+   thread of its own, because a network share whose server went away holds the
+   question for as long as its mount waits, which for a hard NFS mount is for
+   ever, and the request that asked would hang with it. */
+const long kSizeWaitMs = 1000;
+void setSizeWaitForTest(long wait_ms);
+
+/* Called on that thread with the mount point before the kernel is asked, so a
+   case can stand in for a share that never answers; cleared by passing NULL.
+   sizeQueriesWaiting() is how many of those threads are still held up. */
+typedef void (*SizeProbe)(const std::string &mountpoint);
+void setSizeProbeForTest(SizeProbe p);
+size_t sizeQueriesWaiting();
+
+/* Only a filesystem whose answer can wait on another machine or a program
+   (network shares, FUSE, and what lies at or below one) is asked on such a
+   thread; a local one is asked straight away. What tells one mount from the next at the same place is the
+   mount id in this file, so a share unmounted while its question hangs does
+   not hold up the one mounted there after it. Named here so the suite can
+   point it at one it wrote itself; without it the place, type and source tell
+   them apart. */
+extern const char *mountinfo_path;
 
 } // namespace internal
 } // namespace storage

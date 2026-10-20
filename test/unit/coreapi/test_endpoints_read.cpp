@@ -2657,6 +2657,10 @@ TEST_CASE("the mounts are named by where they are mounted", "[endpoints]")
 	REQUIRE(countItems(r.body) == 2);
 	REQUIRE(ids(r.body)[0] == "/media/sda1");
 	REQUIRE(parsed(r.body)["items"][0]["device"].asString() == "/dev/sda1");
+	// whether each one said how large it is in time, so a page can tell a share that went
+	// away from one that is empty
+	REQUIRE(everyItemHas(r.body, "answered"));
+	REQUIRE(parsed(r.body)["items"][0]["answered"].isBool());
 }
 
 TEST_CASE("the daemons are named by the name that drives them", "[endpoints]")

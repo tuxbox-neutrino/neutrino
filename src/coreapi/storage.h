@@ -152,7 +152,14 @@ enum class Wrote
 Result<Wrote> writeFile(const std::string &path, const std::string &bytes, bool overwrite);
 
 // One whose counters cannot be read carries zeroes rather than being left out,
-// so the list stays the list of what is mounted.
+// so the list stays the list of what is mounted. A network share or a FUSE
+// filesystem is asked on a thread of its own, all of them at once, and waited
+// for about a second (internal::kSizeWaitMs): one that did not answer by then,
+// a share whose server went away, is in the list with answered false, and the
+// same mount is not asked again while that question is still open; a request
+// that comes while it is still young waits for its answer. A local filesystem
+// is asked straight away unless a share lies at or above it on the way there,
+// an automounter's own mount point not at all.
 Result<std::vector<MountInfo> > mounts();
 
 /* The roots as the list stands: every element once, in its order, and whether it names a

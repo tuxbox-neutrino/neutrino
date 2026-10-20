@@ -608,6 +608,9 @@ struct FileEntry
 
 // free is what is still available rather than what is unallocated, because the
 // reserve a filesystem keeps for the superuser is not room a recording can use.
+// answered is false for a filesystem that did not say how large it is in time,
+// a network share whose server went away being the usual one: its zeroes are
+// then not known to be zeroes.
 struct MountInfo
 {
 	std::string device;
@@ -615,8 +618,9 @@ struct MountInfo
 	std::string fstype;
 	uint64_t    total;
 	uint64_t    free;
+	bool        answered;
 
-	MountInfo() : total(0), free(0) {}
+	MountInfo() : total(0), free(0), answered(true) {}
 };
 
 // In bytes rather than in blocks: a reader wants the room, and the shape the

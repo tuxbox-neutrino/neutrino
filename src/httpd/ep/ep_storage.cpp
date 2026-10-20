@@ -151,6 +151,8 @@ const FieldDesc kMountFields[] = {
 		"how large it is in bytes, 0 where the counters could not be read"),
 	HTTPD_MEMBER("free", FieldType::UInt,
 		"how much of it a recording could still use, which is less than what is unallocated because of the reserve"),
+	HTTPD_MEMBER("answered", FieldType::Bool,
+		"whether the filesystem said how large it is within about a second; false for one that did not, a network share whose server went away being the usual one, and its total and free are then not known rather than 0"),
 };
 
 const Schema kMountSchema = { "mount", HTTPD_FIELDS(kMountFields) };
@@ -251,6 +253,8 @@ Response listMounts(const Request &)
 		j.value((unsigned long long) m.total);
 		j.key("free");
 		j.value((unsigned long long) m.free);
+		j.key("answered");
+		j.value(m.answered);
 		j.endObject();
 	}
 	j.endArray();
@@ -744,7 +748,11 @@ const Endpoint kStorageEndpoints[] = {
 	  "request: where each one is mounted, what device or network share is mounted there, its "
 	  "filesystem type, and how large it is in total and free bytes. This is every mount on the "
 	  "box, not only the ones a recording or a file route may use; `total` and `free` are 0 for "
-	  "a mount point the kernel will not answer usage for.",
+	  "a mount point the kernel will not answer usage for. Network shares and FUSE filesystems "
+	  "are asked all at once and waited for about a second, so a share whose server went away "
+	  "does not hold the answer: it is in the list with `answered` false, and the same mount is "
+	  "not asked again while that question is still open. An automounter's own mount point is "
+	  "not asked.",
 	  NULL, 0, &kMountListSchema, &listMounts, false,
 	  Answers200, HTTPD_NO_REFUSALS },
 	/* System and not Read, which is where the level table puts the filesystem and is a

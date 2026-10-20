@@ -34,11 +34,15 @@
 #include <cerrno>
 #include <cstdio>
 #include <cstring>
+#include <map>
+#include <set>
 
 #include <dirent.h>
 #include <fcntl.h>
 #include <limits.h>
+#include <pthread.h>
 #include <stdint.h>
+#include <time.h>
 #include <sys/stat.h>
 #include <sys/statfs.h>
 #include <sys/syscall.h>
@@ -856,6 +860,415 @@ Result<void> appendFile(const std::string &path, uint64_t offset, const std::str
 	return ok();
 }
 
+// ----- how large each mounted filesystem is, asked with a deadline -----
+
+namespace internal
+{
+long size_wait_ms = kSizeWaitMs;
+SizeProbe size_probe = NULL;
+const char *mountinfo_path = "/proc/self/mountinfo";
+
+void setSizeWaitForTest(long wait_ms) { size_wait_ms = wait_ms < 0 ? kSizeWaitMs : wait_ms; }
+void setSizeProbeForTest(SizeProbe p) { size_probe = p; }
+}
+
+namespace
+{
+
+// How many of one request's questions run at once; the next starts as one of
+// them is answered, until the request stops waiting.
+const size_t kMaxSizeThreads = 16;
+// statfs needs next to nothing; a thread held up by a share keeps its stack.
+const size_t kSizeThreadStack = 64 * 1024;
+// How long an answer is kept for a request that waited on another one's question.
+const int64_t kSizeAnswerKeepMs = 60000;
+
+/* One question to the kernel, named by a number no other question has.
+   Whoever is last to hold it lets it go: the request when the answer came in
+   time or when it never started, the thread when the request had stopped
+   waiting for it. Both decide under the shelf's lock. */
+struct SizeQuery
+{
+	enum State { Pending, Running, Failed };
+	std::string         key;
+	std::string         mountpoint;
+	uint64_t            seq;
+	internal::SizeProbe probe;
+	State               state;
+	bool                done;
+	bool                abandoned;
+	int                 rc;
+	struct statfs       st;
+};
+
+struct SizeAnswer
+{
+	int           rc;
+	struct statfs st;
+	int64_t       at;	// when it came, for keeping it a while
+	uint64_t      seq;	// the question it answers: a waiting request takes none older than its own
+};
+
+struct SizeOpen
+{
+	int64_t  since;
+	uint64_t seq;
+};
+
+struct SizeShelf
+{
+	pthread_mutex_t                    mutex;
+	pthread_cond_t                     changed;
+	// the mounts a question is still open for, by instance: so that a share
+	// that does not answer holds up one thread and not one per request, while
+	// a question still young is waited for by the next request
+	std::map<std::string, SizeOpen>    waiting;
+	// what each was last answered, for a request that waited on another's question
+	std::map<std::string, SizeAnswer>  last;
+	uint64_t                           next_seq;
+
+	SizeShelf() : next_seq(1)
+	{
+		pthread_mutex_init(&mutex, NULL);
+		pthread_condattr_t attr;
+		pthread_condattr_init(&attr);
+		pthread_condattr_setclock(&attr, CLOCK_MONOTONIC);
+		pthread_cond_init(&changed, &attr);
+		pthread_condattr_destroy(&attr);
+	}
+};
+
+// Never destroyed: a thread held up by a share may still write into it at exit.
+SizeShelf &sizeShelf()
+{
+	static SizeShelf *s = new SizeShelf;
+	return *s;
+}
+
+int64_t sizeNowMs()
+{
+	struct timespec ts;
+	clock_gettime(CLOCK_MONOTONIC, &ts);
+	return (int64_t) ts.tv_sec * 1000 + ts.tv_nsec / 1000000;
+}
+
+void *askSize(void *arg)
+{
+	SizeQuery *q = static_cast<SizeQuery *>(arg);
+	if (q->probe != NULL)
+		q->probe(q->mountpoint);
+	struct statfs st;
+	memset(&st, 0, sizeof(st));
+	const int rc = statfs(q->mountpoint.c_str(), &st);
+
+	SizeShelf &sh = sizeShelf();
+	pthread_mutex_lock(&sh.mutex);
+	q->rc = rc;
+	q->st = st;
+	q->done = true;
+	SizeAnswer a;
+	a.rc = rc;
+	a.st = st;
+	a.at = sizeNowMs();
+	a.seq = q->seq;
+	sh.last[q->key] = a;
+	sh.waiting.erase(q->key);
+	const bool abandoned = q->abandoned;
+	pthread_cond_broadcast(&sh.changed);
+	pthread_mutex_unlock(&sh.mutex);
+	if (abandoned)
+		delete q;
+	return NULL;
+}
+
+/* An automounter's own mount point is not asked: asking can mount what it
+   stands for, a share that may be just the one that does not answer. */
+bool askable(const MountInfo &m)
+{
+	return m.fstype != "autofs";
+}
+
+/* A filesystem whose answer can wait on another machine or on a program, so
+   it is asked on a thread of its own; any other is asked straight away, as
+   it always was. */
+bool remote(const MountInfo &m)
+{
+	static const char *const kinds[] = {
+		"nfs", "nfs4", "cifs", "smb3", "smbfs", "9p", "ceph", "glusterfs",
+		"davfs", "afs", "ncpfs", "lustre", "sshfs"
+	};
+	for (size_t i = 0; i < sizeof(kinds) / sizeof(kinds[0]); ++i)
+		if (m.fstype == kinds[i])
+			return true;
+	return m.fstype.compare(0, 4, "fuse") == 0;
+}
+
+/* Whether the kernel's answer for this place can wait on a remote one: the
+   filesystem is remote itself, or one is mounted at the same place, so the
+   name resolves to it, or one lies above it on the way there. A share
+   mounted as / does not count for what lies below it: a box whose root does
+   not answer answers nothing at all. */
+std::vector<bool> viaThread(const std::vector<MountInfo> &all)
+{
+	std::vector<std::string> places;
+	for (size_t i = 0; i < all.size(); ++i)
+		if (askable(all[i]) && remote(all[i]))
+			places.push_back(all[i].mountpoint);
+	std::vector<bool> out(all.size(), false);
+	for (size_t i = 0; i < all.size(); ++i)
+	{
+		if (!askable(all[i]))
+			continue;
+		if (remote(all[i]))
+		{
+			out[i] = true;
+			continue;
+		}
+		const std::string &at = all[i].mountpoint;
+		for (size_t r = 0; r < places.size() && !out[i]; ++r)
+			out[i] = at == places[r]
+				|| (places[r] != "/" && at.compare(0, places[r].size() + 1, places[r] + "/") == 0);
+	}
+	return out;
+}
+
+void fill(MountInfo &m, const struct statfs &st)
+{
+	m.total = (uint64_t) st.f_blocks * (uint64_t) st.f_bsize;
+	m.free = (uint64_t) st.f_bavail * (uint64_t) st.f_bsize;
+}
+
+/* What tells one mount from the next one at the same place: the kernel's
+   mount id from mountinfo, so a share unmounted while its question still
+   hangs does not hold up the one mounted there after it. Matched by place,
+   type and source and by how many of those came before; where the file is
+   not there or names none, the place, type and source themselves. */
+std::vector<std::string> instanceKeys(const std::vector<MountInfo> &all)
+{
+	std::map<std::string, std::vector<std::string> > ids;
+	FILE *f = fopen(internal::mountinfo_path, "r");
+	if (f != NULL)
+	{
+		char line[8192];
+		while (fgets(line, sizeof(line), f) != NULL)
+		{
+			char id[32], mountpoint[4096], fstype[256], source[4096];
+			// id parent major:minor root mountpoint options [optional...] - fstype source super
+			const char *dash = strstr(line, " - ");
+			if (dash == NULL || sscanf(line, "%31s %*s %*s %*s %4095s", id, mountpoint) != 2
+			    || sscanf(dash + 3, "%255s %4095s", fstype, source) != 2)
+				continue;
+			const std::string tuple = unescapeMountField(mountpoint) + '\t' + unescapeMountField(fstype) + '\t'
+				+ unescapeMountField(source);
+			ids[tuple].push_back(id);
+		}
+		fclose(f);
+	}
+
+	std::vector<std::string> keys(all.size());
+	std::map<std::string, size_t> seen;
+	for (size_t i = 0; i < all.size(); ++i)
+	{
+		const std::string tuple = all[i].mountpoint + '\t' + all[i].fstype + '\t' + all[i].device;
+		const size_t nth = seen[tuple]++;
+		std::map<std::string, std::vector<std::string> >::const_iterator it = ids.find(tuple);
+		keys[i] = (it != ids.end() && nth < it->second.size()) ? "id:" + it->second[nth] : "at:" + tuple;
+	}
+	return keys;
+}
+
+/* The ones that can wait on a remote all at once, at most kMaxSizeThreads
+   running, the next started as one is answered, and waited for together, so a
+   box with three shares gone waits once and not three times. A mount the table
+   names twice is asked once; the kernel answers for the top one at a place
+   either way. */
+void fillSizes(std::vector<MountInfo> &all)
+{
+	SizeShelf &sh = sizeShelf();
+	const std::vector<std::string> keys = instanceKeys(all);
+	const std::vector<bool> threaded = viaThread(all);
+	std::vector<SizeQuery *> asked(all.size(), NULL);
+	std::vector<uint64_t> borrowed(all.size(), 0);	// the number of another request's question
+	std::vector<bool> young(all.size(), false);	// and whether it is young enough to wait for
+	std::map<std::string, SizeQuery *> mine;
+	std::vector<SizeQuery *> queue;
+
+	// what to ask, decided under the lock; every question is marked open
+	// before any thread runs, so none can be cleared before it is there
+	pthread_mutex_lock(&sh.mutex);
+	const int64_t decided = sizeNowMs();
+	for (size_t i = 0; i < all.size(); ++i)
+	{
+		if (!threaded[i])
+			continue;
+		std::map<std::string, SizeQuery *>::iterator same = mine.find(keys[i]);
+		if (same != mine.end())
+		{
+			asked[i] = same->second;
+			continue;
+		}
+		// another request's question: waited for while it is young; one open
+		// as long as a request waits is not waited for, but its answer is
+		// still taken should it come while this request waits for others
+		std::map<std::string, SizeOpen>::const_iterator open = sh.waiting.find(keys[i]);
+		if (open != sh.waiting.end())
+		{
+			borrowed[i] = open->second.seq;
+			young[i] = decided - open->second.since < internal::size_wait_ms;
+			continue;
+		}
+		SizeQuery *q = new SizeQuery;
+		q->key = keys[i];
+		q->mountpoint = all[i].mountpoint;
+		q->seq = sh.next_seq++;
+		q->probe = internal::size_probe;
+		q->state = SizeQuery::Pending;
+		q->done = false;
+		q->abandoned = false;
+		q->rc = -1;
+		memset(&q->st, 0, sizeof(q->st));
+		SizeOpen mark;
+		mark.since = decided;
+		mark.seq = q->seq;
+		sh.waiting[q->key] = mark;
+		mine[q->key] = q;
+		asked[i] = q;
+		queue.push_back(q);
+	}
+	pthread_mutex_unlock(&sh.mutex);
+
+	// the local ones straight away, as before
+	for (size_t i = 0; i < all.size(); ++i)
+	{
+		if (!askable(all[i]) || threaded[i])
+			continue;
+		struct statfs st;
+		if (statfs(all[i].mountpoint.c_str(), &st) == 0)
+			fill(all[i], st);
+	}
+
+	pthread_attr_t attr;
+	pthread_attr_init(&attr);
+	pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
+	pthread_attr_setstacksize(&attr, kSizeThreadStack);
+	size_t next = 0;
+	size_t running = 0;
+	const int64_t deadline = sizeNowMs() + internal::size_wait_ms;
+
+	pthread_mutex_lock(&sh.mutex);
+	for (;;)
+	{
+		// as many started as may run, outside the lock: one that cannot start
+		// is a question nobody asks, taken back so nobody waits for its answer
+		while (next < queue.size() && running < kMaxSizeThreads)
+		{
+			SizeQuery *q = queue[next++];
+			pthread_mutex_unlock(&sh.mutex);
+			pthread_t t;
+			const bool started = pthread_create(&t, &attr, &askSize, q) == 0;
+			pthread_mutex_lock(&sh.mutex);
+			if (started)
+			{
+				q->state = SizeQuery::Running;
+				++running;
+			}
+			else
+			{
+				q->state = SizeQuery::Failed;
+				sh.waiting.erase(q->key);
+			}
+		}
+
+		bool open = next < queue.size();
+		running = 0;
+		for (size_t k = 0; k < next; ++k)
+			if (queue[k]->state == SizeQuery::Running && !queue[k]->done)
+				++running;
+		open = open || running > 0;
+		for (size_t i = 0; i < all.size() && !open; ++i)
+		{
+			if (!young[i])
+				continue;
+			std::map<std::string, SizeOpen>::const_iterator w = sh.waiting.find(keys[i]);
+			open = w != sh.waiting.end() && w->second.seq == borrowed[i];
+		}
+		const int64_t now = sizeNowMs();
+		if (!open || now >= deadline)
+			break;
+		// a slot came free: start the next before waiting again
+		if (next < queue.size() && running < kMaxSizeThreads)
+			continue;
+		struct timespec until;
+		until.tv_sec = (time_t) (deadline / 1000);
+		until.tv_nsec = (long) (deadline % 1000) * 1000000;
+		pthread_cond_timedwait(&sh.changed, &sh.mutex, &until);
+	}
+	pthread_attr_destroy(&attr);
+
+	// never started by the deadline: taken back like one that could not start
+	for (size_t k = next; k < queue.size(); ++k)
+	{
+		queue[k]->state = SizeQuery::Failed;
+		sh.waiting.erase(queue[k]->key);
+	}
+
+	for (size_t i = 0; i < all.size(); ++i)
+	{
+		if (borrowed[i] != 0)
+		{
+			// the answer to the question waited on, or to a later one asked
+			// since, which is no older; by its number, so the answer to an
+			// earlier question is never taken for it
+			std::map<std::string, SizeAnswer>::const_iterator a = sh.last.find(keys[i]);
+			if (a == sh.last.end() || a->second.seq < borrowed[i])
+				all[i].answered = false;
+			else if (a->second.rc == 0)
+				fill(all[i], a->second.st);
+			continue;
+		}
+		const SizeQuery *q = asked[i];
+		if (q == NULL)
+			continue;
+		if (q->state != SizeQuery::Running || !q->done)
+			all[i].answered = false;
+		else if (q->rc == 0)
+			fill(all[i], q->st);
+	}
+	for (size_t k = 0; k < queue.size(); ++k)
+	{
+		SizeQuery *q = queue[k];
+		if (q->state != SizeQuery::Running || q->done)
+			delete q;
+		else
+			q->abandoned = true;
+	}
+	// answers older than any request still waits for one go, so the list does
+	// not grow with every mount an automounter makes and takes away again
+	const int64_t now = sizeNowMs();
+	for (std::map<std::string, SizeAnswer>::iterator it = sh.last.begin(); it != sh.last.end();)
+	{
+		if (now - it->second.at > kSizeAnswerKeepMs && sh.waiting.count(it->first) == 0)
+			sh.last.erase(it++);
+		else
+			++it;
+	}
+	pthread_mutex_unlock(&sh.mutex);
+}
+
+} // namespace
+
+namespace internal
+{
+size_t sizeQueriesWaiting()
+{
+	SizeShelf &sh = sizeShelf();
+	pthread_mutex_lock(&sh.mutex);
+	const size_t n = sh.waiting.size();
+	pthread_mutex_unlock(&sh.mutex);
+	return n;
+}
+}
+
 Result<std::vector<MountInfo> > mounts()
 {
 	FILE *f = fopen(internal::mounts_path, "r");
@@ -876,16 +1289,10 @@ Result<std::vector<MountInfo> > mounts()
 		m.device = unescapeMountField(device);
 		m.mountpoint = unescapeMountField(mountpoint);
 		m.fstype = unescapeMountField(fstype);
-
-		struct statfs s;
-		if (statfs(m.mountpoint.c_str(), &s) == 0)
-		{
-			m.total = (uint64_t) s.f_blocks * (uint64_t) s.f_bsize;
-			m.free = (uint64_t) s.f_bavail * (uint64_t) s.f_bsize;
-		}
 		out.push_back(m);
 	}
 	fclose(f);
+	fillSizes(out);
 	return ok(std::move(out));
 }
 

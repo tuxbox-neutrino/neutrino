@@ -22,9 +22,14 @@
 #include "coreapi/storage.h"
 #include "coreapi/box/storage_internal.h"
 
+#include <chrono>
+#include <condition_variable>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <map>
+#include <mutex>
+#include <thread>
 
 #include <dirent.h>
 #include <fcntl.h>
@@ -833,6 +838,381 @@ TEST_CASE("a mount point carrying a space arrives with the space back in it", "[
 	REQUIRE(all[1].device == "tmpfs");
 	REQUIRE(all[1].mountpoint == "/run");
 	REQUIRE(all[1].fstype == "tmpfs");
+}
+
+/* A share whose server went away, played by a probe that holds the question
+   for one mount point until the case lets it go, and counts who was asked. */
+namespace
+{
+std::mutex size_gate_mutex;
+std::condition_variable size_gate_open;
+bool size_gate_released = false;
+std::string size_gate_held;
+std::string size_gate_slow;	// a share that answers, but takes its time
+std::map<std::string, int> size_gate_asked;
+
+void holdOneShare(const std::string &mountpoint)
+{
+	bool slow;
+	{
+		std::unique_lock<std::mutex> lock(size_gate_mutex);
+		++size_gate_asked[mountpoint];
+		if (mountpoint == size_gate_held)
+			size_gate_open.wait(lock, [] { return size_gate_released; });
+		slow = mountpoint == size_gate_slow;
+	}
+	if (slow)
+		usleep(150000);
+}
+
+int askedFor(const std::string &mountpoint)
+{
+	std::lock_guard<std::mutex> lock(size_gate_mutex);
+	return size_gate_asked[mountpoint];
+}
+
+const MountInfo *mountAt(const std::vector<MountInfo> &all, const std::string &mountpoint, size_t nth = 0)
+{
+	for (size_t i = 0; i < all.size(); ++i)
+		if (all[i].mountpoint == mountpoint && nth-- == 0)
+			return &all[i];
+	return NULL;
+}
+
+long msSince(const std::chrono::steady_clock::time_point &t)
+{
+	return (long) std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - t).count();
+}
+
+void releaseShare()
+{
+	{
+		std::lock_guard<std::mutex> lock(size_gate_mutex);
+		size_gate_released = true;
+	}
+	size_gate_open.notify_all();
+}
+
+/* Puts everything back however the case ends, a failed REQUIRE included: the
+   held share let go, so no thread is left waiting on a gate that is destroyed at
+   exit, and the table and the hooks the next case relies on. */
+struct SizeCaseGuard
+{
+	const char *mounts_before;
+	const char *mountinfo_before;
+	explicit SizeCaseGuard(const std::string &table)
+		: mounts_before(storage::internal::mounts_path), mountinfo_before(storage::internal::mountinfo_path)
+	{
+		storage::internal::mounts_path = table.c_str();
+		// the suite's own table names no mount of this machine
+		storage::internal::mountinfo_path = "/tmp/coreapi-no-such-mountinfo-4711";
+	}
+	~SizeCaseGuard()
+	{
+		releaseShare();
+		storage::internal::setSizeProbeForTest(NULL);
+		storage::internal::setSizeWaitForTest(-1);
+		storage::internal::mounts_path = mounts_before;
+		storage::internal::mountinfo_path = mountinfo_before;
+	}
+};
+
+void holdShare(const std::string &mountpoint)
+{
+	std::lock_guard<std::mutex> lock(size_gate_mutex);
+	size_gate_released = false;
+	size_gate_held = mountpoint;
+	size_gate_slow.clear();
+	size_gate_asked.clear();
+}
+
+void waitUntilAsked(const std::string &mountpoint, int times)
+{
+	std::chrono::steady_clock::time_point t = std::chrono::steady_clock::now();
+	while (askedFor(mountpoint) < times && msSince(t) < 3000)
+		usleep(5000);
+}
+
+void waitUntilNoneWaiting(size_t before)
+{
+	std::chrono::steady_clock::time_point t = std::chrono::steady_clock::now();
+	while (storage::internal::sizeQueriesWaiting() > before && msSince(t) < 3000)
+		usleep(10000);
+}
+}
+
+TEST_CASE("a filesystem that does not say how large it is does not hold up the list", "[storage]")
+{
+	Sandbox box;
+	REQUIRE_FALSE(box.dir.empty());
+	const std::string fast = box.dir;
+	const std::string slow = box.at("share");
+	const std::string automount = box.at("auto");
+	REQUIRE(mkdir(slow.c_str(), 0755) == 0);
+	REQUIRE(mkdir(automount.c_str(), 0755) == 0);
+	const std::string table = box.at("mounts");
+	REQUIRE(writeFile(table,
+			  "/dev/sda1 " + fast + " ext4 rw 0 0\n"
+			  "nas:/video " + slow + " nfs4 rw 0 0\n"
+			  "systemd-1 " + automount + " autofs rw 0 0\n"
+			  "/dev/sda2 " + fast + " ext4 rw 0 0\n"));
+
+	{
+		std::lock_guard<std::mutex> lock(size_gate_mutex);
+		size_gate_released = false;
+		size_gate_held = slow;
+		size_gate_asked.clear();
+	}
+	// a share of the machine the suite runs on may be held up already
+	const size_t waiting_before = storage::internal::sizeQueriesWaiting();
+	SizeCaseGuard guard(table);
+	storage::internal::setSizeWaitForTest(200);
+	storage::internal::setSizeProbeForTest(&holdOneShare);
+
+	// the share holds its question; the list comes after the wait, not after the share
+	std::chrono::steady_clock::time_point t = std::chrono::steady_clock::now();
+	Result<std::vector<MountInfo> > first = storage::mounts();
+	const long first_ms = msSince(t);
+	REQUIRE(first.ok());
+	REQUIRE(first.value().size() == 4);
+	REQUIRE(first_ms < 1500);
+	const MountInfo *local = mountAt(first.value(), fast);
+	REQUIRE(local != NULL);
+	REQUIRE(local->answered);
+	REQUIRE(local->total > 0);
+	const MountInfo *gone = mountAt(first.value(), slow);
+	REQUIRE(gone != NULL);
+	REQUIRE_FALSE(gone->answered);
+	REQUIRE(gone->total == 0);
+	// a local filesystem is asked straight away, not on a thread of its own,
+	// and one stacked on another at the same place gets the same answer
+	REQUIRE(askedFor(fast) == 0);
+	const MountInfo *stacked = mountAt(first.value(), fast, 1);
+	REQUIRE(stacked != NULL);
+	REQUIRE(stacked->answered);
+	REQUIRE(stacked->total == local->total);
+	// the automounter's own mount point is not asked, which would mount what it stands for
+	REQUIRE(askedFor(automount) == 0);
+	REQUIRE(mountAt(first.value(), automount)->answered);
+	REQUIRE(storage::internal::sizeQueriesWaiting() == waiting_before + 1);
+
+	// asked again while the share still holds the first question: no second thread for it
+	t = std::chrono::steady_clock::now();
+	Result<std::vector<MountInfo> > second = storage::mounts();
+	REQUIRE(second.ok());
+	REQUIRE(msSince(t) < 1500);
+	REQUIRE(askedFor(slow) == 1);
+	REQUIRE_FALSE(mountAt(second.value(), slow)->answered);
+	REQUIRE(mountAt(second.value(), fast)->answered);
+	REQUIRE(storage::internal::sizeQueriesWaiting() == waiting_before + 1);
+
+	// the share comes back: the thread ends, and the next list has its size again
+	releaseShare();
+	t = std::chrono::steady_clock::now();
+	while (storage::internal::sizeQueriesWaiting() > waiting_before && msSince(t) < 3000)
+		usleep(10000);
+	REQUIRE(storage::internal::sizeQueriesWaiting() == waiting_before);
+	Result<std::vector<MountInfo> > third = storage::mounts();
+	REQUIRE(third.ok());
+	REQUIRE(askedFor(slow) == 2);
+	REQUIRE(mountAt(third.value(), slow)->answered);
+	REQUIRE(mountAt(third.value(), slow)->total > 0);
+}
+
+TEST_CASE("a share mounted where one hangs is asked, and so is the same share mounted anew", "[storage]")
+{
+	Sandbox box;
+	REQUIRE_FALSE(box.dir.empty());
+	const std::string share = box.at("share");
+	REQUIRE(mkdir(share.c_str(), 0755) == 0);
+	const std::string table = box.at("mounts");
+	const std::string info = box.at("mountinfo");
+	REQUIRE(writeFile(table, "nas:/video " + share + " nfs4 rw 0 0\n"));
+	REQUIRE(writeFile(info, "41 1 0:50 / " + share + " rw - nfs4 nas:/video rw\n"));
+
+	holdShare(share);
+	const size_t waiting_before = storage::internal::sizeQueriesWaiting();
+	SizeCaseGuard guard(table);
+	storage::internal::mountinfo_path = info.c_str();
+	storage::internal::setSizeWaitForTest(150);
+	storage::internal::setSizeProbeForTest(&holdOneShare);
+
+	REQUIRE_FALSE(mountAt(storage::mounts().value(), share)->answered);
+	REQUIRE(askedFor(share) == 1);
+	// the same mount again while its question hangs: not asked a second time
+	REQUIRE_FALSE(mountAt(storage::mounts().value(), share)->answered);
+	REQUIRE(askedFor(share) == 1);
+
+	// unmounted and mounted anew at the same place: a mount of its own, asked
+	REQUIRE(writeFile(info, "42 1 0:51 / " + share + " rw - nfs4 nas:/video rw\n"));
+	storage::mounts();
+	REQUIRE(askedFor(share) == 2);
+	// another share at the same place without a mountinfo line for it is another mount too
+	storage::internal::mountinfo_path = "/tmp/coreapi-no-such-mountinfo-4711";
+	REQUIRE(writeFile(table, "nas2:/music " + share + " nfs4 rw 0 0\n"));
+	storage::mounts();
+	REQUIRE(askedFor(share) == 3);
+	REQUIRE(storage::internal::sizeQueriesWaiting() == waiting_before + 3);
+
+	releaseShare();
+	waitUntilNoneWaiting(waiting_before);
+	REQUIRE(storage::internal::sizeQueriesWaiting() == waiting_before);
+}
+
+TEST_CASE("a local filesystem at or below a share is asked like the share", "[storage]")
+{
+	Sandbox box;
+	REQUIRE_FALSE(box.dir.empty());
+	const std::string share = box.at("share");
+	const std::string below = share + "/disk";
+	const std::string beside = box.at("sharewide");
+	REQUIRE(mkdir(share.c_str(), 0755) == 0);
+	REQUIRE(mkdir(below.c_str(), 0755) == 0);
+	REQUIRE(mkdir(beside.c_str(), 0755) == 0);
+	const std::string table = box.at("mounts");
+	// the name of a place below the share resolves through it, and one stacked
+	// at the share's place answers for whichever lies on top
+	REQUIRE(writeFile(table,
+			  "nas:/video " + share + " nfs4 rw 0 0\n"
+			  "/dev/sdb1 " + below + " ext4 rw 0 0\n"
+			  "/dev/sdc1 " + share + " ext4 rw 0 0\n"
+			  "/dev/sdd1 " + beside + " ext4 rw 0 0\n"));
+
+	holdShare(share);
+	const size_t waiting_before = storage::internal::sizeQueriesWaiting();
+	SizeCaseGuard guard(table);
+	storage::internal::setSizeWaitForTest(150);
+	storage::internal::setSizeProbeForTest(&holdOneShare);
+
+	Result<std::vector<MountInfo> > r = storage::mounts();
+	REQUIRE(r.ok());
+	// both at the share's place go through a thread of their own, and both are held
+	REQUIRE(askedFor(share) == 2);
+	REQUIRE_FALSE(mountAt(r.value(), share, 0)->answered);
+	REQUIRE_FALSE(mountAt(r.value(), share, 1)->answered);
+	// the one below it is asked on a thread too, and answers
+	REQUIRE(askedFor(below) == 1);
+	REQUIRE(mountAt(r.value(), below)->answered);
+	// a name that only begins like the share's is not below it: asked straight away
+	REQUIRE(askedFor(beside) == 0);
+	REQUIRE(mountAt(r.value(), beside)->answered);
+
+	releaseShare();
+	waitUntilNoneWaiting(waiting_before);
+}
+
+TEST_CASE("more shares than run at once all answer, the next started as one is answered", "[storage]")
+{
+	Sandbox box;
+	REQUIRE_FALSE(box.dir.empty());
+	std::string lines;
+	std::vector<std::string> places;
+	for (int i = 0; i < 20; ++i)
+	{
+		const std::string at = box.at("share" + std::to_string(i));
+		REQUIRE(mkdir(at.c_str(), 0755) == 0);
+		places.push_back(at);
+		lines += "nas:/v" + std::to_string(i) + " " + at + " nfs4 rw 0 0\n";
+	}
+	const std::string table = box.at("mounts");
+	REQUIRE(writeFile(table, lines));
+
+	holdShare(box.at("none"));
+	const size_t waiting_before = storage::internal::sizeQueriesWaiting();
+	SizeCaseGuard guard(table);
+	storage::internal::setSizeWaitForTest(2000);
+	storage::internal::setSizeProbeForTest(&holdOneShare);
+
+	for (int round = 0; round < 2; ++round)
+	{
+		Result<std::vector<MountInfo> > r = storage::mounts();
+		REQUIRE(r.ok());
+		for (size_t i = 0; i < places.size(); ++i)
+		{
+			INFO(places[i] << " round " << round);
+			REQUIRE(mountAt(r.value(), places[i])->answered);
+			REQUIRE(mountAt(r.value(), places[i])->total > 0);
+		}
+	}
+	for (size_t i = 0; i < places.size(); ++i)
+		REQUIRE(askedFor(places[i]) == 2);
+	REQUIRE(storage::internal::sizeQueriesWaiting() == waiting_before);
+}
+
+TEST_CASE("a share whose question was given up on answers while a request waits for another", "[storage]")
+{
+	Sandbox box;
+	REQUIRE_FALSE(box.dir.empty());
+	const std::string gone = box.at("gone");
+	const std::string slow = box.at("slow");
+	REQUIRE(mkdir(gone.c_str(), 0755) == 0);
+	REQUIRE(mkdir(slow.c_str(), 0755) == 0);
+	const std::string first_table = box.at("mounts1");
+	const std::string second_table = box.at("mounts2");
+	REQUIRE(writeFile(first_table, "nas:/gone " + gone + " nfs4 rw 0 0\n"));
+	REQUIRE(writeFile(second_table, "nas:/gone " + gone + " nfs4 rw 0 0\n" "nas:/slow " + slow + " nfs4 rw 0 0\n"));
+
+	holdShare(gone);
+	{
+		std::lock_guard<std::mutex> lock(size_gate_mutex);
+		size_gate_slow = slow;
+	}
+	const size_t waiting_before = storage::internal::sizeQueriesWaiting();
+	SizeCaseGuard guard(first_table);
+	storage::internal::setSizeWaitForTest(300);
+	storage::internal::setSizeProbeForTest(&holdOneShare);
+
+	// the first request gives up on the share, whose question stays open
+	REQUIRE_FALSE(mountAt(storage::mounts().value(), gone)->answered);
+	usleep(50000);
+	// the next one finds that question older than its wait, and waits for the
+	// slow share; the first share answers meanwhile and is taken all the same
+	storage::internal::mounts_path = second_table.c_str();
+	std::thread late([] { usleep(50000); releaseShare(); });
+	Result<std::vector<MountInfo> > r = storage::mounts();
+	late.join();
+	REQUIRE(r.ok());
+	REQUIRE(askedFor(gone) == 1);
+	REQUIRE(mountAt(r.value(), slow)->answered);
+	REQUIRE(mountAt(r.value(), gone)->answered);
+	REQUIRE(mountAt(r.value(), gone)->total > 0);
+	waitUntilNoneWaiting(waiting_before);
+}
+
+TEST_CASE("a request that comes while another one's question is young waits for its answer", "[storage]")
+{
+	Sandbox box;
+	REQUIRE_FALSE(box.dir.empty());
+	const std::string share = box.at("share");
+	REQUIRE(mkdir(share.c_str(), 0755) == 0);
+	const std::string table = box.at("mounts");
+	REQUIRE(writeFile(table, "nas:/video " + share + " nfs4 rw 0 0\n"));
+
+	holdShare(share);
+	const size_t waiting_before = storage::internal::sizeQueriesWaiting();
+	SizeCaseGuard guard(table);
+	storage::internal::setSizeWaitForTest(2000);
+	storage::internal::setSizeProbeForTest(&holdOneShare);
+
+	std::vector<MountInfo> first, second;
+	bool first_ok = false, second_ok = false;
+	std::thread a([&] { Result<std::vector<MountInfo> > r = storage::mounts(); first_ok = r.ok(); if (first_ok) first = r.value(); });
+	waitUntilAsked(share, 1);
+	std::thread b([&] { Result<std::vector<MountInfo> > r = storage::mounts(); second_ok = r.ok(); if (second_ok) second = r.value(); });
+	// the second request is waiting on the first one's question by now
+	usleep(200000);
+	releaseShare();
+	a.join();
+	b.join();
+
+	REQUIRE(askedFor(share) == 1);
+	REQUIRE(first_ok);
+	REQUIRE(second_ok);
+	REQUIRE(mountAt(first, share)->answered);
+	REQUIRE(mountAt(second, share)->answered);
+	REQUIRE(mountAt(second, share)->total == mountAt(first, share)->total);
+	REQUIRE(mountAt(second, share)->total > 0);
+	waitUntilNoneWaiting(waiting_before);
 }
 
 TEST_CASE("a mount table that cannot be read is an error rather than an empty list", "[storage]")
