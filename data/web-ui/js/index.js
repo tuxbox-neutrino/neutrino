@@ -51,16 +51,20 @@
 			}
 			/* or the page of an extension that is installed and switched
 			   on, the one its manifest names; one taken out or switched off
-			   since leaves the dashboard */
+			   since leaves the dashboard. Switched on is what the settings
+			   say, 1 or 0, and where they say nothing the manifest's
+			   "default" (webuiExtSwitchedOn in webui-header.js) */
 			var ext = /^extensions\/([A-Za-z0-9_-]+)\/([A-Za-z0-9_.%-]+)$/.exec(page);
-			if (!ext || cfg['ext_' + ext[1] + '_enabled'] !== '1') {
+			var said = ext ? cfg['ext_' + ext[1] + '_enabled'] : undefined;
+			if (!ext || said === '0') {
 				location.replace(fallback);
 				return;
 			}
 			return fetch('/extensions/' + ext[1] + '/manifest.json', {credentials: 'same-origin', cache: 'no-cache'})
 				.then(function (r) { return r.ok ? r.json() : null; })
 				.then(function (m) {
-					var named = m && typeof m.entry === 'string' && encodeURIComponent(m.entry) === ext[2];
+					var on = said === '1' || (m && m['default'] === 'on');
+					var named = on && m && typeof m.entry === 'string' && encodeURIComponent(m.entry) === ext[2];
 					location.replace(named ? '/' + page : fallback);
 				});
 		})

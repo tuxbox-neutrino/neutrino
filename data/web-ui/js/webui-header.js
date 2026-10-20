@@ -1824,8 +1824,8 @@ function webuiCloseAbout(event) {
 // ═══ Extension-Loader (WORK-146 Spec §4) ═══
 // Konvention: <webroot>/extensions/<name>/manifest.json mit
 //   {"name","version","slot":"nav|tools|dashboard|page","entry","description"?}
-// Schaltung: webui.conf ext_<name>_enabled=1, optional ext_<name>_slot
-// (Slot-Override). Which are installed comes from GET /api/v1/webui/extensions,
+// Schaltung: webui.conf ext_<name>_enabled=1 or 0, else the manifest's
+// "default" ("on"), optional ext_<name>_slot (Slot-Override). Which are installed comes from GET /api/v1/webui/extensions,
 // the switches from GET /api/v1/webui/settings, both readable without a
 // sign-in from the home network; a page that may read neither shows none.
 var _webuiExtensions = null;		// the list, once found
@@ -1877,6 +1877,18 @@ function webuiDiscoverExtensions() {
 	return _webuiExtensionsAsked;
 }
 
+/* Whether an extension is switched on: what the web interface's settings say
+   for it, 1 or 0, and where they say nothing, what its manifest asks for. An
+   extension that takes the place of a page of the interface asks for
+   "default": "on", so an update does not take that page away; switching it off
+   writes 0, which then stays. index.js holds a start page to the same rule. */
+function webuiExtSwitchedOn(m, cfg) {
+	var v = cfg['ext_' + m.dir + '_enabled'];
+	if (v === '1') return true;
+	if (v === '0') return false;
+	return m['default'] === 'on';
+}
+
 // Asked anew by the next webuiDiscoverExtensions (an extension was installed,
 // taken out or switched).
 function webuiForgetExtensions() {
@@ -1909,7 +1921,7 @@ async function _webuiFindExtensions() {
 				m.dir = e.name;
 				m.scripts = entries[i].scripts || [];
 				var ckBase = 'ext_' + m.dir;
-				m.enabled = (yCfg[ckBase + '_enabled'] === '1');
+				m.enabled = webuiExtSwitchedOn(m, yCfg);
 				m.slot = yCfg[ckBase + '_slot'] || m.slot || 'tools';
 				m.url = m.entry ? ('/extensions/' + encodeURIComponent(m.dir) + '/' + encodeURIComponent(m.entry)) : '';
 				// Load the language pack for enabled extensions only;

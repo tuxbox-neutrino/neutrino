@@ -518,7 +518,8 @@ const Endpoint kWebuiEndpoints[] = {
 	  "with a `manifest.json`, which the pages read from there, and the shell scripts its manifest "
 	  "names that it holds. "
 	  "Which of them the pages show, and where, is in `GET /api/v1/webui/settings` "
-	  "(`ext_<dir>_enabled`, `ext_<dir>_slot`).\n\n"
+	  "(`ext_<dir>_enabled`, `ext_<dir>_slot`), and where those say nothing, in the "
+	  "manifest's `default`.\n\n"
 	  "**Related:** `POST /api/v1/webui/extensions`, `DELETE /api/v1/webui/extensions/{dir}`.",
 	  NULL, 0, &kExtensionsSchema, &listExtensions, false,
 	  Answers200, HTTPD_NO_REFUSALS },

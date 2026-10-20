@@ -40,6 +40,7 @@ extensions/
 | `icon` | optional: a monochrome SVG in the folder (e.g. `icon.svg`), drawn in the text colour on the nav entry and the tile; a star without it |
 | `settings` | optional: own category under Settings (see below) |
 | `scripts` | optional: the shell scripts the box runs for it, by name without `.sh` (see the packaging contract) |
+| `default` | optional: `"on"` switches the extension on as long as the settings say nothing about it; the user's own switch wins. Meant for an extension that takes the place of a page the interface had, so an update does not take that page away; leave it out otherwise |
 
 At least one of `entry`, `entry_js` or `settings.sections` must be
 present, otherwise the manifest is ignored.
@@ -198,7 +199,9 @@ the list → enable the switch, optionally change the slot → save →
 reload the page.
 
 Technically the switch lives in `webui.conf`
-(`ext_<foldername>_enabled=1`, optionally `ext_<foldername>_slot=...`).
+(`ext_<foldername>_enabled=1` or `0`, optionally
+`ext_<foldername>_slot=...`). Where it says nothing, the manifest's
+`default` decides: `"on"` is on, anything else off.
 
 ## 5. Install / update / uninstall (manager)
 
@@ -307,7 +310,8 @@ tar -czf <folder>.tar.gz -C /tmp/stage <folder>
   script route above for actions.
 - The folder name is the stable key (config keys, URL
   `/extensions/<folder>/...`) — do not change it after publication.
-- Extensions are **off** by default (opt-in by the user).
+- Extensions are **off** by default (opt-in by the user); only one that
+  takes the place of a page the interface had asks for `"default": "on"`.
 
 ## Official extensions
 

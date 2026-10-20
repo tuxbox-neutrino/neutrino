@@ -40,6 +40,7 @@ extensions/
 | `icon` | optional: ein einfarbiges SVG im Ordner (z.B. `icon.svg`), in der Textfarbe auf dem Nav-Eintrag und der Kachel gezeichnet; ohne es ein Stern |
 | `settings` | optional: eigene Kategorie unter Einstellungen (siehe unten) |
 | `scripts` | optional: die Shell-Skripte, die die Box für sie ausführt, mit Namen ohne `.sh` (siehe Packaging-Vertrag) |
+| `default` | optional: `"on"` schaltet die Erweiterung ein, solange die Einstellungen nichts über sie sagen; der eigene Schalter des Nutzers geht vor. Gedacht für eine Erweiterung, die an die Stelle einer Seite der Oberfläche tritt, damit ein Update diese Seite nicht wegnimmt; sonst weglassen |
 
 Mindestens eines von `entry`, `entry_js` oder `settings.sections` muss
 vorhanden sein, sonst wird das Manifest ignoriert.
@@ -199,7 +200,9 @@ automatisch in der Liste → Schalter aktivieren, optional den Slot
 ändern → Speichern → Seite neu laden.
 
 Technisch: die Schaltung liegt in `webui.conf`
-(`ext_<ordnername>_enabled=1`, optional `ext_<ordnername>_slot=...`).
+(`ext_<ordnername>_enabled=1` oder `0`, optional
+`ext_<ordnername>_slot=...`). Steht dort nichts, entscheidet `default`
+im Manifest: `"on"` ist an, alles andere aus.
 
 ## 5. Installieren / Aktualisieren / Deinstallieren (Verwaltung)
 
@@ -316,7 +319,9 @@ tar -czf <ordner>.tar.gz -C /tmp/stage <ordner>
   die Skript-Route oben für Aktionen.
 - Der Ordnername ist der stabile Schlüssel (Config-Keys, URL
   `/extensions/<ordner>/...`) — nach der Veröffentlichung nicht ändern.
-- Erweiterungen sind standardmäßig **aus** (Opt-in durch den Nutzer).
+- Erweiterungen sind standardmäßig **aus** (Opt-in durch den Nutzer); nur
+  eine, die an die Stelle einer Seite der Oberfläche tritt, verlangt
+  `"default": "on"`.
 
 ## Offizielle Erweiterungen
 
