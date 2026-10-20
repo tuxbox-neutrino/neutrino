@@ -1995,6 +1995,18 @@ async function webuiInjectExtensions(pageName) {
 	_webuiExtInjected = true;
 	var exts = await webuiDiscoverExtensions();
 
+	/* A link of the interface's own into the page of an extension, marked
+	   data-ext-link="<folder>" and hidden in the markup, shows only while that
+	   extension is installed and switched on, and leads to the page its
+	   manifest names, with data-ext-hash after it where one is given. */
+	document.querySelectorAll('[data-ext-link]').forEach(function(el) {
+		var m = exts.find(function(x) { return x.dir === el.getAttribute('data-ext-link'); });
+		if (!m || !m.enabled || !m.url) return;
+		if (el.tagName === 'A')
+			el.setAttribute('href', m.url + (el.getAttribute('data-ext-hash') || ''));
+		el.hidden = false;
+	});
+
 	// Runtime scripts (entry_js): loaded for every enabled extension on
 	// every modern page, independent of slot/url (the slot only governs
 	// UI links). async=false keeps execution in insertion order; sorting

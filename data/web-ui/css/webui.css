@@ -1637,6 +1637,12 @@ textarea:focus-visible {
 	padding: 8% 4%;
 }
 
+/* A link into an extension's page stays away until the extension is
+   switched on (webuiInjectExtensions); the button rules above would show it. */
+[data-ext-link][hidden] {
+	display: none !important;
+}
+
 .webui-action-btn svg {
 	width: clamp(18px, 4vw, 24px);
 	height: clamp(18px, 4vw, 24px);
