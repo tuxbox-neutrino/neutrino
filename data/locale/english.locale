@@ -1591,6 +1591,7 @@ menu.hint_net_ssid_scan Scan for available WLAN networks
 menu.hint_net_telnet Enable telnet login to your box
 menu.hint_net_test Test network connection: ping gateway,\n name server and external IP
 menu.hint_net_ushare Share connected HDD over uPnp
+menu.hint_net_wlan Search for wireless networks and connect to one
 menu.hint_net_xupnpd Share live channels over UPNP
 menu.hint_network IP address, gateway, DNS, Time sync\nNetwork shares and services
 menu.hint_new_zap_mode Allow channel switch while browsing\n(toggle mode with 'mute' in channel list)
@@ -2297,6 +2298,17 @@ networkmenu.state_no_address no address
 networkmenu.state_no_cable no cable
 networkmenu.state_not_connected not connected
 networkmenu.test Test network now
+networkmenu.wlan Wireless network (WLAN)
+networkmenu.wlan_connected connected
+networkmenu.wlan_connecting Connecting ...
+networkmenu.wlan_disconnect Disconnect
+networkmenu.wlan_failed Connection failed.\nPlease check the passphrase.
+networkmenu.wlan_forget Forget network
+networkmenu.wlan_forget_ask Forget this network and its passphrase?
+networkmenu.wlan_hidden Hidden network
+networkmenu.wlan_known saved
+networkmenu.wlan_passphrase_invalid The passphrase needs 8 to 63 characters.
+networkmenu.wlan_unsupported This kind of network is not supported.
 neutrino_starting %s %s starting ...
 nfs.active_shares Active shares
 nfs.alreadymounted Directory already mounted
