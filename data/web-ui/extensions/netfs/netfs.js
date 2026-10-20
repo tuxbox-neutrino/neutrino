@@ -163,7 +163,7 @@ async function netfsLoad() {
 		list.replaceChildren.apply(list, ((r && r.items) || []).map(function(e) { return netfsSlot(table, e, false); }));
 	} catch (e) {
 		if (mine !== netfsShown) return;
-		list.replaceChildren(webuiEl('p', {className: 'netfs-note'}, webuiL('msg.error', 'Error') + ': ' + e.message));
+		list.replaceChildren(webuiEl('p', {className: 'netfs-note'}, webuiL('msg.error', 'Error') + ': ' + webuiErrText(e)));
 		return;
 	}
 	/* What is mounted only after the forms: a share that is slow to say how
@@ -217,7 +217,7 @@ async function netfsWrite(table, i, request) {
 		}, 0);
 		return true;
 	} catch (e) {
-		webuiShowToast(webuiL('msg.error', 'Error') + ': ' + e.message, true);
+		webuiToastError(webuiL('msg.error', 'Error'), e);
 		if (body && netfsStill(table, shown)) body.disabled = false;
 		return false;
 	}
@@ -277,7 +277,7 @@ async function netfsRun(btn, table, path) {
 		}
 		webuiShowToast(webuiL('netfs.done', 'Done'));
 	} catch (e) {
-		webuiShowToast(webuiL('msg.error', 'Error') + ': ' + e.message, true);
+		webuiToastError(webuiL('msg.error', 'Error'), e);
 	}
 	btn.disabled = false;
 }
