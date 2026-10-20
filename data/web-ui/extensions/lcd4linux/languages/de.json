@@ -1,0 +1,5 @@
+{
+	"manifest.name": "LCD4Linux",
+	"manifest.description": "Das Bild des Frontdisplays",
+	"lcd.off": "LCD4Linux zeichnet auf dieser Box nicht."
+}

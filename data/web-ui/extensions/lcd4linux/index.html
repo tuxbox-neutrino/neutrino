@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en" class="webui-i18n-pending">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>LCD4Linux</title>
+	<link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png">
+	<link rel="icon" type="image/png" href="/favicon/favicon-32x32.png" sizes="32x32">
+	<link rel="icon" type="image/png" href="/favicon/favicon-16x16.png" sizes="16x16">
+	<link rel="mask-icon" href="/favicon/safari-pinned-tab.svg" color="#212121">
+	<link rel="manifest" href="webapp.json">
+	<meta name="theme-color" content="#212121">
+	<style>
+		/* a screen of its own, for a tablet beside the box: the picture alone,
+		   in the middle, on the dark of the display */
+		html, body {
+			margin: 0;
+			padding: 0;
+			height: 100%;
+		}
+
+		body {
+			background-color: #212121;
+			color: #bdbdbd;
+			font-family: system-ui, sans-serif;
+		}
+
+		.lcd {
+			position: absolute;
+			left: 50%;
+			top: 50%;
+			transform: translate(-50%, -50%);
+			max-width: 100vw;
+			max-height: 100vh;
+			text-align: center;
+		}
+
+		.lcd img {
+			display: block;
+			max-width: 100vw;
+			max-height: 100vh;
+		}
+	</style>
+</head>
+<body>
+	<div class="lcd">
+		<img id="lcd-picture" alt="LCD4Linux" hidden>
+		<div id="lcd-off" data-l="lcd.off" hidden>LCD4Linux is not drawing on this box.</div>
+	</div>
+
+	<script src="/js/webui-i18n.js"></script>
+	<script src="/js/webui-header.js"></script>
+	<script src="/js/webui-v1.js"></script>
+	<script src="lcd4linux.js"></script>
+</body>
+</html>

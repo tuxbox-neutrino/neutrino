@@ -1,0 +1,5 @@
+{
+	"manifest.name": "LCD4Linux",
+	"manifest.description": "The picture of the front display",
+	"lcd.off": "LCD4Linux is not drawing on this box."
+}
