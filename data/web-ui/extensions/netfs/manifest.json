@@ -1,0 +1,9 @@
+{
+	"name": "Network filesystems",
+	"version": "1.0.0",
+	"slot": "tools",
+	"entry": "index.html",
+	"icon": "icon.svg",
+	"description": "Mounts at start and for the automounter",
+	"default": "on"
+}

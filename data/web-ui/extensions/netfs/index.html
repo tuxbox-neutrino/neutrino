@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark" class="webui-i18n-pending">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Neutrino-Web-UI - Network filesystems</title>
+	<link rel="icon" href="/favicon/favicon.ico">
+	<script>
+		// Apply the stored theme before first paint: webui-header.js runs
+		// too late, and some pages never load it at all.
+		try { document.documentElement.setAttribute('data-theme', localStorage.getItem('webui-theme') || localStorage.getItem('yweb-theme') || 'dark'); } catch (e) {}
+	</script>
+	<link rel="stylesheet" href="/css/pico.min.css">
+	<link rel="stylesheet" href="/css/webui.css">
+	<style>
+		.netfs-content {
+			padding: 0.5rem 1rem;
+			max-width: 60rem;
+		}
+
+		.netfs-lead {
+			margin: 0 0 1rem;
+			font-size: 0.85rem;
+			color: var(--pico-muted-color);
+		}
+
+		.netfs-tabs {
+			display: flex;
+			gap: 0.4rem;
+			margin-bottom: 0.75rem;
+			flex-wrap: wrap;
+		}
+
+		.netfs-tabs button[aria-selected="true"] {
+			background: var(--webui-accent);
+			border-color: var(--webui-accent);
+			color: #fff;
+		}
+
+		.netfs-bar {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			gap: 0.75rem;
+			flex-wrap: wrap;
+			margin-bottom: 0.75rem;
+			font-size: 0.8rem;
+			color: var(--pico-muted-color);
+		}
+
+		.netfs-bar .webui-row-actions {
+			display: flex;
+			gap: 0.4rem;
+			flex-wrap: wrap;
+		}
+
+		.netfs-warn {
+			margin: 0 0 0.75rem;
+			font-size: 0.8rem;
+			color: var(--pico-del-color);
+		}
+
+		.netfs-slot {
+			background: var(--pico-card-background-color);
+			border: 1px solid var(--pico-muted-border-color);
+			border-radius: var(--webui-radius);
+			margin-bottom: 0.5rem;
+			overflow: hidden;
+		}
+
+		.netfs-slot-head {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			width: 100%;
+			margin: 0;
+			padding: 0.6rem 0.85rem;
+			border: 0;
+			border-radius: 0;
+			background: transparent;
+			text-align: left;
+			font-size: var(--webui-font-sm);
+			color: var(--pico-color);
+			cursor: pointer;
+		}
+
+		.netfs-slot-head:hover {
+			background: rgba(255, 255, 255, 0.03);
+		}
+
+		.netfs-summary {
+			color: var(--pico-muted-color);
+			font-size: var(--webui-font-xs);
+			margin-left: 0.5rem;
+			word-break: break-all;
+		}
+
+		.netfs-slot-head svg {
+			width: 16px;
+			height: 16px;
+			flex-shrink: 0;
+			color: var(--pico-muted-color);
+			transition: transform 0.2s;
+		}
+
+		.netfs-slot.open > .netfs-slot-head svg {
+			transform: rotate(180deg);
+		}
+
+		.netfs-slot-body {
+			display: none;
+			margin: 0;
+			padding: 0.6rem 0.85rem 0.85rem;
+			border: 0;
+			border-top: 1px solid var(--pico-muted-border-color);
+			min-width: 0;
+		}
+
+		.netfs-slot.open > .netfs-slot-body {
+			display: block;
+		}
+
+		.netfs-cifs {
+			display: none;
+		}
+
+		.netfs-cifs.visible {
+			display: block;
+		}
+
+		.netfs-note {
+			color: var(--pico-muted-color);
+			font-size: 0.8rem;
+		}
+
+		.netfs-output {
+			margin-top: 1rem;
+		}
+
+		.netfs-output pre {
+			margin: 0;
+			padding: 0.75rem 1rem;
+			font-size: 0.75rem;
+			max-height: 300px;
+			overflow: auto;
+			white-space: pre-wrap;
+			background: var(--pico-card-sectioning-background-color);
+			border-radius: var(--webui-radius);
+		}
+	</style>
+</head>
+<body>
+	<div class="webui-header-wrapper" data-page="ext-netfs"></div>
+	<div class="webui-header-spacer"></div>
+
+	<main class="netfs-content">
+		<p class="netfs-lead"><span data-l="netfs.lead">The box's own files for network filesystems: what it mounts when it starts, and what the automounter offers under /mnt/autofs once somebody looks there.</span>
+			<a href="/settings.html#mounts" data-l="netfs.lead_link">The shares Neutrino mounts itself are in the settings.</a></p>
+
+		<div class="netfs-tabs" role="tablist">
+			<button type="button" class="webui-btn" role="tab" id="netfs-tab-fstab" data-netfs-table="fstab" aria-controls="netfs-slots" data-l="netfs.tab_fstab">Mounted at start</button>
+			<button type="button" class="webui-btn" role="tab" id="netfs-tab-automount" data-netfs-table="automount" aria-controls="netfs-slots" data-l="netfs.tab_automount">Automounter</button>
+		</div>
+
+		<div class="netfs-bar">
+			<span><span data-l="netfs.file">File</span>: <code id="netfs-file"></code></span>
+			<span class="webui-row-actions" id="netfs-fstab-actions">
+				<button type="button" class="webui-btn" onclick="netfsMountAll(this)" data-l="netfs.mount_all">Mount all</button>
+				<button type="button" class="webui-btn" onclick="netfsUnmountAll(this)" data-l="netfs.umount_all">Unmount all</button>
+			</span>
+			<span class="webui-row-actions" id="netfs-automount-actions" hidden>
+				<button type="button" class="webui-btn" onclick="netfsReload(this)" data-l="netfs.reload">Restart the automounter</button>
+			</span>
+		</div>
+		<p class="netfs-warn" id="netfs-unreadable" hidden></p>
+
+		<div id="netfs-slots" role="tabpanel" aria-labelledby="netfs-tab-fstab">
+			<p class="netfs-note" data-l="msg.loading">Loading...</p>
+		</div>
+
+		<details class="netfs-output" id="netfs-output" open hidden>
+			<summary data-l="netfs.output">What the box's script wrote</summary>
+			<pre id="netfs-output-text"></pre>
+		</details>
+	</main>
+
+	<script src="/js/webui-i18n.js"></script>
+	<script src="/js/webui-header.js"></script>
+	<script src="/js/webui-dom.js"></script>
+	<script src="/js/webui-v1.js"></script>
+	<script src="netfs.js"></script>
+</body>
+</html>
