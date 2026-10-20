@@ -8,13 +8,11 @@ let currentMode = 'tv';		// the list shown: the one the box plays from
 let currentBouquetNumber = '';	// the v1 bouquet id, '' for all channels
 let bouquetsData = [];		// the bouquets of that list, hidden ones left out
 let logosOffered = true;	// false once the box says it hands no logos out
+let recordedIds = new Set();	// the channels the box records now
 
-const SVG_PLAY = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5,3 19,12 5,21"/></svg>';
-const SVG_GLOBE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>';
-const SVG_EXPAND = '<svg class="webui-expand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6,9 12,15 18,9"/></svg>';
-const SVG_INFO = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>';
-const SVG_REC = '<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="8"/></svg>';
-const SVG_STREAM = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 17H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-1"/><polygon points="12,15 17,21 7,21"/></svg>';
+const SVG_INFO = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg>';
+const SVG_REC = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="12" cy="12" r="6"/></svg>';
+const SVG_STREAM = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M7 5v14l11-7z"/></svg>';
 
 function clock(sec) {
 	return webuiFormatTime(new Date(sec * 1000));
@@ -31,7 +29,16 @@ async function loadCurrentChannel() {
 	currentMode = ch && (ch.kind === 'radio' || ch.kind === 'webradio') ? 'radio' : 'tv';
 }
 
-// The bouquets of that list, and the one holding the current channel
+// What the box records now, for the rows' state
+async function loadRecorded() {
+	const r = await webuiV1('GET', '/recordings').catch(() => null);
+	recordedIds = new Set(((r && r.items) || []).filter(it => !it.timeshift).map(it => it.channel_id));
+	markCurrent();
+}
+
+// The bouquets of that list, and the one holding the current channel; a
+// list that cannot be read says why where the bouquets would stand, and
+// the channels of the whole list are shown all the same
 async function loadBouquets() {
 	const list = document.getElementById('bouquetList');
 	try {
@@ -47,84 +54,74 @@ async function loadBouquets() {
 		}
 		renderBouquetList(active || (bouquetsData[0] ? String(bouquetsData[0].id) : ''));
 	} catch (e) {
-		console.error('Failed to load bouquets:', e);
-		list.replaceChildren(webuiEl('li', {className: 'webui-empty'}, webuiL('msg.load_fail', 'Loading failed')));
+		bouquetsData = [];
+		list.replaceChildren(webuiEl('li', {}, webuiStateFor(e, {retry: loadBouquets})));
+		renderBouquetPick('');
+		currentBouquetNumber = '';
+		loadChannels('');
 	}
 }
 
+// The bouquets as a list beside the channels and as a choice above them
+// (the one a phone shows); both name the bouquet shown
 function renderBouquetList(activeBouquet) {
 	const list = document.getElementById('bouquetList');
-	const items = [webuiEl('li', {className: 'webui-nav-item webui-bouquet-item' + (activeBouquet === '' ? ' active' : ''),
-		on: {click: () => selectBouquet('')}},
-		webuiMarkup(SVG_GLOBE),
-		webuiEl('span', {className: 'webui-nav-name webui-bouquet-name'}, webuiL('bq.all_channels', 'All channels')))];
-	bouquetsData.forEach(b => {
-		items.push(webuiEl('li', {className: 'webui-nav-item webui-bouquet-item' + (String(activeBouquet) === String(b.id) ? ' active' : ''),
-			data: {bouquet: String(b.id)}, on: {click: () => selectBouquet(String(b.id))}},
-			webuiMarkup(SVG_PLAY),
-			webuiEl('span', {className: 'webui-nav-name webui-bouquet-name'}, b.name)));
-	});
-	list.replaceChildren.apply(list, items);
+	const entries = [{id: '', name: webuiL('bq.all_channels', 'All channels')}].concat(bouquetsData.map(b => ({id: String(b.id), name: b.name})));
+	list.replaceChildren.apply(list, entries.map(b => webuiEl('li', {},
+		webuiEl('button', {type: 'button', data: {bouquet: b.id}, attrs: {'aria-current': b.id === activeBouquet ? 'true' : 'false'},
+			on: {click: () => selectBouquet(b.id)}}, b.name))));
+	renderBouquetPick(activeBouquet);
 	currentBouquetNumber = activeBouquet;
-
-	setTimeout(() => {
-		const activeItem = list.querySelector('.webui-bouquet-item.active');
-		if (activeItem) scrollToElementInContainer(activeItem, list);
-	}, 200);
-
-	updateBouquetPreview();
+	const activeItem = list.querySelector('[aria-current="true"]');
+	if (activeItem) activeItem.scrollIntoView({block: 'nearest'});
 	loadChannels(activeBouquet);
 }
 
+function renderBouquetPick(activeBouquet) {
+	const sel = document.getElementById('bouquetSelect');
+	if (!sel) return;
+	const entries = [{id: '', name: webuiL('bq.all_channels', 'All channels')}].concat(bouquetsData.map(b => ({id: String(b.id), name: b.name})));
+	sel.replaceChildren.apply(sel, entries.map(b => webuiEl('option', {value: b.id}, b.name)));
+	sel.value = activeBouquet;
+	sel.onchange = () => selectBouquet(sel.value);
+}
+
 function selectBouquet(bouquet) {
-	document.querySelectorAll('.webui-bouquet-item').forEach(item => {
-		const itemBouquet = item.dataset.bouquet || '';
-		item.classList.toggle('active', itemBouquet === bouquet);
+	document.querySelectorAll('#bouquetList button').forEach(b => {
+		b.setAttribute('aria-current', (b.dataset.bouquet || '') === bouquet ? 'true' : 'false');
 	});
+	const sel = document.getElementById('bouquetSelect');
+	if (sel) sel.value = bouquet;
 	currentBouquetNumber = bouquet;
-	updateBouquetPreview();
 	loadChannels(bouquet);
-	// Mobile: auto-switch to channel card for better UX
-	if (window.innerWidth <= 800) selectCard('card-channels');
 }
 
+// One channel: its number, logo, name, what runs on it, its state, Zap
+// and the menu with the other actions
 function channelRow(ch) {
-	const isCurrent = ch.id === currentChannelId;
-	const placeholder = webuiEl('div', {className: 'webui-icon-placeholder'}, currentMode === 'radio' ? 'Radio' : 'TV');
-	const row = webuiEl('li', {className: 'webui-channel-row' + (isCurrent ? ' current' : ''),
-		data: {id: ch.id}, on: {click: event => toggleChannelDetail(event, ch.id)}},
-		webuiEl('div', {className: 'webui-channel-main'},
-			placeholder,
-			webuiMarkup(SVG_EXPAND),
-			webuiEl('div', {className: 'webui-channel-info'},
-				webuiEl('div', {className: 'webui-channel-name'}, ch.name),
-				webuiEl('div', {className: 'webui-channel-epg'}),
-				webuiEl('div', {className: 'webui-channel-progress'}, webuiEl('div', {className: 'webui-channel-progress-bar'}))),
-			webuiEl('div', {className: 'webui-channel-actions', on: {click: event => event.stopPropagation()}},
-				actionButton(SVG_PLAY, webuiL('epg.zap', 'Zap'), webuiL('bq.zap_title', 'Switch channel'), () => zapTo(ch.id)),
-				actionButton(SVG_INFO, 'Info', webuiL('dash.epg_info', 'Programme info'), () => showEpg(ch.id, ch.name)),
-				actionButton(SVG_REC, 'Rec', webuiL('bq.rec_title', 'Record programme'), () => webuiRecordEvent(ch.id, ch.name, epgNow[ch.id]), true),
-				actionButton(SVG_STREAM, 'Stream', webuiL('bq.stream_title', 'Start stream'), () => webuiStreamChannel(ch.id, ch.name)))),
-		webuiEl('div', {className: 'webui-channel-detail', id: 'detail-' + ch.id},
-			webuiEl('div', {className: 'webui-channel-detail-loading'}, webuiL('bq.tap_info', 'Tap to load programme info...'))));
-	// a logo only while the box hands them out; one that fails leaves the placeholder text
-	if (logosOffered) {
-		const img = webuiEl('img', {attrs: {src: '/api/v1/channels/' + encodeURIComponent(ch.id) + '/logo', alt: '', loading: 'lazy'},
-			on: {error: function() {
-				row.classList.remove('has-logo');
-				placeholder.textContent = currentMode === 'radio' ? 'Radio' : 'TV';
-			}}});
-		placeholder.replaceChildren(img);
-		row.classList.add('has-logo');
-	}
-	return row;
-}
-
-function actionButton(svg, label, title, onClick, danger) {
-	return webuiEl('button', {className: 'webui-btn', title: title, style: danger ? {color: 'var(--webui-danger)'} : undefined,
-		on: {click: onClick}},
-		webuiMarkup(svg),
-		webuiEl('span', {className: 'btn-label'}, label));
+	const logo = webuiEl('span', {className: 'webui-channel-logo', attrs: {'aria-hidden': 'true'}},
+		currentMode === 'radio' ? webuiL('dash.radio', 'Radio') : webuiL('dash.tv', 'TV'));
+	// a logo only while the box hands them out, loaded as its row comes
+	// into view (so it is in the page from the start); one that fails
+	// leaves the text
+	if (logosOffered)
+		logo.replaceChildren(webuiEl('img', {attrs: {src: '/api/v1/channels/' + encodeURIComponent(ch.id) + '/logo', alt: '', loading: 'lazy'},
+			on: {error: function() { logo.textContent = currentMode === 'radio' ? webuiL('dash.radio', 'Radio') : webuiL('dash.tv', 'TV'); }}}));
+	const zap = webuiEl('button', {type: 'button', className: 'webui-btn webui-channel-zap',
+		attrs: {'aria-label': webuiL('bq.zap_title', 'Switch channel') + ': ' + ch.name}, on: {click: () => zapTo(ch.id)}},
+		webuiL('bq.zap_title', 'Switch channel'));
+	const menu = webuiMenuButton(webuiL('bq.more', 'More for %s').replace('%s', ch.name), () => [
+		{label: webuiL('dash.epg_info', 'Programme info'), icon: SVG_INFO, onClick: () => webuiShowEpgModal(ch.id, ch.name)},
+		{label: webuiL('bq.rec_title', 'Record programme'), icon: SVG_REC, onClick: () => webuiRecordEvent(ch.id, ch.name, epgNow[ch.id])},
+		{label: webuiL('bq.stream_title', 'Start stream'), icon: SVG_STREAM, onClick: () => webuiStreamChannel(ch.id, ch.name)}
+	]);
+	return webuiEl('li', {className: 'webui-channel-row', data: {id: ch.id}},
+		webuiEl('span', {className: 'webui-channel-num'}, ch.number > 0 ? String(ch.number) : ''),
+		logo,
+		webuiEl('span', {className: 'webui-channel-name', title: ch.name}, ch.name),
+		webuiEl('span', {className: 'webui-channel-now'}),
+		webuiEl('span', {className: 'webui-channel-state'}),
+		webuiEl('span', {className: 'webui-channel-acts'}, zap, menu));
 }
 
 // Whether the box hands logos out at all, asked once with the first
@@ -145,13 +142,14 @@ async function loadChannels(bouquet) {
 	const list = document.getElementById('channelList');
 	const countEl = document.getElementById('channelCount');
 	const titleEl = document.getElementById('currentBouquetName');
-	list.replaceChildren(webuiEl('li', {attrs: {'aria-busy': 'true'}}, webuiL('bq.loading_channels', 'Loading channels...')));
+	list.replaceChildren(webuiEl('li', {}, webuiState('loading', webuiL('bq.loading_channels', 'Loading channels...'), '')));
+	countEl.textContent = '';
 
 	if (bouquet === '') {
 		titleEl.textContent = webuiL('bq.all_channels', 'All channels');
 	} else {
 		const bq = bouquetsData.find(b => String(b.id) === String(bouquet));
-		titleEl.textContent = bq ? bq.name : webuiL('dash.channels', 'Channels');
+		titleEl.textContent = bq ? bq.name : webuiL('nav.sub_channels', 'Channel list');
 	}
 
 	try {
@@ -162,30 +160,25 @@ async function loadChannels(bouquet) {
 
 		countEl.textContent = channels.length + ' ' + webuiL('bq.channels_unit', 'channels');
 		if (channels.length === 0) {
-			list.replaceChildren(webuiEl('li', {className: 'webui-empty'}, webuiL('bq.no_channels', 'No channels found')));
+			list.replaceChildren(webuiEl('li', {}, webuiState('empty', webuiL('bq.no_channels', 'No channels found'), '')));
 			return;
 		}
 		if (logosOffered) await checkLogos(channels[0].id);
 		if (token !== channelsToken) return;
 
 		list.replaceChildren.apply(list, channels.map(channelRow));
+		markCurrent();
 
-		// Scroll to current channel in container (after layout is complete)
-		setTimeout(() => {
-			const currentRow = list.querySelector('.current');
-			const cardBody = list.parentElement;
-			if (currentRow && cardBody) {
-				const scrollTo = currentRow.offsetTop - (cardBody.clientHeight / 2) + (currentRow.offsetHeight / 2);
-				cardBody.scrollTop = Math.max(0, scrollTo);
-			}
-		}, 300);
+		// the current channel in view, once the rows are laid out
+		requestAnimationFrame(() => {
+			const currentRow = list.querySelector('[aria-current="true"]');
+			if (currentRow) currentRow.scrollIntoView({block: 'center'});
+		});
 
-		updateChannelPreview();
 		loadEpgInfo(channels, bouquet, token);
 	} catch (e) {
 		if (token !== channelsToken) return;
-		list.replaceChildren(webuiEl('li', {className: 'webui-empty'}, webuiL('msg.load_fail', 'Loading failed')));
-		console.error('Failed to load channels:', e);
+		list.replaceChildren(webuiEl('li', {}, webuiStateFor(e, {retry: () => loadChannels(bouquet)})));
 	}
 }
 
@@ -223,13 +216,22 @@ async function loadEpgInfo(channels, bouquet, token) {
 	startProgressUpdateTimer();
 }
 
+// The programme a row shows: its title, from when to when, how far it has
+// run; nothing where the guide knows none
 function showNow(channelId, events, now) {
 	const ev = events.find(e => e.start <= now && now < e.start + e.duration);
 	const row = rowOf(channelId);
-	if (!ev || !row) return;
+	if (!row) return;
+	const cell = row.querySelector('.webui-channel-now');
+	if (!ev) {
+		delete epgNow[channelId];
+		cell.replaceChildren();
+		return;
+	}
 	epgNow[channelId] = ev;
-	row.querySelector('.webui-channel-epg').textContent =
-		clock(ev.start) + '-' + clock(ev.start + ev.duration) + ' ' + (ev.title || '');
+	cell.replaceChildren(webuiEl('span', {title: ev.title || ''}, ev.title || ''),
+		webuiEl('small', {}, clock(ev.start) + ' – ' + clock(ev.start + ev.duration)),
+		webuiEl('div', {className: 'webui-progress', attrs: {'aria-hidden': 'true'}}, webuiEl('span')));
 	updateChannelProgress(channelId);
 }
 
@@ -237,23 +239,25 @@ function updateChannelProgress(channelId) {
 	const ev = epgNow[channelId];
 	const row = rowOf(channelId);
 	if (!ev || !row) return;
-	const container = row.querySelector('.webui-channel-progress');
-	const bar = row.querySelector('.webui-channel-progress-bar');
+	const bar = row.querySelector('.webui-channel-now .webui-progress > span');
+	if (!bar) return;
 	const now = Date.now() / 1000;
-	const percent = Math.min(100, Math.max(0, (now - ev.start) / ev.duration * 100));
-	bar.style.width = percent + '%';
-	container.classList.add('active');
+	bar.style.width = Math.min(100, Math.max(0, (now - ev.start) / ev.duration * 100)) + '%';
 }
 
+// The bars move on; a programme that is over makes way for the next,
+// asked for the channels it concerns
 function updateAllProgress() {
 	const now = Date.now() / 1000;
+	const over = [];
 	for (const id of Object.keys(epgNow)) {
 		if (now >= epgNow[id].start + epgNow[id].duration) {
-			delete epgNow[id];
+			over.push(id);
 			continue;
 		}
 		updateChannelProgress(id);
 	}
+	if (over.length) refreshNow(over);
 }
 
 function startProgressUpdateTimer() {
@@ -261,11 +265,31 @@ function startProgressUpdateTimer() {
 		progressUpdateInterval = setInterval(updateAllProgress, 30000);
 }
 
+// What runs now on the named channels, asked again
+async function refreshNow(ids) {
+	const now = Math.floor(Date.now() / 1000);
+	for (let i = 0; i < ids.length; i += 20) {
+		const page = await webuiV1('GET', '/epg/grid', {query: {from: now, to: now + 60, limit: 20,
+			channels: ids.slice(i, i + 20).join(',')}}).catch(() => null);
+		((page && page.items) || []).forEach(row => showNow(row.channel_id, row.events || [], now));
+	}
+}
+
+// The row of the channel the box plays, and the ones it records
 function markCurrent() {
 	document.querySelectorAll('.webui-channel-row').forEach(row => {
-		row.classList.toggle('current', row.dataset.id === currentChannelId);
+		const current = row.dataset.id === currentChannelId;
+		const recorded = recordedIds.has(row.dataset.id);
+		row.setAttribute('aria-current', current ? 'true' : 'false');
+		const state = row.querySelector('.webui-channel-state');
+		const want = recorded ? 'rec' : current ? 'ok' : '';
+		if (state.dataset.state !== want) {
+			state.dataset.state = want;
+			state.replaceChildren(want ? webuiEl('span', {className: 'webui-pill ' + want},
+				recorded ? webuiL('bc.recording', 'Recording') : webuiL('bq.live', 'On now')) : '');
+		}
+		row.querySelector('.webui-channel-zap').hidden = current;
 	});
-	updateChannelPreview();
 }
 
 // Zap: a file the player plays, or a box in standby, is asked about first
@@ -280,85 +304,29 @@ async function zapTo(channelId) {
 	}
 }
 
-function showEpg(channelId, channelName) {
-	webuiShowEpgModal(channelId, channelName);
-}
-
-async function toggleChannelDetail(event, channelId) {
-	if (event.target.closest('.webui-channel-actions')) return;
-	const row = rowOf(channelId);
-	if (!row) return;
-	const detailEl = document.getElementById('detail-' + channelId);
-	if (row.classList.contains('row-expanded')) {
-		row.classList.remove('row-expanded');
-		return;
-	}
-	document.querySelectorAll('.webui-channel-row.row-expanded').forEach(r => r.classList.remove('row-expanded'));
-	row.classList.add('row-expanded');
-	if (detailEl && detailEl.querySelector('.webui-channel-detail-loading'))
-		await loadChannelDetail(channelId, detailEl);
-}
-
-// The long text of what runs now
-async function loadChannelDetail(channelId, detailEl) {
-	function content(text, muted) {
-		detailEl.replaceChildren(webuiEl('div', {className: 'webui-channel-detail-content'},
-			webuiEl('div', {className: 'webui-channel-detail-desc',
-				style: muted ? {'font-style': 'italic', color: 'var(--pico-muted-color)'} : undefined}, text)));
-	}
-	try {
-		let ev = epgNow[channelId];
-		if (!ev) ev = await webuiV1('GET', '/epg/current', {query: {channel: channelId}}).catch(() => null);
-		if (!ev) {
-			content(webuiL('bq.no_epg', 'No EPG data available'));
-			return;
-		}
-		const full = await webuiV1('GET', '/epg/event', {query: {id: ev.id, start: ev.start}}).catch(() => ev);
-		const desc = [full.description, full.long_description].filter(Boolean).join('\n\n');
-		if (desc) content(desc);
-		else content(webuiL('epg.no_desc', 'No description available'), true);
-	} catch (e) {
-		console.error('Failed to load channel detail:', e);
-		content(webuiL('msg.load_fail', 'Loading failed'));
-	}
-}
-
-function scrollToElementInContainer(element, listElement) {
-	if (!element) return;
-	const scrollParent = listElement ? listElement.parentElement : null;
-	if (scrollParent && scrollParent.scrollHeight > scrollParent.clientHeight) {
-		const containerTop = scrollParent.getBoundingClientRect().top;
-		const elementTop = element.getBoundingClientRect().top;
-		const relativeTop = elementTop - containerTop + scrollParent.scrollTop;
-		scrollParent.scrollTop = Math.max(0, relativeTop - (scrollParent.clientHeight / 2) + (element.offsetHeight / 2));
-	} else {
-		element.scrollIntoView({ block: 'center', behavior: 'instant' });
-	}
-}
-
-// ===== Mobile Accordion =====
-
-function updateBouquetPreview() {
-	const preview = document.getElementById('bouquetPreview');
-	if (preview && bouquetsData.length > 0) {
-		const active = bouquetsData.find(b => String(b.id) === String(currentBouquetNumber));
-		preview.textContent = active ? active.name : bouquetsData.length + ' Bouquets';
-	}
-}
-
-function updateChannelPreview() {
-	const preview = document.getElementById('channelPreview');
-	const count = document.getElementById('channelCount');
-	if (preview) {
-		const currentRow = document.querySelector('.webui-channel-row.current .webui-channel-name');
-		if (currentRow) preview.textContent = currentRow.textContent;
-		else if (count) preview.textContent = count.textContent;
-	}
+// The rows with a guide that has news, asked again once the news settle
+let epgSoon = null;
+const epgNews = new Set();
+function epgUpdated(d) {
+	if (!d || !d.channel_id) return;
+	// the guide names a channel in the lower 48 bits of its id
+	const low = webuiLegacyChannelId(d.channel_id).slice(-12).toLowerCase();
+	document.querySelectorAll('.webui-channel-row').forEach(row => {
+		if (webuiLegacyChannelId(row.dataset.id).slice(-12).toLowerCase() === low) epgNews.add(row.dataset.id);
+	});
+	if (!epgNews.size || epgSoon) return;
+	epgSoon = setTimeout(() => {
+		epgSoon = null;
+		const ids = Array.from(epgNews);
+		epgNews.clear();
+		refreshNow(ids);
+	}, 2000);
 }
 
 // Initialize once the texts are in; a zap from anywhere else (remote
-// control, timer) moves the mark
-webuiAfterTexts(() => loadCurrentChannel().then(() => loadBouquets()));
+// control, timer) moves the mark, a recording that starts or stops marks
+// its row, and news of the guide updates the rows it concerns
+webuiAfterTexts(() => loadCurrentChannel().then(() => { loadBouquets(); loadRecorded(); }));
 let zapRead = 0;	// an older answer arriving after a newer one is dropped
 webuiAfterTexts(() => webuiV1Events({
 	zap: async function() {
@@ -370,41 +338,14 @@ webuiAfterTexts(() => webuiV1Events({
 		currentMode = ch && (ch.kind === 'radio' || ch.kind === 'webradio') ? 'radio' : 'tv';
 		if (currentMode !== mode) loadBouquets();	// the box switched lists
 		else markCurrent();
-	}
+	},
+	'record-start': loadRecorded,
+	'record-stop': loadRecorded,
+	'epg-updated': epgUpdated
 }));
-
-webuiAfterTexts(function() {
-	webuiInitMobileAccordion({
-		cardOrder: ['card-bouquets', 'card-channels'],
-		storageKey: 'webui-bouquets-card',
-		defaultCard: 'card-channels',
-		breakpoint: 800,
-		indicatorId: 'cardIndicator',
-		containerSelector: '.webui-bouquets-grid',
-		mode: 'collapsed'
-	});
-});
-
-// Custom pull-to-refresh for bouquets page
-// Check if expanded card's body is at top before allowing refresh
-function isAtScrollTop() {
-	const expandedCard = document.querySelector('.webui-card:not(.collapsed)');
-	if (expandedCard) {
-		const cardBody = expandedCard.querySelector('.webui-card-body');
-		if (cardBody && cardBody.scrollTop > 5) return false;
-	}
-	const main = document.querySelector('.webui-bouquets-grid');
-	if (main && main.scrollTop > 5) return false;
-	return true;
-}
 
 if (typeof webuiSetRefreshCallback === 'function') {
 	webuiSetRefreshCallback(function() {
-		if (!isAtScrollTop()) return Promise.resolve();
-		return loadCurrentChannel().then(() => loadBouquets());
+		return loadCurrentChannel().then(() => { loadRecorded(); return loadBouquets(); });
 	});
-}
-
-if (typeof window.webuiIsAtScrollTop === 'undefined') {
-	window.webuiIsAtScrollTop = isAtScrollTop;
 }

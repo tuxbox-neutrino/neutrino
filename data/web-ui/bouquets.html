@@ -3,7 +3,7 @@
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Neutrino-Web-UI - Bouquets</title>
+	<title data-l="nav.sub_channels" data-l-prefix="Neutrino-Web-UI - ">Neutrino-Web-UI - Channel list</title>
 	<link rel="icon" href="/favicon/favicon.ico">
 	<script>
 		// Apply the stored theme before first paint: webui-header.js runs
@@ -13,330 +13,267 @@
 	<link rel="stylesheet" href="/css/pico.min.css?v=1">
 	<link rel="stylesheet" href="/css/webui.css?v=90">
 	<style>
-		/* 2-column grid layout for bouquets. Bouquetspalte bemisst
-		   sich am laengsten Namen (wie Timer-Filter), Deckel 22rem —
-		   extrem lange Bouquetnamen ellipsen weiterhin; Mobile-Branch
-		   unten bleibt einspaltig wie gehabt */
-		main.webui-bouquets-grid {
-			display: grid;
-			grid-template-columns: fit-content(22rem) 1fr;
-			gap: 0.6rem;
-			padding: 0.5rem;
-			/* Override global main scroll - cards scroll internally */
-			overflow: hidden;
+	/* The channel list (Phase 4): the bouquets beside the channels on a wide
+	   screen, a choice above them on a phone; each channel a row with its
+	   number, logo, name, what runs now, its state, one main action and the
+	   others in a menu. */
+	.webui-channels {
+		display: grid;
+		grid-template-columns: 260px minmax(0, 1fr);
+		gap: 1rem;
+		align-items: start;
+		max-width: 1500px;
+		margin: 0 auto;
+		padding: 1rem;
+	}
+
+	.webui-bouquet-side {
+		position: sticky;
+		top: 0;
+		display: flex;
+		flex-direction: column;
+		max-height: calc(100dvh - 9rem);
+	}
+
+	.webui-bouquet-list,
+	.webui-channel-list {
+		margin: 0;
+		padding: 0;
+		list-style: none;
+	}
+
+	.webui-bouquet-list {
+		overflow-y: auto;
+		padding: 0.35rem;
+	}
+
+	/* Pico sets a list in a nav as a row of links: here it is a column */
+	.webui-bouquet-side ul.webui-bouquet-list {
+		display: block;
+		margin: 0;
+	}
+
+	.webui-bouquet-side .webui-bouquet-list li {
+		display: block;
+		margin: 0;
+		padding: 0;
+	}
+
+	.webui-bouquet-list button {
+		--pico-color: inherit;
+		display: block;
+		width: 100%;
+		margin: 0;
+		padding: 0.45rem 0.7rem;
+		border: 0;
+		border-radius: var(--webui-radius);
+		background: none;
+		box-shadow: none;
+		color: var(--pico-color);
+		font-size: var(--webui-font-sm);
+		text-align: left;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	.webui-bouquet-list button:hover {
+		background: var(--webui-bg-elevated);
+	}
+
+	.webui-bouquet-list button[aria-current="true"] {
+		background: var(--webui-accent-light);
+		color: var(--webui-accent);
+		font-weight: 600;
+	}
+
+	.webui-bouquet-pick {
+		display: none;
+		margin: 0;
+		min-width: 0;
+		flex: 1 1 12rem;
+	}
+
+	.webui-bouquet-pick select {
+		margin: 0;
+		padding-top: 0.3rem;
+		padding-bottom: 0.3rem;
+		font-size: var(--webui-font-sm);
+	}
+
+	.webui-channel-side .webui-card-header {
+		flex-wrap: wrap;
+	}
+
+	.webui-card-value {
+		margin-left: auto;
+		color: var(--pico-muted-color);
+		font-variant-numeric: tabular-nums;
+		white-space: nowrap;
+	}
+
+	/* a channel */
+	.webui-channel-row {
+		display: grid;
+		grid-template-columns: 3.5ch 48px minmax(10rem, 1fr) minmax(0, 1.4fr) auto auto;
+		gap: 0.75rem;
+		align-items: center;
+		margin: 0;
+		padding: 0.5rem 1rem;
+		border-top: 1px solid var(--pico-muted-border-color);
+	}
+
+	.webui-channel-row:first-child {
+		border-top: 0;
+	}
+
+	.webui-channel-row[aria-current="true"] {
+		background: var(--webui-accent-light);
+		box-shadow: inset 3px 0 0 var(--webui-accent);
+	}
+
+	.webui-channel-num {
+		color: var(--pico-muted-color);
+		font-size: var(--webui-font-sm);
+		font-variant-numeric: tabular-nums;
+		text-align: right;
+	}
+
+	.webui-channel-logo {
+		display: grid;
+		place-items: center;
+		width: 48px;
+		height: 32px;
+		border-radius: 4px;
+		background: var(--webui-bg-elevated);
+		color: var(--pico-muted-color);
+		font-size: 0.65rem;
+		font-weight: 600;
+		overflow: hidden;
+	}
+
+	.webui-channel-logo img {
+		max-width: 44px;
+		max-height: 28px;
+		object-fit: contain;
+	}
+
+	.webui-channel-name {
+		min-width: 0;
+		overflow: hidden;
+		font-weight: 550;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	.webui-channel-now {
+		min-width: 0;
+		font-size: var(--webui-font-sm);
+	}
+
+	.webui-channel-now > span {
+		display: block;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	.webui-channel-now small {
+		color: var(--pico-muted-color);
+		font-variant-numeric: tabular-nums;
+	}
+
+	.webui-channel-now .webui-progress {
+		margin-top: 0.25rem;
+		height: 3px;
+	}
+
+	.webui-channel-acts {
+		display: flex;
+		gap: 0.35rem;
+		justify-content: flex-end;
+	}
+
+	.webui-channel-acts .webui-btn {
+		margin: 0;
+		white-space: nowrap;
+	}
+
+	@media (max-width: 1100px) {
+		.webui-channels {
+			grid-template-columns: 220px minmax(0, 1fr);
 		}
-
-		@media (max-width: 800px) {
-			main.webui-bouquets-grid {
-				grid-template-columns: 1fr;
-				grid-template-rows: auto 1fr; /* Bouquets fixed, channels flex */
-			}
-		}
-
-		/* Compact card headers for both cards */
-
-		/* Bouquet List Card */
-
-
 
 		.webui-channel-row {
-			display: flex;
-			flex-direction: column;
-			padding: 0.5rem 0.8rem;
-			border-bottom: 1px solid var(--pico-muted-border-color);
-			border-left: 3px solid transparent;
-			transition: var(--webui-transition);
-			cursor: pointer;
+			grid-template-columns: 3.5ch 48px minmax(0, 1fr) auto auto;
 		}
 
-		.webui-channel-main {
-			display: flex;
-			align-items: center;
-			gap: 0.6rem;
-			width: 100%;
-		}
-
-		.webui-channel-row:hover {
-			background: var(--webui-accent-light);
-		}
-
-		.webui-channel-row.current {
-			background: var(--webui-accent-light);
-			border-left-color: var(--webui-accent);
-		}
-
-		/* Die Logo-Packs bestehen fast nur aus Breitbannern (ZDF 2.8:1
-		   bis Sky 8.4:1) — in der kompakten 72px-Kachel skaliert contain
-		   ueber die Breite und laesst 8:1-Banner auf ~9px Resthoehe
-		   schrumpfen. Mit Logo bekommt die Kachel deshalb Bannerbreite;
-		   ohne Logo bleibt der schmale TV-Fallback. */
-		.webui-channel-row.has-logo .webui-icon-placeholder {
-			width: 160px;
-		}
-
-		.webui-channel-info {
-			flex: 1;
-			min-width: 0;
-		}
-
+		/* the programme under the name */
 		.webui-channel-name {
-			font-weight: 500;
-			white-space: nowrap;
-			overflow: hidden;
-			text-overflow: ellipsis;
-			font-size: var(--webui-font-sm);
+			grid-column: 3;
 		}
 
-		.webui-channel-epg {
-			font-size: var(--webui-font-xs);
-			color: var(--pico-muted-color);
-			white-space: nowrap;
-			overflow: hidden;
-			text-overflow: ellipsis;
+		.webui-channel-now {
+			grid-column: 3;
+			grid-row: 2;
+			margin-top: -0.5rem;
 		}
 
-		.webui-channel-progress {
-			width: 100%;
-			height: 3px;
-			margin-top: 4px;
-			background: var(--pico-muted-border-color);
-			border-radius: 2px;
-			overflow: hidden;
-			opacity: 0;
-			transition: opacity 0.3s ease;
+		.webui-channel-row > .webui-channel-state {
+			grid-column: 4;
+			grid-row: 1 / span 2;
 		}
 
-		.webui-channel-progress.active {
-			opacity: 1;
+		.webui-channel-acts {
+			grid-column: 5;
+			grid-row: 1 / span 2;
+		}
+	}
+
+	@media (max-width: 760px) {
+		.webui-channels {
+			grid-template-columns: minmax(0, 1fr);
+			padding: 0.75rem;
 		}
 
-		.webui-channel-progress-bar {
-			height: 100%;
-			background: linear-gradient(90deg, var(--webui-accent), var(--webui-accent-hover));
-			border-radius: 2px;
-			transition: width 0.5s ease;
+		.webui-bouquet-side {
+			display: none;
 		}
 
-		.webui-channel-actions {
-			display: flex;
-			gap: 0.3rem;
-			flex-shrink: 0;
+		.webui-bouquet-pick {
+			display: block;
 		}
 
-		/* Channel count in header */
-		.webui-channel-count {
-			font-size: var(--webui-font-xs);
-			color: var(--pico-muted-color);
-			font-weight: normal;
+		.webui-channel-row {
+			grid-template-columns: 40px minmax(0, 1fr) auto;
+			gap: 0.6rem;
+			padding: 0.5rem 0.75rem;
 		}
 
-		/* Mobile Accordion */
-		@media (max-width: 800px) {
-			.webui-bouquets-grid {
-				display: flex;
-				flex-direction: column;
-				gap: 0.4rem;
-				overflow: auto;
-			}
-
-			.webui-card-indicator {
-				display: flex;
-			}
-
-			.webui-bouquet-card,
-			.webui-channel-card {
-				flex: none;
-				max-height: none;
-				min-height: auto;
-			}
-
-			.webui-bouquet-card .webui-card-header,
-			.webui-channel-card .webui-card-header {
-				cursor: pointer;
-				position: relative;
-				padding-right: 2rem;
-			}
-
-			.webui-bouquet-card .webui-card-title,
-			.webui-channel-card .webui-card-title {
-				font-size: 0.9rem;
-			}
-
-			/* Show preview only when collapsed */
-			.webui-card.collapsed .webui-card-preview {
-				display: inline-block;
-			}
-
-			/* Hide channel count when collapsed */
-			.webui-card.collapsed .webui-channel-count {
-				display: none;
-			}
-
-			/* Chevron indicator */
-			.webui-bouquet-card .webui-card-header::after,
-			.webui-channel-card .webui-card-header::after {
-				content: '▼';
-				position: absolute;
-				right: 0.5rem;
-				top: 50%;
-				transform: translateY(-50%);
-				font-size: 0.55rem;
-				color: var(--pico-muted-color);
-				transition: transform 0.2s ease;
-				pointer-events: none;
-			}
-
-			/* Chevron rotated when not collapsed (= expanded) */
-			.webui-card:not(.collapsed) .webui-card-header::after {
-				transform: translateY(-50%) rotate(180deg);
-			}
-
-			/* Mobile: show card body by default (graceful fallback without JS) */
-			.webui-bouquet-card .webui-card-body,
-			.webui-channel-card .webui-card-body {
-				display: block;
-				max-height: 60dvh;
-				overflow-y: auto;
-			}
-
-			/* Hide body when JS has initialized and card is collapsed */
-			.webui-card.collapsed .webui-card-body {
-				display: none;
-			}
-
-			.webui-channel-row {
-				padding: 0.4rem 0.6rem;
-			}
-
-			.webui-channel-main {
-				gap: 0.4rem;
-			}
-
-			.webui-icon-placeholder {
-				width: 44px;
-				height: 30px;
-			}
-
-			/* Mobile: wenn ein Logo geladen ist, traegt es die Zeile allein —
-			   der Textname faellt weg (das Logo hat den Namen als alt), das
-			   Logo bekommt den freigewordenen Platz. Faellt das Logo aus
-			   (onerror entfernt .has-logo), erscheint der Name wieder. */
-			.webui-channel-row.has-logo .webui-icon-placeholder {
-				width: 140px;
-				height: 40px;
-			}
-
-			.webui-channel-row.has-logo .webui-channel-name {
-				display: none;
-			}
-
-			.webui-channel-actions {
-				gap: 0.2rem;
-				flex-wrap: wrap;
-				justify-content: flex-end;
-			}
-
-			.webui-channel-actions .webui-btn {
-				padding: 0.25rem 0.35rem;
-			}
-
-			.webui-channel-actions .webui-btn svg {
-				width: 13px;
-				height: 13px;
-			}
+		.webui-channel-num {
+			display: none;
 		}
 
-		[data-theme="light"] .webui-channel-row {
-			border-bottom-color: #e5e7eb;
+		.webui-channel-logo {
+			grid-column: 1;
+			grid-row: 1 / span 2;
+			width: 40px;
+			height: 28px;
 		}
 
-		[data-theme="light"] .webui-channel-row:hover {
-			background: #f8f9fa;
+		.webui-channel-name,
+		.webui-channel-now {
+			grid-column: 2;
 		}
 
-
-		/* Expandable Channel Row Detail */
-		.webui-channel-detail {
-			width: 100%;
-			max-height: 0;
-			overflow: hidden;
-			transition: max-height 0.3s ease, padding 0.3s ease;
-			padding: 0;
-			margin-top: 0.5rem;
-			background: var(--pico-card-sectioning-background-color);
-			border-radius: var(--webui-radius);
+		.webui-channel-row > .webui-channel-state {
+			display: none;
 		}
 
-		.webui-channel-row.row-expanded .webui-channel-detail {
-			max-height: 500px;
-			padding: 0.8rem 1rem;
-			overflow-y: auto;
+		.webui-channel-acts {
+			grid-column: 3;
 		}
-
-		.webui-channel-detail-loading {
-			font-size: 0.85rem;
-			color: var(--pico-muted-color);
-			font-style: italic;
-		}
-
-		.webui-channel-detail-content {
-			font-size: 0.9rem;
-			line-height: 1.6;
-			color: var(--pico-color);
-		}
-
-		.webui-channel-detail-time {
-			font-size: 0.8rem;
-			color: var(--pico-muted-color);
-			margin-bottom: 0.5rem;
-		}
-
-		.webui-channel-detail-title {
-			font-weight: 600;
-			font-size: 1rem;
-			color: var(--webui-accent);
-			margin-bottom: 0.5rem;
-		}
-
-		.webui-channel-detail-desc {
-			font-size: 0.9rem;
-			line-height: 1.6;
-			white-space: pre-wrap;
-			word-wrap: break-word;
-		}
-
-		/* Expand indicator on row */
-		.webui-channel-row .webui-expand-icon {
-			width: 14px;
-			height: 14px;
-			color: var(--pico-muted-color);
-			flex-shrink: 0;
-			transition: transform 0.2s ease;
-		}
-
-		.webui-channel-row.row-expanded .webui-expand-icon {
-			transform: rotate(180deg);
-		}
-
-		@media (max-width: 800px) {
-			.webui-channel-detail {
-				margin-top: 0.4rem;
-			}
-
-			.webui-channel-row.row-expanded .webui-channel-detail {
-				max-height: 60vh;
-				padding: 0.7rem 0.8rem;
-			}
-
-			.webui-channel-detail-content {
-				font-size: 0.95rem;
-			}
-
-			.webui-channel-detail-desc {
-				font-size: 0.95rem;
-				line-height: 1.7;
-			}
-		}
+	}
 	</style>
 </head>
 <body>
@@ -344,48 +281,32 @@
 	<div class="webui-header-wrapper" data-page="bouquets"></div>
 	<div class="webui-header-spacer"></div>
 
-	<!-- Main Content: 2-Column Grid -->
-	<main class="webui-bouquets-grid">
-		<!-- Bouquet List Card -->
-		<article class="webui-card webui-panel-card webui-card-sm webui-bouquet-card" id="card-bouquets">
-			<header class="webui-card-header" onclick="toggleCard('card-bouquets')">
-				<h3 class="webui-card-title">
-					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-						<path d="M3 6h18M3 12h18M3 18h18"/>
-					</svg>
-					Bouquets
-				</h3>
-				<span class="webui-card-preview" id="bouquetPreview">--</span>
-			</header>
-			<div class="webui-card-body">
-				<ul class="webui-plain-list webui-bouquet-list" id="bouquetList">
-					<li aria-busy="true" data-l="bq.loading_bouquets">Loading bouquets...</li>
-				</ul>
-			</div>
-		</article>
+	<main>
+		<div class="webui-channels">
+			<nav class="webui-card webui-bouquet-side" aria-labelledby="bouquet-title">
+				<header class="webui-card-header">
+					<h2 class="webui-card-title" id="bouquet-title">
+						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>
+						<span data-l="nav.bouquets">Bouquets</span>
+					</h2>
+				</header>
+				<ul class="webui-bouquet-list" id="bouquetList"></ul>
+			</nav>
 
-		<!-- Channel List Card -->
-		<article class="webui-card webui-panel-card webui-card-sm webui-channel-card" id="card-channels">
-			<header class="webui-card-header" onclick="toggleCard('card-channels')">
-				<h3 class="webui-card-title">
-					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-						<rect x="2" y="7" width="20" height="15" rx="2" ry="2"/>
-						<polyline points="17,2 12,7 7,2"/>
-					</svg>
-					<span id="currentBouquetName" data-l="dash.channels">Channels</span>
-				</h3>
-				<span class="webui-card-preview" id="channelPreview">--</span>
-				<span class="webui-channel-count" id="channelCount"></span>
-			</header>
-			<div class="webui-card-body">
-				<ul class="webui-plain-list webui-channel-grid" id="channelList">
-					<li aria-busy="true" data-l="bq.loading_channels">Loading channels...</li>
-				</ul>
-			</div>
-		</article>
-
-		<!-- Mobile Card Indicator -->
-		<div class="webui-card-indicator" id="cardIndicator"></div>
+			<section class="webui-card webui-channel-side" aria-labelledby="currentBouquetName">
+				<header class="webui-card-header">
+					<h2 class="webui-card-title">
+						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="4" width="20" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+						<span id="currentBouquetName" data-l="nav.sub_channels">Channel list</span>
+					</h2>
+					<label class="webui-bouquet-pick">
+						<select id="bouquetSelect" aria-label="Bouquet" data-l-aria-label="nav.bouquets"></select>
+					</label>
+					<span class="webui-card-value" id="channelCount"></span>
+				</header>
+				<ul class="webui-channel-list" id="channelList"></ul>
+			</section>
+		</div>
 	</main>
 
 	<script src="/js/webui-i18n.js?v=2"></script>
