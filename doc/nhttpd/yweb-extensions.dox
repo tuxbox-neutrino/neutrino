@@ -16,14 +16,18 @@ Der Loader lebt in `data/web-ui/js/webui-header.js` (`webuiDiscoverExtensions` /
 {
 	"name": "Meine Erweiterung",
 	"version": "1.0.0",
-	"slot": "tools",
+	"area": "system",
 	"entry": "index.html",
-	"description": "Untertitel fuer Kachel/Karte"
+	"description": "Untertitel fuer Verwaltung/Karte"
 }
 \endcode
 
-- `slot`: `nav` (Hauptnavigation) | `tools` (Kachel im Tools-Grid) |
-  `dashboard` (Karte) | `page` (nur Direktaufruf/Verwaltung)
+- `area`: der Bereich der Navigation, in dem die Seite steht: `now` |
+  `channels` | `epg` | `timers` | `recordings` | `files` | `system`
+  (ohne Angabe oder unbekannt: `system`)
+- `slot`: optional, die anderen Plaetze: `nav` (eigener Bereich) |
+  `dashboard` (Karte im Ueberblick) | `page` (nur Direktaufruf/Verwaltung);
+  `tools` heisst dasselbe wie keine Angabe
 - `entry`: Einstiegsdatei relativ zum Erweiterungsordner; URL-Schema
   `/extensions/<ordner>/<entry>`
 - `version`: kanonische Version der Erweiterung (semantisch
@@ -38,9 +42,11 @@ Vertrag.
 
 \section ywebext_gating Config-Schaltung (webui.conf)
 
-- `ext_<ordner>_enabled` = `0|1` — Erweiterungen sind standardmaessig AUS
-  (Opt-in), verwaltet ueber Einstellungen → Erweiterungen.
-- `ext_<ordner>_slot` — optionaler Slot-Override.
+- `ext_<ordner>_enabled` = `0|1` — ohne Wert entscheidet `default` im
+  Manifest (`"on"` an, sonst AUS), verwaltet ueber Einstellungen →
+  Erweiterungen.
+- `ext_<ordner>_slot` und `ext_<ordner>_area` — optional, ein anderer
+  Platz als der des Manifests; die Verwaltung schreibt sie nur dafuer.
 - Gelesen und geschrieben ueber `GET`/`PATCH /api/v1/webui/settings`, mit
   den Keys, wie sie sind.
 
@@ -61,7 +67,7 @@ Helfer in `webui-header.js`:
 
 Konventionen:
 - Reserved Keys `manifest.name` / `manifest.description` uebersetzen
-  Name/Untertitel ueberall (Nav, Kachel, Dashboard, Verwaltung); die
+  Name/Untertitel ueberall (Navigation, Karte im Ueberblick, Verwaltung); die
   Discovery laedt das Paket fuer aktivierte Erweiterungen automatisch.
 - Manifest-Strings (settings-`label`, Section-`title`, Feld-`label`,
   `button`, `success`) mit Praefix `L:` werden aus dem Paket aufgeloest
@@ -84,11 +90,12 @@ nach /tmp hoch (`PUT`/`PATCH /api/v1/storage/file`):
 - Als Datei: `POST /api/v1/webui/extensions` mit `{"file": "<name>.tar.gz",
   "unsigned": true}`, nach der Zustimmung des Nutzers zu „nicht signiert".
 - Ein Update ist eine Installation aus dem Index unter demselben
-  Ordnernamen; Config-Keys (Enable/Slot, Einstellungen) ueberleben.
+  Ordnernamen; Config-Keys (Enable/Bereich/Slot, Einstellungen)
+  ueberleben.
 - Deinstallieren: `DELETE /api/v1/webui/extensions/<ordner>` entfernt
   den Ordner mit seinen Scripts und Kopien, die eine fruehere Version
   in `<webroot>/scripts/` abgelegt hat; die Seite nimmt danach
-  `ext_<ordner>_enabled`/`_slot` aus webui.conf (leerer Wert ueber
+  `ext_<ordner>_enabled`/`_slot`/`_area` aus webui.conf (leerer Wert ueber
   `PATCH /api/v1/webui/settings`).
 - Was installiert ist, nennt `GET /api/v1/webui/extensions`.
 
@@ -207,14 +214,18 @@ init of every modern page.
 {
 	"name": "My Extension",
 	"version": "1.0.0",
-	"slot": "tools",
+	"area": "system",
 	"entry": "index.html",
-	"description": "Subtitle for tile/card"
+	"description": "Subtitle for manager/card"
 }
 \endcode
 
-- `slot`: `nav` (main navigation) | `tools` (tile in the tools grid) |
-  `dashboard` (card) | `page` (direct URL/manager only)
+- `area`: the area of the navigation its page joins: `now` |
+  `channels` | `epg` | `timers` | `recordings` | `files` | `system`
+  (none or an unknown one: `system`)
+- `slot`: optional, the other places: `nav` (an area of its own) |
+  `dashboard` (a card on the overview) | `page` (direct URL/manager
+  only); `tools` means the same as leaving it out
 - `entry`: entry file relative to the extension folder; URL scheme
   `/extensions/<folder>/<entry>`
 - `version`: canonical extension version (semantic
@@ -228,9 +239,11 @@ route. `/api/v4/` and `/control/` are not part of the contract.
 
 \section ywebext_en_gating Config gating (webui.conf)
 
-- `ext_<folder>_enabled` = `0|1` — extensions are OFF by default
-  (opt-in), managed via Settings → Extensions.
-- `ext_<folder>_slot` — optional slot override.
+- `ext_<folder>_enabled` = `0|1` — without a value the manifest's
+  `default` decides (`"on"` on, otherwise OFF), managed via Settings →
+  Extensions.
+- `ext_<folder>_slot` and `ext_<folder>_area` — optional, a place other
+  than the manifest's; the manager writes them only for that.
 - Read and written over `GET`/`PATCH /api/v1/webui/settings`, with the
   keys as they are.
 
@@ -251,7 +264,7 @@ Helpers in `webui-header.js`:
 
 Conventions:
 - Reserved keys `manifest.name` / `manifest.description` translate
-  name/subtitle everywhere (nav, tile, dashboard, manager); discovery
+  name/subtitle everywhere (navigation, dashboard card, manager); discovery
   loads the pack automatically for enabled extensions.
 - Manifest strings (settings `label`, section `title`, field `label`,
   `button`, `success`) prefixed with `L:` resolve from the pack
@@ -275,11 +288,11 @@ fetches nothing, the browser loads index and archives and uploads them to
 - As a file: `POST /api/v1/webui/extensions` with `{"file": "<name>.tar.gz",
   "unsigned": true}`, after the user consents to "not signed".
 - An update is an install from the index under the same folder name;
-  config keys (enable/slot, settings) survive.
+  config keys (enable/area/slot, settings) survive.
 - Uninstall: `DELETE /api/v1/webui/extensions/<folder>` removes the folder
   with its scripts, and copies an earlier version left in
   `<webroot>/scripts/`; the page then takes
-  `ext_<folder>_enabled`/`_slot` out of webui.conf (an empty value through
+  `ext_<folder>_enabled`/`_slot`/`_area` out of webui.conf (an empty value through
   `PATCH /api/v1/webui/settings`).
 - `GET /api/v1/webui/extensions` names what is installed.
 

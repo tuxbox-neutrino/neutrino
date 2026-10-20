@@ -23,21 +23,22 @@ extensions/
 {
 	"name": "Meine Erweiterung",
 	"version": "1.0",
-	"slot": "tools",
+	"area": "system",
 	"entry": "index.html",
-	"description": "Kurze Beschreibung fuer die Kachel"
+	"description": "Kurze Beschreibung fuer die Verwaltung"
 }
 ```
 
 | Feld | Bedeutung |
 |------|-----------|
-| `name` | Anzeigename (Nav-Link, Kachel, Verwaltung) |
+| `name` | Anzeigename (Eintrag in der Navigation, Verwaltung) |
 | `version` | frei, wird in der Verwaltung angezeigt |
-| `slot` | Andockpunkt: `nav` (Hauptnavigation), `tools` (Kachel im Tools-Grid), `dashboard` (Karte), `page` (nur Direktaufruf) |
+| `area` | Der Bereich der Navigation, in dem die Seite steht: `now`, `channels`, `epg`, `timers`, `recordings`, `files` oder `system`; die Seite steht dann bei den Seiten dieses Bereichs. Ohne Angabe oder mit einem Namen außerhalb der Liste: `system` |
+| `slot` | optional, für die anderen Plätze: `nav` (ein eigener Bereich), `dashboard` (eine Karte im Überblick), `page` (nur über die Adresse erreichbar). `tools`, das die Erweiterungen der Tools-Seite trugen, heißt dasselbe wie keine Angabe: die Seite kommt in ihren Bereich |
 | `entry` | Einstiegsdatei relativ zum Erweiterungsordner |
 | `entry_js` | optional: Laufzeit-Skript, wird auf jeder modernen Seite geladen (siehe unten) |
 | `description` | optionaler Untertitel |
-| `icon` | optional: ein einfarbiges SVG im Ordner (z.B. `icon.svg`), in der Textfarbe auf dem Nav-Eintrag und der Kachel gezeichnet; ohne es ein Stern |
+| `icon` | optional: ein einfarbiges SVG im Ordner (z.B. `icon.svg`), in der Textfarbe gezeichnet für eine Erweiterung mit eigenem Bereich, in der Liste der Tab-Leiste am Handy; ohne es ein Stern |
 | `settings` | optional: eigene Kategorie unter Einstellungen (siehe unten) |
 | `scripts` | optional: die Shell-Skripte, die die Box für sie ausführt, mit Namen ohne `.sh` (siehe Packaging-Vertrag) |
 | `default` | optional: `"on"` schaltet die Erweiterung ein, solange die Einstellungen nichts über sie sagen; der eigene Schalter des Nutzers geht vor. Gedacht für eine Erweiterung, die an die Stelle einer Seite der Oberfläche tritt, damit ein Update diese Seite nicht wegnimmt; sonst weglassen |
@@ -102,7 +103,7 @@ meine-erweiterung/
 ```json
 {
 	"manifest.name": "Meine Erweiterung",
-	"manifest.description": "Kachel-Untertitel",
+	"manifest.description": "Untertitel in der Verwaltung",
 	"settings.greeting": "Begrüßungstext",
 	"page.title": "Hallo!"
 }
@@ -110,7 +111,7 @@ meine-erweiterung/
 
 - **Reserved Keys** `manifest.name` / `manifest.description` übersetzen
   Name und Untertitel überall dort, wo die Erweiterung andockt
-  (Nav, Kachel, Dashboard, Verwaltung).
+  (Navigation, Karte im Überblick, Verwaltung).
 - **Manifest-Strings** (Settings-`label`, Section-`title`, Feld-`label`,
   `button`, `success`) werden übersetzt, wenn ihr Wert mit `L:` beginnt:
   `"label": "L:settings.greeting"` → Key `settings.greeting` aus dem
@@ -181,9 +182,9 @@ Kernpunkte:
 - Header/Nav der Neutrino-Web-UI einbinden:
   `<div class="webui-header-wrapper" data-page="ext-<ordner>"></div>` +
   `<script src="/js/webui-header.js"></script>` — das Skript baut den
-  Header von selbst in dieses Element; mit `slot: "nav"` ist der
-  Nav-Eintrag der Erweiterung dann als gezeigte Seite markiert, mit
-  `slot: "tools"` der Eintrag Werkzeuge.
+  Header von selbst in dieses Element, mit dem Bereich der Erweiterung
+  markiert und der Seite bei den Seiten dieses Bereichs (ein eigener
+  Bereich bei `slot: "nav"`).
   `webuiInitHeader()` nicht zusätzlich aufrufen: Es setzte einen zweiten
   Header auf die Seite.
 - Styling: Pico CSS + `/css/webui.css` verlinken — fertige Klassen
@@ -210,13 +211,18 @@ Kernpunkte:
 ## 4. Aktivieren
 
 Einstellungen → **Erweiterungen**: die neue Erweiterung erscheint
-automatisch in der Liste → Schalter aktivieren, optional den Slot
-ändern → Speichern → Seite neu laden.
+automatisch in der Liste → Schalter aktivieren, optional ihren Platz
+ändern (ein Bereich, ein eigener Bereich, eine Karte im Überblick, nur
+die Adresse) → Speichern → Seite neu laden.
 
 Technisch: die Schaltung liegt in `webui.conf`
 (`ext_<ordnername>_enabled=1` oder `0`, optional
-`ext_<ordnername>_slot=...`). Steht dort nichts, entscheidet `default`
-im Manifest: `"on"` ist an, alles andere aus.
+`ext_<ordnername>_area=...` und `ext_<ordnername>_slot=...`). Steht dort
+nichts, entscheidet `default`
+im Manifest: `"on"` ist an, alles andere aus. Bereich und Slot schreibt
+die Verwaltung nur für einen anderen Platz als den des Manifests; ein
+Update, das einer Erweiterung einen neuen Platz gibt, verschiebt sie so
+bei allen, die sie dort gelassen haben.
 
 ## 5. Installieren / Aktualisieren / Deinstallieren (Verwaltung)
 
@@ -239,7 +245,7 @@ herunter):
 - **Updates prüfen**: expliziter Knopf; die Box prüft den Index wie
   oben, und die Seite vergleicht die Versionen mit den installierten.
   Ein Update installiert das Archiv aus dem Index unter demselben
-  Ordnernamen; alle Config-Keys (Enable/Slot und
+  Ordnernamen; alle Config-Keys (Enable, Bereich, Slot und
   Erweiterungs-Einstellungen) überleben.
 - **Deinstallieren**: Zeilen-Knopf mit Bestätigung. Entfernt den
   Erweiterungsordner mit seinen Skripten und die Kopien, die eine

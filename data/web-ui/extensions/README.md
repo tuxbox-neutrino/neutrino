@@ -23,21 +23,22 @@ extensions/
 {
 	"name": "My Extension",
 	"version": "1.0",
-	"slot": "tools",
+	"area": "system",
 	"entry": "index.html",
-	"description": "Short subtitle for the tile"
+	"description": "Short subtitle for the manager"
 }
 ```
 
 | Field | Meaning |
 |------|-----------|
-| `name` | Display name (nav link, tile, manager) |
+| `name` | Display name (its entry in the navigation, the manager) |
 | `version` | free-form, shown in the manager |
-| `slot` | Attachment point: `nav` (main navigation), `tools` (tile in the tools grid), `dashboard` (card), `page` (direct URL only) |
+| `area` | The area of the navigation its page joins: `now`, `channels`, `epg`, `timers`, `recordings`, `files` or `system`; the page then stands among that area's pages. Without one, or with a name not in this list, it joins `system` |
+| `slot` | optional, for the other places: `nav` (an area of its own), `dashboard` (a card on the overview), `page` (reached by its address alone). `tools`, which the extensions of the Tools page named, means the same as leaving it out: the page goes into its area |
 | `entry` | Entry file relative to the extension folder |
 | `entry_js` | optional: runtime script, loaded on every modern page (see below) |
 | `description` | optional subtitle |
-| `icon` | optional: a monochrome SVG in the folder (e.g. `icon.svg`), drawn in the text colour on the nav entry and the tile; a star without it |
+| `icon` | optional: a monochrome SVG in the folder (e.g. `icon.svg`), drawn in the text colour for an extension with an area of its own, in the phone's tab bar list; a star without it |
 | `settings` | optional: own category under Settings (see below) |
 | `scripts` | optional: the shell scripts the box runs for it, by name without `.sh` (see the packaging contract) |
 | `default` | optional: `"on"` switches the extension on as long as the settings say nothing about it; the user's own switch wins. Meant for an extension that takes the place of a page the interface had, so an update does not take that page away; leave it out otherwise |
@@ -101,7 +102,7 @@ my-extension/
 ```json
 {
 	"manifest.name": "My Extension",
-	"manifest.description": "Tile subtitle",
+	"manifest.description": "Subtitle in the manager",
 	"settings.greeting": "Greeting text",
 	"page.title": "Hello!"
 }
@@ -109,7 +110,7 @@ my-extension/
 
 - **Reserved keys** `manifest.name` / `manifest.description` translate
   name and subtitle wherever the extension attaches
-  (nav, tile, dashboard, manager).
+  (navigation, dashboard card, manager).
 - **Manifest strings** (settings `label`, section `title`, field
   `label`, `button`, `success`) are translated when their value starts
   with `L:`: `"label": "L:settings.greeting"` → key `settings.greeting`
@@ -180,9 +181,9 @@ Key points:
 - Embed the Neutrino-Web-UI header/nav:
   `<div class="webui-header-wrapper" data-page="ext-<folder>"></div>` +
   `<script src="/js/webui-header.js"></script>` — the script builds the
-  header into that element on its own; with `slot: "nav"` the
-  extension's nav entry is then marked as the page shown, with
-  `slot: "tools"` the Tools entry. Do not call
+  header into that element on its own, with the extension's area marked
+  and the page among that area's pages (its own area for `slot: "nav"`).
+  Do not call
   `webuiInitHeader()` as well: it would put a second header on the
   page.
 - Styling: link Pico CSS + `/css/webui.css` — use the ready-made classes
@@ -209,13 +210,18 @@ Key points:
 ## 4. Enable
 
 Settings → **Extensions**: the new extension shows up automatically in
-the list → enable the switch, optionally change the slot → save →
+the list → enable the switch, optionally change its place (an area, an
+area of its own, a card on the overview, its address only) → save →
 reload the page.
 
 Technically the switch lives in `webui.conf`
 (`ext_<foldername>_enabled=1` or `0`, optionally
-`ext_<foldername>_slot=...`). Where it says nothing, the manifest's
-`default` decides: `"on"` is on, anything else off.
+`ext_<foldername>_area=...` and `ext_<foldername>_slot=...`). Where it
+says nothing, the manifest's
+`default` decides: `"on"` is on, anything else off. The manager writes
+area and slot only for a place other than the manifest's own, so an
+update that gives an extension a new place moves it for everybody who
+left it where it was.
 
 ## 5. Install / update / uninstall (manager)
 
@@ -237,7 +243,7 @@ anything):
 - **Check for updates**: explicit button; the box checks the index as
   above and the page compares the versions with the installed ones.
   An update installs the index's archive under the same folder name;
-  all config keys (enable/slot and extension settings) survive.
+  all config keys (enable, area, slot and extension settings) survive.
 - **Uninstall**: row button with confirmation. Removes the extension
   folder with its scripts, and the copies an earlier version of the
   manager left in `<webroot>/scripts/`, each only where it is still the

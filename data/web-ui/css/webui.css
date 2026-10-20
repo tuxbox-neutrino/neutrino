@@ -345,12 +345,30 @@ body:not(.has-subheader) .webui-header-spacer {
 	height: 2.8rem; /* Geschätzte Höhe für nur Header */
 }
 
-.webui-header nav {
+/* the bar: the name, the areas, the tools; Pico's own spacing of lists in a
+   nav would pull the areas and pages out of line, so the head sets its own */
+.webui-head-bar {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
 	gap: 1rem;
 	width: 100%;
+}
+
+.webui-header nav ul,
+.webui-header nav li {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.webui-header nav li a {
+	margin: 0;
+}
+
+.webui-areas-nav {
+	flex: 1 1 auto;
+	min-width: 0;
 }
 
 .webui-logo {
@@ -379,33 +397,201 @@ body:not(.has-subheader) .webui-header-spacer {
 	display: none;
 }
 
+/* the areas, centred while they fit; the margins instead of centring the
+   row keep its start reachable once it scrolls, as one or two extensions
+   with an area of their own can make it longer than the room */
 .webui-nav-links {
 	display: flex;
-	gap: 0.3rem;
-	list-style: none;
-	margin: 0;
-	padding: 0;
+	gap: 2px;
 	flex-wrap: nowrap;
-	justify-content: center;
+	justify-content: flex-start;
 	align-items: center;
+	overflow-x: auto;
+	scrollbar-width: none;
+}
+
+.webui-nav-links > li:first-child {
+	margin-left: auto;
+}
+
+.webui-nav-links > li:last-child {
+	margin-right: auto;
 }
 
 .webui-nav-links a {
-	display: flex;
-	align-items: center;
-	padding: 0.2rem 0.5rem;
+	--pico-color: inherit;
+	display: block;
+	padding: 0.35rem 0.65rem;
 	border-radius: var(--webui-radius);
-	color: var(--pico-color);
+	color: var(--pico-muted-color);
 	text-decoration: none;
 	transition: var(--webui-transition);
-	font-size: var(--webui-font-xs);
+	font-size: 0.875rem;
+	font-weight: 550;
 	white-space: nowrap;
 }
 
-.webui-nav-links a:hover,
+.webui-nav-links a:hover {
+	color: var(--pico-color);
+	background: var(--webui-bg-elevated);
+}
+
 .webui-nav-links a.active {
-	background: var(--webui-accent-light);
+	color: var(--pico-color);
+	background: var(--webui-bg-elevated);
+	box-shadow: inset 0 -2px 0 var(--webui-accent);
+}
+
+/* the row of the shown area's pages, when it has more than one */
+.webui-subnav {
+	display: flex;
+	gap: 2px;
+	margin-top: 0.35rem !important;
+	overflow-x: auto;
+	scrollbar-width: none;
+}
+
+.webui-subnav[hidden] {
+	display: none;
+}
+
+.webui-subnav a {
+	--pico-color: inherit;
+	display: block;
+	padding: 0.25rem 0.6rem;
+	border-radius: var(--webui-radius);
+	color: var(--pico-muted-color);
+	text-decoration: none;
+	font-size: 0.85rem;
+	font-weight: 550;
+	white-space: nowrap;
+}
+
+.webui-subnav a:hover {
+	color: var(--pico-color);
+	background: var(--webui-bg-elevated);
+}
+
+.webui-subnav a.active {
 	color: var(--webui-accent);
+	background: var(--webui-accent-light);
+}
+
+/* the tab bar, on a phone only, and what "More" opens above it */
+.webui-tabbar {
+	display: none;
+}
+
+.webui-more-menu {
+	position: fixed;
+	right: 0.5rem;
+	bottom: calc(3.75rem + env(safe-area-inset-bottom, 0px) + 0.5rem);
+	z-index: 102;
+	display: flex;
+	flex-direction: column;
+	min-width: 13rem;
+	padding: 0.3rem;
+	background: var(--pico-card-background-color);
+	border: 1px solid var(--pico-muted-border-color);
+	border-radius: var(--webui-radius-lg);
+	box-shadow: var(--webui-shadow-hover);
+}
+
+.webui-more-menu a {
+	--pico-color: inherit;
+	display: flex;
+	align-items: center;
+	gap: 0.6rem;
+	min-height: 2.75rem;
+	padding: 0 0.75rem;
+	border-radius: var(--webui-radius);
+	color: var(--pico-color);
+	text-decoration: none;
+}
+
+.webui-more-menu a svg,
+.webui-more-menu a .webui-ext-icon {
+	width: 20px;
+	height: 20px;
+	opacity: 0.7;
+	flex-shrink: 0;
+}
+
+.webui-more-menu a:hover {
+	background: var(--webui-bg-elevated);
+}
+
+.webui-more-menu a.active {
+	color: var(--webui-accent);
+	background: var(--webui-accent-light);
+}
+
+/* the box's name and the clock give the areas their room on a narrow
+   screen; below 900 px the eight areas no longer fit beside the name and the
+   buttons, in German neither, and the tab bar takes over (tablets in
+   portrait as well) */
+@media (max-width: 1100px) {
+	.webui-header .webui-hostname,
+	.webui-header .webui-clock {
+		display: none;
+	}
+}
+
+@media (max-width: 900px) {
+	.webui-areas-nav {
+		display: none;
+	}
+
+	.webui-tabbar {
+		display: grid;
+		grid-template-columns: repeat(5, 1fr);
+		position: fixed;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		z-index: 101;
+		height: calc(3.75rem + env(safe-area-inset-bottom, 0px));
+		padding-bottom: env(safe-area-inset-bottom, 0px);
+		background: var(--pico-card-background-color);
+		border-top: 1px solid var(--pico-muted-border-color);
+	}
+
+	.webui-tabbar a,
+	.webui-tabbar button {
+		--pico-color: inherit;
+		display: grid;
+		justify-items: center;
+		align-content: center;
+		gap: 3px;
+		width: auto;
+		margin: 0;
+		padding: 0;
+		border: 0;
+		border-radius: 0;
+		background: none;
+		box-shadow: none;
+		color: var(--pico-muted-color);
+		text-decoration: none;
+		font-size: 0.75rem;
+		font-weight: 550;
+		cursor: pointer;
+	}
+
+	.webui-tabbar svg,
+	.webui-tabbar .webui-ext-icon {
+		width: 22px;
+		height: 22px;
+	}
+
+	.webui-tabbar a.active,
+	.webui-tabbar button.active {
+		color: var(--webui-accent);
+	}
+
+	/* the page ends above the tab bar */
+	body {
+		padding-bottom: calc(3.75rem + env(safe-area-inset-bottom, 0px));
+	}
 }
 
 .webui-header-right {
@@ -425,36 +611,6 @@ body:not(.has-subheader) .webui-header-spacer {
 	color: var(--webui-accent);
 	font-weight: 600;
 	font-size: var(--webui-font-xs);
-}
-
-/* Hamburger menu for mobile */
-.webui-menu-toggle {
-	display: none;
-	background: none;
-	border: none;
-	padding: 0.3rem;
-	cursor: pointer;
-	color: var(--pico-color);
-	border-radius: var(--webui-radius);
-	transition: background 0.2s ease;
-}
-
-.webui-menu-toggle:hover {
-	background: var(--webui-accent-light);
-}
-
-.webui-menu-toggle svg {
-	width: 1.25rem;
-	height: 1.25rem;
-}
-
-/* Light mode: ensure hamburger is visible */
-[data-theme="light"] .webui-menu-toggle {
-	color: #333;
-}
-
-[data-theme="light"] .webui-menu-toggle:hover {
-	background: var(--webui-accent-light);
 }
 
 /* Theme toggle button — single definition (the former duplicate near
@@ -495,243 +651,6 @@ body:not(.has-subheader) .webui-header-spacer {
 	font-weight: 700;
 	letter-spacing: 0.02em;
 	line-height: 1;
-}
-
-@media (max-width: 480px) {
-	/* Mobile menu backdrop */
-	.webui-menu-backdrop {
-		display: none;
-		position: fixed;
-		top: 0;
-		left: 0;
-		right: 0;
-		bottom: 0;
-		background: rgba(0, 0, 0, 0.5);
-		backdrop-filter: blur(6px);
-		-webkit-backdrop-filter: blur(6px);
-		z-index: 97;
-		opacity: 0;
-		transition: opacity 0.3s ease;
-	}
-
-	.webui-menu-backdrop.open {
-		display: block;
-		opacity: 1;
-	}
-
-	/* Slide-in drawer menu */
-	.webui-nav-links {
-		display: flex !important;
-		position: fixed;
-		top: 0;
-		left: 0;
-		width: 280px;
-		height: 100vh;
-		height: 100dvh;
-		flex-direction: column;
-		justify-content: flex-start;
-		align-items: stretch;
-		background: var(--pico-background-color);
-		padding: 0;
-		margin: 0;
-		z-index: 99;
-		box-shadow: 4px 0 32px rgba(0, 0, 0, 0.3);
-		overflow-y: auto;
-		overflow-x: hidden;
-		transform: translateX(-100%);
-		transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-		will-change: transform;
-	}
-
-	.webui-nav-links.open {
-		transform: translateX(0);
-	}
-
-	/* Swipe handle indicator on right edge */
-	.webui-nav-links::after {
-		content: '';
-		position: absolute;
-		right: 0;
-		top: 50%;
-		transform: translateY(-50%);
-		width: 4px;
-		height: 48px;
-		background: var(--pico-muted-border-color);
-		border-radius: 2px 0 0 2px;
-		opacity: 0.5;
-		transition: opacity 0.2s ease, height 0.2s ease;
-	}
-
-	.webui-nav-links:hover::after,
-	.webui-nav-links.open::after {
-		opacity: 0.8;
-		height: 64px;
-	}
-
-	/* Menu header area - compact design like Thunderbird */
-	.webui-menu-header {
-		display: flex !important;
-		align-items: center;
-		justify-content: space-between;
-		padding: 0.75rem 0.75rem;
-		background: transparent;
-		border-bottom: 1px solid var(--pico-muted-border-color);
-		flex-shrink: 0;
-	}
-
-	.webui-menu-header .webui-menu-logo {
-		display: flex;
-		align-items: center;
-		gap: 0.6rem;
-		font-size: 0.95rem;
-		font-weight: 600;
-		color: var(--pico-color);
-	}
-
-	.webui-menu-header .webui-menu-logo img {
-		width: 28px;
-		height: 28px;
-		object-fit: contain;
-		border-radius: 6px;
-	}
-
-	/* Menu close button - minimal */
-	.webui-menu-close {
-		width: 32px;
-		height: 32px;
-		min-width: 32px;
-		display: flex !important;
-		align-items: center;
-		justify-content: center;
-		background: transparent;
-		border: none;
-		color: var(--pico-muted-color);
-		cursor: pointer;
-		border-radius: 8px;
-		transition: all 0.15s ease;
-		padding: 0;
-		margin: 0;
-	}
-
-	.webui-menu-close:hover {
-		background: var(--webui-accent-light);
-		color: var(--pico-color);
-	}
-
-	.webui-menu-close:active {
-		transform: scale(0.95);
-	}
-
-	.webui-menu-close svg {
-		width: 18px;
-		height: 18px;
-		stroke: currentColor;
-		stroke-width: 2;
-	}
-
-	/* Remove ::before pseudo element */
-	.webui-nav-links::before {
-		display: none;
-	}
-
-	/* Menu items container - compact like Thunderbird */
-	.webui-nav-links li {
-		width: 100%;
-		padding: 0.15rem 0.5rem;
-	}
-
-	/* Menu items with icons - compact pill style */
-	.webui-nav-links a {
-		display: flex;
-		align-items: center;
-		gap: 0.75rem;
-		padding: 0.6rem 0.75rem;
-		font-size: 0.9rem;
-		color: var(--pico-color);
-		text-decoration: none;
-		transition: all 0.15s ease;
-		border-radius: 8px;
-		margin: 0;
-	}
-
-	.webui-nav-links a svg,
-	.webui-nav-links a .webui-ext-icon {
-		width: 20px;
-		height: 20px;
-		opacity: 0.5;
-		flex-shrink: 0;
-		transition: opacity 0.15s ease;
-	}
-
-	.webui-nav-links a span {
-		font-weight: 500;
-	}
-
-	.webui-nav-links a:hover {
-		background: var(--pico-muted-border-color);
-	}
-
-	.webui-nav-links a:hover svg,
-	.webui-nav-links a:hover .webui-ext-icon {
-		opacity: 0.8;
-	}
-
-	/* Active item - pill style like Thunderbird */
-	.webui-nav-links a.active {
-		background: var(--webui-accent);
-		color: var(--webui-on-accent);
-		font-weight: 600;
-	}
-
-	.webui-nav-links a.active svg,
-	.webui-nav-links a.active .webui-ext-icon {
-		opacity: 1;
-		color: var(--webui-on-accent);
-	}
-
-	/* Hamburger toggle button */
-	.webui-menu-toggle {
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		width: 40px;
-		height: 40px;
-		border-radius: 10px;
-		transition: all 0.2s ease;
-	}
-
-	.webui-menu-toggle:hover {
-		background: var(--webui-accent-light);
-	}
-
-	.webui-menu-toggle:active {
-		transform: scale(0.95);
-	}
-
-	.webui-menu-toggle svg {
-		width: 1.4rem;
-		height: 1.4rem;
-	}
-
-	.webui-header-right {
-		gap: 0.3rem;
-	}
-
-	.webui-hostname {
-		display: none;
-	}
-
-	/* Edge swipe indicator (left edge of screen) */
-	.webui-edge-swipe {
-		position: fixed;
-		top: 0;
-		left: 0;
-		width: 20px;
-		height: 100vh;
-		height: 100dvh;
-		z-index: 96;
-		background: transparent;
-	}
 }
 
 /* ============================================
@@ -1628,9 +1547,12 @@ body:not(.has-subheader) .webui-header-spacer {
 .webui-file-btn:focus-visible,
 .webui-action-btn:focus-visible,
 .webui-mode-switch-btn:focus-visible,
-.webui-menu-toggle:focus-visible,
+.webui-nav-links a:focus-visible,
+.webui-subnav a:focus-visible,
+.webui-tabbar a:focus-visible,
+.webui-tabbar button:focus-visible,
+.webui-more-menu a:focus-visible,
 .webui-theme-toggle:focus-visible,
-.webui-menu-close:focus-visible,
 .webui-popover-close:focus-visible,
 .webui-modal-close:focus-visible,
 .webui-remote .webui-rc-btn:focus-visible,
@@ -3291,10 +3213,4 @@ dialog.webui-sheet footer button.danger {
 	background-color: currentColor;
 	-webkit-mask: var(--webui-ext-icon) center / contain no-repeat;
 	mask: var(--webui-ext-icon) center / contain no-repeat;
-}
-
-.webui-tool-card .webui-ext-icon {
-	width: 36px;
-	height: 36px;
-	color: var(--webui-accent);
 }

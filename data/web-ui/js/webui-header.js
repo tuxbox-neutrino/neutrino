@@ -34,7 +34,9 @@ const WEBUI_ICONS = {
 	timer: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 6v6l4 2"/></svg>',
 	remote: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="7" y="2" width="10" height="20" rx="2"/><circle cx="12" cy="18" r="1"/></svg>',
 	settings: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>',
-	tools: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>'
+	tools: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>',
+	files: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>',
+	more: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M5 12h.01M12 12h.01M19 12h.01"/></svg>'
 };
 
 // Shared modal close button
@@ -109,34 +111,256 @@ function webuiAboutHTML() {
 `;
 }
 
-// Generate header HTML with optional active page
+/* The areas of the navigation and the pages of each (Phase 4). A page
+   belongs to one area; the areas stand in the head, the pages of the area
+   shown in a row below it when it has more than one, and on a phone the
+   first four areas are a tab bar at the bottom and the rest come under
+   "More". An extension's page joins the area its manifest or the extension
+   manager names (webuiInjectExtensions); in Files it comes before the core's
+   page there, elsewhere after them. An area opens its home: the page it
+   names where that is there, else its first page of the interface itself,
+   so which extensions are installed and how they are called does not change
+   where a click on the area leads; the home stands first in the row.
+   settings.html belongs to Files or System for three of its categories. */
+const WEBUI_AREAS = [
+	{id: 'now', key: 'nav.area_now', en: 'Now', icon: 'dashboard', tab: true,
+	 pages: [{page: 'dashboard', href: '/dashboard.html', key: 'nav.sub_overview', en: 'Overview'}]},
+	{id: 'channels', key: 'nav.area_channels', en: 'Channels', icon: 'bouquets', tab: true,
+	 pages: [{page: 'bouquets', href: '/bouquets.html', key: 'nav.sub_channels', en: 'Channel list'}]},
+	{id: 'epg', key: 'nav.epg', en: 'EPG', icon: 'epg', tab: true,
+	 pages: [{page: 'epg', href: '/epg.html', key: 'nav.sub_guide', en: 'Guide'}]},
+	{id: 'timers', key: 'nav.timer', en: 'Timer', icon: 'timer', tab: true,
+	 pages: [{page: 'timer', href: '/timer.html', key: 'nav.sub_timers', en: 'Timer list'}]},
+	{id: 'recordings', key: 'nav.recordings', en: 'Recordings', icon: 'recordings',
+	 pages: [{page: 'recordings', href: '/recordings.html', key: 'nav.sub_archive', en: 'Archive'}]},
+	{id: 'files', key: 'nav.area_files', en: 'Files', icon: 'files', extFirst: true, home: 'ext-files',
+	 pages: [{page: 'settings#mounts', href: '/settings.html#mounts', key: 'reg.mounts', en: 'Network mounts'}]},
+	{id: 'system', key: 'nav.area_system', en: 'System', icon: 'tools',
+	 pages: [{page: 'tools', href: '/tools.html', key: 'nav.sub_boxcontrol', en: 'Box control'},
+		{page: 'settings#plugins', href: '/settings.html#plugins', key: 'nav.sub_plugins', en: 'Plugins'},
+		{page: 'settings#extensions', href: '/settings.html#extensions', key: 'nav.sub_extensions', en: 'Extensions'}]},
+	{id: 'settings', key: 'nav.settings', en: 'Settings', icon: 'settings',
+	 pages: [{page: 'settings', href: '/settings.html', key: 'nav.settings', en: 'Settings'}]}
+];
+// the areas an extension may name (its own area aside)
+const WEBUI_EXT_AREAS = ['now', 'channels', 'epg', 'timers', 'recordings', 'files', 'system'];
+
+var _webuiNavShown = '';	// the page the navigation was last drawn for
+var _webuiNavExts = null;	// the extensions' places, once known
+
+// the page shown, as the navigation names it: settings.html by the
+// category its address names, where that category lives in another area
+function _webuiNavPage(pageName) {
+	if (pageName === 'settings') {
+		var h = (location.hash || '').replace('#', '');
+		if (h === 'mounts' || h === 'plugins' || h === 'extensions')
+			return 'settings#' + h;
+	}
+	return pageName || '';
+}
+
+/* The extensions' places from the last discovery of this browser tab, so a
+   page draws them at once and the navigation does not jump when the
+   discovery comes in; [] where none was kept. */
+function _webuiNavExtsKept() {
+	if (_webuiNavExts)
+		return _webuiNavExts;
+	try {
+		var kept = JSON.parse(sessionStorage.getItem('webui-nav-exts') || '[]');
+		if (Array.isArray(kept))
+			return kept;
+	} catch (e) { /* none kept */ }
+	return [];
+}
+
+// The areas with the extensions' pages put in, an extension with an area of
+// its own (slot nav) as one more area at the end.
+function _webuiNavAreas(exts) {
+	var areas = WEBUI_AREAS.map(function(a) {
+		return {id: a.id, label: webuiL(a.key, a.en), icon: a.icon, tab: !!a.tab, extFirst: !!a.extFirst, home: a.home || '',
+			pages: a.pages.map(function(p) { return {page: p.page, href: p.href, label: webuiL(p.key, p.en)}; })};
+	});
+	var byId = {};
+	areas.forEach(function(a) { byId[a.id] = a; });
+	var added = {};
+	(exts || []).forEach(function(x) {
+		var entry = {page: 'ext-' + x.dir, href: x.url, label: x.name, ext: true};
+		if (x.own) {
+			areas.push({id: 'ext-' + x.dir, label: x.name, icon: null, extIcon: x.icon || '', own: true, pages: [entry]});
+			return;
+		}
+		var a = byId[x.area] || byId.system;
+		(added[a.id] = added[a.id] || []).push(entry);
+	});
+	areas.forEach(function(a) {
+		var ext = (added[a.id] || []).sort(function(p, q) { return p.label.localeCompare(q.label); });
+		a.pages = a.extFirst ? ext.concat(a.pages) : a.pages.concat(ext);
+		var home = a.pages.filter(function(p) { return p.page === a.home; })[0]
+			|| a.pages.filter(function(p) { return !p.ext; })[0];
+		if (home)
+			a.pages = [home].concat(a.pages.filter(function(p) { return p !== home; }));
+	});
+	return areas;
+}
+
+function _webuiNavAreaOf(areas, page) {
+	for (var i = 0; i < areas.length; i++)
+		for (var k = 0; k < areas[i].pages.length; k++)
+			if (areas[i].pages[k].page === page)
+				return areas[i];
+	return null;
+}
+
+function _webuiNavIcon(a) {
+	if (a.icon && WEBUI_ICONS[a.icon])
+		return WEBUI_ICONS[a.icon];
+	return a.extIcon || WEBUI_ICONS.more;
+}
+
+// Draws the areas, the row of the shown area's pages and the tab bar.
+function webuiRenderNav(pageName) {
+	var page = _webuiNavPage(pageName);
+	_webuiNavShown = pageName || '';
+	var areas = _webuiNavAreas(_webuiNavExtsKept());
+	var current = _webuiNavAreaOf(areas, page);
+	var link = function(href, attrs, inner) {
+		var a = document.createElement('a');
+		a.href = href;
+		Object.keys(attrs).forEach(function(k) { if (attrs[k] !== null) a.setAttribute(k, attrs[k]); });
+		a.innerHTML = inner;
+		return a;
+	};
+
+	var list = document.getElementById('webui-nav-menu');
+	if (list) {
+		list.replaceChildren();
+		areas.forEach(function(a) {
+			var on = current === a;
+			var el = link(a.pages.length ? a.pages[0].href : '#', {'data-area': a.id, 'data-page': a.pages.length ? a.pages[0].page : '',
+				'aria-current': on ? 'page' : null, 'class': on ? 'active' : null}, '<span>' + escapeHtml(a.label) + '</span>');
+			var li = document.createElement('li');
+			li.appendChild(el);
+			list.appendChild(li);
+		});
+	}
+
+	var sub = document.getElementById('webui-subnav');
+	if (sub) {
+		sub.replaceChildren();
+		var pages = current ? current.pages : [];
+		sub.hidden = pages.length < 2;
+		sub.setAttribute('aria-label', current ? webuiL('nav.pages_of', 'Pages in %s').replace('%s', current.label) : '');
+		pages.forEach(function(p) {
+			var on = p.page === page;
+			var li = document.createElement('li');
+			li.appendChild(link(p.href, {'data-page': p.page, 'aria-current': on ? 'page' : null, 'class': on ? 'active' : null},
+				escapeHtml(p.label)));
+			sub.appendChild(li);
+		});
+	}
+
+	var tabs = document.getElementById('webui-tabbar');
+	if (tabs) {
+		tabs.replaceChildren();
+		var inTabs = false;
+		areas.filter(function(a) { return a.tab; }).forEach(function(a) {
+			var on = current === a;
+			inTabs = inTabs || on;
+			tabs.appendChild(link(a.pages[0].href, {'data-area': a.id, 'aria-current': on ? 'page' : null, 'class': on ? 'active' : null},
+				_webuiNavIcon(a) + '<span>' + escapeHtml(a.label) + '</span>'));
+		});
+		var more = document.createElement('button');
+		more.type = 'button';
+		more.id = 'webui-tab-more';
+		more.setAttribute('aria-haspopup', 'true');
+		more.setAttribute('aria-expanded', 'false');
+		if (current && !inTabs)
+			more.className = 'active';
+		more.innerHTML = WEBUI_ICONS.more + '<span>' + webuiLH('nav.more', 'More') + '</span>';
+		more.addEventListener('click', webuiToggleMoreMenu);
+		tabs.appendChild(more);
+	}
+	// the row of pages changes the head's height
+	if (typeof webuiUpdateHeaderSpacer === 'function')
+		webuiUpdateHeaderSpacer();
+}
+
+// "More" on the phone: the areas the tab bar has no room for, above it
+function webuiToggleMoreMenu(ev) {
+	ev.stopPropagation();
+	var btn = document.getElementById('webui-tab-more');
+	var menu = document.getElementById('webui-more-menu');
+	if (menu) {
+		menu.remove();
+		if (btn) btn.setAttribute('aria-expanded', 'false');
+		return;
+	}
+	var areas = _webuiNavAreas(_webuiNavExtsKept());
+	var current = _webuiNavAreaOf(areas, _webuiNavPage(_webuiNavShown));
+	menu = document.createElement('div');
+	menu.id = 'webui-more-menu';
+	menu.className = 'webui-more-menu';
+	areas.filter(function(a) { return !a.tab; }).forEach(function(a) {
+		var item = document.createElement('a');
+		item.href = a.pages.length ? a.pages[0].href : '#';
+		item.setAttribute('data-area', a.id);
+		item.innerHTML = _webuiNavIcon(a) + '<span>' + escapeHtml(a.label) + '</span>';
+		if (current === a) {
+			item.className = 'active';
+			item.setAttribute('aria-current', 'page');
+		}
+		menu.appendChild(item);
+	});
+	document.body.appendChild(menu);
+	if (btn) btn.setAttribute('aria-expanded', 'true');
+	// Escape closes it and hands the focus back to "More", and so does Tab
+	// on its last entry, as the menu is the last thing on the page; leaving
+	// it by Shift+Tab or a click closes it as well
+	menu.addEventListener('keydown', function(e) {
+		var links = menu.querySelectorAll('a');
+		var out = e.key === 'Tab' && !e.shiftKey && document.activeElement === links[links.length - 1];
+		if (e.key !== 'Escape' && !out)
+			return;
+		e.preventDefault();
+		menu.remove();
+		if (btn) {
+			btn.setAttribute('aria-expanded', 'false');
+			btn.focus();
+		}
+	});
+	menu.addEventListener('focusout', function(e) {
+		if (!e.relatedTarget || menu.contains(e.relatedTarget) || e.relatedTarget === btn)
+			return;
+		menu.remove();
+		if (btn)
+			btn.setAttribute('aria-expanded', 'false');
+	});
+	var first = menu.querySelector('a');
+	if (first) first.focus();
+	setTimeout(function() {
+		document.addEventListener('click', function close() {
+			document.removeEventListener('click', close);
+			var m = document.getElementById('webui-more-menu');
+			if (m) m.remove();
+			var b = document.getElementById('webui-tab-more');
+			if (b) b.setAttribute('aria-expanded', 'false');
+		});
+	}, 0);
+}
+
+// Generate header HTML; the navigation in it is drawn by webuiRenderNav
 function webuiGetHeaderHTML(activePage) {
-	const nav = WEBUI_CONFIG.navigation || [
-		{ page: 'dashboard', href: '/dashboard.html', icon: 'dashboard', label: webuiL('nav.dashboard', 'Dashboard') },
-		{ page: 'bouquets', href: '/bouquets.html', icon: 'bouquets', label: webuiL('nav.bouquets', 'Bouquets') },
-		{ page: 'epg', href: '/epg.html', icon: 'epg', label: webuiL('nav.epg', 'EPG') },
-		{ page: 'timer', href: '/timer.html', icon: 'timer', label: webuiL('nav.timer', 'Timer') },
-		{ page: 'recordings', href: '/recordings.html', icon: 'recordings', label: webuiL('nav.recordings', 'Recordings') },
-		{ page: 'settings', href: '/settings.html', icon: 'settings', label: webuiL('nav.settings', 'Settings') },
-		{ page: 'tools', href: '/tools.html', icon: 'tools', label: webuiL('nav.tools', 'Tools') }
-	];
-
-	const navItems = nav.map(item => {
-		const active = item.page === activePage ? ' class="active"' : '';
-		return `<li><a href="${item.href}" data-page="${item.page}"${active}>${WEBUI_ICONS[item.icon]}<span>${escapeHtml(item.label)}</span></a></li>`;
-	}).join('\n\t\t\t');
-
 	return `
 <header class="webui-header">
-	<nav>
+	<div class="webui-head-bar">
 		<a href="/dashboard.html" class="webui-logo">
 			<img src="${WEBUI_CONFIG.logo}" alt="" onerror="this.remove()">
 			<span>${WEBUI_CONFIG.title}</span>
 		</a>
 
-		<ul class="webui-nav-links" id="webui-nav-menu">
-			${navItems}
-		</ul>
+		<nav class="webui-areas-nav" aria-label="${webuiLH('nav.areas', 'Areas')}">
+			<ul class="webui-nav-links" id="webui-nav-menu"></ul>
+		</nav>
 
 		<div class="webui-header-right">
 			<span class="webui-hostname" id="webui-hostname">--</span>
@@ -163,13 +387,10 @@ function webuiGetHeaderHTML(activePage) {
 					<line stroke-linecap="round" stroke-linejoin="round" stroke-width="2" x1="21" y1="12" x2="9" y2="12"/>
 				</svg>
 			</button>
-			<button class="webui-menu-toggle" onclick="webuiToggleMenu()" aria-label="Menü">
-				<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
-				</svg>
-			</button>
 		</div>
-	</nav>
+	</div>
+	<nav class="webui-subnav-nav"><ul class="webui-subnav" id="webui-subnav" hidden></ul></nav>
+	<nav class="webui-tabbar" id="webui-tabbar" aria-label="${webuiLH('nav.areas', 'Areas')}"></nav>
 </header>`;
 }
 
@@ -378,198 +599,6 @@ function webuiUpdateThemeIcon(theme) {
 	if (lightIcon) lightIcon.classList.toggle('webui-hidden', theme === 'dark');
 }
 
-// Mobile Menu
-function webuiToggleMenu() {
-	const menu = document.getElementById('webui-nav-menu');
-	let backdrop = document.getElementById('webui-menu-backdrop');
-	let menuHeader = document.getElementById('webui-menu-header');
-
-	// Create backdrop if it doesn't exist
-	if (!backdrop) {
-		backdrop = document.createElement('div');
-		backdrop.id = 'webui-menu-backdrop';
-		backdrop.className = 'webui-menu-backdrop';
-		backdrop.onclick = webuiCloseMenu;
-		document.body.appendChild(backdrop);
-	}
-
-	// Create menu header with logo and close button
-	if (!menuHeader && menu) {
-		menuHeader = document.createElement('div');
-		menuHeader.id = 'webui-menu-header';
-		menuHeader.className = 'webui-menu-header';
-		menuHeader.innerHTML = `
-			<div class="webui-menu-logo">
-				<img src="${WEBUI_CONFIG.logo}" alt="" onerror="this.remove()">
-				<span>${WEBUI_CONFIG.title}</span>
-			</div>
-			<button class="webui-menu-close" onclick="webuiCloseMenu()">
-				<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-				</svg>
-			</button>
-		`;
-		menu.insertBefore(menuHeader, menu.firstChild);
-	}
-
-	if (menu) {
-		const isOpen = menu.classList.toggle('open');
-		backdrop.classList.toggle('open', isOpen);
-		// Prevent body scroll when menu is open
-		document.body.style.overflow = isOpen ? 'hidden' : '';
-	}
-}
-
-function webuiCloseMenu() {
-	const menu = document.getElementById('webui-nav-menu');
-	const backdrop = document.getElementById('webui-menu-backdrop');
-
-	if (menu) menu.classList.remove('open');
-	if (backdrop) backdrop.classList.remove('open');
-	document.body.style.overflow = '';
-}
-
-function webuiOpenMenu() {
-	const menu = document.getElementById('webui-nav-menu');
-	let backdrop = document.getElementById('webui-menu-backdrop');
-	let menuHeader = document.getElementById('webui-menu-header');
-
-	// Create backdrop if needed
-	if (!backdrop) {
-		backdrop = document.createElement('div');
-		backdrop.id = 'webui-menu-backdrop';
-		backdrop.className = 'webui-menu-backdrop';
-		backdrop.onclick = webuiCloseMenu;
-		document.body.appendChild(backdrop);
-	}
-
-	// Create menu header if needed
-	if (!menuHeader && menu) {
-		menuHeader = document.createElement('div');
-		menuHeader.id = 'webui-menu-header';
-		menuHeader.className = 'webui-menu-header';
-		menuHeader.innerHTML = `
-			<div class="webui-menu-logo">
-				<img src="${WEBUI_CONFIG.logo}" alt="" onerror="this.remove()">
-				<span>${WEBUI_CONFIG.title}</span>
-			</div>
-			<button class="webui-menu-close" onclick="webuiCloseMenu()">
-				<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-				</svg>
-			</button>
-		`;
-		menu.insertBefore(menuHeader, menu.firstChild);
-	}
-
-	if (menu && !menu.classList.contains('open')) {
-		menu.classList.add('open');
-		if (backdrop) backdrop.classList.add('open');
-		document.body.style.overflow = 'hidden';
-	}
-}
-
-// Menu swipe gesture handling
-let menuTouchStartX = 0;
-let menuTouchStartY = 0;
-let menuTouchCurrentX = 0;
-let menuIsSwiping = false;
-const MENU_SWIPE_THRESHOLD = 50;
-const EDGE_SWIPE_ZONE = 30;
-
-function webuiMenuTouchStart(e) {
-	const touch = e.touches[0];
-	menuTouchStartX = touch.clientX;
-	menuTouchStartY = touch.clientY;
-	menuTouchCurrentX = touch.clientX;
-	menuIsSwiping = false;
-}
-
-function webuiMenuTouchMove(e) {
-	if (!e.touches[0]) return;
-	const touch = e.touches[0];
-	menuTouchCurrentX = touch.clientX;
-	const deltaX = menuTouchCurrentX - menuTouchStartX;
-	const deltaY = Math.abs(touch.clientY - menuTouchStartY);
-
-	// Only track horizontal swipes
-	if (deltaY < 50 && Math.abs(deltaX) > 10) {
-		menuIsSwiping = true;
-	}
-}
-
-function webuiMenuTouchEnd(e) {
-	if (!menuIsSwiping) return;
-
-	const deltaX = menuTouchCurrentX - menuTouchStartX;
-	const menu = document.getElementById('webui-nav-menu');
-
-	if (menu && menu.classList.contains('open')) {
-		// Menu is open - swipe left to close
-		if (deltaX < -MENU_SWIPE_THRESHOLD) {
-			webuiCloseMenu();
-		}
-	}
-
-	menuIsSwiping = false;
-}
-
-// Edge swipe to open menu
-function webuiEdgeTouchStart(e) {
-	const touch = e.touches[0];
-	menuTouchStartX = touch.clientX;
-	menuTouchStartY = touch.clientY;
-	menuTouchCurrentX = touch.clientX;
-	menuIsSwiping = false;
-}
-
-function webuiEdgeTouchMove(e) {
-	if (!e.touches[0]) return;
-	const touch = e.touches[0];
-	menuTouchCurrentX = touch.clientX;
-	const deltaY = Math.abs(touch.clientY - menuTouchStartY);
-
-	// Only track horizontal swipes from edge
-	if (menuTouchStartX < EDGE_SWIPE_ZONE && deltaY < 50) {
-		menuIsSwiping = true;
-	}
-}
-
-function webuiEdgeTouchEnd(e) {
-	if (!menuIsSwiping) return;
-
-	const deltaX = menuTouchCurrentX - menuTouchStartX;
-	const menu = document.getElementById('webui-nav-menu');
-
-	// Swipe right from left edge to open
-	if (menuTouchStartX < EDGE_SWIPE_ZONE && deltaX > MENU_SWIPE_THRESHOLD) {
-		if (!menu || !menu.classList.contains('open')) {
-			webuiOpenMenu();
-		}
-	}
-
-	menuIsSwiping = false;
-}
-
-// Initialize menu swipe gestures
-function webuiInitMenuSwipe() {
-	if (window.innerWidth > 480) return;
-
-	const menu = document.getElementById('webui-nav-menu');
-
-	// Swipe on menu to close
-	if (menu) {
-		menu.addEventListener('touchstart', webuiMenuTouchStart, { passive: true });
-		menu.addEventListener('touchmove', webuiMenuTouchMove, { passive: true });
-		menu.addEventListener('touchend', webuiMenuTouchEnd, { passive: true });
-	}
-
-	// Edge swipe to open - listen on body
-	document.body.addEventListener('touchstart', webuiEdgeTouchStart, { passive: true });
-	document.body.addEventListener('touchmove', webuiEdgeTouchMove, { passive: true });
-	document.body.addEventListener('touchend', webuiEdgeTouchEnd, { passive: true });
-}
-
 // Clock
 function webuiUpdateClock() {
 	const clock = document.getElementById('webui-clock');
@@ -688,17 +717,16 @@ function webuiLoadHostname() {
 		.catch(() => { el.textContent = 'neutrino'; });
 }
 
-// Set active navigation link
+// The page shown, marked in the navigation: drawn anew for it
 function webuiSetActivePage(pageName) {
-	const links = document.querySelectorAll('.webui-nav-links a');
-	links.forEach(link => {
-		if (link.getAttribute('data-page') === pageName) {
-			link.classList.add('active');
-		} else {
-			link.classList.remove('active');
-		}
-	});
+	webuiRenderNav(pageName);
 }
+
+// settings.html moves between areas with the category its address names
+window.addEventListener('hashchange', function() {
+	if (_webuiNavShown === 'settings')
+		webuiRenderNav('settings');
+});
 
 // Initialize header
 function webuiInitHeader(pageName) {
@@ -713,10 +741,8 @@ function webuiInitHeader(pageName) {
 	// Set theme
 	webuiApplyTheme(webuiGetTheme());
 
-	// Set active page
-	if (pageName) {
-		webuiSetActivePage(pageName);
-	}
+	// the navigation, marked for this page
+	webuiRenderNav(pageName);
 
 	// Start clock
 	webuiUpdateClock();
@@ -1902,24 +1928,26 @@ function webuiCloseAbout(event) {
 
 // ═══ Extension-Loader (WORK-146 Spec §4) ═══
 // Konvention: <webroot>/extensions/<name>/manifest.json mit
-//   {"name","version","slot":"nav|tools|dashboard|page","entry","description"?}
-// Schaltung: webui.conf ext_<name>_enabled=1 or 0, else the manifest's
-// "default" ("on"), optional ext_<name>_slot (Slot-Override). Which are installed comes from GET /api/v1/webui/extensions,
+//   {"name","version","slot":"nav|tools|dashboard|page","area"?,"entry","description"?}
+// "tools" puts the entry among the pages of the area "area" names (System
+// when it names none or one the interface does not have), "nav" makes it an
+// area of its own. Schaltung: webui.conf ext_<name>_enabled=1 or 0, else the
+// manifest's "default" ("on"); ext_<name>_slot and ext_<name>_area override
+// the manifest's place. Which are installed comes from GET /api/v1/webui/extensions,
 // the switches from GET /api/v1/webui/settings, both readable without a
 // sign-in from the home network; a page that may read neither shows none.
 var _webuiExtensions = null;		// the list, once found
 var _webuiExtensionsAsked = null;	// the finding, while and after it runs
 
-// The interface's own pages a start page can be: page, text key, English.
-var WEBUI_START_PAGES = [
-	['dashboard.html', 'nav.dashboard', 'Dashboard'],
-	['bouquets.html', 'nav.bouquets', 'Bouquets'],
-	['epg.html', 'nav.epg', 'EPG'],
-	['timer.html', 'nav.timer', 'Timer'],
-	['recordings.html', 'nav.recordings', 'Recordings'],
-	['tools.html', 'nav.tools', 'Tools'],
-	['settings.html', 'nav.settings', 'Settings']
-];
+// The interface's own pages a start page can be: page, text key, English;
+// named as the navigation names them, its categories of settings.html aside.
+var WEBUI_START_PAGES = WEBUI_AREAS.reduce(function(out, a) {
+	a.pages.forEach(function(p) {
+		if (p.href.indexOf('#') < 0)
+			out.push([p.href.substring(1), p.key, p.en]);
+	});
+	return out;
+}, []);
 
 /* Start pages stored under another name: what the classic settings page and
    the shipped yWeb.conf write ("none" there), and pages of the interface that
@@ -2020,7 +2048,13 @@ async function _webuiFindExtensions() {
 				m.scripts = entries[i].scripts || [];
 				var ckBase = 'ext_' + m.dir;
 				m.enabled = webuiExtSwitchedOn(m, yCfg);
-				m.slot = yCfg[ckBase + '_slot'] || m.slot || 'tools';
+				// the place its manifest gives, and the one the manager may
+				// have set over it: the area of the navigation its page joins
+				// (webuiRenderNav)
+				m.ownSlot = m.slot || 'tools';
+				m.ownArea = m.area || '';
+				m.slot = yCfg[ckBase + '_slot'] || m.ownSlot;
+				m.area = yCfg[ckBase + '_area'] || m.ownArea;
 				m.url = m.entry ? ('/extensions/' + encodeURIComponent(m.dir) + '/' + encodeURIComponent(m.entry)) : '';
 				// Load the language pack for enabled extensions only;
 				// reserved keys translate name/description
@@ -2054,21 +2088,6 @@ function webuiExtIcon(m) {
 	var url = '/extensions/' + encodeURIComponent(m.dir) + '/' + icon.split('/').map(encodeURIComponent).join('/');
 	span.style.setProperty('--webui-ext-icon', 'url("' + url + '")');
 	return span;
-}
-
-// Its icon, or the star, then its name and what else is given, as text.
-function _webuiExtLink(el, m, small) {
-	var icon = webuiExtIcon(m);
-	if (icon) el.appendChild(icon);
-	else el.insertAdjacentHTML('beforeend', WEBUI_EXT_STAR);
-	var name = document.createElement('span');
-	name.textContent = m.name;
-	el.appendChild(name);
-	if (small) {
-		var sub = document.createElement('small');
-		sub.textContent = small;
-		el.appendChild(sub);
-	}
 }
 
 async function webuiInjectExtensions(pageName) {
@@ -2114,12 +2133,7 @@ async function webuiInjectExtensions(pageName) {
 		});
 	});
 
-	/* The page of an extension that hangs under Tools marks Tools in the
-	   navigation, as the interface's own tool pages do; one with a nav entry
-	   of its own marks that entry below. */
-	var shown = exts.find(function(x) { return pageName === 'ext-' + x.dir; });
-	if (shown && shown.enabled && shown.slot === 'tools')
-		webuiSetActivePage('tools');
+	webuiNavKeepPlaces(exts, pageName);
 
 	// Runtime scripts (entry_js): loaded for every enabled extension on
 	// every modern page, independent of slot/url (the slot only governs
@@ -2139,29 +2153,7 @@ async function webuiInjectExtensions(pageName) {
 
 	exts.forEach(function(m) {
 		if (!m.enabled || !m.url) return; // settings-only hat keine Seite
-		if (m.slot === 'nav') {
-			// drawn as the core's own entries are, and marked on the extension's page
-			var ul = document.querySelector('.webui-nav-links');
-			if (ul) {
-				var li = document.createElement('li');
-				var link = document.createElement('a');
-				link.href = m.url;
-				link.setAttribute('data-page', 'ext-' + m.dir);
-				if (pageName === 'ext-' + m.dir) link.className = 'active';
-				_webuiExtLink(link, m);
-				li.appendChild(link);
-				ul.appendChild(li);
-			}
-		} else if (m.slot === 'tools') {
-			var grid = document.querySelector('.webui-tools-grid');
-			if (grid) {
-				var a = document.createElement('a');
-				a.href = m.url;
-				a.className = 'webui-tool-card';
-				_webuiExtLink(a, m, m.description || webuiL('ext.extension', 'Extension'));
-				grid.appendChild(a);
-			}
-		} else if (m.slot === 'dashboard') {
+		if (m.slot === 'dashboard') {
 			var dash = document.querySelector('.webui-dashboard');
 			if (dash) {
 				var card = document.createElement('div');
@@ -2174,6 +2166,35 @@ async function webuiInjectExtensions(pageName) {
 		// slot 'page': keine Injektion, erreichbar ueber die
 		// Erweiterungs-Verwaltung oder direkten Link
 	});
+}
+
+/* Where each switched-on extension with a page goes in the navigation: the
+   area the extension manager or its manifest names (area), System where
+   neither names one of the areas an extension may join, an area of its own
+   for slot nav; none for a card on the overview (dashboard) or a page
+   reached by its address alone (page). */
+/* The places of the extensions' pages in the navigation, kept for the next
+   page of this tab so it draws them at once; drawn anew only where they
+   changed. Also called by the extension manager after it saved. */
+function webuiNavKeepPlaces(exts, pageName) {
+	var places = _webuiNavPlaces(exts);
+	var keptJson = JSON.stringify(_webuiNavExtsKept());
+	_webuiNavExts = places;
+	try { sessionStorage.setItem('webui-nav-exts', JSON.stringify(places)); } catch (e) { /* drawn late then */ }
+	if (JSON.stringify(places) !== keptJson)
+		webuiRenderNav(_webuiNavShown || pageName);
+}
+
+function _webuiNavPlaces(exts) {
+	var out = [];
+	(exts || []).forEach(function(m) {
+		if (!m.enabled || !m.url || m.slot === 'dashboard' || m.slot === 'page')
+			return;
+		out.push({dir: m.dir, name: m.name, url: m.url, own: m.slot === 'nav',
+			area: WEBUI_EXT_AREAS.indexOf(m.area) >= 0 ? m.area : 'system',
+			icon: m.slot === 'nav' ? ((webuiExtIcon(m) || {}).outerHTML || WEBUI_EXT_STAR) : ''});
+	});
+	return out;
 }
 
 // Pull-to-refresh
@@ -2369,6 +2390,9 @@ function webuiInit() {
 		// Set theme
 		webuiApplyTheme(webuiGetTheme());
 
+		// the navigation, marked for this page
+		webuiRenderNav(headerWrapper ? headerWrapper.dataset.page : null);
+
 		// Start clock
 		webuiUpdateClock();
 		setInterval(webuiUpdateClock, 10000);
@@ -2382,12 +2406,6 @@ function webuiInit() {
 		// Update on window resize
 		window.addEventListener('resize', webuiUpdateHeaderSpacer);
 
-		// Close menu when clicking on nav links (mobile)
-		const navLinks = document.querySelectorAll('.webui-nav-links a');
-		navLinks.forEach(link => {
-			link.addEventListener('click', webuiCloseMenu);
-		});
-
 		// Initialize footer (if not already present)
 		webuiInitFooter();
 
@@ -2395,9 +2413,6 @@ function webuiInit() {
 		if (!document.getElementById('webui-about-modal')) {
 			document.body.insertAdjacentHTML('beforeend', webuiAboutHTML());
 		}
-
-		// Initialize mobile menu swipe gestures
-		webuiInitMenuSwipe();
 
 		// Initialize pull-to-refresh
 		webuiInitPullRefresh();

@@ -609,11 +609,36 @@ function renderExtensionsPanel() {
 // dir -> {version, url} filled by an explicit update check
 var _extUpdates = {};
 
+/* Where an extension's page can go: into one of the areas of the navigation,
+   an area of its own, a card on the overview, or reached by its address
+   alone (webuiRenderNav, webuiInjectExtensions). */
+function extPlaces() {
+	var areaLabels = {now: ['nav.area_now', 'Now'], channels: ['nav.area_channels', 'Channels'], epg: ['nav.epg', 'EPG'],
+		timers: ['nav.timer', 'Timer'], recordings: ['nav.recordings', 'Recordings'], files: ['nav.area_files', 'Files'],
+		system: ['nav.area_system', 'System']};
+	return WEBUI_EXT_AREAS.map(function(a) {
+		return {value: 'area:' + a, label: webuiL(areaLabels[a][0], areaLabels[a][1])};
+	}).concat([
+		{value: 'nav', label: webuiL('set.ext_place_own', 'An area of its own')},
+		{value: 'dashboard', label: webuiL('set.ext_place_dashboard', 'A card on the overview')},
+		{value: 'page', label: webuiL('set.ext_place_page', 'Its address only')}
+	]);
+}
+
+function extPlaceOf(m) {
+	if (m.slot === 'nav' || m.slot === 'dashboard' || m.slot === 'page')
+		return m.slot;
+	return 'area:' + (WEBUI_EXT_AREAS.indexOf(m.area) >= 0 ? m.area : 'system');
+}
+
 async function loadExtensionsPanel() {
 	var el = document.getElementById('extPanel');
 	if (!el) return;
 	webuiForgetExtensions(); // Discovery-Cache invalidieren
 	var exts = await webuiDiscoverExtensions();
+	// the head shows what was installed, removed or moved, at once
+	if (typeof webuiNavKeepPlaces === 'function')
+		webuiNavKeepPlaces(exts, 'settings');
 	var html = '';
 	if (!exts.length) {
 		html = '<div class="webui-form-row"><label>' + webuiLH('set.ext_none', 'No extensions found') + ' ' +
@@ -624,7 +649,7 @@ async function loadExtensionsPanel() {
 		html = '<div class="webui-form-section"><div class="webui-form-section-title">' + webuiLH('set.ext_found', 'Discovered extensions') + '</div>' +
 			'<div class="ext-grid">' +
 			'<div class="ext-grid-head">' + webuiLH('set.ext_col_ext', 'Extension') + '</div>' +
-			'<div class="ext-grid-head">Slot</div>' +
+			'<div class="ext-grid-head">' + webuiLH('set.ext_col_place', 'Place') + '</div>' +
 			'<div class="ext-grid-head center">' + webuiLH('set.ext_col_on', 'Active') + '</div>' +
 			'<div class="ext-grid-head right">' + webuiLH('set.ext_col_action', 'Action') + '</div>' +
 			'<div class="ext-grid-rule"></div>';
@@ -634,9 +659,9 @@ async function loadExtensionsPanel() {
 				(upd ? '<span class="ext-badge">v' + escapeHtml(upd.version) + '</span>' : '') +
 				' <small style="color:var(--pico-muted-color)">v' + escapeHtml(m.version || '?') +
 				(m.url ? ' — <a href="' + escapeHtml(m.url) + '">' + escapeHtml(m.entry) + '</a>' : ' — ' + webuiLH('set.ext_settings_only', 'settings only')) + '</small></div>' +
-				'<div><select id="extslot_' + m.dir + '">' +
-				['nav', 'tools', 'dashboard', 'page'].map(function(sl) {
-					return '<option value="' + sl + '"' + (m.slot === sl ? ' selected' : '') + '>' + sl + '</option>';
+				'<div><select id="extslot_' + m.dir + '" aria-label="' + webuiLH('set.ext_col_place', 'Place') + ': ' + escapeHtml(m.name) + '">' +
+				extPlaces().map(function(pl) {
+					return '<option value="' + pl.value + '"' + (extPlaceOf(m) === pl.value ? ' selected' : '') + '>' + escapeHtml(pl.label) + '</option>';
 				}).join('') + '</select></div>' +
 				'<div class="ext-cell-center"><label class="webui-toggle"><input type="checkbox" id="extena_' + m.dir + '"' + (m.enabled ? ' checked' : '') + '>' +
 				'<span class="webui-toggle-slider"></span></label></div>' +
@@ -845,6 +870,7 @@ function extUninstall(dir) {
 			var gone = {};
 			gone['ext_' + dir + '_enabled'] = '';
 			gone['ext_' + dir + '_slot'] = '';
+			gone['ext_' + dir + '_area'] = '';
 			try { await webuiSettingsWrite(gone); } catch (eKeys) { console.warn('extension keys kept:', eKeys.message); }
 			delete _extUpdates[dir];
 			webuiShowToast(webuiL('set.extuninst_ok', 'Uninstalled') + ': ' + name);
@@ -906,7 +932,15 @@ async function saveExtensions(btn) {
 		var ena = document.getElementById('extena_' + m.dir);
 		var slot = document.getElementById('extslot_' + m.dir);
 		changes['ext_' + m.dir + '_enabled'] = ena && ena.checked ? '1' : '0';
-		if (slot) changes['ext_' + m.dir + '_slot'] = slot.value;
+		if (slot) {
+			// an area of the navigation, or one of the other places; the
+			// manifest's own place is kept as no key, so an update that
+			// moves the extension moves it for whoever left it there
+			var own = slot.value === extPlaceOf({slot: m.ownSlot, area: m.ownArea});
+			var area = slot.value.indexOf('area:') === 0 ? slot.value.substring(5) : '';
+			changes['ext_' + m.dir + '_slot'] = own ? '' : (area ? 'tools' : slot.value);
+			changes['ext_' + m.dir + '_area'] = own ? '' : area;
+		}
 	});
 	btn.disabled = true;
 	try {
@@ -1499,8 +1533,11 @@ function switchCategory(catId) {
 	if (activeCategory === catId && document.getElementById('panel-' + catId)) return;
 	activeCategory = catId;
 
-	// Update hash without triggering hashchange
+	// Update hash without triggering hashchange; the head is told itself, as
+	// three categories live in Files and System
 	history.replaceState(null, '', '#' + catId);
+	if (typeof webuiRenderNav === 'function')
+		webuiRenderNav('settings');
 
 	// Update sidebar active state
 	document.querySelectorAll('#settingsSidebar button').forEach(function(btn) {
