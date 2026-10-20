@@ -171,9 +171,11 @@ Key points:
 
 - Embed the Neutrino-Web-UI header/nav:
   `<div class="webui-header-wrapper" data-page="ext-<folder>"></div>` +
-  `<script src="/js/webui-header.js"></script>` +
-  `webuiInitHeader('ext-<folder>');` — with `slot: "nav"` the extension's
-  nav entry is then marked as the page shown.
+  `<script src="/js/webui-header.js"></script>` — the script builds the
+  header into that element on its own; with `slot: "nav"` the
+  extension's nav entry is then marked as the page shown. Do not call
+  `webuiInitHeader()` as well: it would put a second header on the
+  page.
 - Styling: link Pico CSS + `/css/webui.css` — use the ready-made classes
   (`webui-card`, `webui-form-row`, `webui-btn`).
 - Apply the theme **before** those stylesheets, otherwise the page paints
