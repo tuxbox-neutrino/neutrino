@@ -1,0 +1,11 @@
+{
+	"manifest.name": "Screenshot",
+	"manifest.description": "OSD/video capture",
+	"msg.error": "Error",
+	"shot.busy": "Taking screenshot...",
+	"shot.clear": "Clear",
+	"shot.glcdfail": "GLCD screenshot failed",
+	"shot.hint": "Click Screenshot to capture an image",
+	"shot.select": "Please select OSD or video!",
+	"tools.remote_sub": "Remote control"
+}
