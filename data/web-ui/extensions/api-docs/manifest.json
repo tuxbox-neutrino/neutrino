@@ -2,6 +2,7 @@
 	"name": "API reference",
 	"version": "1.0.0",
 	"slot": "tools",
+	"area": "system",
 	"entry": "index.html",
 	"icon": "icon.svg",
 	"description": "Every route of /api/v1, to read and try"
