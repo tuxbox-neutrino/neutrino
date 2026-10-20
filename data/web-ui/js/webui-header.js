@@ -1565,7 +1565,7 @@ function webuiShowPathPicker(startPath, onPick, opts) {
 	webuiModal('webui-picker', webuiL('picker.title', 'Choose folder'),
 		'<div id="webui-picker-crumb" style="font-size:0.8rem;color:var(--pico-muted-color);margin-bottom:0.5rem;word-break:break-all"></div>' +
 		'<ul id="webui-picker-list" style="list-style:none;margin:0;padding:0;max-height:50vh;overflow:auto"></ul>' +
-		'<div class="webui-form-row" style="margin-top:0.8rem"><label></label>' +
+		'<div class="webui-form-row" style="margin-top:0.8rem"><span></span>' +
 		'<button type="button" class="webui-btn primary" onclick="webuiPickerChoose()">' +
 		webuiLH('picker.choose_folder', 'Choose this folder') + '</button></div>');
 	webuiPickerLoad(_webuiPickerState.path);
@@ -1598,15 +1598,27 @@ async function webuiPickerLoad(path) {
 	var crumbEl = document.getElementById('webui-picker-crumb');
 	if (!listEl) return;
 	listEl.innerHTML = '<li style="padding:0.5rem;color:var(--pico-muted-color)">' + webuiLH('msg.loading', 'Loading...') + '</li>';
+	listEl.setAttribute('aria-busy', 'true');
 	// both: a page that loads webui-v1.js without webui-dom.js keeps the old list
-	if (typeof webuiV1 === 'function' && typeof webuiEl === 'function') {
+	var v1 = typeof webuiV1 === 'function' && typeof webuiEl === 'function';
+	/* A folder that cannot be read says so in the list, where the loading
+	   text stood, with the way back to the folders the box offers. */
+	var refused = function(e) {
+		listEl.removeAttribute('aria-busy');
+		listEl.innerHTML = '<li role="alert" style="padding:0.5rem;color:var(--webui-danger)">' +
+			webuiLH('picker.not_readable', 'Directory not readable') + ': ' + escapeHtml(webuiErrText(e)) + '</li>' +
+			(path && path !== '/' ? '<li><button type="button" class="webui-btn" style="width:100%;text-align:left;border:none" onclick="webuiPickerLoad(' + (v1 ? '\'\'' : '\'/\'') + ')">↑ ' +
+				webuiLH('picker.roots', 'Permitted folders') + '</button></li>' : '');
+	};
+	if (v1) {
 		var rows;
 		try {
 			rows = await _webuiPickerRows(path);
 		} catch (e) {
-			webuiToastError(webuiL('picker.not_readable', 'Directory not readable'), e);
+			refused(e);
 			return;
 		}
+		listEl.removeAttribute('aria-busy');
 		_webuiPickerState.path = rows.path;
 		if (crumbEl) crumbEl.textContent = rows.path || webuiL('picker.roots', 'Permitted folders');
 		var chooseBtn = document.querySelector('#webui-picker .webui-btn.primary');
@@ -1634,9 +1646,10 @@ async function webuiPickerLoad(path) {
 	try {
 		data = await webuiApi('file', {action: 'list', path: path});
 	} catch (e) {
-		webuiToastError(webuiL('picker.not_readable', 'Directory not readable'), e);
+		refused(e);
 		return;
 	}
+	listEl.removeAttribute('aria-busy');
 	_webuiPickerState.path = path;
 	if (crumbEl) crumbEl.textContent = path;
 	var entries = (data.data && data.data.filelist) || data.filelist || [];
