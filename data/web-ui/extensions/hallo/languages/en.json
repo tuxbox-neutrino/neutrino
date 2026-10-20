@@ -1,0 +1,18 @@
+{
+	"manifest.name": "Hello",
+	"manifest.description": "An example to start an extension from",
+	"settings.label": "Hello",
+	"settings.section_demo": "Example settings",
+	"settings.greeting": "Greeting on the page",
+	"settings.show_uptime": "Show how long the box is up",
+	"settings.section_action": "Example action",
+	"settings.greet": "Let the box run the extension's own script",
+	"settings.greet_button": "Run",
+	"page.title": "Hello!",
+	"page.intro": "This page is the example to start an extension from. It shows the header of the pages, reads the box through /api/v1, takes a setting of its own and speaks the language the box shows its pages in. Its folder holds a script the settings run.",
+	"page.box": "Box",
+	"page.neutrino": "Neutrino",
+	"page.uptime": "Up for",
+	"page.greeting_default": "Nice to see you.",
+	"page.error": "The box did not answer"
+}

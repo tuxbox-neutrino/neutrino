@@ -1,0 +1,34 @@
+{
+	"name": "Hello",
+	"version": "1.0.0",
+	"slot": "tools",
+	"entry": "index.html",
+	"icon": "icon.svg",
+	"description": "An example to start an extension from",
+	"scripts": ["greet"],
+	"settings": {
+		"label": "L:settings.label",
+		"config": "webui",
+		"sections": [
+			{
+				"title": "L:settings.section_demo",
+				"fields": [
+					{ "key": "hallo_greeting", "label": "L:settings.greeting", "type": "text" },
+					{ "key": "hallo_show_uptime", "label": "L:settings.show_uptime", "type": "bool01" }
+				]
+			},
+			{
+				"title": "L:settings.section_action",
+				"fields": [
+					{
+						"type": "action",
+						"id": "hallo-greet",
+						"label": "L:settings.greet",
+						"button": "L:settings.greet_button",
+						"api": { "script": "greet", "args": ["Neutrino"] }
+					}
+				]
+			}
+		]
+	}
+}

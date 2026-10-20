@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Hello</title>
+	<link rel="icon" href="/favicon/favicon.ico">
+	<script>
+		// The stored theme before the first paint: the header script runs too late for it.
+		try { document.documentElement.setAttribute('data-theme', localStorage.getItem('webui-theme') || 'dark'); } catch (e) {}
+	</script>
+	<link rel="stylesheet" href="/css/pico.min.css">
+	<link rel="stylesheet" href="/css/webui.css">
+</head>
+<body>
+	<!-- The header builds itself into this element; data-page marks the
+	     extension's own nav entry when its slot is "nav". -->
+	<div class="webui-header-wrapper" data-page="ext-hallo"></div>
+
+	<main style="max-width:640px;margin:0 auto;padding:1rem">
+		<div class="webui-card" style="padding:1rem">
+			<h3 id="hTitle">Hello!</h3>
+			<p id="hGreeting"></p>
+			<p id="hIntro">This page is the example to start an extension from.</p>
+			<div class="webui-form-row"><label id="hBoxLabel">Box</label><span id="hBox">…</span></div>
+			<div class="webui-form-row"><label id="hNeutrinoLabel">Neutrino</label><span id="hNeutrino">…</span></div>
+			<div class="webui-form-row" id="hUptimeRow" hidden><label id="hUptimeLabel">Up for</label><span id="hUptime">…</span></div>
+		</div>
+	</main>
+
+	<script src="/js/webui-i18n.js"></script>
+	<script src="/js/webui-header.js"></script>
+	<script src="/js/webui-dom.js"></script>
+	<script src="/js/webui-v1.js"></script>
+	<script>
+	(async function () {
+		// The extension's own texts: languages/<code>.json of the language the
+		// box shows its pages in. The English text is the fallback.
+		await webuiExtLangLoad('hallo');
+		var L = function (key, en) { return webuiExtL('hallo', key, en); };
+		var put = function (id, text) { document.getElementById(id).textContent = text; };
+		put('hTitle', L('page.title', 'Hello!'));
+		put('hIntro', L('page.intro', document.getElementById('hIntro').textContent));
+		put('hBoxLabel', L('page.box', 'Box'));
+		put('hNeutrinoLabel', L('page.neutrino', 'Neutrino'));
+		put('hUptimeLabel', L('page.uptime', 'Up for'));
+
+		try {
+			// Everything from the box goes through /api/v1, by webuiV1: it signs
+			// in again on a stale session and throws an Error with the refusal.
+			var settings = await webuiV1('GET', '/webui/settings');
+			var cfg = {};
+			(settings.items || []).forEach(function (it) { cfg[it.key] = it.value; });
+			put('hGreeting', cfg.hallo_greeting || L('page.greeting_default', 'Nice to see you.'));
+
+			var info = await webuiV1('GET', '/system/info');
+			put('hBox', [info.vendor, info.model].filter(Boolean).join(' ') + ' (' + info.hostname + ')');
+			put('hNeutrino', info.neutrino_version || '--');
+			if (cfg.hallo_show_uptime === '1') {
+				put('hUptime', webuiFormatUptime(info.uptime || 0));
+				document.getElementById('hUptimeRow').hidden = false;
+			}
+		} catch (e) {
+			// set as text, never as markup: an answer is data
+			put('hBox', L('page.error', 'The box did not answer') + ': ' + e.message);
+		}
+	})();
+	</script>
+</body>
+</html>

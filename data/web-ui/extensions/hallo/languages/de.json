@@ -1,0 +1,18 @@
+{
+	"manifest.name": "Hallo",
+	"manifest.description": "Ein Beispiel, mit dem eine Erweiterung anfängt",
+	"settings.label": "Hallo",
+	"settings.section_demo": "Beispiel-Einstellungen",
+	"settings.greeting": "Gruß auf der Seite",
+	"settings.show_uptime": "Zeigen, wie lange die Box läuft",
+	"settings.section_action": "Beispiel-Aktion",
+	"settings.greet": "Die Box das eigene Skript der Erweiterung ausführen lassen",
+	"settings.greet_button": "Ausführen",
+	"page.title": "Hallo!",
+	"page.intro": "Diese Seite ist das Beispiel, mit dem eine Erweiterung anfängt. Sie zeigt den Kopf der Seiten, liest die Box über /api/v1, nimmt eine eigene Einstellung und spricht die Sprache, in der die Box ihre Seiten zeigt. In ihrem Ordner liegt ein Skript, das die Einstellungen ausführen.",
+	"page.box": "Box",
+	"page.neutrino": "Neutrino",
+	"page.uptime": "Läuft seit",
+	"page.greeting_default": "Schön, dass du da bist.",
+	"page.error": "Die Box hat nicht geantwortet"
+}
