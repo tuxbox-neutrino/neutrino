@@ -1643,6 +1643,11 @@ textarea:focus-visible {
 	display: none !important;
 }
 
+/* An element that opens an extension's page while it is on (data-ext-open). */
+.webui-ext-open {
+	cursor: pointer;
+}
+
 .webui-action-btn svg {
 	width: clamp(18px, 4vw, 24px);
 	height: clamp(18px, 4vw, 24px);

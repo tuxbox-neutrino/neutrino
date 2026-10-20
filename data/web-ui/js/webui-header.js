@@ -2011,6 +2011,31 @@ async function webuiInjectExtensions(pageName) {
 		el.hidden = false;
 	});
 
+	/* An element of the interface that opens the page of an extension when it
+	   is clicked, marked data-ext-open="<folder>" (with data-ext-hash where
+	   one is given), does so only while that extension is installed and
+	   switched on, and is then a link to the keyboard as well. Otherwise it is
+	   only what it shows, and its title, which offers the page, goes. */
+	document.querySelectorAll('[data-ext-open]').forEach(function(el) {
+		var m = exts.find(function(x) { return x.dir === el.getAttribute('data-ext-open'); });
+		if (!m || !m.enabled || !m.url) {
+			el.removeAttribute('data-l-title');
+			el.removeAttribute('title');
+			return;
+		}
+		var to = m.url + (el.getAttribute('data-ext-hash') || '');
+		el.classList.add('webui-ext-open');
+		el.setAttribute('role', 'link');
+		el.tabIndex = 0;
+		el.addEventListener('click', function() { location.href = to; });
+		el.addEventListener('keydown', function(ev) {
+			if (ev.key === 'Enter') {
+				ev.preventDefault();
+				location.href = to;
+			}
+		});
+	});
+
 	/* The page of an extension that hangs under Tools marks Tools in the
 	   navigation, as the interface's own tool pages do; one with a nav entry
 	   of its own marks that entry below. */
