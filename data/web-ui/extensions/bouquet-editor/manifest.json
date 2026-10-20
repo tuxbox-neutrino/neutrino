@@ -2,6 +2,7 @@
 	"name": "Bouquet editor",
 	"version": "1.0.0",
 	"slot": "tools",
+	"area": "channels",
 	"entry": "index.html",
 	"icon": "icon.svg",
 	"description": "Manage bouquets and channels",
