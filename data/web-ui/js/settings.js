@@ -1158,9 +1158,10 @@ async function doZapitUpload(btn) {
 	btn.disabled = false;
 }
 
-// Plugins over /api/v1: the list, starting one, and reading the plugin
-// directories again. The box starts a plugin and reads its directories
-// on its own thread, after it answered. Starting and stopping services
+// Plugins over /api/v1: the list, starting one, hiding one from the box's
+// own menus or showing it there again, and reading the plugin directories
+// again. The box starts a plugin and reads its directories on its own
+// thread, after it answered. Starting and stopping services
 // (nfs, samba, ...) is not part of this panel: it depends on the
 // packages and the image, and is the extension services over
 // /api/v1/daemons, which the panel points to while it is on.
@@ -1187,14 +1188,19 @@ async function loadPluginsPanel() {
 	if (!el) return;
 	try {
 		var data = await webuiV1('GET', '/plugins');
-		var list = ((data && data.items) || []).filter(function(pl) { return !pl.hidden; });
+		// every plugin, the hidden ones too: hiding is about the box's menus,
+		// and this is the one place left to show one there again
+		var list = (data && data.items) || [];
 		var installed = webuiEl('div', {className: 'webui-form-section'},
 			webuiEl('div', {className: 'webui-form-section-title'}, webuiL('set.plugins_installed', 'Installed plugins')));
 		if (list.length === 0)
 			installed.appendChild(pluginRow(webuiL('set.plugins_none', 'No plugins installed')));
 		list.forEach(function(pl) {
-			installed.appendChild(pluginRow(pl.title || pl.name, pl.description,
-				pluginButton(PLAY_ICON, webuiL('set.plugins_start', 'Start'), function(btn) { startPluginByName(pl.name, btn); })));
+			var note = pl.hidden ? webuiL('set.plugins_hidden_note', 'hidden in the box\'s menus') +
+				(pl.description ? ' · ' + pl.description : '') : pl.description;
+			installed.appendChild(pluginRow(pl.title || pl.name, note, [
+				pluginButton(PLAY_ICON, webuiL('set.plugins_start', 'Start'), function(btn) { startPluginByName(pl.name, btn); }),
+				' ', pluginHideButton(pl)]));
 		});
 		var manage = webuiEl('div', {className: 'webui-form-section'},
 			webuiEl('div', {className: 'webui-form-section-title'}, webuiL('set.plugins_manage', 'Management')),
@@ -1209,6 +1215,35 @@ async function loadPluginsPanel() {
 		el.replaceChildren(installed, manage);
 	} catch (e) {
 		el.replaceChildren(pluginRow(webuiL('set.plugins_notavail', 'Plugins not available') + ': ' + e.message));
+	}
+}
+
+// hides a plugin that shows in the box's menus, shows one that is hidden
+function pluginHideButton(pl) {
+	var title = pl.title || pl.name;
+	var b = pluginButton(pl.hidden ? EYE_ICON : EYEOFF_ICON,
+		pl.hidden ? webuiL('set.plugins_show', 'Show') : webuiL('set.plugins_hide', 'Hide'),
+		function(btn) { setPluginHidden(pl, !pl.hidden, btn); });
+	b.setAttribute('aria-label', (pl.hidden ? webuiL('set.plugins_show_label', 'Show %s in the box\'s menus') :
+		webuiL('set.plugins_hide_label', 'Hide %s in the box\'s menus')).replace('%s', title));
+	return b;
+}
+
+/* The flag goes into the plugin's own file; the box's menus show it once
+   they are built again, which reading the plugin directories does. So the
+   panel has them read, and reads its list again a moment later. */
+async function setPluginHidden(pl, hidden, btn) {
+	btn.disabled = true;
+	try {
+		await webuiV1('PUT', '/plugins/' + encodeURIComponent(pl.name) + '/hidden', {body: {hidden: hidden}});
+		await webuiV1('POST', '/plugins/reload');
+		await new Promise(function(r) { setTimeout(r, 1500); });
+		await loadPluginsPanel();
+		webuiShowToast((hidden ? webuiL('set.plugins_now_hidden', '%s is hidden in the box\'s menus') :
+			webuiL('set.plugins_now_shown', '%s shows in the box\'s menus again')).replace('%s', pl.title || pl.name));
+	} catch (e) {
+		webuiShowToast(webuiL('msg.error', 'Error') + ': ' + e.message, true);
+		btn.disabled = false;
 	}
 }
 
