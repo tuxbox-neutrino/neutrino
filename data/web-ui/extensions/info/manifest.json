@@ -2,6 +2,7 @@
 	"name": "Info screen",
 	"version": "1.0.0",
 	"slot": "tools",
+	"area": "now",
 	"entry": "index.html",
 	"icon": "icon.svg",
 	"description": "What runs now, full screen",
