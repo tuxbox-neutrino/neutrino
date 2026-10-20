@@ -307,10 +307,9 @@ openssl pkeyutl -sign -rawin -inkey index-key.pem -in index.json | base64 -w0 > 
   Sekunden und 64 KiB Ausgabe); nach `<webroot>/scripts/` wird nichts
   kopiert, ein Name muss also nur innerhalb der Erweiterung eindeutig
   sein.
-- Skripte laufen **unverändert** — Build-Zeit-Platzhalter wie
-  `%(PRIVATE_HTTPDDIR)` werden *nicht* expandiert (das passiert nur
-  beim `make install` des Kerns). Die eigenen Dateien der Erweiterung
-  stattdessen über den Skript-Pfad finden:
+- Skripte laufen **unverändert**: Beim Installieren wird in einer
+  Erweiterung nichts umgeschrieben, ein Skript findet die eigenen
+  Dateien der Erweiterung also über den eigenen Pfad:
   ```sh
   SCRIPTDIR=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)
   EXTDIR=$(dirname -- "$SCRIPTDIR")

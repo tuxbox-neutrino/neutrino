@@ -298,10 +298,9 @@ openssl pkeyutl -sign -rawin -inkey index-key.pem -in index.json | base64 -w0 > 
   the arguments as a JSON list, no shell, at most 10 seconds and 64 KiB
   of output); nothing is copied to `<webroot>/scripts/`, so a name only
   has to be unique within the extension.
-- Scripts run **verbatim** — build-time placeholders like
-  `%(PRIVATE_HTTPDDIR)` are *not* expanded (that only happens during
-  the core's `make install`). Find the extension's own files from the
-  script path instead:
+- Scripts run **verbatim**: nothing in an extension is rewritten when
+  it is installed, so a script finds the extension's own files from
+  its own path:
   ```sh
   SCRIPTDIR=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)
   EXTDIR=$(dirname -- "$SCRIPTDIR")
