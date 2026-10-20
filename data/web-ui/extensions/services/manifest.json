@@ -2,6 +2,7 @@
 	"name": "Services",
 	"version": "1.0.0",
 	"slot": "tools",
+	"area": "system",
 	"entry": "index.html",
 	"icon": "icon.svg",
 	"description": "Start and stop the box's services",
