@@ -21,14 +21,21 @@ function m3uFiles(sel) {
 	}
 }
 
+// a value as an XML attribute takes it: what XML gives a meaning there is
+// written as a reference, so a name with a quote or a bracket stays a name
+function m3uAttr(v) {
+	return String(v).replace(/&/g, '&amp;').replace(/</g, '&lt;')
+		.replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
 // port of the Y_Tools_m3uConvert logic: #EXTINF provides the name,
-// the following line the URL; udp://@ becomes udp/, & is XML-escaped
+// the following line the URL; udp://@ becomes udp/, every value is escaped
 function m3uConvert() {
 	var lines = document.getElementById('m3uInput').value.split('\n');
 	var title = document.getElementById('m3uTitle').value;
 	var desc = document.getElementById('m3uDesc').value;
 	var genre = document.getElementById('m3uGenre').value;
-	var s = '<?xml version="1.0"?>\n<webtvs name="[' + title + '] ">\n';
+	var s = '<?xml version="1.0"?>\n<webtvs name="[' + m3uAttr(title) + '] ">\n';
 	var name = '';
 	var count = 0;
 	for (var i = 0; i < lines.length; i++) {
@@ -44,13 +51,12 @@ function m3uConvert() {
 		var url = (v.toUpperCase().indexOf('UDP:') !== -1) ? v.replace('udp://@', 'udp/') : v;
 		name = name.replace(/#EXTINF:|[0-9],|-[1-9],|,/g, '').replace(/^\s+/g, '');
 		if (name === '') name = webuiL('m3u.channel', 'Channel') + ' ' + i;
-		s += '    <webtv title="' + name + '" url="' + url +
-			'" epgid="" genre="' + genre + '" description="' + desc + '" />\n';
+		s += '    <webtv title="' + m3uAttr(name) + '" url="' + m3uAttr(url) +
+			'" epgid="" genre="' + m3uAttr(genre) + '" description="' + m3uAttr(desc) + '" />\n';
 		name = '';
 		count++;
 	}
 	s += '</webtvs>';
-	s = s.split('&').join('&amp;');
 	document.getElementById('m3uOutput').value = s;
 	webuiShowToast(count + ' ' + webuiL('m3u.converted', 'streams converted'));
 }
