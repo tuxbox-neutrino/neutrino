@@ -1,0 +1,6 @@
+{
+	"manifest.name": "Info-Bildschirm",
+	"manifest.description": "Was gerade läuft, als Vollbild",
+	"info.none": "Es läuft kein Sender",
+	"info.standby": "Standby"
+}

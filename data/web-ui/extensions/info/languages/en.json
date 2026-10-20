@@ -1,0 +1,6 @@
+{
+	"manifest.name": "Info screen",
+	"manifest.description": "What runs now, full screen",
+	"info.none": "No channel is playing",
+	"info.standby": "Standby"
+}

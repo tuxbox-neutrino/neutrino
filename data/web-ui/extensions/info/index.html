@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en" class="webui-i18n-pending">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Info</title>
+	<link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png">
+	<link rel="icon" type="image/png" href="/favicon/favicon-32x32.png" sizes="32x32">
+	<link rel="icon" type="image/png" href="/favicon/favicon-16x16.png" sizes="16x16">
+	<link rel="mask-icon" href="/favicon/safari-pinned-tab.svg" color="#212121">
+	<link rel="manifest" href="webapp.json">
+	<meta name="theme-color" content="#212121">
+	<style>
+		/* a screen of its own, for a tablet beside the box, in the look of the
+		   page it replaces: the box's state at the top, the channel in the
+		   middle, what runs and how far it is at the bottom */
+		html {
+			margin: 0;
+			padding: 0;
+		}
+
+		body {
+			background-color: #212121;
+			color: #bdbdbd;
+			height: 100%;
+			margin: 5% 2.5%;
+			font-family: system-ui, sans-serif;
+		}
+
+		.info {
+			margin: 0 auto;
+			font-size: 5vh;
+			padding: 0;
+		}
+
+		.info .left {
+			float: left;
+		}
+
+		.info .right {
+			float: right;
+		}
+
+		.info .fullwidth {
+			position: fixed;
+			width: 95%;
+		}
+
+		.info .status {
+			top: 5%;
+		}
+
+		.info .logo {
+			top: 25%;
+		}
+
+		.info .eventinfo {
+			bottom: 5%;
+		}
+
+		.info .status span {
+			color: #424242;
+			letter-spacing: .1em;
+		}
+
+		.info .status .ecm.on { color: #ff9800; }
+		.info .status .cam.on { color: #ffc107; }
+		.info .status .timer.on { color: #ffeb3b; }
+		.info .status .rec.on { color: #f44336; }
+		.info .status .ts.on { color: #f44336; }
+
+		.info .logo,
+		.info .event {
+			vertical-align: middle;
+			text-align: center;
+			font-size: 10vh;
+			font-weight: bold;
+			white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis;
+		}
+
+		.info .logo img {
+			display: block;
+			margin: 0 auto;
+			height: 20vh;
+			max-width: 90vw;
+			object-fit: contain;
+		}
+
+		.info .progress_outer {
+			height: 10vh;
+			background-color: #424242;
+		}
+
+		.info .progress_inner {
+			float: left;
+			background-color: #bdbdbd;
+			width: 0;
+			height: 100%;
+		}
+
+		.info .spacer {
+			margin-bottom: 5vh;
+		}
+	</style>
+</head>
+<body>
+	<div class="info">
+		<div class="fullwidth status">
+			<div class="left">
+				<span class="ecm" id="info-ecm">ECM</span>
+				<span class="cam" id="info-cam">CI+</span>
+			</div>
+			<div class="right">
+				<span class="timer" id="info-timer">TIMER</span>
+				<span class="rec" id="info-rec">REC</span>
+				<span class="ts" id="info-ts">TS</span>
+			</div>
+		</div>
+		<div class="fullwidth logo" id="info-channel">
+			<img id="info-logo" alt="" hidden>
+			<span id="info-name"></span>
+		</div>
+		<div class="fullwidth eventinfo">
+			<div class="event" id="info-event"></div>
+			<div class="spacer"></div>
+			<div class="progress_outer">
+				<div class="progress_inner" id="info-progress"></div>
+			</div>
+			<div class="spacer"></div>
+			<div class="time">
+				<div class="left" id="info-clock">00:00</div>
+				<div class="right" id="info-duration"></div>
+			</div>
+		</div>
+	</div>
+
+	<script src="/js/webui-i18n.js"></script>
+	<script src="/js/webui-header.js"></script>
+	<script src="/js/webui-v1.js"></script>
+	<script src="info.js"></script>
+</body>
+</html>
