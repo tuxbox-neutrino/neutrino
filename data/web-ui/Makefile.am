@@ -36,9 +36,6 @@ install_DATA = \
 	Y_Main.css \
 	Y_Settings_Infoicons.yhtm \
 	Y_Settings_Plugins_hide.yhtm \
-	Y_Tools_NetFS.yhtm \
-	Y_Tools_NetFS_edit.yhtm \
-	Y_Tools_NetFS_init.yhtm \
 	Y_User.css \
 	version.txt
 
