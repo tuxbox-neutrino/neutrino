@@ -261,6 +261,8 @@
 	"set.plugins_start": "Starten",
 	"set.plugins_reload_btn": "Neu laden",
 	"set.plugins_services": "Dienste wie NFS oder Samba",
+	"set.plugins_installed": "Installierte Plugins",
+	"set.plugins_manage": "Verwaltung",
 	"set.mnt_mount_all": "Alle mounten",
 	"set.grp_av": "Bild & Ton",
 	"set.grp_disp": "Displays",

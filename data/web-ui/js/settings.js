@@ -1189,7 +1189,7 @@ async function loadPluginsPanel() {
 		var data = await webuiV1('GET', '/plugins');
 		var list = ((data && data.items) || []).filter(function(pl) { return !pl.hidden; });
 		var installed = webuiEl('div', {className: 'webui-form-section'},
-			webuiEl('div', {className: 'webui-form-section-title'}, 'Installierte Plugins'));
+			webuiEl('div', {className: 'webui-form-section-title'}, webuiL('set.plugins_installed', 'Installed plugins')));
 		if (list.length === 0)
 			installed.appendChild(pluginRow(webuiL('set.plugins_none', 'No plugins installed')));
 		list.forEach(function(pl) {
@@ -1197,7 +1197,7 @@ async function loadPluginsPanel() {
 				pluginButton(PLAY_ICON, webuiL('set.plugins_start', 'Start'), function(btn) { startPluginByName(pl.name, btn); })));
 		});
 		var manage = webuiEl('div', {className: 'webui-form-section'},
-			webuiEl('div', {className: 'webui-form-section-title'}, 'Verwaltung'),
+			webuiEl('div', {className: 'webui-form-section-title'}, webuiL('set.plugins_manage', 'Management')),
 			pluginRow(webuiL('set.plugins_reload', 'Re-read the plugin list'), null,
 				pluginButton(REFRESH_ICON, webuiL('set.plugins_reload_btn', 'Reload'), reloadPluginList)));
 		// where the services went that the former plugin page started
@@ -1254,7 +1254,7 @@ function shareStateName(state) {
 
 function renderMountsPanel() {
 	setTimeout(loadSharesPanel, 0);
-	return '<div class="settings-card">' + makeCardHeader('Netzlaufwerke') +
+	return '<div class="settings-card">' + makeCardHeader(webuiL('reg.mounts', 'Network mounts')) +
 		'<div id="sharesPanel"><p aria-busy="true"></p></div></div>';
 }
 
