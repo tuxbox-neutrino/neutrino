@@ -336,6 +336,9 @@ async function webuiSettingsRead() {
 	var r = await webuiV1('GET', '/webui/settings');
 	var out = {};
 	((r && r.items) || []).forEach(function(it) { out[it.key] = it.value; });
+	// a start page that became an extension is shown as the extension's page
+	if (out.start_page && WEBUI_MOVED_PAGES[out.start_page])
+		out.start_page = WEBUI_MOVED_PAGES[out.start_page];
 	return out;
 }
 

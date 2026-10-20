@@ -1856,11 +1856,15 @@ var WEBUI_START_PAGES = [
 	['recordings.html', 'nav.recordings', 'Recordings'],
 	['tools.html', 'nav.tools', 'Tools'],
 	['settings.html', 'nav.settings', 'Settings'],
-	['files.html', 'tools.files', 'Files'],
 	['sysinfo.html', 'tools.sysinfo', 'System information'],
 	['screenshot.html', 'tools.screenshot', 'Screenshot'],
 	['bouquet-editor.html', 'tools.bqedit', 'Bouquet editor']
 ];
+
+/* Pages of the interface that became extensions: a start page stored under
+   the old name stands for the extension's page. index.js keeps the same list,
+   as the start page loads nothing but its own script. */
+var WEBUI_MOVED_PAGES = {'files.html': 'extensions/files/index.html'};
 
 /* What a start page can be, for a choice: the pages above and the page of
    every extension that is switched on (webuiDiscoverExtensions must have

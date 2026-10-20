@@ -22,7 +22,6 @@ install_DATA = \
 	bouquets.html \
 	dashboard.html \
 	epg.html \
-	files.html \
 	login.html \
 	password.html \
 	screenshot.html \

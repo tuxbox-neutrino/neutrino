@@ -5,7 +5,6 @@ install_DATA = \
 	bouquets.js \
 	dashboard.js \
 	epg.js \
-	files.js \
 	index.js \
 	login.js \
 	password.js \

@@ -7,13 +7,15 @@
 	var fallback = '/dashboard.html';
 	// the interface's own pages a start page can be
 	var core = ['dashboard', 'bouquets', 'epg', 'timer', 'recordings', 'tools',
-		'settings', 'files', 'sysinfo', 'screenshot', 'bouquet-editor'];
+		'settings', 'sysinfo', 'screenshot', 'bouquet-editor'];
 	// what the classic settings page and the shipped yWeb.conf
 	// write ("none" there), mapped onto the modern pages
 	var classic = {
 		none: 'dashboard.html', bouquets: 'bouquets.html',
 		control: 'dashboard.html', remote: 'screenshot.html',
-		screenshot: 'screenshot.html'
+		screenshot: 'screenshot.html',
+		// pages that became extensions (WEBUI_MOVED_PAGES in webui-header.js)
+		'files.html': 'extensions/files/index.html'
 	};
 	// the web interface's own settings, readable from the home network
 	fetch('/api/v1/webui/settings', {credentials: 'same-origin', cache: 'no-store'})
@@ -38,10 +40,9 @@
 				location.replace('/wizard.html');
 				return;
 			}
-			var page = cfg.start_page || '';
+			var page = (cfg.start_page || '').replace(/^\//, '');
 			if (Object.prototype.hasOwnProperty.call(classic, page))
 				page = classic[page];
-			page = page.replace(/^\//, '');
 			// one of the interface's own pages, never an address elsewhere
 			// and never this page itself (it would load itself forever)
 			var own = /^([A-Za-z0-9_-]+)\.html$/.exec(page);
