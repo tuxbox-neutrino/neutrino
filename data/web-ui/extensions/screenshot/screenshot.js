@@ -106,7 +106,7 @@ async function doSnapshot() {
 	} catch (e) {
 		// another capture still running keeps the picture there is
 		if (e.status !== 409)
-			webuiShowToast(webuiL('msg.error', 'Error') + ': ' + e.message, true);
+			webuiToastError(webuiL('msg.error', 'Error'), e);
 		if (!had) placeholder.style.display = 'flex';
 	}
 	loading.style.display = 'none';
@@ -129,7 +129,7 @@ async function doGlcdSnapshot(btn) {
 	try {
 		await capture('/osd/display/screenshot');
 	} catch (e) {
-		webuiShowToast(webuiL('shot.glcdfail', 'GLCD screenshot failed') + ': ' + e.message, true);
+		webuiToastError(webuiL('shot.glcdfail', 'GLCD screenshot failed'), e);
 	}
 	btn.disabled = false;
 }
