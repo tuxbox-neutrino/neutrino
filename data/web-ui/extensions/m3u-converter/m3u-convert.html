@@ -20,6 +20,8 @@
 		.m3u-meta label { display: flex; flex-direction: column; font-size: 0.8rem; gap: 0.2rem; }
 		.m3u-meta input { margin-bottom: 0; }
 		.m3u-actions { display: flex; gap: 0.6rem; flex-wrap: wrap; align-items: center; margin: 0.8rem 0; }
+		.m3u-check { display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.85rem; margin: 0; }
+		.m3u-check input { margin: 0; }
 	</style>
 </head>
 <body>
@@ -39,7 +41,7 @@
 			<div class="webui-card-body">
 				<p class="m3u-intro">
 					<span data-l="m3u.intro1">Converts m3u playlists (EXTINF) into the format of</span> <code>webtv_usr.xml</code>.
-					<span data-l="m3u.intro2">Then add the file under Settings, WebTV sources.</span></p>
+					<span data-l="m3u.intro2">Saved on the box, it can join the WebTV sources right away.</span></p>
 
 				<div class="webui-form-section-title"><span data-l="m3u.step1_nr">1. Paste streams</span></div>
 				<textarea id="m3uInput" rows="9" placeholder="#EXTM3U&#10;#EXTINF:0,DE:Beispiel&#10;http://server:8000/live/377.ts"></textarea>
@@ -75,6 +77,8 @@
 							<path d="M22 12H2"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/><line x1="6" x2="6.01" y1="16" y2="16"/><line x1="10" x2="10.01" y1="16" y2="16"/>
 						</svg>
 						<span data-l="m3u.save_box">Save on the box</span></button>
+					<label class="m3u-check"><input type="checkbox" id="m3uAddSource" checked>
+						<span data-l="m3u.add_to_sources">and add it to the WebTV sources</span></label>
 				</div>
 
 				<div class="webui-form-section-title"><span data-l="m3u.step3_nr">3. Result</span></div>

@@ -2,7 +2,7 @@
 	"manifest.name": "m3u-Konverter",
 	"manifest.description": "Playlist zu WebTV-XML",
 	"m3u.intro1": "Wandelt m3u-Playlisten (EXTINF) in das Format von",
-	"m3u.intro2": "Danach die Datei unter Einstellungen, WebTV-Quellen eintragen.",
+	"m3u.intro2": "Auf der Box gespeichert, kann sie gleich zu den WebTV-Quellen.",
 	"m3u.step1_nr": "1. Streams einfügen",
 	"m3u.load_file": "m3u-Datei laden",
 	"m3u.step2_nr": "2. Metadaten",
@@ -17,11 +17,15 @@
 	"m3u.out_ph": "(webtv_usr.xml erscheint hier)",
 	"m3u.convert_first": "Erst umwandeln",
 	"m3u.saved": "Gespeichert",
-	"m3u.add_source": "als Quelle eintragen!",
 	"m3u.loaded": "Datei(en) geladen",
 	"m3u.converted": "Streams umgewandelt",
 	"m3u.channel": "Kanal",
 	"m3u.files": "Dateien",
-	"m3u.upfail": "Upload fehlgeschlagen",
-	"msg.error": "Fehler"
+	"msg.error": "Fehler",
+	"m3u.add_to_sources": "und zu den WebTV-Quellen hinzufügen",
+	"m3u.replace_title": "Datei ersetzen?",
+	"m3u.replace_text": "Auf der Box gibt es schon eine Datei dieses Namens:",
+	"m3u.replace": "Ersetzen",
+	"m3u.source_added": "zu den WebTV-Quellen hinzugefügt, die Kanallisten werden neu gelesen",
+	"m3u.source_known": "schon eine der WebTV-Quellen, die Kanallisten werden neu gelesen"
 }

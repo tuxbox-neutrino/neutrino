@@ -4,8 +4,13 @@
 
 `m3u-converter` turns m3u playlists (`#EXTINF`) into Neutrino's WebTV
 XML format (`webtv_usr.xml`). The conversion runs entirely in the
-browser; the result can be downloaded or saved straight to the box.
-Then add the file under Settings → WebTV sources.
+browser; the result can be downloaded or saved straight to the box,
+into the directory the box keeps its own web TV lists in (the one
+`GET /api/v1/channels/sources` names), through `PUT /api/v1/storage/file`.
+A file of the same name there is replaced only on a yes. Where asked,
+the saved file also joins the WebTV sources
+(`PUT /api/v1/channels/sources/webtv`), and the box reads its channel
+lists again.
 
 It is off until it is switched on under Settings → Extensions; it then
 shows as a tile under Tools.

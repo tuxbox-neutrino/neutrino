@@ -2,7 +2,7 @@
 	"manifest.name": "m3u Converter",
 	"manifest.description": "Playlist to WebTV XML",
 	"m3u.intro1": "Converts m3u playlists (EXTINF) into the format of",
-	"m3u.intro2": "Then add the file under Settings, WebTV sources.",
+	"m3u.intro2": "Saved on the box, it can join the WebTV sources right away.",
 	"m3u.step1_nr": "1. Paste streams",
 	"m3u.load_file": "Load m3u file",
 	"m3u.step2_nr": "2. Metadata",
@@ -17,11 +17,15 @@
 	"m3u.out_ph": "(webtv_usr.xml appears here)",
 	"m3u.convert_first": "Convert first",
 	"m3u.saved": "Saved",
-	"m3u.add_source": "add it as a source!",
 	"m3u.loaded": "file(s) loaded",
 	"m3u.converted": "streams converted",
 	"m3u.channel": "Channel",
 	"m3u.files": "files",
-	"m3u.upfail": "Upload failed",
-	"msg.error": "Error"
+	"msg.error": "Error",
+	"m3u.add_to_sources": "and add it to the WebTV sources",
+	"m3u.replace_title": "Replace the file?",
+	"m3u.replace_text": "There is a file of this name on the box already:",
+	"m3u.replace": "Replace",
+	"m3u.source_added": "added to the WebTV sources, the channel lists are read again",
+	"m3u.source_known": "already one of the WebTV sources, the channel lists are read again"
 }

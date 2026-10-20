@@ -5,8 +5,12 @@
 `m3u-converter` wandelt m3u-Playlisten (`#EXTINF`) in Neutrinos
 WebTV-XML-Format (`webtv_usr.xml`). Die Umwandlung läuft ganz im
 Browser; das Ergebnis lässt sich herunterladen oder direkt auf der Box
-speichern. Danach die Datei unter Einstellungen → WebTV-Quellen
-eintragen.
+speichern, in den Ordner, in dem die Box ihre eigenen WebTV-Listen hält
+(den `GET /api/v1/channels/sources` nennt), über
+`PUT /api/v1/storage/file`. Eine gleichnamige Datei dort wird nur nach
+Rückfrage ersetzt. Auf Wunsch kommt die gespeicherte Datei gleich zu den
+WebTV-Quellen (`PUT /api/v1/channels/sources/webtv`), und die Box liest
+ihre Kanallisten neu.
 
 Die Erweiterung ist aus, bis sie unter Einstellungen → Erweiterungen
 eingeschaltet wird; dann erscheint sie als Kachel unter Werkzeuge.

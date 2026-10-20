@@ -66,23 +66,62 @@ function m3uDownload() {
 	URL.revokeObjectURL(a.href);
 }
 
+/* Saved into the directory the box keeps its own web TV lists in, which is
+   where the file routes may write and where the settings' own uploads go
+   (GET /api/v1/channels/sources names it), under the name given. */
 async function m3uSaveToBox(btn) {
 	var out = document.getElementById('m3uOutput').value;
 	if (!out) { webuiShowToast(webuiL('m3u.convert_first', 'Convert first'), true); return; }
-	var name = document.getElementById('m3uName').value || 'webtv_usr.xml';
+	var name = (document.getElementById('m3uName').value || 'webtv_usr.xml').replace(/[^A-Za-z0-9._-]/g, '_');
 	btn.disabled = true;
 	try {
-		var paths = await webuiApi('paths');
-		var target = (paths.configdir || '/var/tuxbox/config');
-		var fd = new FormData();
-		fd.append('file', new Blob([out], {type: 'text/xml'}), name);
-		var up = await fetch('/api/v4/file?action=upload&path=' + encodeURIComponent(target), {method: 'POST', body: fd});
-		if (!up.ok) throw new Error(webuiL('m3u.upfail', 'Upload failed'));
-		webuiShowToast(webuiL('m3u.saved', 'Saved') + ': ' + target + '/' + name + ' — ' + webuiL('m3u.add_source', 'add it as a source!'));
+		var src = await webuiV1('GET', '/channels/sources');
+		await m3uStore({
+			out: out,
+			path: String(src.webtv_dir || '').replace(/\/+$/, '') + '/' + name,
+			add: document.getElementById('m3uAddSource').checked
+		}, false);
 	} catch (e) {
 		webuiShowToast(webuiL('msg.error', 'Error') + ': ' + e.message, true);
+	} finally {
+		btn.disabled = false;
 	}
-	btn.disabled = false;
+}
+
+/* One save as it was asked for: a question about replacing a file answers
+   for this file and these bytes, whatever the fields say by then. A file
+   that is one of the WebTV sources has the box read its lists again, also
+   when it only replaced itself; where asked, one that is not yet becomes
+   one, with the same reading. */
+async function m3uStore(job, overwrite) {
+	try {
+		await webuiV1('PUT', '/storage/file', {query: {path: job.path, overwrite: overwrite ? 'true' : null},
+			raw: new Blob([job.out], {type: 'text/xml'})});
+	} catch (e) {
+		if (e.code !== 'name-taken' || overwrite) throw e;
+		webuiShowConfirm(webuiL('m3u.replace_title', 'Replace the file?'),
+			webuiLH('m3u.replace_text', 'There is a file of this name on the box already:') + ' ' + escapeHtml(job.path),
+			webuiL('m3u.replace', 'Replace'),
+			function() {
+				return m3uStore(job, true).catch(function(e2) {
+					webuiShowToast(webuiL('msg.error', 'Error') + ': ' + e2.message, true);
+				});
+			});
+		return;
+	}
+	var said = webuiL('m3u.saved', 'Saved') + ': ' + job.path;
+	// the list as it is now, not as it was before a question: one changed
+	// in the settings meanwhile is not written back over
+	var now = await webuiV1('GET', '/channels/sources');
+	var sources = (now && now.webtv) || [];
+	var listed = sources.indexOf(job.path) >= 0;
+	if (listed || job.add) {
+		await webuiV1('PUT', '/channels/sources/webtv', {body: listed ? sources : sources.concat([job.path]),
+			query: {reload: true}});
+		said += ' – ' + (listed ? webuiL('m3u.source_known', 'already one of the WebTV sources, the channel lists are read again') :
+			webuiL('m3u.source_added', 'added to the WebTV sources, the channel lists are read again'));
+	}
+	webuiShowToast(said);
 }
 
 webuiExtTexts('m3u-converter').then(function() {
