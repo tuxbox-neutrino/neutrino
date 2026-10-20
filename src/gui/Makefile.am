@@ -115,6 +115,7 @@ libneutrino_gui_a_SOURCES = \
 	weather.cpp \
 	weather_setup.cpp \
 	webchannels_setup.cpp \
+	wlan_setup.cpp \
 	xmltv_setup.cpp \
 	zapit_setup.cpp
 
@@ -131,6 +132,11 @@ if ENABLE_PKG_MANAGEMENT
 libneutrino_gui_a_SOURCES += \
 	opkg_manager.cpp \
 	update_check_packages.cpp
+endif
+
+if ENABLE_BLUETOOTH
+libneutrino_gui_a_SOURCES += \
+	bluetooth_setup.cpp
 endif
 
 if ENABLE_LCD4LINUX

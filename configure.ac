@@ -451,6 +451,31 @@ case "$network_backend" in
 esac
 AM_CONDITIONAL(NETWORK_BACKEND_NETWORKD, test "$network_backend" = "networkd")
 
+AC_ARG_ENABLE(iwd,
+	AS_HELP_STRING([--enable-iwd], [connect to wireless networks through iwd instead of wpa_supplicant @<:@default=no@:>@]),
+	[enable_iwd="$enableval"],
+	[enable_iwd="no"])
+
+if test "$enable_iwd" = "yes"; then
+	AC_DEFINE(ENABLE_IWD, 1, [connect to wireless networks through iwd])
+fi
+AM_CONDITIONAL(ENABLE_IWD, test "$enable_iwd" = "yes")
+
+AC_ARG_ENABLE(bluetooth,
+	AS_HELP_STRING([--enable-bluetooth], [pair and connect Bluetooth devices through BlueZ @<:@default=no@:>@]),
+	[enable_bluetooth="$enableval"],
+	[enable_bluetooth="no"])
+
+if test "$enable_bluetooth" = "yes"; then
+	AC_DEFINE(ENABLE_BLUETOOTH, 1, [pair and connect Bluetooth devices through BlueZ])
+fi
+AM_CONDITIONAL(ENABLE_BLUETOOTH, test "$enable_bluetooth" = "yes")
+
+if test "$enable_iwd" = "yes" -o "$enable_bluetooth" = "yes"; then
+	PKG_CHECK_MODULES([DBUS], [dbus-1])
+fi
+AM_CONDITIONAL(USE_DBUS, test "$enable_iwd" = "yes" -o "$enable_bluetooth" = "yes")
+
 AC_ARG_ENABLE(freesatepg,
 	AS_HELP_STRING([--enable-freesatepg], [enable Freesat EPG code @<:@default=no@:>@]),
 	AC_DEFINE(ENABLE_FREESATEPG, 1, [enable Freesat EPG code]))
