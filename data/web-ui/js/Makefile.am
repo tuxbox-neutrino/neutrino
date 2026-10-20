@@ -1,7 +1,6 @@
 installdir = $(PRIVATE_HTTPDDIR)/js
 
 install_DATA = \
-	bouquet-editor.js \
 	bouquets.js \
 	dashboard.js \
 	epg.js \

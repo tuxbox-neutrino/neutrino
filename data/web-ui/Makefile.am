@@ -18,7 +18,6 @@ nobase_install_DATA = \
 	extensions/README.de.md
 
 install_DATA = \
-	bouquet-editor.html \
 	bouquets.html \
 	dashboard.html \
 	epg.html \

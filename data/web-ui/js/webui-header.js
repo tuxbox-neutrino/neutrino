@@ -1855,8 +1855,7 @@ var WEBUI_START_PAGES = [
 	['timer.html', 'nav.timer', 'Timer'],
 	['recordings.html', 'nav.recordings', 'Recordings'],
 	['tools.html', 'nav.tools', 'Tools'],
-	['settings.html', 'nav.settings', 'Settings'],
-	['bouquet-editor.html', 'tools.bqedit', 'Bouquet editor']
+	['settings.html', 'nav.settings', 'Settings']
 ];
 
 /* Pages of the interface that became extensions: a start page stored under
@@ -1865,7 +1864,8 @@ var WEBUI_START_PAGES = [
 var WEBUI_MOVED_PAGES = {
 	'files.html': 'extensions/files/index.html',
 	'sysinfo.html': 'extensions/sysinfo/index.html',
-	'screenshot.html': 'extensions/screenshot/index.html'
+	'screenshot.html': 'extensions/screenshot/index.html',
+	'bouquet-editor.html': 'extensions/bouquet-editor/index.html'
 };
 
 /* What a start page can be, for a choice: the pages above and the page of
