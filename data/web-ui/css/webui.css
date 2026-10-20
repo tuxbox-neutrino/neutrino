@@ -73,6 +73,13 @@ html.webui-i18n-pending body {
 	--webui-border-subtle: #d3dbe4;
 	--webui-shadow: 0 1px 2px rgba(23, 32, 43, 0.06), 0 2px 8px rgba(23, 32, 43, 0.05);
 	--webui-shadow-hover: 0 4px 16px rgba(23, 32, 43, 0.10);
+	/* the status colours a shade darker, so a text in them keeps 4.5:1 on
+	   the white cards and the grey-blue page */
+	--webui-success: #1d7a43;
+	--webui-warning: #7a5c00;
+	--webui-danger: #c0392b;
+	--webui-danger-hover: #a93226;
+	--webui-recording: #c0392b;
 }
 
 /* Pico's own palette from the same values: a calm, near-black page with
