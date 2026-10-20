@@ -41,6 +41,23 @@ std::string realOf(const std::string &name)
 	return buf;
 }
 
+// whether the name has a .. segment, which would step out of the folder it
+// is looked for in
+bool stepsOut(const std::string &name)
+{
+	size_t at = 0;
+	while (at <= name.size()) {
+		const size_t slash = name.find('/', at);
+		const size_t end = slash == std::string::npos ? name.size() : slash;
+		if (end - at == 2 && name.compare(at, 2, "..") == 0)
+			return true;
+		if (slash == std::string::npos)
+			break;
+		at = slash + 1;
+	}
+	return false;
+}
+
 // whether the real path real lies below the folder dir, taken by its own
 // real path; an empty folder or / holds nothing here
 bool insideDir(const std::string &real, const std::string &dir)
@@ -94,6 +111,11 @@ Target resolveName(CyhookHandler *hh, const std::string &path, const std::string
 	if (name.empty() || name[name.length() - 1] != '/')
 		name += "/";
 	name += filename;
+	/* A name that steps out of the folder it is looked for in names no file,
+	   and neither does one with a NUL, which would cut it short for open()
+	   while its type is still read from its end (x%00.png). */
+	if (name.find('\0') != std::string::npos || stepsOut(name))
+		return Target();
 
 	const std::string over = hh->WebserverConfigList["WebsiteMain.override_directory"];
 	const std::string core = hh->WebserverConfigList["WebsiteMain.directory"];

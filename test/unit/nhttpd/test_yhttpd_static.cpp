@@ -254,6 +254,31 @@ TEST_CASE("the box's raw places: inside a logo folder, or a .png directly in /tm
 	CHECK_FALSE(ystatic::rawPlaceAllowed(realOf(b.outside + "/logos/sub/1.png"), wide, "/nonexistent-tmp"));
 }
 
+TEST_CASE("a name with a .. segment or a NUL is found nowhere", "[nhttpd]")
+{
+	Box b;
+	b.file(b.core + "/css/a.css", "core");
+	b.file(b.core + "/css/a..b.css", "dots");
+	b.file(b.outside + "/secret.txt", "secret");
+	b.file(b.outside + "/hosted/x.txt", "hosted");
+	b.hh.WebserverConfigList["WebsiteMain.hosted_directory"] = b.outside + "/hosted";
+	rawLogos = b.outside;
+	ystatic::setRawPlaceTest(rawLogosOnly);
+
+	// out of the web folder, the override folder, the hosted folder and a raw place
+	CHECK(ystatic::resolveName(&b.hh, "/../outside/", "secret.txt").origin == ystatic::Target::NONE);
+	CHECK(ystatic::resolveName(&b.hh, "/css/../../outside/", "secret.txt").origin == ystatic::Target::NONE);
+	CHECK(ystatic::resolveName(&b.hh, b.outside + "/hosted/../", "secret.txt").origin == ystatic::Target::NONE);
+	CHECK(ystatic::resolveName(&b.hh, "/css/", "..").origin == ystatic::Target::NONE);
+	// a NUL that would cut the name short for open()
+	CHECK(ystatic::resolveName(&b.hh, "/css/", std::string("a.css\0.png", 11)).origin == ystatic::Target::NONE);
+	CHECK(ystatic::resolveName(&b.hh, b.outside + "/", std::string("secret.txt\0.png", 16)).origin == ystatic::Target::NONE);
+	// dots inside a segment are a name like any other
+	CHECK(ystatic::resolveName(&b.hh, "/css/", "a..b.css").origin == ystatic::Target::CORE);
+	CHECK(ystatic::resolveName(&b.hh, "/css/", "a.css").origin == ystatic::Target::CORE);
+	ystatic::setRawPlaceTest(NULL);
+}
+
 TEST_CASE("the spaces other hooks answer are reserved as themselves and with anything below", "[nhttpd]")
 {
 	const char *const reserved[] = {

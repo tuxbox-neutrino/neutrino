@@ -758,5 +758,14 @@ c=`curl -s -o "$T/b24" -w '%{http_code}' -H "$AUTH_C" -H "$AUTH_X" -F "file=@$T/
 if [ ! -e "$T/dest24/up24.txt" ]; then pass "/api/v4/file stores no upload"
 else fail "/api/v4/file stored an upload: $c"; fi
 
+# 25. a name that steps out of its folder, sent as it is (--path-as-is), with
+#     its slashes written as %2f, or cut short by a %00, finds no file.
+for u in '/../../../../../../etc/passwd' '/css/../../../../../../etc/passwd' \
+		'/css/..%2f..%2f..%2f..%2f..%2f..%2fetc/passwd' '/etc/passwd%00.png' '/tmp/../etc/passwd'; do
+	c=`curl -s --path-as-is -o "$T/b25" -w '%{http_code}' -H "$AUTH_C" "$BASE$u"`
+	if [ "$c" != 200 ] && ! grep -q 'root:' "$T/b25"; then pass "$u finds no file ($c)"
+	else fail "$u: $c"; fi
+done
+
 echo "failures: $fails"
 [ "$fails" -eq 0 ]

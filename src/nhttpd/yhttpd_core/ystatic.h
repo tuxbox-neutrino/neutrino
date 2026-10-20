@@ -29,7 +29,8 @@ struct Target
 	Target() : origin(NONE), fallback(false) {}
 };
 
-// path and filename as the request's UrlData holds them.
+// path and filename as the request's UrlData holds them. A name with a ..
+// segment or a NUL in it is found nowhere.
 Target resolveName(CyhookHandler *hh, const std::string &path, const std::string &filename);
 
 // Which files outside the web folders a request may read by their own name,
