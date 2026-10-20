@@ -3277,3 +3277,197 @@ dialog.webui-sheet footer button.danger {
 	-webkit-mask: var(--webui-ext-icon) center / contain no-repeat;
 	mask: var(--webui-ext-icon) center / contain no-repeat;
 }
+
+/* ═══ Building blocks of the pages (Phase 4 S3) ═══ */
+
+/* A button the page hides stays hidden, whatever display its look gives it */
+.webui-btn[hidden] {
+	display: none;
+}
+
+/* A block that says why a list or a card holds nothing: loading, empty,
+   failed or a sign-in needed (webuiState) */
+.webui-state {
+	display: grid;
+	justify-items: center;
+	gap: 0.4rem;
+	padding: 1.5rem 1rem;
+	text-align: center;
+	color: var(--pico-muted-color);
+}
+
+.webui-state svg {
+	width: 28px;
+	height: 28px;
+}
+
+.webui-state strong {
+	color: var(--pico-color);
+	font-size: 0.95rem;
+}
+
+.webui-state p {
+	margin: 0;
+	max-width: 48ch;
+	font-size: var(--webui-font-sm);
+}
+
+.webui-state .webui-btn {
+	margin-top: 0.4rem;
+}
+
+.webui-state.error svg {
+	color: var(--webui-danger);
+}
+
+.webui-state.loading svg {
+	animation: webui-state-turn 1.2s linear infinite;
+}
+
+@keyframes webui-state-turn {
+	to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.webui-state.loading svg {
+		animation: none;
+	}
+}
+
+/* A short state beside a name: running, recording, a warning, an error,
+   off; the dot and the edge in its colour, the text as well */
+.webui-pill {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.35rem;
+	padding: 0.1rem 0.55rem;
+	border: 1px solid currentColor;
+	border-radius: 999px;
+	font-size: 0.75rem;
+	font-weight: 600;
+	line-height: 1.5;
+	white-space: nowrap;
+	color: var(--pico-muted-color);
+}
+
+.webui-pill::before {
+	content: "";
+	width: 6px;
+	height: 6px;
+	border-radius: 50%;
+	background: currentColor;
+}
+
+.webui-pill[hidden] {
+	display: none;
+}
+
+.webui-pill.ok { color: var(--webui-success); }
+.webui-pill.warn { color: var(--webui-warning); }
+.webui-pill.danger { color: var(--webui-danger); }
+.webui-pill.rec { color: var(--webui-recording); }
+
+/* How far something has run: a thin bar in the accent */
+.webui-progress {
+	height: 4px;
+	margin-top: 0.5rem;
+	border-radius: 2px;
+	background: var(--pico-muted-border-color);
+	overflow: hidden;
+}
+
+.webui-progress > span {
+	display: block;
+	width: 0;
+	height: 100%;
+	background: var(--webui-accent);
+	transition: width 0.4s ease;
+}
+
+/* A measured value: its name, a bar, the value; the bar turns to the
+   warning and danger colours as it fills */
+.webui-meter {
+	display: grid;
+	grid-template-columns: minmax(4ch, auto) minmax(0, 1fr) auto;
+	gap: 0.6rem;
+	align-items: center;
+	padding: 0.3rem 0;
+	font-size: var(--webui-font-sm);
+}
+
+.webui-meter > b {
+	font-weight: 550;
+}
+
+.webui-meter > .webui-progress {
+	margin: 0;
+	height: 6px;
+	border-radius: 3px;
+}
+
+.webui-meter > span:last-child {
+	color: var(--pico-muted-color);
+	font-variant-numeric: tabular-nums;
+	text-align: right;
+}
+
+.webui-meter.warn > .webui-progress > span { background: var(--webui-warning); }
+.webui-meter.danger > .webui-progress > span { background: var(--webui-danger); }
+
+/* Name and value in two columns */
+.webui-kv {
+	display: grid;
+	grid-template-columns: auto minmax(0, 1fr);
+	gap: 0.3rem 1rem;
+	margin: 0;
+	font-size: var(--webui-font-sm);
+}
+
+.webui-kv dt {
+	color: var(--pico-muted-color);
+}
+
+.webui-kv dd {
+	margin: 0;
+	font-variant-numeric: tabular-nums;
+	overflow-wrap: anywhere;
+}
+
+/* Two or three choices side by side, the chosen one pressed; Pico draws a
+   [role="group"] as a full-width bar of joined fields, which this undoes */
+.webui-seg,
+.webui-seg[role="group"] {
+	display: inline-flex;
+	width: auto;
+	margin: 0;
+	box-shadow: none;
+	padding: 2px;
+	border: 1px solid var(--pico-muted-border-color);
+	border-radius: var(--webui-radius);
+	background: var(--webui-bg-elevated);
+}
+
+.webui-seg button,
+.webui-seg[role="group"] > button {
+	--pico-color: inherit;
+	flex: none;
+	margin: 0;
+	padding: 0.25rem 0.75rem;
+	border: 0;
+	border-radius: calc(var(--webui-radius) - 2px);
+	background: none;
+	color: var(--pico-muted-color);
+	font-size: var(--webui-font-sm);
+	font-weight: 550;
+	box-shadow: none;
+}
+
+.webui-seg button[aria-pressed="true"] {
+	background: var(--webui-accent);
+	color: var(--webui-on-accent);
+}
+
+.webui-seg button:focus-visible {
+	outline: 2px solid var(--webui-focus-color);
+	outline-offset: 1px;
+}

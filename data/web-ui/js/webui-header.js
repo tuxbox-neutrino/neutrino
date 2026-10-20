@@ -2129,6 +2129,66 @@ function webuiErrText(e) {
 	return webuiL('err.kind_' + kind, WEBUI_ERR_KINDS[kind]);
 }
 
+/* A block that says why a list or a card holds nothing (Phase 4 S3): kind
+   'loading', 'empty', 'error' or 'sign-in'. title and text are text;
+   opts.retry adds a Reload button, opts.action ({label, onClick}) another
+   one. An error is announced, a loading block marked busy. */
+var WEBUI_STATE_ICONS = {
+	loading: '<path d="M21 12a9 9 0 1 1-6.2-8.6"/>',
+	empty: '<circle cx="12" cy="12" r="9"/><path d="M8 12h8"/>',
+	error: '<path d="M12 3 2 21h20zM12 10v4M12 18h.01"/>',
+	'sign-in': '<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>'
+};
+
+function webuiState(kind, title, text, opts) {
+	opts = opts || {};
+	var box = document.createElement('div');
+	box.className = 'webui-state ' + kind;
+	if (kind === 'loading')
+		box.setAttribute('aria-busy', 'true');
+	if (kind === 'error')
+		box.setAttribute('role', 'alert');
+	box.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">' +
+		(WEBUI_STATE_ICONS[kind] || WEBUI_STATE_ICONS.empty) + '</svg>';
+	if (title) {
+		var strong = document.createElement('strong');
+		strong.textContent = title;
+		box.appendChild(strong);
+	}
+	if (text) {
+		var p = document.createElement('p');
+		p.textContent = text;
+		box.appendChild(p);
+	}
+	var button = function(label, onClick, primary) {
+		var b = document.createElement('button');
+		b.type = 'button';
+		b.className = 'webui-btn' + (primary ? ' primary' : '');
+		b.textContent = label;
+		b.addEventListener('click', onClick);
+		box.appendChild(b);
+	};
+	if (opts.action)
+		button(opts.action.label, opts.action.onClick, true);
+	if (opts.retry)
+		button(webuiL('bc.reload', 'Reload'), opts.retry, !opts.action);
+	return box;
+}
+
+/* The block for a read that failed: a sign-in to offer where the user
+   cancelled it (and the read again once signed in), else why, in the page's
+   language, with Reload where opts.retry is given. opts.title names what
+   could not be read. */
+function webuiStateFor(e, opts) {
+	opts = opts || {};
+	if (e && e.cancelled && typeof webuiV1SignIn === 'function')
+		return webuiState('sign-in', webuiL('state.sign_in', 'This needs a sign-in'), '', {
+			action: {label: webuiL('state.sign_in_btn', 'Sign in'), onClick: async function() {
+				if (await webuiV1SignIn() && opts.retry) opts.retry();
+			}}});
+	return webuiState('error', opts.title || webuiL('state.failed', 'Could not be read'), webuiErrText(e), {retry: opts.retry});
+}
+
 // One result of a request that writes several keys at once ({status, code,
 // detail}), as the Error webuiErrText reads.
 function webuiResultError(r) {
