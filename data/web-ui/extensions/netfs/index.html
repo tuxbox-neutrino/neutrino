@@ -8,7 +8,7 @@
 	<script>
 		// Apply the stored theme before first paint: webui-header.js runs
 		// too late, and some pages never load it at all.
-		try { document.documentElement.setAttribute('data-theme', localStorage.getItem('webui-theme') || localStorage.getItem('yweb-theme') || 'dark'); } catch (e) {}
+		try { var m = localStorage.getItem('webui-mode'); if (m !== 'light' && m !== 'dark') m = (localStorage.getItem('webui-theme') || localStorage.getItem('yweb-theme')) === 'light' || matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'; document.documentElement.setAttribute('data-theme', m); } catch (e) {}
 	</script>
 	<link rel="stylesheet" href="/css/pico.min.css">
 	<link rel="stylesheet" href="/css/webui.css">
@@ -34,7 +34,7 @@
 		.netfs-tabs button[aria-selected="true"] {
 			background: var(--webui-accent);
 			border-color: var(--webui-accent);
-			color: #fff;
+			color: var(--webui-on-accent);
 		}
 
 		.netfs-bar {
