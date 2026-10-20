@@ -774,11 +774,12 @@ async function webuiFetchJson(url) {
 	return resp.json();
 }
 
-// Central /api/v4/ fetch helper — the ONLY way modern pages talk to the box.
+// The /api/v4/ fetch helper, for the few calls the pages still make there
+// (the pages talk to /api/v1 through webui-v1.js):
 //   webuiApi('timer')                            -> parsed JSON payload
 //   webuiApi('timer', {action:'new', type:5})    -> envelope-checked action
 //   webuiApi('setmode', {status:''})             -> key-only query param
-//   webuiApi('exec', 'Y_Tools&getline&/tmp/lcd/service', {raw:true}) -> raw text (exec/rcem)
+//   webuiApi('rcem', 'KEY_OK', {raw:true})       -> raw text
 // Throws Error on HTTP failure or {"success":"false"} envelopes; the
 // error message carries error.msg from the box when available.
 async function webuiApi(endpoint, params, opts) {

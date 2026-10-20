@@ -118,33 +118,24 @@ einen Weg zum Logo. Die Legacy-Routen unter `/control/` liefern dort weiterhin
 den aufgeloesten Pfad. Das ist eine Praezisierung des v4-Vertrags, die noch vor
 dem v4-Release erfolgt ist; danach waere sie nur ueber /api/v5 zu haben.
 
-\section apiv4_scriptops Script-driven operations (exec-Vertrag)
+\section apiv4_scriptops Skripte (exec)
 
-Einige Operationen bleiben bewusst shell-getrieben und laufen ueber
-`GET /api/v4/exec?Y_Tools&<funktion>[&<arg>...]` (Roh-Text-Ausgabe).
-Die Funktionen liegen in `data/web-ui/scripts/Y_Tools.sh` (Paket der Neutrino-Web-UI);
-relevante Funktionsnamen:
-
-| Funktion | Zweck |
-|---|---|
-| `do_mount_all` / `do_umount_all` | alle Netz-Mounts der NetFS-Tabelle ein-/aushaengen |
-
-Die frueher hier genannten Funktionen sind mit den alten Seiten entfallen;
-ihre Aufgaben haben Routen unter `/api/v1`: `domount`/`dounmount` ->
-`/api/v1/storage/shares`, `wol` -> `POST /api/v1/network/wake`,
-`settings_backup_restore` -> `/api/v1/system/backup` und `/restore`,
-`installer` -> `/api/v1/webui/extensions`, `zapit_upload` ->
-`/api/v1/channels/files/{name}`; `automount_getline`/`automount_setline`
-(auto.net) ersetzt die Automount-Tabelle von NetFS. Der exec-Vertrag
-entfaellt ganz, sobald `Y_Tools.sh` geht.
-
-Verfuegbarkeit ist Paket-abhaengig (Scripts der Neutrino-Web-UI installiert?); Clients
-muessen mit Fehlern/leerer Ausgabe degradieren. Fuer alles andere gilt die
-JSON-Flaeche oben.
+Der exec-Vertrag mit den Funktionen von `Y_Tools.sh` ist mit den alten
+Seiten und ihren Skripten entfallen. `GET /api/v4/exec?<skript>[&<arg>...]`
+startet wie `/control/exec` nur noch ein Skript aus den Plugin-Ordnern der
+Box (ohne Shell, die Ausgabe als Roh-Text); im Web-Ordner und in den
+Ordnern der Erweiterungen sucht es keines. Was die Funktionen taten, haben
+Routen unter `/api/v1`: das Ein- und Aushaengen der Netz-Dateisysteme
+`/api/v1/storage/netfs/fstab/mount` und `/unmount`, die Freigaben der Box
+`/api/v1/storage/shares`, `wol` `POST /api/v1/network/wake`, Sichern und
+Wiederherstellen `/api/v1/system/backup` und `/restore`, der Installer
+`/api/v1/webui/extensions`, `zapit_upload` `/api/v1/channels/files/{name}`.
+Die Skripte einer Erweiterung laufen ueber
+`POST /api/v1/webui/extensions/{dir}/scripts/{name}`.
 
 \section apiv4_ext Erweiterungen
 
 Die Neutrino-Web-UI ist ueber einen Manifest-/Slot-Mechanismus erweiterbar;
-Erweiterungen konsumieren ausschliesslich diese v4-Flaeche.
+Erweiterungen sprechen mit der Box ueber `/api/v1`.
 Details: \ref ywebext "Neutrino-Web-UI-Erweiterungen".
 */
