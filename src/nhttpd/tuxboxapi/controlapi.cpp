@@ -5483,53 +5483,6 @@ void CControlAPI::FileCGI(CyhookHandler *hh)
 
 		hh->SendResult(result);
 	}
-	// store an uploaded file: action=upload&path=<dir>, multipart field "file".
-	// HandlePostBoundary() has already streamed the body to a temp file and
-	// recorded the original name in ParamList["file"] and the temp path in
-	// ParamList["file_upload_filename"]. Move it to <path>/<name> so the tools
-	// (installer, settings restore, zapit list, file manager, m3u) find it.
-	else if (hh->ParamList["action"] == "upload") {
-		std::string tmpfile  = hh->ParamList["file_upload_filename"];
-		std::string filename = hh->ParamList["file"];
-		std::string path     = hh->ParamList["path"];
-
-		// keep only the basename; the file is stored in <path>
-		size_t slash = filename.find_last_of("/\\");
-		if (slash != std::string::npos)
-			filename = filename.substr(slash + 1);
-
-		if (tmpfile.empty() || filename.empty() || path.empty()) {
-			if (!tmpfile.empty())
-				unlink(tmpfile.c_str());
-			hh->SetError(HTTP_BAD_REQUEST);
-			return;
-		}
-
-		if (path[path.length() - 1] != '/')
-			path += "/";
-		std::string dest = path + filename;
-
-		// rename() is atomic on the same filesystem; fall back to a copy for
-		// cross-filesystem targets (e.g. /tmp temp -> /media destination).
-		bool ok = (rename(tmpfile.c_str(), dest.c_str()) == 0);
-		if (!ok) {
-			ok = CFileHelpers::getInstance()->copyFile(tmpfile.c_str(), dest.c_str());
-			unlink(tmpfile.c_str());
-		}
-		if (!ok) {
-			hh->SetError(HTTP_INTERNAL_SERVER_ERROR);
-			return;
-		}
-
-		struct stat st;
-		off_t size = (stat(dest.c_str(), &st) == 0) ? st.st_size : 0;
-
-		hh->outStart();
-		result  = hh->outPair("name", hh->outValue(filename), true);
-		result += hh->outPair("path", hh->outValue(dest), true);
-		result += hh->outPair("size", string_printf("%jd", (intmax_t) size), false);
-		hh->SendResult(result);
-	}
 	// create new folder
 	else if (hh->ParamList["action"] == "new_folder") {
 		hh->SetHeader(HTTP_OK, "text/plain; charset=UTF-8");

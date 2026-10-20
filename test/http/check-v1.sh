@@ -750,5 +750,13 @@ if grep -q '^error' "$T/b23" && [ ! -e "/tmp/$p23.png" ]; then pass "/control/sc
 else fail "/control/screenshot with a slash: $c `head -c 40 $T/b23`"; fi
 rm -f "/tmp/$p23.png"
 
+# 24. /api/v4/file stores no upload any more: a file sent to it, signed in
+#     and with the second token, lands in no folder the request names.
+printf 'UP24' > "$T/up24.txt"
+mkdir -p "$T/dest24"
+c=`curl -s -o "$T/b24" -w '%{http_code}' -H "$AUTH_C" -H "$AUTH_X" -F "file=@$T/up24.txt" "$BASE/api/v4/file?action=upload&path=$T/dest24"`
+if [ ! -e "$T/dest24/up24.txt" ]; then pass "/api/v4/file stores no upload"
+else fail "/api/v4/file stored an upload: $c"; fi
+
 echo "failures: $fails"
 [ "$fails" -eq 0 ]
