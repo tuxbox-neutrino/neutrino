@@ -119,6 +119,14 @@ my-extension/
   parameter is the English fallback, which also lives inline in the
   markup. Only the active language is fetched (no second fetch of
   English).
+- **A page marked like the interface's own**: a page that marks its texts
+  with `data-l`, `data-l-title`, `data-l-placeholder` or
+  `data-l-aria-label` and asks `webuiL(key, 'English')` in its scripts
+  loads `/js/webui-i18n.js` and calls `await webuiExtTexts('<folder>')`
+  before it shows anything built from texts: the pack is laid beside the
+  interface's texts and the marked texts are set again. A key the
+  interface has stays the interface's, so give yours a prefix of your
+  own.
 - Always keep English + German in step; identical keysets.
 
 

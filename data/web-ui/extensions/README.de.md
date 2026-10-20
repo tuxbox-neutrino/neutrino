@@ -119,6 +119,14 @@ meine-erweiterung/
   danach `webuiExtL('<ordner>', 'page.title', 'Hello!')` — der dritte
   Parameter ist der englische Fallback, der auch inline im Markup steht.
   Es wird nur die aktive Sprache geladen (kein Zweit-Fetch auf Englisch).
+- **Eine Seite, markiert wie die der Oberfläche**: Eine Seite, die ihre
+  Texte mit `data-l`, `data-l-title`, `data-l-placeholder` oder
+  `data-l-aria-label` markiert und in ihren Skripten
+  `webuiL(key, 'English')` fragt, lädt `/js/webui-i18n.js` und ruft
+  `await webuiExtTexts('<ordner>')` auf, bevor sie etwas aus Texten
+  zeigt: Das Paket kommt zu den Texten der Oberfläche, und die
+  markierten Texte werden neu gesetzt. Ein Schlüssel, den die Oberfläche
+  hat, bleibt ihrer; deshalb eigene Schlüssel mit einem eigenen Präfix.
 - Englisch + Deutsch immer paarig pflegen; gleiche Keysets.
 
 

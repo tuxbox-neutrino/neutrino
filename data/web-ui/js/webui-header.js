@@ -237,6 +237,22 @@ function webuiExtL(dir, key, fallbackEN) {
 	return v || fallbackEN || key;
 }
 
+/* An extension page's texts taken into the page's own: its language pack for
+   the language the box shows its pages in, laid beside the interface's texts,
+   so the page marks its texts with data-l as the interface's pages do and asks
+   webuiL in its scripts. A key the interface has stays the interface's. Done
+   once the interface's texts and the pack are in and the page's marked texts
+   are set again; a page runs what shows texts after it. */
+async function webuiExtTexts(dir) {
+	await window.webuiTexts;
+	var pack = await webuiExtLangLoad(dir);
+	var texts = window.WEBUI_L || (window.WEBUI_L = {});
+	Object.keys(pack).forEach(function(k) {
+		if (!Object.prototype.hasOwnProperty.call(texts, k)) texts[k] = pack[k];
+	});
+	if (typeof webuiI18nApply === 'function') webuiI18nApply();
+}
+
 async function webuiToggleLangMenu(ev) {
 	ev.stopPropagation();
 	var menu = document.getElementById('webui-lang-menu');
