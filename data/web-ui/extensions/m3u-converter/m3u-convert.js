@@ -90,7 +90,7 @@ async function m3uSaveToBox(btn) {
 			add: document.getElementById('m3uAddSource').checked
 		}, false);
 	} catch (e) {
-		webuiShowToast(webuiL('msg.error', 'Error') + ': ' + e.message, true);
+		webuiToastError(webuiL('msg.error', 'Error'), e);
 	} finally {
 		btn.disabled = false;
 	}
@@ -112,7 +112,7 @@ async function m3uStore(job, overwrite) {
 			webuiL('m3u.replace', 'Replace'),
 			function() {
 				return m3uStore(job, true).catch(function(e2) {
-					webuiShowToast(webuiL('msg.error', 'Error') + ': ' + e2.message, true);
+					webuiToastError(webuiL('msg.error', 'Error'), e2);
 				});
 			});
 		return;
