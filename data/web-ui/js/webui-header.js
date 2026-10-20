@@ -551,7 +551,15 @@ async function webuiSystemInfo(full) {
 		var flash = ['ubifs', 'jffs2', 'yaffs2'].indexOf(m.fstype) >= 0;
 		var net = ['nfs', 'nfs4', 'cifs', 'smb3'].indexOf(m.fstype) >= 0;
 		if (!(String(m.device).indexOf('/dev/') === 0 || flash || net || m.id === '/')) return;
-		if (seen[m.device] || !m.total) return;
+		if (seen[m.device]) return;
+		// a share that did not say how large it is in time stays in the list,
+		// as one that is not answering, rather than going missing
+		if (m.answered === false) {
+			seen[m.device] = true;
+			disks.push({device: m.device, mount: m.id, fstype: m.fstype, answered: false});
+			return;
+		}
+		if (!m.total) return;
 		seen[m.device] = true;
 		var total = kb(m.total), free = kb(m.free);
 		disks.push({device: m.device, mount: m.id, fstype: m.fstype, total: total, free: free,
