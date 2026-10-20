@@ -215,7 +215,7 @@ async function bqeLoadBouquets() {
 		var resp = await webuiV1('GET', '/bouquets');
 		list = (resp && resp.items) || [];
 	} catch (e) {
-		if (read === bqeReads.bouquets) webuiShowToast('Bouquets: ' + e.message, true);
+		if (read === bqeReads.bouquets) webuiToastError(webuiL('nav.bouquets', 'Bouquets'), e);
 	}
 	if (read !== bqeReads.bouquets || list === null) return;
 	bqeBouquets = list;
@@ -232,7 +232,7 @@ async function bqeLoadAllChannels() {
 		list = (await webuiV1All('/channels', {mode: mode}))
 			.map(function(c) { return {id: c.id, name: c.name}; });
 	} catch (e) {
-		if (read === bqeReads.all) webuiShowToast(webuiL('bqe.all_channels', 'All channels') + ': ' + e.message, true);
+		if (read === bqeReads.all) webuiToastError(webuiL('bqe.all_channels', 'All channels'), e);
 	}
 	if (read !== bqeReads.all || list === null) return;
 	bqeAllChan = list;
@@ -254,7 +254,7 @@ async function bqeLoadChannels() {
 		list = !sel ? [] : (await webuiV1All('/channels', {bouquet: sel.id, mode: mode}))
 			.map(function(c) { return {id: c.id, name: c.name}; });
 	} catch (e) {
-		if (read === bqeReads.chan) webuiShowToast(webuiL('bqe.channels', 'Channels') + ': ' + e.message, true);
+		if (read === bqeReads.chan) webuiToastError(webuiL('bqe.channels', 'Channels'), e);
 	}
 	if (read !== bqeReads.chan) return;
 	bqeChanReading = false;
@@ -573,7 +573,7 @@ async function bqeApplyChannels(remove, fromQuestion) {
 		if (e.code === 'channel-would-be-removed' && !remove)
 			bqeAskRemove(e.message, sent);
 		else
-			webuiShowToast(webuiL('msg.error', 'Error') + ': ' + e.message, true);
+			webuiToastError(webuiL('msg.error', 'Error'), e);
 	} finally {
 		bqeApplying = false;
 		bqeRenderChannels();
@@ -611,7 +611,7 @@ async function bqeChange(method, path, body) {
 		await bqeOwnRequest(method, path, body === undefined ? {} : {body: body});
 		return true;
 	} catch (e) {
-		webuiShowToast(webuiL('msg.error', 'Error') + ': ' + e.message, true);
+		webuiToastError(webuiL('msg.error', 'Error'), e);
 		return false;
 	}
 }
