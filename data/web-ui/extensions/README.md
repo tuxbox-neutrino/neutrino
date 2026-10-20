@@ -190,8 +190,8 @@ Key points:
   `var info = await webuiV1('GET', '/system/info');` — it signs in
   again on a stale session and throws an `Error` carrying the refusal's
   `code`. Every route is described in the box's own document,
-  `/api/openapi.json`, browsable at `/swagger/` where the API reference
-  package is installed. The old `/api/v4/` and `/control/` routes are
+  `/api/openapi.json`, browsable in the API reference extension
+  (`api-docs`) where the Swagger UI package is installed. The old `/api/v4/` and `/control/` routes are
   not part of this contract.
 
 ## 4. Enable

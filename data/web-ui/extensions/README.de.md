@@ -191,8 +191,8 @@ Kernpunkte:
   `var info = await webuiV1('GET', '/system/info');` — er meldet sich
   bei einer abgelaufenen Sitzung neu an und wirft einen `Error` mit dem
   `code` der Ablehnung. Jede Route beschreibt das Dokument der Box
-  selbst, `/api/openapi.json`, durchsuchbar unter `/swagger/`, wo das
-  Paket der API-Referenz installiert ist. Die alten Routen `/api/v4/`
+  selbst, `/api/openapi.json`, durchsuchbar in der Erweiterung
+  API-Referenz (`api-docs`), wo das Paket Swagger UI installiert ist. Die alten Routen `/api/v4/`
   und `/control/` gehören nicht zu diesem Vertrag.
 
 ## 4. Aktivieren

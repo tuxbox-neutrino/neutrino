@@ -90,8 +90,6 @@
 	"tools.boxcontrol_sub": "Neustart, Aufnahme, Tuner",
 	"tools.bqedit": "Bouquet-Editor",
 	"tools.bqedit_sub": "Bouquets und Kanäle verwalten",
-	"tools.apiref": "API-Referenz",
-	"tools.apiref_sub": "Alle Routen von /api/v1 zum Lesen und Ausprobieren",
 	"tools.standby_sub": "Box ein-/ausschalten",
 	"msg.executed": "ausgeführt",
 	"msg.error": "Fehler",

@@ -15,8 +15,7 @@ installdir = $(PRIVATE_HTTPDDIR)
 
 nobase_install_DATA = \
 	extensions/README.md \
-	extensions/README.de.md \
-	swagger/index.html
+	extensions/README.de.md
 
 install_DATA = \
 	bouquet-editor.html \

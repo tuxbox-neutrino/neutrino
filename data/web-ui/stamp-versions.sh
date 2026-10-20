@@ -35,7 +35,7 @@ stamp() {
 for f in "$root"/js/*.js; do
 	[ -f "$f" ] && { stamp "$f" || exit 1; }
 done
-for f in "$root"/*.html "$root"/swagger/*.html; do
+for f in "$root"/*.html; do
 	[ -f "$f" ] && { stamp "$f" || exit 1; }
 done
 exit 0

@@ -1846,10 +1846,7 @@ WebConfig defaultWebConfig()
 	/* This server's own directory, under its own name rather than at
 	   PRIVATE_HTTPDDIR itself: that directory is also where the old server's
 	   pages land, and naming it here would serve those out of this one as
-	   well, which nobody asked this server to do. The docs page installs
-	   into "swagger" under it and answers at /swagger/, not at the root: the
-	   root is where the WebIf this docroot is also meant for lands later,
-	   and a docs page sitting there would have to move the day it does. */
+	   well, which nobody asked this server to do. */
 	c.docroot = PRIVATE_HTTPDDIR "/ni-web";
 	c.session_lifetime_s = kSessionLifetimeDefault;
 	c.sse_max_streams = kSseMaxStreamsDefault;

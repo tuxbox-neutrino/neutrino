@@ -37,15 +37,6 @@ function bcAction(label, endpoint, params, confirmText) {
 	return bcDo(label, endpoint, params);
 }
 
-// The API reference needs the Swagger UI package, which an image
-// carries only where its flash has room for it
-(async function() {
-	try {
-		var r = await fetch('/swagger/vendor/swagger-ui-bundle.js', {method: 'HEAD', credentials: 'same-origin'});
-		if (r.ok) document.getElementById('toolApiRef').hidden = false;
-	} catch (e) {}
-})();
-
 async function showBoxControl() {
 	var body =
 		'<div class="webui-form-section"><div class="webui-form-section-title">Box</div>' +
