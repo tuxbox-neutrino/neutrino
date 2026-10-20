@@ -207,6 +207,11 @@ Kernpunkte:
   selbst, `/api/openapi.json`, durchsuchbar in der Erweiterung
   API-Referenz (`api-docs`), wo das Paket Swagger UI installiert ist. Die alten Routen `/api/v4/`
   und `/control/` gehören nicht zu diesem Vertrag.
+- **Dem Nutzer sagen, warum** mit `webuiToastError(präfix, e)` aus dem
+  Kopf-Skript: es nennt die Ablehnung in der Sprache der Seite
+  (`webuiErrText(e)` liefert den Text für eine eigene Meldung) und
+  schweigt, wenn der Nutzer die Anmeldung abgebrochen hat, die die
+  Ablehnung verlangte.
 
 ## 4. Aktivieren
 

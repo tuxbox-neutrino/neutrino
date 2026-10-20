@@ -206,6 +206,10 @@ Key points:
   `/api/openapi.json`, browsable in the API reference extension
   (`api-docs`) where the Swagger UI package is installed. The old `/api/v4/` and `/control/` routes are
   not part of this contract.
+- **Tell the user why** with `webuiToastError(prefix, e)` from the header
+  script: it names the refusal in the page's language (`webuiErrText(e)`
+  returns that text for a message of your own) and says nothing when the
+  user cancelled the sign-in the refusal asked for.
 
 ## 4. Enable
 

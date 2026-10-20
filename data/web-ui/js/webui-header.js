@@ -583,7 +583,7 @@ async function webuiSetLanguage(code) {
 		}
 		location.reload();
 	} catch (e) {
-		webuiShowToast('Error: ' + e.message, true);
+		webuiToastError(webuiL('msg.error', 'Error'), e);
 	}
 }
 
@@ -908,7 +908,9 @@ async function webuiApi(endpoint, params, opts) {
 			var errData = await resp.json();
 			if (errData && errData.error && errData.error.msg) errText = errData.error.msg;
 		} catch (ignore) {}
-		throw new Error(errText || (endpoint + ': HTTP ' + resp.status));
+		var err = new Error(errText || (endpoint + ': HTTP ' + resp.status));
+		err.status = resp.status;
+		throw err;
 	}
 	if (opts.raw) return resp.text();
 	var data = await resp.json();
@@ -1496,7 +1498,7 @@ async function webuiPickerLoad(path) {
 		try {
 			rows = await _webuiPickerRows(path);
 		} catch (e) {
-			webuiShowToast(webuiL('picker.not_readable', 'Directory not readable') + ': ' + e.message, true);
+			webuiToastError(webuiL('picker.not_readable', 'Directory not readable'), e);
 			return;
 		}
 		_webuiPickerState.path = rows.path;
@@ -1526,7 +1528,7 @@ async function webuiPickerLoad(path) {
 	try {
 		data = await webuiApi('file', {action: 'list', path: path});
 	} catch (e) {
-		webuiShowToast(webuiL('picker.not_readable', 'Directory not readable') + ': ' + e.message, true);
+		webuiToastError(webuiL('picker.not_readable', 'Directory not readable'), e);
 		return;
 	}
 	_webuiPickerState.path = path;
@@ -1826,7 +1828,7 @@ async function webuiSendMessage(mode) {
 		input.value = '';
 		setTimeout(function() { result.textContent = '\u00a0'; result.style.color = ''; }, 2500);
 	} catch (e) {
-		result.textContent = webuiL('msg.error', 'Error') + ': ' + e.message;
+		result.textContent = webuiL('msg.error', 'Error') + ': ' + webuiErrText(e);
 		result.style.color = 'var(--webui-danger)';
 	}
 }
@@ -1845,6 +1847,110 @@ function webuiFormatUptime(seconds) {
 	if (days > 0) return days + 'd ' + hours + 'h';
 	if (hours > 0) return hours + 'h ' + mins + 'm';
 	return mins + 'm';
+}
+
+/* Why the box refused, in the language of the page. A refusal a user meets
+   in everyday use has its own words; any other is told by the kind of
+   answer, except on an English page, which keeps the box's own reason: it
+   is English and says more. A request the box never answered says so, and
+   an error the page made itself keeps its message. */
+var WEBUI_ERR_TEXTS = {
+	'playback-running': 'A file is playing on the box',
+	'recording-running': 'A recording is running',
+	'timeshift-running': 'Timeshift is running',
+	'recording-playing': 'This recording is playing',
+	'box-in-standby': 'The box is in standby',
+	'recording-holds-tuner': 'A recording holds the tuner',
+	'no-running-channel': 'No channel is running',
+	'timer-exists': 'This timer exists already',
+	'timer-in-the-past': 'The time lies in the past',
+	'timer-without-channel': 'The timer needs a channel',
+	'recording-without-duration': 'The recording needs an end',
+	'name-taken': 'The name is taken',
+	'bad-name': 'This name is not allowed',
+	'not-empty': 'The folder is not empty',
+	'medium-read-only': 'The medium is read-only',
+	'outside-roots': 'Outside the folders the box offers',
+	'is-a-root': 'A folder the box offers cannot be changed itself',
+	'into-itself': 'A folder cannot go into itself',
+	'cross-device': 'Cannot be moved to another drive',
+	'empty-message': 'The message is empty',
+	'message-too-long': 'The message is too long',
+	'value-too-long': 'The value is too long',
+	'out-of-range': 'The value is out of range',
+	'not-a-number': 'Not a number',
+	'not-a-listed-value': 'Not one of the values offered',
+	'body-too-large': 'Too large for the box',
+	'too-many-attempts': 'Too many attempts, wait a moment',
+	'too-many-streams': 'Too many streams at once',
+	'not-playable-in-browser': 'This channel cannot be played in the browser',
+	'upstream-unreachable': 'The source could not be reached',
+	'not-permitted': 'Not permitted',
+	'no-authority': 'Not allowed from here',
+	'backup-failed': 'The backup could not be made',
+	'restore-refused': 'The box refused the backup file',
+	'wake-not-sent': 'The wake-up packet was not sent',
+	'script-missing': 'The box has no script for this',
+	// one code for several refusals: its words by the kind of answer too
+	'extension-refused.400': 'Signature or archive do not match',
+	'extension-refused.409': 'Another extension is being installed or removed',
+	'extension-refused.501': 'This image cannot check signed extensions'
+};
+var WEBUI_ERR_KINDS = {
+	input: 'The box did not accept the input',
+	refused: 'Not allowed',
+	not_found: 'Not found on the box',
+	busy: 'Not possible right now',
+	too_large: 'Too large for the box',
+	too_many: 'Too many attempts, wait a moment',
+	not_offered: 'The box does not offer this',
+	unavailable: 'Not available on the box right now',
+	failed: 'The box could not do it'
+};
+
+function webuiErrText(e) {
+	if (!e)
+		return webuiL('err.unknown', 'Something went wrong');
+	// a page that shows nothing after the sign-in was cancelled says why
+	if (e.cancelled)
+		return webuiL('err.sign_in', 'Only after signing in');
+	var own = e.code && (WEBUI_ERR_TEXTS[e.code + '.' + e.status] ? e.code + '.' + e.status : WEBUI_ERR_TEXTS[e.code] ? e.code : '');
+	if (own)
+		return webuiL('err.' + own, WEBUI_ERR_TEXTS[own]);
+	if (!e.status) {
+		if (e instanceof TypeError && /fetch|network|load failed/i.test(e.message || ''))
+			return webuiL('err.no_answer', 'The box did not answer');
+		return e.message || webuiL('err.unknown', 'Something went wrong');
+	}
+	if ((document.documentElement.lang || 'en') === 'en' && e.message)
+		return e.message;
+	var s = e.status;
+	var kind = (s === 400 || s === 422) ? 'input' : (s === 401 || s === 403) ? 'refused'
+		: s === 404 ? 'not_found' : s === 409 ? 'busy' : s === 413 ? 'too_large'
+		: s === 429 ? 'too_many' : s === 501 ? 'not_offered' : s >= 502 ? 'unavailable' : 'failed';
+	return webuiL('err.kind_' + kind, WEBUI_ERR_KINDS[kind]);
+}
+
+// One result of a request that writes several keys at once ({status, code,
+// detail}), as the Error webuiErrText reads.
+function webuiResultError(r) {
+	r = r || {};
+	var e = new Error(r.detail || r.code || (r.status ? String(r.status) : ''));
+	e.status = r.status;
+	e.code = r.code || '';
+	return e;
+}
+
+// A refusal as a message, after what was tried (prefix, may be empty);
+// nothing where the user cancelled the sign-in the refusal asked for. The
+// box's own words go to the console where the message says something else.
+function webuiToastError(prefix, e) {
+	if (e && e.cancelled)
+		return;
+	var why = webuiErrText(e);
+	webuiShowToast(prefix ? prefix + ': ' + why : why, true);
+	if (e && e.message && e.message !== why)
+		console.warn((prefix || 'refused') + ':', e.message);
 }
 
 // Toast notification

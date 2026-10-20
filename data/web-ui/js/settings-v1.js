@@ -949,7 +949,7 @@ async function v1setClearSecret(item) {
 	try {
 		await webuiV1('POST', '/settings/secret/clear', {body: {key: item.id}});
 	} catch (e) {
-		webuiShowToast(webuiL('msg.error', 'Error') + ': ' + e.message, true);
+		webuiToastError(webuiL('msg.error', 'Error'), e);
 		return;
 	} finally {
 		if (typeof settingsBusy === 'function')

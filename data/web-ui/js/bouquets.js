@@ -276,7 +276,7 @@ async function zapTo(channelId) {
 			markCurrent();
 		}
 	} catch (e) {
-		webuiShowToast(e.message, true);
+		webuiToastError('', e);
 	}
 }
 

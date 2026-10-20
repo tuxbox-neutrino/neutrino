@@ -249,7 +249,7 @@ async function deleteTimer(id, title) {
 		await webuiV1('DELETE', '/timers/' + encodeURIComponent(id));
 		await loadTimers();
 	} catch (e) {
-		webuiShowToast(e.message, true);
+		webuiToastError('', e);
 	}
 }
 
@@ -697,7 +697,7 @@ async function submitTimer() {
 		webuiShowToast(changed ? webuiL('tm.changed', 'Timer changed') : webuiL('tm.created', 'Timer created'));
 		await loadTimers();
 	} catch (e) {
-		webuiShowToast(webuiL('tm.save_fail', 'Saving failed') + ': ' + e.message, true);
+		webuiToastError(webuiL('tm.save_fail', 'Saving failed'), e);
 		btn.textContent = timerModalEditId ? webuiL('tm.change', 'Change') : webuiL('bqe.save', 'Save');
 		btn.disabled = false;
 	}

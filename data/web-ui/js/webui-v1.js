@@ -13,7 +13,9 @@
 //
 // A refusal throws an Error with the box's reason as its message, the HTTP
 // status in .status and the code of the refusal in .code (answers come as
-// application/problem+json, whose type is /errors/ and the code).
+// application/problem+json, whose type is /errors/ and the code); a 403 the
+// user did not sign in for carries .cancelled. webuiToastError (in
+// webui-header.js) tells the user why, in the page's language.
 //
 // Reading needs no sign-in from the home network; changing anything does,
 // and so does reading from anywhere else. The box answers either with 403,
@@ -99,6 +101,14 @@ async function _webuiV1Error(resp, method, path) {
 	return err;
 }
 
+/* A 403 left after the user cancelled the sign-in it opened is no news to
+   them: marked cancelled, webuiToastError says nothing about it. */
+function _webuiV1Declined(err, declined) {
+	if (declined && err.status === 403)
+		err.cancelled = true;
+	return err;
+}
+
 /* A refusal saying the box still opens to the password it shipped with: the
    page the owner sets one of their own on, and back here afterwards. Read from a
    copy, so the caller can still read the answer. */
@@ -120,6 +130,7 @@ async function webuiV1(method, path, opts) {
 	var resp = await _webuiV1Send(method, path, opts);
 	if (await _webuiV1ChangeOwed(resp))
 		throw await _webuiV1Error(resp, method, path);
+	var declined = false;
 	if (resp.status === 403) {
 		// no open session, or a stale token
 		if (opts.refused) opts.refused();
@@ -127,9 +138,11 @@ async function webuiV1(method, path, opts) {
 		if (open || await webuiV1SignIn()) {
 			if (opts.retried) opts.retried();
 			resp = await _webuiV1Send(method, path, opts);
+		} else {
+			declined = true;
 		}
 	}
-	if (!resp.ok) throw await _webuiV1Error(resp, method, path);
+	if (!resp.ok) throw _webuiV1Declined(await _webuiV1Error(resp, method, path), declined);
 	if (resp.status === 202 || resp.status === 204) return null;
 	var type = resp.headers.get('Content-Type') || '';
 	return type.indexOf('json') >= 0 ? resp.json() : resp.text();
@@ -145,9 +158,14 @@ async function webuiV1Blob(path, query, opts) {
 	var resp = await get();
 	if (await _webuiV1ChangeOwed(resp))
 		throw await _webuiV1Error(resp, 'GET', path);
-	if (resp.status === 403 && !opts.quiet && (await webuiV1Session() || await webuiV1SignIn()))
-		resp = await get();
-	if (!resp.ok) throw await _webuiV1Error(resp, 'GET', path);
+	var declined = false;
+	if (resp.status === 403 && !opts.quiet) {
+		if (await webuiV1Session() || await webuiV1SignIn())
+			resp = await get();
+		else
+			declined = true;
+	}
+	if (!resp.ok) throw _webuiV1Declined(await _webuiV1Error(resp, 'GET', path), declined);
 	return resp.blob();
 }
 
@@ -159,9 +177,14 @@ async function webuiV1Download(path, fallback) {
 	var resp = await get();
 	if (await _webuiV1ChangeOwed(resp))
 		throw await _webuiV1Error(resp, 'GET', path);
-	if (resp.status === 403 && (await webuiV1Session() || await webuiV1SignIn()))
-		resp = await get();
-	if (!resp.ok) throw await _webuiV1Error(resp, 'GET', path);
+	var declined = false;
+	if (resp.status === 403) {
+		if (await webuiV1Session() || await webuiV1SignIn())
+			resp = await get();
+		else
+			declined = true;
+	}
+	if (!resp.ok) throw _webuiV1Declined(await _webuiV1Error(resp, 'GET', path), declined);
 	var m = /filename="([^"\/\\]+)"/.exec(resp.headers.get('Content-Disposition') || '');
 	var name = m ? m[1] : fallback;
 	var blob = await resp.blob();
@@ -318,7 +341,9 @@ function _webuiV1SignInDialog() {
 						return;
 					}
 				} else if (resp.status !== 401) {
-					why = (await _webuiV1Error(resp, 'POST', '/login')).message;
+					// in the page's language where the header is there to say it
+					var refusal = await _webuiV1Error(resp, 'POST', '/login');
+					why = typeof webuiErrText === 'function' ? webuiErrText(refusal) : refusal.message;
 				}
 			} catch (e) { /* refused the same way below */ }
 			err.textContent = why;
@@ -630,7 +655,7 @@ async function webuiRecordEvent(channelId, channelName, ev) {
 		return true;
 	} catch (e) {
 		console.error('Record failed:', e);
-		webuiShowToast(webuiL('msg.error', 'Error') + ': ' + e.message, true);
+		webuiToastError(webuiL('msg.error', 'Error'), e);
 		return false;
 	}
 }
@@ -653,7 +678,7 @@ async function webuiStopRecording(recordingId) {
 		webuiShowToast(webuiL('rec.stopped', 'Recording stopped'));
 		return true;
 	} catch (e) {
-		webuiShowToast(webuiL('rec.stop_fail', 'Stop failed') + ': ' + e.message, true);
+		webuiToastError(webuiL('rec.stop_fail', 'Stop failed'), e);
 		return false;
 	}
 }

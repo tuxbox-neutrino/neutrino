@@ -55,7 +55,7 @@ async function runSettingsAction(aid, btn) {
 		if (f.refresh) await loadSettings();
 		if (typeof f.after === 'function') f.after(res);
 	} catch (e) {
-		webuiShowToast(webuiL('msg.error', 'Error') + ': ' + e.message, true);
+		webuiToastError(webuiL('msg.error', 'Error'), e);
 	}
 	btn.disabled = false;
 	btn.textContent = orig;
@@ -471,7 +471,7 @@ async function loadExtConfigPanel(cat) {
 			}
 		}
 	} catch (e) {
-		el.innerHTML = '<div class="webui-form-row"><label>' + webuiLH('set.notavail', 'Not available') + ': ' + escapeHtml(e.message) + '</label></div>';
+		el.innerHTML = '<div class="webui-form-row"><label>' + webuiLH('set.notavail', 'Not available') + ': ' + escapeHtml(webuiErrText(e)) + '</label></div>';
 	}
 }
 
@@ -521,7 +521,7 @@ async function saveExtConfig(catId, cfgName, btn) {
 		if (after !== 'restarting') webuiShowToast(changed + ' ' + (changed > 1 ? webuiL('set.saved_many', 'settings saved') : webuiL('set.saved_one', 'setting saved')));
 		await loadExtConfigPanel(SETTINGS_REGISTRY.find(function(c) { return c.id === catId; }) || EXT_SETTINGS_CATS[catId]);
 	} catch (e) {
-		webuiShowToast(webuiL('msg.error', 'Error') + ': ' + e.message, true);
+		webuiToastError(webuiL('msg.error', 'Error'), e);
 	}
 	btn.disabled = false;
 }
@@ -546,7 +546,7 @@ async function doSettingsBackup(btn) {
 	try {
 		webuiShowToast('Backup: ' + await webuiV1Download('/system/backup', 'settings.tar.gz'));
 	} catch (e) {
-		webuiShowToast(webuiL('set.backup_fail', 'Backup failed') + ': ' + e.message, true);
+		webuiToastError(webuiL('set.backup_fail', 'Backup failed'), e);
 	}
 	btn.disabled = false;
 }
@@ -589,7 +589,7 @@ async function webuiRestoreGo(btn) {
 			// a refusal; the box takes the upload away itself once it has read it
 			if (uploaded)
 				webuiV1('DELETE', '/storage/path', {query: {path: '/tmp/' + name}}).catch(function() {});
-			webuiShowToast(webuiL('set.restore_fail', 'Restore failed') + ': ' + e.message, true);
+			webuiToastError(webuiL('set.restore_fail', 'Restore failed'), e);
 		}
 	}
 	btn.disabled = false;
@@ -807,7 +807,7 @@ async function extInstallUpload(btn) {
 			webuiShowToast(webuiL('set.extinst_ok', 'Installed') + ': ' + (res && res.dir));
 			webuiCloseModal('extInstallModal');
 			await loadExtensionsPanel();
-		} catch (e) { webuiShowToast(webuiL('set.extinst_fail', 'Installation failed') + ': ' + e.message, true); }
+		} catch (e) { webuiToastError(webuiL('set.extinst_fail', 'Installation failed'), e); }
 		btn.disabled = false;
 	}, {variant: 'ok'});
 }
@@ -837,7 +837,7 @@ async function extShowOffers(btn) {
 			box.appendChild(webuiEl('div', {className: 'webui-form-row'}, label, webuiEl('span', {className: 'webui-row-actions'}, action)));
 		});
 	} catch (e) {
-		webuiShowToast(webuiL('set.extup_fail', 'Update check failed') + ': ' + e.message, true);
+		webuiToastError(webuiL('set.extup_fail', 'Update check failed'), e);
 	}
 	btn.disabled = false;
 }
@@ -853,7 +853,7 @@ async function extInstallOffered(id, btn) {
 		webuiShowToast(webuiL('set.extinst_ok', 'Installed') + ': ' + (res && res.dir) + ' v' + e.version);
 		webuiCloseModal('extInstallModal');
 		await loadExtensionsPanel();
-	} catch (err) { webuiShowToast(webuiL('set.extinst_fail', 'Installation failed') + ': ' + err.message, true); }
+	} catch (err) { webuiToastError(webuiL('set.extinst_fail', 'Installation failed'), err); }
 	btn.disabled = false;
 }
 
@@ -875,7 +875,7 @@ function extUninstall(dir) {
 			delete _extUpdates[dir];
 			webuiShowToast(webuiL('set.extuninst_ok', 'Uninstalled') + ': ' + name);
 			await loadExtensionsPanel();
-		} catch (e) { webuiShowToast(webuiL('msg.error', 'Error') + ': ' + e.message, true); }
+		} catch (e) { webuiToastError(webuiL('msg.error', 'Error'), e); }
 	});
 }
 
@@ -905,7 +905,7 @@ async function extCheckUpdates(btn) {
 		});
 		webuiShowToast(found ? (webuiL('set.extup_avail', 'Update available') + ': ' + found) : webuiL('set.extup_none', 'Everything up to date'));
 		await loadExtensionsPanel();
-	} catch (e) { webuiShowToast(webuiL('set.extup_fail', 'Update check failed') + ': ' + e.message, true); }
+	} catch (e) { webuiToastError(webuiL('set.extup_fail', 'Update check failed'), e); }
 	btn.disabled = false;
 }
 
@@ -918,7 +918,7 @@ async function extUpdate(dir, btn) {
 		delete _extUpdates[dir];
 		webuiShowToast(webuiL('set.extinst_ok', 'Installed') + ': ' + (res && res.dir) + ' v' + u.version);
 		await loadExtensionsPanel();
-	} catch (e) { webuiShowToast(webuiL('set.extinst_fail', 'Installation failed') + ': ' + e.message, true); }
+	} catch (e) { webuiToastError(webuiL('set.extinst_fail', 'Installation failed'), e); }
 	btn.disabled = false;
 }
 
@@ -947,7 +947,7 @@ async function saveExtensions(btn) {
 		await webuiSettingsWrite(changes);
 		webuiShowToast(webuiL('set.ext_saved', 'Saved - reload the page to apply'));
 		await loadExtensionsPanel();
-	} catch (e) { webuiShowToast(webuiL('msg.error', 'Error') + ': ' + e.message, true); }
+	} catch (e) { webuiToastError(webuiL('msg.error', 'Error'), e); }
 	btn.disabled = false;
 }
 
@@ -983,7 +983,7 @@ async function loadWolPanel() {
 		el.insertAdjacentHTML('beforeend', makePanelSaveRow('wolSave(this)'));
 	} catch (e) {
 		el.replaceChildren(webuiEl('div', {className: 'webui-form-row'},
-			webuiEl('label', {}, webuiL('set.notavail', 'Not available') + ': ' + e.message)));
+			webuiEl('label', {}, webuiL('set.notavail', 'Not available') + ': ' + webuiErrText(e))));
 	}
 }
 
@@ -995,7 +995,7 @@ async function wolWake(i, btn) {
 		await webuiV1('POST', '/network/wake', {body: {mac: mac.trim()}});
 		webuiShowToast(webuiL('set.wol_sent', 'Wake-on-LAN sent') + ': ' + mac.trim());
 	} catch (e) {
-		webuiShowToast(webuiL('msg.error', 'Error') + ': ' + e.message, true);
+		webuiToastError(webuiL('msg.error', 'Error'), e);
 	}
 	btn.disabled = false;
 }
@@ -1016,7 +1016,7 @@ async function wolSave(btn) {
 		await webuiSettingsWrite(changes);
 		webuiShowToast(webuiL('msg.saved', 'Saved'));
 		await loadWolPanel();
-	} catch (e) { webuiShowToast(webuiL('msg.error', 'Error') + ': ' + e.message, true); }
+	} catch (e) { webuiToastError(webuiL('msg.error', 'Error'), e); }
 	btn.disabled = false;
 }
 
@@ -1067,7 +1067,7 @@ async function loadXmltvPanel() {
 			'<span class="webui-row-actions">' +
 			'<button type="button" class="webui-btn primary" onclick="saveXmltv(this)">' + SAVE_ICON + webuiLH('bqe.save_reload', 'Save and reload') + '</button></span></div>';
 	} catch (e) {
-		el.innerHTML = '<div class="webui-form-row"><label>' + webuiLH('set.notavail', 'Not available') + ': ' + escapeHtml(e.message) + '</label></div>';
+		el.innerHTML = '<div class="webui-form-row"><label>' + webuiLH('set.notavail', 'Not available') + ': ' + escapeHtml(webuiErrText(e)) + '</label></div>';
 	}
 }
 
@@ -1106,7 +1106,7 @@ async function uploadXmltv(kind, btn) {
 		if (part) {
 			try { await webuiV1('DELETE', '/storage/path', {query: {path: part}}); } catch (e2) {}
 		}
-		webuiShowToast(webuiL('fm.upload_fail', 'Upload error') + ': ' + e.message, true);
+		webuiToastError(webuiL('fm.upload_fail', 'Upload error'), e);
 	}
 	btn.disabled = false;
 }
@@ -1141,7 +1141,7 @@ async function saveXmltv(btn) {
 		}
 		XMLTV_READ_IN = upto;
 		webuiShowToast(webuiL('set.xmltv_saved', 'Sources saved, channel lists reloaded'));
-	} catch (e) { webuiShowToast(webuiL('msg.error', 'Error') + ': ' + e.message, true); }
+	} catch (e) { webuiToastError(webuiL('msg.error', 'Error'), e); }
 	btn.disabled = false;
 }
 
@@ -1187,7 +1187,7 @@ async function doZapitUpload(btn) {
 			try { await webuiV1('DELETE', '/storage/path', {query: {path: '/tmp/' + file}}); } catch (e2) {}
 		}
 		if (status) status.textContent = '';
-		webuiShowToast(webuiL('msg.error', 'Error') + ': ' + e.message, true);
+		webuiToastError(webuiL('msg.error', 'Error'), e);
 	}
 	btn.disabled = false;
 }
@@ -1248,7 +1248,7 @@ async function loadPluginsPanel() {
 				webuiEl('a', {className: 'webui-btn', attrs: {href: services.url}}, services.name)));
 		el.replaceChildren(installed, manage);
 	} catch (e) {
-		el.replaceChildren(pluginRow(webuiL('set.plugins_notavail', 'Plugins not available') + ': ' + e.message));
+		el.replaceChildren(pluginRow(webuiL('set.plugins_notavail', 'Plugins not available') + ': ' + webuiErrText(e)));
 	}
 }
 
@@ -1276,7 +1276,7 @@ async function setPluginHidden(pl, hidden, btn) {
 		webuiShowToast((hidden ? webuiL('set.plugins_now_hidden', '%s is hidden in the box\'s menus') :
 			webuiL('set.plugins_now_shown', '%s shows in the box\'s menus again')).replace('%s', pl.title || pl.name));
 	} catch (e) {
-		webuiShowToast(webuiL('msg.error', 'Error') + ': ' + e.message, true);
+		webuiToastError(webuiL('msg.error', 'Error'), e);
 		btn.disabled = false;
 	}
 }
@@ -1287,7 +1287,7 @@ async function startPluginByName(name, btn) {
 		await webuiV1('POST', '/plugins/' + encodeURIComponent(name) + '/start');
 		webuiShowToast(webuiL('set.plugin_started', 'Plugin started') + ': ' + name);
 	} catch (e) {
-		webuiShowToast(webuiL('msg.error', 'Error') + ': ' + e.message, true);
+		webuiToastError(webuiL('msg.error', 'Error'), e);
 	}
 	btn.disabled = false;
 }
@@ -1302,7 +1302,7 @@ async function reloadPluginList(btn) {
 		await loadPluginsPanel();
 		webuiShowToast(webuiL('set.plugins_reloaded', 'Plugin list reloaded'));
 	} catch (e) {
-		webuiShowToast(webuiL('msg.error', 'Error') + ': ' + e.message, true);
+		webuiToastError(webuiL('msg.error', 'Error'), e);
 	}
 	btn.disabled = false;
 }
@@ -1334,7 +1334,7 @@ async function loadSharesPanel() {
 		var data = await webuiV1('GET', '/storage/shares');
 		drawShares(el, (data && data.items) || []);
 	} catch (e) {
-		el.replaceChildren(webuiEl('p', {}, webuiL('msg.error', 'Error') + ': ' + e.message));
+		el.replaceChildren(webuiEl('p', {}, webuiL('msg.error', 'Error') + ': ' + webuiErrText(e)));
 	}
 }
 
@@ -1390,7 +1390,7 @@ async function onShare(i, request) {
 		updateShares((res && res.items) || [], i);
 		return true;
 	} catch (e) {
-		webuiShowToast(webuiL('msg.error', 'Error') + ': ' + e.message, true);
+		webuiToastError(webuiL('msg.error', 'Error'), e);
 		if (body) body.disabled = false;
 		return false;
 	}
@@ -1484,7 +1484,7 @@ async function mountAutomaticShares(btn) {
 		var now = await webuiV1('GET', '/storage/shares');
 		updateShares((now && now.items) || [], -1);
 	} catch (e) {
-		webuiShowToast(webuiL('msg.error', 'Error') + ': ' + e.message, true);
+		webuiToastError(webuiL('msg.error', 'Error'), e);
 	}
 	btn.disabled = false;
 }

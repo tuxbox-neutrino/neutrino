@@ -207,7 +207,7 @@ async function setTimerZap() {
 		closeModal();
 		loadEpg();
 	} catch (e) {
-		webuiShowToast(webuiL('epg.timer_fail', 'Setting the timer failed') + ': ' + e.message, true);
+		webuiToastError(webuiL('epg.timer_fail', 'Setting the timer failed'), e);
 	}
 }
 
@@ -221,7 +221,7 @@ async function zapTo(channelId) {
 	try {
 		return await webuiV1Zap(channelId);
 	} catch (e) {
-		webuiShowToast(e.message, true);
+		webuiToastError('', e);
 		return false;
 	}
 }

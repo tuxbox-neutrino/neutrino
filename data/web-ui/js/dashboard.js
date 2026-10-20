@@ -455,7 +455,7 @@ async function toggleStandby(inStandby) {
 		await webuiV1('POST', '/system/standby', {body: {on: !inStandby}});
 		webuiShowToast(inStandby ? webuiL('sb.wake', 'Waking the box') : webuiL('sb.sleep', 'Box goes to standby'));
 	} catch (e) {
-		webuiShowToast(webuiL('sb.fail', 'Standby failed') + ': ' + e.message, true);
+		webuiToastError(webuiL('sb.fail', 'Standby failed'), e);
 	}
 }
 
@@ -469,7 +469,7 @@ async function sendStandby() {
 		}
 		await toggleStandby(true);
 	} catch (e) {
-		webuiShowToast(webuiL('sb.fail', 'Standby failed') + ': ' + e.message, true);
+		webuiToastError(webuiL('sb.fail', 'Standby failed'), e);
 	}
 }
 
@@ -489,7 +489,7 @@ async function switchMode() {
 		await webuiV1('POST', '/mode', {body: {mode: newMode}});
 		setMode(newMode);
 	} catch (e) {
-		webuiShowToast(e.message, true);
+		webuiToastError('', e);
 	}
 	withEl('mode-switch-btn', function(el) { el.disabled = false; el.style.opacity = '1'; });
 }

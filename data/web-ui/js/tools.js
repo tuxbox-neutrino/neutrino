@@ -18,7 +18,7 @@ async function bcDo(label, endpoint, params) {
 		await webuiV1(m[1], m[2], params ? {body: params} : {});
 		webuiShowToast(label + ' ' + webuiL('msg.executed', 'done'));
 	} catch (e) {
-		webuiShowToast(webuiL('msg.error', 'Error') + ': ' + e.message, true);
+		webuiToastError(webuiL('msg.error', 'Error'), e);
 	}
 }
 
@@ -95,8 +95,10 @@ async function bcRecStart() {
 		webuiShowToast(webuiL('bc.recording', 'Recording') + '-Start ' + webuiL('msg.executed', 'done'));
 		setTimeout(bcRecState, 1500);
 	} catch (e) {
-		webuiShowToast(e.code === 'recording-running' ? webuiL('bc.rec_already', 'The channel the box shows is being recorded already') :
-			webuiL('msg.error', 'Error') + ': ' + e.message, true);
+		if (e.code === 'recording-running')
+			webuiShowToast(webuiL('bc.rec_already', 'The channel the box shows is being recorded already'), true);
+		else
+			webuiToastError(webuiL('msg.error', 'Error'), e);
 	}
 }
 
@@ -151,9 +153,9 @@ async function bcVideoApply() {
 		var answer = await webuiV1('PATCH', '/settings/' + encodeURIComponent(bcVideoSection), {body: {video_Mode: sel.value}});
 		var r = answer && answer.results && answer.results.video_Mode;
 		if (r && r.status >= 300)
-			throw new Error(r.detail || r.code || String(r.status));
+			throw webuiResultError(r);
 		webuiShowToast(webuiL('bc.resolution', 'Resolution') + ': ' + label);
 	} catch (e) {
-		webuiShowToast(webuiL('msg.error', 'Error') + ': ' + e.message, true);
+		webuiToastError(webuiL('msg.error', 'Error'), e);
 	}
 }

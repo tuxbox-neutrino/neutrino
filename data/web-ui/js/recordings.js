@@ -60,7 +60,7 @@ async function loadList(more) {
 		page = await webuiV1('GET', '/recordings/archive', {query: query});
 	} catch (e) {
 		if (token !== listToken) return;
-		list.replaceChildren(webuiEl('li', {className: 'webui-empty'}, webuiL('msg.load_fail', 'Loading failed') + ': ' + e.message));
+		list.replaceChildren(webuiEl('li', {className: 'webui-empty'}, webuiL('msg.load_fail', 'Loading failed') + ': ' + webuiErrText(e)));
 		moreBtn.hidden = true;
 		return;
 	}
@@ -151,7 +151,7 @@ async function showDetail(id) {
 	try {
 		rec = await webuiV1('GET', archive(id));
 	} catch (e) {
-		webuiShowToast(e.message, true);
+		webuiToastError('', e);
 		return;
 	}
 	const facts = [];
@@ -203,7 +203,7 @@ async function play(id) {
 		});
 		if (ok) webuiShowToast(webuiL('media.played', 'Playback started'));
 	} catch (e) {
-		webuiShowToast(e.message, true);
+		webuiToastError('', e);
 	}
 }
 
@@ -224,7 +224,7 @@ function remove(rec) {
 				webuiShowToast(webuiL('media.deleted', 'Recording deleted'));
 				loadList(false);
 			} catch (e) {
-				webuiShowToast(e.message, true);
+				webuiToastError('', e);
 			}
 		}
 	});
