@@ -312,6 +312,38 @@ int CLuaInstMenu::MenuNew(lua_State *L)
 			m = new CMenuWidget(name.c_str(), icon.c_str(), mwidth);
 		else
 			m = new CMenuWidget(name.c_str(), icon.c_str());
+
+		std::vector<button_label_cc> buttons;
+		std::string label;
+		if (tableLookup(L, "btnRed", label) && !label.empty()) {
+			button_label_cc b;
+			b.button = NEUTRINO_ICON_BUTTON_RED;
+			b.text = label;
+			buttons.push_back(b);
+		}
+		label.clear();
+		if (tableLookup(L, "btnGreen", label) && !label.empty()) {
+			button_label_cc b;
+			b.button = NEUTRINO_ICON_BUTTON_GREEN;
+			b.text = label;
+			buttons.push_back(b);
+		}
+		label.clear();
+		if (tableLookup(L, "btnYellow", label) && !label.empty()) {
+			button_label_cc b;
+			b.button = NEUTRINO_ICON_BUTTON_YELLOW;
+			b.text = label;
+			buttons.push_back(b);
+		}
+		label.clear();
+		if (tableLookup(L, "btnBlue", label) && !label.empty()) {
+			button_label_cc b;
+			b.button = NEUTRINO_ICON_BUTTON_BLUE;
+			b.text = label;
+			buttons.push_back(b);
+		}
+		if (!buttons.empty())
+			m->setLuaFooter(buttons);
 	} else
 		m = new CMenuWidget();
 

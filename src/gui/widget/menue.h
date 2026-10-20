@@ -589,6 +589,8 @@ class CMenuWidget : public CMenuTarget, public CComponentsSignals
 		int			footer_height;
 		int			fbutton_count;
 		const struct button_label	*fbutton_labels;
+		std::vector<button_label_cc> lua_footer_buttons;
+		bool lua_footer_enabled;
 
 		unsigned int		item_start_y;
 		unsigned int		current_page;
@@ -679,6 +681,7 @@ class CMenuWidget : public CMenuTarget, public CComponentsSignals
 		};
 		void addKey(neutrino_msg_t key, CMenuTarget *menue, const std::string &action);
 		void setFooter(const struct button_label *_fbutton_label, const int _fbutton_count, bool repaint = false);
+		void setLuaFooter(const std::vector<button_label_cc> &buttons, bool repaint = false);
 
 		void setNextShortcut(int sc) { nextShortcut = sc; };
 		int getNextShortcut() { return nextShortcut; };

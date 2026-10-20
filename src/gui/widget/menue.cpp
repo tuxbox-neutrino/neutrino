@@ -663,6 +663,7 @@ void CMenuWidget::Init(const std::string &NameString, const std::string &Icon, c
 	hint_height	= 0;
 	fbutton_count	= 0;
 	fbutton_labels	= NULL;
+	lua_footer_enabled = false;
 	footer_width	= 0;
 	footer_height	= 0;
 	saveScreen_width = 0;
@@ -1452,7 +1453,10 @@ void CMenuWidget::paint()
 	 * We must prepare footer, to get current footer dimensions,
 	 * otherwise footer will paint on wrong position
 	*/
-	setFooter(fbutton_labels, fbutton_count);
+	if (lua_footer_enabled)
+		setLuaFooter(lua_footer_buttons);
+	else
+		setFooter(fbutton_labels, fbutton_count);
 
 	OnBeforePaint();
 
@@ -1833,6 +1837,28 @@ void CMenuWidget::setFooter(const struct button_label *_fbutton_labels, const in
 		footer_height = 0;
 	}
 
+	if (repaint)
+		paint();
+}
+
+void CMenuWidget::setLuaFooter(const std::vector<button_label_cc> &buttons, bool repaint)
+{
+	// setFooter() keeps a pointer to locale labels. For Lua strings, own a copy.
+	// The paint path passes our own vector back in, so avoid self-assignment.
+	if (&buttons != &lua_footer_buttons)
+		lua_footer_buttons = buttons;
+	lua_footer_enabled = !lua_footer_buttons.empty();
+	if (lua_footer_enabled) {
+		fbutton_count = static_cast<int>(lua_footer_buttons.size());
+		if (!footer)
+			footer = new CComponentsFooter(x, y + height, width + scrollbar_width, 0, 0, NULL, CC_SHADOW_ON);
+		footer->setWidth(width + scrollbar_width);
+		footer->setButtonLabels(lua_footer_buttons, 0, 0);
+		footer_height = footer->getHeight();
+		footer_width = footer->getWidth() - scrollbar_width;
+	} else {
+		setFooter(fbutton_labels, 0);
+	}
 	if (repaint)
 		paint();
 }
