@@ -1,0 +1,9 @@
+{
+	"name": "Files",
+	"version": "1.0.0",
+	"slot": "tools",
+	"entry": "index.html",
+	"icon": "icon.svg",
+	"description": "File manager",
+	"default": "on"
+}
