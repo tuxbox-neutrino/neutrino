@@ -264,7 +264,7 @@ function showPlayback() {
 
 // Load System Info: /api/v1/system/info in the old shape (webui-header.js)
 function loadSystemInfo() {
-	webuiSystemInfo(false).then(function(data) {
+	webuiSystemInfo({interfaces: true}).then(function(data) {
 		if (!data) return;
 
 		// Uptime
@@ -343,8 +343,13 @@ function loadSystemInfo() {
 			setText('net-hostname', data.hostname);
 		}
 
-		// Network interfaces - filter to show only relevant ones
-		if (data.interfaces && data.interfaces.length > 0) {
+		// Network interfaces - filter to show only relevant ones; none at all
+		// is said as such rather than left at "Loading..."
+		if (data.interfaces && data.interfaces.length === 0) {
+			const none = document.getElementById('net-interfaces');
+			if (none)
+				none.replaceChildren(webuiEl('div', {className: 'webui-text-muted'}, webuiL('si.no_ifaces', 'No interfaces')));
+		} else if (data.interfaces && data.interfaces.length > 0) {
 			// Filter: only interfaces with IP or physical interfaces
 			const relevant = data.interfaces.filter(function(iface) {
 				// Skip veth (docker), br- without IP

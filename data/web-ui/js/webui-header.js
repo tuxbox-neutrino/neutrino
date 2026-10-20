@@ -529,16 +529,18 @@ function webuiUpdateClock() {
    filesystem as disk, every storage filesystem in disks, the interfaces with
    ip. Readable without a sign-in from the home network; null where the box
    does not answer. full asks for the filesystems and the interfaces as well,
-   which only the information page shows. */
+   which the information page shows; {interfaces: true} asks for the
+   interfaces alone, as the dashboard's network card needs them. */
 async function webuiSystemInfo(full) {
+	var want = (full && typeof full === 'object') ? full : {mounts: !!full, interfaces: !!full};
 	var read = async function(path) {
 		try {
 			var r = await fetch('/api/v1' + path, {credentials: 'same-origin', cache: 'no-store'});
 			return r.ok ? r.json() : null;
 		} catch (e) { return null; }
 	};
-	var all = await Promise.all([read('/system/info'), full ? read('/storage/mounts') : null,
-		full ? read('/network/interfaces') : null]);
+	var all = await Promise.all([read('/system/info'), want.mounts ? read('/storage/mounts') : null,
+		want.interfaces ? read('/network/interfaces') : null]);
 	var info = all[0];
 	if (!info) return null;
 	var kb = function(bytes) { return Math.round((bytes || 0) / 1024); };
