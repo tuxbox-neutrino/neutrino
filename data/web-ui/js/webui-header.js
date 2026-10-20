@@ -730,6 +730,7 @@ window.addEventListener('hashchange', function() {
 
 // Initialize header
 function webuiInitHeader(pageName) {
+	_webuiToastHost();
 	// Insert header at beginning of body
 	const headerContainer = document.getElementById('webui-header-container');
 	if (headerContainer) {
@@ -1953,22 +1954,37 @@ function webuiToastError(prefix, e) {
 		console.warn((prefix || 'refused') + ':', e.message);
 }
 
-// Toast notification
+/* Where the messages appear: one place for the page, there before the first
+   message, so a screen reader announces what comes into it (an error at
+   once, as an alert). */
+function _webuiToastHost() {
+	var host = document.getElementById('webui-toast-host');
+	if (!host && document.body) {
+		host = document.createElement('div');
+		host.id = 'webui-toast-host';
+		host.className = 'webui-toast-host';
+		host.setAttribute('aria-live', 'polite');
+		document.body.appendChild(host);
+	}
+	return host;
+}
+
+// Toast notification: one at a time, at the bottom and above the phone's
+// tab bar; an error stays twice as long, and a click takes a message away.
 function webuiShowToast(message, isError) {
-	// Remove existing toast
 	const existing = document.getElementById('webui-toast');
 	if (existing) existing.remove();
 
 	const toast = document.createElement('div');
 	toast.id = 'webui-toast';
+	toast.className = 'webui-toast ' + (isError ? 'error' : 'ok');
+	if (isError) toast.setAttribute('role', 'alert');
 	toast.textContent = message;
-	toast.style.cssText = 'position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);' +
-		'padding:0.6rem 1.2rem;border-radius:0.4rem;font-size:0.85rem;z-index:10000;' +
-		'color:#fff;box-shadow:0 4px 12px rgba(0,0,0,0.3);transition:opacity 0.3s;' +
-		'background:' + (isError ? '#ef4444' : '#22c55e');
-	document.body.appendChild(toast);
-	setTimeout(() => { toast.style.opacity = '0'; }, 2500);
-	setTimeout(() => { toast.remove(); }, 3000);
+	toast.addEventListener('click', function() { toast.remove(); });
+	(_webuiToastHost() || document.body).appendChild(toast);
+	const shown = isError ? 6000 : 3000;
+	setTimeout(() => { toast.classList.add('leaving'); }, shown - 500);
+	setTimeout(() => { toast.remove(); }, shown);
 }
 
 // About Modal
@@ -2476,6 +2492,7 @@ function webuiInitPullRefresh() {
 
 // Initialize the header and its components
 function webuiInit() {
+	_webuiToastHost();
 	const headerWrapper = document.querySelector('.webui-header-wrapper');
 	const existingHeader = document.querySelector('.webui-header');
 

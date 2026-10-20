@@ -477,6 +477,44 @@ body:not(.has-subheader) .webui-header-spacer {
 	background: var(--webui-accent-light);
 }
 
+/* the message after an action, at the bottom; white on both colours keeps
+   AA (5.4:1 and 6.6:1) in either theme */
+.webui-toast-host {
+	position: fixed;
+	left: 50%;
+	bottom: 1.5rem;
+	transform: translateX(-50%);
+	z-index: 10000;
+	width: max-content;
+	max-width: min(32rem, calc(100vw - 2rem));
+	pointer-events: none;
+}
+
+.webui-toast {
+	pointer-events: auto;
+	padding: 0.6rem 1.2rem;
+	border-radius: 0.4rem;
+	font-size: 0.875rem;
+	line-height: 1.4;
+	color: #fff;
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+	transition: opacity 0.3s;
+	cursor: pointer;
+	overflow-wrap: anywhere;
+}
+
+.webui-toast.ok {
+	background: #1d7a43;
+}
+
+.webui-toast.error {
+	background: #b42318;
+}
+
+.webui-toast.leaving {
+	opacity: 0;
+}
+
 /* the tab bar, on a phone only, and what "More" opens above it */
 .webui-tabbar {
 	display: none;
@@ -586,6 +624,10 @@ body:not(.has-subheader) .webui-header-spacer {
 	.webui-tabbar a.active,
 	.webui-tabbar button.active {
 		color: var(--webui-accent);
+	}
+
+	.webui-toast-host {
+		bottom: calc(3.75rem + 0.75rem + env(safe-area-inset-bottom, 0px));
 	}
 
 	/* the page ends above the tab bar */
