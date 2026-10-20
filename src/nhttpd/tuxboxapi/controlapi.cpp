@@ -3339,6 +3339,16 @@ void CControlAPI::ReloadChannelsCGI(CyhookHandler *hh)
 	hh->SendOk();
 }
 
+#if defined(SCREENSHOT) || defined(ENABLE_GRAPHLCD)
+/* A picture's name names a file directly in /tmp: no slash, which would
+   lead out of it, and no NUL, which would cut the name short. */
+static bool screenshotNameOk(const std::string &name)
+{
+	return !name.empty() && name.find('/') == std::string::npos
+		&& name.find('\0') == std::string::npos;
+}
+#endif
+
 #ifdef SCREENSHOT
 void CControlAPI::ScreenshotCGI(CyhookHandler *hh)
 {
@@ -3352,6 +3362,11 @@ void CControlAPI::ScreenshotCGI(CyhookHandler *hh)
 		enableVideo = false;
 	if(!hh->ParamList["name"].empty())
 		filename = hh->ParamList["name"];
+	// a name and not a path: the picture stays in /tmp, where it is read
+	if (!screenshotNameOk(filename)) {
+		hh->SendError();
+		return;
+	}
 
 	CScreenShot * screenshot = new CScreenShot("/tmp/" + filename + ".png", (CScreenShot::screenshot_format_t)0 /*PNG*/);
 	if(screenshot){
@@ -3373,6 +3388,10 @@ void CControlAPI::GlcdScreenshotCGI(CyhookHandler *hh)
 
 	if(!hh->ParamList["name"].empty())
 		filename = hh->ParamList["name"];
+	if (!screenshotNameOk(filename)) {
+		hh->SendError();
+		return;
+	}
 
 	filename = "/tmp/" + filename + ".png";
 

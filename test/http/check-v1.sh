@@ -740,5 +740,15 @@ for f in probe22.png probe22.txt; do
 	else fail "a $f below /tmp: $c"; fi
 done
 
+# 23. /control/screenshot takes a name and not a path: a name with a slash in
+#     it is refused, and no picture lands outside /tmp. The name below would
+#     have led back into /tmp under another name; nothing is written there.
+d23=`basename "$T"`
+p23="check-v1-probe23-$$"
+c=`curl -s -o "$T/b23" -w '%{http_code}' -H "$AUTH_C" "$BASE/control/screenshot?name=$d23%2F..%2F$p23"`
+if grep -q '^error' "$T/b23" && [ ! -e "/tmp/$p23.png" ]; then pass "/control/screenshot refuses a name with a slash"
+else fail "/control/screenshot with a slash: $c `head -c 40 $T/b23`"; fi
+rm -f "/tmp/$p23.png"
+
 echo "failures: $fails"
 [ "$fails" -eq 0 ]
