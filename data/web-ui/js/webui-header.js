@@ -1858,15 +1858,28 @@ var WEBUI_START_PAGES = [
 	['settings.html', 'nav.settings', 'Settings']
 ];
 
-/* Pages of the interface that became extensions: a start page stored under
-   the old name stands for the extension's page. index.js keeps the same list,
-   as the start page loads nothing but its own script. */
+/* Start pages stored under another name: what the classic settings page and
+   the shipped yWeb.conf write ("none" there), and pages of the interface that
+   became extensions, each standing for the page it is today. index.js keeps
+   the same list, as the start page loads nothing but its own script. */
 var WEBUI_MOVED_PAGES = {
+	none: 'dashboard.html',
+	control: 'dashboard.html',
+	bouquets: 'bouquets.html',
+	remote: 'extensions/screenshot/index.html',
+	screenshot: 'extensions/screenshot/index.html',
 	'files.html': 'extensions/files/index.html',
 	'sysinfo.html': 'extensions/sysinfo/index.html',
 	'screenshot.html': 'extensions/screenshot/index.html',
 	'bouquet-editor.html': 'extensions/bouquet-editor/index.html'
 };
+
+/* A stored start page as the page it stands for, without a leading slash. */
+function webuiStartPageOf(stored) {
+	var page = String(stored || '').replace(/^\//, '');
+	return Object.prototype.hasOwnProperty.call(WEBUI_MOVED_PAGES, page) ?
+		WEBUI_MOVED_PAGES[page] : page;
+}
 
 /* What a start page can be, for a choice: the pages above and the page of
    every extension that is switched on (webuiDiscoverExtensions must have

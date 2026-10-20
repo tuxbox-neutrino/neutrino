@@ -8,13 +8,14 @@
 	// the interface's own pages a start page can be
 	var core = ['dashboard', 'bouquets', 'epg', 'timer', 'recordings', 'tools',
 		'settings'];
-	// what the classic settings page and the shipped yWeb.conf
-	// write ("none" there), mapped onto the modern pages
+	// start pages stored under another name, the same list as
+	// WEBUI_MOVED_PAGES in webui-header.js: what the classic settings
+	// page and the shipped yWeb.conf write ("none" there), and pages
+	// that became extensions
 	var classic = {
 		none: 'dashboard.html', bouquets: 'bouquets.html',
 		control: 'dashboard.html', remote: 'extensions/screenshot/index.html',
 		screenshot: 'extensions/screenshot/index.html',
-		// pages that became extensions (WEBUI_MOVED_PAGES in webui-header.js)
 		'files.html': 'extensions/files/index.html',
 		'sysinfo.html': 'extensions/sysinfo/index.html',
 		'screenshot.html': 'extensions/screenshot/index.html',

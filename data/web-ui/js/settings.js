@@ -336,9 +336,9 @@ async function webuiSettingsRead() {
 	var r = await webuiV1('GET', '/webui/settings');
 	var out = {};
 	((r && r.items) || []).forEach(function(it) { out[it.key] = it.value; });
-	// a start page that became an extension is shown as the extension's page
-	if (out.start_page && WEBUI_MOVED_PAGES[out.start_page])
-		out.start_page = WEBUI_MOVED_PAGES[out.start_page];
+	// a start page stored under another name is shown as the page it stands for
+	if (out.start_page)
+		out.start_page = webuiStartPageOf(out.start_page);
 	return out;
 }
 
