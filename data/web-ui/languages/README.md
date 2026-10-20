@@ -1,14 +1,11 @@
 # Neutrino-Web-UI languages — how to add or complete a translation
 
-This directory holds the texts of the Neutrino-Web-UI in two kinds of
-files:
-
-- **`<code>.json`** (`en.json`, `de.json`): the interface's own texts,
-  which the pages read in the browser (`js/webui-i18n.js`). A language is
-  named by its code everywhere the pages and `/api/v1` meet it.
-- **Files named after the language** (`English`, `Deutsch`, …): the texts
-  the server's template engine puts into the old pages. `nhttpd.conf`
-  keeps the active language under this name (`Language.selected`).
+This directory holds the texts of the Neutrino-Web-UI, one file per
+language named by its code (`en.json`, `de.json`), which the pages read
+in the browser (`js/webui-i18n.js`). A language is named by its code
+everywhere the pages and `/api/v1` meet it; `nhttpd.conf` keeps the
+active one under the name the table below gives it
+(`Language.selected`).
 
 ## `<code>.json`
 
@@ -32,8 +29,8 @@ One flat JSON object, UTF-8, the key on the left, the text on the right:
 Once `<code>.json` is installed beside the others: `GET /api/v1/webui/language`
 lists every language the directory holds the interface's texts for. The
 code needs a row in the table in `src/httpd/webconfig.cpp` (`kLanguages`),
-which names the old pages' file and what the language calls itself; `en`,
-`de`, `cs`, `pl`, `pt` and `sk` have one.
+which names the name `nhttpd.conf` keeps it under and what the language
+calls itself; `en`, `de`, `cs`, `pl`, `pt` and `sk` have one.
 
 ## Add a new language
 
@@ -51,8 +48,6 @@ which names the old pages' file and what the language calls itself; `en`,
 
    ```
    install_DATA = \
-       Deutsch \
-       English \
        de.json \
        en.json \
        fr.json
@@ -61,24 +56,12 @@ which names the old pages' file and what the language calls itself; `en`,
 4. Rebuild and reinstall Neutrino (or, in a dev tree, copy the file into
    the served webroot `.../httpd/languages/`).
 
-## The old pages' files
-
-Plain `key=value`, one entry per line, UTF-8, `#` starting a comment.
-They hold the texts of the classic pages taken over from the yWeb
-interface (`submit`, `action`, `global.*`, …), which the server's
-template engine puts in as it sends those pages; a missing key falls
-back to English (`HTTPD_DEFAULT_LANGUAGE`). The interface's own texts
-are not in them.
-
-`Czech`, `Polski`, `Portuguese` and `Slovak` have only legacy keys and
-no `<code>.json`, so the switcher does not offer them.
-
 ## Runtime notes
 
 - The active language is stored as `Language.selected` in `nhttpd.conf`
   and switched at runtime via the header globe button or the setup wizard
-  (→ `PUT /api/v1/webui/language`, by the language's code), which has the
-  server read its file again. `GET /api/v1/session` says the active
+  (→ `PUT /api/v1/webui/language`, by the language's code).
+  `GET /api/v1/session` says the active
   language's code to anybody, so the sign-in page is shown in it.
 - A page reads `en.json` and the active language's file when it loads;
   the header button shows the active language's code.

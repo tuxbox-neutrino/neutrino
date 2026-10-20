@@ -1,15 +1,11 @@
 SUBDIRS = \
 	css \
 	favicon \
-	images \
 	img \
 	info \
-	jquery \
 	js \
 	languages \
-	lcd4linux \
-	scripts \
-	styles
+	lcd4linux
 
 installdir = $(PRIVATE_HTTPDDIR)
 
@@ -31,12 +27,6 @@ install_DATA = \
 	index.html \
 	wizard.html \
 	robots.txt \
-	Y_Baselib.js \
-	Y_Blocks.txt \
-	Y_Main.css \
-	Y_Settings_Infoicons.yhtm \
-	Y_Settings_Plugins_hide.yhtm \
-	Y_User.css \
 	version.txt
 
 install-data-hook:
@@ -91,8 +81,6 @@ install-data-hook:
 			-e 's|%(HOSTED_HTTPDDIR)|$(HOSTED_HTTPDDIR)|g' \
 			-e 's|%(FLAGDIR)|$(FLAGDIR)|g' \
 	;
-	@# install dark style as default
-	cp $(DESTDIR)$(PRIVATE_HTTPDDIR)/styles/Y_Dist-dark.css $(DESTDIR)$(PRIVATE_HTTPDDIR)/Y_Dist.css
 	@# every extension carried along, by its folder alone (after the
 	@# placeholders above: an extension goes in as it is)
 	$(SHELL) $(srcdir)/install-extensions.sh $(srcdir)/extensions $(DESTDIR)$(PRIVATE_HTTPDDIR)/extensions

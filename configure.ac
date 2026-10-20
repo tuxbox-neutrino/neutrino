@@ -826,16 +826,12 @@ data/weather/Makefile
 data/webradio/Makefile
 data/webtv/Makefile
 data/web-ui/Makefile
-data/web-ui/images/Makefile
 data/web-ui/img/Makefile
 data/web-ui/js/Makefile
 data/web-ui/languages/Makefile
-data/web-ui/scripts/Makefile
-data/web-ui/styles/Makefile
 data/web-ui/css/Makefile
 data/web-ui/favicon/Makefile
 data/web-ui/info/Makefile
-data/web-ui/jquery/Makefile
 data/web-ui/lcd4linux/Makefile
 data/zapit/Makefile
 lib/Makefile
