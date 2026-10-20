@@ -3,7 +3,7 @@
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Neutrino-Web-UI - EPG</title>
+	<title data-l="nav.epg" data-l-prefix="Neutrino-Web-UI - ">Neutrino-Web-UI - EPG</title>
 	<link rel="icon" href="/favicon/favicon.ico">
 	<script>
 		// Apply the stored theme before first paint: webui-header.js runs
@@ -220,15 +220,67 @@
 			box-shadow: 0 2px 8px rgba(0,0,0,0.3);
 		}
 
-		/* Current program with progress bar effect */
+		/* What runs now: its edge in the accent and how far it has run as a
+		   bar along its foot; the text keeps its colour, which a fill behind
+		   it would leave without contrast on the part not run yet */
 		.webui-epg-program.current {
-			background: linear-gradient(to right,
-				var(--webui-accent) 0%,
-				var(--webui-accent) var(--progress, 0%),
-				var(--epg-prog-rest) var(--progress, 0%),
-				var(--epg-prog-rest) 100%);
+			background:
+				linear-gradient(var(--webui-accent), var(--webui-accent)) left bottom / var(--progress, 0%) 3px no-repeat,
+				var(--epg-prog-bg);
 			border-color: var(--webui-accent);
+		}
+
+		/* Pico draws a [role="button"] as a filled button with light text:
+		   the grid's cells keep their own look */
+		.webui-epg-channel-name[role="button"],
+		.webui-epg-program[role="button"] {
+			--pico-color: inherit;
+			color: inherit;
+			font-weight: inherit;
+			text-align: left;
+			text-decoration: none;
+			box-shadow: none;
+			user-select: auto;
+		}
+
+		.webui-epg-channel-name[role="button"] {
+			margin: 0;
+			padding: 0.25rem 0.4rem;
+			border: 0;
+			border-right: 1px solid var(--pico-muted-border-color);
+			border-radius: 0;
+			background: none;
+			font-weight: 500;
+			justify-content: flex-start;
+		}
+
+		.webui-epg-program[role="button"]:hover {
 			color: var(--webui-on-accent);
+		}
+
+		.webui-epg-program:focus-visible,
+		.webui-epg-channel-name:focus-visible {
+			outline: 2px solid var(--webui-focus-color);
+			outline-offset: -2px;
+			z-index: 6;
+		}
+
+		/* a row the guide knows nothing for in the window */
+		.webui-epg-none {
+			display: flex;
+			align-items: center;
+			height: 100%;
+			padding: 0 0.6rem;
+			color: var(--pico-muted-color);
+			font-size: 0.75rem;
+			font-style: italic;
+		}
+
+		/* the channel the box plays */
+		.webui-epg-row.playing .webui-epg-channel-name {
+			color: var(--webui-accent);
+			font-weight: 700;
+			box-shadow: inset 3px 0 0 var(--webui-accent);
 		}
 
 		.webui-epg-program.timer-rec {
@@ -417,17 +469,17 @@
 	<main class="webui-epg-container">
 		<!-- Toolbar - kompakt in einer Zeile -->
 		<div class="webui-toolbar webui-epg-toolbar">
-			<select class="webui-select" id="bouquetSelect">
-				<option value=""><span data-l="nav.bouquets">Bouquets</span>...</option>
+			<select class="webui-select" id="bouquetSelect" aria-label="Bouquet" data-l-aria-label="nav.bouquets">
+				<option value="" data-l="msg.loading">Loading...</option>
 			</select>
-			<select class="webui-select" id="timeSelect"></select>
+			<select class="webui-select" id="timeSelect" aria-label="From" data-l-aria-label="epg.from"></select>
 			<!-- the time nav belongs next to the time it shifts -->
 			<div class="webui-btn-group">
-				<button class="webui-btn" onclick="changeTime(-2)" title="-2 Stunden">&lt; -2h</button>
-				<button class="webui-btn" onclick="changeTime(2)" title="+2 Stunden">+2h &gt;</button>
+				<button type="button" class="webui-btn" onclick="changeTime(-2)" title="2 hours earlier" data-l-title="epg.earlier" aria-label="2 hours earlier" data-l-aria-label="epg.earlier">&lt; -2h</button>
+				<button type="button" class="webui-btn" onclick="changeTime(2)" title="2 hours later" data-l-title="epg.later" aria-label="2 hours later" data-l-aria-label="epg.later">+2h &gt;</button>
 			</div>
-			<button class="webui-btn primary" onclick="loadEpg()">
-				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+			<button type="button" class="webui-btn primary" onclick="loadEpg()">
+				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
 					<polyline points="23,4 23,10 17,10"/>
 					<path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
 				</svg>
@@ -436,9 +488,7 @@
 		</div>
 
 		<!-- EPG Grid -->
-		<div class="webui-epg-grid" id="epgGrid">
-			<p aria-busy="true" style="padding:3rem;text-align:center;color:var(--pico-muted-color)" data-l="epg.loading">Loading EPG data...</p>
-		</div>
+		<div class="webui-epg-grid" id="epgGrid"></div>
 	</main>
 
 	<!-- Detail Modal -->
@@ -449,8 +499,8 @@
 					<h3 class="webui-epg-modal-title" id="modalTitle">-</h3>
 					<div class="webui-epg-modal-subtitle" id="modalSubtitle">-</div>
 				</div>
-				<button class="webui-epg-modal-close" onclick="closeModal()">
-					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+				<button type="button" class="webui-epg-modal-close" onclick="closeModal()" aria-label="Close" data-l-aria-label="msg.close">
+					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
 						<line x1="18" y1="6" x2="6" y2="18"/>
 						<line x1="6" y1="6" x2="18" y2="18"/>
 					</svg>
@@ -461,21 +511,21 @@
 				<div class="webui-epg-modal-desc" id="modalDesc">-</div>
 			</div>
 			<div class="webui-epg-modal-footer">
-				<button class="webui-btn" onclick="zapNow()" title="Switch to this channel now" data-l-title="epg.zap_title">
-					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+				<button type="button" class="webui-btn" onclick="zapNow()" title="Switch to this channel now" data-l-title="epg.zap_title">
+					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
 						<polygon points="5,3 19,12 5,21"/>
 					</svg>
 					<span data-l="epg.zap">Zap</span>
 				</button>
-				<button class="webui-btn" onclick="setTimerZap()" title="Set a zap timer" data-l-title="epg.timer_zap_title">
-					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+				<button type="button" class="webui-btn" onclick="setTimerZap()" title="Set a zap timer" data-l-title="epg.timer_zap_title">
+					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
 						<circle cx="12" cy="12" r="10"/>
 						<polyline points="12,6 12,12 16,14"/>
 					</svg>
-					Timer
+					<span data-l="epg.timer_zap">Zap timer</span>
 				</button>
-				<button class="webui-btn primary" onclick="setTimerRec()" title="Set a recording timer" data-l-title="epg.timer_rec_title">
-					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+				<button type="button" class="webui-btn primary" onclick="setTimerRec()" title="Set a recording timer" data-l-title="epg.timer_rec_title">
+					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
 						<circle cx="12" cy="12" r="10"/>
 						<circle cx="12" cy="12" r="3" fill="currentColor"/>
 					</svg>

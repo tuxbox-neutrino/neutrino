@@ -3,7 +3,10 @@
 // The programme grid over /api/v1: the bouquet's channels, then the
 // guide window for 20 of them per request (GET /api/v1/epg/grid),
 // filled in as the pages arrive. Titles and texts come from the
-// broadcast and go in as text.
+// broadcast and go in as text. The grid follows the box: news of the
+// guide fill the rows they concern again, a timer set or taken away moves
+// the marks, a zap moves the channel the box plays, and what runs now and
+// the line of now move on by the minute.
 const MINUTES_PER_SLOT = 30;
 const DISPLAY_HOURS = 4;
 const TOTAL_MINUTES = DISPLAY_HOURS * 60;
@@ -11,9 +14,14 @@ const TOTAL_MINUTES = DISPLAY_HOURS * 60;
 let currentBouquet = '';
 let currentMode = 'tv';
 let currentStartTime = null;
+let currentChannelId = null;
+let bouquetError = null;	// why the bouquets could not be read, null once they were
 let selectedProgram = null;	// {channelId, channelName, ev}
 let timers = [];
 let gridToken = 0;
+let gridRows = Object.create(null);	// channel id -> {channel, el, events}, for the grid shown
+let gridWindow = null;		// {start, stop} of the grid shown
+let releaseModal = null;
 
 const formatTime = webuiFormatTime;
 function clock(sec) { return formatTime(new Date(sec * 1000)); }
@@ -37,8 +45,10 @@ function initTimeSelect() {
 // shown first is the one holding the channel the box plays, as in the channel list
 async function loadBouquets() {
 	const select = document.getElementById('bouquetSelect');
+	bouquetError = null;
 	try {
 		const ch = await webuiV1('GET', '/channels/current').catch(() => null);
+		currentChannelId = ch ? ch.id : null;
 		currentMode = ch && (ch.kind === 'radio' || ch.kind === 'webradio') ? 'radio' : 'tv';
 		const r = await webuiV1('GET', '/bouquets');
 		const bouquets = ((r && r.items) || []).filter(b =>
@@ -52,8 +62,8 @@ async function loadBouquets() {
 		currentBouquet = found ? String(found.id) : (bouquets.length ? String(bouquets[0].id) : '');
 		select.value = currentBouquet;
 	} catch (e) {
-		select.replaceChildren(webuiEl('option', {}, webuiL('epg.load_fail', 'Loading failed')));
-		console.error('Failed to load bouquets:', e);
+		bouquetError = e;
+		select.replaceChildren(webuiEl('option', {value: ''}, webuiL('epg.load_fail', 'Loading failed')));
 	}
 }
 
@@ -75,93 +85,222 @@ function timerFor(channelId, ev) {
 		 (t.kind === 'zapto' && t.start >= ev.start && t.start < ev.start + ev.duration)));
 }
 
+function nowPercentOf(start, now) {
+	return ((now - start) / 60) / TOTAL_MINUTES * 100;
+}
+
 async function loadEpg() {
 	const token = ++gridToken;
 	const grid = document.getElementById('epgGrid');
-	grid.replaceChildren(webuiEl('p', {attrs: {'aria-busy': 'true'},
-		style: {padding: '3rem', 'text-align': 'center', color: 'var(--pico-muted-color)'}}, webuiL('epg.loading', 'Loading EPG data...')));
+	grid.replaceChildren(webuiState('loading', webuiL('epg.loading', 'Loading EPG data...'), ''));
+	gridRows = Object.create(null);
+	gridWindow = null;
 
 	currentBouquet = document.getElementById('bouquetSelect').value;
 	currentStartTime = parseInt(document.getElementById('timeSelect').value);
 	const startTime = currentStartTime;
 	const stopTime = startTime + DISPLAY_HOURS * 3600;
+	if (bouquetError) {
+		grid.replaceChildren(webuiStateFor(bouquetError, {retry: () => loadBouquets().then(loadEpg)}));
+		return;
+	}
 	if (!currentBouquet) {
-		grid.replaceChildren(webuiEl('p', {className: 'webui-empty'}, webuiL('bq.no_channels', 'No channels found')));
+		grid.replaceChildren(webuiState('empty', webuiL('bq.no_channels', 'No channels found'), ''));
 		return;
 	}
 
+	let drawn = false;
 	try {
 		await loadTimers();
 		const channels = await webuiV1All('/channels', {mode: currentMode, bouquet: currentBouquet});
 		if (token !== gridToken) return;
+		if (!channels.length) {
+			grid.replaceChildren(webuiState('empty', webuiL('bq.no_channels', 'No channels found'), ''));
+			return;
+		}
 
 		const now = Math.floor(Date.now() / 1000);
-		const nowInWindow = now >= startTime && now < stopTime;
-		const nowPercent = ((now - startTime) / 60) / TOTAL_MINUTES * 100;
 
 		const slots = [];
 		for (let i = 0; i < TOTAL_MINUTES / MINUTES_PER_SLOT; i++)
 			slots.push(webuiEl('div', {className: 'webui-epg-time-slot'}, clock(startTime + i * MINUTES_PER_SLOT * 60)));
-		if (nowInWindow)
-			slots.push(webuiEl('div', {className: 'webui-epg-now-marker', style: {left: 'calc(100px + ' + nowPercent + '%)'}}));
-		const header = webuiEl('div', {className: 'webui-epg-time-header'},
+		slots.push(webuiEl('div', {className: 'webui-epg-now-marker', hidden: true}));
+		const header = webuiEl('div', {className: 'webui-epg-time-header', attrs: {'aria-hidden': 'true'}},
 			webuiEl('div', {className: 'webui-epg-channel-header'}, webuiL('msg.channel', 'Channel')),
 			webuiEl('div', {className: 'webui-epg-times'}, slots));
 
 		const rows = webuiEl('div', {className: 'webui-epg-channels', style: {position: 'relative'}},
-			nowInWindow ? webuiEl('div', {className: 'webui-epg-now-line', style: {left: 'calc(100px + ' + nowPercent + '%)'}}) : null);
-		const programsOf = Object.create(null);
+			webuiEl('div', {className: 'webui-epg-now-line', hidden: true}));
 		channels.forEach(channel => {
 			const programs = webuiEl('div', {className: 'webui-epg-programs'});
-			programsOf[channel.id] = {channel: channel, el: programs};
-			rows.appendChild(webuiEl('div', {className: 'webui-epg-row'},
-				webuiEl('div', {className: 'webui-epg-channel-name', title: webuiL('epg.zap_to', 'Switch to') + ' ' + channel.name,
-					on: {click: () => zapTo(channel.id)}},
+			gridRows[channel.id] = {channel: channel, el: programs, events: null};
+			const zapLabel = webuiL('epg.zap_to', 'Switch to') + ' ' + channel.name;
+			rows.appendChild(webuiEl('div', {className: 'webui-epg-row' + (channel.id === currentChannelId ? ' playing' : ''), data: {id: channel.id}},
+				webuiEl('div', {className: 'webui-epg-channel-name', title: zapLabel, tabIndex: 0,
+					attrs: {role: 'button', 'aria-label': zapLabel},
+					on: {click: () => zapTo(channel.id), keydown: ev => pressed(ev, () => zapTo(channel.id))}},
 					webuiEl('span', {}, channel.name)),
 				programs));
 		});
 		grid.replaceChildren(header, rows);
+		drawn = true;
+		gridWindow = {start: startTime, stop: stopTime};
+		placeNow(now);
 
 		// the guide, a page of channels at a time
 		let cursor = null;
+		const filled = new Set();
 		do {
 			const query = {bouquet: currentBouquet, from: startTime, to: stopTime, limit: 20};
 			if (cursor) query.cursor = cursor;
 			const page = await webuiV1('GET', '/epg/grid', {query: query});
 			if (token !== gridToken) return;
 			((page && page.items) || []).forEach(row => {
-				const target = programsOf[row.channel_id];
-				if (target) fillRow(target.channel, target.el, row.events || [], startTime, stopTime, now);
+				const target = gridRows[row.channel_id];
+				if (!target) return;
+				target.events = row.events || [];
+				fillRow(target);
+				filled.add(row.channel_id);
 			});
 			cursor = page && page.next_cursor;
 		} while (cursor);
+		// a channel the guide gave no row for has nothing in the window
+		Object.keys(gridRows).forEach(id => {
+			if (!filled.has(id)) {
+				gridRows[id].events = [];
+				fillRow(gridRows[id]);
+			}
+		});
 	} catch (e) {
 		if (token !== gridToken) return;
-		grid.replaceChildren(webuiEl('p', {className: 'webui-empty'}, webuiL('epg.load_fail', 'Loading failed')));
-		console.error('Failed to load EPG:', e);
+		// rows already drawn stay; the grid as a whole says why it could not
+		if (drawn)
+			webuiToastError(webuiL('epg.load_fail', 'Loading failed'), e);
+		else
+			grid.replaceChildren(webuiStateFor(e, {retry: loadEpg}));
 	}
 }
 
-function fillRow(channel, el, events, startTime, stopTime, now) {
+// Enter or Space on a cell that acts as a button
+function pressed(ev, fn) {
+	if (ev.key === 'Enter' || ev.key === ' ') {
+		ev.preventDefault();
+		fn();
+	}
+}
+
+// The programmes of a row in the window, each a button that names it,
+// its time, its channel and a timer set on it; a row the guide knows
+// nothing for says so
+function fillRow(target) {
+	const channel = target.channel, el = target.el, events = target.events || [];
+	const win = gridWindow;
+	if (!win) return;
+	const now = Math.floor(Date.now() / 1000);
 	const boxes = [];
 	events.forEach(ev => {
 		const evStop = ev.start + ev.duration;
-		if (evStop <= startTime || ev.start >= stopTime) return;
-		const displayStart = Math.max(ev.start, startTime);
-		const displayStop = Math.min(evStop, stopTime);
-		const leftPercent = ((displayStart - startTime) / 60) / TOTAL_MINUTES * 100;
+		if (evStop <= win.start || ev.start >= win.stop) return;
+		const displayStart = Math.max(ev.start, win.start);
+		const displayStop = Math.min(evStop, win.stop);
+		const leftPercent = ((displayStart - win.start) / 60) / TOTAL_MINUTES * 100;
 		const widthPercent = ((displayStop - displayStart) / 60) / TOTAL_MINUTES * 100;
 		const timer = timerFor(channel.id, ev);
-		const isCurrent = now >= ev.start && now < evStop;
-		const style = {left: leftPercent + '%', width: 'calc(' + widthPercent + '% - 2px)'};
-		if (isCurrent) style['--progress'] = Math.round((now - ev.start) / ev.duration * 100) + '%';
-		boxes.push(webuiEl('div', {className: 'webui-epg-program' +
-			(timer ? (timer.kind === 'record' ? ' timer-rec' : ' timer-zap') : '') + (isCurrent ? ' current' : ''),
-			style: style, on: {click: () => showProgramDetail(channel, ev)}},
+		const mark = timer ? (timer.kind === 'record' ? webuiL('epg.timer_rec_mark', 'recording timer set') : webuiL('epg.timer_zap_mark', 'zap timer set')) : '';
+		const name = [ev.title || '', clock(ev.start) + ' – ' + clock(evStop), channel.name, mark].filter(Boolean).join(', ');
+		boxes.push(webuiEl('div', {className: 'webui-epg-program' + (timer ? (timer.kind === 'record' ? ' timer-rec' : ' timer-zap') : ''),
+			tabIndex: 0, attrs: {role: 'button', 'aria-label': name}, data: {start: String(ev.start), stop: String(evStop)},
+			style: {left: leftPercent + '%', width: 'calc(' + widthPercent + '% - 2px)'},
+			on: {click: () => showProgramDetail(channel, ev), keydown: k => pressed(k, () => showProgramDetail(channel, ev))}},
 			webuiEl('div', {className: 'webui-epg-program-title'}, ev.title || ''),
 			webuiEl('div', {className: 'webui-epg-program-time'}, clock(ev.start))));
 	});
+	if (!boxes.length)
+		boxes.push(webuiEl('div', {className: 'webui-epg-none'}, webuiL('epg.none', 'No programme data')));
 	el.replaceChildren.apply(el, boxes);
+	markNow(el, now);
+}
+
+// What runs now in a row: marked, with how far it has run
+function markNow(scope, now) {
+	scope.querySelectorAll('.webui-epg-program').forEach(box => {
+		const start = Number(box.dataset.start), stop = Number(box.dataset.stop);
+		const current = now >= start && now < stop;
+		box.classList.toggle('current', current);
+		if (current)
+			box.style.setProperty('--progress', Math.round((now - start) / (stop - start) * 100) + '%');
+		else
+			box.style.removeProperty('--progress');
+	});
+}
+
+/* The line of now and its mark in the head, where now lies over the
+   programmes: past the channel column, whose width differs with the
+   screen, by its share of the programme area */
+function placeNow(now) {
+	const win = gridWindow;
+	const programs = document.querySelector('.webui-epg-programs');
+	if (!win || !programs) return;
+	const inWindow = now >= win.start && now < win.stop;
+	const x = programs.offsetLeft + programs.clientWidth * nowPercentOf(win.start, now) / 100;
+	document.querySelectorAll('.webui-epg-now-line, .webui-epg-now-marker').forEach(el => {
+		el.hidden = !inWindow;
+		el.style.left = x + 'px';
+	});
+}
+
+// By the minute: the line of now and what runs now move on
+function tickNow() {
+	if (!gridWindow) return;
+	const now = Math.floor(Date.now() / 1000);
+	placeNow(now);
+	markNow(document.getElementById('epgGrid'), now);
+}
+
+// The rows whose guide has news, asked again once the news settle
+let newsSoon = null;
+const newsFor = new Set();
+function epgUpdated(d) {
+	if (!d || !d.channel_id || !gridWindow) return;
+	// the guide names a channel in the lower 48 bits of its id
+	const low = webuiLegacyChannelId(d.channel_id).slice(-12).toLowerCase();
+	Object.keys(gridRows).forEach(id => {
+		if (webuiLegacyChannelId(id).slice(-12).toLowerCase() === low) newsFor.add(id);
+	});
+	if (!newsFor.size || newsSoon) return;
+	newsSoon = setTimeout(refreshRows, 2000);
+}
+
+async function refreshRows() {
+	newsSoon = null;
+	const ids = Array.from(newsFor);
+	newsFor.clear();
+	const token = gridToken, win = gridWindow;
+	if (!win) return;
+	for (let i = 0; i < ids.length; i += 20) {
+		const page = await webuiV1('GET', '/epg/grid', {query: {from: win.start, to: win.stop, limit: 20,
+			channels: ids.slice(i, i + 20).join(',')}}).catch(() => null);
+		if (token !== gridToken) return;
+		((page && page.items) || []).forEach(row => {
+			const target = gridRows[row.channel_id];
+			if (!target) return;
+			target.events = row.events || [];
+			fillRow(target);
+		});
+	}
+}
+
+// A timer set or taken away anywhere moves the marks
+async function timersChanged() {
+	await loadTimers();
+	Object.keys(gridRows).forEach(id => { if (gridRows[id].events) fillRow(gridRows[id]); });
+}
+
+// The channel the box plays, after a zap from anywhere
+async function zapped() {
+	const ch = await webuiV1('GET', '/channels/current').catch(() => null);
+	currentChannelId = ch ? ch.id : null;
+	document.querySelectorAll('.webui-epg-row').forEach(row => row.classList.toggle('playing', row.dataset.id === currentChannelId));
 }
 
 // The detail dialog; the long text is asked for when it opens
@@ -171,10 +310,13 @@ async function showProgramDetail(channel, ev) {
 	document.getElementById('modalSubtitle').textContent = channel.name || '-';
 	const minutes = Math.round(ev.duration / 60);
 	document.getElementById('modalInfo').textContent =
-		clock(ev.start) + ' - ' + clock(ev.start + ev.duration) + ' (' + minutes + ' Min.)';
+		clock(ev.start) + ' – ' + clock(ev.start + ev.duration) + ' (' + webuiL('epg.minutes', '%s min').replace('%s', minutes) + ')';
 	const descEl = document.getElementById('modalDesc');
 	descEl.textContent = ev.description || '';
-	document.getElementById('epgModal').classList.add('open');
+	const modal = document.getElementById('epgModal');
+	modal.classList.add('open');
+	if (releaseModal) releaseModal();
+	releaseModal = webuiDialogA11y(modal.querySelector('.webui-epg-modal-content'), {close: closeModal});
 	const shown = selectedProgram;
 	const full = await webuiV1('GET', '/epg/event', {query: {id: ev.id, start: ev.start}}).catch(() => null);
 	if (selectedProgram !== shown) return;
@@ -185,14 +327,19 @@ async function showProgramDetail(channel, ev) {
 function closeModal() {
 	document.getElementById('epgModal').classList.remove('open');
 	selectedProgram = null;
+	if (releaseModal) {
+		releaseModal();
+		releaseModal = null;
+	}
 }
 
-// A recording of the event, through the helper the other pages share
+// A recording of the event, through the helper the other pages share; the
+// grid shows its mark once the timer event comes in
 async function setTimerRec() {
 	if (!selectedProgram) return;
 	if (await webuiRecordEvent(selectedProgram.channelId, selectedProgram.channelName, selectedProgram.ev)) {
 		closeModal();
-		loadEpg();
+		if (!webuiV1EventsLive()) timersChanged();
 	}
 }
 
@@ -205,7 +352,7 @@ async function setTimerZap() {
 			start: Math.max(ev.start, Math.floor(Date.now() / 60000) * 60), epg_id: ev.id, epg_start: ev.start}});
 		webuiShowToast(webuiL('epg.timer_zap_set', 'Zap timer set!'));
 		closeModal();
-		loadEpg();
+		if (!webuiV1EventsLive()) timersChanged();
 	} catch (e) {
 		webuiToastError(webuiL('epg.timer_fail', 'Setting the timer failed'), e);
 	}
@@ -219,7 +366,12 @@ async function zapNow() {
 // Zap: a file the player plays, or a box in standby, is asked about first
 async function zapTo(channelId) {
 	try {
-		return await webuiV1Zap(channelId);
+		const done = await webuiV1Zap(channelId);
+		if (done) {
+			currentChannelId = channelId;
+			document.querySelectorAll('.webui-epg-row').forEach(row => row.classList.toggle('playing', row.dataset.id === channelId));
+		}
+		return done;
 	} catch (e) {
 		webuiToastError('', e);
 		return false;
@@ -241,6 +393,13 @@ document.getElementById('epgModal').addEventListener('click', function(e) {
 // once the texts are in, which the grid is drawn with
 webuiAfterTexts(function() {
 	initTimeSelect();
+	webuiV1Events({
+		'epg-updated': epgUpdated,
+		'timer-changed': timersChanged,
+		zap: zapped
+	});
+	setInterval(tickNow, 60000);
+	window.addEventListener('resize', () => placeNow(Math.floor(Date.now() / 1000)));
 	return loadBouquets().then(loadEpg);
 });
 
