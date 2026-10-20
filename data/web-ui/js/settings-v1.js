@@ -277,6 +277,7 @@ function _v1setIdHalf(item) {
 	return !!(p && p.writes === 'id' && !item.label);
 }
 
+
 // The setting a row's control writes: the identifier for the named half of a
 // start channel, the row's own setting otherwise.
 function _v1setWrites(item) {
@@ -398,8 +399,43 @@ function _v1setControlOf(key) {
 	return null;
 }
 
+/* Settings the box offers on no screen, and so names no label for, that are
+   still a choice somebody makes: our own words for them. Every other row the
+   box names no label for is state it keeps for itself (the volume it is at,
+   the list it showed last, a directory it used last, the theme it loaded) and
+   is not drawn (v1setPanel). */
+var V1SET_OWN_LABELS = {
+	'epg_scan_rescan': ['set.own.epg_rescan', 'Repeat the standby EPG scan after (hours)'],
+	'bigFonts': ['set.own.bigfonts', 'Event details in the large window'],
+	'adzap_zapBackPeriod': ['set.own.adzap_back', 'AdZap: switch back after'],
+	'infobar_show_channeldesc': ['set.own.infobar_desc', 'Channel description in the infobar'],
+	'movieplayer_select_ac3_atype0': ['set.own.ac3_untyped', 'Treat an audio track of no stated kind as AC3'],
+	'recording_type': ['set.own.recording_type', 'Recording'],
+	'recording_stopsectionsd': ['set.own.stop_epg', 'Stop the EPG service while recording'],
+	'recordingmenu.stream_pmt_pid': ['set.own.stream_pmt', 'Record the PMT PID too'],
+	'recording_choose_direct_rec_dir': ['set.own.rec_dir_choice', 'Choose the folder when recording from the guide (0 no, 1 from the shares, 2 any folder)'],
+	'minimode': ['set.own.minimode', 'Simple mode: lists without recording and bouquet functions']
+};
+
+function _v1setOwnLabel(id) {
+	var own = Object.prototype.hasOwnProperty.call(V1SET_OWN_LABELS, id) ? V1SET_OWN_LABELS[id] : null;
+	return own ? webuiL(own[0], own[1]) : '';
+}
+
+/* The two halves of a pair the box writes together (pair_writes both), named
+   alike by the box because its menu has one item for them: the half below
+   says what it holds. The page saves either half with the other (see the
+   save below), so both stay fields of their own. */
+var V1SET_PART_LABELS = {
+	'weather_location': ['set.own.weather_coords', 'Weather location: coordinates']
+};
+
 function _v1setLabel(item) {
-	return item.label || V1SET.regLabels[item.id] || item.id;
+	var part = Object.prototype.hasOwnProperty.call(V1SET_PART_LABELS, item.id) ? V1SET_PART_LABELS[item.id] : null;
+	var partner = part && item.pair ? V1SET.items[item.pair] : null;
+	if (part && item.label && partner && partner.label === item.label)
+		return webuiL(part[0], part[1]);
+	return item.label || V1SET.regLabels[item.id] || _v1setOwnLabel(item.id) || item.id;
 }
 
 function _v1setChoice(sel, v) {
@@ -420,6 +456,9 @@ function _v1setSetControl(el, item, v) {
 	if (el.tagName === 'SELECT')
 		_v1setChoice(el, v);
 	el.value = v;
+	// the named value's meaning beside a number follows what was put in
+	if (el.list)
+		el.dispatchEvent(new Event('input'));
 }
 
 // what a choice stands for: its text where the setting holds text (the box
@@ -531,8 +570,17 @@ function _v1setControl(item, id, val) {
 		named.forEach(function(c) {
 			names.appendChild(webuiEl('option', {value: String(c.value)}, c.label || String(c.value)));
 		});
-		return webuiEl('span', {className: unit ? 'webui-set-number' : ''},
-			webuiEl('input', {type: 'number', id: id, value: val, data: data, attrs: attrs}), unitText, names);
+		// what a named value means, beside it, so -1 reads as what it stands for
+		var meaning = webuiEl('span', {className: 'webui-set-named webui-text-muted', id: id + '_meaning', attrs: {'aria-live': 'polite'}});
+		attrs['aria-describedby'] = id + '_meaning';
+		var input = webuiEl('input', {type: 'number', id: id, value: val, data: data, attrs: attrs});
+		var say = function() {
+			var c = named.find(function(n) { return String(n.value) === String(input.value); });
+			meaning.textContent = c && c.label ? '= ' + c.label : '';
+		};
+		input.addEventListener('input', say);
+		say();
+		return webuiEl('span', {className: unit ? 'webui-set-number' : ''}, input, unitText, meaning, names);
 	}
 	if (item.values && item.values.length) {
 		var sel = webuiEl('select', {id: id, data: data});
@@ -620,8 +668,10 @@ function v1setRow(item) {
 	if (p && p.error) {
 		row.appendChild(webuiEl('div', {className: 'webui-set-error', id: id + '_err'}, p.error));
 		var field = row.querySelector('[data-v1key]');
-		field.setAttribute('aria-invalid', 'true');
-		field.setAttribute('aria-describedby', id + '_err');
+		if (field) {
+			field.setAttribute('aria-invalid', 'true');
+			field.setAttribute('aria-describedby', id + '_err');
+		}
 	}
 	return row;
 }
@@ -631,6 +681,10 @@ function v1setRow(item) {
 function v1setPanel(section, extra) {
 	var rows = webuiEl('div', {className: 'webui-form-section'});
 	(V1SET.bySection[section] || []).forEach(function(item) {
+		// a setting no menu of the box names and none of our own words name
+		// is state the box keeps for itself, and not a choice: not drawn
+		if (!item.label && !V1SET.regLabels[item.id] && !_v1setOwnLabel(item.id))
+			return;
 		if (!V1SET.claimed[item.id] && !_v1setIdHalf(item))
 			rows.appendChild(v1setRow(item));
 	});
