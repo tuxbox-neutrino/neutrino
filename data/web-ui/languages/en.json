@@ -260,6 +260,7 @@
 	"set.ext_col_on": "Active",
 	"set.plugins_start": "Start",
 	"set.plugins_reload_btn": "Reload",
+	"set.plugins_services": "Services such as NFS or Samba",
 	"set.mnt_mount_all": "Mount all",
 	"set.grp_av": "Picture & Sound",
 	"set.grp_disp": "Displays",

@@ -1162,7 +1162,8 @@ async function doZapitUpload(btn) {
 // directories again. The box starts a plugin and reads its directories
 // on its own thread, after it answered. Starting and stopping services
 // (nfs, samba, ...) is not part of this panel: it depends on the
-// packages and the image, and comes as an extension over /api/v1/daemons.
+// packages and the image, and is the extension services over
+// /api/v1/daemons, which the panel points to while it is on.
 function renderPluginsPanel() {
 	setTimeout(loadPluginsPanel, 0);
 	return '<div class="settings-card">' + makeCardHeader(webuiL('reg.plugins', 'Neutrino plugins')) +
@@ -1199,6 +1200,12 @@ async function loadPluginsPanel() {
 			webuiEl('div', {className: 'webui-form-section-title'}, 'Verwaltung'),
 			pluginRow(webuiL('set.plugins_reload', 'Re-read the plugin list'), null,
 				pluginButton(REFRESH_ICON, webuiL('set.plugins_reload_btn', 'Reload'), reloadPluginList)));
+		// where the services went that the former plugin page started
+		var exts = await webuiDiscoverExtensions().catch(function() { return []; });
+		var services = (exts || []).find(function(m) { return m.dir === 'services' && m.enabled && m.url; });
+		if (services)
+			manage.appendChild(pluginRow(webuiL('set.plugins_services', 'Services such as NFS or Samba'), null,
+				webuiEl('a', {className: 'webui-btn', attrs: {href: services.url}}, services.name)));
 		el.replaceChildren(installed, manage);
 	} catch (e) {
 		el.replaceChildren(pluginRow(webuiL('set.plugins_notavail', 'Plugins not available') + ': ' + e.message));
