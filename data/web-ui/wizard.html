@@ -74,8 +74,9 @@
 <body>
 	<!-- webui-card statt settings-card: letztere ist settings.html-lokal
 	     und hier wirkungslos — die Karte war randlos/unsichtbar -->
-	<main class="wiz-wrap webui-card" id="wizCardBasics">
-		<h1 data-l="wiz.welcome">Welcome to the Neutrino-Web-UI</h1>
+	<main>
+	<section class="wiz-wrap webui-card" id="wizCardBasics" aria-labelledby="wizBasicsTitle">
+		<h1 id="wizBasicsTitle" data-l="wiz.welcome">Welcome to the Neutrino-Web-UI</h1>
 		<p class="sub" data-l="wiz.intro">Choose your language and start page to get going.</p>
 
 		<label for="wizLang" data-l="lang.title">Language</label>
@@ -92,12 +93,12 @@
 			<option value="settings.html" data-l="nav.settings">Settings</option>
 		</select>
 
-		<small class="wiz-err" id="wizErr0" role="status" tabindex="-1" hidden></small>
+		<small class="wiz-err" id="wizErr0" role="alert" tabindex="-1" hidden></small>
 		<button type="button" class="webui-btn primary" id="wizGo" style="width:100%" onclick="wizNext(this)" data-l="wiz.next">Continue</button>
-	</main>
+	</section>
 
-	<main class="wiz-wrap webui-card" id="wizCardLogin" hidden>
-		<h1 data-l="wiz.login_title">Web interface login</h1>
+	<section class="wiz-wrap webui-card" id="wizCardLogin" aria-labelledby="wizLoginTitle" hidden>
+		<h1 id="wizLoginTitle" data-l="wiz.login_title">Web interface login</h1>
 		<p class="sub" id="wizLoginIntro" data-l="wiz.login_intro">Protect the web interface with a login. Optional, can be changed later in the settings.</p>
 
 		<label class="wiz-check"><input type="checkbox" id="wizAuth" role="switch"><span data-l="wiz.login_enable">Require login</span></label>
@@ -118,13 +119,14 @@
 		</div>
 
 		<!-- Fehlerelement existiert vorab im DOM, sonst wird nichts angesagt -->
-		<small class="wiz-err" id="wizErr" role="status" tabindex="-1" hidden></small>
+		<small class="wiz-err" id="wizErr" role="alert" tabindex="-1" hidden></small>
 		<small class="wiz-note" data-l="wiz.login_note">After saving, the browser asks for the new login. Access from the box itself stays open.</small>
 
 		<div class="wiz-actions">
 			<button type="button" class="webui-btn ghost" id="wizSkip" onclick="wizLoginDone()" data-l="wiz.login_skip">Skip</button>
 			<button type="button" class="webui-btn primary" onclick="wizLoginSave(this)" data-l="wiz.login_save">Save</button>
 		</div>
+	</section>
 	</main>
 
 	<script src="/js/webui-i18n.js?v=2"></script>

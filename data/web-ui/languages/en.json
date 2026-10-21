@@ -717,6 +717,8 @@
 	"pw.short": "The new password needs at least 8 characters.",
 	"pw.wrong": "The current password is not correct.",
 	"pw.failed": "The password could not be set",
+	"pw.bad": "Please choose another password: at least 8 characters, no control characters, not the one in use and not one the box was delivered with.",
+	"pw.unwritten": "The box could not store the new password; the old one stays.",
 	"pw.apps": "Remote control apps and scripts that sign in with the old password need the new one afterwards.",
 	"picker.title": "Choose folder",
 	"picker.choose_folder": "Choose this folder",

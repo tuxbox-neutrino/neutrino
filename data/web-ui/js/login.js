@@ -48,7 +48,10 @@ function loginNote(id, text) {
 	if (!id)
 		return;
 	var note = document.getElementById(id);
-	if (text)
+	// the error note says a wrong login unless it is told what else
+	if (id === 'loginErr')
+		note.textContent = text || webuiL('login.failed', 'Sign-in failed. Please check username and password.');
+	else if (text)
 		note.textContent = text;
 	if (note.hasAttribute('tabindex'))
 		note.focus();
@@ -90,12 +93,16 @@ async function loginSubmit(e) {
 				return;
 			}
 		}
+		// a wrong login is the box saying no to these two; anything else
+		// is the box, and is not to be read as a wrong password
 		if (resp.status === 429)
 			loginNote('loginWait', webuiL('login.wait', 'Too many attempts. Please wait %s seconds and try again.').replace('%s', resp.headers.get('Retry-After') || '60'));
-		else
+		else if (resp.status === 400 || resp.status === 401 || resp.status === 403)
 			loginNote('loginErr');
+		else
+			loginNote('loginErr', webuiKindText(resp.status));
 	} catch (ex) {
-		loginNote('loginErr');
+		loginNote('loginErr', webuiL('err.no_answer', 'The box did not answer'));
 	}
 	btn.disabled = false;
 	pass.select();

@@ -46,9 +46,18 @@ async function wizV1(method, path, body) {
 		headers: headers, body: body === undefined ? undefined : JSON.stringify(body)});
 	var data = null;
 	try { data = await r.json(); } catch (ignore) {}
-	if (!r.ok)
-		throw new Error((data && (data.detail || data.title)) || ('HTTP ' + r.status));
+	if (!r.ok) {
+		var e = new Error((data && (data.detail || data.title)) || ('HTTP ' + r.status));
+		e.status = r.status;
+		throw e;
+	}
 	return data;
+}
+
+// a refusal in the page's language: by the kind its status says, and a
+// box that did not answer as such (the box's own text is English)
+function wizErrText(e) {
+	return e && e.status ? webuiKindText(e.status) : webuiL('err.no_answer', 'The box did not answer');
 }
 
 // The languages the pages can be shown in, the active one chosen.
@@ -64,7 +73,15 @@ async function wizLoadLanguages() {
 			sel.appendChild(o);
 		});
 		wizStartLang = l.selected || '';
-	} catch (e) {}
+	} catch (e) {
+		// no list to choose from: said in the field, which then stays as it is
+		var none = document.getElementById('wizLang');
+		var o = document.createElement('option');
+		o.value = '';
+		o.textContent = webuiL('state.failed', 'Could not be read');
+		none.replaceChildren(o);
+		none.disabled = true;
+	}
 }
 
 async function wizLoadLogin() {
@@ -92,7 +109,7 @@ async function wizNext(btn) {
 		wizShowLogin();
 	} catch (e) {
 		btn.disabled = false;
-		wizError(e.message || 'error', 'wizErr0');
+		wizError(e.message === WIZ_AWAY ? WIZ_AWAY : wizErrText(e), 'wizErr0');
 	}
 }
 
@@ -140,7 +157,9 @@ async function wizAfterRestart(answer) {
 		finally { clearTimeout(timer); }
 	}
 	if (note) note.textContent = noteWas;
-	throw new Error(webuiL('wiz.login_not_back', 'Saved, but the web server does not answer again yet. Please press Save again in a moment.'));
+	var late = new Error(webuiL('wiz.login_not_back', 'Saved, but the web server does not answer again yet. Please press Save again in a moment.'));
+	late.wizSaid = true;
+	throw late;
 }
 
 function wizLoginDone() {
@@ -176,7 +195,8 @@ async function wizLoginSave(btn) {
 		wizLoginDone();
 	} catch (e) {
 		btn.disabled = skip.disabled = false;
-		wizError(e.message || 'error');
+		// the one this page writes itself (not back in time) is its own text
+		wizError(e.message === WIZ_AWAY ? WIZ_AWAY : e.wizSaid ? e.message : wizErrText(e));
 	}
 }
 

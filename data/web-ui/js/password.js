@@ -40,6 +40,8 @@ function pwText(which) {
 		mismatch: function() { return webuiL('pw.mismatch', 'The two new passwords do not match.'); },
 		short: function() { return webuiL('pw.short', 'The new password needs at least 8 characters.'); },
 		wrong: function() { return webuiL('pw.wrong', 'The current password is not correct.'); },
+		bad: function() { return webuiL('pw.bad', 'Please choose another password: at least 8 characters, no control characters, not the one in use and not one the box was delivered with.'); },
+		unwritten: function() { return webuiL('pw.unwritten', 'The box could not store the new password; the old one stays.'); },
 		failed: function() { return webuiL('pw.failed', 'The password could not be set'); },
 		wait: function() { return webuiL('login.wait', 'Too many attempts. Please wait %s seconds and try again.'); }
 	}[which]();
@@ -94,16 +96,20 @@ async function pwSubmit(e) {
 			location.replace(pwNext);
 			return;
 		}
-		var detail = '';
-		try { detail = (await resp.json()).detail || ''; } catch (ex) {}
+		// each refusal the route names in the page's words, never the box's
+		// own English; another by the kind its status says
 		if (resp.status === 403)
 			pwNote(pwText('wrong'));
+		else if (resp.status === 400)
+			pwNote(pwText('bad'));
 		else if (resp.status === 429)
 			pwNote(pwText('wait').replace('%s', resp.headers.get('Retry-After') || '60'));
+		else if (resp.status === 500)
+			pwNote(pwText('unwritten'));
 		else
-			pwNote(pwText('failed') + (detail ? ': ' + detail : ''));
+			pwNote(pwText('failed') + ': ' + webuiKindText(resp.status));
 	} catch (ex) {
-		pwNote(pwText('failed'));
+		pwNote(pwText('failed') + ': ' + webuiL('err.no_answer', 'The box did not answer'));
 	}
 	btn.disabled = false;
 }

@@ -717,6 +717,8 @@
 	"pw.short": "Das neue Passwort braucht mindestens 8 Zeichen.",
 	"pw.wrong": "Das aktuelle Passwort stimmt nicht.",
 	"pw.failed": "Das Passwort konnte nicht festgelegt werden",
+	"pw.bad": "Bitte ein anderes Passwort wählen: mindestens 8 Zeichen, keine Steuerzeichen, nicht das bisherige und keines, mit dem die Box ausgeliefert wird.",
+	"pw.unwritten": "Die Box konnte das neue Passwort nicht speichern; das bisherige bleibt.",
 	"pw.apps": "Fernbedienungs-Apps und Skripte, die sich mit dem bisherigen Passwort anmelden, brauchen danach das neue.",
 	"picker.title": "Ordner wählen",
 	"picker.choose_folder": "Diesen Ordner wählen",
