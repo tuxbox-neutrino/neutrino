@@ -6,8 +6,14 @@
 	"si.active": "active",
 	"si.cores": "Cores",
 	"si.free_of": "free of",
+	"si.hardware": "Hardware",
+	"si.hostname": "Host name",
+	"si.if_down": "down",
+	"si.if_up": "up",
+	"si.kernel": "Kernel",
 	"si.kernel_log": "Kernel log",
 	"si.load": "Load",
+	"si.load_avg": "Load average",
 	"si.memory": "Memory",
 	"si.network": "Network",
 	"si.no_answer": "not answering",
@@ -16,6 +22,10 @@
 	"si.processes": "Processes",
 	"si.processes_list": "Process list",
 	"si.refresh": "Refresh",
+	"si.root": "System (/)",
+	"si.software": "Software",
+	"si.system": "System",
 	"si.temperature": "Temperature",
-	"si.total": "total"
+	"si.total": "total",
+	"si.uptime": "Uptime"
 }

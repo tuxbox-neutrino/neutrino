@@ -6,8 +6,14 @@
 	"si.active": "aktiv",
 	"si.cores": "Kerne",
 	"si.free_of": "frei von",
+	"si.hardware": "Hardware",
+	"si.hostname": "Hostname",
+	"si.if_down": "inaktiv",
+	"si.if_up": "aktiv",
+	"si.kernel": "Kernel",
 	"si.kernel_log": "Kernel-Log",
 	"si.load": "Auslastung",
+	"si.load_avg": "Durchschnittslast",
 	"si.memory": "Speicher",
 	"si.network": "Netzwerk",
 	"si.no_answer": "antwortet nicht",
@@ -16,6 +22,10 @@
 	"si.processes": "Prozesse",
 	"si.processes_list": "Prozessliste",
 	"si.refresh": "Aktualisieren",
+	"si.root": "System (/)",
+	"si.software": "Software",
+	"si.system": "System",
 	"si.temperature": "Temperatur",
-	"si.total": "gesamt"
+	"si.total": "gesamt",
+	"si.uptime": "Laufzeit"
 }

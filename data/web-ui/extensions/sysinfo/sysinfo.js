@@ -5,25 +5,40 @@ function row(label, value) {
 	return '<span class="sysinfo-label">' + escapeHtml(label) + '</span><span class="sysinfo-value">' + value + '</span>';
 }
 
+// the bar says nothing the text after it does not, so it is not read out
 function bar(label, percent, text) {
 	return '<span class="sysinfo-label">' + label + '</span>' +
 		'<span class="sysinfo-value">' +
-			'<div class="sysinfo-bar"><div class="sysinfo-bar-fill" style="width:' + percent + '%"></div></div>' +
+			'<div class="sysinfo-bar" aria-hidden="true"><div class="sysinfo-bar-fill" style="width:' + percent + '%"></div></div>' +
 			'<small>' + text + ' (' + percent + '%)</small>' +
 		'</span>';
 }
 
+/* The cards stand once the box has answered; until then, and when it does
+   not, one block above them says so, with Reload. A refresh keeps the cards
+   it has until the new answer is in. */
 async function loadSysInfo() {
+	var state = document.getElementById('sysinfo-state');
+	var cards = document.getElementById('sysinfo-cards');
+	if (cards.hidden)
+		state.replaceChildren(webuiState('loading', webuiL('msg.loading', 'Loading...')));
 	try {
 		// over /api/v1, in the shape the page has always read (webui-header.js)
 		var sys = await webuiSystemInfo(true);
-		if (!sys) throw new Error('/api/v1/system/info');
+		if (!sys) {
+			// the shared reader says only that it got nothing; the box's own
+			// answer says why (and asks for a sign-in where one is wanted)
+			await webuiV1('GET', '/system/info');
+			sys = await webuiSystemInfo(true);
+			if (!sys)
+				throw new Error(webuiL('state.failed', 'Could not be read'));
+		}
 		var ver = await webuiVersions(sys);
 
 		// Hardware
 		var hw = '';
 		if (sys.cpu_model) hw += row('CPU', escapeHtml(sys.cpu_model));
-		hw += row(webuiL('si.cores', 'Cores'), sys.cpu.cores);
+		hw += row(webuiL('si.cores', 'Cores'), sys.cpu && sys.cpu.cores !== undefined ? sys.cpu.cores : '–');
 		// the load where the box could measure it, else its average, else nothing
 		hw += row(webuiL('si.load', 'Load'), sys.cpu && sys.cpu.percent !== undefined ? sys.cpu.percent + '%'
 			: (sys.load ? sys.load[0].toFixed(2) : '–'));
@@ -41,7 +56,7 @@ async function loadSysInfo() {
 		if (sys.disks && sys.disks.length) {
 			for (var d = 0; d < sys.disks.length; d++) {
 				var dsk = sys.disks[d];
-				var dlabel = (dsk.mount === '/') ? 'Disk /' : escapeHtml(dsk.mount);
+				var dlabel = (dsk.mount === '/') ? webuiLH('si.root', 'System (/)') : escapeHtml(dsk.mount);
 				if (dsk.answered === false)
 					mem += '<span class="sysinfo-label">' + dlabel + '</span><span class="sysinfo-value webui-text-muted">' +
 						webuiLH('si.no_answer', 'not answering') + '</span>';
@@ -49,16 +64,16 @@ async function loadSysInfo() {
 					mem += bar(dlabel, dsk.percent, webuiFormatKB(dsk.free) + ' ' + webuiLH('si.free_of', 'free of') + ' ' + webuiFormatKB(dsk.total));
 			}
 		} else if (sys.disk)
-			mem += bar('Disk', sys.disk.percent, webuiFormatKB(sys.disk.free) + ' ' + webuiLH('si.free_of', 'free of') + ' ' + webuiFormatKB(sys.disk.total));
+			mem += bar(webuiLH('si.root', 'System (/)'), sys.disk.percent, webuiFormatKB(sys.disk.free) + ' ' + webuiLH('si.free_of', 'free of') + ' ' + webuiFormatKB(sys.disk.total));
 		document.getElementById('sysinfo-mem').innerHTML = mem;
 
 		// System
 		var s = '';
-		s += row('Hostname', escapeHtml(sys.hostname || ''));
-		s += row('Uptime', webuiFormatUptime(sys.uptime));
-		s += row('Kernel', escapeHtml(sys.kernel || ''));
+		s += row(webuiL('si.hostname', 'Host name'), escapeHtml(sys.hostname || ''));
+		s += row(webuiL('si.uptime', 'Uptime'), webuiFormatUptime(sys.uptime));
+		s += row(webuiL('si.kernel', 'Kernel'), escapeHtml(sys.kernel || ''));
 		if (sys.os) s += row('OS', escapeHtml(sys.os));
-		if (sys.load) s += row('Load', sys.load[0].toFixed(2) + ' / ' + sys.load[1].toFixed(2) + ' / ' + sys.load[2].toFixed(2));
+		if (sys.load) s += row(webuiL('si.load_avg', 'Load average'), sys.load[0].toFixed(2) + ' / ' + sys.load[1].toFixed(2) + ' / ' + sys.load[2].toFixed(2));
 		if (sys.processes) s += row(webuiL('si.processes', 'Processes'), sys.processes.running + ' ' + webuiLH('si.active', 'active') + ' / ' + sys.processes.total + ' ' + webuiLH('si.total', 'total'));
 		document.getElementById('sysinfo-sys').innerHTML = s;
 
@@ -71,7 +86,6 @@ async function loadSysInfo() {
 		}
 		if (ver.webui) sw += row('Neutrino-Web-UI', escapeHtml(ver.webui));
 		if (ver.api) sw += row('API', escapeHtml(ver.api));
-		if (ver.server) sw += row('Server', ver.server);
 		document.getElementById('sysinfo-sw').innerHTML = sw;
 
 		// Netzwerk
@@ -79,8 +93,11 @@ async function loadSysInfo() {
 		if (sys.interfaces && sys.interfaces.length) {
 			for (var i = 0; i < sys.interfaces.length; i++) {
 				var iface = sys.interfaces[i];
+				// the dot in words too, for who cannot see its colour
+				var up = iface.up ? webuiLH('si.if_up', 'up') : webuiLH('si.if_down', 'down');
 				net += '<div class="sysinfo-iface">' +
-					'<span class="sysinfo-iface-status ' + (iface.up ? 'up' : 'down') + '"></span>' +
+					'<span class="sysinfo-iface-status ' + (iface.up ? 'up' : 'down') + '" title="' + up + '"></span>' +
+					'<span class="webui-visually-hidden">' + up + ': </span>' +
 					'<span class="sysinfo-iface-name">' + escapeHtml(iface.name) + '</span>' +
 					'<span>' + escapeHtml(iface.ip || '–') + '</span>' +
 					'<span class="sysinfo-iface-detail">' + escapeHtml(iface.mac || '') + '</span>' +
@@ -90,9 +107,19 @@ async function loadSysInfo() {
 			net = '<span class="sysinfo-label">' + webuiLH('si.no_ifaces', 'No interfaces') + '</span>';
 		}
 		document.getElementById('sysinfo-net').innerHTML = net;
+		state.replaceChildren();
+		cards.hidden = false;
 	} catch (e) {
-		document.getElementById('sysinfo-hw').innerHTML = '<span class="sysinfo-value" style="color:var(--webui-danger)">' + webuiLH('msg.error', 'Error') + ': ' + escapeHtml(webuiErrText(e)) + '</span>';
+		// no half-filled cards: the answer that is missing says why
+		cards.hidden = true;
+		state.replaceChildren(webuiStateFor(e, {retry: loadSysInfo}));
+		return;
 	}
+	// a list opened below is read again with the rest
+	document.querySelectorAll('.sysinfo-details[open]').forEach(function(d) {
+		delete d.querySelector('pre').dataset.loaded;
+		sysInfoToggle(d, d.dataset.kind);
+	});
 	revealHashTarget();
 }
 
@@ -112,8 +139,10 @@ function revealHashTarget() {
 async function sysInfoToggle(details, type) {
 	if (!details.open) return;
 	var pre = details.querySelector('pre');
-	if (pre.dataset.loaded) return;
-	pre.dataset.loaded = '1';
+	// read once, and one read at a time: a later one would race the first
+	if (pre.dataset.loaded || pre.getAttribute('aria-busy') === 'true') return;
+	// marked once read: a read that failed is tried again on the next opening
+	pre.setAttribute('aria-busy', 'true');
 
 	// Read through the two routes that answer only these, as text
 	try {
@@ -130,9 +159,11 @@ async function sysInfoToggle(details, type) {
 			text = ((log && log.items) || []).map(function(l) { return l.text; }).join('\n');
 		}
 		pre.textContent = text.trim() || webuiL('si.no_output', '(no output)');
+		pre.dataset.loaded = '1';
 	} catch (e) {
 		pre.textContent = webuiL('msg.error', 'Error') + ': ' + webuiErrText(e);
 	}
+	pre.removeAttribute('aria-busy');
 }
 
 webuiExtTexts('sysinfo').then(loadSysInfo);

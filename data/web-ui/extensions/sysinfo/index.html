@@ -3,7 +3,7 @@
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Neutrino-Web-UI - System Info</title>
+	<title data-l="manifest.name" data-l-prefix="Neutrino-Web-UI - ">Neutrino-Web-UI - System information</title>
 	<link rel="icon" href="/favicon/favicon.ico">
 	<script>
 		// Apply the stored theme before first paint: webui-header.js runs
@@ -210,22 +210,23 @@
 
 	<main class="sysinfo-content">
 		<div class="sysinfo-toolbar">
-			<button class="webui-btn primary" onclick="loadSysInfo()">
-				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:1rem;height:1rem;margin-right:0.3rem"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
+			<button type="button" class="webui-btn primary" onclick="loadSysInfo()">
+				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:1rem;height:1rem;margin-right:0.3rem" aria-hidden="true"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
 				<span data-l="si.refresh">Refresh</span>
 			</button>
 		</div>
 
-		<div class="sysinfo-cards" id="sysinfo-cards">
+		<div id="sysinfo-state"></div>
+
+		<div class="sysinfo-cards" id="sysinfo-cards" hidden>
 			<!-- Hardware -->
 			<div class="sysinfo-card">
 				<div class="sysinfo-card-header">
-					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"/></svg>
-					Hardware
+					<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"/></svg>
+					<span data-l="si.hardware">Hardware</span>
 				</div>
 				<div class="sysinfo-card-body">
 					<div class="sysinfo-grid" id="sysinfo-hw">
-						<span class="sysinfo-label" data-l="msg.loading">Loading...</span><span class="sysinfo-value"></span>
 					</div>
 				</div>
 			</div>
@@ -233,12 +234,11 @@
 			<!-- Speicher -->
 			<div class="sysinfo-card">
 				<div class="sysinfo-card-header">
-					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"/><line x1="6" y1="10" x2="6" y2="14"/><line x1="10" y1="10" x2="10" y2="14"/><line x1="14" y1="10" x2="14" y2="14"/></svg>
+					<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"/><line x1="6" y1="10" x2="6" y2="14"/><line x1="10" y1="10" x2="10" y2="14"/><line x1="14" y1="10" x2="14" y2="14"/></svg>
 					<span data-l="si.memory">Memory</span>
 				</div>
 				<div class="sysinfo-card-body">
 					<div class="sysinfo-grid" id="sysinfo-mem">
-						<span class="sysinfo-label" data-l="msg.loading">Loading...</span><span class="sysinfo-value"></span>
 					</div>
 				</div>
 			</div>
@@ -246,12 +246,11 @@
 			<!-- System -->
 			<div class="sysinfo-card">
 				<div class="sysinfo-card-header">
-					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
-					System
+					<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+					<span data-l="si.system">System</span>
 				</div>
 				<div class="sysinfo-card-body">
 					<div class="sysinfo-grid" id="sysinfo-sys">
-						<span class="sysinfo-label" data-l="msg.loading">Loading...</span><span class="sysinfo-value"></span>
 					</div>
 				</div>
 			</div>
@@ -259,34 +258,32 @@
 			<!-- Software -->
 			<div class="sysinfo-card">
 				<div class="sysinfo-card-header">
-					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
-					Software
+					<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+					<span data-l="si.software">Software</span>
 				</div>
 				<div class="sysinfo-card-body">
 					<div class="sysinfo-grid" id="sysinfo-sw">
-						<span class="sysinfo-label" data-l="msg.loading">Loading...</span><span class="sysinfo-value"></span>
 					</div>
 				</div>
 			</div>
 			<!-- Netzwerk -->
 			<div class="sysinfo-card sysinfo-card-wide" id="network" tabindex="-1">
 				<div class="sysinfo-card-header">
-					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12.55a11 11 0 0114.08 0"/><path d="M1.42 9a16 16 0 0121.16 0"/><path d="M8.53 16.11a6 6 0 016.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>
+					<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12.55a11 11 0 0114.08 0"/><path d="M1.42 9a16 16 0 0121.16 0"/><path d="M8.53 16.11a6 6 0 016.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>
 					<span data-l="si.network">Network</span>
 				</div>
 				<div class="sysinfo-card-body" id="sysinfo-net">
-					<span class="sysinfo-label" data-l="msg.loading">Loading...</span>
 				</div>
 			</div>
 		</div>
 
 		<!-- Erweitert -->
-		<details class="sysinfo-details" ontoggle="sysInfoToggle(this, 'ps')">
+		<details class="sysinfo-details" data-kind="ps" ontoggle="sysInfoToggle(this, 'ps')">
 			<summary data-l="si.processes_list">Process list</summary>
 			<pre class="sysinfo-pre" id="sysinfo-ps" data-l="msg.loading">Loading...</pre>
 		</details>
 
-		<details class="sysinfo-details" ontoggle="sysInfoToggle(this, 'dmesg')">
+		<details class="sysinfo-details" data-kind="dmesg" ontoggle="sysInfoToggle(this, 'dmesg')">
 			<summary data-l="si.kernel_log">Kernel log</summary>
 			<pre class="sysinfo-pre" id="sysinfo-dmesg" data-l="msg.loading">Loading...</pre>
 		</details>
