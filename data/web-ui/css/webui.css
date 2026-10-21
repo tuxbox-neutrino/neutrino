@@ -2272,23 +2272,74 @@ textarea:focus-visible {
 	border-top: 1px solid var(--pico-muted-border-color);
 }
 
+/* a button per card: 24 px to tap, the dot drawn inside it, in a colour
+   that holds 3:1 against the ground */
 .webui-card-dot {
-	width: 10px;
-	height: 10px;
+	--pico-color: inherit;
+	position: relative;
+	width: 24px;
+	height: 24px;
+	margin: 0;
+	padding: 0;
+	border: 0;
 	border-radius: 50%;
-	background: var(--pico-muted-border-color);
-	transition: all 0.2s ease;
+	background: none;
+	box-shadow: none;
 	cursor: pointer;
 }
 
-.webui-card-dot.active {
+.webui-card-dot::before {
+	content: "";
+	position: absolute;
+	left: 7px;
+	top: 7px;
+	width: 10px;
+	height: 10px;
+	border-radius: 50%;
+	background: var(--pico-muted-color);
+	transition: all 0.2s ease;
+}
+
+.webui-card-dot.active::before {
 	background: var(--webui-accent);
 	transform: scale(1.2);
 }
 
-.webui-card-dot:hover {
+.webui-card-dot:hover::before {
 	background: var(--webui-accent);
 	opacity: 0.7;
+}
+
+.webui-card-dot:focus-visible {
+	outline: 2px solid var(--webui-accent);
+	outline-offset: 0;
+}
+
+/* On a phone a card's title holds a button that opens the card
+   (_webuiAccHeads), so the title stays a heading: drawn as the title it
+   wraps, with a focus frame */
+.webui-card-toggle {
+	--pico-color: inherit;
+	display: inline-flex;
+	align-items: center;
+	gap: inherit;
+	min-width: 0;
+	min-height: 24px;
+	margin: 0;
+	padding: 0;
+	border: 0;
+	border-radius: 0;
+	background: none;
+	box-shadow: none;
+	color: inherit;
+	font: inherit;
+	text-align: left;
+	cursor: pointer;
+}
+
+.webui-card-toggle:focus-visible {
+	outline: 2px solid var(--webui-accent);
+	outline-offset: 2px;
 }
 
 /* ── Card preview (mobile collapsed state) ── */

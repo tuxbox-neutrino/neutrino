@@ -3002,13 +3002,22 @@ function selectCard(cardId) {
 /* dashboard.html uses navigateToCard — alias */
 var navigateToCard = selectCard;
 
+// A button per card, named by the card's title, the shown one current
 function buildCardIndicator() {
 	if (!_webuiAcc) return;
 	var el = document.getElementById(_webuiAcc.indicatorId);
 	if (!el) return;
-	el.innerHTML = _webuiAcc.cardOrder.map(function(id) {
-		return '<div class="webui-card-dot" data-card="' + id + '" onclick="selectCard(\'' + id + '\')"></div>';
-	}).join('');
+	el.replaceChildren.apply(el, _webuiAcc.cardOrder.map(function(id) {
+		var card = document.getElementById(id);
+		var title = card && card.querySelector('.webui-card-title');
+		var b = document.createElement('button');
+		b.type = 'button';
+		b.className = 'webui-card-dot';
+		b.dataset.card = id;
+		b.setAttribute('aria-label', title ? title.textContent.trim() : id);
+		b.addEventListener('click', function() { selectCard(id); });
+		return b;
+	}));
 	updateCardIndicator();
 }
 
@@ -3022,6 +3031,37 @@ function updateCardIndicator() {
 			dotCard = _webuiAcc.cardOrder[idx];
 		}
 		dot.classList.toggle('active', dotCard === activeId);
+		if (dotCard === activeId) dot.setAttribute('aria-current', 'true');
+		else dot.removeAttribute('aria-current');
+	});
+	_webuiAccHeads();
+}
+
+/* On a phone a card's head opens and closes it. Its title then holds a
+   button with the card's state, so a keyboard opens it as a tap does (the
+   click reaches the head's own handler) and the title stays a heading;
+   elsewhere the title's words stand in it again as they were. */
+function _webuiAccHeads() {
+	if (!_webuiAcc) return;
+	var phone = window.innerWidth <= _webuiAcc.breakpoint;
+	_webuiAcc.cardOrder.forEach(function(id) {
+		var card = document.getElementById(id);
+		var head = card && card.querySelector(':scope > .webui-card-header[onclick]');
+		var title = head && head.querySelector('.webui-card-title');
+		if (!title) return;
+		var toggle = title.querySelector(':scope > .webui-card-toggle');
+		if (!phone) {
+			if (toggle) toggle.replaceWith.apply(toggle, Array.prototype.slice.call(toggle.childNodes));
+			return;
+		}
+		if (!toggle) {
+			toggle = document.createElement('button');
+			toggle.type = 'button';
+			toggle.className = 'webui-card-toggle';
+			toggle.append.apply(toggle, Array.prototype.slice.call(title.childNodes));
+			title.appendChild(toggle);
+		}
+		toggle.setAttribute('aria-expanded', (_webuiAcc.mode === 'collapsed' ? !card.classList.contains('collapsed') : card.classList.contains('expanded')) ? 'true' : 'false');
 	});
 }
 
