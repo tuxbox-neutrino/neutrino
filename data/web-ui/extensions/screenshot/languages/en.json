@@ -2,10 +2,14 @@
 	"manifest.name": "Screenshot",
 	"manifest.description": "OSD/video capture",
 	"msg.error": "Error",
+	"shot.alt": "What the box shows",
 	"shot.busy": "Taking screenshot...",
 	"shot.clear": "Clear",
+	"shot.glcd": "Front display (GLCD)",
 	"shot.glcdfail": "GLCD screenshot failed",
 	"shot.hint": "Click Screenshot to capture an image",
+	"shot.repeat": "Repeat every",
+	"shot.seconds": "Seconds between two screenshots",
 	"shot.select": "Please select OSD or video!",
 	"tools.remote_sub": "Remote control"
 }

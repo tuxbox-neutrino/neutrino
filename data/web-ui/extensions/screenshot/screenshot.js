@@ -3,7 +3,8 @@
 let reloadInterval = null;
 let shotUrl = null;		// object URL of the picture shown, freed when replaced
 let shotBusy = false;		// one capture at a time: the box refuses a second one
-let displayProbe = null;	// 'shown', 'none', or 'signin' while a sign-in is missing
+let displayProbe = null;	// 'shown', 'none', 'again' after a failure, or 'signin' while a sign-in is missing
+let displayTries = 0;		// probes that failed for a moment; three, and it is none
 
 // Inject shared remote template; registering via the host keeps
 // this instance replaceable by a late-loaded skin renderer
@@ -33,7 +34,7 @@ async function rcsim(key) {
 			setTimeout(doSnapshot, 750);
 		}
 	} catch (e) {
-		console.error('RC command failed:', e);
+		webuiToastError(webuiL('msg.error', 'Error'), e);
 	}
 }
 
@@ -77,9 +78,9 @@ async function capture(path, query) {
 	} finally {
 		shotBusy = false;
 	}
-	// the probe at load went unanswered for want of a sign-in, which
-	// this capture has just had
-	if (displayProbe === 'signin') probeDisplay();
+	// the probe at load went unanswered, for want of a sign-in, which this
+	// capture has just had, or for a moment
+	if (displayProbe === 'signin' || displayProbe === 'again') probeDisplay();
 	return true;
 }
 
@@ -112,14 +113,15 @@ async function doSnapshot() {
 	loading.style.display = 'none';
 }
 
-// The front display only where the box can read it: 501 says it cannot
+// The front display only where the box can read it: 501 says it cannot,
+// and any other failure is asked about again with the next capture
 async function probeDisplay() {
 	try {
 		await webuiV1Blob('/osd/display/screenshot', {at: captureMark()}, {quiet: true});
 		document.getElementById('btnGlcd').style.display = '';
 		displayProbe = 'shown';
 	} catch (e) {
-		displayProbe = e.status === 403 ? 'signin' : 'none';
+		displayProbe = e.status === 403 ? 'signin' : (e.status === 501 || e.status === 404 || ++displayTries >= 3) ? 'none' : 'again';
 	}
 }
 webuiExtTexts('screenshot').then(probeDisplay);
@@ -143,19 +145,32 @@ function doClear() {
 	document.getElementById('placeholder').style.display = 'flex';
 }
 
-// Reload toggle
-document.getElementById('checkReload').addEventListener('change', function() {
+// The repeat: every so many seconds, from one to 180 whatever is typed
+// (an empty field counts as 15), and a new number counts at once
+function shotSeconds() {
 	var input = document.getElementById('inputReload');
-	input.disabled = !this.checked;
+	var n = parseInt(input.value, 10);
+	return isNaN(n) ? 15 : Math.min(180, Math.max(1, n));
+}
 
-	if (this.checked) {
-		var interval = parseInt(input.value) * 1000;
-		reloadInterval = setInterval(doSnapshot, interval);
-	} else {
-		clearInterval(reloadInterval);
-		reloadInterval = null;
-	}
+function shotRepeat() {
+	clearInterval(reloadInterval);
+	reloadInterval = null;
+	if (document.getElementById('checkReload').checked)
+		reloadInterval = setInterval(doSnapshot, shotSeconds() * 1000);
+}
+
+document.getElementById('checkReload').addEventListener('change', function() {
+	document.getElementById('inputReload').disabled = !this.checked;
+	shotRepeat();
+});
+document.getElementById('inputReload').addEventListener('change', function() {
+	this.value = shotSeconds();
+	shotRepeat();
 });
 
 // Initialize, once the texts are in
-webuiExtTexts('screenshot').then(doSnapshot);
+webuiExtTexts('screenshot').then(function() {
+	document.getElementById('screenshot').alt = webuiL('shot.alt', 'What the box shows');
+	doSnapshot();
+});

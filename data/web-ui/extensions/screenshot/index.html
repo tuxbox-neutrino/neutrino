@@ -3,7 +3,7 @@
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Neutrino-Web-UI - Screenshot</title>
+	<title data-l="dash.screenshot" data-l-prefix="Neutrino-Web-UI - ">Neutrino-Web-UI - Screenshot</title>
 	<link rel="icon" href="/favicon/favicon.ico">
 	<script>
 		// Apply the stored theme before first paint: webui-header.js runs
@@ -90,6 +90,13 @@
 		.webui-reload-group input[type="number"]:disabled { opacity: 0.3; }
 
 		.webui-reload-group input[type="number"]:focus { opacity: 1; }
+
+		/* the field has no frame of its own: the focus draws one */
+		.webui-reload-group input[type="number"]:focus-visible {
+			outline: 2px solid var(--webui-accent);
+			outline-offset: 2px;
+			border-radius: 4px;
+		}
 
 		.webui-reload-group input[type="number"]::-webkit-inner-spin-button,
 		.webui-reload-group input[type="number"]::-webkit-outer-spin-button {
@@ -295,27 +302,27 @@
 						<path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
 						<circle cx="12" cy="13" r="4"/>
 					</svg>
-					Screenshot
+					<span data-l="dash.screenshot">Screenshot</span>
 				</h3>
 			</header>
 			<div class="webui-card-body">
 				<div class="webui-screenshot-toolbar">
 					<div class="webui-screenshot-actions">
-						<button class="webui-btn primary" onclick="doSnapshot()" id="btnSnapshot">
+						<button type="button" class="webui-btn primary" onclick="doSnapshot()" id="btnSnapshot" aria-label="Screenshot" data-l-aria-label="dash.screenshot">
 							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 								<path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
 								<circle cx="12" cy="13" r="4"/>
 							</svg>
-							<span class="btn-label">Screenshot</span>
+							<span class="btn-label" data-l="dash.screenshot">Screenshot</span>
 						</button>
-						<button class="webui-btn" onclick="doClear()">
+						<button type="button" class="webui-btn" onclick="doClear()" aria-label="Clear" data-l-aria-label="shot.clear">
 							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 								<polyline points="3,6 5,6 21,6"/>
 								<path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
 							</svg>
 							<span class="btn-label" data-l="shot.clear">Clear</span>
 						</button>
-						<button class="webui-btn" onclick="doGlcdSnapshot(this)" id="btnGlcd" style="display:none">
+						<button type="button" class="webui-btn" onclick="doGlcdSnapshot(this)" id="btnGlcd" style="display:none" aria-label="Front display (GLCD)" data-l-aria-label="shot.glcd">
 							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 								<rect x="2" y="7" width="20" height="10" rx="2"/>
 							</svg>
@@ -329,14 +336,14 @@
 								<input type="checkbox" id="checkOSD" checked>
 								<span class="webui-toggle-slider"></span>
 							</span>
-							<span class="webui-toggle-text">OSD</span>
+							<span class="webui-toggle-text" data-l="pers.osd">OSD</span>
 						</label>
 						<label class="webui-toggle-field">
 							<span class="webui-toggle">
 								<input type="checkbox" id="checkVideo" checked>
 								<span class="webui-toggle-slider"></span>
 							</span>
-							<span class="webui-toggle-text">Video</span>
+							<span class="webui-toggle-text" data-l="pers.video">Video</span>
 						</label>
 						<div class="webui-reload-group">
 							<label class="webui-toggle-field">
@@ -344,10 +351,10 @@
 									<input type="checkbox" id="checkReload">
 									<span class="webui-toggle-slider"></span>
 								</span>
-								<span class="webui-toggle-text">Reload</span>
+								<span class="webui-toggle-text" data-l="shot.repeat">Repeat every</span>
 							</label>
-							<input type="number" id="inputReload" value="15" min="1" max="180" disabled>
-							<span class="webui-unit">s</span>
+							<input type="number" id="inputReload" value="15" min="1" max="180" disabled aria-label="Seconds between two screenshots" data-l-aria-label="shot.seconds">
+							<span class="webui-unit" aria-hidden="true">s</span>
 						</div>
 					</div>
 				</div>
@@ -363,7 +370,7 @@
 					<span data-l="shot.hint">Click Screenshot to capture an image</span>
 				</div>
 				<p id="loading" aria-busy="true" style="display:none;padding:2rem;text-align:center;color:var(--pico-muted-color)" data-l="shot.busy">Taking screenshot...</p>
-				<img id="screenshot" src="" alt="Screenshot" style="display:none">
+				<img id="screenshot" alt="" style="display:none">
 			</div>
 		</article>
 	</main>

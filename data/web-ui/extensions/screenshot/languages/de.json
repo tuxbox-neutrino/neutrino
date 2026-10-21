@@ -2,10 +2,14 @@
 	"manifest.name": "Screenshot",
 	"manifest.description": "OSD/Video-Aufnahme",
 	"msg.error": "Fehler",
+	"shot.alt": "Was die Box zeigt",
 	"shot.busy": "Screenshot wird erstellt...",
 	"shot.clear": "Löschen",
+	"shot.glcd": "Frontdisplay (GLCD)",
 	"shot.glcdfail": "GLCD-Screenshot fehlgeschlagen",
 	"shot.hint": "Klicke auf Screenshot, um ein Bild aufzunehmen",
+	"shot.repeat": "Wiederholen alle",
+	"shot.seconds": "Sekunden zwischen zwei Screenshots",
 	"shot.select": "Bitte OSD oder Video auswählen!",
 	"tools.remote_sub": "Fernbedienung"
 }
