@@ -35,6 +35,11 @@
 			text-align: center;
 		}
 
+		/* no Pico on this page: hidden has to win over a display of its own */
+		[hidden] {
+			display: none !important;
+		}
+
 		.lcd img {
 			display: block;
 			max-width: 100vw;
@@ -44,8 +49,8 @@
 </head>
 <body>
 	<div class="lcd">
-		<img id="lcd-picture" alt="LCD4Linux" hidden>
-		<div id="lcd-off" data-l="lcd.off" hidden>LCD4Linux is not drawing on this box.</div>
+		<img id="lcd-picture" alt="The front display as LCD4Linux draws it" hidden>
+		<div id="lcd-off" role="status" hidden>LCD4Linux is not drawing on this box.</div>
 	</div>
 
 	<script src="/js/webui-i18n.js"></script>

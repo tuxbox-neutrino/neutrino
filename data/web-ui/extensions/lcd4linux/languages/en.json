@@ -1,5 +1,8 @@
 {
 	"manifest.name": "LCD4Linux",
 	"manifest.description": "The picture of the front display",
-	"lcd.off": "LCD4Linux is not drawing on this box."
+	"lcd.off": "LCD4Linux is not drawing on this box.",
+	"lcd.alt": "The front display as LCD4Linux draws it",
+	"lcd.no_answer": "The box does not answer.",
+	"lcd.no_picture": "The picture of the display could not be read."
 }
