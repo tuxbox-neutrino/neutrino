@@ -4501,6 +4501,13 @@ coreapi::Status coreapi::boxPlugins(coreapi::PluginList &out)
 	return coreapi::Status::Ok;
 }
 
+// Whether one of them runs: the count the start guard keeps, read without the
+// list's lock, as it is an atomic of its own
+bool coreapi::boxPluginRunning()
+{
+	return g_Plugins != NULL && g_Plugins->isRunning();
+}
+
 /* The same again, for what the box is recording: what holds it is a class this
    program has and the facade may not reach.
 

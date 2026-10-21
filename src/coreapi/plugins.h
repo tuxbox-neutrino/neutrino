@@ -40,8 +40,16 @@ Result<PluginList> list();
 
    A command: posted and forgotten, so an Ok says the message was taken and
    nothing about what the box did with it. Not even that a plugin of that name
-   exists, because what knows that is the list on the other side of the message. */
+   exists, because what knows that is the list on the other side of the message.
+
+   Conflict with PluginRunning while a plugin the box started has not returned:
+   the box would drop the message. A start that comes between this look and the
+   message is still dropped there, unanswered. */
 Result<void> start(const std::string &name);
+
+/* Whether a plugin the box started has not returned yet; false where nothing
+   is there to say so. */
+bool running();
 
 /* Writes whether the box keeps this plugin out of its own menus.
 

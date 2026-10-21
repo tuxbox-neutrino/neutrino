@@ -94,6 +94,9 @@ const Schema kPluginSchema = { "plugin", HTTPD_FIELDS(kPluginFields) };
 const FieldDesc kPluginListFields[] = {
 	HTTPD_LIST_OF("items", &kPluginSchema,
 		"every plugin this box found, in the order it keeps them, and empty for a box carrying none"),
+	HTTPD_MEMBER("running", FieldType::Bool,
+		"whether a plugin the box started has not returned yet, of whichever of them; "
+		"a start asked for meanwhile is refused"),
 };
 
 const Schema kPluginListSchema = { "plugin-list", HTTPD_FIELDS(kPluginListFields) };
@@ -134,6 +137,8 @@ Response listPlugins(const Request &)
 		j.endObject();
 	}
 	j.endArray();
+	j.key("running");
+	j.value(coreapi::plugins::running());
 	j.endObject();
 	return out;
 }
@@ -230,6 +235,11 @@ const Param kScriptParams[] = {
 		1024),
 };
 
+const RouteRefusal kStartPluginRefusals[] = {
+	HTTPD_REFUSES(Conflict, PluginRunning,
+		"a plugin the box started has not returned yet, and the box starts no second one"),
+};
+
 const RouteRefusal kRunScriptRefusals[] = {
 	HTTPD_REFUSES(InvalidArgument, BadName,
 		"that is not a name a script of this box carries"),
@@ -242,8 +252,9 @@ const Endpoint kPluginEndpoints[] = {
 	  "every plugin this box found and what each of them is", "Lists every "
 	  "plugin the box found the last time it read its plugin directories, with "
 	  "its name, title, description, kind and whether it is hidden from the "
-	  "box's own menus. A box carrying none answers with an empty list rather "
-	  "than with a refusal.\n\n"
+	  "box's own menus, and whether a plugin the box started is still running. "
+	  "A box carrying none answers with an empty list rather than with a "
+	  "refusal.\n\n"
 	  "**Related:** `POST /api/v1/plugins/{name}/start`, "
 	  "`PUT /api/v1/plugins/{name}/hidden`, `POST /api/v1/plugins/reload`.",
 	  NULL, 0, &kPluginListSchema, &listPlugins, false,
@@ -258,13 +269,17 @@ const Endpoint kPluginEndpoints[] = {
 	  "runs on the thread that also draws the screens and the box answers "
 	  "nothing back to this layer. A binary plugin takes over the screen and the "
 	  "remote control until it exits; a game plugin that draws into the live "
-	  "video is skipped if no live picture is currently playing. Starting a "
-	  "second plugin while one is already running is not prevented here: what "
-	  "happens then is up to the plugin itself. A shell or Lua plugin's output, "
-	  "if any, is shown on screen as a message once it finishes; nothing on this "
-	  "interface returns that output, unlike `POST /api/v1/scripts/{name}`.",
+	  "video is skipped if no live picture is currently playing. The box starts "
+	  "no second plugin while one it started has not returned: such a start is "
+	  "refused here, and one that slips in between is dropped by the box without "
+	  "an answer; `running` in `GET /api/v1/plugins` says when it is free again. "
+	  "A shell or Lua plugin's output, if any, is shown on screen as a message "
+	  "once it finishes; nothing on this interface returns that output, unlike "
+	  "`POST /api/v1/scripts/{name}`.\n\n"
+	  "**Refusals:**\n"
+	  "- `409 plugin-running`: a plugin the box started has not returned yet.",
 	  HTTPD_PARAMS(kNameParams), NULL, &startPlugin, false,
-	  Answers202, HTTPD_NO_REFUSALS },
+	  Answers202, HTTPD_REFUSALS(kStartPluginRefusals) },
 	{ Method::Put, "/api/v1/plugins/{name}/hidden", AuthLevel::Write,
 	  "writes whether the box keeps one plugin out of the menus it draws itself",
 	  "Writes the `hidden` flag of the plugin `name` names into that plugin's "

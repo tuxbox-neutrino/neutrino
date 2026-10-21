@@ -145,6 +145,8 @@ class CPlugins
 		 * yet, of any type, and answers whether it was free to. For a
 		 * request from outside, which must not run inside a plugin. */
 		bool startPluginIfIdle(const char *const filename);
+		// Whether a plugin started here has not returned yet, of any type
+		bool isRunning() const { return running.load() > 0; }
 		int startPlugin(const char *const filename);		// start plugins by filename
 		int startPlugin_by_name(const std::string &name);	// start plugins by "name=" in .cfg
 		int startScriptPlugin(int number);

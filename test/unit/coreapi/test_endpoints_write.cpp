@@ -1506,6 +1506,36 @@ TEST_CASE("a write asking for the box's own credential is refused a write", "[wr
 	REQUIRE(send(Post, "/api/v1/zap", "{\"channel_id\":\"2b66\"}", AuthLevel::Write, "127.0.0.1").code == 202);
 }
 
+TEST_CASE("a plugin start while one runs is refused, and the list says one runs", "[write]")
+{
+	// The box drops a start that comes while a plugin it started has not
+	// returned; the route says so rather than accept what will not happen.
+	ShippedRoutes shipped;
+	BoxFixture box;
+	FakePluginSource plugins;
+	InstalledPluginSource installed_plugins(&plugins);
+	plugins.add("tuxtxt", "Teletext");
+
+	Reply free_list = authedGet("/api/v1/plugins");
+	REQUIRE(free_list.code == 200);
+	REQUIRE(free_list.body.find("\"running\":false") != std::string::npos);
+	REQUIRE(authedPost("/api/v1/plugins/tuxtxt/start", "{}").code == 202);
+	REQUIRE(box.events.sent.size() == 1u);
+
+	plugins.running = true;
+	Reply busy_list = authedGet("/api/v1/plugins");
+	REQUIRE(busy_list.body.find("\"running\":true") != std::string::npos);
+	Reply refused = authedPost("/api/v1/plugins/tuxtxt/start", "{}");
+	REQUIRE(refused.code == 409);
+	REQUIRE(refused.body.find("/errors/plugin-running") != std::string::npos);
+	REQUIRE(box.events.sent.size() == 1u);
+
+	// returned: free again
+	plugins.running = false;
+	REQUIRE(authedPost("/api/v1/plugins/tuxtxt/start", "{}").code == 202);
+	REQUIRE(box.events.sent.size() == 2u);
+}
+
 TEST_CASE("a state change answers accepted and not done", "[write]")
 {
 	/* The box is asked on its own loop and nothing comes back from what does

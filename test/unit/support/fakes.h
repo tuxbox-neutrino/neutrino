@@ -1570,7 +1570,10 @@ struct FakePluginSource : public coreapi::PluginSource
 	// and found no plugins both leave an empty answer behind.
 	mutable unsigned reads;
 
-	FakePluginSource() : list_status(coreapi::Status::Ok), reads(0) {}
+	// What busy() answers: a plugin started and not returned yet
+	bool running;
+
+	FakePluginSource() : list_status(coreapi::Status::Ok), reads(0), running(false) {}
 
 	// One entry made of what a case actually says about it, so a case adding
 	// one does not have to write out the fields it has nothing to say about.
@@ -1590,6 +1593,11 @@ struct FakePluginSource : public coreapi::PluginSource
 			return list_status;
 		out = plugins;
 		return coreapi::Status::Ok;
+	}
+
+	bool busy() const
+	{
+		return running;
 	}
 };
 

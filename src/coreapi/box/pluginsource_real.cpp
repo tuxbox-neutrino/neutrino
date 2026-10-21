@@ -38,6 +38,11 @@ class RealPluginSource : public PluginSource
 		{
 			return boxPlugins(out);
 		}
+
+		bool busy() const
+		{
+			return boxPluginRunning();
+		}
 };
 
 RealPluginSource g_real_plugin_source;

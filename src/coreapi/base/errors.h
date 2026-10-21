@@ -290,6 +290,10 @@ enum class ErrorCode
 	RecordingHoldsTuner,
 	// Asked again with stop_playback set, the file playing is ended first.
 	PlaybackRunning,
+	/* A plugin the box started has not returned yet. The box starts no second
+	   one meanwhile and drops the request without a word, so the request is
+	   refused here instead of being taken. */
+	PluginRunning,
 	// The directory holding it may only be read, so nothing of it was removed.
 	MediumReadOnly,
 
@@ -590,6 +594,7 @@ inline const char *codeString(ErrorCode c)
 		case ErrorCode::BoxInStandby: return "box-in-standby";
 		case ErrorCode::RecordingHoldsTuner: return "recording-holds-tuner";
 		case ErrorCode::PlaybackRunning: return "playback-running";
+		case ErrorCode::PluginRunning: return "plugin-running";
 		case ErrorCode::MediumReadOnly: return "medium-read-only";
 		case ErrorCode::BadScript: return "bad-script";
 		case ErrorCode::BadTable: return "bad-table";

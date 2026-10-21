@@ -178,10 +178,18 @@ Result<PluginList> list()
 	return ok(std::move(out));
 }
 
+bool running()
+{
+	return pluginSourceInstalled() && pluginSource().busy();
+}
+
 Result<void> start(const std::string &name)
 {
 	if (name.empty())
 		return fail(Status::InvalidArgument, ErrorCode::BadName, "no plugin was named");
+	if (running())
+		return fail(Status::Conflict, ErrorCode::PluginRunning,
+			    "a plugin the box started has not returned yet");
 	/* The name and the byte after it. What arrives at the loop is an address
 	   and a length, and what reads it there reads up to the end of a string,
 	   so the end has to be among the bytes that travel. */

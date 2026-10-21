@@ -830,6 +830,12 @@ struct PluginSource
 	   not a call: this answers out of the list the screens are drawing from,
 	   and rebuilding it under them from whatever thread asked is a race. */
 	virtual Status list(PluginList &out) const = 0;
+
+	/* Whether a plugin the box started has not returned yet. The box starts no
+	   second one meanwhile, so a caller can be told so rather than be told its
+	   start was taken. A source that cannot say answers false, which is all
+	   anybody could learn before it could. */
+	virtual bool busy() const { return false; }
 };
 
 PluginSource &pluginSource();
@@ -848,6 +854,7 @@ void installRealPluginSource();
    Ok and an empty list is a box carrying no plugins. Anything else says the
    list could not be reached at all. */
 Status boxPlugins(PluginList &out);
+bool boxPluginRunning();
 
 
 /* The picture a channel is shown with, which is a file found under a name
