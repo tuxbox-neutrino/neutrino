@@ -1,4 +1,15 @@
 {
 	"manifest.name": "API reference",
-	"manifest.description": "Every route of /api/v1, to read and try"
+	"manifest.description": "Every route of /api/v1, to read and try",
+	"docs.ask_reboot": "Restart this box? The picture goes and this page answers nothing for as long as the box takes to come back.",
+	"docs.ask_restart": "Restart the program on this box? The picture goes for a moment, recording and playback stop, and this page answers nothing until it is back.",
+	"docs.ask_shutdown": "Switch this box off? The picture goes, and it answers nothing here until somebody turns it on again where it stands.",
+	"docs.ask_standby": "Put this box into standby? The picture goes off the screen.",
+	"docs.no_package": "The API reference needs the optional package swagger-ui, which this image does not carry. The description itself is at /api/openapi.json.",
+	"docs.not_sent": "Not sent: this page asked first and the answer was no.",
+	"docs.send": "Send",
+	"docs.signed_in": "signed in",
+	"docs.signin": "To sign in, run POST /api/v1/login below. The padlock closes by itself and says who you are; the Authorize dialog is not the way in, because the credential this server issues is a cookie and no script in a browser is allowed to set one.",
+	"docs.warn_four": "Four calls ask once before they go, as they stop the box or take the picture off the screen, and nothing else does:",
+	"docs.warn_live": "This box answers while you click here. \"Try it out\" reaches the running program, not a copy of it: a timer you delete here is gone, and a channel you change here changes on the screen this box is connected to. Everything on this page is sent for real."
 }

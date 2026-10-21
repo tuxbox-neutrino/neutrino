@@ -1,4 +1,15 @@
 {
 	"manifest.name": "API-Referenz",
-	"manifest.description": "Alle Routen von /api/v1 zum Lesen und Ausprobieren"
+	"manifest.description": "Alle Routen von /api/v1 zum Lesen und Ausprobieren",
+	"docs.ask_reboot": "Die Box neu starten? Das Bild geht weg, und diese Seite antwortet nicht, bis die Box wieder da ist.",
+	"docs.ask_restart": "Das Programm der Box neu starten? Das Bild geht kurz weg, Aufnahme und Wiedergabe enden, und diese Seite antwortet nicht, bis es wieder da ist.",
+	"docs.ask_shutdown": "Die Box ausschalten? Das Bild geht weg, und sie antwortet hier nicht mehr, bis jemand sie vor Ort wieder einschaltet.",
+	"docs.ask_standby": "Die Box in den Standby schicken? Das Bild verschwindet vom Bildschirm.",
+	"docs.no_package": "Die API-Referenz braucht das optionale Paket swagger-ui, das dieses Image nicht mitbringt. Die Beschreibung selbst steht unter /api/openapi.json.",
+	"docs.not_sent": "Nicht gesendet: Diese Seite hat vorher gefragt, und die Antwort war nein.",
+	"docs.send": "Senden",
+	"docs.signed_in": "angemeldet",
+	"docs.signin": "Zum Anmelden unten POST /api/v1/login ausführen. Das Schloss schließt sich dann von selbst und sagt, wer angemeldet ist; der Authorize-Dialog ist nicht der Weg hinein, denn dieser Server gibt die Anmeldung als Cookie aus, und kein Skript im Browser darf eines setzen.",
+	"docs.warn_four": "Vier Aufrufe fragen einmal, bevor sie gehen, weil sie die Box anhalten oder das Bild vom Schirm nehmen; sonst fragt nichts:",
+	"docs.warn_live": "Diese Box antwortet, während hier geklickt wird. „Try it out“ erreicht das laufende Programm, keine Kopie davon: Ein hier gelöschter Timer ist weg, und ein hier gewechselter Sender wechselt auf dem Bildschirm an dieser Box. Alles auf dieser Seite wird wirklich gesendet."
 }

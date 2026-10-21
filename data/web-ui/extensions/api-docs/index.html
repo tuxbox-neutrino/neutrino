@@ -1,8 +1,8 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" class="webui-i18n-pending">
 <head>
 <meta charset="UTF-8">
-<title>Neutrino API</title>
+<title data-l="manifest.name">API reference</title>
 <link rel="stylesheet" href="/swagger/vendor/swagger-ui.css">
 <script>
 /* The theme the rest of this interface is shown in, so the reference
@@ -31,7 +31,34 @@ document.documentElement.setAttribute("data-theme", theme);
   padding: 12px 20px;
 }
 #warning code { color: #ffd27f; }
+#warning p { margin: 0 0 6px; }
+#warning p:last-child { margin-bottom: 0; }
 body { margin: 0; }
+/* the question before the four calls that cannot be taken back, in the
+   page's own colours (webui.css is not loaded here) */
+#ask {
+  max-width: 30rem;
+  padding: 18px 20px;
+  border: 1px solid var(--doc-line, #c9ced6);
+  border-radius: 8px;
+  background: var(--doc-surface, #ffffff);
+  color: var(--webui-text-primary, #1f2328);
+  font: 15px/1.5 system-ui, sans-serif;
+}
+#ask::backdrop { background: rgba(0, 0, 0, 0.55); }
+#ask p { margin: 0 0 16px; }
+#ask .acts { display: flex; justify-content: flex-end; gap: 8px; }
+#ask button {
+  font: inherit;
+  padding: 6px 14px;
+  border: 1px solid var(--doc-line, #c9ced6);
+  border-radius: 6px;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+#ask button.go { background: #c0392b; border-color: #c0392b; color: #ffffff; }
+#ask button:focus-visible { outline: 2px solid var(--webui-accent); outline-offset: 2px; }
 </style>
 <style id="dark-colours">
 /* The colours of this box, over a stylesheet that has none to set.
@@ -215,21 +242,21 @@ if (theme !== "dark") { document.getElementById("dark-colours").disabled = true;
 </head>
 <body>
 <div id="warning">
-  This box answers while you click here. "Try it out" reaches the running
-  program, not a copy of it: a timer you delete here is gone, and a channel
-  you change here changes on the screen this box is connected to. Everything
-  on this page is sent for real, the four that stop the box or take the
-  picture off the screen included
-  (<code>/api/v1/system/shutdown</code>, <code>/api/v1/system/reboot</code>,
-  <code>/api/v1/system/restart</code>, <code>/api/v1/system/standby</code>) —
-  those four ask once before they go, and nothing else does.
-  <br>
-  To sign in, run <code>POST /api/v1/login</code> below. The padlock closes by
-  itself and says who you are; the Authorize dialog is not the way in, because
-  the credential this server issues is a cookie and no script in a browser is
-  allowed to set one.
+  <p data-l="docs.warn_live">This box answers while you click here. "Try it out" reaches the running program, not a copy of it: a timer you delete here is gone, and a channel you change here changes on the screen this box is connected to. Everything on this page is sent for real.</p>
+  <p><span data-l="docs.warn_four">Four calls ask once before they go, as they stop the box or take the picture off the screen, and nothing else does:</span>
+  <code>/api/v1/system/shutdown</code>, <code>/api/v1/system/reboot</code>,
+  <code>/api/v1/system/restart</code>, <code>/api/v1/system/standby</code>.</p>
+  <p data-l="docs.signin">To sign in, run POST /api/v1/login below. The padlock closes by itself and says who you are; the Authorize dialog is not the way in, because the credential this server issues is a cookie and no script in a browser is allowed to set one.</p>
 </div>
+<dialog id="ask" aria-labelledby="ask-text">
+  <p id="ask-text"></p>
+  <div class="acts">
+    <button type="button" class="no" data-l="msg.cancel">Cancel</button>
+    <button type="button" class="go" data-l="docs.send">Send</button>
+  </div>
+</dialog>
 <div id="swagger-ui"></div>
+<script src="/js/webui-i18n.js"></script>
 <script src="/swagger/vendor/swagger-ui-bundle.js"></script>
 <script>
 "use strict";
@@ -252,23 +279,62 @@ if (theme !== "dark") { document.getElementById("dark-colours").disabled = true;
    method, since none of the four ever answers a method this document would
    offer beside POST. */
 var ASK_FIRST = {
-  "/api/v1/system/shutdown":
+  "/api/v1/system/shutdown": ["docs.ask_shutdown",
     "Switch this box off? The picture goes, and it answers nothing here until " +
-    "somebody turns it on again where it stands.",
-  "/api/v1/system/reboot":
+    "somebody turns it on again where it stands."],
+  "/api/v1/system/reboot": ["docs.ask_reboot",
     "Restart this box? The picture goes and this page answers nothing for as " +
-    "long as the box takes to come back.",
-  "/api/v1/system/restart":
+    "long as the box takes to come back."],
+  "/api/v1/system/restart": ["docs.ask_restart",
     "Restart the program on this box? The picture goes for a moment, recording " +
-    "and playback stop, and this page answers nothing until it is back.",
-  "/api/v1/system/standby":
-    "Put this box into standby? The picture goes off the screen."
+    "and playback stop, and this page answers nothing until it is back."],
+  "/api/v1/system/standby": ["docs.ask_standby",
+    "Put this box into standby? The picture goes off the screen."]
 };
 
 // The question for this request, or nothing for a request nobody is asked
 // about. One reading of the target and one table, so the four are named once.
 function questionFor(request) {
-  return ASK_FIRST[pathOf(request.url)] || "";
+  var q = ASK_FIRST[pathOf(request.url)];
+  return q ? webuiL(q[0], q[1]) : "";
+}
+
+/* The page's own texts: the interface's (webui-i18n.js, in the language the
+   box shows its pages in) and, beside them, this extension's pack, which is
+   read here as this page carries no header to read it. */
+window.webuiTexts.then(async function (code) {
+  try {
+    var r = await fetch("/extensions/api-docs/languages/" + encodeURIComponent(code) + ".json",
+      { cache: "no-cache" });
+    var pack = r.ok ? await r.json() : {};
+    Object.keys(pack || {}).forEach(function (k) {
+      if (!Object.prototype.hasOwnProperty.call(window.WEBUI_L, k)) window.WEBUI_L[k] = pack[k];
+    });
+  } catch (e) { /* the English of the markup */ }
+  webuiI18nApply();
+});
+
+/* Asks in a dialog of this page and answers yes or no. Escape and Cancel
+   say no; the focus starts on Cancel, as the safe answer, and goes back to
+   where it was. */
+function ask(question) {
+  return new Promise(function (resolve) {
+    var dialog = document.getElementById("ask");
+    var back = document.activeElement;
+    document.getElementById("ask-text").textContent = question;
+    var done = function (yes) {
+      dialog.removeEventListener("close", onClose);
+      if (dialog.open) dialog.close();
+      if (back && typeof back.focus === "function") back.focus();
+      resolve(yes);
+    };
+    var onClose = function () { done(false); };
+    dialog.addEventListener("close", onClose);
+    dialog.querySelector(".no").onclick = function () { done(false); };
+    dialog.querySelector(".go").onclick = function () { done(true); };
+    dialog.showModal();
+    dialog.querySelector(".no").focus();
+  });
 }
 
 /* WHAT THIS SERVER WANTS FOR A CALL THAT CHANGES SOMETHING, AND WHY THIS PAGE
@@ -345,7 +411,7 @@ function showSignedIn() {
   if (!scheme) {
     return;
   }
-  var who = session.user || "signed in";
+  var who = session.user || webuiL("docs.signed_in", "signed in");
   if (session.level) {
     who += " (" + session.level + ")";
   }
@@ -401,13 +467,14 @@ if (typeof SwaggerUIBundle === "function") window.ui = SwaggerUIBundle({
     specReady = true;
     showSignedIn();
   },
-  requestInterceptor: function (request) {
+  requestInterceptor: async function (request) {
     /* Asked before anything else is done to the request, and a no stops it
        here: throwing out of this is how this page declines to send, and the
-       viewer reports it where the answer would have been. */
+       viewer reports it where the answer would have been. The viewer waits
+       for the answer, as it waits for a promise it is handed here. */
     var question = questionFor(request);
-    if (question && !window.confirm(question)) {
-      throw new Error("not sent: this page asked first and the answer was no.");
+    if (question && !(await ask(question))) {
+      throw new Error(webuiL("docs.not_sent", "Not sent: this page asked first and the answer was no."));
     }
     /* Said rather than left to a default, because the whole of what signs this
        page in is a cookie and a request sent without it is anonymous. */
@@ -478,6 +545,8 @@ function sayPackageMissing() {
   var note = document.createElement("p");
   note.id = "package-missing";
   note.style.cssText = "font: 15px/1.5 system-ui, sans-serif; padding: 20px;";
+  // marked, so the texts set it in the page's language once they are in
+  note.setAttribute("data-l", "docs.no_package");
   note.textContent = "The API reference needs the optional package swagger-ui, which " +
     "this image does not carry. The description itself is at /api/openapi.json.";
   document.getElementById("swagger-ui").appendChild(note);
