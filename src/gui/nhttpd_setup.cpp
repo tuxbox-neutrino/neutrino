@@ -54,6 +54,17 @@ static const CMenuOptionChooser::keyval HTTPD_LOGLEVEL_OPTIONS[] =
 };
 #define HTTPD_LOGLEVEL_OPTION_COUNT (sizeof(HTTPD_LOGLEVEL_OPTIONS)/sizeof(CMenuOptionChooser::keyval))
 
+/* The next %s of text from at on replaced by value, and at moved past it, so a
+   value that itself holds a %s is not filled in again by the next call. */
+static void fillIn(std::string &text, const std::string &value, size_t &at)
+{
+	const size_t found = text.find("%s", at);
+	if (found == std::string::npos)
+		return;
+	text.replace(found, 2, value);
+	at = found + value.size();
+}
+
 CNhttpdSetup::CNhttpdSetup()
 	: width(40)
 	, port(HTTPD_STANDARD_PORT)
@@ -68,6 +79,7 @@ CNhttpdSetup::CNhttpdSetup()
 	, ssl_pemfile(SSL_PEMFILE)
 	, ssl_ca_file(SSL_CA_FILE)
 	, pass_fwd(NULL)
+	, first_fwd(NULL)
 {
 }
 
@@ -80,6 +92,11 @@ int CNhttpdSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 	if (actionKey == "reset_password")
 	{
 		resetPassword();
+		return menu_return::RETURN_REPAINT;
+	}
+	if (actionKey == "first_password")
+	{
+		showFirstPassword(false);
 		return menu_return::RETURN_REPAINT;
 	}
 
@@ -108,12 +125,51 @@ void CNhttpdSetup::resetPassword()
 	password.clear();
 	password_mask = "********";
 	std::string done = g_Locale->getText(LOCALE_NETWORKMENU_HTTPD_RESET_PASSWORD_DONE);
-	const size_t at = done.find("%s");
-	if (at != std::string::npos)
-		done.replace(at, 2, first);
+	size_t at = 0;
+	fillIn(done, first, at);
 	first.assign(first.size(), '\0');
+	// a first password stands now, so the entry showing it again does too
+	if (first_fwd)
+		first_fwd->setActive(true);
 	ShowMsg(LOCALE_NETWORKMENU_HTTPD_RESET_PASSWORD, done, CMsgBox::mbrOk, CMsgBox::mbOk, NEUTRINO_ICON_INFO);
 	done.assign(done.size(), '\0');
+}
+
+/* At the start only when this run drew the password, so it is shown once and not
+   on every start until somebody changes it, and with a time limit, since nobody
+   may be watching. Where the box still opens to a password it shipped with,
+   because the first one could not be written, that is said instead, without
+   naming any password; asked from the menu where neither stands, which is a box
+   whose password was changed since the menu opened, that is said. Whatever held
+   the password is wiped afterwards. */
+void CNhttpdSetup::showFirstPassword(bool at_start)
+{
+	const int timeout = at_start ? 60 : NO_TIMEOUT;
+	std::string first = httpd::firstPasswordInEffect();
+	if (first.empty())
+	{
+		const bool owed = login_bridge::passwordOwed();
+		if (owed || !at_start)
+			ShowMsg(LOCALE_NETWORKMENU_HTTPD,
+				g_Locale->getText(owed ? LOCALE_NETWORKMENU_HTTPD_FIRST_PASSWORD_FAILED
+						       : LOCALE_NETWORKMENU_HTTPD_FIRST_PASSWORD_NONE),
+				CMsgBox::mbrOk, CMsgBox::mbOk, NEUTRINO_ICON_INFO, MSGBOX_MIN_WIDTH, timeout);
+		return;
+	}
+	if (at_start && !httpd::firstPasswordWrittenThisRun())
+	{
+		first.assign(first.size(), '\0');
+		return;
+	}
+
+	std::string text = g_Locale->getText(at_start ? LOCALE_NETWORKMENU_HTTPD_FIRST_PASSWORD_START
+						       : LOCALE_NETWORKMENU_HTTPD_FIRST_PASSWORD_SHOWN);
+	size_t at = 0;
+	fillIn(text, login_bridge::user(), at);
+	fillIn(text, first, at);
+	first.assign(first.size(), '\0');
+	ShowMsg(LOCALE_NETWORKMENU_HTTPD, text, CMsgBox::mbrOk, CMsgBox::mbOk, NEUTRINO_ICON_INFO, MSGBOX_MIN_WIDTH, timeout);
+	text.assign(text.size(), '\0');
 }
 
 void CNhttpdSetup::loadConfig()
@@ -280,6 +336,11 @@ int CNhttpdSetup::showSetup()
 	reset_fwd->setHint("", LOCALE_MENU_HINT_NET_HTTPD_RESET_PASSWORD);
 	menu->addItem(reset_fwd);
 
+	// to be chosen while the box still waits for a password of the owner's own
+	first_fwd = new CMenuForwarder(LOCALE_NETWORKMENU_HTTPD_FIRST_PASSWORD, login_bridge::passwordOwed(), NULL, this, "first_password");
+	first_fwd->setHint("", LOCALE_MENU_HINT_NET_HTTPD_FIRST_PASSWORD);
+	menu->addItem(first_fwd);
+
 	menu->addItem(GenericMenuSeparatorLine);
 
 	CMenuOptionChooser *thread_opt = new CMenuOptionChooser(LOCALE_NETWORKMENU_HTTPD_THREADING, &threading, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
@@ -317,6 +378,7 @@ int CNhttpdSetup::showSetup()
 	int res = menu->exec(NULL, "");
 	delete menu;
 	pass_fwd = NULL;
+	first_fwd = NULL;
 
 	auth_items.Clear();
 	ssl_items.Clear();

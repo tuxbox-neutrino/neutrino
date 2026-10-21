@@ -101,6 +101,7 @@ static bool saveNeutrinoSettings();
 #include "gui/infoviewer.h"
 #include "gui/mediaplayer.h"
 #include "gui/movieplayer.h"
+#include "gui/nhttpd_setup.h"
 #include "gui/osd_helpers.h"
 #include "gui/osd_setup.h"
 #include "gui/osdlang_setup.h"
@@ -3600,6 +3601,14 @@ TIMER_STOP("################################## after all #######################
 		CZapit::getInstance()->StopPip(0);
 	}
 #endif
+
+	/* The web interface's first password, where this start drew one or could
+	 * not replace a password the box shipped with: on the screen once, with a
+	 * time limit and before the main loop, so nobody has to go looking for it.
+	 * Not on a start into standby or for a timer, which nobody watches and
+	 * which a message would only hold up. */
+	if (!timer_wakeup && !g_settings.power_standby)
+		CNhttpdSetup::showFirstPassword(true);
 
 	RealRun();
 	ExitRun(g_info.hw_caps->can_shutdown);

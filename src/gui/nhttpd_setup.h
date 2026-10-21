@@ -48,6 +48,7 @@ class CNhttpdSetup : public CMenuTarget, public CChangeObserver
 		std::string ssl_ca_file;
 
 		CMenuForwarder *pass_fwd;
+		CMenuForwarder *first_fwd;
 
 		CGenericMenuActivate auth_items;
 		CGenericMenuActivate ssl_items;
@@ -62,6 +63,10 @@ class CNhttpdSetup : public CMenuTarget, public CChangeObserver
 		~CNhttpdSetup();
 
 		int exec(CMenuTarget* parent, const std::string &actionKey);
+
+		/* The web interface's first password on the screen: at the start once,
+		   with a time limit, when this run drew it; from the menu on request. */
+		static void showFirstPassword(bool at_start);
 		bool changeNotify(const neutrino_locale_t OptionName, void *Data);
 };
 
