@@ -2346,6 +2346,7 @@ function webuiCloseAbout(event) {
 // sign-in from the home network; a page that may read neither shows none.
 var _webuiExtensions = null;		// the list, once found
 var _webuiExtensionsAsked = null;	// the finding, while and after it runs
+var _webuiExtensionsUnread = null;	// why the list could not be read, else null
 
 // The interface's own pages a start page can be: page, text key, English;
 // named as the navigation names them, its categories of settings.html aside.
@@ -2428,12 +2429,20 @@ function webuiExtSwitchedOn(m, cfg) {
 function webuiForgetExtensions() {
 	_webuiExtensions = null;
 	_webuiExtensionsAsked = null;
+	_webuiExtensionsUnread = null;
 }
 
 async function _webuiFindExtensions() {
 	var found = [];
+	_webuiExtensionsUnread = null;
 	try {
-		var list = await _webuiV1Read('/webui/extensions');
+		// read here and not by _webuiV1Read: a refusal or a failure of the
+		// box is not an empty list, and says why (a sign-in, for one)
+		var lr = await fetch('/api/v1/webui/extensions', {credentials: 'same-origin', cache: 'no-store'});
+		if (!lr.ok)
+			throw typeof _webuiV1Error === 'function' ? await _webuiV1Error(lr, 'GET', '/webui/extensions') :
+				Object.assign(new Error('HTTP ' + lr.status), {status: lr.status});
+		var list = await lr.json();
 		var entries = (list && list.items) || [];
 		if (!entries.length) return found;
 		var settings = await _webuiV1Read('/webui/settings');
@@ -2474,7 +2483,10 @@ async function _webuiFindExtensions() {
 				found.push(m);
 			} catch (ignore) {}
 		}
-	} catch (ignore) {}
+	} catch (e) {
+		// no list is not an empty one: the extension manager says which
+		_webuiExtensionsUnread = e;
+	}
 	return found;
 }
 

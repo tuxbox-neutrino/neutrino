@@ -652,6 +652,10 @@ async function loadExtensionsPanel() {
 	if (!el) return;
 	webuiForgetExtensions(); // Discovery-Cache invalidieren
 	var exts = await webuiDiscoverExtensions();
+	if (_webuiExtensionsUnread) {
+		el.replaceChildren(webuiStateFor(_webuiExtensionsUnread, {retry: loadExtensionsPanel}));
+		return;
+	}
 	// the head shows what was installed, removed or moved, at once
 	if (typeof webuiNavKeepPlaces === 'function')
 		webuiNavKeepPlaces(exts, 'settings');
@@ -997,14 +1001,19 @@ async function loadWolPanel() {
 		var section = webuiEl('div', {className: 'webui-form-section'},
 			webuiEl('div', {className: 'webui-form-section-title'}, webuiL('set.wol_devices', 'Devices')));
 		[1, 2, 3].forEach(function(i) {
+			// each field named with its device, as the placeholder goes once typed into
+			var device = webuiL('set.wol_device', 'Device') + ' ' + i;
 			section.appendChild(webuiEl('div', {className: 'webui-form-row'},
-				webuiEl('label', {}, webuiL('set.wol_device', 'Device') + ' ' + i),
+				webuiEl('label', {htmlFor: 'wol_desc_' + i}, device),
 				webuiEl('span', {},
 					webuiEl('input', {type: 'text', id: 'wol_desc_' + i, value: cfg['wol_desc_' + i] || '',
-						attrs: {placeholder: webuiL('set.wol_desc_ph', 'Description')}, style: {'max-width': '140px'}}), ' ',
+						attrs: {placeholder: webuiL('set.wol_desc_ph', 'Description'),
+							'aria-label': device + ': ' + webuiL('set.wol_desc_ph', 'Description')}, style: {'max-width': '140px'}}), ' ',
 					webuiEl('input', {type: 'text', id: 'wol_mac_' + i, value: cfg['wol_mac_' + i] || '',
-						attrs: {placeholder: 'aa:bb:cc:dd:ee:ff'}, style: {'max-width': '160px'}}), ' ',
-					webuiEl('button', {type: 'button', className: 'webui-btn', on: {click: function() { wolWake(i, this); }}},
+						attrs: {placeholder: 'aa:bb:cc:dd:ee:ff', 'aria-label': device + ': ' + webuiL('set.mnt_mac', 'MAC address'),
+							autocomplete: 'off', spellcheck: 'false'}, style: {'max-width': '160px'}}), ' ',
+					webuiEl('button', {type: 'button', className: 'webui-btn', attrs: {'aria-label': webuiL('set.wol_wake', 'Wake') + ': ' + device},
+						on: {click: function() { wolWake(i, this); }}},
 						webuiMarkup(ZAP_ICON), webuiL('set.wol_wake', 'Wake')))));
 		});
 		el.replaceChildren(section);
@@ -1073,8 +1082,8 @@ function renderXmltvPanel() {
 }
 
 function xmltvSection(kind, title, upload) {
-	var html = '<div class="webui-form-section"><div class="webui-form-section-title">' + title + '</div>' +
-		'<textarea id="xmltv_' + kind + '" rows="4" style="width:100%" placeholder="' + webuiLH('set.xmltv_ph', 'one URL/file per line') + '">' +
+	var html = '<div class="webui-form-section"><div class="webui-form-section-title" id="xmltv_' + kind + '_title">' + title + '</div>' +
+		'<textarea id="xmltv_' + kind + '" rows="4" style="width:100%" aria-labelledby="xmltv_' + kind + '_title" placeholder="' + webuiLH('set.xmltv_ph', 'one URL/file per line') + '">' +
 		escapeHtml((XMLTV_LOADED[kind] || []).join('\n')) + '</textarea>';
 	if (upload)
 		html += '<div class="webui-form-row" style="margin-top:0.4rem"><label><small style="color:var(--pico-muted-color)">' + webuiLH('set.xmltv_upload', 'or upload a local source file') + '</small></label>' +
@@ -1457,7 +1466,8 @@ function shareSlot(sh, open) {
 		on: {click: function() {
 			head.setAttribute('aria-expanded', slot.classList.toggle('open') ? 'true' : 'false');
 		}}},
-		webuiEl('span', {}, webuiL('set.mnt_slot', 'Place') + ' ' + sh.slot + ' ',
+		// counted from one, as people count; the box numbers its shares not
+		webuiEl('span', {}, webuiL('set.mnt_slot', 'Share') + ' ' + (sh.slot + 1) + ' ',
 			webuiEl('span', {className: 'slot-summary', id: 'share_summary_' + sh.slot}, shareSummary(sh))),
 		webuiMarkup(chevron));
 	var slot = webuiEl('div', {className: 'mount-slot' + (open ? ' open' : ''), id: 'mount-slot-' + sh.slot},
@@ -1508,8 +1518,12 @@ async function onShare(i, request) {
 	}
 }
 
+// The caption names the field beside it, the first of the control
 function shareRow(label, control) {
-	return webuiEl('div', {className: 'webui-form-row'}, webuiEl('label', {}, label), control);
+	var field = control.matches && control.matches('input, select, textarea') ? control :
+		(control.querySelector ? control.querySelector('input, select, textarea') : null);
+	return webuiEl('div', {className: 'webui-form-row'},
+		webuiEl('label', {htmlFor: field && field.id ? field.id : null}, label), control);
 }
 
 function shareFields(sh) {
@@ -1545,8 +1559,9 @@ function shareFields(sh) {
 		shareRow(webuiL('set.mnt_dir', 'Server directory'), input('remote_dir', sh.remote_dir)),
 		shareRow(webuiL('set.mnt_local', 'Local mount point'), webuiEl('span', {}, local, ' ',
 			webuiEl('button', {type: 'button', className: 'webui-btn', title: webuiL('picker.title', 'Choose folder'),
+				attrs: {'aria-label': webuiL('picker.title', 'Choose folder')},
 				on: {click: function() { webuiPickInto(local.id, local.value || '/media'); }}}, webuiMarkup(FOLDER_ICON)))),
-		shareRow('Auto-Mount', webuiEl('label', {className: 'webui-toggle'}, auto, webuiEl('span', {className: 'webui-toggle-slider'}))),
+		shareRow(webuiL('set.mnt_automount', 'Mount automatically'), webuiEl('label', {className: 'webui-toggle'}, auto, webuiEl('span', {className: 'webui-toggle-slider'}))),
 		shareRow(webuiL('set.mnt_opts', 'Mount options') + ' 1', input('options1', sh.options1)),
 		shareRow(webuiL('set.mnt_opts', 'Mount options') + ' 2', input('options2', sh.options2)),
 		shareRow(webuiL('set.mnt_mac', 'MAC address'), input('mac', sh.mac)),
@@ -1591,7 +1606,7 @@ async function mountAutomaticShares(btn) {
 		else if (failed.length === 0)
 			webuiShowToast(items.length + ' ' + webuiL('set.mnt_auto_done', 'mounted'));
 		else
-			webuiShowToast(failed.map(function(o) { return webuiL('set.mnt_slot', 'Place') + ' ' + o.slot + ': ' + o.detail; }).join('; '), true);
+			webuiShowToast(failed.map(function(o) { return webuiL('set.mnt_slot', 'Share') + ' ' + (o.slot + 1) + ': ' + o.detail; }).join('; '), true);
 		// only the summaries: what was typed into a slot and not saved stays
 		var now = await webuiV1('GET', '/storage/shares');
 		updateShares((now && now.items) || [], -1);
@@ -1791,7 +1806,7 @@ function buildNavigation() {
 			var label = escapeHtml(e.cat.label);
 			var icon = e.cat.icon || SETTINGS_DEFAULT_ICON;
 			sidebarHtml += '<button data-cat="' + e.cat.id + '"' +
-				(e.cat.id === activeCategory ? ' class="active"' : '') +
+				(e.cat.id === activeCategory ? ' class="active" aria-current="true"' : '') +
 				' onclick="switchCategory(\'' + e.cat.id + '\')">' + icon +
 				'<span>' + label + '</span></button>';
 			mobileHtml += '<option value="' + e.cat.id + '"' +
@@ -1816,7 +1831,10 @@ function switchCategory(catId) {
 
 	// Update sidebar active state
 	document.querySelectorAll('#settingsSidebar button').forEach(function(btn) {
-		btn.classList.toggle('active', btn.getAttribute('data-cat') === catId);
+		var on = btn.getAttribute('data-cat') === catId;
+		btn.classList.toggle('active', on);
+		if (on) btn.setAttribute('aria-current', 'true');
+		else btn.removeAttribute('aria-current');
 	});
 
 	// Update mobile select
@@ -1976,17 +1994,19 @@ async function saveSettingsNow(values, params, changed, v1dirty) {
 	if (v1dirty.count)
 		v1 = await v1setSave(v1dirty);
 	var oldOk = true;
+	var why = null;
 	if (changed) {
 		try {
 			await webuiApi('config', 'config=neutrino&' + params);
 		} catch (e) {
 			oldOk = false;
+			why = e;
 		}
 	}
 
 	var saved = v1.saved + (oldOk ? changed : 0);
 	if (!oldOk)
-		webuiShowToast(webuiL('tm.save_fail', 'Saving failed'), true);
+		webuiToastError(webuiL('tm.save_fail', 'Saving failed'), why);
 	else if (v1.failed)
 		webuiShowToast(webuiL('set.save_some_fail', 'Not every setting was saved, see the marked fields'), true);
 	else
@@ -2039,8 +2059,8 @@ async function loadSettings() {
 		var resp = both[0];
 		configData = (resp && resp.data && resp.data.config) || {};
 	} catch (e) {
-		document.getElementById('settingsContent').innerHTML =
-			'<div class="settings-loading">' + webuiLH('set.load_fail', 'Loading the settings failed') + '</div>';
+		document.getElementById('settingsContent').replaceChildren(
+			webuiStateFor(e, {title: webuiL('set.load_fail', 'Loading the settings failed'), retry: loadSettings}));
 		return;
 	}
 
@@ -2196,8 +2216,16 @@ function settingsMarkRegistry(el) {
 webuiAfterTexts(async function() {
 	DEP_HINT = webuiL('set.dep_locked', 'Controlled by the entry above — no effect while that one is enabled');
 	await webuiDiscoverExtensions();
-	await webuiLoadScript('/js/settings-registry.js?v=19');
-	await webuiLoadScript('/js/settings-v1.js?v=9');
+	try {
+		await webuiLoadScript('/js/settings-registry.js?v=19');
+		await webuiLoadScript('/js/settings-v1.js?v=9');
+	} catch (e) {
+		// without them the page has nothing to draw: say so, not "Loading"
+		document.getElementById('settingsContent').replaceChildren(
+			webuiState('error', webuiL('set.load_fail', 'Loading the settings failed'), '',
+				{retry: function() { location.reload(); }}));
+		return;
+	}
 	// Was anderswo gespeichert wird (am Geraet, von einer zweiten Seite),
 	// liest die Seite nach
 	webuiV1Events({'settings-changed': v1setChanged, open: v1setStreamOpen});
