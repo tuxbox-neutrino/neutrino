@@ -31,6 +31,10 @@ html.webui-i18n-pending body {
 	--webui-danger: #e74c3c;
 	--webui-danger-hover: #c0392b;
 	--webui-recording: #e74c3c;
+	/* a red to fill a button with white text on: the red above is for
+	   text on the dark ground and too light under white (3.8:1) */
+	--webui-danger-fill: #c0392b;
+	--webui-danger-fill-hover: #a93226;
 
 	/* Theme-adaptive colors (dark mode defaults) */
 	--webui-text-primary: #e5e5e5;
@@ -80,6 +84,8 @@ html.webui-i18n-pending body {
 	--webui-danger: #c0392b;
 	--webui-danger-hover: #a93226;
 	--webui-recording: #c0392b;
+	--webui-danger-fill: #c0392b;
+	--webui-danger-fill-hover: #a93226;
 }
 
 /* Pico's own palette from the same values: a calm, near-black page with
@@ -666,6 +672,9 @@ body:not(.has-subheader) .webui-header-spacer {
    the button templates has been removed; its winning padding/svg size
    are folded in here so the rendering is unchanged). */
 .webui-theme-toggle {
+	/* a button: Pico's own colour for one is the accent's contrast, near
+	   black on the dark theme (the language code read at 1.1:1) */
+	--pico-color: inherit;
 	background: none;
 	border: none;
 	padding: 0.3rem;
@@ -679,6 +688,12 @@ body:not(.has-subheader) .webui-header-spacer {
 
 .webui-theme-toggle:hover {
 	background: var(--webui-accent-light);
+}
+
+/* Pico sets its button colour again on hover, focus and press, with a
+   selector that outweighs the bare class above */
+.webui-theme-toggle:is(:hover, :focus, :active) {
+	--pico-color: inherit;
 }
 
 .webui-theme-toggle svg {
@@ -981,8 +996,8 @@ body:not(.has-subheader) .webui-header-spacer {
 }
 
 .webui-confirm-actions .confirm-delete {
-	background: var(--webui-danger);
-	border-color: var(--webui-danger);
+	background: var(--webui-danger-fill);
+	border-color: var(--webui-danger-fill);
 	color: white;
 }
 
@@ -1673,16 +1688,16 @@ textarea:focus-visible {
 }
 
 .webui-btn.danger {
-	background: var(--webui-danger);
-	border-color: var(--webui-danger);
+	background: var(--webui-danger-fill);
+	border-color: var(--webui-danger-fill);
 	color: white;
 }
 
 /* Eigener Hover: der generische .webui-btn:hover faerbt sonst
    destruktive Knoepfe in den Akzent um */
 .webui-btn.danger:hover {
-	background: var(--webui-danger-hover);
-	border-color: var(--webui-danger-hover);
+	background: var(--webui-danger-fill-hover);
+	border-color: var(--webui-danger-fill-hover);
 	color: white;
 }
 
@@ -1748,14 +1763,14 @@ textarea:focus-visible {
 /* danger braucht wie primary einen Light-Override, sonst gewinnt
    der spaeter definierte graue Light-Basisknopf (gleiche Spezifitaet) */
 [data-theme="light"] .webui-btn.danger {
-	background: var(--webui-danger);
-	border-color: var(--webui-danger);
+	background: var(--webui-danger-fill);
+	border-color: var(--webui-danger-fill);
 	color: white;
 }
 
 [data-theme="light"] .webui-btn.danger:hover {
-	background: var(--webui-danger-hover);
-	border-color: var(--webui-danger-hover);
+	background: var(--webui-danger-fill-hover);
+	border-color: var(--webui-danger-fill-hover);
 	color: white;
 }
 
@@ -2446,8 +2461,8 @@ html:not([data-theme="dark"]) .webui-remote .webui-rc-power {
 	margin-bottom: 4px;
 }
 
-[data-theme="dark"] .webui-remote .webui-rc-rocker-label { color: #777; }
-html:not([data-theme="dark"]) .webui-remote .webui-rc-rocker-label { color: #999; }
+/* muted, as a caption is, and still 4.5:1 in both themes */
+.webui-remote .webui-rc-rocker-label { color: var(--pico-muted-color); }
 
 .webui-remote .webui-rc-rocker .webui-rc-rocker-top,
 .webui-remote .webui-rc-rocker .webui-rc-rocker-bot {
