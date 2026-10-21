@@ -3,7 +3,7 @@
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Neutrino-Web-UI - m3u Converter</title>
+	<title data-l="manifest.name" data-l-prefix="Neutrino-Web-UI - ">Neutrino-Web-UI - m3u Converter</title>
 	<link rel="icon" href="/favicon/favicon.ico">
 	<script>
 		// Apply the stored theme before first paint: webui-header.js runs
@@ -35,16 +35,14 @@
 					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 						<polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/>
 					</svg>
-					m3u &rarr; WebTV-XML
+					<span data-l="m3u.heading">m3u to WebTV list</span>
 				</h3>
 			</header>
 			<div class="webui-card-body">
-				<p class="m3u-intro">
-					<span data-l="m3u.intro1">Converts m3u playlists (EXTINF) into the format of</span> <code>webtv_usr.xml</code>.
-					<span data-l="m3u.intro2">Saved on the box, it can join the WebTV sources right away.</span></p>
+				<p class="m3u-intro" data-l="m3u.intro">Converts m3u playlists (EXTINF) into the box's WebTV list format (webtv_usr.xml). Saved on the box, it can join the WebTV sources right away.</p>
 
-				<div class="webui-form-section-title"><span data-l="m3u.step1_nr">1. Paste streams</span></div>
-				<textarea id="m3uInput" rows="9" placeholder="#EXTM3U&#10;#EXTINF:0,DE:Beispiel&#10;http://server:8000/live/377.ts"></textarea>
+				<div class="webui-form-section-title"><span id="m3uInputTitle" data-l="m3u.step1_nr">1. Paste streams</span></div>
+				<textarea id="m3uInput" rows="9" aria-labelledby="m3uInputTitle" placeholder="#EXTM3U&#10;#EXTINF:0,DE:Beispiel&#10;http://server:8000/live/377.ts"></textarea>
 				<div class="m3u-actions">
 					<label class="webui-file">
 						<input type="file" id="m3uFile" accept=".m3u,.m3u8,.txt" multiple onchange="m3uFiles(this)">
@@ -57,7 +55,7 @@
 				<div class="m3u-meta">
 					<label><span data-l="m3u.title">Title</span> <input id="m3uTitle" value="my streams"></label>
 					<label><span data-l="m3u.desc">Description</span> <input id="m3uDesc" value="webtv"></label>
-					<label>Genre <input id="m3uGenre" value="Movie"></label>
+					<label><span data-l="m3u.genre">Genre</span> <input id="m3uGenre" value="Movie"></label>
 					<label><span data-l="m3u.filename">File name</span> <input id="m3uName" value="webtv_usr.xml"></label>
 				</div>
 
@@ -81,8 +79,8 @@
 						<span data-l="m3u.add_to_sources">and add it to the WebTV sources</span></label>
 				</div>
 
-				<div class="webui-form-section-title"><span data-l="m3u.step3_nr">3. Result</span></div>
-				<textarea id="m3uOutput" rows="10" placeholder="(webtv_usr.xml appears here)" data-l-placeholder="m3u.out_ph"></textarea>
+				<div class="webui-form-section-title"><span id="m3uOutputTitle" data-l="m3u.step3_nr">3. Result</span></div>
+				<textarea id="m3uOutput" rows="10" aria-labelledby="m3uOutputTitle" placeholder="(webtv_usr.xml appears here)" data-l-placeholder="m3u.out_ph"></textarea>
 			</div>
 		</article>
 	</main>

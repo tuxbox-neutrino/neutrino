@@ -9,16 +9,20 @@ function m3uFiles(sel) {
 	} else {
 		webuiFileName(sel);
 	}
+	// every file read, then put in in the order chosen; one that cannot be
+	// read is named, the others still come in
 	var inp = document.getElementById('m3uInput');
-	var pending = files.length;
-	for (var i = 0; i < files.length; i++) {
-		var r = new FileReader();
-		r.onload = function(ev) {
-			inp.value += (inp.value ? '\n' : '') + ev.target.result;
-			if (--pending === 0) webuiShowToast(files.length + ' ' + webuiL('m3u.loaded', 'file(s) loaded'));
-		};
-		r.readAsText(files[i]);
-	}
+	var failed = [];
+	Promise.all(Array.prototype.map.call(files, function(f) {
+		return f.text().catch(function() { failed.push(f.name); return null; });
+	})).then(function(texts) {
+		var got = texts.filter(function(t) { return t !== null; });
+		got.forEach(function(t) { inp.value += (inp.value ? '\n' : '') + t; });
+		if (failed.length)
+			webuiShowToast(webuiL('m3u.read_fail', 'Could not be read') + ': ' + failed.join(', '), true);
+		else if (got.length)
+			webuiShowToast(got.length + ' ' + webuiL('m3u.loaded', 'file(s) loaded'));
+	});
 }
 
 // a value as an XML attribute takes it: what XML gives a meaning there is
@@ -59,6 +63,12 @@ function m3uConvert() {
 		count++;
 	}
 	s += '</webtvs>';
+	// nothing to convert is said as such, and leaves no empty list behind
+	if (!count) {
+		document.getElementById('m3uOutput').value = '';
+		webuiShowToast(webuiL('m3u.none', 'No stream found: the text holds no address'), true);
+		return;
+	}
 	document.getElementById('m3uOutput').value = s;
 	webuiShowToast(count + ' ' + webuiL('m3u.converted', 'streams converted'));
 }
@@ -84,9 +94,12 @@ async function m3uSaveToBox(btn) {
 	btn.disabled = true;
 	try {
 		var src = await webuiV1('GET', '/channels/sources');
+		var dir = String((src && src.webtv_dir) || '').replace(/\/+$/, '');
+		if (!dir)
+			throw new Error(webuiL('m3u.no_dir', 'The box names no folder for its WebTV lists'));
 		await m3uStore({
 			out: out,
-			path: String(src.webtv_dir || '').replace(/\/+$/, '') + '/' + name,
+			path: dir + '/' + name,
 			add: document.getElementById('m3uAddSource').checked
 		}, false);
 	} catch (e) {
@@ -119,21 +132,29 @@ async function m3uStore(job, overwrite) {
 	}
 	var said = webuiL('m3u.saved', 'Saved') + ': ' + job.path;
 	// the list as it is now, not as it was before a question: one changed
-	// in the settings meanwhile is not written back over
-	var now = await webuiV1('GET', '/channels/sources');
-	var sources = (now && now.webtv) || [];
-	var listed = sources.indexOf(job.path) >= 0;
-	if (listed || job.add) {
-		await webuiV1('PUT', '/channels/sources/webtv', {body: listed ? sources : sources.concat([job.path]),
-			query: {reload: true}});
-		said += ' – ' + (listed ? webuiL('m3u.source_known', 'already one of the WebTV sources, the channel lists are read again') :
-			webuiL('m3u.source_added', 'added to the WebTV sources, the channel lists are read again'));
+	// in the settings meanwhile is not written back over. The file is on
+	// the box whatever happens here, and a failure says so.
+	try {
+		var now = await webuiV1('GET', '/channels/sources');
+		var sources = (now && now.webtv) || [];
+		var listed = sources.indexOf(job.path) >= 0;
+		if (listed || job.add) {
+			await webuiV1('PUT', '/channels/sources/webtv', {body: listed ? sources : sources.concat([job.path]),
+				query: {reload: true}});
+			said += ' – ' + (listed ? webuiL('m3u.source_known', 'already one of the WebTV sources, the channel lists are read again') :
+				webuiL('m3u.source_added', 'added to the WebTV sources, the channel lists are read again'));
+		}
+	} catch (e) {
+		webuiToastError(said + ' – ' + webuiL('m3u.source_fail', 'but not taken into the WebTV sources'), e);
+		return;
 	}
 	webuiShowToast(said);
 }
 
 webuiExtTexts('m3u-converter').then(function() {
-	// prefill only while untouched (English default from the markup)
+	// prefill only while untouched (English defaults from the markup)
 	var ti = document.getElementById('m3uTitle');
 	if (ti.value === 'my streams') ti.value = webuiL('m3u.title_default', 'my streams');
+	var ge = document.getElementById('m3uGenre');
+	if (ge.value === 'Movie') ge.value = webuiL('m3u.genre_default', 'Movie');
 });
