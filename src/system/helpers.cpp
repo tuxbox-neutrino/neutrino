@@ -1799,7 +1799,6 @@ int getpidof(const char *process)
 {
 	DIR *dp;
 	struct dirent *entry;
-	struct stat statbuf;
 
 	if ((dp = opendir("/proc")) == NULL)
 	{
@@ -1809,31 +1808,29 @@ int getpidof(const char *process)
 
 	while ((entry = readdir(dp)) != NULL)
 	{
-		// get information about the file/folder
-		lstat(entry->d_name, &statbuf);
 		// files under /proc which start with a digit are processes
-		if (S_ISDIR(statbuf.st_mode) && isdigit(entry->d_name[0]))
+		if (!isdigit(entry->d_name[0]))
+			continue;
+
+		// 14 chars for /proc//status + 0
+		char procpath[14 + strlen(entry->d_name)];
+		char procname[50];
+		FILE *file;
+
+		sprintf(procpath, "/proc/%s/status", entry->d_name);
+
+		if (!(file = fopen(procpath, "r")))
+			continue;
+
+		int n = fscanf(file, "%*s %49s", procname);
+		fclose(file);
+
+		// only 15 char available
+		if (n == 1 && strncmp(procname, process, 15) == 0)
 		{
-			// 14 chars for /proc//status + 0
-			char procpath[14 + strlen(entry->d_name)];
-			char procname[50];
-			FILE *file;
-
-			sprintf(procpath, "/proc/%s/status", entry->d_name);
-
-			if (!(file = fopen(procpath, "r")))
-			{
-				continue;
-			}
-
-			fscanf(file, "%*s %s", procname);
-			fclose(file);
-
-			// only 15 char available
-			if (strncmp(procname, process, 15) == 0)
-			{
-				return atoi(entry->d_name);
-			}
+			int pid = atoi(entry->d_name);
+			closedir(dp);
+			return pid;
 		}
 	}
 	closedir(dp);
