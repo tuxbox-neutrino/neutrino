@@ -2,5 +2,9 @@
 	"manifest.name": "Info-Bildschirm",
 	"manifest.description": "Was gerade läuft, als Vollbild",
 	"info.none": "Es läuft kein Sender",
-	"info.standby": "Standby"
+	"info.standby": "Standby",
+	"info.no_answer": "Die Box antwortet nicht",
+	"info.off": "aus",
+	"info.on": "an",
+	"info.progress": "Fortschritt der Sendung"
 }

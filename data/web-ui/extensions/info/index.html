@@ -3,7 +3,7 @@
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Info</title>
+	<title data-l="manifest.name">Info screen</title>
 	<link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png">
 	<link rel="icon" type="image/png" href="/favicon/favicon-32x32.png" sizes="32x32">
 	<link rel="icon" type="image/png" href="/favicon/favicon-16x16.png" sizes="16x16">
@@ -17,6 +17,21 @@
 		html {
 			margin: 0;
 			padding: 0;
+		}
+
+		/* no Pico on this page: hidden has to win over a display of its own */
+		[hidden] {
+			display: none !important;
+		}
+
+		/* words for who cannot see a colour, out of sight */
+		.vh {
+			position: absolute;
+			width: 1px;
+			height: 1px;
+			overflow: hidden;
+			clip: rect(0 0 0 0);
+			white-space: nowrap;
 		}
 
 		body {
@@ -109,13 +124,13 @@
 	<div class="info">
 		<div class="fullwidth status">
 			<div class="left">
-				<span class="ecm" id="info-ecm">ECM</span>
-				<span class="cam" id="info-cam">CI+</span>
+				<span class="ecm" id="info-ecm">ECM<span class="vh"></span></span>
+				<span class="cam" id="info-cam">CI+<span class="vh"></span></span>
 			</div>
 			<div class="right">
-				<span class="timer" id="info-timer">TIMER</span>
-				<span class="rec" id="info-rec">REC</span>
-				<span class="ts" id="info-ts">TS</span>
+				<span class="timer" id="info-timer">TIMER<span class="vh"></span></span>
+				<span class="rec" id="info-rec">REC<span class="vh"></span></span>
+				<span class="ts" id="info-ts">TS<span class="vh"></span></span>
 			</div>
 		</div>
 		<div class="fullwidth logo" id="info-channel">
@@ -125,7 +140,7 @@
 		<div class="fullwidth eventinfo">
 			<div class="event" id="info-event"></div>
 			<div class="spacer"></div>
-			<div class="progress_outer">
+			<div class="progress_outer" id="info-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-label="How far the programme is" data-l-aria-label="info.progress">
 				<div class="progress_inner" id="info-progress"></div>
 			</div>
 			<div class="spacer"></div>

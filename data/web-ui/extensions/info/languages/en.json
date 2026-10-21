@@ -2,5 +2,9 @@
 	"manifest.name": "Info screen",
 	"manifest.description": "What runs now, full screen",
 	"info.none": "No channel is playing",
-	"info.standby": "Standby"
+	"info.standby": "Standby",
+	"info.no_answer": "The box does not answer",
+	"info.off": "off",
+	"info.on": "on",
+	"info.progress": "How far the programme is"
 }

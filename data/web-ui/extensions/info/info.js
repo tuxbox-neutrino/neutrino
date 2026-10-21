@@ -12,8 +12,11 @@ var infoFlagsAsked = 0;
 // what the event of the channel shown was, so the bar can move between reads
 var infoEvent = null;
 
+// a flag lit or not, in its colour and, for who cannot see that, in words
 function infoFlag(id, on) {
-	document.getElementById(id).classList.toggle('on', !!on);
+	var el = document.getElementById(id);
+	el.classList.toggle('on', !!on);
+	el.querySelector('.vh').textContent = ': ' + (on ? webuiL('info.on', 'on') : webuiL('info.off', 'off'));
 }
 
 function infoClock() {
@@ -60,12 +63,33 @@ function infoShowEvent(ev) {
 	}
 	document.getElementById('info-event').textContent = (ev && ev.title) || '';
 	document.getElementById('info-progress').style.width = percent + '%';
+	document.getElementById('info-bar').setAttribute('aria-valuenow', percent);
 	document.getElementById('info-duration').textContent = minutes;
 }
 
-// a read that is refused counts as nothing to show
-function infoRead(path, query) {
-	return webuiV1('GET', path, query ? {query: query} : undefined).catch(function() { return null; });
+/* What the box answers, read without a sign-in dialog, which this screen
+   has no place for. A refusal or no answer throws, with the status where
+   there was one, so that it is not taken for a state of the box. */
+async function infoRead(path, query) {
+	var r = await fetch(_webuiV1Url(path, query), {credentials: 'same-origin', cache: 'no-store'});
+	if (!r.ok) {
+		var e = new Error(path + ': HTTP ' + r.status);
+		e.status = r.status;
+		throw e;
+	}
+	return r.json();
+}
+
+// what the screen says for a read that failed
+function infoTrouble(e) {
+	return e && (e.status === 401 || e.status === 403) ? webuiL('err.sign_in', 'Only after signing in') :
+		webuiL('info.no_answer', 'The box does not answer');
+}
+
+// the box answered and has nothing of the kind (no channel playing, no
+// programme known) as against a read that did not get through
+function infoNothing(e) {
+	return !!e && e.status >= 400 && e.status < 500 && e.status !== 401 && e.status !== 403;
 }
 
 /* The box in standby still names the channel it played last, so standby is
@@ -74,11 +98,24 @@ function infoRead(path, query) {
    dropped, so an older event never lands under a newer channel. */
 async function infoChannelAndEvent() {
 	var mine = ++infoAsked;
-	var standby = await infoRead('/system/standby');
-	var ch = standby && standby.on ? null : await infoRead('/channels/current');
-	var ev = ch ? await infoRead('/epg/current', {channel: ch.id}) : null;
+	var standby, ch = null, ev = null;
+	try {
+		standby = await infoRead('/system/standby');
+		if (!standby.on)
+			ch = await infoRead('/channels/current').catch(function(e) {
+				if (infoNothing(e)) return null;
+				throw e;
+			});
+		if (ch)
+			ev = await infoRead('/epg/current', {channel: ch.id}).catch(function() { return null; });
+	} catch (e) {
+		if (mine !== infoAsked) return;
+		infoShowChannel(null, infoTrouble(e));
+		infoShowEvent(null);
+		return;
+	}
 	if (mine !== infoAsked) return;
-	infoShowChannel(ch, standby && standby.on ? webuiL('info.standby', 'Standby') :
+	infoShowChannel(ch, standby.on ? webuiL('info.standby', 'Standby') :
 		webuiL('info.none', 'No channel is playing'));
 	infoShowEvent(ev);
 }
@@ -90,7 +127,12 @@ async function infoChannelAndEvent() {
    box records, TS while it keeps its shift of what it shows. */
 async function infoFlags() {
 	var mine = ++infoFlagsAsked;
-	var got = await Promise.all([infoRead('/system/decryption'), infoRead('/timers'), infoRead('/recordings')]);
+	var got;
+	try {
+		got = await Promise.all([infoRead('/system/decryption'), infoRead('/timers'), infoRead('/recordings')]);
+	} catch (e) {
+		return;	// the flags as they were: no answer is no news
+	}
 	if (mine !== infoFlagsAsked) return;
 	var dec = got[0] || {};
 	var now = Date.now() / 1000;
