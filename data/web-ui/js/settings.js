@@ -1254,6 +1254,57 @@ function pluginButton(icon, text, onClick) {
 		webuiMarkup(icon), text);
 }
 
+/* While a plugin the box started runs, the box starts no other. The panel
+   says so, offers the remote control to end it with, keeps the start buttons
+   locked and asks the box again every few seconds until it is free. */
+var _pluginWatch = null;
+
+function pluginShowRunning(on) {
+	clearTimeout(_pluginWatch);
+	_pluginWatch = null;
+	var el = document.getElementById('pluginsPanel');
+	if (!el)
+		return;
+	var note = document.getElementById('pluginsRunning');
+	if (note)
+		note.hidden = !on;
+	el.querySelectorAll('.webui-plugin-start').forEach(function(b) { b.disabled = on; });
+	if (on)
+		_pluginWatch = setTimeout(pluginWatch, 3000);
+}
+
+// Asks only while the panel is in sight (switchCategory and the end of a
+// search ask again when it comes back), and never opens a sign-in: a
+// refusal ends the watch
+function pluginPanelShown() {
+	var el = document.getElementById('pluginsPanel');
+	return !!el && !!el.closest('.settings-panel.active') && !document.getElementById('settingsContent').hidden;
+}
+
+async function pluginWatch() {
+	clearTimeout(_pluginWatch);
+	_pluginWatch = null;
+	if (!pluginPanelShown())
+		return;
+	var data = null;
+	try {
+		var r = await fetch('/api/v1/plugins', {credentials: 'same-origin', cache: 'no-store'});
+		if (r.status === 401 || r.status === 403)
+			return;
+		data = r.ok ? await r.json() : null;
+	} catch (e) {
+		data = null;
+	}
+	if (!pluginPanelShown())
+		return;
+	if (!data) {
+		// no answer is no news: asked again a little later
+		_pluginWatch = setTimeout(pluginWatch, 6000);
+		return;
+	}
+	pluginShowRunning(!!data.running);
+}
+
 async function loadPluginsPanel() {
 	var el = document.getElementById('pluginsPanel');
 	if (!el) return;
@@ -1262,16 +1313,25 @@ async function loadPluginsPanel() {
 		// every plugin, the hidden ones too: hiding is about the box's menus,
 		// and this is the one place left to show one there again
 		var list = (data && data.items) || [];
+		var running = webuiEl('div', {className: 'webui-form-row', id: 'pluginsRunning', hidden: true},
+			webuiEl('label', {},
+				webuiEl('span', {className: 'webui-pill warn'}, webuiL('set.plugins_running', 'A plugin is running')), ' ',
+				webuiEl('small', {style: {color: 'var(--pico-muted-color)'}},
+					webuiL('set.plugins_running_text', 'The box starts no other until it has ended; it ends at the box or with the remote control.'))),
+			webuiEl('span', {className: 'webui-row-actions'},
+				webuiEl('button', {type: 'button', className: 'webui-btn', on: {click: function() { webuiShowRemote(); }}},
+					webuiMarkup(WEBUI_ICONS.remote), webuiL('tools.remote_sub', 'Remote control'))));
 		var installed = webuiEl('div', {className: 'webui-form-section'},
-			webuiEl('div', {className: 'webui-form-section-title'}, webuiL('set.plugins_installed', 'Installed plugins')));
+			webuiEl('div', {className: 'webui-form-section-title'}, webuiL('set.plugins_installed', 'Installed plugins')), running);
 		if (list.length === 0)
 			installed.appendChild(pluginRow(webuiL('set.plugins_none', 'No plugins installed')));
 		list.forEach(function(pl) {
 			var note = pl.hidden ? webuiL('set.plugins_hidden_note', 'hidden in the box\'s menus') +
 				(pl.description ? ' · ' + pl.description : '') : pl.description;
-			installed.appendChild(pluginRow(pl.title || pl.name, note, [
-				pluginButton(PLAY_ICON, webuiL('set.plugins_start', 'Start'), function(btn) { startPluginByName(pl.name, btn); }),
-				' ', pluginHideButton(pl)]));
+			var start = pluginButton(PLAY_ICON, webuiL('set.plugins_start', 'Start'), function(btn) { startPluginByName(pl, btn); });
+			start.classList.add('webui-plugin-start');
+			start.setAttribute('aria-label', webuiL('set.plugins_start', 'Start') + ': ' + (pl.title || pl.name));
+			installed.appendChild(pluginRow(pl.title || pl.name, note, [start, ' ', pluginHideButton(pl)]));
 		});
 		var manage = webuiEl('div', {className: 'webui-form-section'},
 			webuiEl('div', {className: 'webui-form-section-title'}, webuiL('set.plugins_manage', 'Management')),
@@ -1284,6 +1344,7 @@ async function loadPluginsPanel() {
 			manage.appendChild(pluginRow(webuiL('set.plugins_services', 'Services such as NFS or Samba'), null,
 				webuiEl('a', {className: 'webui-btn', attrs: {href: services.url}}, services.name)));
 		el.replaceChildren(installed, manage);
+		pluginShowRunning(!!data.running);
 	} catch (e) {
 		el.replaceChildren(pluginRow(webuiL('set.plugins_notavail', 'Plugins not available') + ': ' + webuiErrText(e)));
 	}
@@ -1318,15 +1379,23 @@ async function setPluginHidden(pl, hidden, btn) {
 	}
 }
 
-async function startPluginByName(name, btn) {
+// The box starts a plugin after it answered and says nothing back, so the
+// page says the start was asked for, and locks the buttons until the watch
+// above finds the box free again
+async function startPluginByName(pl, btn) {
+	var title = pl.title || pl.name;
 	btn.disabled = true;
 	try {
-		await webuiV1('POST', '/plugins/' + encodeURIComponent(name) + '/start');
-		webuiShowToast(webuiL('set.plugin_started', 'Plugin started') + ': ' + name);
+		await webuiV1('POST', '/plugins/' + encodeURIComponent(pl.name) + '/start');
+		webuiShowToast(webuiL('set.plugin_requested', 'Start requested') + ': ' + title);
+		pluginShowRunning(true);
 	} catch (e) {
-		webuiToastError(webuiL('msg.error', 'Error'), e);
+		webuiToastError(title, e);
+		if (e.code === 'plugin-running')
+			pluginShowRunning(true);
+		else
+			btn.disabled = false;
 	}
-	btn.disabled = false;
 }
 
 // The box reads the directories after it answered, so the list is read
@@ -1599,10 +1668,14 @@ function settingsSearch(query) {
 	var count = document.getElementById('settingsSearchCount');
 	var words = query.trim().toLowerCase().split(/\s+/).filter(Boolean);
 	if (!words.length) {
+		var back = content.hidden;
 		hits.hidden = true;
 		hits.replaceChildren();
 		content.hidden = false;
 		count.textContent = '';
+		// the category comes back into sight: a plugin list asks the box again
+		if (back && activeCategory === 'plugins' && document.getElementById('pluginsRunning'))
+			pluginWatch();
 		return;
 	}
 	if (!_settingsFindable)
@@ -1772,6 +1845,10 @@ function switchCategory(catId) {
 		v1setApplyConditions();
 	}
 	panel.classList.add('active');
+	// back to a plugin list drawn before: a plugin may have been started at
+	// the box meanwhile
+	if (catId === 'plugins' && document.getElementById('pluginsRunning'))
+		pluginWatch();
 }
 
 // M5c: sammelt über ALLE gerenderten Panels (nicht nur das aktive) —
