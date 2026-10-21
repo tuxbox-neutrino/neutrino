@@ -88,17 +88,26 @@ function svcShow(items) {
 }
 
 // true where the box answered; otherwise the rows stay as they were read last
+// A read that fails says why, with Reload, in place of the list: rows from
+// an earlier read would show states nobody knows to be true any more
 async function svcLoad() {
 	var note = document.getElementById('svc-note');
+	// the first read, or one after a failure: the shared loading state
+	if (!document.querySelector('#svc-list .svc-row')) {
+		note.hidden = false;
+		note.replaceChildren(webuiState('loading', webuiL('msg.loading', 'Loading...')));
+	}
 	try {
 		var r = await webuiV1('GET', '/daemons');
 		note.hidden = true;
+		note.replaceChildren();
 		svcShow((r && r.items) || []);
 		return true;
 	} catch (e) {
+		document.getElementById('svc-list').replaceChildren();
+		document.getElementById('svc-none').hidden = true;
 		note.hidden = false;
-		note.removeAttribute('data-l');
-		note.textContent = webuiL('msg.error', 'Error') + ': ' + webuiErrText(e);
+		note.replaceChildren(webuiStateFor(e, {retry: svcLoad}));
 		return false;
 	}
 }
@@ -137,8 +146,7 @@ async function svcDo(id, verb) {
 	// the buttons are free again whatever the read answers; what runs is
 	// said only from a read that came
 	var read = await svcLoad();
-	if (!read)
-		svcShow(svcLast);
+	// a failed read took the rows away and says why: none come back under it
 	svcRefocus(id, verb);
 	if (!read)
 		return;
