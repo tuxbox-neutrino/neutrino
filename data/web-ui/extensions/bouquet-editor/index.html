@@ -42,6 +42,10 @@
 		.bqe-list li .flags { color: var(--pico-muted-color); font-size: 0.68rem; font-variant-numeric: tabular-nums; }
 		.bqe-list li .flags svg { width: 11px; height: 11px; vertical-align: -1px; }
 		.bqe-list li.bqe-empty { color: var(--pico-muted-color); cursor: default; }
+		/* a list still being read, or one that failed, with Reload */
+		.bqe-list li.bqe-state { display: block; padding: 0; cursor: default; }
+		.bqe-list li.bqe-state:hover { background: none; }
+		.bqe-list li.bqe-state .webui-state { padding: 1.25rem 0.75rem; }
 		.bqe-mini { display: inline-flex; align-items: center; justify-content: center; gap: 0.25rem; margin: 0; background: none; border: 1px solid var(--pico-muted-border-color); border-radius: 4px; color: var(--pico-muted-color); cursor: pointer; padding: 0.1rem 0.25rem; font-size: 0.75rem; line-height: 1.5; }
 		.bqe-mini:hover { color: var(--webui-accent); border-color: var(--webui-accent); }
 		.bqe-mini svg { width: 12px; height: 12px; flex-shrink: 0; }
@@ -83,8 +87,8 @@
 		<div class="bqe-toolbar">
 			<label class="bqe-mode"><span data-l="bqe.mode">Mode</span>
 				<select id="bqeMode" onchange="bqeModeChanged()">
-					<option value="TV">TV</option>
-					<option value="RADIO">Radio</option>
+					<option value="TV" data-l="dash.tv">TV</option>
+					<option value="RADIO" data-l="dash.radio">Radio</option>
 				</select>
 			</label>
 			<button type="button" class="webui-btn" onclick="bqeAddBouquet()">
@@ -107,7 +111,7 @@
 						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 							<line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/>
 						</svg>
-						Bouquets <small id="bqeBqCount"></small>
+						<span data-l="nav.bouquets">Bouquets</span> <small id="bqeBqCount"></small>
 					</h3>
 				</header>
 				<div class="webui-card-body">

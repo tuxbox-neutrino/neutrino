@@ -13,6 +13,10 @@ var bqeChanOf = null;      // {sel, mode} the working copy was read for
 var bqeChanReading = false;
 var bqeAllChan = [];       // every channel of the mode
 var bqeAllOf = null;       // the mode bqeAllChan was read for
+var bqeAllWhy = null;      // why the last read of every channel failed, else null
+var bqeChanWhy = null;     // why the last read of the chosen bouquet's failed, else null
+var bqeBouquetsRead = false;	// the bouquets were read once
+var bqeBouquetsWhy = null;	// why the last read of them failed, else null
 var bqeChanDirty = false;
 var bqeApplying = false;
 var bqeReloadTimer = null;
@@ -211,13 +215,26 @@ async function bqeReloadAll(discard, ownOnly) {
 async function bqeLoadBouquets() {
 	var read = ++bqeReads.bouquets;
 	var list = null;
+	// a list never read shows that it is being read, not an earlier failure
+	bqeBouquetsWhy = null;
+	if (!bqeBouquetsRead) bqeRenderBouquets();
 	try {
 		var resp = await webuiV1('GET', '/bouquets');
 		list = (resp && resp.items) || [];
 	} catch (e) {
-		if (read === bqeReads.bouquets) webuiToastError(webuiL('nav.bouquets', 'Bouquets'), e);
+		if (read === bqeReads.bouquets) {
+			bqeBouquetsWhy = e;
+			webuiToastError(webuiL('nav.bouquets', 'Bouquets'), e);
+		}
 	}
-	if (read !== bqeReads.bouquets || list === null) return;
+	if (read !== bqeReads.bouquets) return;
+	if (list === null) {
+		// never read: the list says why instead of "no bouquets"
+		if (!bqeBouquetsRead) bqeRenderBouquets();
+		return;
+	}
+	bqeBouquetsRead = true;
+	bqeBouquetsWhy = null;
 	bqeBouquets = list;
 	bqeFindSelection();
 	bqeRenderBouquets();
@@ -228,13 +245,24 @@ async function bqeLoadAllChannels() {
 	var read = ++bqeReads.all;
 	var mode = bqeMode();
 	var list = null;
+	// a failure of another read is not this one's: loading, until it answers
+	bqeAllWhy = null;
+	if (bqeAllOf !== mode) bqeRenderAll();
 	try {
 		list = (await webuiV1All('/channels', {mode: mode}))
 			.map(function(c) { return {id: c.id, name: c.name}; });
 	} catch (e) {
-		if (read === bqeReads.all) webuiToastError(webuiL('bqe.all_channels', 'All channels'), e);
+		if (read === bqeReads.all) {
+			bqeAllWhy = e;
+			webuiToastError(webuiL('bqe.all_channels', 'All channels'), e);
+		}
 	}
-	if (read !== bqeReads.all || list === null) return;
+	if (read !== bqeReads.all) return;
+	if (list === null) {
+		bqeRenderAll();
+		return;
+	}
+	bqeAllWhy = null;
 	bqeAllChan = list;
 	bqeAllOf = mode;
 	bqeRenderAll();
@@ -250,11 +278,16 @@ async function bqeLoadChannels() {
 	var mode = bqeMode();
 	var list = null;
 	bqeChanReading = true;
+	bqeChanWhy = null;
+	if (!bqeChanReady()) bqeRenderChannels();
 	try {
 		list = !sel ? [] : (await webuiV1All('/channels', {bouquet: sel.id, mode: mode}))
 			.map(function(c) { return {id: c.id, name: c.name}; });
 	} catch (e) {
-		if (read === bqeReads.chan) webuiToastError(webuiL('bqe.channels', 'Channels'), e);
+		if (read === bqeReads.chan) {
+			bqeChanWhy = e;
+			webuiToastError(webuiL('bqe.channels', 'Channels'), e);
+		}
 	}
 	if (read !== bqeReads.chan) return;
 	bqeChanReading = false;
@@ -279,24 +312,26 @@ function bqeRenderBouquets() {
 	if (had && had.li)
 		for (var k = 0; k < bqeShown.length; k++)
 			if (String(bqeShown[k].id) === had.li.dataset.id) { was = bqeShown[k]; break; }
-	document.getElementById('bqeBqCount').textContent = bqeBouquets.length + '';
+	document.getElementById('bqeBqCount').textContent = bqeBouquetsRead ? bqeBouquets.length + '' : '';
 	var radio = bqeMode() === 'radio';
 	var html = '';
 	bqeBouquets.forEach(function(b) {
 		var n = radio ? b.radio_count : b.tv_count;
 		var shared = bqeShared(b.name);
 		var off = shared ? ' disabled title="' + webuiLH('bqe.shared', 'More than one bouquet carries this name - rename one of them on the box first') + '"' : '';
-		function btn(act, cls, title, icon, pressed) {
+		// a switch keeps its name and says its state by aria-pressed; only
+		// the hint for the mouse says what a click does next
+		function btn(act, cls, title, icon, pressed, name) {
 			return '<button type="button" class="bqe-mini' + cls + '" data-act="' + act + '"' +
 				(pressed === undefined ? '' : ' aria-pressed="' + pressed + '"') +
-				(shared ? off : ' title="' + escapeHtml(title) + '"') + ' aria-label="' + escapeHtml(title) + '">' + icon + '</button>';
+				(shared ? off : ' title="' + escapeHtml(title) + '"') + ' aria-label="' + escapeHtml(name || title) + '">' + icon + '</button>';
 		}
 		function flag(text, icon) {
 			return '<span role="img" title="' + escapeHtml(text) + '" aria-label="' + escapeHtml(text) + '">' + icon + '</span>';
 		}
 		var sel = bqeSel && b.id === bqeSel.id;
-		html += '<li tabindex="0" data-id="' + b.id + '"' + (sel ? ' class="sel" aria-current="true"' : '') + '>' +
-			'<span class="nm">' + b.id + ' ' + esc(b.name) + '</span>' +
+		html += '<li tabindex="0" data-id="' + esc(b.id) + '"' + (sel ? ' class="sel" aria-current="true"' : '') + '>' +
+			'<span class="nm">' + esc(b.id) + ' ' + esc(b.name) + '</span>' +
 			'<span class="flags">' +
 				(shared ? flag(webuiL('bqe.shared', 'More than one bouquet carries this name - rename one of them on the box first'), I_TWIN) : '') +
 				(b.hidden ? flag(webuiL('bqe.hidden', 'hidden'), I_EYEOFF) : '') +
@@ -305,12 +340,18 @@ function bqeRenderBouquets() {
 			btn('up', '', webuiL('bqe.t_up', 'up'), I_UP) +
 			btn('down', '', webuiL('bqe.t_down', 'down'), I_DOWN) +
 			btn('rename', '', webuiL('bqe.t_rename', 'rename'), I_EDIT) +
-			btn('hidden', b.hidden ? ' on' : '', b.hidden ? webuiL('bqe.t_show', 'show') : webuiL('bqe.t_hide', 'hide'), b.hidden ? I_EYEOFF : I_EYE, b.hidden ? 'true' : 'false') +
-			btn('locked', b.locked ? ' on' : '', b.locked ? webuiL('bqe.t_unlock', 'unlock') : webuiL('bqe.t_lock_on', 'lock (parental control)'), I_KEY, b.locked ? 'true' : 'false') +
+			btn('hidden', b.hidden ? ' on' : '', b.hidden ? webuiL('bqe.t_show', 'show') : webuiL('bqe.t_hide', 'hide'), b.hidden ? I_EYEOFF : I_EYE, b.hidden ? 'true' : 'false',
+				webuiL('bqe.hidden', 'hidden')) +
+			btn('locked', b.locked ? ' on' : '', b.locked ? webuiL('bqe.t_unlock', 'unlock') : webuiL('bqe.t_lock_on', 'lock (parental control)'), I_KEY, b.locked ? 'true' : 'false',
+				webuiL('bqe.locked', 'locked')) +
 			btn('del', '', webuiL('bqe.t_del', 'delete'), I_X) +
 			'</li>';
 	});
 	ul.innerHTML = html || '<li class="bqe-empty">' + webuiLH('bqe.no_bouquets', 'no bouquets') + '</li>';
+	// not read yet, or not at all: that, and not "no bouquets"
+	if (!html && !bqeBouquetsRead)
+		bqeStateIn(ul, bqeBouquetsWhy ? webuiStateFor(bqeBouquetsWhy, {retry: bqeLoadBouquets})
+			: webuiState('loading', webuiL('msg.loading', 'Loading...')));
 	bqeShown = bqeBouquets;
 	if (was) {
 		// by its name when that is its own, else by its position
@@ -361,7 +402,20 @@ function bqeRenderChannels() {
 	});
 	ul.innerHTML = html || '<li class="bqe-empty">' +
 		(!bqeSel ? webuiLH('bqe.pick_left', 'Pick a bouquet on the left') : ready ? webuiLH('bqe.empty_drop', 'empty — drag channels here from the right list or add them with +') :
-		 bqeChanReading ? '…' : webuiLH('bqe.not_read', 'Channel list not read - choose the bouquet again')) + '</li>';
+		 bqeChanReading ? '' : webuiLH('bqe.not_read', 'Channel list not read - choose the bouquet again')) + '</li>';
+	if (!html && bqeSel && !ready && bqeChanReading)
+		bqeStateIn(ul, webuiState('loading', webuiL('msg.loading', 'Loading...')));
+	else if (!html && bqeSel && !ready && bqeChanWhy)
+		bqeStateIn(ul, webuiStateFor(bqeChanWhy, {retry: bqeLoadChannels}));
+}
+
+// a list's state (loading, failed) as its one item (this page builds its
+// elements itself, without webui-dom.js)
+function bqeStateIn(ul, block) {
+	var li = document.createElement('li');
+	li.className = 'bqe-state';
+	li.appendChild(block);
+	ul.replaceChildren(li);
 }
 
 // Channel names go into data attributes and are read back from there,
@@ -390,8 +444,12 @@ function bqeRenderAll() {
 		html += '<li class="bqe-empty">+' + (hits - shown) + ' ' + webuiLH('bqe.more_hits', 'more matches — narrow the search') + '</li>';
 	document.getElementById('bqeAllCount').textContent =
 		f ? (hits + '/' + bqeAllChan.length) : String(bqeAllChan.length);
-	document.getElementById('bqeAll').innerHTML = html || '<li class="bqe-empty">' +
-		(bqeAllOf === bqeMode() ? webuiLH('bqe.no_hits', 'no matches') : '…') + '</li>';
+	var all = document.getElementById('bqeAll');
+	all.innerHTML = html || '<li class="bqe-empty">' + webuiLH('bqe.no_hits', 'no matches') + '</li>';
+	// the mode's channels not read yet, or not at all
+	if (!html && bqeAllOf !== bqeMode())
+		bqeStateIn(all, bqeAllWhy ? webuiStateFor(bqeAllWhy, {retry: bqeLoadAllChannels})
+			: webuiState('loading', webuiL('msg.loading', 'Loading...')));
 }
 
 function bqeAllEvent(e) {
@@ -585,12 +643,15 @@ async function bqeApplyChannels(remove, fromQuestion) {
 // is shown as it came. A refusal in another shape is shown as it came.
 function bqeAskRemove(detail, sent) {
 	var m = /holds (.+?)( and more)?, so the box/.exec(String(detail));
-	var which = !m ? esc(detail) : m[1].split(', ').map(function(id) {
+	// a refusal in another shape names no channels here: the question
+	// stands without them, never in the box's own English
+	var which = !m ? '' : m[1].split(', ').map(function(id) {
 		for (var i = 0; i < bqeAllChan.length; i++)
 			if (bqeAllChan[i].id === id) return esc(bqeAllChan[i].name);
 		return esc(id);
 	}).join(', ') + (m[2] ? ', …' : '');
-	webuiShowConfirm(webuiL('bqe.gone_title', 'Remove channels from the box?'), webuiLH('bqe.gone_msg', 'No other bouquet holds these channels, which the list leaves out. The box forgets a channel that leaves its last bouquet, and only a channel scan brings it back:') + '<br><strong>' + which + '<\/strong>',
+	webuiShowConfirm(webuiL('bqe.gone_title', 'Remove channels from the box?'), webuiLH('bqe.gone_msg', 'No other bouquet holds these channels, which the list leaves out. The box forgets a channel that leaves its last bouquet, and only a channel scan brings it back:') +
+		(which ? '<br><strong>' + which + '<\/strong>' : ''),
 		webuiL('bqe.gone_btn', 'Remove from the box'), function() {
 			// a list that changed since it was refused is asked about again
 			var same = bqeSel === sent.sel && bqeMode() === sent.mode &&
