@@ -2467,6 +2467,20 @@ html:not([data-theme="dark"]) .webui-remote .webui-rc-rocker-label { color: #999
 }
 
 /* ── D-Pad ── */
+/* the pad with Menu and Exit above it, Info and EPG below it */
+.webui-remote .webui-rc-pad {
+	display: grid;
+	gap: 6px;
+	justify-items: center;
+}
+
+.webui-remote .webui-rc-pair {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 6px;
+	width: 100%;
+}
+
 .webui-remote .webui-rc-dpad {
 	display: grid;
 	/* Rows mirror the columns so the pad is a square: every arrow is

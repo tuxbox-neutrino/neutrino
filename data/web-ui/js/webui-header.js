@@ -965,7 +965,7 @@ async function webuiSendKey(key) {
 				: (await webuiApi('standby', {status: ''})).standby === false;
 			if (awake) {
 				// Rueckfrage als webui-Dialog statt nativem confirm()
-				webuiShowConfirm('Standby', webuiLH('sb.confirm', 'Put the box into standby?'), 'Standby',
+				webuiShowConfirm(webuiL('dash.standby', 'Standby'), webuiLH('sb.confirm', 'Put the box into standby?'), webuiL('dash.standby', 'Standby'),
 					send, {variant: 'ok'});
 				return;
 			}
@@ -974,7 +974,12 @@ async function webuiSendKey(key) {
 			if (v1 && e.status === 403) return;
 		}
 	}
-	return send();
+	// a key the box did not take says so (a cancelled sign-in does not)
+	try {
+		return await send();
+	} catch (e) {
+		webuiToastError(webuiL('rc.key_fail', 'The key was not sent'), e);
+	}
 }
 
 // ═══ Remote Control Component ═══
@@ -1039,33 +1044,37 @@ function webuiGetRemoteHTML(opts) {
 			iconBtn('', 'KEY_MUTE', webuiL('rc.mute', 'Mute'), svgMute) +
 		'</div>' +
 
-		/* Zone B: Core thumb zone (VOL | D-Pad | CH) */
+		/* Zone B: Core thumb zone (VOL | D-Pad | CH); the pad's corners hold
+		   Menu and Exit above it, Info and EPG below it, where the remote
+		   controls of the boxes have them */
 		'<div class="webui-rc-core">' +
 			'<div class="webui-rc-rocker">' +
-				'<span class="webui-rc-rocker-label">VOL</span>' +
+				'<span class="webui-rc-rocker-label">' + escapeHtml(webuiL('rc.vol', 'VOL')) + '</span>' +
 				repBtn('webui-rc-rocker-top', 'KEY_VOLUMEUP', '+', webuiL('rc.vol_up', 'Volume up')) +
 				repBtn('webui-rc-rocker-bot', 'KEY_VOLUMEDOWN', '\u2212', webuiL('rc.vol_down', 'Volume down')) +
 			'</div>' +
-			'<div class="webui-rc-dpad">' +
-				'<div></div>' + iconBtn('webui-rc-arrow', 'KEY_UP', webuiL('rc.up', 'Up'), svgUp) + '<div></div>' +
-				iconBtn('webui-rc-arrow', 'KEY_LEFT', webuiL('rc.left', 'Left'), svgLeft) +
-				btn('webui-rc-ok', 'KEY_OK', 'OK', webuiL('rc.ok', 'OK')) +
-				iconBtn('webui-rc-arrow', 'KEY_RIGHT', webuiL('rc.right', 'Right'), svgRight) +
-				'<div></div>' + iconBtn('webui-rc-arrow', 'KEY_DOWN', webuiL('rc.down', 'Down'), svgDown) + '<div></div>' +
+			'<div class="webui-rc-pad">' +
+				'<div class="webui-rc-pair">' +
+					btn('webui-rc-func', 'KEY_SETUP', webuiL('rc.menu', 'Menu')) +
+					btn('webui-rc-func', 'KEY_EXIT', webuiL('rc.exit', 'Exit')) +
+				'</div>' +
+				'<div class="webui-rc-dpad">' +
+					'<div></div>' + iconBtn('webui-rc-arrow', 'KEY_UP', webuiL('rc.up', 'Up'), svgUp) + '<div></div>' +
+					iconBtn('webui-rc-arrow', 'KEY_LEFT', webuiL('rc.left', 'Left'), svgLeft) +
+					btn('webui-rc-ok', 'KEY_OK', webuiL('rc.ok', 'OK')) +
+					iconBtn('webui-rc-arrow', 'KEY_RIGHT', webuiL('rc.right', 'Right'), svgRight) +
+					'<div></div>' + iconBtn('webui-rc-arrow', 'KEY_DOWN', webuiL('rc.down', 'Down'), svgDown) + '<div></div>' +
+				'</div>' +
+				'<div class="webui-rc-pair">' +
+					btn('webui-rc-func', 'KEY_HELP', webuiL('rc.info', 'Info')) +
+					btn('webui-rc-func', 'KEY_EPG', webuiL('rc.epg', 'EPG')) +
+				'</div>' +
 			'</div>' +
 			'<div class="webui-rc-rocker">' +
-				'<span class="webui-rc-rocker-label">CH</span>' +
+				'<span class="webui-rc-rocker-label">' + escapeHtml(webuiL('rc.ch', 'CH')) + '</span>' +
 				repBtn('webui-rc-rocker-top', 'KEY_PAGEUP', '+', webuiL('rc.ch_up', 'Channel up')) +
 				repBtn('webui-rc-rocker-bot', 'KEY_PAGEDOWN', '\u2212', webuiL('rc.ch_down', 'Channel down')) +
 			'</div>' +
-		'</div>' +
-
-		/* Zone C: Navigation */
-		'<div class="webui-rc-row webui-rc-nav">' +
-			btn('webui-rc-func', 'KEY_EXIT', 'Back', webuiL('rc.back', 'Back')) +
-			btn('webui-rc-func', 'KEY_HOME', 'Home', webuiL('rc.home', 'Home')) +
-			btn('webui-rc-func', 'KEY_SETUP', 'Menu', webuiL('rc.menu', 'Menu')) +
-			btn('webui-rc-func', 'KEY_HELP', 'Info', webuiL('rc.info', 'Info')) +
 		'</div>' +
 
 		/* Zone D: Media */
@@ -1084,10 +1093,9 @@ function webuiGetRemoteHTML(opts) {
 			colorBtn('webui-rc-blue', 'KEY_BLUE', webuiL('rc.blue', 'Blue')) +
 		'</div>' +
 
-		/* Zone F: EPG / Text / Fav / Timer (always visible) */
+		/* Zone F: Text / Fav / Timer (always visible) */
 		'<div class="webui-rc-row webui-rc-nav">' +
-			btn('webui-rc-func', 'KEY_EPG', 'EPG', webuiL('rc.epg', 'EPG')) +
-			btn('webui-rc-func', 'KEY_TEXT', 'Text', webuiL('rc.text', 'Teletext')) +
+			btn('webui-rc-func', 'KEY_TEXT', webuiL('rc.text_key', 'Text'), webuiL('rc.text', 'Teletext')) +
 			btn('webui-rc-func', 'KEY_FAVORITES', webuiL('rc.fav', 'Fav')) +
 			btn('webui-rc-func', 'KEY_TIME', webuiL('rc.time', 'Timer')) +
 		'</div>' +
@@ -1233,6 +1241,12 @@ function webuiInitRemoteRepeat(containerId) {
 		btn.addEventListener('pointerup', stop);
 		btn.addEventListener('pointercancel', stop);
 		btn.addEventListener('pointerleave', stop);
+		// a keyboard's Enter or Space: one press, no repeat (a pointer's
+		// click has sent its key on pointerdown already)
+		btn.addEventListener('click', function(e) {
+			if (e.detail === 0)
+				fn(key);
+		});
 	});
 }
 
