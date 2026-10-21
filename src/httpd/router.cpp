@@ -292,7 +292,7 @@ bool inList(const char *list, const std::string &v)
 AnswerWatch answer_watch = NULL;
 PasswordOwed password_owed = NULL;
 
-// The routes a caller signed in with a shipped password still reaches.
+// The routes a caller signed in with a shipped or a first password still reaches.
 bool openWhilePasswordOwed(const Endpoint &ep)
 {
 	static const char *const open[] = {
@@ -713,8 +713,9 @@ Response runEndpoint(const Endpoint &ep,
 	if (!atLeast(granted, ep.auth))
 		return refuse(StatusForbidden, coreapi::ErrorCode::NotPermitted, notPermittedDetail());
 
-	/* Signed in while the box still opens to a password it shipped with: the
-	   routes that let the caller set its own answer, nothing else does. Asked
+	/* Signed in while the box still opens to a password it shipped with or to
+	   its first password: the routes that let the caller set its own answer,
+	   nothing else does. Asked
 	   last, the question costing a derivation the first time it is asked of a
 	   stored password. */
 	if (atLeast(granted, AuthLevel::Write) && !openWhilePasswordOwed(ep) && passwordChangeOwed())
@@ -1568,8 +1569,8 @@ bool reachableWhilePasswordOwed(const Endpoint &ep)
 
 const char *passwordChangeRequiredDetail()
 {
-	return "this box still opens to the password it shipped with: set a password of "
-	       "your own first, with PUT /api/v1/account/password";
+	return "this box still opens to a password it shipped with or to the first password it "
+	       "set for itself: set a password of your own first, with PUT /api/v1/account/password";
 }
 
 void setAnswerWatchForTest(AnswerWatch w)

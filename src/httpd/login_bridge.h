@@ -80,10 +80,30 @@ std::string forgetSessionCookie();
 std::string user();
 bool passwordSet();
 
-/* Whether the stored password is one these boxes have shipped with. Answered from
-   a remembered result until the stored form changes, because the question costs a
-   derivation per candidate and pages ask it on every load. */
-bool passwordIsShipped();
+/* Whether the box still waits for a password of the owner's own: the stored one
+   is one these boxes have shipped with, or the first password the box drew for
+   itself (httpd::drawFirstPassword). Every place that asks the first login to
+   change the password asks this. The shipped half is answered from a remembered
+   result until the stored form changes, because it costs a derivation per
+   candidate and pages ask it on every load. */
+bool passwordOwed();
+
+/* Puts a first password in place of a stored one these boxes shipped with, so
+   that no box goes on opening to a login anybody can look up. Run once at the
+   start, between reading the configuration and starting the server, so no
+   request is answered in between. The name stays as it is.
+
+   True when there was nothing to replace or it was replaced. False, with why,
+   when a shipped password stands and could not be replaced (the file refused,
+   the random source failed): it then stays in effect, and the screen at the box
+   says so. */
+bool replaceShippedPassword(std::string *why);
+
+/* The way back in from the menu at the box, for an owner who no longer knows
+   the password: user root and a new first password, which the screen shows and
+   the first login asks to replace. first is handed the password to show and is
+   empty on a refusal, which leaves the login as it was. */
+bool resetToFirstPassword(std::string *first, std::string *why);
 
 /* A change to the account from the screen at the box or from a page.
 
@@ -102,11 +122,11 @@ bool passwordIsShipped();
 
    False, with why, when the request did not come from a page of this box, or the
    file would not take a value or could not be written; nothing is changed then.
-   A password set here has to pass httpd::passwordAcceptable, whoever sets it;
-   reset_to_shipped lets the shipped password through, for the menu at the
-   box that puts the login back for an owner who lost theirs. */
+   A password set here has to pass httpd::passwordAcceptable, whoever sets it.
+   A first password standing goes with any password set here and stays with a
+   name changed alone. */
 bool change(const std::string &user, const std::string &password, std::string *why,
-            const Ask *from = 0, bool reset_to_shipped = false);
+            const Ask *from = 0);
 
 } // namespace login_bridge
 

@@ -17,6 +17,7 @@
 
 #include <cstdio>
 #include <string>
+#include <vector>
 
 #include <sys/stat.h>
 #include <unistd.h>
@@ -383,7 +384,7 @@ TEST_CASE("a restart whose read failed is no longer due, and the save it was for
 	setConfigForTest(before);
 }
 
-TEST_CASE("a password set for the account is held to the rules, and the reset to the shipped one is not", "[login]")
+TEST_CASE("a password set for the account is held to the rules, and the reset at the box draws a first one", "[login]")
 {
 	Account account;
 
@@ -422,13 +423,245 @@ TEST_CASE("a password set for the account is held to the rules, and the reset to
 	REQUIRE(login_bridge::change("", "\xc3\xa4\xc3\xb6\xc3\xbc\xc3\xa4\xc3\xb6\xc3\xbc\xc3\xa4x", &why));
 	REQUIRE(verifySecret("\xc3\xa4\xc3\xb6\xc3\xbc\xc3\xa4\xc3\xb6\xc3\xbc\xc3\xa4x", loginInEffect().password_hash));
 
-	// The reset at the box goes back to the shipped login, and to nothing else short.
-	REQUIRE_FALSE(login_bridge::change("root", "seven77", &why, NULL, true));
-	REQUIRE(login_bridge::change("root", kShippedPassword, &why, NULL, true));
+	/* The reset at the box puts user root and a new first password in place, which
+	   the screen shows, and the first login asks to replace it. In effect at once,
+	   and in the file beside its stored form, so a start after it reads it back. */
+	std::string first;
+	REQUIRE(login_bridge::resetToFirstPassword(&first, &why));
+	REQUIRE(first.size() == kFirstPasswordChars);
 	REQUIRE(login_bridge::user() == "root");
-	REQUIRE(login_bridge::passwordIsShipped());
+	REQUIRE(verifySecret(first, loginInEffect().password_hash));
+	REQUIRE_FALSE(verifySecret(kShippedPassword, loginInEffect().password_hash));
+	REQUIRE(firstPasswordInEffect() == first);
+	REQUIRE(login_bridge::passwordOwed());
+	REQUIRE(firstPasswordWrittenThisRun());
+	REQUIRE(load(path));
+	REQUIRE(firstPasswordInEffect() == first);
+
+	// Every reset draws another one.
+	std::string again;
+	REQUIRE(login_bridge::resetToFirstPassword(&again, &why));
+	REQUIRE(again != first);
+	REQUIRE(firstPasswordInEffect() == again);
+	REQUIRE_FALSE(verifySecret(first, loginInEffect().password_hash));
 
 	::unlink(path.c_str());
+	setConfigForTest(before);
+}
+
+namespace
+{
+
+// A file holding the account as given, under a cheap hash.
+std::string accountFile(const char *tag, const std::string &user, const std::string &password,
+                        const std::string &first)
+{
+	char name[96];
+	std::snprintf(name, sizeof(name), "/tmp/ni-login-%s-%d", tag, (int) getpid());
+	std::FILE *f = std::fopen(name, "w");
+	REQUIRE(f != NULL);
+	std::fprintf(f, "username=%s\npassword_hash=%s\n", user.c_str(), hashSecret(password, 1000).c_str());
+	if (!first.empty())
+		std::fprintf(f, "first_password=%s\n", first.c_str());
+	REQUIRE(std::fclose(f) == 0);
+	return name;
+}
+
+std::string contentOf(const std::string &path)
+{
+	std::string text;
+	std::FILE *f = std::fopen(path.c_str(), "r");
+	REQUIRE(f != NULL);
+	char buf[4096];
+	size_t n;
+	while ((n = std::fread(buf, 1, sizeof(buf), f)) > 0)
+		text.append(buf, n);
+	std::fclose(f);
+	return text;
+}
+
+} // namespace
+
+TEST_CASE("a first password stands until a password of the owner's own replaces it, and a new name keeps it", "[login]")
+{
+	Account account;
+	const WebConfig before = config();
+
+	const std::string first = drawFirstPassword();
+	REQUIRE(first.size() == kFirstPasswordChars);
+	const std::string path = accountFile("first", "root", first, first);
+	REQUIRE(load(path));
+	REQUIRE(firstPasswordStands());
+	REQUIRE(firstPasswordInEffect() == first);
+	REQUIRE(login_bridge::passwordOwed());
+
+	/* A name changed alone is not the change the box waits for: the first password
+	   stays, in effect and in the file, and so does the question. */
+	std::string why;
+	REQUIRE(login_bridge::change("admin", "", &why));
+	REQUIRE(login_bridge::user() == "admin");
+	REQUIRE(firstPasswordInEffect() == first);
+	REQUIRE(login_bridge::passwordOwed());
+	REQUIRE(contentOf(path).find("first_password=" + first + "\n") != std::string::npos);
+	REQUIRE(load(path));
+	REQUIRE(firstPasswordInEffect() == first);
+
+	/* A password of the owner's own takes it off the screen, out of the file and
+	   out of memory, and the box stops asking. */
+	REQUIRE(login_bridge::change("", "my-own-password", &why));
+	REQUIRE_FALSE(firstPasswordStands());
+	REQUIRE_FALSE(login_bridge::passwordOwed());
+	const std::string after = contentOf(path);
+	REQUIRE(after.find("first_password=") == std::string::npos);
+	REQUIRE(after.find(first) == std::string::npos);
+	REQUIRE(after.find("my-own-password") == std::string::npos);
+	REQUIRE(load(path));
+	REQUIRE_FALSE(firstPasswordStands());
+	REQUIRE(verifySecret("my-own-password", loginInEffect().password_hash));
+
+	::unlink(path.c_str());
+	setConfigForTest(before);
+}
+
+TEST_CASE("a line naming a first password that is not the stored one is said and counts for nothing", "[login]")
+{
+	Account account;
+	const WebConfig before = config();
+
+	const std::string path = accountFile("stale", "root", "set-by-hand-1", "abcdefghjk");
+	REQUIRE(load(path));
+	REQUIRE_FALSE(firstPasswordStands());
+	REQUIRE_FALSE(login_bridge::passwordOwed());
+	bool said = false;
+	const std::vector<std::string> problems = configProblems();
+	for (size_t i = 0; i < problems.size(); ++i)
+	{
+		said = said || problems[i].find("first_password") != std::string::npos;
+		REQUIRE(problems[i].find("abcdefghjk") == std::string::npos);
+	}
+	REQUIRE(said);
+
+	::unlink(path.c_str());
+	setConfigForTest(before);
+}
+
+TEST_CASE("the head of the file follows the password the box opens to, and nothing else of it moves", "[login]")
+{
+	/* A file an earlier build wrote names the shipped password as the login. Once
+	   the box replaced it, that is a login no longer in force, and the reader of
+	   that paragraph is somebody who has just been refused one. */
+	Account account;
+	const WebConfig before = config();
+
+	char name[96];
+	std::snprintf(name, sizeof(name), "/tmp/ni-login-head-%d", (int) getpid());
+	const std::string path = name;
+	std::FILE *f = std::fopen(path.c_str(), "w");
+	REQUIRE(f != NULL);
+	std::fprintf(f, "# nhttpd access configuration.\n"
+	             "#\n"
+	             "# LOGIN: user \"root\", password \"%s\", the login every box ships with. The\n"
+	             "# first login asks for a password of your own.\n"
+	             "# TO CHANGE IT: the web interface under Settings, or the settings screen at the\n"
+	             "# box itself.\n"
+	             "# TO START OVER: delete this file, then restart.\n"
+	             "#\n"
+	             "# Written by the box itself.\n"
+	             "username=root\n"
+	             "password_hash=%s\n", kShippedPassword, hashSecret(kShippedPassword, 1000).c_str());
+	REQUIRE(std::fclose(f) == 0);
+	REQUIRE(load(path));
+
+	std::string why;
+	REQUIRE(login_bridge::replaceShippedPassword(&why));
+	const std::string first = firstPasswordInEffect();
+	const std::string converted = contentOf(path);
+	REQUIRE(converted.compare(0, 32, "# nhttpd access configuration.\n#") == 0);
+	REQUIRE(converted.find(std::string("password \"") + kShippedPassword + "\"") == std::string::npos);
+	REQUIRE(converted.find("# LOGIN: user \"root\", with a first password the box drew") != std::string::npos);
+	REQUIRE(converted.find("TO START OVER") != std::string::npos);
+	REQUIRE(converted.find("#\n# Written by the box itself.\n") != std::string::npos);
+	REQUIRE(converted.find(first) == converted.rfind(first));
+
+	// the owner's own: the head says so and no longer speaks of a first password
+	REQUIRE(login_bridge::change("", "my-own-password", &why));
+	const std::string own = contentOf(path);
+	REQUIRE(own.find("# LOGIN: user \"root\", with the password last set at the box") != std::string::npos);
+	REQUIRE(own.find("first_password") == std::string::npos);
+	REQUIRE(own.find("#\n# Written by the box itself.\n") != std::string::npos);
+
+	// a name changed alone writes no password and leaves the head as it is
+	REQUIRE(login_bridge::change("admin", "", &why));
+	REQUIRE(contentOf(path).find("# LOGIN: user \"root\", with the password last set at the box") != std::string::npos);
+
+	::unlink(path.c_str());
+	setConfigForTest(before);
+}
+
+TEST_CASE("a stored password the boxes shipped with gives way to a first one at the start, or stays and says why", "[login]")
+{
+	Account account;
+	const WebConfig before = config();
+	std::string why;
+
+	// Nothing to replace: a password of the owner's own is left alone.
+	{
+		const std::string path = accountFile("own", "owner", kPassword, "");
+		REQUIRE(load(path));
+		const std::string stored = loginInEffect().password_hash;
+		REQUIRE(login_bridge::replaceShippedPassword(&why));
+		REQUIRE(loginInEffect().password_hash == stored);
+		REQUIRE_FALSE(firstPasswordStands());
+		::unlink(path.c_str());
+	}
+
+	// One of the shipped ones, under a name of somebody's own, which stays.
+	{
+		const std::string path = accountFile("shipped", "owner", "coolstream", "");
+		REQUIRE(load(path));
+		REQUIRE(login_bridge::passwordOwed());
+		REQUIRE(login_bridge::replaceShippedPassword(&why));
+		const std::string first = firstPasswordInEffect();
+		REQUIRE(first.size() == kFirstPasswordChars);
+		REQUIRE(login_bridge::user() == "owner");
+		REQUIRE(verifySecret(first, loginInEffect().password_hash));
+		REQUIRE_FALSE(verifySecret("coolstream", loginInEffect().password_hash));
+		REQUIRE(login_bridge::passwordOwed());
+		REQUIRE(firstPasswordWrittenThisRun());
+
+		// the start after it finds a first password and leaves it standing
+		REQUIRE(load(path));
+		REQUIRE(firstPasswordInEffect() == first);
+		REQUIRE(login_bridge::replaceShippedPassword(&why));
+		REQUIRE(firstPasswordInEffect() == first);
+		::unlink(path.c_str());
+	}
+
+	/* One that cannot be written over: the directory is gone by the time the start
+	   gets to it, which no reader takes for somewhere to write whoever runs the
+	   suite. The shipped password stays in effect, the box still asks, and why is
+	   said without naming any password. */
+	{
+		char dir[96];
+		std::snprintf(dir, sizeof(dir), "/tmp/ni-login-gone-%d", (int) getpid());
+		REQUIRE(::mkdir(dir, 0700) == 0);
+		const std::string path = std::string(dir) + "/nhttpd-access.conf";
+		std::FILE *f = std::fopen(path.c_str(), "w");
+		REQUIRE(f != NULL);
+		std::fprintf(f, "username=root\npassword_hash=%s\n", hashSecret(kShippedPassword, 1000).c_str());
+		REQUIRE(std::fclose(f) == 0);
+		REQUIRE(load(path));
+		REQUIRE(::unlink(path.c_str()) == 0);
+		REQUIRE(::rmdir(dir) == 0);
+
+		REQUIRE_FALSE(login_bridge::replaceShippedPassword(&why));
+		REQUIRE_FALSE(why.empty());
+		REQUIRE(why.find(kShippedPassword) == std::string::npos);
+		REQUIRE(verifySecret(kShippedPassword, loginInEffect().password_hash));
+		REQUIRE_FALSE(firstPasswordStands());
+		REQUIRE(login_bridge::passwordOwed());
+	}
+
 	setConfigForTest(before);
 }
 
@@ -436,15 +669,15 @@ TEST_CASE("a stored password the boxes shipped with is recognised, and another o
 {
 	Account account;
 	REQUIRE(login_bridge::passwordSet());
-	REQUIRE_FALSE(login_bridge::passwordIsShipped());
+	REQUIRE_FALSE(login_bridge::passwordOwed());
 
 	WebConfig c = config();
 	c.password_hash = hashSecret("tuxbox", 1000);
 	setConfigForTest(c);
-	REQUIRE(login_bridge::passwordIsShipped());
+	REQUIRE(login_bridge::passwordOwed());
 
 	c.password_hash.clear();
 	setConfigForTest(c);
 	REQUIRE_FALSE(login_bridge::passwordSet());
-	REQUIRE_FALSE(login_bridge::passwordIsShipped());
+	REQUIRE_FALSE(login_bridge::passwordOwed());
 }

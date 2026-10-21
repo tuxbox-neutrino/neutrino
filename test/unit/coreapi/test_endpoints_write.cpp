@@ -3916,6 +3916,38 @@ TEST_CASE("a new password is taken as a password and answered as neither form", 
 	REQUIRE(verifySecret("a password nobody guesses", stored));
 }
 
+TEST_CASE("a password set over the webserver route takes the first password out of the file at once", "[write][firstlogin]")
+{
+	/* Only where no gate holds the route back, which the server installs: a box
+	   still opening to its first password answers this route to nobody. What it
+	   shows is that the line goes with the stored form it was, and that the rest
+	   follows the restart as every save of this route does. */
+	ShippedRoutes shipped;
+	const std::string first = drawFirstPassword();
+	WebFile file("first-put", std::string(kWebFileHead) + "password_hash=" + hashSecret(first, 2000) +
+	             "\nfirst_password=" + first + "\n");
+	REQUIRE(firstPasswordStands());
+
+	// the read says a change is owed and never names the password
+	const Reply read = authedGet("/api/v1/system/webserver");
+	REQUIRE(read.code == 200);
+	REQUIRE(parsed(read.body)["password_shipped"].asBool());
+	REQUIRE(read.body.find(first) == std::string::npos);
+
+	const Response r = putWebserver("{\"password\":\"a password nobody guesses\"}");
+	REQUIRE(r.code == 200);
+	REQUIRE(r.body.find(first) == std::string::npos);
+	const std::string written = wholeOf(file.path);
+	REQUIRE(written.find("first_password") == std::string::npos);
+	REQUIRE(written.find(first) == std::string::npos);
+
+	// what is in effect is what was, until the restart reads the file
+	REQUIRE(firstPasswordStands());
+	REQUIRE(load(file.path, file.server));
+	REQUIRE_FALSE(firstPasswordStands());
+	REQUIRE(verifySecret("a password nobody guesses", loginInEffect().password_hash));
+}
+
 TEST_CASE("the networks that read without a password are not narrowed from here", "[write]")
 {
 	/* The fourth way out, and the one this route does not offer. Narrowing that
@@ -7800,7 +7832,7 @@ namespace
 // The question the server asks installed for a case, and taken back after it.
 struct PasswordOwedInstalled
 {
-	PasswordOwedInstalled() { httpd::setPasswordOwed(&login_bridge::passwordIsShipped); }
+	PasswordOwedInstalled() { httpd::setPasswordOwed(&login_bridge::passwordOwed); }
 	~PasswordOwedInstalled() { httpd::setPasswordOwed(NULL); }
 };
 
@@ -7812,7 +7844,7 @@ TEST_CASE("a box still opening to its shipped password asks for one of the owner
 	BoxFixture box;
 	WebFile file("firstlogin", std::string(kWebFileHead) + "password_hash=" +
 	             hashSecret(kShippedPassword, 2000) + "\n");
-	REQUIRE(login_bridge::passwordIsShipped());
+	REQUIRE(login_bridge::passwordOwed());
 	// Asked only where the server installed the question: the router alone holds nothing back.
 	REQUIRE(send(Get, "/api/v1/channels", "", AuthLevel::Write, "127.0.0.1").code == 200);
 	PasswordOwedInstalled owed;
@@ -7863,7 +7895,7 @@ TEST_CASE("a box still opening to its shipped password asks for one of the owner
 		                     refused[i].password + "\"}", AuthLevel::System, "127.0.0.1");
 		REQUIRE(r.code == refused[i].code);
 		REQUIRE(r.body.find(refused[i].says) != std::string::npos);
-		REQUIRE(login_bridge::passwordIsShipped());
+		REQUIRE(login_bridge::passwordOwed());
 	}
 
 	// Set: in effect at once, and the box answers everything again.
@@ -7871,7 +7903,7 @@ TEST_CASE("a box still opening to its shipped password asks for one of the owner
 	                       std::string("{\"current\":\"") + kShippedPassword +
 	                       "\",\"password\":\"my own pass phrase\"}", AuthLevel::System, "127.0.0.1");
 	REQUIRE(set.code == 204);
-	REQUIRE_FALSE(login_bridge::passwordIsShipped());
+	REQUIRE_FALSE(login_bridge::passwordOwed());
 	REQUIRE(verifySecret("my own pass phrase", loginInEffect().password_hash));
 	REQUIRE_FALSE(parsed(send(Get, "/api/v1/session", "", AuthLevel::System, "127.0.0.1").body)
 	              ["password_change_required"].asBool());
@@ -7883,6 +7915,46 @@ TEST_CASE("a box still opening to its shipped password asks for one of the owner
 	                        AuthLevel::System, "127.0.0.1");
 	REQUIRE(same.code == 400);
 	REQUIRE(same.body.find("the one it is to replace") != std::string::npos);
+}
+
+TEST_CASE("a box opening to the first password it drew asks the same, and the change takes it out of the file", "[write][firstlogin]")
+{
+	ShippedRoutes shipped;
+	BoxFixture box;
+	const std::string first = drawFirstPassword();
+	REQUIRE(first.size() == kFirstPasswordChars);
+	WebFile file("firstpw", std::string(kWebFileHead) + "password_hash=" + hashSecret(first, 2000) +
+	             "\nfirst_password=" + first + "\n");
+	REQUIRE(firstPasswordStands());
+	REQUIRE(login_bridge::passwordOwed());
+	PasswordOwedInstalled owed;
+
+	const Reply blocked = send(Post, "/api/v1/system/standby", "{\"on\":true}", AuthLevel::System, "127.0.0.1");
+	REQUIRE(blocked.code == 403);
+	REQUIRE(blocked.body.find("password-change-required") != std::string::npos);
+	REQUIRE(blocked.body.find(first) == std::string::npos);
+	const Reply state = send(Get, "/api/v1/session", "", AuthLevel::System, "127.0.0.1");
+	REQUIRE(parsed(state.body)["password_change_required"].asBool());
+	REQUIRE(state.body.find(first) == std::string::npos);
+
+	// The first password is not one of the owner's own.
+	const Reply same = send(Put, "/api/v1/account/password",
+	                        "{\"current\":\"" + first + "\",\"password\":\"" + first + "\"}",
+	                        AuthLevel::System, "127.0.0.1");
+	REQUIRE(same.code == 400);
+	REQUIRE(firstPasswordStands());
+
+	// Set: the box stops asking, and the first password is gone from memory and file.
+	const Reply set = send(Put, "/api/v1/account/password",
+	                       "{\"current\":\"" + first + "\",\"password\":\"my own pass phrase\"}",
+	                       AuthLevel::System, "127.0.0.1");
+	REQUIRE(set.code == 204);
+	REQUIRE_FALSE(firstPasswordStands());
+	REQUIRE_FALSE(login_bridge::passwordOwed());
+	const std::string after = ChannelFileFixture::read(file.path);
+	REQUIRE(after.find("first_password") == std::string::npos);
+	REQUIRE(after.find(first) == std::string::npos);
+	REQUIRE(after.find("password_hash=") != std::string::npos);
 }
 
 TEST_CASE("the current password is guessed no faster here than at the login, and a file that cannot be written is said", "[write][firstlogin]")

@@ -197,13 +197,14 @@ void parameterRefusals(const Endpoint &ep,
 // The detail text for a query token given twice, shared with the document.
 std::string queryTokenGivenTwiceDetail();
 
-/* Whether the box still opens to a password it shipped with. Every caller
+/* Whether the box still opens to a password it shipped with, or to the first
+   password it drew for itself (httpd::drawFirstPassword). Every caller
    that may write, which is one that signed in, is then answered only by the
    routes that let it set a password of its own (login, session, logout and
    PUT /api/v1/account/password); every other route refuses it with 403
    password-change-required. A caller reading without a password off the home
    network presented none and is not asked. NULL asks nothing; the server
-   installs login_bridge::passwordIsShipped. */
+   installs login_bridge::passwordOwed. */
 typedef bool (*PasswordOwed)();
 void setPasswordOwed(PasswordOwed f);
 // What the installed question answers, false where none is installed.

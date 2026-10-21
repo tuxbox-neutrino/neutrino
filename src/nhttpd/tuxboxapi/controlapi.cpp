@@ -5246,7 +5246,7 @@ void CControlAPI::ConfigCGI(CyhookHandler *hh)
 				result += hh->outNext();
 				result += hh->outPair("mod_auth_dot_password_set", login_bridge::passwordSet() ? "true" : "false", false);
 				result += hh->outNext();
-				result += hh->outPair("mod_auth_dot_password_default", login_bridge::passwordIsShipped() ? "true" : "false", false);
+				result += hh->outPair("mod_auth_dot_password_default", login_bridge::passwordOwed() ? "true" : "false", false);
 			}
 		}
 		else { // set values and save list

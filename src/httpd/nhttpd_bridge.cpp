@@ -277,8 +277,8 @@ void CApiBridge::registerPrefixes()
 {
 	CyhookHandler::registerApiPrefix(kPrefixApi);
 	CyhookHandler::registerApiTarget(kPrefixDoc);
-	// a caller signed in with a shipped password sets its own before anything else
-	httpd::setPasswordOwed(&login_bridge::passwordIsShipped);
+	// a caller signed in with a shipped or a first password sets its own before anything else
+	httpd::setPasswordOwed(&login_bridge::passwordOwed);
 }
 
 bool CApiBridge::claims(const CyhookHandler *hh)

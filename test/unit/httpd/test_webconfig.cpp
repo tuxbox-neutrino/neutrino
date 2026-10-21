@@ -197,6 +197,15 @@ mode_t modeOf(const std::string &path)
 	return (mode_t)(st.st_mode & 07777);
 }
 
+/* Whether what is in effect opens to a first password the box drew: one stands,
+   the stored form is that password, and it is none of the shipped ones. */
+bool opensToFirstPassword()
+{
+	const std::string first = httpd::firstPasswordInEffect();
+	return first.size() == httpd::kFirstPasswordChars && !httpd::isShippedPassword(first) &&
+	       httpd::verifySecret(first, httpd::config().password_hash);
+}
+
 /* What every case here puts back after it, and what every case here needs in front of
    it. The sources are installed because start() refuses outright while they are not,
    and it refuses before it looks at the address it was given. Six cases in this file
@@ -318,16 +327,27 @@ TEST_CASE("every start that finds no configuration leaves one behind", "[webconf
 	/* Nothing at either name. A box that never had the old server has no
 	   credential to carry and used to get no file, which left its owner with a
 	   web interface that refuses everything that changes anything and says so
-	   nowhere. It gets the login the image ships with instead. */
+	   nowhere. It gets user root and a first password of its own instead, which
+	   no other box shares, and the start says it wrote one for the screen to
+	   show. */
 	struct stat st;
 	REQUIRE(::lstat(out.c_str(), &st) != 0);
 	REQUIRE_FALSE(anyProblemMentions("old configuration"));
 	REQUIRE(httpd::ensureConfigFile(old.path(), out.path()));
 	REQUIRE(::lstat(out.c_str(), &st) == 0);
 	REQUIRE(modeOf(out.path()) == 0600);
+	REQUIRE(httpd::firstPasswordWrittenThisRun());
 	REQUIRE(httpd::load(out.path()));
 	REQUIRE(httpd::config().username == "root");
-	REQUIRE(httpd::verifySecret(httpd::kShippedPassword, httpd::config().password_hash));
+	REQUIRE(opensToFirstPassword());
+	REQUIRE_FALSE(httpd::verifySecret(httpd::kShippedPassword, httpd::config().password_hash));
+	{
+		// on its own line and nowhere else in the file
+		const std::string written = readFile(out.path());
+		const std::string first = httpd::firstPasswordInEffect();
+		REQUIRE(anySettingMentions(written, "first_password=" + first));
+		REQUIRE(written.find(first) == written.rfind(first));
+	}
 
 	/* Nothing is said about a migration that never happened: there was no old
 	   file, so there is no refusal to report and no line to carry into the
@@ -434,7 +454,7 @@ TEST_CASE("a new file appears whole or not at all", "[webconfig]")
 	   A working file such a cut left behind is no obstacle to the next try. */
 	Restore back;
 	Temp old("old"), out("out");
-	writeFile(old.path(), "mod_auth.username=root\nmod_auth.password=ni\n");
+	writeFile(old.path(), "mod_auth.username=root\nmod_auth.password=zwiebel-7\n");
 	writeFile(out.path() + ".new", "username=half");
 
 	REQUIRE(httpd::ensureConfigFile(old.path(), out.path()));
@@ -443,22 +463,23 @@ TEST_CASE("a new file appears whole or not at all", "[webconfig]")
 	REQUIRE(modeOf(out.path()) == 0600);
 	REQUIRE(httpd::load(out.path()));
 	REQUIRE(httpd::config().username == "root");
-	REQUIRE(httpd::verifySecret("ni", httpd::config().password_hash));
+	REQUIRE(httpd::verifySecret("zwiebel-7", httpd::config().password_hash));
 }
 TEST_CASE("the old file of a box that was locked out is what it logs in with", "[webconf]")
 {
 	/* The shape two owners reported: a name and a password in the old file, no
 	   file of this server's, and a box that answered nothing they could change.
-	   What they typed is what it answers to afterwards. */
+	   What they typed is what it answers to afterwards, being a password of their
+	   own; one of the shipped ones gives way to a first password (below). */
 	Restore back;
 	Temp old("old"), out("out");
 
-	writeFile(old.path(), "mod_auth.username=root\nmod_auth.password=ni\n");
+	writeFile(old.path(), "mod_auth.username=root\nmod_auth.password=zwiebel-7\n");
 
 	REQUIRE(httpd::ensureConfigFile(old.path(), out.path()));
 	REQUIRE(httpd::load(out.path()));
 	REQUIRE(httpd::config().username == "root");
-	REQUIRE(httpd::verifySecret("ni", httpd::config().password_hash));
+	REQUIRE(httpd::verifySecret("zwiebel-7", httpd::config().password_hash));
 
 	// And the file says where that login came from, so that the one line about
 	// it is not only in a boot log.
@@ -497,7 +518,7 @@ TEST_CASE("a migration that is refused still leaves a login, and the file says w
 
 	REQUIRE(httpd::load(out.path()));
 	REQUIRE(httpd::config().username == "root");
-	REQUIRE(httpd::verifySecret(httpd::kShippedPassword, httpd::config().password_hash));
+	REQUIRE(opensToFirstPassword());
 	REQUIRE_FALSE(httpd::verifySecret("zwiebelfisch", httpd::config().password_hash));
 
 	// Whatever the written file says, nothing in it reads back as a setting
@@ -540,7 +561,7 @@ TEST_CASE("a name that cannot be written leaves nothing behind and the next star
 	REQUIRE(httpd::ensureConfigFile(old.path(), out));
 	REQUIRE(::lstat(out.c_str(), &st) == 0);
 	REQUIRE(httpd::load(out));
-	REQUIRE(httpd::verifySecret(httpd::kShippedPassword, httpd::config().password_hash));
+	REQUIRE(opensToFirstPassword());
 
 	::unlink(out.c_str());
 	::rmdir(dir.c_str());
@@ -607,9 +628,10 @@ TEST_CASE("the first thing in a written file is the login", "[webconf]")
 {
 	/* Whoever opens this over a shell has just been refused one and is looking
 	   for two sentences, not for a file format. So the login, where to change
-	   it and how to get back to the shipped one stand in front of everything
-	   else in the file, and the shipped password is named in words where it is
-	   the one in force, a hash saying nothing to somebody locked out. */
+	   it and how to start over stand in front of everything else in the file,
+	   and a first password is said to be one and where the screen shows it, a
+	   hash saying nothing to somebody locked out. No password is named in the
+	   prose, the shipped one least of all. */
 	Restore back;
 	Temp old("old"), out("out");
 
@@ -617,7 +639,7 @@ TEST_CASE("the first thing in a written file is the login", "[webconf]")
 	const std::string written = readFile(out.path());
 	const std::string said = prose(written);
 
-	const size_t login = said.find(std::string("LOGIN: user \"root\", password \"") + httpd::kShippedPassword + "\"");
+	const size_t login = said.find("LOGIN: user \"root\", with a first password the box drew for itself");
 	const size_t change = said.find("TO CHANGE IT:");
 	const size_t over = said.find("TO START OVER:");
 	const size_t syntax = said.find("HOW THIS FILE IS READ");
@@ -642,6 +664,34 @@ TEST_CASE("the first thing in a written file is the login", "[webconf]")
 
 	// And it says that the first login asks for a password of one's own.
 	REQUIRE(said.find("The first login asks for a password of your own") != std::string::npos);
+	REQUIRE(said.find(std::string("\"") + httpd::kShippedPassword + "\"") == std::string::npos);
+	REQUIRE(httpd::load(out.path()));
+	REQUIRE(opensToFirstPassword());
+	REQUIRE(said.find(httpd::firstPasswordInEffect()) == std::string::npos);
+}
+
+TEST_CASE("a first password is ten characters nobody misreads off a television, drawn anew each time", "[webconf]")
+{
+	const std::string alphabet = "abcdefghjkmnpqrstuvwxyz23456789";
+	std::string seen;
+	std::string last;
+	bool differs = false;
+	for (int i = 0; i < 200; ++i)
+	{
+		const std::string first = httpd::drawFirstPassword();
+		REQUIRE(first.size() == httpd::kFirstPasswordChars);
+		REQUIRE(first.find_first_not_of(alphabet) == std::string::npos);
+		REQUIRE_FALSE(httpd::isShippedPassword(first));
+		std::string why;
+		REQUIRE(httpd::passwordAcceptable(first, &why));
+		differs = differs || (!last.empty() && first != last);
+		last = first;
+		seen += first;
+	}
+	REQUIRE(differs);
+	// 2000 draws out of 31 letters: every one of them turns up
+	for (size_t i = 0; i < alphabet.size(); ++i)
+		REQUIRE(seen.find(alphabet[i]) != std::string::npos);
 }
 
 TEST_CASE("the migration carries the user and hashes the password", "[webconf]")
@@ -649,7 +699,10 @@ TEST_CASE("the migration carries the user and hashes the password", "[webconf]")
 	Restore back;
 	Temp old("old"), out("out");
 
-	writeFile(old.path(), kShippedOldFile);
+	// the old file as it ships, with a password somebody chose in it
+	std::string own = kShippedOldFile;
+	own.replace(own.find("mod_auth.password=ni\n"), 21, "mod_auth.password=ni-own-9\n");
+	writeFile(old.path(), own);
 	REQUIRE(httpd::migrateFrom(old.path(), out.path()));
 	REQUIRE(httpd::load(out.path()));
 
@@ -657,11 +710,12 @@ TEST_CASE("the migration carries the user and hashes the password", "[webconf]")
 
 	// The cleartext is gone and the hash answers for it.
 	REQUIRE(httpd::config().password_hash.compare(0, 14, "pbkdf2-sha256$") == 0);
-	REQUIRE(httpd::verifySecret("ni", httpd::config().password_hash));
+	REQUIRE(httpd::verifySecret("ni-own-9", httpd::config().password_hash));
 	REQUIRE_FALSE(httpd::verifySecret("not-ni", httpd::config().password_hash));
+	REQUIRE_FALSE(httpd::firstPasswordStands());
 
 	const std::string written = readFile(out.path());
-	REQUIRE(written.find("=ni\n") == std::string::npos);
+	REQUIRE(written.find("ni-own-9") == std::string::npos);
 	// Under a key and not anywhere in the file: the written file quotes the
 	// complaint list, which names the keys of the old file it did not carry.
 	REQUIRE_FALSE(anySettingMentions(written, "mod_auth"));
@@ -674,10 +728,10 @@ TEST_CASE("the password is carried whatever the switch said", "[webconf]")
 
 	   The switch its own server checks passwords under is not read for this. That was tried
 	   the other way round, on the reasoning that a value under a switch that is off was
-	   never compared with anything, and it is wrong for these boxes: the same string is the
-	   root login they take over the network, so carrying it opens nothing that is not open,
-	   while refusing it leaves an upgraded box with a web interface nobody can write
-	   through. */
+	   never compared with anything, and it is wrong for these boxes: refusing a password
+	   somebody chose leaves an upgraded box with a web interface nobody can write
+	   through. What decides is the value: one of the shipped ones is not carried and a
+	   first password stands in its place, whatever the switch said. */
 	Restore back;
 
 	struct Shape
@@ -693,10 +747,10 @@ TEST_CASE("the password is carried whatever the switch said", "[webconf]")
 	{
 		{ "the file as it ships",
 		  "mod_auth.username=root\nmod_auth.authenticate=false\nmod_auth.password=ni\n",
-		  "ni", true, true },
+		  "ni", false, true },
 		{ "checking on and the password every image carries",
 		  "mod_auth.username=root\nmod_auth.authenticate=true\nmod_auth.password=ni\n",
-		  "ni", true, true },
+		  "ni", false, true },
 		{ "checking on and a password of somebody's own",
 		  "mod_auth.username=root\nmod_auth.authenticate=true\nmod_auth.password=hunter2\n",
 		  "hunter2", true, false },
@@ -717,22 +771,34 @@ TEST_CASE("the password is carried whatever the switch said", "[webconf]")
 		REQUIRE(httpd::migrateFrom(old.path(), out.path()));
 		const std::string written = readFile(out.path());
 
+		// a shipped one gives way to a first password, on one line, and the head says so
+		if (shapes[i].shipped)
+		{
+			const std::vector<std::string> lines = settingLines(written);
+			size_t firsts = 0;
+			for (size_t j = 0; j < lines.size(); ++j)
+				firsts += (lines[j].compare(0, 15, "first_password=") == 0) ? 1 : 0;
+			REQUIRE(firsts == 1);
+			REQUIRE(prose(written).find("LOGIN: user \"root\", with a first password the box drew for itself") !=
+				std::string::npos);
+		}
+
 		/* A password of two letters is a string the words of this file's own comment
 		   contain, so what is looked for is a value and not a spelling. The shapes
 		   carrying a password no comment here can hold are looked for whole. The shape
 		   carrying none is asked neither question. */
-		if (shapes[i].carried)
+		if (shapes[i].carried || shapes[i].shipped)
 		{
 			REQUIRE(written.find(std::string("=") + shapes[i].secret + "\n") == std::string::npos);
 			if (!shapes[i].shipped)
 				REQUIRE(written.find(shapes[i].secret) == std::string::npos);
 		}
 
-		/* The one line this round is about: what is carried is a value these
-		   boxes have shipped with, said once, and the first login asks for a
-		   password of the owner's own. Said for those values and for no other,
-		   or it would be a line about every migration; the value itself is not
-		   named, being one of a list. */
+		/* The one line this round is about: what stood there is a value these
+		   boxes have shipped with, not carried, said once, and the first login
+		   asks for a password of the owner's own. Said for those values and for
+		   no other, or it would be a line about every migration; the value itself
+		   is not named, being one of a list. */
 		REQUIRE(anyProblemMentions("a password these boxes have shipped with") == shapes[i].shipped);
 		if (shapes[i].shipped)
 			REQUIRE_FALSE(anyProblemMentions("\"ni\""));
@@ -740,7 +806,8 @@ TEST_CASE("the password is carried whatever the switch said", "[webconf]")
 		REQUIRE(httpd::load(out.path()));
 		REQUIRE(httpd::config().username == "root");
 		REQUIRE(httpd::verifySecret(shapes[i].secret, httpd::config().password_hash) == shapes[i].carried);
-		if (!shapes[i].carried)
+		REQUIRE(opensToFirstPassword() == shapes[i].shipped);
+		if (!shapes[i].carried && !shapes[i].shipped)
 		{
 			REQUIRE(httpd::config().password_hash.empty());
 			// And the file says so where somebody comes looking for it later.
@@ -829,13 +896,13 @@ TEST_CASE("an old port or address nobody could use does not stop the migration",
 	for (size_t i = 0; i < sizeof(lines) / sizeof(lines[0]); ++i)
 	{
 		Temp old("old"), out("out");
-		writeFile(old.path(), std::string(lines[i]) + "mod_auth.username=root\nmod_auth.password=ni\n");
+		writeFile(old.path(), std::string(lines[i]) + "mod_auth.username=root\nmod_auth.password=zwiebel-7\n");
 
 		INFO("old line " << lines[i]);
 		REQUIRE(httpd::migrateFrom(old.path(), out.path()));
 		REQUIRE_FALSE(anyProblemMentions("WebsiteMain"));
 		REQUIRE(httpd::load(out.path()));
-		REQUIRE(httpd::verifySecret("ni", httpd::config().password_hash));
+		REQUIRE(httpd::verifySecret("zwiebel-7", httpd::config().password_hash));
 	}
 }
 
@@ -1484,10 +1551,13 @@ TEST_CASE("the shipped old file migrates and loads", "[webconf]")
 	REQUIRE(httpd::config().server.port == 80);
 	REQUIRE(httpd::config().server.bind_address == "0.0.0.0");
 	REQUIRE(httpd::config().username == "root");
-	/* Read out of the installed file rather than out of a copy of it here, so
-	   that an image which one day ships a different value is answered by this
-	   case rather than by a transcription of what the file used to say. */
-	REQUIRE(httpd::verifySecret(httpd::kShippedPassword, httpd::config().password_hash));
+	/* The value the installed file carries is one of the shipped ones, so the
+	   box starts on a first password of its own; read out of that file rather
+	   than out of a copy of it here, so an image which one day ships a different
+	   value is answered by this case. */
+	REQUIRE(opensToFirstPassword());
+	REQUIRE_FALSE(httpd::verifySecret(httpd::kShippedPassword, httpd::config().password_hash));
+	REQUIRE(httpd::firstPasswordWrittenThisRun());
 	REQUIRE(modeOf(out.path()) == 0600);
 	REQUIRE_FALSE(anySettingMentions(readFile(out.path()), "authenticate"));
 	REQUIRE(readFile(out.path()).find("=ni\n") == std::string::npos);

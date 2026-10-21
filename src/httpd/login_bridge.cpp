@@ -318,31 +318,105 @@ bool passwordSet()
 	}
 }
 
-bool passwordIsShipped()
+namespace
+{
+
+// Whether a stored form is one of the passwords these boxes have shipped with.
+bool shippedStored(const std::string &stored)
+{
+	if (stored.empty())
+		return false;
+	{
+		OpenThreads::ScopedLock<OpenThreads::Mutex> held(lock());
+		if (memory().shipped_known && memory().shipped_for == stored)
+			return memory().shipped;
+	}
+
+	// the passwords these boxes have shipped with (webconfig.cpp)
+	size_t count = 0;
+	const char *const *shipped = httpd::shippedPasswords(&count);
+	bool answer = false;
+	for (size_t i = 0; i < count && !answer; ++i)
+		answer = httpd::verifySecret(shipped[i], stored);
+
+	OpenThreads::ScopedLock<OpenThreads::Mutex> held(lock());
+	memory().shipped_for = stored;
+	memory().shipped = answer;
+	memory().shipped_known = true;
+	return answer;
+}
+
+// What the file said it was refused for, as one line.
+void sayWhyNotSaved(std::string *why)
+{
+	if (why == NULL)
+		return;
+	why->clear();
+	const std::vector<std::string> &problems = httpd::configProblems();
+	for (size_t i = 0; i < problems.size(); ++i)
+	{
+		if (i > 0)
+			*why += "; ";
+		*why += problems[i];
+	}
+	if (why->empty())
+		*why = "the configuration could not be written";
+}
+
+/* A new first password for the account, under the name user or under the one it
+   has where user is empty, written and in effect when this returns. Under the
+   account's lock, which the caller holds. */
+bool putFirstPassword(const std::string &user, std::string *first, std::string *why)
+{
+	const std::string path = httpd::configPath();
+	if (path.empty())
+	{
+		if (why != NULL)
+			*why = "no configuration file is in use";
+		return false;
+	}
+
+	httpd::WebSettings s = httpd::currentWebSettings();
+	s.account_only = true;
+	if (!user.empty())
+		s.username = user;
+	s.password = httpd::drawFirstPassword();
+	if (s.password.empty())
+	{
+		if (why != NULL)
+			*why = "the random source of the system could not be read";
+		return false;
+	}
+	s.change_password = true;
+	s.first_password = true;
+
+	std::string stored;
+	if (!httpd::saveWebSettings(path, s, &stored))
+	{
+		forget(s.password);
+		sayWhyNotSaved(why);
+		return false;
+	}
+
+	httpd::Login now;
+	now.username = s.username;
+	now.password_hash = stored;
+	httpd::publishLogin(now, s.password);
+	if (first != NULL)
+		*first = s.password;
+	forget(s.password);
+	return true;
+}
+
+} // namespace
+
+bool passwordOwed()
 {
 	try
 	{
-		const std::string stored = httpd::loginInEffect().password_hash;
-		if (stored.empty())
-			return false;
-		{
-			OpenThreads::ScopedLock<OpenThreads::Mutex> held(lock());
-			if (memory().shipped_known && memory().shipped_for == stored)
-				return memory().shipped;
-		}
-
-		// the passwords these boxes have shipped with (webconfig.cpp)
-		size_t count = 0;
-		const char *const *shipped = httpd::shippedPasswords(&count);
-		bool answer = false;
-		for (size_t i = 0; i < count && !answer; ++i)
-			answer = httpd::verifySecret(shipped[i], stored);
-
-		OpenThreads::ScopedLock<OpenThreads::Mutex> held(lock());
-		memory().shipped_for = stored;
-		memory().shipped = answer;
-		memory().shipped_known = true;
-		return answer;
+		if (httpd::firstPasswordStands())
+			return true;
+		return shippedStored(httpd::loginInEffect().password_hash);
 	}
 	catch (...)
 	{
@@ -350,16 +424,55 @@ bool passwordIsShipped()
 	}
 }
 
+bool replaceShippedPassword(std::string *why)
+{
+	if (why != NULL)
+		why->clear();
+	try
+	{
+		httpd::AccountLock held;
+		if (!shippedStored(httpd::loginInEffect().password_hash))
+			return true;
+		return putFirstPassword(std::string(), NULL, why);
+	}
+	catch (...)
+	{
+		if (why != NULL)
+			*why = "the first password could not be set";
+		return false;
+	}
+}
+
+bool resetToFirstPassword(std::string *first, std::string *why)
+{
+	if (first != NULL)
+		first->clear();
+	if (why != NULL)
+		why->clear();
+	try
+	{
+		httpd::AccountLock held;
+		return putFirstPassword("root", first, why);
+	}
+	catch (...)
+	{
+		if (first != NULL)
+			forget(*first);
+		if (why != NULL)
+			*why = "the first password could not be set";
+		return false;
+	}
+}
+
 bool change(const std::string &user, const std::string &password, std::string *why,
-            const Ask *from, bool reset_to_shipped)
+            const Ask *from)
 {
 	if (why != NULL)
 		why->clear();
 	try
 	{
 		// the rules every writer of the password is held to
-		if (!password.empty() && !(reset_to_shipped && httpd::isShippedPassword(password)) &&
-		    !httpd::passwordAcceptable(password, why))
+		if (!password.empty() && !httpd::passwordAcceptable(password, why))
 			return false;
 
 		if (from != NULL && !fromThisBox(*from))
@@ -404,25 +517,19 @@ bool change(const std::string &user, const std::string &password, std::string *w
 		forget(s.password);
 		if (!saved)
 		{
-			if (why != NULL)
-			{
-				const std::vector<std::string> &problems = httpd::configProblems();
-				for (size_t i = 0; i < problems.size(); ++i)
-				{
-					if (i > 0)
-						*why += "; ";
-					*why += problems[i];
-				}
-				if (why->empty())
-					*why = "the configuration could not be written";
-			}
+			sayWhyNotSaved(why);
 			return false;
 		}
 
+		// a first password goes with a new password and stays with a new name
+		std::string first;
+		if (!s.change_password)
+			first = httpd::firstPasswordInEffect();
 		httpd::Login now;
 		now.username = s.username;
 		now.password_hash = s.change_password ? stored : before.password_hash;
-		httpd::publishLogin(now);
+		httpd::publishLogin(now, first);
+		forget(first);
 		return true;
 	}
 	catch (...)

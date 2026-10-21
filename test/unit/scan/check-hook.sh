@@ -115,7 +115,7 @@ WEB_STOP="httpd::stop();"
 
 # The call that leaves the box with a configuration is the same kind of thing
 # and has the same hole: it carries an upgraded box's credential over and
-# writes the shipped login where there is nothing to carry, and a deleted call
+# writes a first password where there is nothing to carry, and a deleted call
 # would leave every box with no file answering nothing that needs a password,
 # with no case anywhere going red. It has to stand in front of the read, since
 # on the start where it writes, the file being read is the one it wrote.

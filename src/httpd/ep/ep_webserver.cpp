@@ -62,8 +62,10 @@
 
      user, password               read and written. They are the account the box's
                                   own screen offers, kept in this server's own file.
-                                  Whether the password in effect is one the boxes
-                                  shipped with is read beside them.
+                                  Whether the password in effect still waits to be
+                                  replaced (one the boxes shipped with, or the first
+                                  password the box drew for itself) is read beside
+                                  them.
 
      page_login, no_login_prefix, read and written, and lines of nhttpd.conf the
      threading, send_all_types,   settings page has always offered: whether the pages
@@ -211,15 +213,17 @@ void writeWebserver(Json &j, int port, const std::string &bind,
 	/* Whether one is set and never which one. A stored form is what an offline
 	   attack is mounted against, and a route that hands it out is a route that
 	   supplies the material for an attack that could not have happened without
-	   it. The plain value is not in this process to hand out in the first
-	   place. */
+	   it. The plain value is held only while it is a first password, for the
+	   screen at the box, and no route hands that out either. */
 	j.key("has_password");
 	j.value(has_password);
-	/* Of the password in effect, so a page can say that the box still opens to the
-	   login it shipped with. A password a write sets is not judged in its answer: it
-	   is not in effect yet, and the read after the restart says. */
+	/* Of the password in effect, so a page can say that the box still opens to a
+	   login it shipped with or to its first password, under the name this member
+	   had before the box drew first passwords. A password a write sets is not
+	   judged in its answer: it is not in effect yet, and the read after the
+	   restart says. */
 	j.key("password_shipped");
-	j.value(login_bridge::passwordIsShipped());
+	j.value(login_bridge::passwordOwed());
 	j.key("page_login");
 	j.value(o.page_login);
 	j.key("no_login_prefix");
@@ -254,7 +258,7 @@ const FieldDesc kWebserverFields[] = {
 	HTTPD_MEMBER("has_password", FieldType::Bool,
 		"whether a password is set at all, which is the whole of what is said about it: neither the password nor the form it is stored as ever leaves the box"),
 	HTTPD_MEMBER("password_shipped", FieldType::Bool,
-		"whether the password in effect is one these boxes have shipped with, which anybody can look up; a password a write sets is judged by the read after the restart"),
+		"whether the password in effect still waits to be replaced: one these boxes have shipped with, which anybody can look up, or the first password the box set for itself and showed on its screen; a password a write sets is judged by the read after the restart"),
 	HTTPD_MEMBER("page_login", FieldType::Bool,
 		"whether the pages ask for the login, a line of nhttpd.conf: with it off the pages are open, and a change made over this interface still asks for a sign in"),
 	HTTPD_MEMBER("no_login_prefix", FieldType::String,
@@ -635,8 +639,8 @@ const Endpoint kWebserverEndpoints[] = {
 	{ Method::Get, "/api/v1/system/webserver", AuthLevel::System,
 	  "how this server is set up: where it answers, who may tell it anything, and who reads from it without presenting anything",
 	  "Reads how this HTTP server itself is set up: the port and address it answers on, the account a "
-	  "caller signs in under, whether a password is set at all and whether it is one the boxes shipped "
-	  "with, whether the pages ask for the login and of which callers not, how nhttpd serves the pages "
+	  "caller signs in under, whether a password is set at all and whether it still waits to be replaced "
+	  "(one the boxes shipped with, or the first password the box set for itself), whether the pages ask for the login and of which callers not, how nhttpd serves the pages "
 	  "(threads, the override and hosted directories, files of unknown type), the networks that may read without "
 	  "presenting anything and the proxies whose forwarded address is believed, whether the copied "
 	  "surface under `/control/` is reachable, and whether a channel picture is served at all. This is "

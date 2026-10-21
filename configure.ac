@@ -893,13 +893,14 @@ src/nhttpd/nhttpd.conf
 #data/control/migration.sh
 #])
 
-# The password the web interface of a box starts with, the one login every
-# box ships with until its owner sets one: the first login asks for one of
-# the owner's own. One value for nhttpd's built-in default, the nhttpd.conf
-# the image installs and the access file written when there is nothing to
-# carry over.
+# The password the old web server's configuration names: nhttpd's built-in
+# default and the value in the nhttpd.conf the image installs. The access
+# file is never written with it. A start that finds it puts a first password
+# of the box's own in its place where it can write one, a box without an
+# nhttpd.conf, or with one that cannot be carried, gets a first password too,
+# and a new password may not be this one.
 WEB_DEFAULT_PASSWORD=neutrino
-AC_DEFINE_UNQUOTED(WEB_DEFAULT_PASSWORD, "$WEB_DEFAULT_PASSWORD", [the password the web interface ships with])
+AC_DEFINE_UNQUOTED(WEB_DEFAULT_PASSWORD, "$WEB_DEFAULT_PASSWORD", [the password the old web server's configuration names])
 AC_SUBST(WEB_DEFAULT_PASSWORD)
 
 # What restarts once settings are put back, from the menu or over the web:

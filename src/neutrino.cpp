@@ -65,6 +65,7 @@
 #include <coreapi/base/deps.h>
 #include <coreapi/base/messagebridge.h>
 #include <coreapi/base/settingswrites.h>
+#include <httpd/login_bridge.h>
 #include <httpd/webconfig.h>
 #include <httpd/server_control.h>
 #include <gui/settings_appliers.h>
@@ -3387,6 +3388,17 @@ TIMER_START();
 	 * the server answers is read out of nhttpd's file, the one nhttpd binds
 	 * from, so both layers start on the same port. */
 	httpd::load(HTTPD_ACCESS_FILE, HTTPD_SERVER_FILE);
+
+	/* A box whose file still holds a password these boxes shipped with gets a
+	 * first password of its own in its place, before the server answers
+	 * anybody, so no box keeps opening to a login anybody can look up. Where
+	 * it cannot be written the shipped one stays, and the screen says so once
+	 * the box is up. */
+	{
+		std::string why;
+		if (!login_bridge::replaceShippedPassword(&why))
+			printf("[neutrino] the web password the box shipped with stays: %s\n", why.c_str());
+	}
 
 	/* The web interface's own settings moved to webui.conf; the file kept
 	 * before is taken over once, before the server or the old pages read

@@ -105,7 +105,7 @@ const FieldDesc kSessionStateFields[] = {
 	HTTPD_MEMBER("expires_in", FieldType::UInt,
 		"how many seconds the session has left before it runs out, 0 for a caller holding none"),
 	HTTPD_MEMBER("password_change_required", FieldType::Bool,
-		"whether the caller may write while the box still opens to a password it shipped with: it is to set a password of its own with PUT /api/v1/account/password, and nothing else answers it until then; false for a caller that may not write"),
+		"whether the caller may write while the box still opens to a password it shipped with or to the first password it set for itself: it is to set a password of its own with PUT /api/v1/account/password, and nothing else answers it until then; false for a caller that may not write"),
 	HTTPD_MEMBER("language", FieldType::String,
 		"the code of the language the pages are shown in, such as en or de, said whatever the caller holds, so the sign-in page and the page asking for a new password are shown in it before anything else answers; GET /api/v1/webui/language names the ones there are"),
 };
@@ -366,7 +366,7 @@ bool acceptablePassword(const std::string &password, const std::string &current,
 }
 
 /* The account's password replaced by one of the owner's own, the one route a
-   caller signed in with a shipped password reaches besides login, session and
+   caller signed in with a shipped or a first password reaches besides login, session and
    logout. The password in effect is asked for again, and a wrong one is
    counted against the address as a wrong login is, so a session left open on
    somebody else's screen is not a way of setting the box's password. In
@@ -576,8 +576,8 @@ const Endpoint kAuthEndpoints[] = {
 	  "these boxes have shipped with and is not the one it replaces. It is in effect for every login "
 	  "when this answers; sessions already open stay open, the one asking among them.\n"
 	  "\n"
-	  "While the box still opens to a password it shipped with, this is the route a caller signed in "
-	  "with it is to use: every route but this one, `POST /api/v1/login`, `GET /api/v1/session` and "
+	  "While the box still opens to a password it shipped with, or to the first password it set for "
+	  "itself and showed on its screen, this is the route a caller signed in with it is to use: every route but this one, `POST /api/v1/login`, `GET /api/v1/session` and "
 	  "`POST /api/v1/logout` refuses it with `403 password-change-required`, which "
 	  "`GET /api/v1/session` announces as `password_change_required`. The old `/control/` routes "
 	  "keep answering the box's login as they always did.\n"

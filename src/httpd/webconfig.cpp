@@ -28,6 +28,7 @@
 
 #include "auth.h"
 #include "credentials.h"
+#include "randomsource.h"
 
 #include <configfile.h>
 
@@ -62,6 +63,7 @@ namespace
    several sites; this one serves the box it runs on. */
 const char kKeyUser[]            = "username";
 const char kKeyHash[]            = "password_hash";
+const char kKeyFirst[]           = "first_password";
 const char kKeyLanRead[]         = "lan_read";
 const char kKeyTrustedProxies[]  = "trusted_proxies";
 const char kKeyDocroot[]         = "docroot";
@@ -75,7 +77,7 @@ const char kKeyApiTokens[]       = "api_tokens";
 // A key out of a file is text somebody else wrote; one of these is not.
 const char *const kKnownKeys[] =
 {
-	kKeyUser, kKeyHash, kKeyLanRead,
+	kKeyUser, kKeyHash, kKeyFirst, kKeyLanRead,
 	kKeyTrustedProxies, kKeyDocroot, kKeySessionLifetime,
 	kKeySseMaxStreams, kKeyLegacy, kKeyLogos, kKeyApiTokens
 };
@@ -118,11 +120,11 @@ const char kOldExempt[]   = "mod_auth.no_auth_client";
 
 } // namespace
 
-/* The password every box starts with (configure: WEB_DEFAULT_PASSWORD), which is
-   nobody's choice: it stands in the nhttpd.conf the image installs, as the old
-   server's value for a file that names none, and in the access file written
-   when there is nothing to carry over. The first login with it asks for a
-   password of the owner's own, and until then the interface does nothing else. */
+/* The password the images carry for the old server (configure:
+   WEB_DEFAULT_PASSWORD), which is nobody's choice: it stands in the nhttpd.conf
+   the image installs and is that server's value for a file that names none. The
+   access file is never written with it; a box that would start on it starts on
+   a first password instead. */
 const char kShippedPassword[] = WEB_DEFAULT_PASSWORD;
 
 /* Every password a box of this line has shipped with: this one, the old
@@ -144,6 +146,36 @@ bool isShippedPassword(const std::string &secret)
 		if (secret == kShippedPasswords[i])
 			return true;
 	return false;
+}
+
+/* 31 characters, so a byte below 248, which is 8 times 31, maps onto every one
+   of them equally often, and a byte from 248 up is drawn again: taking every
+   byte modulo 31 would make the first eight characters likelier than the rest.
+   Ten of them are about 49 bits. */
+std::string drawFirstPassword()
+{
+	static const char kAlphabet[] = "abcdefghjkmnpqrstuvwxyz23456789";
+	const unsigned kLetters = sizeof(kAlphabet) - 1;
+	const unsigned kBelow = 256 - 256 % kLetters;
+
+	std::string out;
+	unsigned char drawn[32];
+	while (out.size() < kFirstPasswordChars)
+	{
+		if (!randomBytes(drawn, sizeof(drawn)))
+		{
+			if (!out.empty())
+				OPENSSL_cleanse(&out[0], out.size());
+			return std::string();
+		}
+		for (size_t i = 0; i < sizeof(drawn) && out.size() < kFirstPasswordChars; ++i)
+		{
+			if (drawn[i] < kBelow)
+				out += kAlphabet[drawn[i] % kLetters];
+		}
+		OPENSSL_cleanse(drawn, sizeof(drawn));
+	}
+	return out;
 }
 
 bool passwordAcceptable(const std::string &password, std::string *why)
@@ -1276,28 +1308,32 @@ void appendWrapped(std::string &text, const std::string &indent, const std::stri
 // first lines of it have to say differently.
 enum LoginSource
 {
-	ShippedLogin,
+	FirstLogin,
 	CarriedLogin,
 	OwnLogin
 };
 
-/* What this file says about logging in, and the first thing in it.
+/* What this file says about logging in, the paragraphs that open it under its
+   title.
 
    THE READER THIS IS FOR IS THE ONE WHO HAS JUST BEEN REFUSED A LOGIN and has
    opened the file over a shell to find out why. What they need is three
    sentences: what the login is, where to change it, and how to get back to a
-   known one. Everything else in the file is under them for that reason. */
-void appendLoginHead(std::string &text, LoginSource from, const std::string &user,
-		     bool has_password, const std::string &old_path)
-{
-	appendCommentLine(text, "nhttpd access configuration.");
-	appendCommentLine(text, "");
+   known one. Everything else in the file is under them for that reason.
 
-	if (from == ShippedLogin)
+   old_path is the old server's file a start would write this one out of again,
+   and empty where there is none to name. */
+void appendLoginLines(std::string &text, LoginSource from, const std::string &user,
+		      bool has_password, const std::string &old_path)
+{
+	if (from == FirstLogin)
 		appendWrapped(text, "",
-			      std::string("LOGIN: user \"") + user + "\", password \"" + kShippedPassword +
-			      "\", the login every box ships with. The first login asks for a password of "
-			      "your own, and the web interface does nothing else until it is set.");
+			      std::string("LOGIN: user \"") + user + "\", with a first password the box drew "
+			      "for itself, which the screen at the box shows when the box starts and in the "
+			      "web server menu (System settings, Network, Web server (nhttpd)). The first login "
+			      "asks for a password of your own and can do nothing else until it is set; "
+			      "until then the first password also stands in plain on the " + kKeyFirst +
+			      " line at the end of this file.");
 	else if (has_password)
 		appendWrapped(text, "",
 			      std::string("LOGIN: user \"") + user + "\", with the password " +
@@ -1319,15 +1355,65 @@ void appendLoginHead(std::string &text, LoginSource from, const std::string &use
 			      "interface cannot, no request that changes anything being answered while "
 			      "there is none.");
 
-	std::string over = "TO START OVER: delete this file";
-	if (from == CarriedLogin)
-		over += " and " + old_path;
-	over += std::string(", then restart. This file is written again with user \"root\" and password \"") +
-		kShippedPassword + "\"";
-	over += (from == ShippedLogin) ? ", which is what stands above."
-				       : ", and the first login asks for a password of your own. The web server "
-				         "menu of the box does the same without a shell.";
+	/* The reset at the box is the way back to a known login. Deleting this file
+	   is not: a start writes it again out of the old server's file, which no
+	   longer names a password once a start has carried it, so the new file would
+	   hold none. */
+	std::string over = "TO START OVER: the web server menu of the box (System settings, Network, "
+			   "Web server (nhttpd)) resets the login to user \"root\" and a new first "
+			   "password, which the screen at the box shows.";
+	if (!old_path.empty())
+		over += " Deleting this file is no way back: the next start writes it again out of " +
+			old_path + ", which names no password any more once a start has carried it, and "
+			"the login is then left with none.";
 	appendWrapped(text, "", over);
+}
+
+// The title of the file and the paragraphs about the login under it.
+void appendLoginHead(std::string &text, LoginSource from, const std::string &user,
+		     bool has_password, const std::string &old_path)
+{
+	appendCommentLine(text, "nhttpd access configuration.");
+	appendCommentLine(text, "");
+	appendLoginLines(text, from, user, has_password, old_path);
+}
+
+/* text with the paragraphs about the login rewritten for a password a save has
+   just set, so a file does not go on naming a login that is no longer in force:
+   a shipped password after the box replaced it, a first password after the owner
+   did. The one exception to a save leaving every line it does not own where it
+   stands, and a narrow one: those paragraphs are what this layer wrote about the
+   lines it owns.
+
+   What is rewritten runs from a comment line opening with "LOGIN:" in the head
+   of the file, the comment lines before any setting, to the first comment line
+   with nothing on it after it. A file without such a line, or one whose head has
+   no end, is handed back as it was. */
+std::string withLoginLines(const std::string &text, LoginSource from, const std::string &user,
+			   const std::string &old_path)
+{
+	const std::string opening = "# LOGIN:";
+	size_t start = std::string::npos;
+	size_t at = 0;
+	while (at < text.size())
+	{
+		const size_t end = text.find('\n', at);
+		if (end == std::string::npos)
+			return text;
+		const std::string line = text.substr(at, end - at);
+		if (line.empty() || line[0] != '#')
+			return text;
+		if (start == std::string::npos && line.compare(0, opening.size(), opening) == 0)
+			start = at;
+		else if (start != std::string::npos && line == "#")
+		{
+			std::string lines;
+			appendLoginLines(lines, from, user, true, old_path);
+			return text.substr(0, start) + lines + text.substr(at);
+		}
+		at = end + 1;
+	}
+	return text;
 }
 
 // One key this file does not write, what it decides, and the value a box
@@ -1388,6 +1474,9 @@ void appendKeyDocs(std::string &text)
 	appendKeyDoc(text, kKeyUser, "the name a login is made under", "");
 	appendKeyDoc(text, kKeyHash, "the password, kept as a hash. An empty one is no password, and a "
 		     "box with none answers nothing that changes anything", "");
+	appendKeyDoc(text, kKeyFirst, "the first password in plain, which the box drew for itself and "
+		     "shows on its screen. It counts only while the hash above is that password, the "
+		     "first login asks to replace it, and it goes with the first change", "");
 
 	appendCommentLine(text, "");
 	appendComment(text,
@@ -1431,13 +1520,15 @@ void appendNotes(std::string &text, const std::string &heading, const std::vecto
 		appendWrapped(text, "  - ", "    ", notes[i]);
 }
 
-// The head of a file written out of the old server's.
+/* The head of a file written out of the old server's, where first says the
+   password found there was one these boxes shipped with and a first password
+   takes its place. */
 std::string migratedHead(const std::string &user, bool has_password, const std::string &old_path,
-			 const std::vector<std::string> &notes)
+			 const std::vector<std::string> &notes, bool first)
 {
 	std::string text;
 
-	appendLoginHead(text, CarriedLogin, user, has_password, old_path);
+	appendLoginHead(text, first ? FirstLogin : CarriedLogin, user, has_password, old_path);
 
 	appendCommentLine(text, "");
 	appendWrapped(text, "", "Written from " + old_path + ", the file of the web interface this one "
@@ -1452,12 +1543,12 @@ std::string migratedHead(const std::string &user, bool has_password, const std::
 
 // The head of a file written because there was nothing to carry over or
 // because carrying it over was refused.
-std::string shippedHead(const std::string &user, const std::string &old_path, bool tried_old,
-			const std::vector<std::string> &why)
+std::string firstHead(const std::string &user, const std::string &old_path, bool tried_old,
+		      const std::vector<std::string> &why)
 {
 	std::string text;
 
-	appendLoginHead(text, ShippedLogin, user, true, old_path);
+	appendLoginHead(text, FirstLogin, user, true, old_path);
 
 	appendCommentLine(text, "");
 	if (tried_old)
@@ -1467,8 +1558,8 @@ std::string shippedHead(const std::string &user, const std::string &old_path, bo
 			      "being carried over:");
 		for (size_t i = 0; i < why.size(); ++i)
 			appendWrapped(text, "  - ", "    ", why[i]);
-		appendWrapped(text, "", "So the login above is the one the image ships with and not the one "
-			      "that file holds.");
+		appendWrapped(text, "", "So the login above is a first password and not the one that file "
+			      "holds.");
 	}
 	else
 		appendWrapped(text, "", "Written by the box itself, there having been nothing of the web "
@@ -1481,11 +1572,11 @@ std::string shippedHead(const std::string &user, const std::string &old_path, bo
 }
 
 // The head of a file a save at the box writes where there was none.
-std::string ownHead(const std::string &user, bool has_password)
+std::string ownHead(const std::string &user, bool has_password, bool first, const std::string &old_path)
 {
 	std::string text;
 
-	appendLoginHead(text, OwnLogin, user, has_password, std::string());
+	appendLoginHead(text, first ? FirstLogin : OwnLogin, user, has_password, old_path);
 
 	appendCommentLine(text, "");
 	appendWrapped(text, "", "Written at the box.");
@@ -1496,6 +1587,9 @@ std::string ownHead(const std::string &user, bool has_password)
 	return text;
 }
 
+// Says that this run wrote a first password, for the screen at the box to show.
+void noteFirstWritten();
+
 /* The file a box gets when there was nothing to carry over, or when carrying it over was
    refused.
 
@@ -1503,29 +1597,39 @@ std::string ownHead(const std::string &user, bool has_password)
    end at a box whose web interface had no credential at all: it answers reads from the
    private networks, refuses everything that changes anything from anywhere, and says so
    nowhere anybody looks, so its owner is locked out by a line in a boot log that is gone
-   by morning. The login written here is the one every box ships with, which the first
-   login asks to replace. */
-bool writeShippedFile(const std::string &out_path, const std::string &old_path, bool tried_old)
+   by morning. The login written here is user root and a first password, which the screen
+   at the box shows and the first login asks to replace. Besides a name that cannot be
+   written, the random source failing is the one way to write nothing, and that source is
+   what a hash needs as well. */
+bool writeFirstFile(const std::string &out_path, const std::string &old_path, bool tried_old)
 {
 	// Taken before the write below, which complains into the same list.
 	const std::vector<std::string> why = problemsNow();
 
-	const std::string hash = hashSecret(kShippedPassword);
+	std::string first = drawFirstPassword();
+	const std::string hash = first.empty() ? std::string() : hashSecret(first);
 	if (hash.empty())
 	{
-		complain("the password this image ships with could not be hashed, so nothing is written and "
-			 "this box answers no request that changes anything until a password is set at the "
-			 "box itself");
+		forget(first);
+		complain("no first password could be drawn and hashed, the random source of the system "
+			 "failing, so nothing is written and this box answers no request that changes "
+			 "anything until a password is set at the box itself");
 		return false;
 	}
 
 	const WebConfig d = defaultWebConfig();
 
-	std::string text = shippedHead(d.username, old_path, tried_old, why);
+	std::string text = firstHead(d.username, old_path, tried_old, why);
 	appendPair(text, kKeyUser, d.username);
 	appendPair(text, kKeyHash, hash);
+	appendPair(text, kKeyFirst, first);
+	forget(first);
 
-	return writeNewFile(out_path, text);
+	const bool written = writeNewFile(out_path, text);
+	forget(text);
+	if (written)
+		noteFirstWritten();
+	return written;
 }
 
 /* All of it or none of it, over a name that may already be taken.
@@ -1603,15 +1707,19 @@ bool replaceFile(const std::string &path, const std::string &text, mode_t mode =
 	return true;
 }
 
-/* What a save writes for each key it owns: the name, the stored form when a
-   new password was typed, and the logo switch unless the save is the
-   account's alone. Every other line of that file belongs to whoever wrote it
-   and is carried across untouched. */
+/* What a save writes for each key it owns: the name, the stored form and the
+   first password when a new password was typed, and the logo switch unless the
+   save is the account's alone. Every other line of that file belongs to whoever
+   wrote it and is carried across untouched, but for the paragraphs about the
+   login at its head, which a new password rewrites (withLoginLines). A key owned
+   to be dropped has every line naming it taken out and none written in its
+   place. */
 struct OwnedLine
 {
 	const char *key;
 	std::string value;
 	bool        written;
+	bool        drop;
 };
 
 /* Which of the keys a save is writing this line names, and nothing for a line that names
@@ -1889,10 +1997,30 @@ Login &heldLogin()
 	return l;
 }
 
+// Beside heldLogin and under the same lock.
+std::string &heldFirst()
+{
+	static std::string first;
+	return first;
+}
+
 OpenThreads::Mutex &loginLock()
 {
 	static OpenThreads::Mutex m;
 	return m;
+}
+
+// Whether this run wrote a first password, under loginLock.
+bool &firstWritten()
+{
+	static bool written = false;
+	return written;
+}
+
+void noteFirstWritten()
+{
+	OpenThreads::ScopedLock<OpenThreads::Mutex> held_lock(loginLock());
+	firstWritten() = true;
 }
 
 OpenThreads::Mutex &accountLock()
@@ -1963,10 +2091,30 @@ Login loginInEffect()
 	return heldLogin();
 }
 
-void publishLogin(const Login &l)
+std::string firstPasswordInEffect()
+{
+	OpenThreads::ScopedLock<OpenThreads::Mutex> held_lock(loginLock());
+	return heldFirst();
+}
+
+bool firstPasswordStands()
+{
+	OpenThreads::ScopedLock<OpenThreads::Mutex> held_lock(loginLock());
+	return !heldFirst().empty();
+}
+
+void publishLogin(const Login &l, const std::string &first_password)
 {
 	OpenThreads::ScopedLock<OpenThreads::Mutex> held_lock(loginLock());
 	heldLogin() = l;
+	forget(heldFirst());
+	heldFirst() = first_password;
+}
+
+bool firstPasswordWrittenThisRun()
+{
+	OpenThreads::ScopedLock<OpenThreads::Mutex> held_lock(loginLock());
+	return firstWritten();
 }
 
 void setConfigForTest(const WebConfig &c)
@@ -2086,6 +2234,28 @@ bool load(const std::string &path, const std::string &server_path)
 		c.password_hash.clear();
 	}
 
+	/* The first password counts only while the stored form is that password,
+	   which is asked here once and not taken on the line's word: a line that
+	   outlived a change made by hand would otherwise be shown on the screen as
+	   the login and ask the owner to replace a password the box no longer
+	   takes. Its value is never repeated, being a password. */
+	std::string first;
+	{
+		const Reading r = reading(m, cut, kKeyFirst, raw);
+		if (r == KeyUnreadable)
+			complain(std::string(kKeyFirst) + ": the line carries a value this cannot read, so no "
+				 "first password stands");
+		else if (r == KeyPresent && !raw.empty())
+		{
+			if (!c.password_hash.empty() && verifySecret(raw, c.password_hash))
+				first = raw;
+			else
+				complain(std::string(kKeyFirst) + ": the password on the line is not the one "
+					 "stored, so it is neither shown nor asked to be replaced");
+		}
+		forget(raw);
+	}
+
 	readPrefixList(m, cut, kKeyLanRead,
 		       "the line names networks this cannot read, so the list is empty and admits nobody. "
 		       "The seeded list is wider than any line naming a network, so falling back to it "
@@ -2175,7 +2345,8 @@ bool load(const std::string &path, const std::string &server_path)
 	Login l;
 	l.username = c.username;
 	l.password_hash = c.password_hash;
-	publishLogin(l);
+	publishLogin(l, first);
+	forget(first);
 	return true;
 }
 
@@ -2617,6 +2788,14 @@ bool saveWebSettings(const std::string &path, const WebSettings &s, std::string 
 			return false;
 		}
 
+		// a first password is written as it stands, so it has to read back as it stands
+		if (s.first_password && !survivesTheFile(s.password))
+		{
+			complain(std::string(kKeyFirst) + ": the password carries a byte that does not read back "
+				 "as it was written, and nothing is written");
+			return false;
+		}
+
 		hash = hashSecret(s.password);
 		if (hash.empty())
 		{
@@ -2632,6 +2811,7 @@ bool saveWebSettings(const std::string &path, const WebSettings &s, std::string 
 	{
 		OwnedLine one;
 		one.written = false;
+		one.drop = false;
 
 		one.key = kKeyUser;
 		one.value = s.username;
@@ -2657,6 +2837,15 @@ bool saveWebSettings(const std::string &path, const WebSettings &s, std::string 
 			one.key = kKeyHash;
 			one.value = hash;
 			owned.push_back(one);
+
+			/* The first password goes with the stored form it is, so it is written
+			   with it or taken out with it, and carried across with the rest where
+			   no password was typed: a name changed alone leaves the box asking
+			   for a password of the owner's own, as it did. */
+			one.key = kKeyFirst;
+			one.value = s.first_password ? s.password : std::string();
+			one.drop = !s.first_password;
+			owned.push_back(one);
 		}
 	}
 
@@ -2680,6 +2869,9 @@ bool saveWebSettings(const std::string &path, const WebSettings &s, std::string 
 			return false;
 
 		text = wholeFile(path);
+		if (s.change_password)
+			text = withLoginLines(text, s.first_password ? FirstLogin : OwnLogin, s.username,
+					      server_path);
 	}
 	else if (errno != ENOENT)
 	{
@@ -2691,7 +2883,8 @@ bool saveWebSettings(const std::string &path, const WebSettings &s, std::string 
 		/* The other way a box comes to have this file, the one that runs on
 		   every start being the first. This one is reached by a save at a box
 		   whose file was taken away under it. */
-		text = ownHead(s.username, s.change_password);
+		text = ownHead(s.username, s.change_password, s.change_password && s.first_password,
+			       server_path);
 	}
 
 	std::string out;
@@ -2726,16 +2919,19 @@ bool saveWebSettings(const std::string &path, const WebSettings &s, std::string 
 		   saying one thing twice is a file that can be read two ways. */
 		if (!owned[which].written)
 		{
-			appendPair(out, owned[which].key, owned[which].value);
+			if (!owned[which].drop)
+				appendPair(out, owned[which].key, owned[which].value);
 			owned[which].written = true;
 		}
 	}
 
 	for (size_t i = 0; i < owned.size(); ++i)
 	{
-		if (!owned[i].written)
+		if (!owned[i].written && !owned[i].drop)
 			appendPair(out, owned[i].key, owned[i].value);
 	}
+	for (size_t i = 0; i < owned.size(); ++i)
+		forget(owned[i].value);
 
 	/* nhttpd's file first and this one after, and the first put back when the
 	   second cannot be written, so a save answered false has not moved the port
@@ -2745,6 +2941,7 @@ bool saveWebSettings(const std::string &path, const WebSettings &s, std::string 
 		return false;
 
 	const bool replaced = replaceFile(path, out);
+	forget(out);
 	if (!replaced && move && !writeServerLines(server_path, server_before))
 		complain(server_path + " could not be put back, and says what this save was refused for");
 
@@ -2755,6 +2952,8 @@ bool saveWebSettings(const std::string &path, const WebSettings &s, std::string 
 	if (replaced && path == heldPath())
 	{
 		OpenThreads::ScopedLock<OpenThreads::Mutex> held_lock(loginLock());
+		if (s.change_password && s.first_password)
+			firstWritten() = true;
 		if (s.account_only)
 		{
 			if (pending().held)
@@ -2767,6 +2966,7 @@ bool saveWebSettings(const std::string &path, const WebSettings &s, std::string 
 			p.s = s;
 			p.s.password.clear();
 			p.s.change_password = false;
+			p.s.first_password = false;
 			p.new_password = s.change_password || (pending().held && pending().new_password);
 			p.restart_due = pending().held && pending().restart_due;
 			pending() = p;
@@ -2888,14 +3088,22 @@ bool migrateFrom(const std::string &nhttpd_conf, const std::string &out_path)
 	}
 
 	std::string hash;
+	std::string first;
 	bool has_password = false;
+	bool shipped = false;
 	{
 		std::string secret;
 		const bool has_secret = present(m, kOldPassword, secret) && !secret.empty();
-		const bool shipped = has_secret && isShippedPassword(secret);
+		shipped = has_secret && isShippedPassword(secret);
 
 		has_password = has_secret;
-		if (has_password)
+		if (shipped)
+		{
+			first = drawFirstPassword();
+			if (!first.empty())
+				hash = hashSecret(first);
+		}
+		else if (has_password)
 			hash = hashSecret(secret);
 		forget(secret);
 
@@ -2904,7 +3112,9 @@ bool migrateFrom(const std::string &nhttpd_conf, const std::string &out_path)
 			// The box would look configured and answer nothing that needs the
 			// password. Saying so and writing nothing is the loud half of the
 			// same outcome.
-			complain("the password could not be hashed, and nothing is written");
+			forget(first);
+			complain(shipped ? "no first password could be drawn and hashed, and nothing is written"
+					 : "the password could not be hashed, and nothing is written");
 			return false;
 		}
 
@@ -2913,12 +3123,14 @@ bool migrateFrom(const std::string &nhttpd_conf, const std::string &out_path)
 				 " is empty, so the new file carries no password and every request needing one is refused");
 		else if (shipped)
 		{
-			/* Said once, at the first start, and not a refusal: the login carried across
-			   is one every box has shipped with, and the first login asks for a password
-			   of the owner's own. The value is not repeated here, being one of a list. */
+			/* Said once, at the first start, and not a refusal: what stood there is a
+			   password every box has shipped with, which is not carried, a first
+			   password taking its place. The value is not repeated here, being one of
+			   a list. */
 			complain(std::string(kOldPassword) + " is a password these boxes have shipped "
-				 "with, and it is carried across; the first login asks for a password of "
-				 "your own");
+				 "with, which anybody can look up, so it is not carried across: the box "
+				 "drew a first password of its own, which its screen shows, and the first "
+				 "login asks for a password of your own");
 		}
 	}
 
@@ -2936,12 +3148,19 @@ bool migrateFrom(const std::string &nhttpd_conf, const std::string &out_path)
 	   read by whoever comes looking for the password weeks later. */
 	const std::vector<std::string> notes = problemsNow();
 
-	std::string text = migratedHead(user, has_password, nhttpd_conf, notes);
+	std::string text = migratedHead(user, has_password, nhttpd_conf, notes, shipped);
 
 	appendPair(text, kKeyUser, user);
 	appendPair(text, kKeyHash, hash);
+	if (shipped)
+		appendPair(text, kKeyFirst, first);
+	forget(first);
 
-	return writeNewFile(out_path, text);
+	const bool written = writeNewFile(out_path, text);
+	forget(text);
+	if (written && shipped)
+		noteFirstWritten();
+	return written;
 }
 
 /* The file under the name it had before, taken over as it stands: it is this
@@ -3049,7 +3268,7 @@ bool ensureConfigFile(const std::string &nhttpd_conf, const std::string &out_pat
 	if (!have_old)
 		clearProblems();
 
-	return writeShippedFile(out_path, nhttpd_conf, have_old);
+	return writeFirstFile(out_path, nhttpd_conf, have_old);
 }
 
 } // namespace httpd

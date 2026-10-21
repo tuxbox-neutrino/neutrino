@@ -169,8 +169,10 @@ bool isLoopbackPeer(const std::string &peer);
 const WebConfig &config();
 
 
-/* The password every box ships with (configure: WEB_DEFAULT_PASSWORD), which
-   the first login asks to replace. */
+/* The password the images carry for the old server (configure:
+   WEB_DEFAULT_PASSWORD), in the nhttpd.conf they install and as that server's
+   value for a file naming none. No access file is written with it: where a box
+   would have started on it, it starts on a first password (below). */
 extern const char kShippedPassword[];
 
 /* The passwords boxes of this line have shipped with, the one above among them,
@@ -179,14 +181,26 @@ extern const char kShippedPassword[];
 const char *const *shippedPasswords(size_t *count);
 bool isShippedPassword(const std::string &secret);
 
+/* A first password: what a box starts on instead of one of the above, drawn by
+   the box for itself, so no two boxes open to the same login and none opens to
+   one anybody can look up. The screen at the box shows it and the first login
+   asks to replace it, as it asks to replace a shipped one.
+
+   Ten characters out of an alphabet without the ones a person misreads off a
+   television (no i, l, o, 0 or 1), each drawn out of the system's random source
+   and none of them bent towards any letter. Empty when that source could not be
+   read, and then nothing is written with it. */
+const size_t kFirstPasswordChars = 10;
+std::string drawFirstPassword();
+
 // The fewest characters a password set for the account has.
 const size_t kMinPasswordChars = 8;
 
 /* Whether a password may be set for the account: at least kMinPasswordChars
    characters (counted as UTF-8 code points, as a person counts them), no
    control characters, and none of the shipped ones. why says what is wrong.
-   Every writer of the account's password asks this; the menu's reset to the
-   shipped login is the one deliberate exception. */
+   Every writer of the account's password asks this, and a first password
+   passes it. */
 bool passwordAcceptable(const std::string &password, std::string *why);
 
 /* Reads path and installs what it holds.
@@ -323,7 +337,25 @@ struct Login
 };
 
 Login loginInEffect();
-void publishLogin(const Login &l);
+
+/* The first password in effect, in plain: what the screen at the box shows when
+   asked, and empty unless the stored form in effect is that password. The file
+   holds it the same way, on a line of its own beside the stored form that goes
+   with the first change.
+
+   Not a member of Login, which every login check copies: this is the one
+   password the program holds as it stands, and it is held once. Published
+   together with the account by publishLogin, which drops it unless it is handed
+   one, under the same lock; a replaced one is wiped and not merely freed. */
+std::string firstPasswordInEffect();
+bool firstPasswordStands();
+void publishLogin(const Login &l, const std::string &first_password = std::string());
+
+/* Whether this run of the program wrote a first password into the file the
+   server reads: on a start that found no file, or one holding a password these
+   boxes shipped with, or at the menu of the box. Which is when the screen at the
+   box shows it without being asked. */
+bool firstPasswordWrittenThisRun();
 
 /* Held by load for the whole of a read, by a change to the account at the box
    (login_bridge::change) from reading what is in effect to publishing what it
@@ -358,10 +390,10 @@ private:
    list is public, and both halves of it reach a terminal. What is shown is
    escaped and cut short.
 
-   The one line that names a password names this file's own constant and not what
-   was read: it is said when the migration carries the value that server ships
-   with, which is in the source of every image and is the login these boxes take
-   over the network besides. Why it is said at all is under migrateFrom.
+   No line names a password. The migration says that the old file held one of
+   the passwords these boxes shipped with without saying which (migrateFrom), and
+   a first password is in the access file and on the screen of the box and
+   nowhere else.
 
    Bounded. A file within the size this reads can hold a quarter of a million
    unusable lines. When the ceiling is reached one last line says the rest were
@@ -499,6 +531,14 @@ struct WebSettings
 	std::string password;
 	bool        change_password;
 
+	/* Whether the password above is a first password (drawFirstPassword), which
+	   the file then keeps in plain beside its stored form until the next one is
+	   set. Read only together with change_password: any other password typed
+	   takes that line out of the file, and a save typing none leaves it as it
+	   stands, so a name changed alone does not let the box off the change it
+	   still asks for. */
+	bool        first_password = false;
+
 	/* Whether the pages show a picture beside a channel. The one value here that
 	   does not decide where the server answers or who may tell it anything, which
 	   is why it is the one a caller can move without being locked out by getting
@@ -617,29 +657,27 @@ bool reloadAndRestart(const std::string &path);
    is not carried: it stays in nhttpd_conf, which nhttpd goes on reading and which
    load reads it out of as well.
 
-   THE PASSWORD IS CARRIED WHATEVER THE SWITCH SAID AND WHATEVER THE VALUE IS.
+   THE PASSWORD IS CARRIED WHATEVER THE SWITCH SAID, AND REPLACED WHERE IT IS ONE
+   THESE BOXES SHIPPED WITH.
 
    That file ships with the switch its own server checks passwords under turned
    off, and with a password under it that is also compiled into that server as the
    value it uses when the file names none, so on a box nobody edited the value is
-   a constant anybody can read in the source. Refusing to carry it is wrong for
-   these boxes: the same string is the root login they take over the network, so
-   carrying it opens no door that is not open already, while refusing it would
-   leave every upgraded box with a web interface nobody can write through.
-
-   What is worth a line is the owner who changed that network login and never
-   opened this file. For them the value carried here is a password they did not
-   choose. So when what is carried is the shipped value, the problem list says
-   which value it is and that it is the same one the box takes over the network.
+   a constant anybody can read in the source. Carried, it would open the web
+   interface of every upgraded box to the same login. So a shipped value is not
+   carried: the file is written with a first password instead
+   (drawFirstPassword), which the screen of the box shows, and the problem list
+   says that the old file held one of the shipped passwords, without saying
+   which. Any other value is carried as it stands, being one somebody chose.
 
    A file carrying no password at all is the one case that writes none, and the
    written file says so in its first lines.
 
    WHAT THE WRITTEN FILE LEADS WITH IS THE LOGIN, and under it where to change it
-   and how to get back to the shipped one. The reader it is written for is whoever
+   and how to start over. The reader it is written for is whoever
    has just been refused a login and opened the file over a shell. Under that
    stands every key this reads, each with what it decides and with the default in
-   force the moment the file was written, and only the two above are written as
+   force the moment the file was written, and only the account is written as
    lines: a default written out as a line freezes the defaults of the day into a
    box that will never see tomorrow's, and this format has no inert line to write
    one on, the parser reading anything that carries the separator as a setting.
@@ -661,9 +699,9 @@ bool reloadAndRestart(const std::string &path);
 
    False and nothing written when the source cannot be read, when a value in it
    cannot be carried without changing what it says, when the password cannot be
-   hashed, or when out_path already exists. An existing file is a refusal and not
-   an overwrite, because the file it would overwrite is the one holding the
-   credential the box is running on.
+   hashed or a first password not drawn, or when out_path already exists. An
+   existing file is a refusal and not an overwrite, because the file it would
+   overwrite is the one holding the credential the box is running on.
 
    out_path is created with the mode it keeps and never a wider one. True means
    the file is there and will still be there after the power goes: the content is
@@ -684,9 +722,8 @@ bool migrateFrom(const std::string &nhttpd_conf, const std::string &out_path);
 
    So a name that is free gets a file, whatever happened to the migration. Where
    the old file was carried across, with its values. Where it was refused or there
-   was nothing to carry, with the state the image ships: user root and the
-   password that image already carries in the password file of the box. The
-   written file says which of the two it is, and says why in the words of the list
+   was nothing to carry, with user root and a first password the box draws for
+   itself (drawFirstPassword), which its screen shows. The written file says which of the two it is, and says why in the words of the list
    above, because the owner looks in the file and not in a boot log.
 
    True only when this call wrote out_path.
@@ -706,9 +743,9 @@ bool migrateFrom(const std::string &nhttpd_conf, const std::string &out_path);
 
      only the old file         the migration is attempted, and its refusal is
                                not the end: what it could not carry is written
-                               into the shipped file instead.
+                               into a file with a first password instead.
 
-     nothing at either name    the shipped file, which is also what a box
+     nothing at either name    a file with a first password, which is what a box
                                nobody ever configured now gets on its first
                                start.
 

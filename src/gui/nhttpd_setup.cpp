@@ -89,16 +89,16 @@ int CNhttpdSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 	return showSetup();
 }
 
-/* The web interface's login put back to the one every box ships with, for an
-   owner who no longer knows theirs: user root and the shipped password, which
-   the first login over the web asks to replace again. Asked first. */
+/* The web interface's login put back for an owner who no longer knows theirs:
+   user root and a new first password, which this shows and the first login over
+   the web asks to replace again. Asked first. */
 void CNhttpdSetup::resetPassword()
 {
 	if (ShowMsg(LOCALE_NETWORKMENU_HTTPD_RESET_PASSWORD, g_Locale->getText(LOCALE_NETWORKMENU_HTTPD_RESET_PASSWORD_ASK),
 		    CMsgBox::mbrNo, CMsgBox::mbYes | CMsgBox::mbNo) != CMsgBox::mbrYes)
 		return;
-	std::string why;
-	if (!login_bridge::change("root", WEB_DEFAULT_PASSWORD, &why, NULL, true))
+	std::string first, why;
+	if (!login_bridge::resetToFirstPassword(&first, &why))
 	{
 		printf("[CNhttpdSetup] %s: the web password was not reset: %s\n", __func__, why.c_str());
 		DisplayErrorMessage(g_Locale->getText(LOCALE_NETWORKMENU_HTTPD_RESET_PASSWORD_FAILED));
@@ -110,8 +110,10 @@ void CNhttpdSetup::resetPassword()
 	std::string done = g_Locale->getText(LOCALE_NETWORKMENU_HTTPD_RESET_PASSWORD_DONE);
 	const size_t at = done.find("%s");
 	if (at != std::string::npos)
-		done.replace(at, 2, WEB_DEFAULT_PASSWORD);
+		done.replace(at, 2, first);
+	first.assign(first.size(), '\0');
 	ShowMsg(LOCALE_NETWORKMENU_HTTPD_RESET_PASSWORD, done, CMsgBox::mbrOk, CMsgBox::mbOk, NEUTRINO_ICON_INFO);
+	done.assign(done.size(), '\0');
 }
 
 void CNhttpdSetup::loadConfig()
