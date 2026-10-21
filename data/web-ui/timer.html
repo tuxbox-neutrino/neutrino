@@ -3,7 +3,7 @@
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Neutrino-Web-UI - Timer</title>
+	<title data-l="nav.sub_timers" data-l-prefix="Neutrino-Web-UI - ">Neutrino-Web-UI - Timer list</title>
 	<link rel="icon" href="/favicon/favicon.ico">
 	<script>
 		// Apply the stored theme before first paint: webui-header.js runs
@@ -13,22 +13,186 @@
 	<link rel="stylesheet" href="/css/pico.min.css?v=1">
 	<link rel="stylesheet" href="/css/webui.css?v=90">
 	<style>
-		/* 2-column grid layout for timer. Filterspalte bemisst sich am
-		   laengsten Eintrag (Labels sind lokalisiert und verschieden
-		   lang — fix 220px schnitt die deutschen Namen ab), Deckel
-		   18rem; Mobile-Branch unten bleibt einspaltig wie gehabt */
-		main.webui-timer-grid {
+		/* The timer list (Phase 4): the filters beside the list on a wide
+		   screen, a choice above it on a phone; each timer a row with its
+		   kind, title, channel, time, its state and repetition, one main
+		   action, the others in a menu, and its details behind a button. */
+		.webui-timers {
 			display: grid;
-			grid-template-columns: fit-content(18rem) 1fr;
-			gap: 0.6rem;
-			padding: 0.5rem;
-			overflow: hidden;
+			grid-template-columns: fit-content(18rem) minmax(0, 1fr);
+			gap: 1rem;
+			align-items: start;
+			max-width: 1500px;
+			margin: 0 auto;
+			padding: 1rem;
 		}
 
-		@media (max-width: 800px) {
-			main.webui-timer-grid {
-				grid-template-columns: 1fr;
-				grid-template-rows: auto 1fr;
+		/* Pico lays a nav and the lists in it out as a row: here a column */
+		.webui-timers > nav.webui-timer-filters {
+			display: block;
+			position: sticky;
+			top: 0;
+		}
+
+		.webui-timer-filters ul.webui-filter-list {
+			display: block;
+			margin: 0;
+			padding: 0 0.35rem;
+			list-style: none;
+		}
+
+		.webui-timer-filters .webui-filter-list li {
+			display: block;
+			margin: 0;
+			padding: 0;
+		}
+
+		.webui-filter-list button {
+			--pico-color: inherit;
+			display: flex;
+			gap: 0.5rem;
+			align-items: center;
+			width: 100%;
+			margin: 0;
+			padding: 0.4rem 0.6rem;
+			border: 0;
+			border-radius: var(--webui-radius);
+			background: none;
+			box-shadow: none;
+			color: var(--pico-color);
+			font-size: var(--webui-font-sm);
+			text-align: left;
+		}
+
+		.webui-filter-list button svg {
+			flex: none;
+			width: 1rem;
+			height: 1rem;
+			color: var(--pico-muted-color);
+		}
+
+		.webui-filter-list button:hover {
+			background: var(--webui-bg-elevated);
+		}
+
+		.webui-filter-list button[aria-pressed="true"] {
+			background: var(--webui-accent-light);
+			color: var(--webui-accent);
+			font-weight: 600;
+		}
+
+		.webui-filter-list .webui-filter-count {
+			margin-left: auto;
+			min-width: 1.4em;
+			color: var(--pico-muted-color);
+			font-variant-numeric: tabular-nums;
+			text-align: right;
+		}
+
+		.webui-filter-new {
+			padding: 0.6rem 0.7rem 0.8rem;
+		}
+
+		.webui-filter-new .webui-btn {
+			width: 100%;
+			justify-content: center;
+		}
+
+		.webui-filter-pick,
+		.webui-timer-new-small {
+			display: none;
+		}
+
+		.webui-filter-pick {
+			flex: 1 1 10rem;
+			min-width: 0;
+			margin: 0;
+		}
+
+		.webui-filter-pick select {
+			margin: 0;
+			padding-top: 0.3rem;
+			padding-bottom: 0.3rem;
+			font-size: var(--webui-font-sm);
+		}
+
+		.webui-timer-side .webui-card-header {
+			flex-wrap: wrap;
+		}
+
+		.webui-card-value {
+			margin-left: auto;
+			color: var(--pico-muted-color);
+			font-variant-numeric: tabular-nums;
+		}
+
+		.webui-timer-list {
+			margin: 0;
+			padding: 0;
+			list-style: none;
+		}
+
+		/* the details button of a row */
+		.webui-timer-more {
+			--pico-color: inherit;
+			display: grid;
+			place-items: center;
+			width: 2rem;
+			height: 2rem;
+			margin: 0;
+			padding: 0;
+			border: 0;
+			border-radius: var(--webui-radius);
+			background: none;
+			box-shadow: none;
+			color: var(--pico-muted-color);
+		}
+
+		.webui-timer-more:hover {
+			background: var(--webui-bg-elevated);
+		}
+
+		.webui-timer-more svg {
+			width: 1rem;
+			height: 1rem;
+			transition: transform 0.2s ease;
+		}
+
+		.webui-timer-more[aria-expanded="true"] svg {
+			transform: rotate(180deg);
+		}
+
+		/* what is missing or what the box refused, in the form */
+		.webui-form-error {
+			margin: 0.6rem 0 0;
+			color: var(--webui-danger);
+			font-size: var(--webui-font-sm);
+			font-weight: 550;
+		}
+
+		.webui-form-error[hidden] {
+			display: none;
+		}
+
+		.webui-form-weekdays {
+			margin: 0;
+			padding: 0;
+			border: 0;
+		}
+
+		@media (max-width: 760px) {
+			.webui-timers {
+				grid-template-columns: minmax(0, 1fr);
+				padding: 0.75rem;
+			}
+
+			.webui-timers > nav.webui-timer-filters {
+				display: none;
+			}
+
+			.webui-filter-pick,
+			.webui-timer-new-small {
+				display: block;
 			}
 		}
 
@@ -45,15 +209,6 @@
 			font-weight: 600;
 		}
 
-		/* Abweichungen von .webui-nav-item/.webui-nav-count (webui.css) */
-		.webui-filter-item {
-			padding: 0.45rem 0.7rem;
-		}
-
-		.webui-filter-count {
-			min-width: 1.4em;
-			text-align: center;
-		}
 
 		/* Timer List Card */
 
@@ -251,75 +406,7 @@
 			font-weight: normal;
 		}
 
-		/* Mobile Accordion */
-		@media (max-width: 800px) {
-			.webui-timer-grid {
-				display: flex;
-				flex-direction: column;
-				gap: 0.4rem;
-				overflow: auto;
-			}
-
-			.webui-card-indicator {
-				display: flex;
-			}
-
-			.webui-filter-card,
-			.webui-timerlist-card {
-				flex: none;
-				max-height: none;
-				min-height: auto;
-			}
-
-			.webui-filter-card .webui-card-header,
-			.webui-timerlist-card .webui-card-header {
-				cursor: pointer;
-				position: relative;
-				padding-right: 2rem;
-			}
-
-			.webui-filter-card .webui-card-title,
-			.webui-timerlist-card .webui-card-title {
-				font-size: 0.9rem;
-			}
-
-			.webui-card.collapsed .webui-card-preview {
-				display: inline-block;
-			}
-
-			.webui-card.collapsed .webui-timer-count {
-				display: none;
-			}
-
-			/* Chevron indicator */
-			.webui-filter-card .webui-card-header::after,
-			.webui-timerlist-card .webui-card-header::after {
-				content: '▼';
-				position: absolute;
-				right: 0.5rem;
-				top: 50%;
-				transform: translateY(-50%);
-				font-size: 0.55rem;
-				color: var(--pico-muted-color);
-				transition: transform 0.2s ease;
-				pointer-events: none;
-			}
-
-			.webui-card:not(.collapsed) .webui-card-header::after {
-				transform: translateY(-50%) rotate(180deg);
-			}
-
-			.webui-filter-card .webui-card-body,
-			.webui-timerlist-card .webui-card-body {
-				display: block;
-				max-height: 60dvh;
-				overflow-y: auto;
-			}
-
-			.webui-card.collapsed .webui-card-body {
-				display: none;
-			}
-
+		@media (max-width: 760px) {
 			.webui-timer-row {
 				padding: 0.4rem 0.6rem;
 			}
@@ -330,19 +417,6 @@
 
 			.webui-timer-actions {
 				gap: 0.2rem;
-			}
-
-			.webui-timer-actions .webui-btn {
-				padding: 0.25rem 0.35rem;
-			}
-
-			.webui-timer-actions .webui-btn svg {
-				width: 13px;
-				height: 13px;
-			}
-
-			.webui-timer-detail {
-				margin-top: 0.4rem;
 			}
 
 			.webui-timer-row.row-expanded .webui-timer-detail {
@@ -510,99 +584,42 @@
 	<div class="webui-header-wrapper" data-page="timer"></div>
 	<div class="webui-header-spacer"></div>
 
-	<!-- Main Content: 2-Column Grid -->
-	<main class="webui-timer-grid">
-		<!-- Filter Card -->
-		<article class="webui-card webui-panel-card webui-card-sm webui-filter-card" id="card-filter">
-			<header class="webui-card-header" onclick="toggleCard('card-filter')">
-				<h3 class="webui-card-title">
-					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-						<polygon points="22,3 2,3 10,12.46 10,19 14,21 14,12.46"/>
-					</svg>
-					Filter
-				</h3>
-				<span class="webui-card-preview" id="filterPreview" data-l="tm.all">All</span>
-			</header>
-			<div class="webui-card-body">
-				<ul class="webui-plain-list webui-filter-list" id="filterList">
-					<li class="webui-filter-group-label">Typ</li>
-					<li class="webui-nav-item webui-filter-item active" data-filter="all" onclick="setFilter('all')">
-						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-							<circle cx="12" cy="12" r="10"/>
-							<line x1="2" y1="12" x2="22" y2="12"/>
-							<path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
-						</svg>
-						<span class="webui-nav-name webui-filter-name" data-l="tm.all">All</span>
-						<span class="webui-nav-count webui-filter-count" id="count-all">0</span>
-					</li>
-					<li class="webui-nav-item webui-filter-item" data-filter="type-5" onclick="setFilter('type-5')">
-						<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="8"/></svg>
-						<span class="webui-nav-name webui-filter-name" data-l="bc.recording">Recording</span>
-						<span class="webui-nav-count webui-filter-count" id="count-type-5">0</span>
-					</li>
-					<li class="webui-nav-item webui-filter-item" data-filter="type-3" onclick="setFilter('type-3')">
-						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5,3 19,12 5,21"/></svg>
-						<span class="webui-nav-name webui-filter-name" data-l="tm.zap">Zap</span>
-						<span class="webui-nav-count webui-filter-count" id="count-type-3">0</span>
-					</li>
-					<li class="webui-nav-item webui-filter-item" data-filter="type-4" onclick="setFilter('type-4')">
-						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18.364 5.636a9 9 0 11-12.728 12.728 9 9 0 0112.728-12.728zM12 3v4"/></svg>
-						<span class="webui-nav-name webui-filter-name">Standby</span>
-						<span class="webui-nav-count webui-filter-count" id="count-type-4">0</span>
-					</li>
-					<li class="webui-nav-item webui-filter-item" data-filter="type-6" onclick="setFilter('type-6')">
-						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6 6 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
-						<span class="webui-nav-name webui-filter-name" data-l="tm.remind">Reminder</span>
-						<span class="webui-nav-count webui-filter-count" id="count-type-6">0</span>
-					</li>
-					<li class="webui-filter-group-label">Status</li>
-					<li class="webui-nav-item webui-filter-item" data-filter="state-scheduled" onclick="setFilter('state-scheduled')">
-						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 6v6l4 2"/></svg>
-						<span class="webui-nav-name webui-filter-name" data-l="tm.planned">Planned</span>
-						<span class="webui-nav-count webui-filter-count" id="count-state-scheduled">0</span>
-					</li>
-					<li class="webui-nav-item webui-filter-item" data-filter="state-running" onclick="setFilter('state-running')">
-						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5,3 19,12 5,21"/></svg>
-						<span class="webui-nav-name webui-filter-name" data-l="tm.active">Active</span>
-						<span class="webui-nav-count webui-filter-count" id="count-state-running">0</span>
-					</li>
-					<li class="webui-nav-item webui-filter-item" data-filter="state-finished" onclick="setFilter('state-finished')">
-						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22,4 12,14.01 9,11.01"/></svg>
-						<span class="webui-nav-name webui-filter-name" data-l="tm.expired">Expired</span>
-						<span class="webui-nav-count webui-filter-count" id="count-state-finished">0</span>
-					</li>
-				</ul>
-				<div style="padding:0.5rem 0.8rem 0;">
-					<button class="webui-btn" onclick="openTimerModal()" style="display:flex;align-items:center;justify-content:center;gap:0.3rem;width:100%;padding:0.5rem;font-size:0.75rem;cursor:pointer;">
-						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:1rem;height:1rem"><path d="M12 5v14m-7-7h14"/></svg>
+	<main>
+		<div class="webui-timers">
+			<nav class="webui-card webui-timer-filters" aria-labelledby="filter-title">
+				<header class="webui-card-header">
+					<h2 class="webui-card-title" id="filter-title">
+						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M22 3H2l8 9.5V19l4 2v-8.5z"/></svg>
+						<span data-l="tm.filter">Filter</span>
+					</h2>
+				</header>
+				<p class="webui-filter-group-label" id="filter-type-label" data-l="tm.type">Type</p>
+				<ul class="webui-filter-list" id="filterTypes" aria-labelledby="filter-type-label"></ul>
+				<p class="webui-filter-group-label" id="filter-state-label" data-l="tm.state">State</p>
+				<ul class="webui-filter-list" id="filterStates" aria-labelledby="filter-state-label"></ul>
+				<div class="webui-filter-new">
+					<button type="button" class="webui-btn primary" onclick="openTimerModal()">
+						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" style="width:1rem;height:1rem"><path d="M12 5v14M5 12h14"/></svg>
 						<span data-l="timer.new">New timer</span>
 					</button>
 				</div>
-			</div>
-		</article>
+			</nav>
 
-		<!-- Timer List Card -->
-		<article class="webui-card webui-panel-card webui-card-sm webui-timerlist-card" id="card-timers">
-			<header class="webui-card-header" onclick="toggleCard('card-timers')">
-				<h3 class="webui-card-title">
-					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-						<circle cx="12" cy="12" r="9"/>
-						<path d="M12 6v6l4 2"/>
-					</svg>
-					<span id="timerListTitle">Timer</span>
-				</h3>
-				<span class="webui-card-preview" id="timerPreview">--</span>
-				<span class="webui-timer-count" id="timerCount"></span>
-			</header>
-			<div class="webui-card-body">
-				<ul class="webui-plain-list webui-timer-grid-list" id="timerList">
-					<li aria-busy="true" data-l="tm.loading">Loading timers...</li>
-				</ul>
-			</div>
-		</article>
-
-		<!-- Mobile Card Indicator -->
-		<div class="webui-card-indicator" id="cardIndicator"></div>
+			<section class="webui-card webui-timer-side" aria-labelledby="timerListTitle">
+				<header class="webui-card-header">
+					<h2 class="webui-card-title">
+						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+						<span id="timerListTitle" data-l="nav.sub_timers">Timer list</span>
+					</h2>
+					<label class="webui-filter-pick">
+						<select id="filterSelect" aria-label="Filter" data-l-aria-label="tm.filter"></select>
+					</label>
+					<span class="webui-card-value" id="timerCount"></span>
+					<button type="button" class="webui-btn primary webui-timer-new-small" onclick="openTimerModal()" data-l="timer.new">New timer</button>
+				</header>
+				<ul class="webui-timer-list" id="timerList"></ul>
+			</section>
+		</div>
 	</main>
 
 	<script src="/js/webui-i18n.js?v=2"></script>
