@@ -60,7 +60,7 @@ function netfsFields(table, e) {
 		netfsRow(webuiL('netfs.user', 'User'), input('user', e.user), id('user')),
 		netfsRow(webuiL('netfs.password', 'Password'), pass, id('password')),
 		e.has_password ? netfsRow('', webuiEl('small', {className: 'netfs-note'},
-			webuiL('netfs.pass_note', 'A stored password comes off when the slot is emptied.'))) : null);
+			webuiL('netfs.pass_note', 'A stored password comes off when the entry is emptied.'))) : null);
 	type.addEventListener('change', function() {
 		credentials.classList.toggle('visible', type.value === 'cifs');
 	});
@@ -98,7 +98,8 @@ function netfsSlot(table, e, open) {
 			var now = slot.classList.toggle('open');
 			head.setAttribute('aria-expanded', now ? 'true' : 'false');
 		}}},
-		webuiEl('span', {}, 'Slot ' + e.slot + ' ',
+		// counted from one, as people count; the box numbers its entries not
+		webuiEl('span', {}, webuiL('netfs.entry', 'Entry') + ' ' + (e.slot + 1) + ' ',
 			webuiEl('span', {className: 'netfs-summary', id: 'netfs_summary_' + e.slot}, netfsSummary(table, e))),
 		webuiMarkup(NETFS_CHEVRON));
 	slot.append(head, webuiEl('fieldset', {className: 'netfs-slot-body', id: 'netfs_body_' + e.slot}, netfsFields(table, e)));
@@ -155,6 +156,9 @@ async function netfsLoad() {
 	var mine = ++netfsShown;
 	var list = document.getElementById('netfs-slots');
 	netfsTabs();
+	// the first reading, and one after a failure: the shared loading state
+	if (!list.querySelector('.netfs-slot'))
+		list.replaceChildren(webuiState('loading', webuiL('msg.loading', 'Loading...')));
 	try {
 		var r = await webuiV1('GET', '/storage/netfs/' + table);
 		if (mine !== netfsShown) return;
@@ -163,7 +167,7 @@ async function netfsLoad() {
 		list.replaceChildren.apply(list, ((r && r.items) || []).map(function(e) { return netfsSlot(table, e, false); }));
 	} catch (e) {
 		if (mine !== netfsShown) return;
-		list.replaceChildren(webuiEl('p', {className: 'netfs-note'}, webuiL('msg.error', 'Error') + ': ' + webuiErrText(e)));
+		list.replaceChildren(webuiStateFor(e, {retry: netfsLoad}));
 		return;
 	}
 	/* What is mounted only after the forms: a share that is slow to say how
@@ -186,7 +190,7 @@ function netfsSwitch(table) {
 	netfsOutput('');
 	netfsShowFile(null);
 	document.getElementById('netfs-slots').replaceChildren(
-		webuiEl('p', {className: 'netfs-note'}, webuiL('msg.loading', 'Loading...')));
+		webuiState('loading', webuiL('msg.loading', 'Loading...')));
 	netfsLoad();
 }
 
@@ -246,14 +250,14 @@ async function netfsSave(table, i) {
 }
 
 function netfsClear(table, i) {
-	webuiShowConfirm(webuiL('netfs.clear_title', 'Empty slot %s?').replace('%s', i),
+	webuiShowConfirm(webuiL('netfs.clear_title', 'Empty entry %s?').replace('%s', i + 1),
 		webuiLH('netfs.clear_text', 'The entry is taken out of the file, its password with it. Nothing that is mounted is unmounted.'),
 		webuiL('netfs.clear', 'Empty'),
 		async function() {
 			if (await netfsWrite(table, i, function() {
 				return webuiV1('DELETE', '/storage/netfs/' + table + '/' + i);
 			}))
-				webuiShowToast(webuiL('netfs.cleared', 'Slot emptied'));
+				webuiShowToast(webuiL('netfs.cleared', 'Entry emptied'));
 		});
 }
 

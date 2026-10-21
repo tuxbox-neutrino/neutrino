@@ -3,7 +3,7 @@
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Neutrino-Web-UI - Network filesystems</title>
+	<title data-l="manifest.name" data-l-prefix="Neutrino-Web-UI - ">Neutrino-Web-UI - Network filesystems</title>
 	<link rel="icon" href="/favicon/favicon.ico">
 	<script>
 		// Apply the stored theme before first paint: webui-header.js runs
@@ -68,7 +68,9 @@
 			overflow: hidden;
 		}
 
+		/* a button: Pico's own colour for one is the accent's contrast */
 		.netfs-slot-head {
+			--pico-color: inherit;
 			display: flex;
 			align-items: center;
 			justify-content: space-between;
