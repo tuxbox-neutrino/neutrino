@@ -43,7 +43,16 @@ async function runSettingsAction(aid, btn) {
 		webuiShowToast(webuiL('set.ext_action_old', 'This action is written for an older extension contract and cannot run'), true);
 		return;
 	}
-	if (f.confirm && !confirm(f.confirm)) return;
+	if (f.confirm) {
+		// the question is the manifest's text, the dialog takes markup
+		webuiShowConfirm(f.label || f.button || '', escapeHtml(f.confirm),
+			f.button || f.label || webuiL('msg.ok', 'OK'), function() { return runSettingsActionNow(f, btn); }, {variant: 'ok'});
+		return;
+	}
+	await runSettingsActionNow(f, btn);
+}
+
+async function runSettingsActionNow(f, btn) {
 	var orig = btn.textContent;
 	btn.disabled = true;
 	btn.textContent = '...';
@@ -538,11 +547,11 @@ async function saveExtConfig(catId, cfgName, btn) {
 // puts it back itself and restarts
 function renderBackupPanel() {
 	return '<div class="settings-card">' + makeCardHeader(webuiL('set.backup_title', 'Backup and restore')) +
-		'<div class="webui-form-section"><div class="webui-form-section-title">Backup</div>' +
+		'<div class="webui-form-section"><div class="webui-form-section-title">' + webuiLH('set.backup_section', 'Backup') + '</div>' +
 		'<div class="webui-form-row"><label>' + webuiLH('set.backup_label', 'Back up settings') + ' <small style="color:var(--pico-muted-color)">' + webuiLH('set.backup_hint', 'creates an archive and downloads it') + '</small></label>' +
 		'<span class="webui-row-actions">' +
 		'<button type="button" class="webui-btn primary" onclick="doSettingsBackup(this)">' + DL_ICON + webuiLH('set.backup_btn', 'Create backup') + '</button></span></div></div>' +
-		'<div class="webui-form-section"><div class="webui-form-section-title">Restore</div>' +
+		'<div class="webui-form-section"><div class="webui-form-section-title">' + webuiLH('set.restore_section', 'Restore') + '</div>' +
 		'<div class="webui-form-row"><label>' + webuiLH('set.restore_label', 'Restore an archive') + ' <small style="color:var(--pico-muted-color)">' + webuiLH('set.restore_hint', 'the box restarts by itself') + '</small></label>' +
 		'<span class="webui-row-actions">' + makeFileControl('restoreFile') +
 		'<button type="button" class="webui-btn danger" onclick="doSettingsRestore(this)">' + RESTORE_ICON + webuiLH('set.restore_btn', 'Restore') + '</button></span></div></div></div>';
@@ -670,12 +679,15 @@ async function loadExtensionsPanel() {
 				extPlaces().map(function(pl) {
 					return '<option value="' + pl.value + '"' + (extPlaceOf(m) === pl.value ? ' selected' : '') + '>' + escapeHtml(pl.label) + '</option>';
 				}).join('') + '</select></div>' +
-				'<div class="ext-cell-center"><label class="webui-toggle"><input type="checkbox" id="extena_' + m.dir + '"' + (m.enabled ? ' checked' : '') + '>' +
+				'<div class="ext-cell-center"><label class="webui-toggle"><input type="checkbox" id="extena_' + m.dir + '"' + (m.enabled ? ' checked' : '') +
+				' aria-label="' + webuiLH('set.ext_col_on', 'Active') + ': ' + escapeHtml(m.name) + '">' +
 				'<span class="webui-toggle-slider"></span></label></div>' +
 				'<div class="ext-actions">' +
-				(upd ? '<button type="button" class="webui-btn primary" title="' + webuiLH('set.extup_avail', 'Update available') + '" onclick="extUpdate(\'' + m.dir + '\', this)">' +
+				(upd ? '<button type="button" class="webui-btn primary" title="' + webuiLH('set.extup_avail', 'Update available') + '"' +
+					' aria-label="' + webuiLH('set.extup_to', 'Update') + ': ' + escapeHtml(m.name) + ' v' + escapeHtml(upd.version) + '" onclick="extUpdate(\'' + m.dir + '\', this)">' +
 					DL_ICON + 'v' + escapeHtml(upd.version) + '</button>' : '') +
-				'<button type="button" class="webui-btn danger" title="' + webuiLH('set.extuninst_btn', 'Uninstall') + '" onclick="extUninstall(\'' + m.dir + '\')">' + TRASH_ICON + '</button>' +
+				'<button type="button" class="webui-btn danger" title="' + webuiLH('set.extuninst_btn', 'Uninstall') + '"' +
+					' aria-label="' + webuiLH('set.extuninst_btn', 'Uninstall') + ': ' + escapeHtml(m.name) + '" onclick="extUninstall(\'' + m.dir + '\')">' + TRASH_ICON + '</button>' +
 				'</div>';
 		});
 		html += '</div></div>' + makePanelSaveRow('saveExtensions(this)');
@@ -1133,7 +1145,11 @@ async function saveXmltv(btn) {
 	});
 	var owed = xmltvOwed();
 	if (!changed.length && !owed.length) { webuiShowToast(webuiL('set.nochanges', 'No changes')); return; }
-	if (!confirm(webuiL('set.xmltv_confirm', 'Replace the source lists and reload the channel lists?'))) return;
+	webuiShowConfirm(webuiL('bqe.save', 'Save'), webuiLH('set.xmltv_confirm', 'Replace the source lists and reload the channel lists?'),
+		webuiL('bqe.save', 'Save'), function() { return saveXmltvNow(btn, changed, owed); }, {variant: 'ok'});
+}
+
+async function saveXmltvNow(btn, changed, owed) {
 	// what this save answers for; an upload finishing meanwhile stays owed
 	var upto = {webtv: XMLTV_UPLOADS.webtv, webradio: XMLTV_UPLOADS.webradio};
 	// with nothing changed an upload's list goes as it stands: the reload that
@@ -1163,7 +1179,7 @@ async function saveXmltv(btn) {
 
 // Zapit-Upload: Kanal-/Bouquet-XML hochladen und aktivieren
 function renderZapitUploadPanel() {
-	return '<div class="settings-card">' + makeCardHeader('Zapit-Upload') +
+	return '<div class="settings-card">' + makeCardHeader(webuiL('set.zapit_title', 'Channel list import')) +
 		'<div class="webui-form-section"><div class="webui-form-section-title">' + webuiLH('set.zapit_section', 'Import a channel list file') + '</div>' +
 		'<div class="webui-form-row"><label>' + webuiLH('set.zapit_target', 'Target') + '</label>' +
 		'<select id="zapitTarget"><option>ubouquets.xml</option><option>bouquets.xml</option><option>services.xml</option><option>myservices.xml</option></select></div>' +
@@ -1183,7 +1199,12 @@ async function doZapitUpload(btn) {
 	var target = (document.getElementById('zapitTarget') || {}).value;
 	var status = document.getElementById('zapitStatus');
 	if (!inp || !inp.files || !inp.files.length) { webuiShowToast(webuiL('inst.nofile', 'No file selected'), true); return; }
-	if (!confirm(target + ' ' + webuiL('set.zapit_confirm', 'really replace?'))) return;
+	webuiShowConfirm(webuiL('set.zapit_btn', 'Upload and activate'),
+		'<b>' + escapeHtml(target) + '</b>: ' + webuiLH('set.zapit_confirm', 'replace it with the uploaded file?'),
+		webuiL('set.zapit_btn', 'Upload and activate'), function() { return doZapitUploadNow(btn, inp, target, status); });
+}
+
+async function doZapitUploadNow(btn, inp, target, status) {
 	btn.disabled = true;
 	if (status) status.textContent = webuiL('inst.uploading', 'Uploading') + '…';
 	var file = 'zapit-' + Math.random().toString(36).slice(2, 10) + '.xml';
@@ -1359,13 +1380,19 @@ function shareSummary(sh) {
 		' · ' + shareStateName(sh.state);
 }
 
+// A share's place, opened and closed by its head, a button that says which
 function shareSlot(sh, open) {
-	var chevron = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>';
+	var chevron = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>';
+	var head = webuiEl('button', {type: 'button', className: 'mount-slot-header',
+		attrs: {'aria-expanded': open ? 'true' : 'false', 'aria-controls': 'share_body_' + sh.slot},
+		on: {click: function() {
+			head.setAttribute('aria-expanded', slot.classList.toggle('open') ? 'true' : 'false');
+		}}},
+		webuiEl('span', {}, webuiL('set.mnt_slot', 'Place') + ' ' + sh.slot + ' ',
+			webuiEl('span', {className: 'slot-summary', id: 'share_summary_' + sh.slot}, shareSummary(sh))),
+		webuiMarkup(chevron));
 	var slot = webuiEl('div', {className: 'mount-slot' + (open ? ' open' : ''), id: 'mount-slot-' + sh.slot},
-		webuiEl('div', {className: 'mount-slot-header', on: {click: function() { slot.classList.toggle('open'); }}},
-			webuiEl('span', {}, 'Slot ' + sh.slot + ' ',
-				webuiEl('span', {className: 'slot-summary', id: 'share_summary_' + sh.slot}, shareSummary(sh))),
-			webuiMarkup(chevron)),
+		head,
 		webuiEl('fieldset', {className: 'mount-slot-body', id: 'share_body_' + sh.slot,
 			style: {border: '0', margin: '0', padding: '0', 'min-width': '0'}},
 			// an FTP share (lufs) is set, mounted and unmounted at the box only
@@ -1495,7 +1522,7 @@ async function mountAutomaticShares(btn) {
 		else if (failed.length === 0)
 			webuiShowToast(items.length + ' ' + webuiL('set.mnt_auto_done', 'mounted'));
 		else
-			webuiShowToast(failed.map(function(o) { return 'Slot ' + o.slot + ': ' + o.detail; }).join('; '), true);
+			webuiShowToast(failed.map(function(o) { return webuiL('set.mnt_slot', 'Place') + ' ' + o.slot + ': ' + o.detail; }).join('; '), true);
 		// only the summaries: what was typed into a slot and not saved stays
 		var now = await webuiV1('GET', '/storage/shares');
 		updateShares((now && now.items) || [], -1);
@@ -1503,6 +1530,165 @@ async function mountAutomaticShares(btn) {
 		webuiToastError(webuiL('msg.error', 'Error'), e);
 	}
 	btn.disabled = false;
+}
+
+// ---- search -------------------------------------------------------------------
+
+/* The search goes over every setting the page draws, by its name and by its
+   key (what stands in the settings file, and what a forum post names), and
+   over the categories. A hit leads to its category, opens what holds it,
+   and puts the focus on its field. */
+var _settingsFindable = null;
+
+function settingsCatLabels() {
+	var labels = {};
+	v1setCategories().forEach(function(c) { labels[c.id] = c.label; });
+	Object.keys(EXT_SETTINGS_CATS).forEach(function(cid) { labels[cid] = EXT_SETTINGS_CATS[cid].label; });
+	return labels;
+}
+
+function settingsFindable() {
+	var out = v1setFindable();
+	var seen = {};
+	out.forEach(function(h) { seen[h.id] = true; });
+	// what the registry draws itself: a kept category's fields, and those
+	// of a category dissolved into a section, below that section's rows
+	SETTINGS_REGISTRY.forEach(function(cat) {
+		if (!_v1setNeutrinoCat(cat))
+			return;
+		var into = V1SET.dissolved[cat.id] || (V1SET.bySection[cat.id] ? '' : cat.id);
+		if (!into)
+			return;
+		(cat.sections || []).forEach(function(sec) {
+			sec.fields.forEach(function(f) {
+				if (!f.key || seen[f.key] || typeof f.label !== 'string' || v1setDeclared(f.key))
+					return;
+				if ((V1SET.dissolved[cat.id] || cat.requireKeys) && !hasConfigKey(f.key))
+					return;
+				seen[f.key] = true;
+				out.push({id: f.key, label: f.label, cat: into, sub: sec.title || '',
+					row: '[data-key="' + CSS.escape(f.key) + '"]'});
+			});
+		});
+	});
+	// the categories with a file of their own (the web interface, the web
+	// server, an extension), whose fields are drawn once that file is read
+	var own = SETTINGS_REGISTRY.filter(function(cat) {
+		return !cat.custom && cat.config && cat.config !== 'neutrino' && !V1SET.bySection[cat.id] && !V1SET.dissolved[cat.id];
+	}).concat(Object.keys(EXT_SETTINGS_CATS).map(function(cid) { return EXT_SETTINGS_CATS[cid]; }));
+	own.forEach(function(cat) {
+		(cat.sections || []).forEach(function(sec) {
+			(sec.fields || []).forEach(function(f) {
+				if (!f.key || typeof f.label !== 'string' || f.type === 'info' || f.type === 'action')
+					return;
+				out.push({id: f.key, label: f.label, cat: cat.id, sub: typeof sec.title === 'string' ? sec.title : '',
+					row: '[data-key="' + CSS.escape(f.key) + '"]'});
+			});
+		});
+	});
+	var labels = settingsCatLabels();
+	Object.keys(labels).forEach(function(cid) {
+		out.push({id: cid, label: labels[cid], cat: cid, sub: '', kind: 'cat'});
+	});
+	return out;
+}
+
+function settingsSearch(query) {
+	var hits = document.getElementById('settingsHits');
+	var content = document.getElementById('settingsContent');
+	var count = document.getElementById('settingsSearchCount');
+	var words = query.trim().toLowerCase().split(/\s+/).filter(Boolean);
+	if (!words.length) {
+		hits.hidden = true;
+		hits.replaceChildren();
+		content.hidden = false;
+		count.textContent = '';
+		return;
+	}
+	if (!_settingsFindable)
+		_settingsFindable = settingsFindable();
+	var labels = settingsCatLabels();
+	var found = _settingsFindable.filter(function(h) {
+		var hay = (h.label + ' ' + h.id + ' ' + h.sub).toLowerCase();
+		return words.every(function(w) { return hay.indexOf(w) >= 0; });
+	});
+	// the categories first, then the settings in the order the box names them
+	found.sort(function(a, b) { return (a.kind === 'cat' ? 0 : 1) - (b.kind === 'cat' ? 0 : 1); });
+	var settings = found.filter(function(h) { return h.kind !== 'cat'; }).length;
+	var total = _settingsFindable.filter(function(h) { return h.kind !== 'cat'; }).length;
+	count.textContent = webuiL('set.search_hits', '{count} of {total} settings')
+		.replace('{count}', settings).replace('{total}', total);
+	content.hidden = true;
+	hits.hidden = false;
+	if (!found.length) {
+		hits.replaceChildren(webuiState('empty', webuiL('set.search_none', 'No setting found'),
+			webuiL('set.search_none_text', 'None is called that and none has that key.')));
+		return;
+	}
+	var list = webuiEl('ul', {className: 'webui-plain-list webui-set-hits'});
+	found.slice(0, 80).forEach(function(h) {
+		var place = h.kind === 'cat' ? webuiL('set.search_cat', 'Category') : [labels[h.cat] || h.cat, h.sub].filter(Boolean).join(' \u00b7 ');
+		list.appendChild(webuiEl('li', {}, webuiEl('button', {type: 'button', className: 'webui-set-hit',
+			on: {click: function() { settingsGo(h); }}},
+			webuiEl('span', {className: 'webui-set-hit-name'}, h.label),
+			webuiEl('span', {className: 'webui-set-hit-place'}, place),
+			h.kind === 'cat' ? null : webuiEl('code', {className: 'webui-set-hit-key'}, h.id))));
+	});
+	var parts = [list];
+	if (found.length > 80)
+		parts.push(webuiEl('p', {className: 'webui-text-muted'},
+			webuiL('set.search_more', 'More are found than shown; a further word narrows the list.')));
+	hits.replaceChildren.apply(hits, parts);
+}
+
+// A row of a panel, waited for a moment: a category with a file of its own
+// draws its fields once it has read that file
+async function settingsRowIn(panel, selector) {
+	for (var i = 0; i < 40; i++) {
+		var found = panel.querySelector(selector);
+		if (found || !panel.isConnected)
+			return found;
+		await new Promise(function(done) { setTimeout(done, 100); });
+	}
+	return null;
+}
+
+// To a hit: its category, the row opened and in sight, the focus on its field
+async function settingsGo(h) {
+	var field = document.getElementById('settingsSearch');
+	field.value = '';
+	settingsSearch('');
+	switchCategory(h.cat);
+	var panel = document.getElementById('panel-' + h.cat);
+	if (!panel)
+		return;
+	var target = h.row ? await settingsRowIn(panel, h.row) : null;
+	var row = target && (target.closest('.webui-form-row') || target);
+	if (!row || activeCategory !== h.cat) {
+		var first = panel.querySelector('h3, .settings-card-header');
+		if (first && activeCategory === h.cat) {
+			first.tabIndex = -1;
+			first.focus();
+		}
+		return;
+	}
+	// the filter on what differs, or a folded group, may hide it or what holds it
+	for (var n = row; n && n !== panel; n = n.parentElement) {
+		n.hidden = false;
+		if (n.tagName === 'DETAILS')
+			n.open = true;
+	}
+	row.scrollIntoView({block: 'center'});
+	row.classList.remove('is-found');
+	void row.offsetWidth;	// the mark starts again on a second visit
+	row.classList.add('is-found');
+	var ctl = row.matches('[data-key], [data-v1key]') ? row : row.querySelector('[data-v1key], [data-key]');
+	if (ctl && !ctl.disabled && ctl.type !== 'hidden') {
+		ctl.focus({preventScroll: true});
+	} else {
+		row.tabIndex = -1;
+		row.focus({preventScroll: true});
+	}
 }
 
 // M5b: Sidebar nach SETTINGS_GROUPS gruppiert (Zwischentitel + Icon je
@@ -1662,12 +1848,40 @@ async function saveSettings() {
 
 	// no edits while the box answers and the form is drawn again: a
 	// refusal arriving late must not replace a newer input
-	settingsBusy(true);
-	try {
-		await saveSettingsNow(values, params, changed, v1dirty);
-	} finally {
-		settingsBusy(false);
-	}
+	var go = async function() {
+		settingsBusy(true);
+		try {
+			await saveSettingsNow(values, params, changed, v1dirty);
+		} finally {
+			settingsBusy(false);
+		}
+	};
+	var risks = settingsRisks(v1dirty);
+	if (risks.length)
+		webuiShowConfirm(webuiL('set.risk_title', 'Save it?'), risks.map(escapeHtml).join('<br><br>'),
+			webuiL('bqe.save', 'Save'), go);
+	else
+		await go();
+}
+
+/* Settings whose write can leave the box out of reach of whoever sits in
+   front of it: a picture the TV cannot show is a black screen, a remote
+   control of another kind answers to no key. The box says no such thing
+   about a row, so the page asks in its own words before such a write. */
+var SETTINGS_RISKS = {
+	video_Mode: ['set.risk_video', 'The box switches the resolution at once. If the TV cannot show it, the screen stays black; it can be switched back here.'],
+	remote_control_hardware: ['set.risk_rc', 'The box switches the kind of remote control. If it is not the one in your hand, the box answers to no key, and only this web interface can switch it back.']
+};
+
+function settingsRisks(v1dirty) {
+	var out = [];
+	Object.keys(SETTINGS_RISKS).forEach(function(key) {
+		var item = V1SET.items[key];
+		var body = item && v1dirty.bySection[item.section];
+		if (body && body[key] !== undefined)
+			out.push(webuiL(SETTINGS_RISKS[key][0], SETTINGS_RISKS[key][1]));
+	});
+	return out;
 }
 
 // Locks the form and the save bar while a write is answered (saving,
@@ -1790,6 +2004,7 @@ async function loadSettings() {
 
 	// Clear cached panels — config changed
 	renderedPanels = {};
+	_settingsFindable = null;
 	document.getElementById('settingsContent').innerHTML = '';
 
 	// Determine active category from hash or default to first
@@ -1799,6 +2014,11 @@ async function loadSettings() {
 	buildNavigation();
 	switchCategory(targetCategory);
 	webuiUpdateSaveBar();
+	// the search has its rows now; a word typed meanwhile is looked up again
+	var find = document.getElementById('settingsSearch');
+	find.disabled = false;
+	if (find.value)
+		settingsSearch(find.value);
 }
 
 // The category the address names; one dissolved into a section of the
@@ -1827,6 +2047,70 @@ document.getElementById('settingsContent').addEventListener('change', function(e
 // ein abgelehnter Wert, den der Nutzer wieder bearbeitet, ist erledigt
 document.getElementById('settingsContent').addEventListener('input', function(e) { v1setEdited(e.target); });
 document.getElementById('settingsContent').addEventListener('change', function(e) { v1setEdited(e.target); });
+// what a row differs in, from delivery and from what the box holds
+document.getElementById('settingsContent').addEventListener('input', function(e) { v1setMarkFor(e.target); settingsMarkRegistry(e.target); });
+document.getElementById('settingsContent').addEventListener('change', function(e) { v1setMarkFor(e.target); settingsMarkRegistry(e.target); });
+
+// A field of the old interface changed and not saved carries the same edge
+// as a row of the box, held as webuiCountDirty holds it; the filter on what
+// differs keeps it in sight
+function settingsMarkRegistry(el) {
+	if (!el || !el.getAttribute || !el.hasAttribute('data-key') || el.hasAttribute('data-extcfg'))
+		return;
+	var row = el.closest('.webui-form-row');
+	if (!row || row.hasAttribute('data-v1row'))
+		return;
+	var v = el.type === 'checkbox' ? (el.checked ? el.getAttribute('data-on') : el.getAttribute('data-off')) : el.value;
+	var origKey = el.getAttribute('data-key').replace(/\./g, '_dot_').replace(/-/g, '_bind_');
+	row.classList.toggle('is-edited', v !== (configData[origKey] || ''));
+}
+
+// The search: as typed; Escape empties it, Enter goes to the first hit and
+// the arrow down into the list
+(function() {
+	var field = document.getElementById('settingsSearch');
+	field.addEventListener('input', function() { settingsSearch(field.value); });
+	field.addEventListener('keydown', function(e) {
+		if (e.key === 'Escape' && field.value) {
+			e.preventDefault();
+			field.value = '';
+			settingsSearch('');
+		} else if (e.key === 'Enter') {
+			var hit = document.querySelector('#settingsHits .webui-set-hit');
+			if (hit) {
+				e.preventDefault();
+				hit.click();
+			}
+		} else if (e.key === 'ArrowDown') {
+			var first = document.querySelector('#settingsHits .webui-set-hit');
+			if (first) {
+				e.preventDefault();
+				first.focus();
+			}
+		}
+	});
+	// up and down within the hits, up from the first back into the field;
+	// Escape empties the search from there too
+	document.getElementById('settingsHits').addEventListener('keydown', function(e) {
+		if (e.key === 'Escape') {
+			e.preventDefault();
+			field.value = '';
+			settingsSearch('');
+			field.focus();
+			return;
+		}
+		if (e.key !== 'ArrowDown' && e.key !== 'ArrowUp')
+			return;
+		var list = Array.prototype.slice.call(document.querySelectorAll('#settingsHits .webui-set-hit'));
+		var i = list.indexOf(document.activeElement);
+		if (i < 0)
+			return;
+		e.preventDefault();
+		var next = e.key === 'ArrowDown' ? list[i + 1] : (i ? list[i - 1] : field);
+		if (next)
+			next.focus();
+	});
+})();
 
 // The rows' labels are written in settings-registry.js, which is read once
 // the texts are in: it states them as it loads, the start pages to choose

@@ -31,9 +31,11 @@ var V1SET = {
 	values: Object.create(null),	// key -> value as last read
 	pending: Object.create(null),	// key -> {value, error} after a refused save
 	cleared: Object.create(null),	// credentials emptied here, so known to hold nothing
-	claimed: Object.create(null),	// keys a kept registry category draws
+	claimed: Object.create(null),	// key -> the kept registry category that draws it
 	dissolved: Object.create(null),	// registry category id -> section it went into
 	regLabels: Object.create(null),	// key -> registry label, for rows without one
+	doubled: Object.create(null),	// keys whose name comes twice in their section
+	driftOnly: false,		// only the rows that differ from delivery are shown
 	keys: null,			// [{code, name}] the box names for key rows, null when unread
 	channels: Object.create(null),	// channel list -> promise of [{id, name}], read when first drawn
 	unavailable: Object.create(null),	// keys the box declares and does not have
@@ -219,11 +221,26 @@ function _v1setArrange() {
 			sec.fields.forEach(function(f) {
 				if (!f.key || !V1SET.items[f.key])
 					return;
-				if (!into)
-					V1SET.claimed[f.key] = true;
+				if (!into && !V1SET.claimed[f.key])
+					V1SET.claimed[f.key] = cat.id;
 				if (!V1SET.regLabels[f.key] && typeof f.label === 'string')
 					V1SET.regLabels[f.key] = f.label;
 			});
+		});
+	});
+	// names that come twice in one section get what each one is about
+	V1SET.doubled = Object.create(null);
+	Object.keys(V1SET.bySection).forEach(function(section) {
+		var seen = Object.create(null);
+		V1SET.bySection[section].forEach(function(item) {
+			if (!_v1setDrawn(item))
+				return;
+			var name = _v1setBaseLabel(item);
+			(seen[name] = seen[name] || []).push(item.id);
+		});
+		Object.keys(seen).forEach(function(name) {
+			if (seen[name].length > 1)
+				seen[name].forEach(function(key) { V1SET.doubled[key] = true; });
 		});
 	});
 }
@@ -430,12 +447,86 @@ var V1SET_PART_LABELS = {
 	'weather_location': ['set.own.weather_coords', 'Weather location: coordinates']
 };
 
-function _v1setLabel(item) {
-	var part = Object.prototype.hasOwnProperty.call(V1SET_PART_LABELS, item.id) ? V1SET_PART_LABELS[item.id] : null;
+/* Rows of one section the box names alike, because its menus show them in
+   submenus of their own, or as one item for two numbers: what each one is
+   about, said after the name where the name comes twice in its section
+   (V1SET.doubled). */
+var V1SET_QUALIFIERS = {
+	'network_nfs_audioplayerdir': ['set.q.audioplayer', 'audio player'],
+	'network_nfs_picturedir': ['set.q.pictureviewer', 'picture viewer'],
+	'window_width': ['set.q.width', 'width'],
+	'window_height': ['set.q.height', 'height'],
+	'menu_pos': ['set.q.menus', 'menus'],
+	'infobar_progressbar': ['set.q.infobar_bar', 'progress bar in the infobar'],
+	'channellist_additional': ['set.q.channellist', 'channel list'],
+	'eventlist_additional': ['set.q.eventlist', 'event list'],
+	'volume_size': ['set.q.volume', 'volume bar'],
+	'infoClockFontSize': ['set.q.clock', 'clock']
+};
+
+/* The edges of the picture the box draws its menus in, for each of its two
+   screens and each of two resolutions: sixteen numbers its own menu sets by
+   moving two coloured marks, and names by those colours. Here each number
+   is named by the edge it holds, and the four of one screen and resolution
+   are one group (_v1setGroupOf). */
+var V1SET_SCREEN = /^screen_(Start|End)(X|Y)_([ab])_(\d+)$/;
+var V1SET_SCREEN_EDGES = {
+	StartX: ['set.edge_left', 'Left edge'], StartY: ['set.edge_top', 'Top edge'],
+	EndX: ['set.edge_right', 'Right edge'], EndY: ['set.edge_bottom', 'Bottom edge']
+};
+
+function _v1setHas(map, key) {
+	return Object.prototype.hasOwnProperty.call(map, key) ? map[key] : null;
+}
+
+// a row's name before what tells doubled names apart
+function _v1setBaseLabel(item) {
+	var edge = V1SET_SCREEN.exec(item.id);
+	if (edge) {
+		var e = V1SET_SCREEN_EDGES[edge[1] + edge[2]];
+		return webuiL(e[0], e[1]);
+	}
+	var part = _v1setHas(V1SET_PART_LABELS, item.id);
 	var partner = part && item.pair ? V1SET.items[item.pair] : null;
 	if (part && item.label && partner && partner.label === item.label)
 		return webuiL(part[0], part[1]);
 	return item.label || V1SET.regLabels[item.id] || _v1setOwnLabel(item.id) || item.id;
+}
+
+function _v1setLabel(item) {
+	var label = _v1setBaseLabel(item);
+	var q = V1SET.doubled[item.id] ? _v1setHas(V1SET_QUALIFIERS, item.id) : null;
+	return q ? label + ' (' + webuiL(q[0], q[1]) + ')' : label;
+}
+
+// The group a row is drawn in within its section, {key, title}, or null:
+// the edges of one screen at one resolution, named by the screen as the
+// box's choice of it does and by the size the edges' bounds give
+function _v1setGroupOf(item) {
+	var m = V1SET_SCREEN.exec(item.id);
+	if (!m)
+		return null;
+	var preset = V1SET.items.screen_preset;
+	var choice = preset && (preset.values || []).find(function(c) {
+		return String(c.value) === (m[3] === 'a' ? '0' : '1');
+	});
+	var w = V1SET.items['screen_EndX_' + m[3] + '_' + m[4]];
+	var h = V1SET.items['screen_EndY_' + m[3] + '_' + m[4]];
+	var size = (w && h && typeof w.max === 'number' && typeof h.max === 'number') ?
+		(w.max + 1) + ' \u00d7 ' + (h.max + 1) : '';
+	return {key: 'screen_' + m[3] + '_' + m[4],
+		title: webuiL('set.screen_edges', 'Picture edges') + ': ' +
+			((choice && choice.label) || m[3].toUpperCase()) + (size ? ', ' + size : '')};
+}
+
+// Whether a row of the box is drawn in its section: one no menu of the box
+// names and none of our words name is state the box keeps for itself, a
+// kept registry category draws its own, and the identifier's half of a
+// start channel goes with its named half.
+function _v1setDrawn(item) {
+	if (!item.label && !V1SET.regLabels[item.id] && !_v1setOwnLabel(item.id))
+		return false;
+	return !V1SET.claimed[item.id] && !_v1setIdHalf(item);
 }
 
 function _v1setChoice(sel, v) {
@@ -480,6 +571,9 @@ function _v1setUnit(item) {
 
 function _v1setDefaultText(item) {
 	var d = (item.default === undefined || item.default === null) ? '' : String(item.default);
+	// the identifier of a start channel: none, or the number the box keeps
+	if (_v1setIdHalf(item))
+		return _v1setChannelId(d) === '0' ? webuiL('set.no_channel', 'none') : d;
 	if (item.type === 'bool')
 		return _v1setIsOn(d) ? webuiL('reg.on', 'On') : webuiL('reg.off', 'Off');
 	var o = (item.values || []).find(function(c) { return _v1setOptValue(c) === d; });
@@ -673,28 +767,56 @@ function v1setRow(item) {
 			field.setAttribute('aria-describedby', id + '_err');
 		}
 	}
+	v1setMark(row);
 	return row;
 }
 
 // One section of the box as a card; extra is the registry's markup for what
-// the schema lacks, drawn below.
+// the schema lacks, drawn below. The head says how many of its rows differ
+// from delivery and can show those alone; a group of rows (the edges of a
+// screen) folds away, and says when one in it differs.
 function v1setPanel(section, extra) {
 	var rows = webuiEl('div', {className: 'webui-form-section'});
+	var groups = Object.create(null);
 	(V1SET.bySection[section] || []).forEach(function(item) {
-		// a setting no menu of the box names and none of our own words name
-		// is state the box keeps for itself, and not a choice: not drawn
-		if (!item.label && !V1SET.regLabels[item.id] && !_v1setOwnLabel(item.id))
+		if (!_v1setDrawn(item))
 			return;
-		if (!V1SET.claimed[item.id] && !_v1setIdHalf(item))
-			rows.appendChild(v1setRow(item));
+		var row = v1setRow(item);
+		var g = _v1setGroupOf(item);
+		if (!g) {
+			rows.appendChild(row);
+			return;
+		}
+		if (!groups[g.key]) {
+			groups[g.key] = webuiEl('div', {className: 'webui-form-group-body'});
+			rows.appendChild(webuiEl('details', {className: 'webui-form-group', data: {v1group: g.key}},
+				webuiEl('summary', {},
+					webuiEl('span', {className: 'webui-form-group-title'}, g.title),
+					webuiEl('span', {className: 'webui-pill warn', hidden: true}, webuiL('set.drift_mark', 'changed'))),
+				groups[g.key]));
+		}
+		groups[g.key].appendChild(row);
 	});
-	var card = webuiEl('div', {className: 'settings-card'},
-		webuiEl('div', {className: 'settings-card-header'}, webuiEl('h3', {}, v1setTitle(section))), rows);
+	var only = webuiEl('input', {type: 'checkbox', checked: V1SET.driftOnly,
+		on: {change: function() { v1setDriftOnly(only.checked); }}});
+	var card = webuiEl('div', {className: 'settings-card', data: {v1panel: section}},
+		webuiEl('div', {className: 'settings-card-header'},
+			webuiEl('div', {},
+				webuiEl('h3', {}, v1setTitle(section)),
+				webuiEl('p', {className: 'webui-set-count'})),
+			webuiEl('label', {className: 'webui-set-filter'},
+				webuiEl('span', {className: 'webui-toggle'}, only, webuiEl('span', {className: 'webui-toggle-slider'})),
+				webuiEl('span', {}, webuiL('set.drift_only', 'Only what differs from delivery')))),
+		rows,
+		webuiEl('p', {className: 'webui-set-none webui-text-muted', hidden: true},
+			webuiL('set.drift_none', 'Everything in this section is as delivered.')));
 	if (extra) {
-		var more = webuiEl('div', {});
+		var more = webuiEl('div', {className: 'webui-set-more'});
 		more.innerHTML = extra;	// registry markup from the page source
 		card.appendChild(more);
 	}
+	v1setCount(card);
+	_v1setFilter(card);
 	return card;
 }
 
@@ -783,6 +905,192 @@ function v1setApplyConditions() {
 			row.removeAttribute('title');
 		row.querySelectorAll('[data-v1key]:not([data-v1fixed]), .webui-set-act:not([data-v1fixed])').forEach(function(el) { el.disabled = off; });
 	});
+}
+
+// ---- what differs from delivery ---------------------------------------------
+
+// A row's control and the setting it writes
+function _v1setRowControl(row) {
+	var el = row.querySelector('[data-v1key]');
+	var item = el && V1SET.items[el.dataset.v1key];
+	return item ? {el: el, item: item} : null;
+}
+
+function _v1setDefault(item) {
+	return (item.default === undefined || item.default === null) ? null : String(item.default);
+}
+
+// Whether what a row shows differs from what the box is delivered with;
+// null where there is nothing to hold it against: a credential reads as
+// nothing, and some settings state no default
+function _v1setDrifts(c) {
+	var d = _v1setDefault(c.item);
+	if (c.item.secret || d === null)
+		return null;
+	var shown = _v1setControlValue(c.el);
+	if (_v1setIdHalf(c.item))
+		return _v1setChannelId(shown) !== _v1setChannelId(d);
+	return _v1setNorm(c.item, shown) !== _v1setNorm(c.item, d);
+}
+
+/* Marks a row by what it shows: differing from delivery, it carries the
+   word, the delivered value and the way back to it (a locked row and one
+   the box cannot hold take no way back); differing from what the box holds,
+   it is an unsaved change. Both are held against the field as it stands, so
+   a row put back stops being marked at once. */
+function v1setMark(row) {
+	var c = _v1setRowControl(row);
+	if (!c)
+		return;
+	var drifts = _v1setDrifts(c) === true;
+	row.classList.toggle('is-drift', drifts);
+	// held as v1setDirty holds it, so the edge and the save bar agree
+	row.classList.toggle('is-edited',
+		_v1setNorm(c.item, _v1setControlValue(c.el)) !== _v1setNorm(c.item, V1SET.values[c.item.id]));
+	var back = row.querySelector(':scope > .webui-set-back');
+	if (!drifts) {
+		if (back)
+			back.remove();
+		return;
+	}
+	if (back)
+		return;	// what it names, the delivered value, stays the same
+	var label = _v1setLabel(V1SET.items[row.dataset.v1row] || c.item);
+	var revert = null;
+	if (!c.el.dataset.v1fixed) {
+		revert = webuiEl('button', {type: 'button', className: 'webui-btn ghost webui-set-act webui-set-revert',
+			attrs: {'aria-label': webuiL('set.drift_revert_one', 'Put back to the delivered value') + ': ' + label},
+			on: {click: function() { v1setRevert(row); }}}, webuiL('set.drift_revert', 'Put back'));
+		revert.disabled = c.el.disabled;
+	}
+	back = webuiEl('div', {className: 'webui-set-back'},
+		webuiEl('span', {className: 'webui-pill warn'}, webuiL('set.drift_mark', 'changed')),
+		webuiEl('span', {className: 'webui-text-muted'},
+			webuiL('set.drift_default', 'Delivered as') + ': ' + _v1setDefaultText(c.item)),
+		revert);
+	// below the row's own line, above its help and a refusal
+	row.insertBefore(back, row.querySelector(':scope > .webui-set-help, :scope > .webui-set-error'));
+}
+
+// After an input: the row it is in, and the count of its panel
+function v1setMarkFor(el) {
+	var row = el && el.closest && el.closest('[data-v1row]');
+	if (!row)
+		return;
+	v1setMark(row);
+	v1setCount(row.closest('[data-v1panel]'));
+}
+
+function v1setMarkAll() {
+	document.querySelectorAll('#settingsContent [data-v1row]').forEach(v1setMark);
+	document.querySelectorAll('#settingsContent [data-v1panel]').forEach(v1setCount);
+}
+
+// How many rows a panel has and how many of them differ from delivery; a
+// folded group says whether one in it does
+function v1setCount(card) {
+	if (!card)
+		return;
+	var all = card.querySelectorAll('[data-v1row]').length;
+	var drifting = card.querySelectorAll('[data-v1row].is-drift').length;
+	var p = card.querySelector('.webui-set-count');
+	if (p)
+		p.textContent = webuiL('set.count', '{count} settings, {drifting} of them differ from delivery')
+			.replace('{count}', all).replace('{drifting}', drifting);
+	card.querySelectorAll('details[data-v1group]').forEach(function(g) {
+		var pill = g.querySelector(':scope > summary > .webui-pill');
+		if (pill)
+			pill.hidden = !g.querySelector('[data-v1row].is-drift');
+	});
+}
+
+// Only the rows that differ from delivery, or are changed and not saved, in
+// every panel drawn; set again when switched, so a row put back meanwhile
+// stays in sight until then
+function v1setDriftOnly(on) {
+	V1SET.driftOnly = !!on;
+	document.querySelectorAll('#settingsContent [data-v1panel]').forEach(_v1setFilter);
+}
+
+function _v1setFilter(card) {
+	var on = V1SET.driftOnly;
+	var box = card.querySelector('.webui-set-filter input');
+	if (box)
+		box.checked = on;
+	var shown = 0;
+	card.querySelectorAll('[data-v1row]').forEach(function(row) {
+		var keep = !on || row.classList.contains('is-drift') || row.classList.contains('is-edited');
+		row.hidden = !keep;
+		if (keep)
+			shown++;
+	});
+	card.querySelectorAll('details[data-v1group]').forEach(function(g) {
+		var any = !!g.querySelector('[data-v1row]:not([hidden])');
+		g.hidden = !any;
+		if (on && any)
+			g.open = true;
+	});
+	// what the registry adds below states no delivered value to hold
+	// against: of it, only a change not saved yet stays in sight
+	var more = card.querySelector(':scope > .webui-set-more');
+	if (more) {
+		var kept = 0;
+		more.querySelectorAll('.webui-form-row').forEach(function(row) {
+			var keep = !on || row.classList.contains('is-edited');
+			row.hidden = !keep;
+			if (keep)
+				kept++;
+		});
+		more.querySelectorAll('.webui-form-section').forEach(function(sec) {
+			sec.hidden = on && !sec.querySelector('.webui-form-row:not([hidden])');
+		});
+		more.hidden = on && !kept;
+		if (on)
+			shown += kept;
+	}
+	var none = card.querySelector(':scope > .webui-set-none');
+	if (none)
+		none.hidden = !(on && !shown);
+}
+
+// Puts a row's field back to the delivered value; the next save writes it.
+// The focus goes to the field, as the button goes with the difference.
+function v1setRevert(row) {
+	var c = _v1setRowControl(row);
+	var d = c && _v1setDefault(c.item);
+	if (!c || d === null || c.el.disabled)
+		return;
+	if (_v1setIdHalf(c.item)) {
+		d = _v1setChannelId(d);
+		// a start channel's list may not be read yet: none is offered at once
+		if (c.el.tagName === 'SELECT' && d === '0' &&
+		    !Array.prototype.some.call(c.el.options, function(o) { return o.value === '0'; }))
+			c.el.insertBefore(webuiEl('option', {value: '0'}, webuiL('set.no_channel', 'none')), c.el.firstChild);
+	}
+	_v1setSetControl(c.el, c.item, d);
+	c.el.dispatchEvent(new Event('input', {bubbles: true}));
+	c.el.dispatchEvent(new Event('change', {bubbles: true}));
+	c.el.focus();
+}
+
+// Every row of the box the page draws, for the search: {id, label, cat,
+// sub, row}, cat the category of the sidebar it is drawn in, row a
+// selector for it there
+function v1setFindable() {
+	var out = [];
+	if (!V1SET.ok)
+		return out;
+	Object.keys(V1SET.items).forEach(function(key) {
+		var item = V1SET.items[key];
+		if (!item.label && !V1SET.regLabels[key] && !_v1setOwnLabel(key))
+			return;
+		if (_v1setIdHalf(item))
+			return;
+		var g = _v1setGroupOf(item);
+		out.push({id: key, label: _v1setLabel(item), cat: V1SET.claimed[key] || item.section,
+			sub: g ? g.title : '', row: '[data-v1row="' + CSS.escape(key) + '"]'});
+	});
+	return out;
 }
 
 // ---- changes and saving -------------------------------------------------------
@@ -1019,6 +1327,7 @@ async function v1setReread() {
 	});
 	V1SET.values = fresh;
 	v1setApplyConditions();
+	v1setMarkAll();
 	if (typeof webuiUpdateSaveBar === 'function')
 		webuiUpdateSaveBar();
 }

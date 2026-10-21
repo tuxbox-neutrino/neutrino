@@ -274,6 +274,158 @@
 			border-color: var(--webui-danger);
 		}
 
+		/* Phase 4: what a row of the box differs in. From delivery: the
+		   word, the delivered value and the way back, on a line below the
+		   row; from what the box holds (not saved yet): an edge in the
+		   accent at the row's start. The filter hides rows by [hidden],
+		   which the grid of a row would beat otherwise. */
+		.settings-card .webui-form-row[hidden],
+		.settings-card .webui-form-section[hidden],
+		.settings-card .webui-form-group[hidden],
+		.webui-set-more[hidden],
+		.webui-set-none[hidden] {
+			display: none;
+		}
+		.settings-card .webui-form-row.is-edited {
+			position: relative;
+		}
+		.settings-card .webui-form-row.is-edited::before {
+			content: "";
+			position: absolute;
+			left: -0.6rem;
+			top: 0.2rem;
+			bottom: 0.2rem;
+			width: 3px;
+			border-radius: 2px;
+			background: var(--webui-accent);
+		}
+		.webui-set-back {
+			grid-column: 1 / -1;
+			display: flex;
+			flex-wrap: wrap;
+			align-items: center;
+			gap: 0.25rem 0.6rem;
+			margin-top: -0.3rem;
+			font-size: var(--webui-font-sm);
+		}
+		.webui-set-back .webui-set-revert {
+			padding: 0.1rem 0.5rem;
+			font-size: var(--webui-font-xs);
+		}
+		/* a row a search led to, for a moment */
+		.settings-card .is-found {
+			animation: webui-set-found 2s ease-out;
+		}
+		@keyframes webui-set-found {
+			0%, 40% { background: var(--webui-accent-light); box-shadow: 0 0 0 4px var(--webui-accent-light); }
+			100% { background: transparent; box-shadow: 0 0 0 4px transparent; }
+		}
+		@media (prefers-reduced-motion: reduce) {
+			.settings-card .is-found {
+				animation: none;
+				outline: 2px solid var(--webui-accent);
+				outline-offset: 2px;
+			}
+		}
+		/* the head of a section: its name and count, the filter beside */
+		.settings-card-header {
+			flex-wrap: wrap;
+			gap: 0.5rem 1rem;
+		}
+		.webui-set-count {
+			margin: 0.15rem 0 0;
+			font-size: var(--webui-font-xs);
+			color: var(--pico-muted-color);
+		}
+		.webui-set-filter {
+			display: inline-flex;
+			align-items: center;
+			gap: 0.5rem;
+			margin: 0;
+			font-size: var(--webui-font-sm);
+			color: var(--pico-muted-color);
+			cursor: pointer;
+		}
+		.webui-set-none {
+			margin: 0.5rem 0;
+			font-size: var(--webui-font-sm);
+		}
+		.settings-card .webui-form-group > summary .webui-pill {
+			margin-left: 0.5rem;
+		}
+
+		/* the search above the categories, and its hits in their place: a
+		   search element and not role=search, which Pico draws as a group */
+		.webui-set-tools {
+			display: flex;
+			flex-wrap: wrap;
+			align-items: center;
+			gap: 0.25rem 0.75rem;
+			margin-bottom: 0.5rem;
+		}
+		.webui-set-tools input[type="search"] {
+			width: min(100%, 24rem);
+			height: auto;
+			margin: 0;
+			padding-top: 0.45rem;
+			padding-bottom: 0.45rem;
+			font-size: var(--webui-font-sm);
+		}
+		.webui-set-hitcount {
+			font-size: var(--webui-font-xs);
+			color: var(--pico-muted-color);
+		}
+		.webui-set-hits li {
+			list-style: none;
+		}
+		.webui-set-hits li + li {
+			border-top: 1px solid var(--pico-muted-border-color);
+		}
+		.webui-set-hit {
+			--pico-color: inherit;
+			display: grid;
+			grid-template-columns: minmax(0, 1fr) auto;
+			gap: 0.1rem 1rem;
+			width: 100%;
+			margin: 0;
+			padding: 0.55rem 0.5rem;
+			border: 0;
+			border-radius: var(--webui-radius);
+			background: none;
+			color: var(--pico-color);
+			text-align: left;
+			font-size: var(--webui-font-sm);
+			cursor: pointer;
+		}
+		.webui-set-hit:hover,
+		.webui-set-hit:focus-visible {
+			background: var(--webui-accent-light);
+		}
+		.webui-set-hit-place {
+			grid-column: 1;
+			font-size: var(--webui-font-xs);
+			color: var(--pico-muted-color);
+		}
+		.webui-set-hit-key {
+			grid-column: 2;
+			grid-row: 1 / span 2;
+			align-self: center;
+			padding: 0.05rem 0.35rem;
+			font-size: var(--webui-font-xs);
+			color: var(--pico-muted-color);
+			background: var(--webui-bg-elevated);
+		}
+		@media (max-width: 600px) {
+			.webui-set-hit {
+				grid-template-columns: minmax(0, 1fr);
+			}
+			.webui-set-hit-key {
+				grid-column: 1;
+				grid-row: auto;
+				justify-self: start;
+			}
+		}
+
 		/* M5c: zentrale Dirty-State-Save-Leiste am Fuß der Content-Spalte.
 		   Klebt beim Scrollen am unteren Rand und wirkt über der Karte
 		   wie deren Fuß (gleicher Hintergrund, border-top als Trenner) */
@@ -308,11 +460,19 @@
 			overflow: hidden;
 		}
 		.mount-slot-header {
+			--pico-color: inherit;
 			display: flex;
 			align-items: center;
 			justify-content: space-between;
+			gap: 0.5rem;
+			width: 100%;
+			margin: 0;
 			padding: 0.6rem 0.85rem;
+			border: 0;
+			border-radius: 0;
+			background: none;
 			cursor: pointer;
+			text-align: left;
 			font-size: var(--webui-font-sm);
 			color: var(--pico-color);
 			transition: var(--webui-transition);
@@ -467,6 +627,14 @@
 
 		<!-- Content: Panels + zentrale Save-Leiste (M5c) -->
 		<div class="webui-settings-content">
+			<search class="webui-set-tools">
+				<input type="search" id="settingsSearch" disabled autocomplete="off" spellcheck="false"
+					placeholder="Find a setting" data-l-placeholder="set.search_label"
+					aria-label="Find a setting" data-l-aria-label="set.search_label"
+					aria-describedby="settingsSearchCount" aria-controls="settingsHits">
+				<span id="settingsSearchCount" class="webui-set-hitcount" aria-live="polite"></span>
+			</search>
+			<div id="settingsHits" class="settings-card" hidden></div>
 			<div id="settingsContent">
 				<div class="settings-loading" data-l="set.loading">Loading settings...</div>
 			</div>
