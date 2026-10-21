@@ -1027,6 +1027,13 @@ body:not(.has-subheader) .webui-header-spacer {
 	color: var(--webui-danger);
 }
 
+/* and the sign-in page's note on where the first password is shown */
+.webui-confirm-dialog .webui-v1-first {
+	margin: -0.25rem 0 1rem;
+	color: var(--pico-muted-color);
+	font-size: var(--webui-font-sm);
+}
+
 .webui-about-section {
 	margin-bottom: 1.25rem;
 }

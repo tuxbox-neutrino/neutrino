@@ -475,7 +475,7 @@ async function loadExtConfigPanel(cat) {
 			var pwEl = el.querySelector('#cfg_' + cat.id + '_password');
 			var pwDef = cfg.password_shipped === true;
 			var pwSet = cfg.has_password === true;
-			var pwMsg = pwDef ? webuiLH('set.pw_default', 'Factory default password is active. Please set your own password.') : (pwSet ? webuiLH('set.pw_isset', 'A password is set. Enter a new one to change it.') : '');
+			var pwMsg = pwDef ? webuiLH('set.pw_default', 'No password of your own yet (the first password or a factory default). Please set your own password.') : (pwSet ? webuiLH('set.pw_isset', 'A password is set. Enter a new one to change it.') : '');
 			var pwRow = pwEl ? pwEl.closest('.webui-form-row') : null;
 			if (pwRow && pwMsg) {
 				var note = document.createElement('div');

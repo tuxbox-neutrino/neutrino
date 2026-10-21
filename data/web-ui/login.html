@@ -107,6 +107,13 @@
 			margin: 14px 0 0;
 			font-size: 0.8rem;
 		}
+		.login-wrap .login-forgot {
+			margin: 8px 0 0;
+			font-size: 0.8rem;
+		}
+		.login-wrap .login-forgot p {
+			margin: 6px 0 0;
+		}
 		.login-wrap button[type=submit] {
 			width: 100%;
 			padding: 9px 18px;
@@ -145,8 +152,12 @@
 			<button type="submit" id="loginSubmit" class="webui-btn primary" data-l="login.submit">Sign in</button>
 		</form>
 		<!-- Said always and the same way, so it tells nothing about this box:
-		     the login every box ships with, which the first sign-in replaces. -->
-		<p class="sub login-first" data-l="login.first">First sign-in: user root, password neutrino. You will then be asked for a password of your own.</p>
+		     where the first password is shown, never the password itself. -->
+		<p class="sub login-first" data-l="login.first">First sign-in: with the user and password the TV shows (System settings → Network → Web server). You will then be asked for a password of your own.</p>
+		<details class="login-forgot">
+			<summary data-l="login.forgot">Forgot the password?</summary>
+			<p class="sub" data-l="login.forgot_how">On the TV, choose “Reset web password” under System settings → Network → Web server. The box then shows a new first password.</p>
+		</details>
 	</main>
 
 	<script src="/js/webui-i18n.js?v=2"></script>

@@ -290,6 +290,7 @@ function _webuiV1SignInDialog() {
 				'<label class="webui-prompt-label" for="webui-v1-pass"></label>' +
 				'<input type="password" class="webui-prompt-input" id="webui-v1-pass" autocomplete="current-password" maxlength="255">' +
 				'<p class="webui-v1-err" role="alert" hidden></p>' +
+				'<p class="webui-v1-first"></p>' +
 				'<div class="webui-confirm-actions">' +
 					'<button type="button" class="confirm-cancel"></button>' +
 					'<button type="button" class="confirm-ok"></button>' +
@@ -298,6 +299,9 @@ function _webuiV1SignInDialog() {
 		backdrop.querySelector('h4').textContent = webuiL('v1.signin_title', 'Sign in');
 		backdrop.querySelector('.webui-v1-why').textContent =
 			webuiL('v1.signin_why', 'The box asks for a sign-in for this.');
+		// the sign-in page's sentence: where the first password is shown, never which
+		backdrop.querySelector('.webui-v1-first').textContent =
+			webuiL('login.first', 'First sign-in: with the user and password the TV shows (System settings → Network → Web server). You will then be asked for a password of your own.');
 		var labels = backdrop.querySelectorAll('.webui-prompt-label');
 		labels[0].textContent = webuiL('v1.user', 'User');
 		labels[1].textContent = webuiL('v1.password', 'Password');
