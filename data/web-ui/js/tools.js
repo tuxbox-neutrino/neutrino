@@ -206,10 +206,17 @@ async function bcVideoLoad() {
 	} catch (e) {}
 }
 
-// The box switches to the chosen mode when the setting is written
-async function bcVideoApply() {
+// The box switches to the chosen mode when the setting is written, so it
+// asks first, as the settings do: a mode the TV cannot show is a black screen
+function bcVideoApply() {
 	var sel = document.getElementById('bcVideoMode');
 	if (!sel || !bcVideoSection) return;
+	webuiShowConfirm(webuiL('bc.resolution', 'Resolution'),
+		webuiLH('set.risk_video', 'The box switches the resolution at once. If the TV cannot show it, the screen stays black; it can be switched back here.'),
+		webuiL('bqe.apply', 'Apply'), function() { return bcVideoApplyNow(sel); });
+}
+
+async function bcVideoApplyNow(sel) {
 	var label = sel.options[sel.selectedIndex] ? sel.options[sel.selectedIndex].text : sel.value;
 	try {
 		var answer = await webuiV1('PATCH', '/settings/' + encodeURIComponent(bcVideoSection), {body: {video_Mode: sel.value}});
