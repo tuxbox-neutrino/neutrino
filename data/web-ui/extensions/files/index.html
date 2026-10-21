@@ -152,11 +152,66 @@
 			gap: 0.6rem;
 		}
 
+		/* the shared file control's name has the same class: none of its
+		   width, padding or colour here */
 		.webui-file-name {
 			flex: 1;
+			max-width: none;
+			padding: 0;
+			font-size: inherit;
+			color: inherit;
 			overflow: hidden;
 			text-overflow: ellipsis;
 			white-space: nowrap;
+		}
+
+		/* A folder's name is a button that covers its row, so a keyboard
+		   opens it as a click on the row does; the row shows the focus */
+		.webui-file-row,
+		.webui-quick-item {
+			position: relative;
+		}
+		.fm-open {
+			all: unset;
+			cursor: pointer;
+		}
+		.fm-open::after {
+			content: "";
+			position: absolute;
+			inset: 0;
+		}
+		.webui-file-row:focus-within,
+		.webui-quick-item:focus-within {
+			outline: 2px solid var(--webui-accent);
+			outline-offset: -2px;
+		}
+		.webui-file-actions {
+			position: relative;
+			z-index: 1;
+		}
+
+		/* loading, empty or failed, and a word below the roots */
+		.fm-state .webui-state {
+			padding: 1.5rem 1rem;
+		}
+		.fm-note {
+			padding: 1rem;
+			text-align: center;
+			color: var(--pico-muted-color);
+			font-size: var(--webui-font-sm);
+		}
+
+		/* "choose one" in the drop zone: a button that reads as a link */
+		.fm-link {
+			--pico-color: inherit;
+			all: unset;
+			color: var(--webui-accent);
+			text-decoration: underline;
+			cursor: pointer;
+		}
+		.fm-link:focus-visible {
+			outline: 2px solid var(--webui-accent);
+			outline-offset: 2px;
 		}
 
 		.webui-file-name.editing {
@@ -201,7 +256,8 @@
 			transition: opacity 0.15s ease;
 		}
 
-		.webui-file-row:hover .webui-file-actions {
+		.webui-file-row:hover .webui-file-actions,
+		.webui-file-row:focus-within .webui-file-actions {
 			opacity: 1;
 		}
 
@@ -426,7 +482,7 @@
 
 			<!-- Toolbar -->
 			<div class="webui-files-toolbar">
-				<button class="webui-btn" onclick="showNewFolderInput()" title="New folder" data-l-title="fm.new_folder">
+				<button type="button" class="webui-btn" onclick="showNewFolderInput()" title="New folder" data-l-title="fm.new_folder">
 					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 						<path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/>
 						<line x1="12" y1="11" x2="12" y2="17"/>
@@ -434,15 +490,15 @@
 					</svg>
 					<span class="btn-label" data-l="fm.folder">Folder</span>
 				</button>
-				<button class="webui-btn" onclick="toggleUpload()" title="Upload" data-l-title="fm.upload">
+				<button type="button" class="webui-btn" onclick="toggleUpload()" title="Upload" data-l-title="fm.upload">
 					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 						<path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
 						<polyline points="17,8 12,3 7,8"/>
 						<line x1="12" y1="3" x2="12" y2="15"/>
 					</svg>
-					<span class="btn-label">Upload</span>
+					<span class="btn-label" data-l="fm.upload">Upload</span>
 				</button>
-				<button class="webui-btn" onclick="refreshDir()" title="Refresh" data-l-title="si.refresh">
+				<button type="button" class="webui-btn" onclick="refreshDir()" title="Refresh" data-l-title="si.refresh" aria-label="Refresh" data-l-aria-label="si.refresh">
 					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 						<polyline points="23,4 23,10 17,10"/>
 						<path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/>
@@ -457,13 +513,13 @@
 				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;color:var(--webui-accent);flex-shrink:0">
 					<path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/>
 				</svg>
-				<input type="text" id="newFolderName" placeholder="Folder name..." data-l-placeholder="fm.folder_name" onkeydown="handleNewFolderKey(event)">
-				<button class="webui-btn primary" onclick="createFolder()" style="padding:0.25rem 0.5rem">
+				<input type="text" id="newFolderName" placeholder="Folder name..." data-l-placeholder="fm.folder_name" aria-label="Folder name" data-l-aria-label="fm.folder_name_label" onkeydown="handleNewFolderKey(event)">
+				<button type="button" class="webui-btn primary" onclick="createFolder()" style="padding:0.25rem 0.5rem" aria-label="Create" data-l-aria-label="fm.create">
 					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px">
 						<polyline points="20,6 9,17 4,12"/>
 					</svg>
 				</button>
-				<button class="webui-btn" onclick="hideNewFolderInput()" style="padding:0.25rem 0.5rem">
+				<button type="button" class="webui-btn" onclick="hideNewFolderInput()" style="padding:0.25rem 0.5rem" aria-label="Cancel" data-l-aria-label="msg.cancel">
 					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px">
 						<line x1="18" y1="6" x2="6" y2="18"/>
 						<line x1="6" y1="6" x2="18" y2="18"/>
@@ -479,19 +535,19 @@
 						<polyline points="17,8 12,3 7,8"/>
 						<line x1="12" y1="3" x2="12" y2="15"/>
 					</svg>
-					<div><span data-l="fm.drop_here">Drop a file here or</span> <a href="#" onclick="document.getElementById('fileInput').click(); return false;" data-l="fm.choose">choose one</a></div>
+					<div><span data-l="fm.drop_here">Drop a file here or</span> <button type="button" class="fm-link" onclick="document.getElementById('fileInput').click()" data-l="fm.choose">choose one</button></div>
 					<input type="file" id="fileInput" style="display:none" onchange="uploadFile(this.files[0])">
 				</div>
 				<div class="webui-upload-progress" id="uploadProgress">
-					<progress id="uploadBar" value="0" max="100"></progress>
-					<div style="font-size:var(--webui-font-xs);color:var(--pico-muted-color);margin-top:0.3rem" id="uploadStatus"></div>
+					<progress id="uploadBar" value="0" max="100" aria-label="Upload" data-l-aria-label="fm.upload"></progress>
+					<div style="font-size:var(--webui-font-xs);color:var(--pico-muted-color);margin-top:0.3rem" id="uploadStatus" role="status"></div>
 				</div>
 			</div>
 
 			<!-- File list -->
 			<div class="webui-card-body">
 				<ul class="webui-plain-list webui-file-list" id="fileList">
-					<li aria-busy="true" style="padding:1rem;text-align:center" data-l="msg.loading">Loading...</li>
+					<li class="fm-note" aria-busy="true" data-l="msg.loading">Loading...</li>
 				</ul>
 			</div>
 		</article>

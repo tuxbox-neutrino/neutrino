@@ -83,30 +83,37 @@ function askFirst(title, text, ok) {
 // ===== Quick Access Sidebar: the roots =====
 
 // why the roots could not be read, for the top level to say instead of
-// showing nothing ('' once they were read)
-let rootsWhy = '';
+// showing nothing (null once they were read)
+let rootsWhy = null;
 
 async function loadQuickDirs() {
 	try {
 		const r = await webuiV1('GET', '/storage/roots');
 		roots = ((r && r.items) || []).filter(x => x.present).map(x => normPath(x.id));
-		rootsWhy = '';
+		rootsWhy = null;
 	} catch (e) {
 		roots = [];
-		rootsWhy = webuiErrText(e);
+		rootsWhy = e;
 		webuiToastError(webuiL('msg.load_fail', 'Loading failed'), e);
 	}
 	renderQuickDirs();
+}
+
+// A folder's name as a button that covers its whole row (fm-open in the
+// page's style), so a keyboard opens it as the mouse does
+function openButton(label, path, attrs) {
+	return webuiEl('button', {type: 'button', className: 'fm-open', title: path || null, attrs: attrs || {},
+		on: {click: () => navigateTo(path)}}, label);
 }
 
 function renderQuickDirs() {
 	const list = document.getElementById('quickList');
 	const items = [{name: webuiL('fm.roots', 'Permitted folders'), path: ''}].concat(roots.map(r => ({name: r, path: r})));
 	list.replaceChildren(...items.map(d => webuiEl('li', {
-		className: 'webui-nav-item webui-quick-item' + (d.path === currentPath ? ' active' : ''),
-		on: {click: () => navigateTo(d.path)}
-	}, webuiMarkup('<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg>'),
-		webuiEl('span', {className: 'webui-nav-name webui-quick-name'}, d.name))));
+		className: 'webui-nav-item webui-quick-item' + (d.path === currentPath ? ' active' : '')
+	}, webuiMarkup('<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg>'),
+		webuiEl('span', {className: 'webui-nav-name webui-quick-name'},
+			openButton(d.name, d.path, d.path === currentPath ? {'aria-current': 'true'} : null)))));
 }
 
 // ===== Breadcrumb: the roots, the root, then what lies below it =====
@@ -141,41 +148,89 @@ function fileRow(entry) {
 	const isLink = entry.kind === 'link';
 	const fullpath = joinPath(currentPath, entry.id);
 	const actions = webuiEl('div', {className: 'webui-file-actions', on: {click: ev => ev.stopPropagation()}});
+	// named with the row, as each row has the same three
+	const named = word => ({'aria-label': word + ': ' + entry.id});
 	if (!isDir)
-		actions.appendChild(webuiEl('a', {className: 'webui-btn', title: webuiL('fm.download', 'Download'),
-			attrs: {href: '/api/v1/storage/file' + storageQuery(fullpath), download: entry.id}}, webuiMarkup(ICONS.download)));
-	actions.appendChild(webuiEl('button', {type: 'button', className: 'webui-btn', title: webuiL('fm.rename', 'Rename'),
-		on: {click: () => startRename(fullpath, entry.id)}}, webuiMarkup(ICONS.rename)));
-	actions.appendChild(webuiEl('button', {type: 'button', className: 'webui-btn', title: webuiL('fm.delete', 'Delete'),
-		style: {color: 'var(--webui-danger)'}, on: {click: () => deleteItem(fullpath, entry.id, isDir)}}, webuiMarkup(ICONS.delete)));
+		actions.appendChild(webuiEl('a', {className: 'webui-btn', title: webuiL('fm.download', 'Download'), data: {act: 'download'},
+			attrs: Object.assign(named(webuiL('fm.download', 'Download')), {href: '/api/v1/storage/file' + storageQuery(fullpath), download: entry.id})},
+			webuiMarkup(ICONS.download)));
+	actions.appendChild(webuiEl('button', {type: 'button', className: 'webui-btn', title: webuiL('fm.rename', 'Rename'), data: {act: 'rename'},
+		attrs: named(webuiL('fm.rename', 'Rename')), on: {click: () => startRename(fullpath, entry.id)}}, webuiMarkup(ICONS.rename)));
+	actions.appendChild(webuiEl('button', {type: 'button', className: 'webui-btn', title: webuiL('fm.delete', 'Delete'), data: {act: 'delete'},
+		attrs: named(webuiL('fm.delete', 'Delete')), style: {color: 'var(--webui-danger)'},
+		on: {click: () => deleteItem(fullpath, entry.id, isDir)}}, webuiMarkup(ICONS.delete)));
 
 	const size = isDir || !entry.attributes_read ? '' : formatFileSize(entry.size || 0);
 	const date = entry.attributes_read ? formatFileDate(entry.mtime || 0) : '';
-	return webuiEl('li', {className: 'webui-file-row' + (isDir ? ' is-dir' : ''), data: {path: fullpath, name: entry.id},
-		on: isDir ? {click: () => navigateTo(fullpath)} : {}},
+	return webuiEl('li', {className: 'webui-file-row' + (isDir ? ' is-dir' : ''), data: {path: fullpath, name: entry.id}},
 		webuiMarkup(isDir ? ICONS.folder : (isLink ? ICONS.link : ICONS.file)),
 		webuiEl('div', {className: 'webui-file-info'},
-			webuiEl('span', {className: 'webui-file-name'}, entry.id),
+			webuiEl('span', {className: 'webui-file-name'}, isDir ? openButton(entry.id, fullpath) : entry.id),
 			webuiEl('span', {className: 'webui-file-size'}, size),
 			webuiEl('span', {className: 'webui-file-date'}, date)),
 		actions);
 }
 
 function rootRow(root) {
-	return webuiEl('li', {className: 'webui-file-row is-dir', data: {path: root}, on: {click: () => navigateTo(root)}},
+	return webuiEl('li', {className: 'webui-file-row is-dir', data: {path: root}},
 		webuiMarkup(ICONS.folder),
-		webuiEl('div', {className: 'webui-file-info'}, webuiEl('span', {className: 'webui-file-name'}, root)));
+		webuiEl('div', {className: 'webui-file-info'}, webuiEl('span', {className: 'webui-file-name'}, openButton(root, root))));
 }
 
-function note(text, color) {
-	return webuiEl('li', {style: {padding: '1rem', 'text-align': 'center', color: color || 'var(--pico-muted-color)'}}, text);
+// a state of the list (loading, empty, failed) as one of its items
+function stateRow(block) {
+	return webuiEl('li', {className: 'fm-state'}, block);
+}
+
+function note(text) {
+	return webuiEl('li', {className: 'fm-note'}, text);
 }
 
 let listToken = 0;	// a slower answer for a directory left already is dropped
 
+/* The list and the sidebar are drawn anew, and the button that had the
+   focus with them: the focus goes to the same place of the new ones (the
+   first button of the list, or the current folder in the sidebar), so a
+   keyboard goes on from there and not from the top of the page. */
+// a rename's old and new path, so the focus follows the row to its new name
+let fmRenamed = null;
+
+// where the focus was: the sidebar, or a row of the list and which of its
+// buttons (the name field of a rename counts as its rename button)
+function fmFocusWas() {
+	const a = document.activeElement;
+	if (!a || !a.closest) return null;
+	if (a.closest('#quickList')) return {where: 'side'};
+	if (!a.closest('#fileList')) return null;
+	const row = a.closest('.webui-file-row');
+	return {where: 'list', path: row ? row.dataset.path : '',
+		act: a.dataset.act || (a.classList.contains('fm-open') ? 'open' : a.closest('.editing') ? 'rename' : '')};
+}
+
+function fmFocusAgain(was) {
+	const a = document.activeElement;
+	const moved = fmRenamed;
+	fmRenamed = null;
+	if (!was || (a && a !== document.body && a.isConnected)) return;
+	let to = null;
+	if (was.where === 'side') {
+		to = document.querySelector('#quickList .fm-open[aria-current]');
+	} else {
+		// the same button of the same row, where it is still there
+		const path = moved && moved.from === was.path ? moved.to : was.path;
+		const row = path ? Array.prototype.find.call(document.querySelectorAll('#fileList .webui-file-row'), r => r.dataset.path === path) : null;
+		if (row && was.act)
+			to = row.querySelector(was.act === 'open' ? '.fm-open' : '[data-act="' + was.act + '"]');
+		if (!to)
+			to = document.querySelector('#fileList .fm-open, #fileList .webui-state button');
+	}
+	if (to) to.focus();
+}
+
 async function loadDir(path) {
 	currentPath = path ? normPath(path) : '';
 	const mine = ++listToken;
+	const was = fmFocusWas();
 	renderBreadcrumb();
 	renderQuickDirs();
 	updatePreviews();
@@ -188,13 +243,14 @@ async function loadDir(path) {
 		title.textContent = webuiL('fm.roots', 'Permitted folders');
 		document.getElementById('diskInfo').textContent = '';
 		list.replaceChildren(...roots.map(rootRow), rootsWhy
-			? note(webuiL('msg.load_fail', 'Loading failed') + ': ' + rootsWhy, 'var(--webui-danger)')
+			? stateRow(webuiStateFor(rootsWhy, {retry: refreshDir}))
 			: note(webuiL('fm.roots_note', 'Only these folders and what lies below them can be reached from here.')));
+		fmFocusAgain(was);
 		return;
 	}
 
 	title.textContent = currentPath.split('/').filter(Boolean).pop() || currentPath;
-	list.replaceChildren(webuiEl('li', {attrs: {'aria-busy': 'true'}, style: {padding: '1rem', 'text-align': 'center'}}, webuiL('msg.loading', 'Loading...')));
+	list.replaceChildren(stateRow(webuiState('loading', webuiL('msg.loading', 'Loading...'))));
 
 	try {
 		const data = await webuiV1('GET', '/storage/files', {query: {path: currentPath}});
@@ -213,17 +269,20 @@ async function loadDir(path) {
 		// Up: from a root to the list of roots, else one directory up
 		const parentPath = rootOf(currentPath) === currentPath ? '' :
 			(currentPath.substring(0, currentPath.lastIndexOf('/')) || '/');
-		const rows = [webuiEl('li', {className: 'webui-file-row parent-dir is-dir', on: {click: () => navigateTo(parentPath)}},
+		const rows = [webuiEl('li', {className: 'webui-file-row parent-dir is-dir'},
 			webuiMarkup(ICONS.parent),
-			webuiEl('div', {className: 'webui-file-info'}, webuiEl('span', {className: 'webui-file-name'}, '..')))];
+			webuiEl('div', {className: 'webui-file-info'}, webuiEl('span', {className: 'webui-file-name'},
+				openButton('..', parentPath, {'aria-label': webuiL('fm.up', 'One folder up')}))))];
 		files.forEach(f => rows.push(fileRow(f)));
-		if (!files.length) rows.push(note(webuiL('fm.empty', 'Directory is empty')));
+		if (!files.length) rows.push(stateRow(webuiState('empty', webuiL('fm.empty', 'Directory is empty'))));
 		list.replaceChildren(...rows);
+		fmFocusAgain(was);
 
 		loadDiskInfo(mine);
 	} catch (e) {
 		if (mine !== listToken) return;
-		list.replaceChildren(note(webuiL('msg.load_fail', 'Loading failed') + ': ' + webuiErrText(e), 'var(--webui-danger)'));
+		list.replaceChildren(stateRow(webuiStateFor(e, {retry: refreshDir})));
+		fmFocusAgain(was);
 	}
 }
 
@@ -235,7 +294,10 @@ function navigateTo(path) {
 	}
 }
 
-function refreshDir() {
+// At the top level the roots are read again too, so one that failed can be
+async function refreshDir() {
+	if (!currentPath)
+		await loadQuickDirs();
 	return loadDir(currentPath);
 }
 
@@ -268,8 +330,9 @@ async function loadDiskInfo(mine) {
 // Delete: a file, a link or an empty directory; the box keeps a
 // directory that still holds something and says so
 async function deleteItem(fullpath, name, isDir) {
+	// one sentence per kind, so each language puts the name where it goes
 	const ok = await askFirst(webuiL('fm.delete', 'Delete'),
-		(isDir ? webuiL('fm.folder', 'Folder') : webuiL('fm.file', 'File')) + ' "' + name + '" ' + webuiL('fm.delete_confirm', 'really delete?'),
+		(isDir ? webuiL('fm.delete_dir_ask', 'Delete the folder "%s"?') : webuiL('fm.delete_file_ask', 'Delete the file "%s"?')).replace('%s', name),
 		webuiL('fm.delete', 'Delete'));
 	if (!ok) return;
 	try {
@@ -286,7 +349,7 @@ function startRename(fullpath, name) {
 	const row = Array.prototype.find.call(document.querySelectorAll('.webui-file-row'), r => r.dataset.path === fullpath);
 	if (!row) return;
 	const nameEl = row.querySelector('.webui-file-name');
-	const input = webuiEl('input', {type: 'text', value: name});
+	const input = webuiEl('input', {type: 'text', value: name, attrs: {'aria-label': webuiL('fm.rename', 'Rename') + ': ' + name}});
 	const go = () => doRename(fullpath, name, input.value.trim());
 	nameEl.classList.add('editing');
 	nameEl.replaceChildren(input,
@@ -318,6 +381,7 @@ async function doRename(fullpath, origName, newName) {
 		const dir = fullpath.substring(0, fullpath.lastIndexOf('/')) || '/';
 		await webuiV1('POST', '/storage/rename', {body: {from: fullpath, to: joinPath(dir, newName)}});
 		webuiShowToast(webuiL('fm.renamed', 'Renamed'));
+		fmRenamed = {from: fullpath, to: joinPath(dir, newName)};
 		refreshDir();
 	} catch (e) {
 		webuiToastError(webuiL('fm.rename_fail', 'Rename failed'), e);
@@ -402,7 +466,7 @@ async function uploadFile(file) {
 			await webuiV1('POST', '/storage/rename', {body: {from: part, to: target}});
 		} catch (e) {
 			if (e.code !== 'name-taken') throw e;
-			const replace = await askFirst(webuiL('fm.upload', 'Upload'), '"' + file.name + '" ' + webuiL('fm.replace_ask', 'already exists here. Replace it?'), webuiL('fm.replace', 'Replace'));
+			const replace = await askFirst(webuiL('fm.upload', 'Upload'), webuiL('fm.replace_ask', '"%s" already exists here. Replace it?').replace('%s', file.name), webuiL('fm.replace', 'Replace'));
 			if (!replace) throw new Error(webuiL('fm.not_replaced', 'the existing file was kept'));
 			await webuiV1('POST', '/storage/rename', {body: {from: part, to: target, overwrite: true}});
 		}
