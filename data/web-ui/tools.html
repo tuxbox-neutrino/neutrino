@@ -13,86 +13,79 @@
 	<link rel="stylesheet" href="/css/pico.min.css?v=1">
 	<link rel="stylesheet" href="/css/webui.css?v=90">
 	<style>
-		.webui-tools-grid {
-			display: grid;
-			grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-			gap: 1rem;
-			padding: 1.5rem;
-			max-width: 800px;
-			margin: 0 auto;
-		}
+	/* The box control (Phase 4): its parts as cards side by side, one under
+	   the other on a phone; each row says what it does and holds its
+	   buttons. */
+	.webui-boxcontrol {
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(min(100%, 24rem), 1fr));
+		gap: 1rem;
+		align-items: start;
+		max-width: 1500px;
+		margin: 0 auto;
+		padding: 1rem;
+	}
 
-		/* Desktop: fixed-width tiles, centered rows. Stays clean for any
-		   card count (incl. async-injected extension tiles) without the
-		   12-track JS balancer, which left spare tracks whenever the
-		   per-row count did not divide 12 (e.g. 5 cards). Below the
-		   breakpoint the auto-fill layout stays untouched. */
-		@media (min-width: 1101px) {
-			.webui-tools-grid {
-				grid-template-columns: repeat(auto-fit, minmax(240px, 300px));
-				justify-content: center;
-				max-width: none;
-			}
-		}
+	.webui-boxcontrol .webui-card-body {
+		display: grid;
+		gap: 0.25rem;
+		padding: 0.5rem 1rem 0.75rem;
+	}
 
-		.webui-tool-card {
-			display: flex;
-			flex-direction: column;
-			align-items: center;
-			gap: 0.75rem;
-			padding: 1.5rem 1rem;
-			background: var(--pico-card-background-color);
-			border-radius: var(--webui-radius-lg);
-			box-shadow: var(--webui-shadow);
-			cursor: pointer;
-			transition: var(--webui-transition);
-			text-decoration: none;
-			/* Kachel-Titel neutral: Picos Anchor-Blau auf <a>-Karten aufheben */
-			--pico-color: inherit;
-			color: var(--pico-color);
-			border: 1px solid transparent;
-		}
+	.webui-bc-row {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.5rem 1rem;
+		align-items: center;
+		justify-content: space-between;
+		padding: 0.45rem 0;
+		border-top: 1px solid var(--pico-muted-border-color);
+	}
 
-		.webui-tool-card:hover {
-			box-shadow: var(--webui-shadow-hover);
-			border-color: var(--webui-accent);
-			color: var(--webui-accent);
-			transform: translateY(-2px);
-		}
+	.webui-bc-row:first-child {
+		border-top: 0;
+	}
 
-		.webui-tool-card:active {
-			transform: scale(0.97);
-		}
+	.webui-bc-row > span:first-child {
+		font-size: var(--webui-font-sm);
+	}
 
-		.webui-tool-card svg {
-			width: 36px;
-			height: 36px;
-			color: var(--webui-accent);
-		}
+	.webui-bc-row small {
+		display: block;
+		color: var(--pico-muted-color);
+	}
 
-		.webui-tool-card span {
-			font-size: 0.9rem;
-			font-weight: 600;
-		}
+	.webui-bc-acts {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.4rem;
+	}
 
-		.webui-tool-card small {
-			font-size: 0.7rem;
-			color: var(--pico-muted-color);
-			text-align: center;
-		}
+	.webui-bc-acts .webui-btn,
+	.webui-bc-acts select {
+		margin: 0;
+	}
 
-		/* hidden has to win against the card's own display */
-		.webui-tool-card[hidden] {
-			display: none;
-		}
+	.webui-bc-acts .webui-btn svg {
+		width: 0.9rem;
+		height: 0.9rem;
+	}
 
-		[data-theme="light"] .webui-tool-card {
-			border: 1px solid var(--webui-border-subtle);
-		}
+	.webui-bc-acts select {
+		width: auto;
+		padding-top: 0.3rem;
+		padding-bottom: 0.3rem;
+		font-size: var(--webui-font-sm);
+	}
 
-		[data-theme="light"] .webui-tool-card:hover {
-			border-color: var(--webui-accent);
-		}
+	.webui-boxcontrol .webui-card-title .webui-pill {
+		margin-left: 0.4rem;
+	}
+
+	/* the window that waits for the box to come back */
+	.webui-bc-wait .webui-state {
+		padding: 1rem 0.5rem 0.5rem;
+	}
 	</style>
 </head>
 <body>
@@ -100,15 +93,107 @@
 	<div class="webui-header-spacer"></div>
 
 	<main>
-		<div class="webui-tools-grid">
-			<div class="webui-tool-card" onclick="showBoxControl()">
-				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-					<rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="8" cy="12" r="2"/><line x1="14" y1="10" x2="18" y2="10"/><line x1="14" y1="14" x2="18" y2="14"/>
-				</svg>
-				<span>Boxcontrol</span>
-				<small data-l="tools.boxcontrol_sub">Restart, recording, tuner</small>
-			</div>
+		<div class="webui-boxcontrol">
+			<section class="webui-card" aria-labelledby="bc-box-title">
+				<header class="webui-card-header">
+					<h2 class="webui-card-title" id="bc-box-title">
+						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 3v9M6.3 6.3a8 8 0 1 0 11.4 0"/></svg>
+						<span data-l="dash.box">Box</span>
+					</h2>
+				</header>
+				<div class="webui-card-body">
+					<div class="webui-bc-row">
+						<span data-l="bc.restart_gui">Restart Neutrino GUI</span>
+						<span class="webui-bc-acts"><button type="button" class="webui-btn" onclick="bcRestart('gui')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M23 4v6h-6"/><path d="M20.5 15a9 9 0 1 1-2.1-9.4L23 10"/></svg><span data-l="bc.restart_btn">Restart GUI</span></button></span>
+					</div>
+					<div class="webui-bc-row">
+						<span data-l="bc.reboot">Reboot the box</span>
+						<span class="webui-bc-acts"><button type="button" class="webui-btn danger" onclick="bcRestart('box')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M1 4v6h6"/><path d="M3.5 15a9 9 0 1 0 2.1-9.4L1 10"/></svg><span data-l="bc.reboot_btn">Reboot</span></button></span>
+					</div>
+					<div class="webui-bc-row">
+						<span data-l="bc.shutdown">Power off the box</span>
+						<span class="webui-bc-acts"><button type="button" class="webui-btn danger" onclick="bcRestart('off')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M18.4 6.6a9 9 0 1 1-12.8 0"/><path d="M12 2v10"/></svg><span data-l="bc.shutdown_btn">Power off</span></button></span>
+					</div>
+				</div>
+			</section>
 
+			<section class="webui-card" aria-labelledby="bc-rec-title">
+				<header class="webui-card-header">
+					<h2 class="webui-card-title" id="bc-rec-title">
+						<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="12" cy="12" r="6"/></svg>
+						<span data-l="bc.recording">Recording</span>
+						<span class="webui-pill" id="bcRecState" hidden></span>
+					</h2>
+				</header>
+				<div class="webui-card-body">
+					<div class="webui-bc-row">
+						<span><span data-l="bc.instant_rec">Instant recording</span><small data-l="bc.instant_hint">Of the channel the box shows</small></span>
+						<span class="webui-bc-acts">
+							<button type="button" class="webui-btn" onclick="bcRecStart()"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="12" cy="12" r="6"/></svg><span data-l="bc.rec_start">Start</span></button>
+							<button type="button" class="webui-btn" onclick="bcRecStop()"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="1"/></svg><span data-l="bc.rec_stop">Stop</span></button>
+						</span>
+					</div>
+				</div>
+			</section>
+
+			<section class="webui-card" id="bcVideo" aria-labelledby="bc-video-title" hidden>
+				<header class="webui-card-header">
+					<h2 class="webui-card-title" id="bc-video-title">
+						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="4" width="20" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+						<span data-l="bc.video">Picture</span>
+					</h2>
+				</header>
+				<div class="webui-card-body">
+					<div class="webui-bc-row">
+						<label for="bcVideoMode" data-l="bc.resolution">Resolution</label>
+						<span class="webui-bc-acts">
+							<select id="bcVideoMode"></select>
+							<button type="button" class="webui-btn" onclick="bcVideoApply()" data-l="bqe.apply">Apply</button>
+						</span>
+					</div>
+				</div>
+			</section>
+
+			<section class="webui-card" aria-labelledby="bc-rc-title">
+				<header class="webui-card-header">
+					<h2 class="webui-card-title" id="bc-rc-title">
+						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="7" y="2" width="10" height="20" rx="2"/><circle cx="12" cy="17" r="1"/></svg>
+						<span data-l="tools.remote_sub">Remote control</span>
+					</h2>
+				</header>
+				<div class="webui-card-body">
+					<div class="webui-bc-row">
+						<span data-l="bc.rc_at_box">RC at the box</span>
+						<span class="webui-bc-acts">
+							<button type="button" class="webui-btn" onclick="bcAction('bc.lock', 'PUT /osd/remote', {locked: true})"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg><span data-l="bc.lock">Lock</span></button>
+							<button type="button" class="webui-btn" onclick="bcAction('bc.unlock', 'PUT /osd/remote', {locked: false})"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg><span data-l="bc.unlock">Unlock</span></button>
+						</span>
+					</div>
+					<div class="webui-bc-row">
+						<span data-l="bc.web_rc">Remote control in the browser</span>
+						<span class="webui-bc-acts"><button type="button" class="webui-btn" onclick="webuiShowRemote()" data-l="bc.web_rc_open">Open</button></span>
+					</div>
+				</div>
+			</section>
+
+			<section class="webui-card" aria-labelledby="bc-zapit-title">
+				<header class="webui-card-header">
+					<h2 class="webui-card-title" id="bc-zapit-title">
+						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>
+						<span data-l="bc.zapit">Channels and tuner</span>
+					</h2>
+				</header>
+				<div class="webui-card-body">
+					<div class="webui-bc-row">
+						<span data-l="bc.reload_channels">Reload channel lists</span>
+						<span class="webui-bc-acts"><button type="button" class="webui-btn" onclick="bcAction('bc.reload_channels', 'POST /channels/reload', null)" data-l="bc.reload">Reload</button></span>
+					</div>
+					<div class="webui-bc-row">
+						<span data-l="bc.tuner_reset">Tuner reset</span>
+						<span class="webui-bc-acts"><button type="button" class="webui-btn" onclick="bcAction('bc.tuner_reset', 'POST /tuner/reset', null)" data-l="bc.reset">Reset</button></span>
+					</div>
+				</div>
+			</section>
 		</div>
 	</main>
 

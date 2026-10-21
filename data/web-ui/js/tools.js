@@ -1,82 +1,144 @@
-// The script of tools.html.
+// The script of tools.html: the box control.
 
-// M5-Komponenten: 14px-Icons fuer die Dialog-Buttons (Optik wie
-// Settings-Panels)
-function sIcon(p) { return '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' + p + '<\/svg>'; }
-var I_REFRESH = sIcon('<polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>');
-var I_ROTATE = sIcon('<polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/>');
-var I_POWER = sIcon('<path d="M18.36 6.64a9 9 0 1 1-12.73 0"/><line x1="12" y1="2" x2="12" y2="12"/>');
-var I_REC = sIcon('<circle cx="12" cy="12" r="7"/>');
-var I_STOP = sIcon('<rect x="6" y="6" width="12" height="12" rx="1"/>');
-var I_LOCK = sIcon('<rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>');
-var I_UNLOCK = sIcon('<rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/>');
-
-// A box action over /api/v1 ('POST /system/reboot')
+// A box action over /api/v1 ('POST /channels/reload')
 async function bcDo(label, endpoint, params) {
 	try {
 		var m = /^(POST|PUT) (\/.*)$/.exec(endpoint);
 		await webuiV1(m[1], m[2], params ? {body: params} : {});
-		webuiShowToast(label + ' ' + webuiL('msg.executed', 'done'));
+		webuiShowToast(label + ': ' + webuiL('msg.executed', 'done'));
 	} catch (e) {
-		webuiToastError(webuiL('msg.error', 'Error'), e);
+		webuiToastError(label, e);
 	}
 }
 
-// Rueckfrage als webui-Dialog statt nativem confirm(); der
-// Bestaetigen-Knopf wiederholt den Aktionsnamen (label)
-// label and confirmText come as keys of the texts (a plain word where
-// there is none), so no text travels through the markup of a button
-function bcAction(label, endpoint, params, confirmText) {
-	label = webuiL(label, label);
-	if (confirmText)
-		confirmText = webuiLH(confirmText, confirmText);	// the dialog's message is markup
-	if (confirmText) {
-		webuiShowConfirm(label, confirmText, label, function() { return bcDo(label, endpoint, params); });
+// label comes as a key of the texts, so no text travels through the
+// markup of a button
+function bcAction(label, endpoint, params) {
+	return bcDo(webuiL(label, label), endpoint, params);
+}
+
+/* Restarting Neutrino or the box, or switching it off: asked first, then a
+   window that waits for the box to answer again and loads the page anew,
+   or says the box is off. The web server goes with Neutrino, so the wait
+   asks the box itself, not through the sign-in: any answer counts. */
+var BC_RESTARTS = {
+	gui: {endpoint: '/system/restart', title: ['bc.restart_gui', 'Restart Neutrino GUI'], ask: ['bc.restart_confirm', 'Really restart the GUI?'],
+		button: ['bc.restart_btn', 'Restart GUI'], wait: ['bc.gui_wait', 'Neutrino is restarting']},
+	box: {endpoint: '/system/reboot', title: ['bc.reboot', 'Reboot the box'], ask: ['bc.reboot_confirm', 'Really reboot the box?'],
+		button: ['bc.reboot_btn', 'Reboot'], wait: ['bc.box_wait', 'The box is restarting']},
+	off: {endpoint: '/system/shutdown', title: ['bc.shutdown', 'Power off the box'], ask: ['bc.shutdown_confirm', 'Really power off the box?'],
+		button: ['bc.shutdown_btn', 'Power off']}
+};
+
+function bcRestart(kind) {
+	var t = BC_RESTARTS[kind];
+	webuiShowConfirm(webuiL(t.title[0], t.title[1]), webuiLH(t.ask[0], t.ask[1]), webuiL(t.button[0], t.button[1]), async function() {
+		var before = await bcUptime();
+		var drops = bcStreamDrops;
+		await webuiV1('POST', t.endpoint);	// a refusal stays in the question
+		setTimeout(function() { bcWait(kind, before, drops); }, 0);
+	});
+}
+
+/* The event stream goes down with the web server, which runs inside
+   Neutrino: a restart of the GUI too quick for the polls below to find the
+   box away, and which leaves the box's uptime as it was, is seen there. */
+var bcStreamDrops = 0;
+
+// How long the box has been up, or null where it does not say
+async function bcUptime() {
+	try {
+		var r = await fetch('/api/v1/system/info', {credentials: 'same-origin', cache: 'no-store'});
+		var d = r.ok ? await r.json() : null;
+		return d && typeof d.uptime === 'number' ? d.uptime : null;
+	} catch (e) {
+		return null;
+	}
+}
+
+// An answer of the box at all, within three seconds: {up, uptime}
+async function bcAsk() {
+	var ctl = typeof AbortController === 'function' ? new AbortController() : null;
+	var stop = ctl ? setTimeout(function() { ctl.abort(); }, 3000) : null;
+	try {
+		var r = await fetch('/api/v1/system/info', {credentials: 'same-origin', cache: 'no-store', signal: ctl ? ctl.signal : undefined});
+		var d = r.ok ? await r.json().catch(function() { return null; }) : null;
+		return {up: true, uptime: d && typeof d.uptime === 'number' ? d.uptime : null};
+	} catch (e) {
+		return {up: false, uptime: null};
+	} finally {
+		if (stop) clearTimeout(stop);
+	}
+}
+
+function bcShowWait(title, state) {
+	var modal = webuiModal('bcWait', title, '');
+	modal.classList.add('webui-bc-wait');
+	modal.querySelector('.webui-epg-modal-body').replaceChildren(state);
+}
+
+// the wait under way; one closed by the user, or followed by another, ends
+var bcWaitRun = 0;
+
+async function bcWait(kind, before, drops) {
+	var t = BC_RESTARTS[kind];
+	var run = ++bcWaitRun;
+	var live = function() {
+		var modal = document.getElementById('bcWait');
+		return run === bcWaitRun && !!modal && modal.classList.contains('open');
+	};
+	if (kind === 'off') {
+		bcShowWait(webuiL(t.title[0], t.title[1]), webuiState('empty', webuiL('bc.off_title', 'The box is switching off'),
+			webuiL('bc.off_text', 'It is switched on again at the box or with its remote control.')));
 		return;
 	}
-	return bcDo(label, endpoint, params);
+	var title = webuiL(t.title[0], t.title[1]);
+	bcShowWait(title, webuiState('loading', webuiL(t.wait[0], t.wait[1]), webuiL('bc.wait_text', 'The page waits until the box answers again, and then loads anew.')));
+	var away = false;
+	var answered = false;
+	var until = Date.now() + 180000;
+	while (Date.now() < until) {
+		await new Promise(function(done) { setTimeout(done, 2000); });
+		if (!live())
+			return;
+		var a = await bcAsk();
+		if (!live())
+			return;
+		if (!a.up || bcStreamDrops > drops)
+			away = true;
+		if (!a.up)
+			continue;
+		answered = true;
+		// back: after it was away, or up for less time than before
+		if (away || (before !== null && a.uptime !== null && a.uptime < before)) {
+			bcShowWait(title, webuiState('empty', webuiL('bc.back', 'The box is back'), webuiL('bc.back_text', 'The page loads anew.')));
+			setTimeout(function() { if (live()) location.reload(); }, 1500);
+			return;
+		}
+	}
+	// answering all along, and no sign of the restart: say that, not a failure
+	if (answered)
+		bcShowWait(title, webuiState('empty', webuiL('bc.answers', 'The box answers'),
+			webuiL('bc.answers_text', 'Whether it restarted could not be seen from here.'),
+			{retry: function() { location.reload(); }}));
+	else
+		bcShowWait(title, webuiState('error', webuiL('bc.not_back', 'The box has not answered for three minutes'), '',
+			{retry: function() { location.reload(); }}));
 }
 
-async function showBoxControl() {
-	var body =
-		'<div class="webui-form-section"><div class="webui-form-section-title">Box</div>' +
-		'<div class="webui-form-row"><label>' + webuiLH('bc.restart_gui', 'Restart Neutrino GUI') + '</label><span class="webui-row-actions">' +
-		'<button type="button" class="webui-btn" onclick="bcAction(\'bc.restart_btn\', \'POST /system/restart\', null, \'bc.restart_confirm\')">' + I_REFRESH + webuiLH('bc.restart_btn', 'Restart GUI') + '</button></span></div>' +
-		'<div class="webui-form-row"><label>' + webuiLH('bc.reboot', 'Reboot the box') + '</label><span class="webui-row-actions">' +
-		'<button type="button" class="webui-btn danger" onclick="bcAction(\'Reboot\', \'POST /system/reboot\', null, \'bc.reboot_confirm\')">' + I_ROTATE + 'Reboot</button></span></div>' +
-		'<div class="webui-form-row"><label>' + webuiLH('bc.shutdown', 'Power off the box') + '</label><span class="webui-row-actions">' +
-		'<button type="button" class="webui-btn danger" onclick="bcAction(\'Shutdown\', \'POST /system/shutdown\', null, \'bc.shutdown_confirm\')">' + I_POWER + webuiLH('bc.shutdown_btn', 'Power off') + '</button></span></div></div>' +
-		'<div class="webui-form-section"><div class="webui-form-section-title">' + webuiLH('bc.recording', 'Recording') + ' <small id="bcRecState" style="color:var(--pico-muted-color)"></small></div>' +
-		'<div class="webui-form-row"><label>' + webuiLH('bc.instant_rec', 'Instant recording') + '</label><span class="webui-row-actions">' +
-		'<button type="button" class="webui-btn" onclick="bcRecStart()">' + I_REC + 'Start</button> ' +
-		'<button type="button" class="webui-btn" onclick="bcRecStop()">' + I_STOP + 'Stop</button></span></div></div>' +
-		'<div class="webui-form-section" id="bcVideo" hidden><div class="webui-form-section-title">Video</div>' +
-		'<div class="webui-form-row"><label for="bcVideoMode">' + webuiLH('bc.resolution', 'Resolution') + '</label><span class="webui-row-actions">' +
-		'<select id="bcVideoMode"></select> ' +
-		'<button type="button" class="webui-btn" onclick="bcVideoApply()">' + webuiLH('bqe.apply', 'Apply') + '</button></span></div></div>' +
-		'<div class="webui-form-section"><div class="webui-form-section-title">' + webuiLH('tools.remote_sub', 'Remote control') + '</div>' +
-		'<div class="webui-form-row"><label>' + webuiLH('bc.rc_at_box', 'RC at the box') + '</label><span class="webui-row-actions">' +
-		'<button type="button" class="webui-btn" onclick="bcAction(\'bc.lock\', \'PUT /osd/remote\', {locked: true})">' + I_LOCK + webuiLH('bc.lock', 'Lock') + '</button> ' +
-		'<button type="button" class="webui-btn" onclick="bcAction(\'bc.unlock\', \'PUT /osd/remote\', {locked: false})">' + I_UNLOCK + webuiLH('bc.unlock', 'Unlock') + '</button></span></div></div>' +
-		'<div class="webui-form-section"><div class="webui-form-section-title">Zapit</div>' +
-		'<div class="webui-form-row"><label>' + webuiLH('bc.reload_channels', 'Reload channel lists') + '</label><span class="webui-row-actions">' +
-		'<button type="button" class="webui-btn" onclick="bcAction(\'bc.reload\', \'POST /channels/reload\', null)">' + I_REFRESH + webuiLH('bc.reload', 'Reload') + '</button></span></div>' +
-		'<div class="webui-form-row"><label>' + webuiLH('bc.tuner_reset', 'Tuner reset') + '</label><span class="webui-row-actions">' +
-		'<button type="button" class="webui-btn" onclick="bcAction(\'bc.tuner_reset\', \'POST /tuner/reset\', null)">' + I_ROTATE + 'Reset</button></span></div></div>';
-	webuiModal('bcModal', 'Boxcontrol', body);
-	bcRecState();
-	bcVideoLoad();
-}
-
-// What the box records besides its shift, after GET /api/v1/recordings
+// What the box records besides its shift, after GET /api/v1/recordings:
+// a pill beside the card's title
 async function bcRecState() {
 	var el = document.getElementById('bcRecState');
+	if (!el) return;
 	try {
 		var r = await webuiV1('GET', '/recordings');
 		var on = ((r && r.items) || []).some(function(it) { return !it.timeshift; });
-		if (el) el.textContent = on ? '\u2022 ' + webuiL('bc.rec_running', 'recording running') : '\u2022 ' + webuiL('bc.rec_none', 'no recording');
+		el.hidden = false;
+		el.className = 'webui-pill' + (on ? ' rec' : '');
+		el.textContent = on ? webuiL('bc.rec_running', 'recording running') : webuiL('bc.rec_none', 'no recording');
 	} catch (e) {
-		if (el) el.textContent = '';
+		el.hidden = true;
 	}
 }
 
@@ -87,18 +149,18 @@ async function bcRecStart() {
 	try {
 		var ok = await webuiV1Lifting('/recordings', {}, {
 			title: webuiL('bc.instant_rec', 'Instant recording'),
-			ok: 'Start',
+			ok: webuiL('bc.rec_start', 'Start'),
 			stop: '',
 			wake: webuiL('bc.rec_wake', 'The box is in standby. Switch it on and record what it shows?')
 		});
 		if (!ok) return;
-		webuiShowToast(webuiL('bc.recording', 'Recording') + '-Start ' + webuiL('msg.executed', 'done'));
+		webuiShowToast(webuiL('bc.rec_started', 'Recording started'));
 		setTimeout(bcRecState, 1500);
 	} catch (e) {
 		if (e.code === 'recording-running')
 			webuiShowToast(webuiL('bc.rec_already', 'The channel the box shows is being recorded already'), true);
 		else
-			webuiToastError(webuiL('msg.error', 'Error'), e);
+			webuiToastError(webuiL('bc.instant_rec', 'Instant recording'), e);
 	}
 }
 
@@ -119,7 +181,7 @@ async function bcRecStop() {
 }
 
 // The video modes this box offers, from its settings schema, with the one
-// it uses selected; the row stays hidden on a box that offers none
+// it uses selected; the card stays hidden on a box that offers none
 var bcVideoSection = null;
 async function bcVideoLoad() {
 	try {
@@ -156,6 +218,13 @@ async function bcVideoApply() {
 			throw webuiResultError(r);
 		webuiShowToast(webuiL('bc.resolution', 'Resolution') + ': ' + label);
 	} catch (e) {
-		webuiToastError(webuiL('msg.error', 'Error'), e);
+		webuiToastError(webuiL('bc.resolution', 'Resolution'), e);
 	}
 }
+
+webuiAfterTexts(function() {
+	bcRecState();
+	bcVideoLoad();
+	webuiV1Events({'record-start': bcRecState, 'record-stop': bcRecState,
+		error: function() { bcStreamDrops++; }});
+});
