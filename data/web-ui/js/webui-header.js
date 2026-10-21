@@ -2109,17 +2109,6 @@ var WEBUI_ERR_TEXTS = {
 	'extension-refused.409': 'Another extension is being installed or removed',
 	'extension-refused.501': 'This image cannot check signed extensions'
 };
-var WEBUI_ERR_KINDS = {
-	input: 'The box did not accept the input',
-	refused: 'Not allowed',
-	not_found: 'Not found on the box',
-	busy: 'Not possible right now',
-	too_large: 'Too large for the box',
-	too_many: 'Too many attempts, wait a moment',
-	not_offered: 'The box does not offer this',
-	unavailable: 'Not available on the box right now',
-	failed: 'The box could not do it'
-};
 
 function webuiErrText(e) {
 	if (!e)
@@ -2137,11 +2126,7 @@ function webuiErrText(e) {
 	}
 	if ((document.documentElement.lang || 'en') === 'en' && e.message)
 		return e.message;
-	var s = e.status;
-	var kind = (s === 400 || s === 422) ? 'input' : (s === 401 || s === 403) ? 'refused'
-		: s === 404 ? 'not_found' : s === 409 ? 'busy' : s === 413 ? 'too_large'
-		: s === 429 ? 'too_many' : s === 501 ? 'not_offered' : s >= 502 ? 'unavailable' : 'failed';
-	return webuiL('err.kind_' + kind, WEBUI_ERR_KINDS[kind]);
+	return webuiKindText(e.status);
 }
 
 /* A block that says why a list or a card holds nothing (Phase 4 S3): kind

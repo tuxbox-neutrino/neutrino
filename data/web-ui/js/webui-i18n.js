@@ -105,6 +105,29 @@ async function webuiI18nStart() {
 // is read when asked for, not kept.
 window.webuiTexts = webuiI18nStart();
 
+/* A refusal by the kind its status says, in the page's language. Here, and
+   not in webui-header.js, for the pages that load no header (sign-in, new
+   password, wizard); the header's webuiErrText says it with the box's own
+   codes first and falls back to this. */
+var WEBUI_ERR_KINDS = {
+	input: 'The box did not accept the input',
+	refused: 'Not allowed',
+	not_found: 'Not found on the box',
+	busy: 'Not possible right now',
+	too_large: 'Too large for the box',
+	too_many: 'Too many attempts, wait a moment',
+	not_offered: 'The box does not offer this',
+	unavailable: 'Not available on the box right now',
+	failed: 'The box could not do it'
+};
+
+function webuiKindText(s) {
+	var kind = (s === 400 || s === 422) ? 'input' : (s === 401 || s === 403) ? 'refused'
+		: s === 404 ? 'not_found' : s === 409 ? 'busy' : s === 413 ? 'too_large'
+		: s === 429 ? 'too_many' : s === 501 ? 'not_offered' : s >= 502 ? 'unavailable' : 'failed';
+	return webuiL('err.kind_' + kind, WEBUI_ERR_KINDS[kind]);
+}
+
 // Runs fn once the document is parsed and the texts are in.
 function webuiAfterTexts(fn) {
 	return Promise.all([_webuiDomReady(), window.webuiTexts]).then(function() { return fn(); });
