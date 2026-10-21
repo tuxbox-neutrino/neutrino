@@ -22,7 +22,11 @@ Extensions. The contract it follows is in the core's
    `my-extension`: letters, digits, `_` and `-`. The folder name is the
    extension's key and does not change once it is published.
 2. In `index.html` put that name in `data-page="ext-my-extension"` and in
-   `webuiExtLangLoad('my-extension')` / `webuiExtL('my-extension', …)`.
+   `webuiExtTexts('my-extension')`. Mark every visible word with a
+   `data-l` key (`data-l-title`, `data-l-placeholder` and
+   `data-l-aria-label` for attributes) and ask `webuiL(key, 'English')`
+   in scripts; a read of the box that fails goes into
+   `webuiStateFor(e, {retry: …})`, which says why in the page's language.
 3. In `manifest.json` change `name`, `description` and `version`, and the
    keys of your settings (a prefix of your own, like `my_extension_…`,
    keeps them apart from everyone else's in `webui.conf`).

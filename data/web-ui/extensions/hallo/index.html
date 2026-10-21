@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en" data-theme="dark" class="webui-i18n-pending">
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Hello</title>
+	<title data-l="manifest.name" data-l-prefix="Neutrino-Web-UI - ">Neutrino-Web-UI - Hello</title>
 	<link rel="icon" href="/favicon/favicon.ico">
 	<script>
 		// The stored theme before the first paint: the header script runs too late for it.
@@ -11,21 +11,47 @@
 	</script>
 	<link rel="stylesheet" href="/css/pico.min.css">
 	<link rel="stylesheet" href="/css/webui.css">
+	<style>
+		/* the page's own look: one card, the shared blocks inside */
+		.hallo {
+			max-width: 640px;
+			margin: 0 auto;
+			padding: 1rem;
+		}
+		.hallo .webui-card-body {
+			padding: 1rem;
+		}
+		/* a row of the list that comes and goes as a whole */
+		.hallo .webui-kv > div {
+			display: contents;
+		}
+	</style>
 </head>
 <body>
 	<!-- The header builds itself into this element; data-page marks the
-	     extension's own nav entry when its slot is "nav". -->
+	     extension's own entry in the navigation. -->
 	<div class="webui-header-wrapper" data-page="ext-hallo"></div>
+	<div class="webui-header-spacer"></div>
 
-	<main style="max-width:640px;margin:0 auto;padding:1rem">
-		<div class="webui-card" style="padding:1rem">
-			<h3 id="hTitle">Hello!</h3>
-			<p id="hGreeting"></p>
-			<p id="hIntro">This page is the example to start an extension from.</p>
-			<div class="webui-form-row"><label id="hBoxLabel">Box</label><span id="hBox">…</span></div>
-			<div class="webui-form-row"><label id="hNeutrinoLabel">Neutrino</label><span id="hNeutrino">…</span></div>
-			<div class="webui-form-row" id="hUptimeRow" hidden><label id="hUptimeLabel">Up for</label><span id="hUptime">…</span></div>
-		</div>
+	<main class="hallo">
+		<article class="webui-card">
+			<header class="webui-card-header">
+				<h3 class="webui-card-title" id="hTitle" data-l="page.title">Hello!</h3>
+			</header>
+			<div class="webui-card-body">
+				<p id="hGreeting"></p>
+				<!-- every visible word comes from languages/<code>.json by its
+				     data-l key; the English in the markup is the fallback -->
+				<p id="hIntro" data-l="page.intro">This page is the example to start an extension from.</p>
+				<dl class="webui-kv">
+					<dt data-l="page.box">Box</dt><dd id="hBox">…</dd>
+					<dt data-l="page.neutrino">Neutrino</dt><dd id="hNeutrino">…</dd>
+					<div id="hUptimeRow" hidden><dt data-l="page.uptime">Up for</dt><dd id="hUptime">…</dd></div>
+				</dl>
+				<!-- a box that did not answer says why here, with Reload -->
+				<div id="hState"></div>
+			</div>
+		</article>
 	</main>
 
 	<script src="/js/webui-i18n.js"></script>
@@ -34,37 +60,44 @@
 	<script src="/js/webui-v1.js"></script>
 	<script>
 	(async function () {
-		// The extension's own texts: languages/<code>.json of the language the
-		// box shows its pages in. The English text is the fallback.
-		await webuiExtLangLoad('hallo');
-		var L = function (key, en) { return webuiExtL('hallo', key, en); };
+		// The extension's own texts (languages/<code>.json of the language the
+		// box shows its pages in) fill every data-l of the page, and webuiL
+		// reads them as it reads the shared ones.
+		await webuiExtTexts('hallo');
 		var put = function (id, text) { document.getElementById(id).textContent = text; };
-		put('hTitle', L('page.title', 'Hello!'));
-		put('hIntro', L('page.intro', document.getElementById('hIntro').textContent));
-		put('hBoxLabel', L('page.box', 'Box'));
-		put('hNeutrinoLabel', L('page.neutrino', 'Neutrino'));
-		put('hUptimeLabel', L('page.uptime', 'Up for'));
 
-		try {
-			// Everything from the box goes through /api/v1, by webuiV1: it signs
-			// in again on a stale session and throws an Error with the refusal.
-			var settings = await webuiV1('GET', '/webui/settings');
+		async function load() {
+			var state = document.getElementById('hState');
+			state.replaceChildren();
+
+			// A setting of its own: one that cannot be read leaves the default,
+			// and does not keep the rest of the page from the box.
 			var cfg = {};
-			(settings.items || []).forEach(function (it) { cfg[it.key] = it.value; });
-			put('hGreeting', cfg.hallo_greeting || L('page.greeting_default', 'Nice to see you.'));
+			try {
+				var settings = await webuiV1('GET', '/webui/settings');
+				((settings && settings.items) || []).forEach(function (it) { cfg[it.key] = it.value; });
+			} catch (e) { /* the default greeting */ }
+			put('hGreeting', cfg.hallo_greeting || webuiL('page.greeting_default', 'Nice to see you.'));
 
-			var info = await webuiV1('GET', '/system/info');
-			put('hBox', [info.vendor, info.model].filter(Boolean).join(' ') + ' (' + info.hostname + ')');
-			put('hNeutrino', info.neutrino_version || '--');
-			if (cfg.hallo_show_uptime === '1') {
-				put('hUptime', webuiFormatUptime(info.uptime || 0));
-				document.getElementById('hUptimeRow').hidden = false;
+			try {
+				// Everything from the box goes through /api/v1, by webuiV1: it signs
+				// in again on a stale session and throws an Error with the refusal.
+				// What comes back is set as text, never as markup: an answer is data.
+				var info = await webuiV1('GET', '/system/info');
+				put('hBox', [info.vendor, info.model].filter(Boolean).join(' ') + (info.hostname ? ' (' + info.hostname + ')' : ''));
+				put('hNeutrino', info.neutrino_version || '–');
+				if (cfg.hallo_show_uptime === '1') {
+					put('hUptime', webuiFormatUptime(info.uptime || 0));
+					document.getElementById('hUptimeRow').hidden = false;
+				}
+			} catch (e) {
+				// the shared block says why, in the page's language, with Reload
+				put('hBox', '–');
+				put('hNeutrino', '–');
+				state.replaceChildren(webuiStateFor(e, {retry: load}));
 			}
-		} catch (e) {
-			// set as text, never as markup: an answer is data
-			// the header's words for why: also for a box that did not answer
-			put('hBox', webuiL('msg.error', 'Error') + ': ' + webuiErrText(e));
 		}
+		load();
 	})();
 	</script>
 </body>
