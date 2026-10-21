@@ -13,26 +13,122 @@
 	<link rel="stylesheet" href="/css/pico.min.css?v=1">
 	<link rel="stylesheet" href="/css/webui.css?v=90">
 	<style>
-		/* Two columns like the timer list: sources and sorting, then the list */
-		main.webui-media-grid {
+		/* The recordings (Phase 4): the sources beside the list on a wide
+		   screen, a choice above it on a phone; search and order in the
+		   list's head; each recording a row whose title opens its details,
+		   with Play on TV as its action and the others in a menu. */
+		.webui-media {
 			display: grid;
-			grid-template-columns: fit-content(18rem) 1fr;
-			gap: 0.6rem;
-			padding: 0.5rem;
-			overflow: hidden;
+			grid-template-columns: fit-content(18rem) minmax(0, 1fr);
+			gap: 1rem;
+			align-items: start;
+			max-width: 1500px;
+			margin: 0 auto;
+			padding: 1rem;
 		}
 
-		@media (max-width: 800px) {
-			main.webui-media-grid {
-				grid-template-columns: 1fr;
-				grid-template-rows: auto 1fr;
-			}
+		/* Pico lays a nav and the lists in it out as a row: here a column */
+		.webui-media > nav.webui-media-sources {
+			display: block;
+			position: sticky;
+			top: 0;
+		}
+
+		.webui-media-sources ul.webui-source-list {
+			display: block;
+			margin: 0;
+			padding: 0.35rem;
+			list-style: none;
+		}
+
+		.webui-media-sources .webui-source-list li {
+			display: block;
+			margin: 0;
+			padding: 0;
+		}
+
+		.webui-source-list button {
+			--pico-color: inherit;
+			display: block;
+			width: 100%;
+			margin: 0;
+			padding: 0.45rem 0.7rem;
+			border: 0;
+			border-radius: var(--webui-radius);
+			background: none;
+			box-shadow: none;
+			color: var(--pico-color);
+			font-size: var(--webui-font-sm);
+			text-align: left;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			white-space: nowrap;
+		}
+
+		.webui-source-list button:hover {
+			background: var(--webui-bg-elevated);
+		}
+
+		.webui-source-list button[aria-current="true"] {
+			background: var(--webui-accent-light);
+			color: var(--webui-accent);
+			font-weight: 600;
+		}
+
+		.webui-media-list-card .webui-card-header {
+			flex-wrap: wrap;
+		}
+
+		.webui-card-value {
+			color: var(--pico-muted-color);
+			font-variant-numeric: tabular-nums;
 		}
 
 		.webui-media-controls {
-			display: grid;
+			display: flex;
+			flex: 1 1 22rem;
+			flex-wrap: wrap;
 			gap: 0.4rem;
-			padding: 0.5rem 0.8rem;
+			justify-content: flex-end;
+		}
+
+		.webui-media-controls input[type="search"] {
+			flex: 1 1 12rem;
+			min-width: 0;
+		}
+
+		.webui-source-pick {
+			display: none;
+			flex: 1 1 100%;
+			margin: 0;
+		}
+
+		.webui-source-pick select {
+			margin: 0;
+			padding-top: 0.3rem;
+			padding-bottom: 0.3rem;
+			font-size: var(--webui-font-sm);
+		}
+
+		.webui-media-list {
+			margin: 0;
+			padding: 0;
+			list-style: none;
+		}
+
+		@media (max-width: 760px) {
+			.webui-media {
+				grid-template-columns: minmax(0, 1fr);
+				padding: 0.75rem;
+			}
+
+			.webui-media > nav.webui-media-sources {
+				display: none;
+			}
+
+			.webui-source-pick {
+				display: block;
+			}
 		}
 
 		.webui-media-controls input,
@@ -52,9 +148,33 @@
 			display: flex;
 			align-items: center;
 			gap: 0.6rem;
-			padding: 0.45rem 0.6rem;
+			margin: 0;
+			padding: 0.45rem 1rem;
 			border-bottom: 1px solid var(--pico-muted-border-color);
-			cursor: pointer;
+		}
+
+		/* the title opens the details: a button that reads as a title */
+		.webui-media-open {
+			--pico-color: inherit;
+			display: block;
+			width: 100%;
+			margin: 0;
+			padding: 0;
+			border: 0;
+			background: none;
+			box-shadow: none;
+			color: var(--pico-color);
+			text-align: left;
+		}
+
+		.webui-media-open:hover .webui-media-title {
+			color: var(--webui-accent);
+		}
+
+		.webui-media-open:focus-visible {
+			outline: 2px solid var(--webui-focus-color);
+			outline-offset: 2px;
+			border-radius: 2px;
 		}
 
 		.webui-media-row:hover {
@@ -106,14 +226,9 @@
 			text-overflow: ellipsis;
 		}
 
-		.webui-media-badge {
-			font-size: 0.62rem;
-			font-weight: 600;
-			padding: 0.05rem 0.4rem;
-			border-radius: 999px;
-			background: rgba(59, 130, 246, 0.15);
-			color: var(--pico-primary);
+		.webui-media-title .webui-pill {
 			margin-left: 0.4rem;
+			vertical-align: 1px;
 		}
 
 		.webui-media-actions {
@@ -121,9 +236,21 @@
 			gap: 0.25rem;
 		}
 
+		.webui-media-actions .webui-btn {
+			margin: 0;
+			white-space: nowrap;
+		}
+
 		.webui-media-actions .webui-btn svg {
 			width: 0.9rem;
 			height: 0.9rem;
+		}
+
+		@media (max-width: 760px) {
+			/* the action's word gives way to its symbol on a phone */
+			.webui-media-play span {
+				display: none;
+			}
 		}
 
 		.webui-media-note {
@@ -180,22 +307,27 @@
 	<div class="webui-header-wrapper" data-page="recordings"></div>
 	<div class="webui-header-spacer"></div>
 
-	<main class="webui-media-grid">
-		<!-- Sources, search and sorting -->
-		<article class="webui-card webui-panel-card webui-card-sm" id="card-sources">
-			<header class="webui-card-header" onclick="toggleCard('card-sources')">
-				<h3 class="webui-card-title">
-					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-						<path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/>
-					</svg>
-					<span data-l="media.sources">Sources</span>
-				</h3>
-				<span class="webui-card-preview" id="sourcePreview" data-l="media.all">All recordings</span>
-			</header>
-			<div class="webui-card-body">
-				<div class="webui-media-controls">
-					<input type="search" id="mediaSearch" placeholder="Search titles" data-l-placeholder="media.search" aria-label="Search titles" data-l-aria-label="media.search">
-					<div class="webui-media-sort">
+	<main>
+		<div class="webui-media">
+			<nav class="webui-card webui-media-sources" aria-labelledby="sources-title">
+				<header class="webui-card-header">
+					<h2 class="webui-card-title" id="sources-title">
+						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg>
+						<span data-l="media.sources">Sources</span>
+					</h2>
+				</header>
+				<ul class="webui-source-list" id="sourceList"></ul>
+			</nav>
+
+			<section class="webui-card webui-media-list-card" aria-labelledby="media-title">
+				<header class="webui-card-header">
+					<h2 class="webui-card-title">
+						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M7 4v16M17 4v16M2 9h5M2 15h5M17 9h5M17 15h5"/></svg>
+						<span id="media-title" data-l="nav.sub_archive">Archive</span>
+					</h2>
+					<span class="webui-card-value" id="mediaCount"></span>
+					<div class="webui-media-controls">
+						<input type="search" id="mediaSearch" placeholder="Search titles" data-l-placeholder="media.search" aria-label="Search titles" data-l-aria-label="media.search">
 						<select id="mediaSort" aria-label="Sort" data-l-aria-label="media.sort">
 							<option value="start" data-l="media.sort_start">Date</option>
 							<option value="title" data-l="media.sort_title">Title</option>
@@ -204,42 +336,20 @@
 							<option value="size" data-l="media.sort_size">Size</option>
 						</select>
 						<select id="mediaOrder" aria-label="Order" data-l-aria-label="media.order">
-							<option value="">↕</option>
-							<option value="asc">↑</option>
-							<option value="desc">↓</option>
+							<option value="" data-l="media.order_auto">Usual order</option>
+							<option value="asc" data-l="media.order_asc">Ascending</option>
+							<option value="desc" data-l="media.order_desc">Descending</option>
 						</select>
 					</div>
-				</div>
-				<ul class="webui-plain-list webui-filter-list" id="sourceList">
-					<li aria-busy="true" data-l="msg.loading">Loading...</li>
-				</ul>
-			</div>
-		</article>
-
-		<!-- The recordings -->
-		<article class="webui-card webui-panel-card webui-card-sm" id="card-recordings">
-			<header class="webui-card-header" onclick="toggleCard('card-recordings')">
-				<h3 class="webui-card-title">
-					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-						<rect x="2" y="4" width="20" height="16" rx="2"/>
-						<path d="M7 4v16M17 4v16M2 9h5M2 15h5M17 9h5M17 15h5"/>
-					</svg>
-					<span data-l="nav.recordings">Recordings</span>
-				</h3>
-				<span class="webui-card-preview" id="mediaPreview">--</span>
-				<span class="webui-timer-count" id="mediaCount"></span>
-			</header>
-			<div class="webui-card-body">
+					<label class="webui-source-pick">
+						<select id="sourceSelect" aria-label="Sources" data-l-aria-label="media.sources"></select>
+					</label>
+				</header>
 				<div class="webui-media-note" id="mediaPartial" hidden data-l="media.partial">A directory is still being read; the list fills in shortly.</div>
-				<ul class="webui-plain-list" id="mediaList">
-					<li aria-busy="true" data-l="media.loading">Loading recordings...</li>
-				</ul>
+				<ul class="webui-media-list" id="mediaList"></ul>
 				<button type="button" class="webui-btn webui-media-more" id="mediaMore" hidden data-l="media.more">Load more</button>
-			</div>
-		</article>
-
-		<!-- Mobile Card Indicator -->
-		<div class="webui-card-indicator" id="cardIndicator"></div>
+			</section>
+		</div>
 	</main>
 
 	<script src="/js/webui-i18n.js?v=2"></script>

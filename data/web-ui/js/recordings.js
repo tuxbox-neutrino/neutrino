@@ -5,10 +5,12 @@
 // playlist and file, and delete. Titles and texts come from the
 // recording's metadata and go in as text.
 const PAGE = 30;
-const SVG_FILM = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M7 4v16M17 4v16M2 9h5M2 15h5M17 9h5M17 15h5"/></svg>';
-const SVG_PLAY = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5,3 19,12 5,21"/></svg>';
-const SVG_INFO = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>';
-const SVG_DELETE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3,6 5,6 21,6"/><path d="M19,6v14a2,2 0 0,1-2,2H7a2,2 0 0,1-2-2V6m3,0V4a2,2 0 0,1,2-2h4a2,2 0 0,1,2,2v2"/></svg>';
+const SVG_FILM = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M7 4v16M17 4v16M2 9h5M2 15h5M17 9h5M17 15h5"/></svg>';
+const SVG_PLAY = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polygon points="5,3 19,12 5,21"/></svg>';
+const SVG_INFO = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>';
+const SVG_LIST = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>';
+const SVG_DOWN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M4 21h16"/></svg>';
+const SVG_DELETE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="3,6 5,6 21,6"/><path d="M19,6v14a2,2 0 0,1-2,2H7a2,2 0 0,1-2-2V6m3,0V4a2,2 0 0,1,2-2h4a2,2 0 0,1,2,2v2"/></svg>';
 
 let source = '';		// the library directory shown, '' for all
 let nextOffset = 0;		// where the next page begins, null after the last
@@ -44,7 +46,7 @@ async function loadList(more) {
 	const moreBtn = document.getElementById('mediaMore');
 	if (!more) {
 		nextOffset = 0;
-		list.replaceChildren(webuiEl('li', {attrs: {'aria-busy': 'true'}}, webuiL('media.loading', 'Loading recordings...')));
+		list.replaceChildren(webuiEl('li', {}, webuiState('loading', webuiL('media.loading', 'Loading recordings...'), '')));
 	}
 	if (nextOffset === null) return;
 
@@ -60,8 +62,15 @@ async function loadList(more) {
 		page = await webuiV1('GET', '/recordings/archive', {query: query});
 	} catch (e) {
 		if (token !== listToken) return;
-		list.replaceChildren(webuiEl('li', {className: 'webui-empty'}, webuiL('msg.load_fail', 'Loading failed') + ': ' + webuiErrText(e)));
+		// "more" that fails keeps the pages shown and says so; a first page
+		// says why the list is empty, and the sources still offer "all"
+		if (more) {
+			webuiToastError(webuiL('msg.load_fail', 'Loading failed'), e);
+			return;
+		}
+		list.replaceChildren(webuiEl('li', {}, webuiStateFor(e, {retry: () => loadList(false)})));
 		moreBtn.hidden = true;
+		if (sourcesShown === null) showSources([]);
 		return;
 	}
 	if (token !== listToken) return;
@@ -71,13 +80,13 @@ async function loadList(more) {
 	if (!more) list.replaceChildren();
 	items.forEach(rec => list.appendChild(recordingRow(rec)));
 	if (!more && items.length === 0)
-		list.appendChild(webuiEl('li', {className: 'webui-empty'}, webuiL('media.none', 'No recordings found')));
+		list.appendChild(webuiEl('li', {}, webuiState('empty', webuiL('media.none', 'No recordings found'),
+			document.getElementById('mediaSearch').value.trim() ? webuiL('media.none_search', 'Nothing matches these words.') : '')));
 
 	nextOffset = (page && typeof page.next_offset === 'number') ? page.next_offset : null;
 	moreBtn.hidden = nextOffset === null;
 	const total = (page && page.total) || 0;
 	document.getElementById('mediaCount').textContent = String(total);
-	document.getElementById('mediaPreview').textContent = total + ' ' + webuiL('nav.recordings', 'Recordings');
 	showSources((page && page.sources) || []);
 
 	// a directory still being read the first time: asked again a few
@@ -100,49 +109,65 @@ function playbackChanged() {
 	playbackSoon = setTimeout(() => { playbackSoon = null; loadList(false); }, 1000);
 }
 
+// One recording: its cover, its title (a button to its details), what it
+// is, Play on TV and the menu with the others
 function recordingRow(rec) {
-	const cover = webuiEl('div', {className: 'webui-media-cover'},
+	const cover = webuiEl('div', {className: 'webui-media-cover', attrs: {'aria-hidden': 'true'}},
 		webuiEl('img', {attrs: {src: '/api/v1' + archive(rec.id) + '/cover', alt: '', loading: 'lazy'},
 			on: {error: function() { cover.replaceChildren(webuiMarkup(SVG_FILM)); }}}));
+	const title = rec.title || rec.channel || rec.id;
 	const meta = [rec.channel, when(rec.start), length(rec.duration), bytes(rec.size)].filter(Boolean).join(' · ');
-	return webuiEl('li', {className: 'webui-media-row', data: {id: rec.id}, on: {click: () => showDetail(rec.id)}},
+	const base = '/api/v1' + archive(rec.id);
+	const fetchTo = function(href) {
+		const a = webuiEl('a', {attrs: {href: href, download: ''}});
+		document.body.appendChild(a);
+		a.click();
+		a.remove();
+	};
+	return webuiEl('li', {className: 'webui-media-row', data: {id: rec.id}},
 		cover,
 		webuiEl('div', {className: 'webui-media-info'},
-			webuiEl('div', {className: 'webui-media-title'}, rec.title || rec.channel || rec.id,
-				rec.playing ? webuiEl('span', {className: 'webui-media-badge'}, webuiL('media.playing', 'Playing')) : null),
-			webuiEl('div', {className: 'webui-media-meta'}, meta)),
-		webuiEl('div', {className: 'webui-media-actions', on: {click: e => e.stopPropagation()}},
-			button(SVG_PLAY, webuiL('media.play', 'Play on TV'), () => play(rec.id)),
-			button(SVG_INFO, 'Info', () => showDetail(rec.id)),
-			button(SVG_DELETE, webuiL('media.delete', 'Delete'), () => remove(rec), true)));
+			webuiEl('button', {type: 'button', className: 'webui-media-open', attrs: {'aria-label': webuiL('tm.details', 'Details') + ': ' + title},
+				on: {click: () => showDetail(rec.id)}},
+				webuiEl('span', {className: 'webui-media-title'}, title,
+					rec.playing ? webuiEl('span', {className: 'webui-pill ok'}, webuiL('media.playing', 'Playing')) : null),
+				webuiEl('span', {className: 'webui-media-meta'}, meta))),
+		webuiEl('div', {className: 'webui-media-actions'},
+			webuiEl('button', {type: 'button', className: 'webui-btn webui-media-play',
+				attrs: {'aria-label': webuiL('media.play', 'Play on TV') + ': ' + title}, on: {click: () => play(rec.id)}},
+				webuiMarkup(SVG_PLAY), webuiEl('span', {}, webuiL('media.play', 'Play on TV'))),
+			webuiMenuButton(webuiL('bq.more', 'More for %s').replace('%s', title), [
+				{label: webuiL('tm.details', 'Details'), icon: SVG_INFO, onClick: () => showDetail(rec.id)},
+				{label: webuiL('media.playlist', 'Playlist (M3U)'), icon: SVG_LIST, onClick: () => fetchTo(base + '/playlist.m3u')},
+				{label: webuiL('media.download', 'Download file'), icon: SVG_DOWN, onClick: () => fetchTo(base + '/file')},
+				null,
+				{label: webuiL('media.delete', 'Delete'), icon: SVG_DELETE, danger: true, onClick: () => remove(rec)}])));
 }
 
-function button(svg, title, onClick, danger) {
-	return webuiEl('button', {type: 'button', className: 'webui-btn', title: title,
-		attrs: {'aria-label': title}, style: danger ? {color: 'var(--webui-danger)'} : undefined,
-		on: {click: onClick}}, webuiMarkup(svg));
-}
-
-// The library's directories, as the answer names them
+// The library's directories, as the answer names them: buttons beside the
+// list, a choice above it on a phone
 function showSources(sources) {
 	const key = sources.join('\n');
 	if (key === sourcesShown) return;
 	sourcesShown = key;
+	const entries = [['', webuiL('media.all', 'All recordings')]].concat(sources.map(s => [s, s]));
 	const list = document.getElementById('sourceList');
-	const item = (value, label) => webuiEl('li', {className: 'webui-nav-item webui-filter-item' + (value === source ? ' active' : ''),
-		data: {source: value}, on: {click: () => chooseSource(value, label)}},
-		webuiEl('span', {className: 'webui-nav-name webui-filter-name'}, label));
-	list.replaceChildren.apply(list, [item('', webuiL('media.all', 'All recordings'))].concat(sources.map(s => item(s, s))));
+	list.replaceChildren.apply(list, entries.map(e => webuiEl('li', {},
+		webuiEl('button', {type: 'button', data: {source: e[0]}, attrs: {'aria-current': e[0] === source ? 'true' : 'false'},
+			on: {click: () => chooseSource(e[0])}}, e[1]))));
+	const sel = document.getElementById('sourceSelect');
+	sel.replaceChildren.apply(sel, entries.map(e => webuiEl('option', {value: e[0]}, e[1])));
+	sel.value = source;
+	sel.onchange = () => chooseSource(sel.value);
 }
 
-function chooseSource(value, label) {
+function chooseSource(value) {
 	source = value;
-	document.querySelectorAll('#sourceList .webui-filter-item').forEach(li => {
-		li.classList.toggle('active', (li.dataset.source || '') === value);
+	document.querySelectorAll('#sourceList button').forEach(b => {
+		b.setAttribute('aria-current', (b.dataset.source || '') === value ? 'true' : 'false');
 	});
-	document.getElementById('sourcePreview').textContent = label;
+	document.getElementById('sourceSelect').value = value;
 	loadList(false);
-	if (window.innerWidth <= 800) selectCard('card-recordings');
 }
 
 // The details of one recording in a sheet
@@ -159,8 +184,8 @@ async function showDetail(id) {
 		if (value === undefined || value === null || value === '') return;
 		facts.push(webuiEl('dt', {}, label), webuiEl('dd', {}, String(value)));
 	}
-	fact(webuiL('dash.channels', 'Channels'), rec.channel);
-	fact('Start', when(rec.start));
+	fact(webuiL('msg.channel', 'Channel'), rec.channel);
+	fact(webuiL('tm.start', 'Start'), when(rec.start));
 	fact(webuiL('media.sort_duration', 'Length'), length(rec.duration));
 	fact(webuiL('media.sort_size', 'Size'), bytes(rec.size));
 	fact(webuiL('media.year', 'Year'), rec.year);
@@ -247,18 +272,6 @@ webuiAfterTexts(function() {
 	webuiV1Events({
 		'record-stop': () => loadList(false),
 		playback: playbackChanged
-	});
-});
-
-webuiAfterTexts(function() {
-	webuiInitMobileAccordion({
-		cardOrder: ['card-sources', 'card-recordings'],
-		storageKey: 'webui-media-card',
-		defaultCard: 'card-recordings',
-		breakpoint: 800,
-		indicatorId: 'cardIndicator',
-		containerSelector: '.webui-media-grid',
-		mode: 'collapsed'
 	});
 });
 
