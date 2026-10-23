@@ -55,5 +55,7 @@
 	"tools.bqedit": "Bouquet-Editor",
 	"bqe.help": "Hilfe",
 	"bqe.help_title": "So funktioniert der Editor",
-	"bqe.hint_rows": "Links ein Bouquet wählen: Seine Zeile zeigt dann ihre Knöpfe, und seine Kanäle erscheinen in der Mitte."
+	"bqe.hint_rows": "Links ein Bouquet wählen: Seine Zeile zeigt dann ihre Knöpfe, und seine Kanäle erscheinen in der Mitte.",
+	"bqe.tip_mode": "TV- oder Radio-Bouquets bearbeiten",
+	"bqe.tip_new": "Ein neues, leeres Bouquet anlegen"
 }

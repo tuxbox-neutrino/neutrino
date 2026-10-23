@@ -88,12 +88,12 @@
 	<main class="bqe-wrap">
 		<div class="bqe-toolbar">
 			<label class="bqe-mode"><span data-l="bqe.mode">Mode</span>
-				<select id="bqeMode" onchange="bqeModeChanged()">
+				<select title="Edit the TV or the radio bouquets" data-l-title="bqe.tip_mode" id="bqeMode" onchange="bqeModeChanged()">
 					<option value="TV" data-l="dash.tv">TV</option>
 					<option value="RADIO" data-l="dash.radio">Radio</option>
 				</select>
 			</label>
-			<button type="button" class="webui-btn" onclick="bqeAddBouquet()">
+			<button title="Make a new, empty bouquet" data-l-title="bqe.tip_new" type="button" class="webui-btn" onclick="bqeAddBouquet()">
 				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
 					<line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
 				</svg>

@@ -55,5 +55,7 @@
 	"tools.bqedit": "Bouquet editor",
 	"bqe.help": "Help",
 	"bqe.help_title": "How the editor works",
-	"bqe.hint_rows": "Choose a bouquet on the left: its row then shows its buttons, and its channels come up in the middle."
+	"bqe.hint_rows": "Choose a bouquet on the left: its row then shows its buttons, and its channels come up in the middle.",
+	"bqe.tip_mode": "Edit the TV or the radio bouquets",
+	"bqe.tip_new": "Make a new, empty bouquet"
 }
