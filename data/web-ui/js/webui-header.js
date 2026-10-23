@@ -54,55 +54,64 @@ function _webuiCloseBtn(onclick) {
 	'</button>';
 }
 
-// About modal HTML, built once the texts are in
+/* The About window, built once the texts are in (Phase 4 C, as on the
+   approved sample page): the interface's mark, name and version in a head
+   tinted with the accent; the versions of the interface, its web server,
+   its API and Neutrino, and for a fork the version of Neutrino-Web-UI it is
+   based on; the box; the links the box names; the licence and the work of
+   others it ships. The name heads the window, so it names the dialog. */
 function webuiAboutHTML() {
 	return `
 <div class="webui-modal-backdrop" id="webui-about-modal" onclick="webuiCloseAbout(event)">
-	<div class="webui-modal" onclick="event.stopPropagation()">
-		<div class="webui-modal-header">
-			<h3><img src="${WEBUI_CONFIG.logo}" alt="" onerror="this.remove()"> ${WEBUI_CONFIG.title}</h3>
+	<div class="webui-modal webui-about" onclick="event.stopPropagation()">
+		<header class="webui-about-head">
+			<span class="webui-mark" aria-hidden="true">N</span>
+			<div class="webui-about-title">
+				<h3 id="about-name">${WEBUI_CONFIG.title}</h3>
+				<p id="about-version-line"></p>
+			</div>
 			${_webuiCloseBtn('webuiCloseAbout()')}
-		</div>
+		</header>
 		<div class="webui-modal-body">
-			<div class="webui-about-section">
+			<section class="webui-about-section">
 				<h4>${webuiLH('about.versions', 'Versions')}</h4>
-				<div class="webui-about-grid">
-					<span class="webui-about-label">Neutrino-Web-UI</span>
-					<span class="webui-about-value" id="about-webui">--</span>
-					<span class="webui-about-label">Neutrino</span>
-					<span class="webui-about-value" id="about-neutrino">--</span>
-					<span class="webui-about-label">API</span>
-					<span class="webui-about-value" id="about-api">--</span>
-				</div>
-			</div>
-			<div class="webui-about-section">
+				<dl class="webui-about-grid">
+					<dt id="about-webui-name">${WEBUI_CONFIG.title}</dt><dd id="about-webui">--</dd>
+					<dt>${webuiLH('about.webserver', 'Web server')}</dt><dd id="about-webserver">--</dd>
+					<dt>${webuiLH('about.api', 'Interface (API)')}</dt><dd id="about-api">--</dd>
+					<dt>Neutrino</dt><dd id="about-neutrino">--</dd>
+				</dl>
+				<p class="webui-about-base" id="about-base" hidden></p>
+			</section>
+			<section class="webui-about-section">
 				<h4>${webuiLH('about.system', 'System')}</h4>
-				<div class="webui-about-grid">
-					<span class="webui-about-label">Box</span>
-					<span class="webui-about-value" id="about-box">--</span>
-					<span class="webui-about-label">${webuiLH('about.arch', 'Architecture')}</span>
-					<span class="webui-about-value" id="about-arch">--</span>
-					<span class="webui-about-label">${webuiLH('about.os', 'Operating system')}</span>
-					<span class="webui-about-value" id="about-os">--</span>
-				</div>
-			</div>
-			<div class="webui-about-section">
+				<dl class="webui-about-grid">
+					<dt>Box</dt><dd id="about-box">--</dd>
+					<dt>${webuiLH('about.arch', 'Architecture')}</dt><dd id="about-arch">--</dd>
+					<dt>${webuiLH('about.os', 'Operating system')}</dt><dd id="about-os">--</dd>
+				</dl>
+			</section>
+			<section class="webui-about-section">
 				<h4>${webuiLH('about.links', 'Links')}</h4>
 				<div class="webui-about-links" id="about-links">
 					<span class="webui-about-label">${webuiLH('msg.loading', 'Loading...')}</span>
 				</div>
-			</div>
-			<div class="webui-about-section">
+			</section>
+			<section class="webui-about-section">
 				<h4>${webuiLH('about.license', 'License & copyright')}</h4>
 				<div class="webui-about-legal">
-					<p><strong>Neutrino-Web-UI</strong> - ${webuiLH('about.based_on', 'based on yWeb by yjogol')}<br>
-					<span id="about-copyright">Copyright © Tuxbox Project</span></p>
-					<p>${webuiLH('about.licensed', 'Licensed under the')} <a href="https://www.gnu.org/licenses/old-licenses/gpl-2.0.html" target="_blank" rel="noopener">GNU GPL v2</a></p>
-					<p><strong>${webuiLH('about.icons', 'Icons')}:</strong> ${webuiLH('about.icons_from', 'Parts of the icons are based on')} <a href="https://www.famfamfam.com/lab/icons/silk/" target="_blank" rel="noopener">Silk Icons</a> ${webuiLH('about.icons_by', 'by famfamfam, licensed under')} <a href="https://creativecommons.org/licenses/by/2.5/" target="_blank" rel="noopener">CC BY 2.5</a></p>
-					<p><strong>${webuiLH('about.css', 'CSS framework')}:</strong> <a href="https://picocss.com" target="_blank" rel="noopener">Pico.css</a> (${webuiLH('about.mit', 'MIT License')})</p>
+					<p id="about-copyright">Copyright © Tuxbox Project</p>
+					<ul>
+						<li><strong>${WEBUI_CONFIG.title}</strong>: <a href="https://www.gnu.org/licenses/old-licenses/gpl-2.0.html" target="_blank" rel="noopener">GNU GPL v2</a></li>
+						<li><strong>Pico CSS</strong>: <a href="https://picocss.com" target="_blank" rel="noopener">${webuiLH('about.mit', 'MIT License')}</a></li>
+					</ul>
 				</div>
-			</div>
+			</section>
 		</div>
+		<footer class="webui-modal-footer webui-about-foot">
+			<a class="webui-btn" href="/extensions/sysinfo/index.html" data-ext-link="sysinfo" hidden title="${webuiLH('about.sysinfo_tip', 'Everything the box says about itself')}">${webuiLH('about.sysinfo', 'System information')}</a>
+			<button type="button" class="webui-btn primary" onclick="webuiCloseAbout()">${webuiLH('msg.close', 'Close')}</button>
+		</footer>
 	</div>
 </div>
 `;
@@ -844,8 +853,10 @@ async function webuiSystemInfo(full) {
 }
 
 /* The versions and links in the shape of the old versions answer: the
-   program's and the interface's from /api/v1/system/info, the pages' own
-   from the version.txt they ship. */
+   program's, its web server's and the interface's from /api/v1/system/info,
+   the pages' own from the version.txt the build writes beside them: their
+   version (the package's), its date, and for a fork its own name and the
+   version of Neutrino-Web-UI it is based on. */
 async function webuiVersions(sys) {
 	var info = sys ? sys.info : null;
 	if (!info) {
@@ -858,6 +869,7 @@ async function webuiVersions(sys) {
 		neutrino: info.neutrino_version || '',
 		neutrino_git: info.neutrino_git || '',
 		api: info.api ? info.api.major + '.' + info.api.minor : '',
+		webserver: [info.webserver_name, info.webserver_version].filter(Boolean).join(' '),
 		links: info.support || {},
 		copyright: {text: info.support ? info.support.copyright : ''}
 	};
@@ -866,6 +878,8 @@ async function webuiVersions(sys) {
 		if (v.ok) (await v.text()).split('\n').forEach(function(line) {
 			if (line.indexOf('version=') === 0) out.webui = line.slice(8).trim();
 			else if (line.indexOf('date=') === 0) out.webui_date = line.slice(5).trim();
+			else if (line.indexOf('name=') === 0) out.webui_name = line.slice(5).trim();
+			else if (line.indexOf('base=') === 0) out.webui_base = line.slice(5).trim();
 		});
 	} catch (e) { /* no version file */ }
 	return out;
@@ -879,15 +893,22 @@ function webuiSystemInfoOnce() {
 	return _webuiSystemInfoOnce;
 }
 
-// The box's name under the interface's in the side bar
+// The box's name and the interface's version under the interface's name
+// in the side bar; a fork's own name in its place
 function webuiLoadHostname() {
 	const el = document.getElementById('webui-side-host');
 	if (!el) return;
 	webuiSystemInfoOnce()
 		.then(data => {
-			el.textContent = (data && (data.hostname || (data.box && data.box.name))) || 'neutrino';
+			const host = (data && (data.hostname || (data.box && data.box.name))) || 'neutrino';
+			el.textContent = host;
+			return webuiVersions(data).then(v => {
+				if (v.webui) el.textContent = host + ' · ' + v.webui;
+				const name = document.querySelector('.webui-side-name b');
+				if (name && v.webui_name) name.textContent = v.webui_name;
+			});
 		})
-		.catch(() => { el.textContent = 'neutrino'; });
+		.catch(() => { if (!el.textContent) el.textContent = 'neutrino'; });
 }
 
 // The page shown, marked in the navigation: drawn anew for it
@@ -2429,9 +2450,20 @@ function webuiShowAbout() {
 				const el = document.getElementById(id);
 				if (el && val) el.textContent = val;
 			};
+			const name = data.webui_name || WEBUI_CONFIG.title;
+			setEl('about-name', name);
+			setEl('about-webui-name', name);
+			setEl('about-version-line', data.webui ? webuiL('about.version', 'Version %s').replace('%s', data.webui) : '');
 			setEl('about-webui', data.webui ? data.webui + (data.webui_date ? ' (' + data.webui_date + ')' : '') : '--');
-			setEl('about-neutrino', data.neutrino || '--');
+			setEl('about-webserver', data.webserver || '--');
 			setEl('about-api', data.api || '--');
+			setEl('about-neutrino', data.neutrino ? data.neutrino + (data.neutrino_git ? ' (' + data.neutrino_git.split(' ')[0] + ')' : '') : '--');
+			// a fork says what it is based on
+			const base = document.getElementById('about-base');
+			if (base) {
+				base.hidden = !data.webui_base;
+				base.textContent = data.webui_base ? webuiL('about.based_on', 'based on Neutrino-Web-UI %s').replace('%s', data.webui_base) : '';
+			}
 
 			// Build links from API data
 			const linksEl = document.getElementById('about-links');

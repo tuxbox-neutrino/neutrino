@@ -1329,6 +1329,59 @@ body ul.webui-side-list > li {
 	font-size: var(--webui-font-sm);
 }
 
+/* The About window (Phase 4 C, as on the approved sample page): a head
+   tinted with the accent with the interface's mark, name and version, then
+   sections of versions, the box, links and licence, their facts as rows of
+   a table. A browser without color-mix keeps the plain tint before it. */
+.webui-modal.webui-about {
+	max-width: 34rem;
+	border-radius: 1rem;
+}
+
+.webui-about-head {
+	position: relative;
+	display: flex;
+	align-items: center;
+	gap: 1rem;
+	padding: 1.25rem 1.5rem 1.1rem;
+	background: var(--pico-card-sectioning-background-color);
+	background: linear-gradient(135deg, color-mix(in srgb, var(--webui-accent) 22%, var(--pico-card-background-color)) 0%, var(--pico-card-background-color) 78%);
+}
+
+.webui-about-head .webui-mark {
+	width: 3.25rem;
+	height: 3.25rem;
+	border-radius: 0.85rem;
+	font-size: 1.4rem;
+}
+
+.webui-about-title {
+	min-width: 0;
+	padding-right: 2.5rem;
+}
+
+.webui-about-head h3 {
+	margin: 0;
+	font-size: 1.3rem;
+}
+
+.webui-about-head p {
+	margin: 0.1rem 0 0;
+	color: var(--pico-muted-color);
+	font-size: 0.9rem;
+	font-variant-numeric: tabular-nums;
+}
+
+.webui-about-head .webui-modal-close {
+	position: absolute;
+	top: 0.9rem;
+	right: 0.9rem;
+}
+
+.webui-about .webui-modal-body {
+	padding: 1rem 1.5rem 0.25rem;
+}
+
 .webui-about-section {
 	margin-bottom: 1.25rem;
 }
@@ -1346,20 +1399,41 @@ body ul.webui-side-list > li {
 	letter-spacing: 0.08em;
 }
 
+/* the tables of all sections share their first column's width */
 .webui-about-grid {
 	display: grid;
-	grid-template-columns: 1fr 1fr;
-	gap: 0.5rem 1rem;
-	font-size: 0.85rem;
+	grid-template-columns: minmax(7rem, 10.5rem) minmax(0, 1fr);
+	gap: 0.35rem 1.25rem;
+	margin: 0;
+	font-size: 0.875rem;
+}
+
+.webui-about-grid dt {
+	color: var(--pico-muted-color);
+}
+
+.webui-about-grid dd {
+	margin: 0;
+	font-weight: 500;
+	font-variant-numeric: tabular-nums;
+	overflow-wrap: anywhere;
+}
+
+.webui-about-base {
+	margin: 0.6rem 0 0;
+	padding: 0.5rem 0.75rem;
+	border: 1px dashed var(--pico-muted-border-color);
+	border-radius: 0.6rem;
+	color: var(--pico-muted-color);
+	font-size: 0.82rem;
+}
+
+.webui-about-base[hidden] {
+	display: none;
 }
 
 .webui-about-label {
 	color: var(--pico-muted-color);
-}
-
-.webui-about-value {
-	font-weight: 500;
-	text-align: right;
 }
 
 .webui-about-links {
@@ -1379,17 +1453,37 @@ body ul.webui-side-list > li {
 }
 
 .webui-about-legal {
-	font-size: 0.75rem;
+	font-size: 0.8rem;
 	color: var(--pico-muted-color);
 	line-height: 1.5;
 }
 
 .webui-about-legal p {
-	margin: 0 0 0.5rem 0;
+	margin: 0;
+}
+
+.webui-about-legal ul {
+	margin: 0.35rem 0 0;
+	padding-left: 1.1rem;
+}
+
+.webui-about-legal li {
+	margin: 0.1rem 0;
 }
 
 .webui-about-legal a {
 	color: var(--webui-accent);
+}
+
+.webui-about-foot {
+	justify-content: flex-end;
+	padding: 0.9rem 1.5rem 1.25rem;
+}
+
+.webui-about-foot .webui-btn {
+	margin: 0;
+	padding: 0.45rem 1rem;
+	font-size: var(--webui-font-sm);
 }
 
 /* A channel's logo (webuiChannelLogo). Logos are drawn for a TV's dark
