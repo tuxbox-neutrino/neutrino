@@ -77,15 +77,20 @@ async function loadSysInfo() {
 		if (sys.processes) s += row(webuiL('si.processes', 'Processes'), sys.processes.running + ' ' + webuiLH('si.active', 'active') + ' / ' + sys.processes.total + ' ' + webuiLH('si.total', 'total'));
 		document.getElementById('sysinfo-sys').innerHTML = s;
 
-		// Software
+		// Software, as the About window gives it: the interface (a fork with
+		// its own name and what it is based on), its web server, its API and
+		// Neutrino with the revision it was built from
 		var sw = '';
+		if (ver.webui)
+			sw += row(ver.webui_name || 'Neutrino-Web-UI', escapeHtml(ver.webui + (ver.webui_base ?
+				' · ' + webuiL('about.based_on', 'based on Neutrino-Web-UI %s').replace('%s', ver.webui_base) : '')));
+		if (ver.webserver) sw += row(webuiL('about.webserver', 'Web server'), escapeHtml(ver.webserver));
+		if (ver.api) sw += row(webuiL('about.api', 'Interface (API)'), escapeHtml(ver.api));
 		if (ver.neutrino) {
 			var nv = ver.neutrino_name ? ver.neutrino_name + ' ' + ver.neutrino : ver.neutrino;
-			if (ver.neutrino_git) nv += ' (' + ver.neutrino_git.substring(0, 8) + ')';
+			if (ver.neutrino_git) nv += ' (' + ver.neutrino_git.split(' ')[0] + ')';
 			sw += row('Neutrino', escapeHtml(nv));
 		}
-		if (ver.webui) sw += row('Neutrino-Web-UI', escapeHtml(ver.webui));
-		if (ver.api) sw += row('API', escapeHtml(ver.api));
 		document.getElementById('sysinfo-sw').innerHTML = sw;
 
 		// Netzwerk
