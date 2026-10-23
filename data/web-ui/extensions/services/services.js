@@ -50,6 +50,7 @@ function svcRow(d) {
 		webuiEl('span', {className: 'svc-state'}),
 		webuiEl('div', {className: 'svc-actions'}, SVC_VERBS.map(function(v) {
 			return webuiEl('button', {type: 'button', className: 'webui-btn', data: {verb: v.verb},
+				title: webuiL(v.key, v.text) + ' ' + svcTitle(d.id),
 				attrs: {'aria-label': webuiL(v.key, v.text) + ' ' + svcTitle(d.id)},
 				on: {click: function() { svcDo(d.id, v.verb); }}}, webuiL(v.key, v.text));
 		})));

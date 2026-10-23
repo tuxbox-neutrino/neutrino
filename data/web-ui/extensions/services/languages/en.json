@@ -26,5 +26,6 @@
 	"svc.running": "running",
 	"svc.start": "Start",
 	"svc.stop": "Stop",
-	"svc.stopped": "not running"
+	"svc.stopped": "not running",
+	"svc.tip_reload": "Read the services of the box again"
 }

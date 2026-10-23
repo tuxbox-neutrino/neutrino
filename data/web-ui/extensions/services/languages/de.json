@@ -26,5 +26,6 @@
 	"svc.running": "läuft",
 	"svc.start": "Starten",
 	"svc.stop": "Stoppen",
-	"svc.stopped": "läuft nicht"
+	"svc.stopped": "läuft nicht",
+	"svc.tip_reload": "Die Dienste der Box neu lesen"
 }
