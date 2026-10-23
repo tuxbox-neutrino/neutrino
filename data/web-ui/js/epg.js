@@ -210,7 +210,9 @@ function fillRow(target) {
 		const timer = timerFor(channel.id, ev);
 		const mark = timer ? (timer.kind === 'record' ? webuiL('epg.timer_rec_mark', 'recording timer set') : webuiL('epg.timer_zap_mark', 'zap timer set')) : '';
 		const name = [ev.title || '', clock(ev.start) + ' – ' + clock(evStop), channel.name, mark].filter(Boolean).join(', ');
-		boxes.push(webuiEl('div', {className: 'webui-epg-program' + (timer ? (timer.kind === 'record' ? ' timer-rec' : ' timer-zap') : ''),
+		// under ten minutes of the four hours shown: too narrow for its text
+		const tiny = widthPercent < 10 / TOTAL_MINUTES * 100 ? ' tiny' : '';
+		boxes.push(webuiEl('div', {className: 'webui-epg-program' + tiny + (timer ? (timer.kind === 'record' ? ' timer-rec' : ' timer-zap') : ''),
 			tabIndex: 0, attrs: {role: 'button', 'aria-label': name}, data: {start: String(ev.start), stop: String(evStop)},
 			style: {left: leftPercent + '%', width: 'calc(' + widthPercent + '% - 2px)'},
 			on: {click: () => showProgramDetail(channel, ev), keydown: k => pressed(k, () => showProgramDetail(channel, ev))}},

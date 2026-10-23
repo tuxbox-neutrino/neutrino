@@ -21,6 +21,8 @@
 			--epg-prog-bg: #2a3a4a;
 			--epg-prog-border: #3a4a5a;
 			--epg-prog-rest: #3a5a6a;
+			/* the part of what runs now that has run: the accent tinted into the tile */
+			--epg-prog-run: #425a79;
 			--epg-row-hover: rgba(255, 255, 255, 0.02);
 		}
 
@@ -28,6 +30,7 @@
 			--epg-prog-bg: #e8eef5;
 			--epg-prog-border: #c3d0de;
 			--epg-prog-rest: #cbd8e6;
+			--epg-prog-run: #bacadf;
 			--epg-row-hover: rgba(0, 0, 0, 0.03);
 		}
 
@@ -122,7 +125,7 @@
 		.webui-epg-row {
 			display: flex;
 			border-bottom: 1px solid var(--pico-muted-border-color);
-			min-height: 44px;
+			min-height: 52px;
 		}
 
 		.webui-epg-row:hover {
@@ -189,7 +192,7 @@
 			flex: 1;
 			position: relative;
 			overflow: hidden;
-			height: 40px;
+			height: 48px;
 			min-width: 0;
 		}
 
@@ -220,12 +223,13 @@
 			box-shadow: 0 2px 8px rgba(0,0,0,0.3);
 		}
 
-		/* What runs now: its edge in the accent and how far it has run as a
-		   bar along its foot; the text keeps its colour, which a fill behind
-		   it would leave without contrast on the part not run yet */
+		/* What runs now: filled as far as it has run, the whole height of its
+		   tile, in the accent tinted into the tile, and its edge in the
+		   accent. The text keeps its colour, which holds on both parts of
+		   the tile (a full accent fill behind it left it without contrast) */
 		.webui-epg-program.current {
 			background:
-				linear-gradient(var(--webui-accent), var(--webui-accent)) left bottom / var(--progress, 0%) 3px no-repeat,
+				linear-gradient(var(--epg-prog-run), var(--epg-prog-run)) left / var(--progress, 0%) 100% no-repeat,
 				var(--epg-prog-bg);
 			border-color: var(--webui-accent);
 		}
@@ -308,6 +312,14 @@
 		.webui-epg-program-time {
 			font-size: 0.6rem;
 			opacity: 0.7;
+			white-space: nowrap;
+		}
+
+		/* a sliver at the edge of the window (a programme that began before
+		   it, or ends just after it begins): its title and time would only
+		   break into pieces, its name is in its label */
+		.webui-epg-program.tiny > * {
+			visibility: hidden;
 		}
 
 		.webui-epg-program:hover .webui-epg-program-time,
