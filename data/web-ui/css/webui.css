@@ -50,6 +50,10 @@ html.webui-i18n-pending body {
 	--webui-page-max: none;
 	/* the side bar of a wider screen */
 	--webui-side-w: 14rem;
+	/* one size of text on every screen: Pico raises it with the window's
+	   width up to 131 %, which made a wide screen show less than a narrow
+	   one and the sample page's density a lie */
+	--pico-font-size: 100%;
 
 	/* Border radius */
 	--webui-radius: 0.4rem;
