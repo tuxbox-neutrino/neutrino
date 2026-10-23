@@ -545,8 +545,8 @@ function webuiChannelLogo(channelId, text, className) {
 // The dialog, built on its first opening, once the texts are in: a head
 // tinted with the accent with the channel, the programme's time, its title
 // and short text and how far it has run; then its long text and what
-// follows on the channel; the actions at its foot. The title names the
-// dialog (webuiDialogA11y takes the first heading).
+// follows on the channel; the actions at its foot. The channel and the
+// title name the dialog.
 function _webuiEpgModalHTML() {
 	return `
 <div class="webui-epg-modal-backdrop" id="webuiEpgModal" onclick="webuiCloseEpgModal(event)">
@@ -712,6 +712,9 @@ async function webuiShowEpgModal(channelId, channelName, opts) {
 	if (modal._webuiRelease)
 		modal._webuiRelease();
 	modal._webuiRelease = webuiDialogA11y(modal.querySelector('.webui-epg-modal'), {close: function() { webuiCloseEpgModal(); }});
+	// named by the channel and the programme, so it says whose it is
+	// when the box has no guide for the channel
+	modal.querySelector('.webui-epg-modal').setAttribute('aria-labelledby', 'webuiEpgModalChannel webuiEpgCurrentTitle');
 
 	webuiEpgModalUpdateRecBtn(false);
 
