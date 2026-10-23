@@ -109,7 +109,8 @@ async function loadList(more) {
 	nextOffset = (page && typeof page.next_offset === 'number') ? page.next_offset : null;
 	moreBtn.hidden = nextOffset === null;
 	const total = (page && page.total) || 0;
-	document.getElementById('mediaCount').textContent = webuiL('media.count', '%s recordings').replace('%s', total);
+	document.getElementById('mediaCount').textContent = (total === 1 ? webuiL('media.count_one', '%s recording') :
+		webuiL('media.count', '%s recordings')).replace('%s', total);
 	showSources((page && page.sources) || []);
 
 	// the one chosen stays while the list has it; else the column says to choose

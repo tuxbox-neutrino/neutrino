@@ -30,6 +30,7 @@
 	"media.sources": "Sources",
 	"media.all": "All recordings",
 	"media.count": "%s recordings",
+	"media.count_one": "%s recording",
 	"media.view": "View",
 	"media.view_tiles": "Tiles",
 	"media.view_list": "List",

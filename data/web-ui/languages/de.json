@@ -30,6 +30,7 @@
 	"media.sources": "Quellen",
 	"media.all": "Alle Aufnahmen",
 	"media.count": "%s Aufnahmen",
+	"media.count_one": "%s Aufnahme",
 	"media.view": "Ansicht",
 	"media.view_tiles": "Kacheln",
 	"media.view_list": "Liste",
