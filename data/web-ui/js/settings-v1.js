@@ -61,21 +61,22 @@ async function _v1setReadFresh() {
 	return values;
 }
 
-// sidebar group of a section (SETTINGS_GROUPS); one the page does not know
-// yet goes under System
+// sidebar group of a section (SETTINGS_GROUPS): what Neutrino does under
+// Neutrino, the box's drives, updates and CI under System; one the page does
+// not know yet goes under System
 var V1SET_GROUPS = {
-	video: 'av', audio: 'av', player: 'av', recording: 'av',
+	general: 'neutrino', osd: 'neutrino', channel: 'neutrino', player: 'neutrino', recording: 'neutrino',
+	parental: 'neutrino', keybindings: 'neutrino', misc: 'neutrino',
+	hdd: 'sys', update: 'sys', cam: 'sys',
+	video: 'av', audio: 'av',
 	display: 'disp',
-	general: 'sys', misc: 'sys', parental: 'sys', cam: 'sys', hdd: 'sys', update: 'sys',
-	network: 'net', weather: 'net',
-	osd: 'ui', channel: 'ui', keybindings: 'ui'
+	network: 'net', weather: 'net'
 };
 
-// the order of the sections the page knows, within their group; one it does
-// not know follows in the box's order
-var V1SET_ORDER = ['video', 'audio', 'player', 'recording', 'display',
-	'general', 'misc', 'parental', 'cam', 'hdd', 'update',
-	'network', 'weather', 'osd', 'channel', 'keybindings'];
+// the order of the sections the page knows (SETTINGS_ORDER sorts them within
+// their group); one it does not know follows in the box's order
+var V1SET_ORDER = ['general', 'osd', 'channel', 'player', 'recording', 'parental', 'keybindings', 'misc',
+	'hdd', 'update', 'cam', 'video', 'audio', 'display', 'network', 'weather'];
 
 // English names of the sections the box declares today; the language files
 // carry them as yw.set.sec_<id>

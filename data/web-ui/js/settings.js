@@ -1788,15 +1788,19 @@ async function settingsGo(h) {
 	}
 }
 
-// M5b: Sidebar nach SETTINGS_GROUPS gruppiert (Zwischentitel + Icon je
-// Kategorie), Mobile-Select mit <optgroup> je Gruppe. Jede Beschriftung
-// ist Text, aus der Registry wie aus dem Manifest einer Erweiterung,
-// und wird hier escapt.
+/* The menu: the categories in the groups of SETTINGS_GROUPS, each group a
+   section that opens and closes (the acceptance found the menu crowded),
+   the one of the category shown open, and those opened here kept open when
+   the menu is drawn again; within a group in the order of SETTINGS_ORDER.
+   On a phone a choice with a group of options each. Every label is text,
+   from the registry as from an extension's manifest, and is escaped here. */
 function buildNavigation() {
 	var sidebarHtml = '';
 	var mobileHtml = '';
 	var groups = {};
 	SETTINGS_GROUPS.forEach(function(g) { groups[g.id] = []; });
+	var opened = {};
+	document.querySelectorAll('#settingsSidebar details[open]').forEach(function(d) { opened[d.getAttribute('data-grp')] = true; });
 
 	v1setCategories().forEach(function(cat) {
 		(groups[cat.group] || groups.ext).push({cat: cat});
@@ -1805,11 +1809,18 @@ function buildNavigation() {
 		var cat = EXT_SETTINGS_CATS[cid];
 		(groups[cat.group] || groups.ext).push({cat: cat});
 	});
+	var rank = function(e, i) {
+		var r = SETTINGS_ORDER.indexOf(e.cat.id);
+		return (r < 0 ? SETTINGS_ORDER.length : r) * 1000 + i;
+	};
 
 	SETTINGS_GROUPS.forEach(function(g) {
-		var entries = groups[g.id];
+		var entries = groups[g.id].map(function(e, i) { return {e: e, r: rank(e, i)}; })
+			.sort(function(a, b) { return a.r - b.r; }).map(function(x) { return x.e; });
 		if (!entries.length) return;
-		sidebarHtml += '<div class="grp">' + escapeHtml(g.label) + '</div>';
+		var open = opened[g.id] || entries.some(function(e) { return e.cat.id === activeCategory; });
+		sidebarHtml += '<details class="grp-box" data-grp="' + g.id + '"' + (open ? ' open' : '') + '>' +
+			'<summary class="grp"><span>' + escapeHtml(g.label) + '</span><span class="grp-count">' + entries.length + '</span></summary>';
 		mobileHtml += '<optgroup label="' + escapeHtml(g.label) + '">';
 		entries.forEach(function(e) {
 			var label = escapeHtml(e.cat.label);
@@ -1821,6 +1832,7 @@ function buildNavigation() {
 			mobileHtml += '<option value="' + e.cat.id + '"' +
 				(e.cat.id === activeCategory ? ' selected' : '') + '>' + label + '</option>';
 		});
+		sidebarHtml += '</details>';
 		mobileHtml += '</optgroup>';
 	});
 
@@ -1844,12 +1856,17 @@ function switchCategory(catId) {
 	if (typeof webuiRenderNav === 'function')
 		webuiRenderNav('settings');
 
-	// Update sidebar active state
+	// Update sidebar active state, its group opened
 	document.querySelectorAll('#settingsSidebar button').forEach(function(btn) {
 		var on = btn.getAttribute('data-cat') === catId;
 		btn.classList.toggle('active', on);
-		if (on) btn.setAttribute('aria-current', 'true');
-		else btn.removeAttribute('aria-current');
+		if (on) {
+			btn.setAttribute('aria-current', 'true');
+			var box = btn.closest('details');
+			if (box) box.open = true;
+		} else {
+			btn.removeAttribute('aria-current');
+		}
 	});
 
 	// Update mobile select

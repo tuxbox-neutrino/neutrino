@@ -12,17 +12,30 @@
  *   goes into when the box declares it (settings-v1.js); its fields the
  *   schema lacks stay here and are drawn below that section's rows
  */
-// M5b: Sidebar-Gruppen — Reihenfolge = Anzeige-Reihenfolge der Sidebar.
-// Jede Registry-Kategorie traegt group:'<id>'; Extension-Kategorien
-// (EXT_SETTINGS_CATS) defaulten in buildNavigation() auf 'ext'.
+// The groups of the menu, in the order it shows them (Phase 4 C, as the
+// acceptance asked): the web interface and its server first, then what
+// Neutrino does, the system, picture and sound, the displays, the network,
+// the extensions. Each registry category names its group (group:'<id>');
+// an extension's category (EXT_SETTINGS_CATS) goes under Extensions.
 var SETTINGS_GROUPS = [
-	{ id: 'av',   label: webuiL('set.grp_av', 'Picture & Sound') },
-	{ id: 'disp', label: webuiL('set.grp_disp', 'Displays') },
-	{ id: 'sys',  label: webuiL('set.grp_sys', 'System') },
-	{ id: 'net',  label: webuiL('set.grp_net', 'Network & Sources') },
-	{ id: 'ui',   label: webuiL('set.grp_ui', 'User interface') },
-	{ id: 'ext',  label: webuiL('set.grp_ext', 'Extensions') }
+	{ id: 'web',      label: webuiL('set.grp_web', 'Web UI and web server') },
+	{ id: 'neutrino', label: webuiL('set.grp_neutrino', 'Neutrino') },
+	{ id: 'sys',      label: webuiL('set.grp_sys', 'System') },
+	{ id: 'av',       label: webuiL('set.grp_av', 'Picture & Sound') },
+	{ id: 'disp',     label: webuiL('set.grp_disp', 'Displays') },
+	{ id: 'net',      label: webuiL('set.grp_net', 'Network & Sources') },
+	{ id: 'ext',      label: webuiL('set.grp_ext', 'Extensions') }
 ];
+
+// The order of the categories within their group, the box's sections and
+// the registry's alike; one not named here follows in the order it comes.
+var SETTINGS_ORDER = ['webui', 'nhttpd',
+	'general', 'osd', 'channel', 'player', 'recording', 'parental', 'personalize', 'keybindings', 'buttons', 'misc', 'system',
+	'hdd', 'update', 'backup', 'zapitupload', 'cam',
+	'video', 'audio', 'cec',
+	'display', 'lcd', 'glcd',
+	'network', 'weather', 'wol', 'xmltv', 'mounts',
+	'plugins', 'extensions'];
 
 // Personalisierung — die Wertedomaenen aus src/gui/personalize.h:185-231.
 // Welche Domaene ein Eintrag hat, entscheidet in Neutrino das item_mode-
@@ -293,7 +306,7 @@ var SETTINGS_REGISTRY = [
 	},
 	{
 		id: 'personalize',
-		group: 'ui',
+		group: 'neutrino',
 		icon: regIcon('<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>'),
 		label: webuiL('reg.personalize', 'Personalization'),
 		// Gruppen und Reihenfolge wie Neutrinos Menuebaum (neutrino_menue.cpp:
@@ -431,7 +444,7 @@ var SETTINGS_REGISTRY = [
 	{
 		id: 'buttons',
 		v1section: 'keybindings',
-		group: 'ui',
+		group: 'neutrino',
 		icon: regIcon('<rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>'),
 		label: webuiL('reg.keys', 'Keys'),
 		sections: [
@@ -455,7 +468,7 @@ var SETTINGS_REGISTRY = [
 	},
 	{
 		id: 'nhttpd',
-		group: 'sys',
+		group: 'web',
 		icon: regIcon('<rect x="2" y="2" width="20" height="8" rx="2" ry="2"/><rect x="2" y="14" width="20" height="8" rx="2" ry="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/>'),
 		label: 'Webserver',
 		// read and written over /api/v1/system/webserver, by its member names
@@ -485,7 +498,7 @@ var SETTINGS_REGISTRY = [
 	},
 	{
 		id: 'webui',
-		group: 'sys',
+		group: 'web',
 		icon: regIcon('<circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>'),
 		label: 'Neutrino-Web-UI',
 		config: 'webui',

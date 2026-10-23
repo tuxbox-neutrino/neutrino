@@ -62,17 +62,54 @@
 			display: block;
 			padding: 0.1rem 0 0.25rem;
 		}
-		/* Gruppen-Zwischentitel (Optik wie .webui-form-section-title).
-		   Kompakte Zeilen: alle 6 Gruppen + 17 Einträge müssen bis
-		   900px Fensterhöhe ohne Sidebar-Scroll sichtbar sein */
-		#settingsSidebar .grp {
-			padding: 0.4rem 0.75rem 0.15rem;
+		/* a group of the menu: a section that opens and closes, its name
+		   and how many categories it holds; Pico's chevron after them */
+		#settingsSidebar details.grp-box {
+			margin: 0;
+			padding: 0;
+			border: 0;
+		}
+		#settingsSidebar details.grp-box + details.grp-box {
+			border-top: 1px solid var(--pico-muted-border-color);
+		}
+		#settingsSidebar summary.grp {
+			display: flex;
+			align-items: center;
+			gap: 0.4rem;
+			margin: 0;
+			padding: 0.55rem 0.75rem;
+			list-style: none;
+			cursor: pointer;
 			font-size: var(--webui-font-xs);
 			color: var(--webui-accent);
 			text-transform: uppercase;
 			letter-spacing: 0.08em;
 			font-weight: 600;
 			line-height: 1.2;
+		}
+		#settingsSidebar summary.grp::-webkit-details-marker {
+			display: none;
+		}
+		#settingsSidebar details[open] > summary.grp {
+			margin-bottom: 0;
+			padding-bottom: 0.25rem;
+		}
+		#settingsSidebar .grp-count {
+			margin-left: auto;
+			color: var(--pico-muted-color);
+			font-weight: 500;
+			letter-spacing: 0;
+			font-variant-numeric: tabular-nums;
+		}
+		#settingsSidebar summary.grp::after {
+			margin-inline-start: 0;
+		}
+		#settingsSidebar summary.grp:focus-visible {
+			outline: 2px solid var(--webui-focus-color);
+			outline-offset: -2px;
+		}
+		#settingsSidebar details[open] > button:last-child {
+			margin-bottom: 0.4rem;
 		}
 		#settingsSidebar button {
 			display: flex;
