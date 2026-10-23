@@ -308,14 +308,14 @@
 			<div class="webui-card-body">
 				<div class="webui-screenshot-toolbar">
 					<div class="webui-screenshot-actions">
-						<button type="button" class="webui-btn primary" onclick="doSnapshot()" id="btnSnapshot" aria-label="Screenshot" data-l-aria-label="dash.screenshot">
+						<button title="Take a picture of what the TV shows" data-l-title="shot.tip_take" type="button" class="webui-btn primary" onclick="doSnapshot()" id="btnSnapshot" aria-label="Screenshot" data-l-aria-label="dash.screenshot">
 							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 								<path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
 								<circle cx="12" cy="13" r="4"/>
 							</svg>
 							<span class="btn-label" data-l="dash.screenshot">Screenshot</span>
 						</button>
-						<button type="button" class="webui-btn" onclick="doClear()" aria-label="Clear" data-l-aria-label="shot.clear">
+						<button title="Take the picture away" data-l-title="shot.tip_clear" type="button" class="webui-btn" onclick="doClear()" aria-label="Clear" data-l-aria-label="shot.clear">
 							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 								<polyline points="3,6 5,6 21,6"/>
 								<path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
@@ -331,14 +331,14 @@
 					</div>
 
 					<div class="webui-screenshot-options">
-						<label class="webui-toggle-field">
+						<label class="webui-toggle-field" title="Take the TV's menus and messages into the picture" data-l-title="shot.tip_osd">
 							<span class="webui-toggle">
 								<input type="checkbox" id="checkOSD" checked>
 								<span class="webui-toggle-slider"></span>
 							</span>
 							<span class="webui-toggle-text" data-l="pers.osd">OSD</span>
 						</label>
-						<label class="webui-toggle-field">
+						<label class="webui-toggle-field" title="Take the TV picture into the picture" data-l-title="shot.tip_video">
 							<span class="webui-toggle">
 								<input type="checkbox" id="checkVideo" checked>
 								<span class="webui-toggle-slider"></span>
@@ -346,7 +346,7 @@
 							<span class="webui-toggle-text" data-l="pers.video">Video</span>
 						</label>
 						<div class="webui-reload-group">
-							<label class="webui-toggle-field">
+							<label class="webui-toggle-field" title="Take a new picture every few seconds" data-l-title="shot.tip_reload">
 								<span class="webui-toggle">
 									<input type="checkbox" id="checkReload">
 									<span class="webui-toggle-slider"></span>

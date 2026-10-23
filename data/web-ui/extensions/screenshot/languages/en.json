@@ -11,5 +11,10 @@
 	"shot.repeat": "Repeat every",
 	"shot.seconds": "Seconds between two screenshots",
 	"shot.select": "Please select OSD or video!",
-	"tools.remote_sub": "Remote control"
+	"tools.remote_sub": "Remote control",
+	"shot.tip_take": "Take a picture of what the TV shows",
+	"shot.tip_clear": "Take the picture away",
+	"shot.tip_osd": "Take the TV's menus and messages into the picture",
+	"shot.tip_video": "Take the TV picture into the picture",
+	"shot.tip_reload": "Take a new picture every few seconds"
 }

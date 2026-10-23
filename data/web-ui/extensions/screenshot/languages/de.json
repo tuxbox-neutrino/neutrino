@@ -11,5 +11,10 @@
 	"shot.repeat": "Wiederholen alle",
 	"shot.seconds": "Sekunden zwischen zwei Screenshots",
 	"shot.select": "Bitte OSD oder Video auswählen!",
-	"tools.remote_sub": "Fernbedienung"
+	"tools.remote_sub": "Fernbedienung",
+	"shot.tip_take": "Ein Bild aufnehmen, das zeigt, was der Fernseher zeigt",
+	"shot.tip_clear": "Das Bild entfernen",
+	"shot.tip_osd": "Menüs und Meldungen des Fernsehers ins Bild nehmen",
+	"shot.tip_video": "Das Fernsehbild ins Bild nehmen",
+	"shot.tip_reload": "Alle paar Sekunden ein neues Bild aufnehmen"
 }
