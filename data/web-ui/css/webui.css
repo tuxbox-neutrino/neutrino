@@ -2471,6 +2471,10 @@ textarea:focus-visible {
 	user-select: none;
 	min-width: 44px;
 	min-height: 36px;
+	/* Pico gives a button a 20 px margin below it: in the pad it pushed
+	   every key 10 px up out of the middle of its ring, and it set the
+	   rockers off from OK; the rows space their keys with gap */
+	margin: 0;
 }
 
 [data-theme="dark"] .webui-remote .webui-rc-btn {
@@ -2592,7 +2596,15 @@ html:not([data-theme="dark"]) .webui-remote .webui-rc-power {
 	font-weight: 700;
 	text-transform: uppercase;
 	letter-spacing: 0.1em;
+	line-height: 18px;
 	margin-bottom: 4px;
+}
+
+/* as much room below the keys as the label takes above them, so the keys
+   and not the column with its label stand level with OK */
+.webui-remote .webui-rc-rocker::after {
+	content: "";
+	height: 22px;
 }
 
 /* muted, as a caption is, and still 4.5:1 in both themes */
@@ -2691,6 +2703,16 @@ html:not([data-theme="dark"]) .webui-remote .webui-rc-ok {
 	box-shadow: 0 1px 4px rgba(27,132,224,0.3);
 }
 
+/* pressed, OK keeps its blue a shade darker: the grey every other key
+   takes when pressed left its white letters unreadable */
+[data-theme="dark"] .webui-remote .webui-rc-ok:active {
+	background: #1670c0;
+}
+
+html:not([data-theme="dark"]) .webui-remote .webui-rc-ok:active {
+	background: #1566b0;
+}
+
 /* ── Navigation + Function rows ── */
 .webui-remote .webui-rc-nav {
 	display: flex;
@@ -2720,6 +2742,8 @@ html:not([data-theme="dark"]) .webui-remote .webui-rc-ok {
 	cursor: pointer;
 	box-shadow: none !important;
 	-webkit-tap-highlight-color: transparent;
+	/* no Pico margin below them either (see .webui-rc-btn) */
+	margin: 0;
 }
 
 .webui-remote .webui-rc-red { background: #e53935; }
