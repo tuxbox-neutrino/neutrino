@@ -1603,6 +1603,221 @@ body ul.webui-side-list > li {
 	}
 }
 
+/* The programme's window (Phase 4 C): a head tinted with the accent with
+   the channel, the programme's day and time, its title as the largest text,
+   its short text and how far it has run; its long text and the next two on
+   the channel below; round buttons at its foot, the stream as an icon. A
+   browser without color-mix keeps the plain tint before it. */
+.webui-epg-modal.webui-epg-show {
+	max-width: 600px;
+	border-radius: 1rem;
+}
+
+.webui-epg-hero {
+	position: relative;
+	padding: 1.1rem 1.4rem 1rem;
+	background: var(--pico-card-sectioning-background-color);
+	background: linear-gradient(135deg, color-mix(in srgb, var(--webui-accent) 26%, var(--pico-card-background-color)) 0%, var(--pico-card-background-color) 78%);
+}
+
+.webui-epg-hero .webui-modal-close {
+	position: absolute;
+	top: 0.9rem;
+	right: 0.9rem;
+}
+
+.webui-epg-show .webui-epg-modal-channel {
+	padding-right: 2.75rem;
+}
+
+.webui-epg-show .webui-epg-modal-channel-text {
+	display: flex;
+	flex-direction: column;
+	line-height: 1.3;
+}
+
+.webui-epg-show .webui-epg-modal-channel-text b {
+	overflow: hidden;
+	font-size: 0.95rem;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.webui-epg-show .webui-epg-time {
+	margin: 1rem 0 0.2rem;
+	color: var(--webui-accent);
+	font-size: 0.9rem;
+	font-weight: 600;
+	font-variant-numeric: tabular-nums;
+}
+
+.webui-epg-show .webui-epg-title {
+	margin: 0;
+	font-size: 1.6rem;
+	font-weight: 800;
+	line-height: 1.2;
+	letter-spacing: -0.01em;
+}
+
+.webui-epg-sub {
+	margin: 0.35rem 0 0;
+	color: var(--pico-muted-color);
+	font-size: 0.95rem;
+}
+
+.webui-epg-sub[hidden],
+.webui-epg-run[hidden],
+.webui-epg-next[hidden] {
+	display: none;
+}
+
+.webui-epg-run {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) auto;
+	gap: 0.75rem;
+	align-items: center;
+	margin-top: 0.85rem;
+	color: var(--pico-muted-color);
+	font-size: 0.82rem;
+	font-variant-numeric: tabular-nums;
+}
+
+.webui-epg-run .webui-epg-progress {
+	height: 6px;
+	margin: 0;
+	border-radius: 3px;
+}
+
+.webui-epg-show .webui-epg-modal-body {
+	padding: 1rem 1.4rem 0.5rem;
+}
+
+.webui-epg-show .webui-epg-description {
+	color: var(--pico-color);
+	font-size: 0.95rem;
+}
+
+.webui-epg-show .webui-epg-next {
+	margin-top: 1rem;
+	padding-top: 0.75rem;
+}
+
+.webui-epg-show .webui-epg-next-label {
+	margin: 0 0 0.2rem;
+}
+
+.webui-epg-next-list {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.webui-epg-next-list li {
+	display: grid;
+	grid-template-columns: 3.5rem minmax(0, 1fr) auto;
+	gap: 0.6rem;
+	align-items: center;
+	margin: 0;
+	padding: 0.35rem 0;
+	border-top: 1px solid var(--pico-muted-border-color);
+	font-size: 0.9rem;
+	list-style: none;
+}
+
+.webui-epg-next-list li:first-child {
+	border-top: 0;
+}
+
+.webui-epg-next-list b {
+	font-weight: 600;
+	font-variant-numeric: tabular-nums;
+}
+
+.webui-epg-next-list small {
+	margin-left: 0.4rem;
+	color: var(--pico-muted-color);
+}
+
+.webui-epg-round {
+	--pico-color: inherit;
+	display: grid;
+	place-items: center;
+	flex: none;
+	width: 2.4rem;
+	height: 2.4rem;
+	margin: 0;
+	padding: 0;
+	border: 1px solid var(--pico-muted-border-color);
+	border-radius: 50%;
+	background: none;
+	color: var(--pico-color);
+	cursor: pointer;
+}
+
+.webui-epg-round:is(:hover, :focus, :active) {
+	--pico-color: inherit;
+	background: var(--webui-accent-light);
+	border-color: var(--webui-accent);
+}
+
+.webui-epg-round:focus-visible {
+	outline: 2px solid var(--webui-focus-color);
+	outline-offset: 2px;
+	box-shadow: none;
+}
+
+.webui-epg-round svg {
+	width: 1.1rem;
+	height: 1.1rem;
+}
+
+.webui-epg-next-list .webui-epg-round {
+	width: 2rem;
+	height: 2rem;
+}
+
+.webui-epg-show .webui-epg-modal-footer {
+	justify-content: flex-start;
+	align-items: center;
+	padding: 0.9rem 1.4rem 1.2rem;
+	border-top: 0;
+}
+
+.webui-epg-show .webui-epg-modal-footer .webui-btn {
+	border-radius: 999px;
+	padding: 0.45rem 1.05rem;
+}
+
+.webui-epg-show .webui-epg-modal-footer .webui-btn.webui-epg-rec-btn {
+	border-color: color-mix(in srgb, var(--webui-danger) 55%, transparent);
+}
+
+.webui-epg-show .webui-epg-modal-footer .webui-epg-round {
+	margin-left: auto;
+}
+
+@media (max-width: 600px) {
+	.webui-epg-hero {
+		padding: 1rem 1rem 0.9rem;
+	}
+
+	.webui-epg-show .webui-epg-title {
+		font-size: 1.3rem;
+	}
+
+	.webui-epg-show .webui-epg-modal-body {
+		padding: 0.9rem 1rem 0.4rem;
+	}
+
+	.webui-epg-show .webui-epg-modal-footer {
+		padding: 0.75rem 1rem 1rem;
+	}
+
+	.webui-epg-show .webui-epg-modal-footer .webui-epg-round {
+		flex: none;
+	}
+}
+
 /* ============================================
    Cards / Widgets
    ============================================ */
