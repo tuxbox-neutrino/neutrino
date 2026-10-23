@@ -786,6 +786,38 @@ body:not(.has-subheader) .webui-header-spacer {
 }
 
 /* Compact popover for inline forms (e.g. message send) */
+/* The handle between two columns (webuiSplitter): a line that shows where
+   it can be taken, wider for the pointer than it looks */
+.webui-split-handle {
+	position: relative;
+	width: 10px;
+	cursor: col-resize;
+	touch-action: none;
+	border-radius: 4px;
+}
+
+.webui-split-handle::before {
+	content: "";
+	position: absolute;
+	top: 0.75rem;
+	bottom: 0.75rem;
+	left: 4px;
+	width: 2px;
+	border-radius: 1px;
+	background: var(--pico-muted-border-color);
+}
+
+.webui-split-handle:hover::before,
+.webui-split-handle.dragging::before,
+.webui-split-handle:focus-visible::before {
+	background: var(--webui-accent);
+}
+
+.webui-split-handle:focus-visible {
+	outline: 2px solid var(--webui-focus-color);
+	outline-offset: 1px;
+}
+
 /* A help text behind a button (webuiHelpToggle): the panel opens below it,
    over what follows */
 .webui-help {

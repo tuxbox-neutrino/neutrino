@@ -2957,6 +2957,81 @@ function webuiBalanceGrid(selector, opts) {
 }
 
 /* ============================================
+   Splitter (shared)
+   ============================================ */
+
+/**
+ * A handle between two columns of a grid that moves the line between
+ * them: dragged with the pointer, or with the arrow keys once it has the
+ * focus (Shift for longer steps); Home or a double click put the first
+ * column back to its width at first. The width is a custom property of
+ * the grid (opts.prop), which the grid's first column takes, and it is
+ * kept for this browser under opts.key. The handle is a separator that
+ * says its place (aria-valuenow, -min, -max, in px).
+ * @param {Element} handle - the element between the two columns
+ * @param {Object} opts
+ * @param {Element} opts.grid - the grid
+ * @param {string} opts.prop - the custom property, e.g. '--fm-side'
+ * @param {string} [opts.key] - localStorage key for the width kept
+ * @param {number} [opts.start=240] - the width at first, in px
+ * @param {number} [opts.min=160] - the narrowest, in px
+ * @param {number} [opts.maxShare=0.6] - the widest, as a share of the grid
+ */
+function webuiSplitter(handle, opts) {
+	var grid = opts.grid;
+	if (!handle || !grid) return;
+	var start = opts.start || 240;
+	var min = opts.min || 160;
+	var max = function() {
+		return Math.max(min, Math.floor(grid.clientWidth * (opts.maxShare || 0.6)));
+	};
+	var set = function(w, keep) {
+		w = Math.round(Math.max(min, Math.min(max(), w)));
+		grid.style.setProperty(opts.prop, w + 'px');
+		handle.setAttribute('aria-valuenow', String(w));
+		handle.setAttribute('aria-valuemin', String(min));
+		handle.setAttribute('aria-valuemax', String(max()));
+		if (keep && opts.key) {
+			try { localStorage.setItem(opts.key, String(w)); } catch (e) { /* not kept then */ }
+		}
+		return w;
+	};
+	var kept = 0;
+	try { kept = parseInt(localStorage.getItem(opts.key || '') || '', 10) || 0; } catch (e) { /* none kept */ }
+	var width = set(kept > 0 ? kept : start, false);
+	handle.setAttribute('role', 'separator');
+	handle.setAttribute('aria-orientation', 'vertical');
+	handle.tabIndex = 0;
+	handle.addEventListener('pointerdown', function(e) {
+		if (e.button !== 0) return;
+		e.preventDefault();
+		handle.setPointerCapture(e.pointerId);
+		var x0 = e.clientX, w0 = width;
+		handle.classList.add('dragging');
+		var move = function(ev) { width = set(w0 + ev.clientX - x0, false); };
+		var up = function() {
+			handle.removeEventListener('pointermove', move);
+			handle.removeEventListener('pointerup', up);
+			handle.removeEventListener('pointercancel', up);
+			handle.classList.remove('dragging');
+			width = set(width, true);
+		};
+		handle.addEventListener('pointermove', move);
+		handle.addEventListener('pointerup', up);
+		handle.addEventListener('pointercancel', up);
+	});
+	handle.addEventListener('keydown', function(e) {
+		var step = e.shiftKey ? 64 : 16;
+		if (e.key === 'ArrowLeft') width = set(width - step, true);
+		else if (e.key === 'ArrowRight') width = set(width + step, true);
+		else if (e.key === 'Home') width = set(start, true);
+		else return;
+		e.preventDefault();
+	});
+	handle.addEventListener('dblclick', function() { width = set(start, true); });
+}
+
+/* ============================================
    Mobile Accordion (shared card toggle/swipe)
    ============================================ */
 var _webuiAcc = null; /* accordion config */
