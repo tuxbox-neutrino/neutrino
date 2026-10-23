@@ -33,5 +33,9 @@
 	"m3u.replace_text": "Auf der Box gibt es schon eine Datei dieses Namens:",
 	"m3u.replace": "Ersetzen",
 	"m3u.source_added": "zu den WebTV-Quellen hinzugefügt, die Kanallisten werden neu gelesen",
-	"m3u.source_known": "schon eine der WebTV-Quellen, die Kanallisten werden neu gelesen"
+	"m3u.source_known": "schon eine der WebTV-Quellen, die Kanallisten werden neu gelesen",
+	"m3u.tip_convert": "Die Liste in das Format der Box umwandeln",
+	"m3u.tip_download": "Das Ergebnis als Datei auf diesem Rechner speichern",
+	"m3u.tip_save_box": "Das Ergebnis als WebTV-Liste auf der Box speichern",
+	"m3u.tip_add_source": "Die Liste gleich als WebTV-Quelle der Box eintragen"
 }
