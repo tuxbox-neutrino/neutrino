@@ -52,5 +52,8 @@
 	"bqe.t_up": "up",
 	"bqe.unsaved": "unsaved changes",
 	"msg.error": "Error",
-	"tools.bqedit": "Bouquet editor"
+	"tools.bqedit": "Bouquet editor",
+	"bqe.help": "Help",
+	"bqe.help_title": "How the editor works",
+	"bqe.hint_rows": "Choose a bouquet on the left: its row then shows its buttons, and its channels come up in the middle."
 }

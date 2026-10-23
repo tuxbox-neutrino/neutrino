@@ -74,7 +74,6 @@
 		/* Flach genug fuer die 2.4rem-Kopfhoehe (webui.css), sonst ist
 		   dieses Panel hoeher als seine Nachbarn */
 		.bqe-search input { width: 100%; padding: 0.15rem 0.5rem !important; height: auto !important; margin: 0 !important; font-size: 0.8rem; line-height: 1.2; }
-		.bqe-hint { color: var(--pico-muted-color); font-size: 0.75rem; margin-top: 0.6rem; }
 		@media (max-width: 900px) {
 			.bqe-grid { grid-template-columns: 1fr; }
 			.bqe-pane { min-height: 240px; height: auto; }
@@ -99,6 +98,17 @@
 					<line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
 				</svg>
 				<span data-l="bqe.new">New bouquet</span></button>
+			<span class="webui-help">
+				<button type="button" class="webui-btn webui-help-btn" aria-expanded="false" aria-controls="bqeHelp" onclick="webuiHelpToggle(this)" title="How the editor works" data-l-title="bqe.help_title">
+					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+						<circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+					</svg>
+					<span data-l="bqe.help">Help</span></button>
+				<div class="webui-help-panel" id="bqeHelp" hidden>
+					<p data-l="bqe.hint">Reorder channels by dragging and pull them over from "All channels" (double-click adds too). Creating, renaming, moving, hiding, locking and deleting a bouquet is saved on the box at once; a changed channel list with "Apply".</p>
+					<p data-l="bqe.hint_rows">Choose a bouquet on the left: its row then shows its buttons, and its channels come up in the middle.</p>
+				</div>
+			</span>
 			<span class="bqe-dirty" id="bqeDirty">&#9679; <span data-l="bqe.unsaved">unsaved changes</span></span>
 		</div>
 
@@ -155,7 +165,6 @@
 				</div>
 			</article>
 		</div>
-		<p class="bqe-hint" data-l="bqe.hint">Reorder channels by dragging and pull them over from "All channels" (double-click adds too). Creating, renaming, moving, hiding, locking and deleting a bouquet is saved on the box at once; a changed channel list with "Apply".</p>
 	</main>
 
 	<script src="/js/webui-i18n.js"></script>
