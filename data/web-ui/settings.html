@@ -23,6 +23,15 @@
 			padding: 0.5rem;
 		}
 
+		/* a category the navigation opens as a page of Files or System
+		   (SETTINGS_OWN_PAGES): the panel alone, without the list of the
+		   settings and their search */
+		body.settings-single .webui-settings-sidebar,
+		body.settings-single .webui-settings-mobile-nav,
+		body.settings-single .webui-set-tools {
+			display: none;
+		}
+
 		/* Sidebar — Panel-Karte in der Optik von bouquets/timer.
 		   sticky-Offset bezieht sich auf den Scroller <main> (liegt
 		   schon unter dem Header), nicht aufs Fenster: 4.5rem drueckte

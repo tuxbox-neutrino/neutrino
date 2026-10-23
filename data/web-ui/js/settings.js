@@ -1822,7 +1822,13 @@ function buildNavigation() {
 	document.getElementById('mobileCategorySelect').innerHTML = mobileHtml;
 }
 
+/* The categories the navigation opens as pages of Files and System (Network
+   mounts, Plugins, Extensions): shown on their own, without the list of the
+   settings and their search, which belong to Settings. */
+var SETTINGS_OWN_PAGES = ['mounts', 'plugins', 'extensions'];
+
 function switchCategory(catId) {
+	document.body.classList.toggle('settings-single', SETTINGS_OWN_PAGES.indexOf(catId) >= 0);
 	if (activeCategory === catId && document.getElementById('panel-' + catId)) return;
 	activeCategory = catId;
 
