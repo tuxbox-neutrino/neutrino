@@ -230,8 +230,9 @@ async function bcVideoApplyNow(sel) {
 }
 
 webuiAfterTexts(function() {
-	// the cards share their rows out evenly, as the overview's tiles
-	webuiBalanceGrid('.webui-boxcontrol', {tracks: 60, cardMin: 380, maxPer: 4, watch: true});
+	// the cards share their rows out evenly, as the overview's tiles, down
+	// to a phone's width
+	webuiBalanceGrid('.webui-boxcontrol', {tracks: 60, cardMin: 380, maxPer: 4, breakpoint: 760, watch: true});
 	bcRecState();
 	bcVideoLoad();
 	webuiV1Events({'record-start': bcRecState, 'record-stop': bcRecState,

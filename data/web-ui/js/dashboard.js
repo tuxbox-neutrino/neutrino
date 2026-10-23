@@ -837,8 +837,10 @@ function updateStreamInfoUI(resolution, height, aspect, fps, audio) {
 
 // Init, once the texts are in
 webuiAfterTexts(function() {
-	// the tiles share their rows out evenly, the extensions' as they come
-	webuiBalanceGrid('.webui-dashboard', {tracks: 60, cardMin: 380, maxPer: 4, skip: '.webui-dash-now, .webui-dash-gauges', watch: true});
+	// the tiles share their rows out evenly, the extensions' as they come,
+	// down to a phone's width, where they stand one to a row
+	webuiBalanceGrid('.webui-dashboard', {tracks: 60, cardMin: 380, maxPer: 4, breakpoint: 760,
+		skip: '.webui-dash-now, .webui-dash-gauges', watch: true});
 	NO_CHANNEL = webuiL('dash.no_channel', 'No channel');
 	NO_EPG = webuiL('dash.no_epg', 'No EPG data');
 	NO_TUNER = webuiL('dash.no_tuner', 'No tuner');

@@ -51,9 +51,11 @@
 		grid-column: 1 / -1;
 	}
 
+	/* two to a row until the balancer has shared the tiles out, which it
+	   does down to a phone's width */
 	@media (max-width: 1100px) {
 		.webui-dashboard > .webui-card {
-			grid-column: span 30;
+			grid-column: span var(--dash-span, 30);
 		}
 	}
 

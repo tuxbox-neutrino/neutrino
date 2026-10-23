@@ -36,9 +36,11 @@
 		margin-inline: 0.5rem;
 	}
 
+	/* two to a row until the balancer has shared the cards out, which it
+	   does down to a phone's width */
 	@media (max-width: 1100px) {
 		.webui-boxcontrol > .webui-card {
-			grid-column: span 30;
+			grid-column: span var(--dash-span, 30);
 		}
 	}
 
