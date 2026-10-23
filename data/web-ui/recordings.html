@@ -65,6 +65,11 @@
 			white-space: nowrap;
 		}
 
+		.webui-source-list button:is(:hover, :focus, :active) {
+			/* Pico's button colour on hover, focus and press outweighs the reset above */
+			--pico-color: inherit;
+		}
+
 		.webui-source-list button:hover {
 			background: var(--webui-bg-elevated);
 		}
@@ -165,6 +170,11 @@
 			box-shadow: none;
 			color: var(--pico-color);
 			text-align: left;
+		}
+
+		.webui-media-open:is(:hover, :focus, :active) {
+			/* Pico's button colour on hover, focus and press outweighs the reset above */
+			--pico-color: inherit;
 		}
 
 		.webui-media-open:hover .webui-media-title {

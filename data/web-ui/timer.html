@@ -64,6 +64,11 @@
 			text-align: left;
 		}
 
+		.webui-filter-list button:is(:hover, :focus, :active) {
+			/* Pico's button colour on hover, focus and press outweighs the reset above */
+			--pico-color: inherit;
+		}
+
 		.webui-filter-list button svg {
 			flex: none;
 			width: 1rem;
@@ -146,6 +151,11 @@
 			background: none;
 			box-shadow: none;
 			color: var(--pico-muted-color);
+		}
+
+		.webui-timer-more:is(:hover, :focus, :active) {
+			/* Pico's button colour on hover, focus and press outweighs the reset above */
+			--pico-color: inherit;
 		}
 
 		.webui-timer-more:hover {

@@ -1634,6 +1634,24 @@ textarea:focus-visible {
 	--pico-box-shadow: none;
 }
 
+/* Pico sets its button colour again on hover, focus and press
+   ([type=button]:is(:hover, :active, :focus), which outweighs one class):
+   the text colour of its filled buttons, white in light and near black in
+   dark. These buttons put the text colour back at rest only, so a focused
+   menu entry or a pressed "+2 h" turned white on white or black on dark.
+   They keep it in every state; .webui-theme-toggle does so on its own. */
+.webui-btn:is(:hover, :focus, :active),
+.webui-action-btn:is(:hover, :focus, :active),
+.webui-mode-switch-btn:is(:hover, :focus, :active),
+.webui-tabbar button:is(:hover, :focus, :active),
+.webui-confirm-actions button:is(:hover, :focus, :active),
+.webui-card-dot:is(:hover, :focus, :active),
+.webui-card-toggle:is(:hover, :focus, :active),
+.webui-seg button:is(:hover, :focus, :active),
+.webui-menu button:is(:hover, :focus, :active) {
+	--pico-color: inherit;
+}
+
 .webui-btn[disabled],
 .webui-action-btn[disabled],
 .webui-mode-switch-btn[disabled] {

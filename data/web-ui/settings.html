@@ -398,6 +398,11 @@
 			font-size: var(--webui-font-sm);
 			cursor: pointer;
 		}
+
+		.webui-set-hit:is(:hover, :focus, :active) {
+			/* Pico's button colour on hover, focus and press outweighs the reset above */
+			--pico-color: inherit;
+		}
 		.webui-set-hit:hover,
 		.webui-set-hit:focus-visible {
 			background: var(--webui-accent-light);
@@ -477,6 +482,11 @@
 			font-size: var(--webui-font-sm);
 			color: var(--pico-color);
 			transition: var(--webui-transition);
+		}
+
+		.mount-slot-header:is(:hover, :focus, :active) {
+			/* Pico's button colour on hover, focus and press outweighs the reset above */
+			--pico-color: inherit;
 		}
 		.mount-slot-header:hover {
 			background: rgba(255,255,255,0.03);

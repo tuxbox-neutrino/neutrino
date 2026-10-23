@@ -243,6 +243,12 @@
 			user-select: auto;
 		}
 
+		.webui-epg-channel-name[role="button"]:is(:hover, :focus, :active),
+		.webui-epg-program[role="button"]:is(:hover, :focus, :active) {
+			/* Pico's button colour on hover, focus and press outweighs the reset above */
+			--pico-color: inherit;
+		}
+
 		.webui-epg-channel-name[role="button"] {
 			margin: 0;
 			padding: 0.25rem 0.4rem;

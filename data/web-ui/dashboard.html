@@ -265,6 +265,12 @@
 		border-radius: var(--webui-radius);
 	}
 
+	.webui-ext-open:is(:hover, :focus, :active),
+	.webui-ext-open[role="link"]:is(:hover, :focus, :active) {
+		/* Pico's button colour on hover, focus and press outweighs the reset above */
+		--pico-color: inherit;
+	}
+
 	.webui-ext-open:hover {
 		background: var(--webui-bg-elevated);
 	}
