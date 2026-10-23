@@ -123,15 +123,15 @@
 				<div class="webui-card-body">
 					<div class="webui-bc-row">
 						<span data-l="bc.restart_gui">Restart Neutrino GUI</span>
-						<span class="webui-bc-acts"><button type="button" class="webui-btn" onclick="bcRestart('gui')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M23 4v6h-6"/><path d="M20.5 15a9 9 0 1 1-2.1-9.4L23 10"/></svg><span data-l="bc.restart_btn">Restart GUI</span></button></span>
+						<span class="webui-bc-acts"><button title="Restart only the Neutrino interface; the box keeps running" data-l-title="tip.restart_gui" type="button" class="webui-btn" onclick="bcRestart('gui')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M23 4v6h-6"/><path d="M20.5 15a9 9 0 1 1-2.1-9.4L23 10"/></svg><span data-l="bc.restart_btn">Restart GUI</span></button></span>
 					</div>
 					<div class="webui-bc-row">
 						<span data-l="bc.reboot">Reboot the box</span>
-						<span class="webui-bc-acts"><button type="button" class="webui-btn danger" onclick="bcRestart('box')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M1 4v6h6"/><path d="M3.5 15a9 9 0 1 0 2.1-9.4L1 10"/></svg><span data-l="bc.reboot_btn">Reboot</span></button></span>
+						<span class="webui-bc-acts"><button title="Restart the whole box" data-l-title="tip.reboot" type="button" class="webui-btn danger" onclick="bcRestart('box')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M1 4v6h6"/><path d="M3.5 15a9 9 0 1 0 2.1-9.4L1 10"/></svg><span data-l="bc.reboot_btn">Reboot</span></button></span>
 					</div>
 					<div class="webui-bc-row">
 						<span data-l="bc.shutdown">Power off the box</span>
-						<span class="webui-bc-acts"><button type="button" class="webui-btn danger" onclick="bcRestart('off')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M18.4 6.6a9 9 0 1 1-12.8 0"/><path d="M12 2v10"/></svg><span data-l="bc.shutdown_btn">Power off</span></button></span>
+						<span class="webui-bc-acts"><button title="Switch the box off (deep standby)" data-l-title="tip.power_off" type="button" class="webui-btn danger" onclick="bcRestart('off')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M18.4 6.6a9 9 0 1 1-12.8 0"/><path d="M12 2v10"/></svg><span data-l="bc.shutdown_btn">Power off</span></button></span>
 					</div>
 				</div>
 			</section>
@@ -148,8 +148,8 @@
 					<div class="webui-bc-row">
 						<span><span data-l="bc.instant_rec">Instant recording</span><small data-l="bc.instant_hint">Of the channel the box shows</small></span>
 						<span class="webui-bc-acts">
-							<button type="button" class="webui-btn" onclick="bcRecStart()"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="12" cy="12" r="6"/></svg><span data-l="bc.rec_start">Start</span></button>
-							<button type="button" class="webui-btn" onclick="bcRecStop()"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="1"/></svg><span data-l="bc.rec_stop">Stop</span></button>
+							<button title="Record the channel the box shows now" data-l-title="tip.rec_start" type="button" class="webui-btn" onclick="bcRecStart()"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="12" cy="12" r="6"/></svg><span data-l="bc.rec_start">Start</span></button>
+							<button title="Stop the recording running now" data-l-title="tip.rec_stop" type="button" class="webui-btn" onclick="bcRecStop()"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="1"/></svg><span data-l="bc.rec_stop">Stop</span></button>
 						</span>
 					</div>
 				</div>
@@ -166,8 +166,8 @@
 					<div class="webui-bc-row">
 						<label for="bcVideoMode" data-l="bc.resolution">Resolution</label>
 						<span class="webui-bc-acts">
-							<select id="bcVideoMode"></select>
-							<button type="button" class="webui-btn" onclick="bcVideoApply()" data-l="bqe.apply">Apply</button>
+							<select title="Resolution of the TV output" data-l-title="tip.video_mode" id="bcVideoMode"></select>
+							<button title="Set the resolution chosen" data-l-title="tip.video_apply" type="button" class="webui-btn" onclick="bcVideoApply()" data-l="bqe.apply">Apply</button>
 						</span>
 					</div>
 				</div>
@@ -184,13 +184,13 @@
 					<div class="webui-bc-row">
 						<span data-l="bc.rc_at_box">RC at the box</span>
 						<span class="webui-bc-acts">
-							<button type="button" class="webui-btn" onclick="bcAction('bc.lock', 'PUT /osd/remote', {locked: true})"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg><span data-l="bc.lock">Lock</span></button>
-							<button type="button" class="webui-btn" onclick="bcAction('bc.unlock', 'PUT /osd/remote', {locked: false})"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg><span data-l="bc.unlock">Unlock</span></button>
+							<button title="Lock the remote control at the box" data-l-title="tip.rc_lock" type="button" class="webui-btn" onclick="bcAction('bc.lock', 'PUT /osd/remote', {locked: true})"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg><span data-l="bc.lock">Lock</span></button>
+							<button title="Unlock the remote control at the box" data-l-title="tip.rc_unlock" type="button" class="webui-btn" onclick="bcAction('bc.unlock', 'PUT /osd/remote', {locked: false})"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg><span data-l="bc.unlock">Unlock</span></button>
 						</span>
 					</div>
 					<div class="webui-bc-row">
 						<span data-l="bc.web_rc">Remote control in the browser</span>
-						<span class="webui-bc-acts"><button type="button" class="webui-btn" onclick="webuiShowRemote()" data-l="bc.web_rc_open">Open</button></span>
+						<span class="webui-bc-acts"><button title="The remote control in the browser" data-l-title="tip.remote" type="button" class="webui-btn" onclick="webuiShowRemote()" data-l="bc.web_rc_open">Open</button></span>
 					</div>
 				</div>
 			</section>
@@ -205,11 +205,11 @@
 				<div class="webui-card-body">
 					<div class="webui-bc-row">
 						<span data-l="bc.reload_channels">Reload channel lists</span>
-						<span class="webui-bc-acts"><button type="button" class="webui-btn" onclick="bcAction('bc.reload_channels', 'POST /channels/reload', null)" data-l="bc.reload">Reload</button></span>
+						<span class="webui-bc-acts"><button title="Read the box's channel lists again" data-l-title="tip.reload_channels" type="button" class="webui-btn" onclick="bcAction('bc.reload_channels', 'POST /channels/reload', null)" data-l="bc.reload">Reload</button></span>
 					</div>
 					<div class="webui-bc-row">
 						<span data-l="bc.tuner_reset">Tuner reset</span>
-						<span class="webui-bc-acts"><button type="button" class="webui-btn" onclick="bcAction('bc.tuner_reset', 'POST /tuner/reset', null)" data-l="bc.reset">Reset</button></span>
+						<span class="webui-bc-acts"><button title="Reset the tuners; the picture is gone for a moment" data-l-title="tip.tuner_reset" type="button" class="webui-btn" onclick="bcAction('bc.tuner_reset', 'POST /tuner/reset', null)" data-l="bc.reset">Reset</button></span>
 					</div>
 				</div>
 			</section>

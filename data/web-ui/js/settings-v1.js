@@ -757,6 +757,12 @@ function v1setRow(item) {
 		labelCell.appendChild(info);
 	}
 
+	// the same help as a tip on the name and on the field, to be read on hover
+	if (item.hint_text) {
+		labelCell.querySelector('label').title = item.hint_text;
+		var field = control.matches('[data-v1key]') ? control : control.querySelector('[data-v1key]');
+		if (field && !field.title) field.title = item.hint_text;
+	}
 	var row = webuiEl('div', {className: 'webui-form-row', data: {v1row: item.id}}, labelCell, control, help);
 	var p = V1SET.pending[_v1setWrites(item)];
 	if (p && p.error) {
@@ -804,7 +810,7 @@ function v1setPanel(section, extra) {
 			webuiEl('div', {},
 				webuiEl('h3', {}, v1setTitle(section)),
 				webuiEl('p', {className: 'webui-set-count'})),
-			webuiEl('label', {className: 'webui-set-filter'},
+			webuiEl('label', {className: 'webui-set-filter', title: webuiL('tip.drift_only', 'Show only the settings of this section that differ from how the box was delivered')},
 				webuiEl('span', {className: 'webui-toggle'}, only, webuiEl('span', {className: 'webui-toggle-slider'})),
 				webuiEl('span', {}, webuiL('set.drift_only', 'Only what differs from delivery')))),
 		rows,

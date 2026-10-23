@@ -109,6 +109,7 @@ function channelRow(ch) {
 	// the logo while the box hands them out, else the kind of channel
 	const logo = webuiChannelLogo(ch.id, currentMode === 'radio' ? webuiL('dash.radio', 'Radio') : webuiL('dash.tv', 'TV'));
 	const zap = webuiEl('button', {type: 'button', className: 'webui-btn webui-channel-zap',
+		title: webuiL('tip.zap_to', 'Switch the box to %s').replace('%s', ch.name),
 		attrs: {'aria-label': webuiL('bq.zap_title', 'Switch channel') + ': ' + ch.name}, on: {click: () => zapTo(ch.id)}},
 		webuiL('bq.zap_title', 'Switch channel'));
 	const menu = webuiMenuButton(webuiL('bq.more', 'More for %s').replace('%s', ch.name), () => [

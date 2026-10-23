@@ -384,16 +384,16 @@
 	<main class="webui-epg-container">
 		<!-- Toolbar - kompakt in einer Zeile -->
 		<div class="webui-toolbar webui-epg-toolbar">
-			<select class="webui-select" id="bouquetSelect" aria-label="Bouquet" data-l-aria-label="nav.bouquets">
+			<select title="The bouquet whose channels are shown" data-l-title="tip.epg_bouquet" class="webui-select" id="bouquetSelect" aria-label="Bouquet" data-l-aria-label="nav.bouquets">
 				<option value="" data-l="msg.loading">Loading...</option>
 			</select>
-			<select class="webui-select" id="timeSelect" aria-label="From" data-l-aria-label="epg.from"></select>
+			<select title="From what time on the guide is shown" data-l-title="tip.epg_from" class="webui-select" id="timeSelect" aria-label="From" data-l-aria-label="epg.from"></select>
 			<!-- the time nav belongs next to the time it shifts -->
 			<div class="webui-btn-group">
 				<button type="button" class="webui-btn" onclick="changeTime(-2)" title="2 hours earlier" data-l-title="epg.earlier" aria-label="2 hours earlier" data-l-aria-label="epg.earlier">&lt; -2h</button>
 				<button type="button" class="webui-btn" onclick="changeTime(2)" title="2 hours later" data-l-title="epg.later" aria-label="2 hours later" data-l-aria-label="epg.later">+2h &gt;</button>
 			</div>
-			<button type="button" class="webui-btn primary" onclick="loadEpg()">
+			<button title="Read the programme data again" data-l-title="tip.epg_reload" type="button" class="webui-btn primary" onclick="loadEpg()">
 				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
 					<polyline points="23,4 23,10 17,10"/>
 					<path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>

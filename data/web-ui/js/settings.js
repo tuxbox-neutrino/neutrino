@@ -254,9 +254,9 @@ function makeFileControl(inputId, accept) {
 /* A panel's own save (the extension list, an extension's settings, WoL):
    a row at the foot of the panel that stays in view while the panel
    scrolls, as the save bar of the settings does */
-function makePanelSaveRow(onclick, label) {
+function makePanelSaveRow(onclick, label, tip) {
 	return '<div class="settings-panel-save">' +
-		'<button type="button" class="webui-btn primary" onclick="' + onclick + '">' +
+		'<button type="button" class="webui-btn primary" onclick="' + onclick + '"' + (tip ? ' title="' + escapeHtml(tip) + '"' : '') + '>' +
 		SAVE_ICON + (label || webuiLH('bqe.save', 'Save')) + '</button></div>';
 }
 
@@ -682,11 +682,12 @@ async function loadExtensionsPanel() {
 				(upd ? '<span class="ext-badge">v' + escapeHtml(upd.version) + '</span>' : '') +
 				' <small style="color:var(--pico-muted-color)">v' + escapeHtml(m.version || '?') +
 				(m.url ? ' — <a href="' + escapeHtml(m.url) + '">' + escapeHtml(m.entry) + '</a>' : ' — ' + webuiLH('set.ext_settings_only', 'settings only')) + '</small></div>' +
-				'<div><select id="extslot_' + m.dir + '" aria-label="' + webuiLH('set.ext_col_place', 'Place') + ': ' + escapeHtml(m.name) + '">' +
+				'<div><select id="extslot_' + m.dir + '" aria-label="' + webuiLH('set.ext_col_place', 'Place') + ': ' + escapeHtml(m.name) + '"' +
+				' title="' + webuiLH('tip.ext_place', 'Where the extension shows: an area of the navigation, a tile of the dashboard, or its address only') + '">' +
 				extPlaces().map(function(pl) {
 					return '<option value="' + pl.value + '"' + (extPlaceOf(m) === pl.value ? ' selected' : '') + '>' + escapeHtml(pl.label) + '</option>';
 				}).join('') + '</select></div>' +
-				'<div class="ext-cell-center"><label class="webui-toggle"><input type="checkbox" id="extena_' + m.dir + '"' + (m.enabled ? ' checked' : '') +
+				'<div class="ext-cell-center"><label class="webui-toggle" title="' + webuiLH('tip.ext_on', 'Switch the extension on or off; Save puts it in effect') + '"><input type="checkbox" id="extena_' + m.dir + '"' + (m.enabled ? ' checked' : '') +
 				' aria-label="' + webuiLH('set.ext_col_on', 'Active') + ': ' + escapeHtml(m.name) + '">' +
 				'<span class="webui-toggle-slider"></span></label></div>' +
 				'<div class="ext-actions">' +
@@ -697,14 +698,14 @@ async function loadExtensionsPanel() {
 					' aria-label="' + webuiLH('set.extuninst_btn', 'Uninstall') + ': ' + escapeHtml(m.name) + '" onclick="extUninstall(\'' + m.dir + '\')">' + TRASH_ICON + '</button>' +
 				'</div>';
 		});
-		html += '</div></div>' + makePanelSaveRow('saveExtensions(this)');
+		html += '</div></div>' + makePanelSaveRow('saveExtensions(this)', null, webuiL('tip.ext_save', 'Keep the places and switches of the list'));
 	}
 	// install/update row — also shown when no extension is installed
 	html += '<div class="webui-form-section"><div class="webui-form-section-title">' + webuiLH('set.extinst_section', 'Install / update') + '</div>' +
 		'<div class="webui-form-row"><label>' + webuiLH('set.extinst_label', 'New extension (signed index or tar.gz)') + '</label>' +
 		'<span class="webui-row-actions">' +
-		'<button type="button" class="webui-btn primary" onclick="extInstallDialog()">' + UP_ICON + webuiLH('set.extinst_btn', 'Install') + '</button>' +
-		'<button type="button" class="webui-btn" onclick="extCheckUpdates(this)">' + REFRESH_ICON + webuiLH('set.extup_check', 'Check for updates') + '</button>' +
+		'<button type="button" class="webui-btn primary" onclick="extInstallDialog()" title="' + webuiLH('tip.ext_install', 'Install an extension from the catalogue or from a file') + '">' + UP_ICON + webuiLH('set.extinst_btn', 'Install') + '</button>' +
+		'<button type="button" class="webui-btn" onclick="extCheckUpdates(this)" title="' + webuiLH('tip.ext_updates', 'Look for newer versions of the extensions installed') + '">' + REFRESH_ICON + webuiLH('set.extup_check', 'Check for updates') + '</button>' +
 		'</span></div></div>';
 	el.innerHTML = html;
 }
@@ -1343,18 +1344,21 @@ async function loadPluginsPanel() {
 			var start = pluginButton(PLAY_ICON, webuiL('set.plugins_start', 'Start'), function(btn) { startPluginByName(pl, btn); });
 			start.classList.add('webui-plugin-start');
 			start.setAttribute('aria-label', webuiL('set.plugins_start', 'Start') + ': ' + (pl.title || pl.name));
+			start.title = webuiL('tip.plugin_start', 'Start %s at the box; the TV shows it').replace('%s', pl.title || pl.name);
 			installed.appendChild(pluginRow(pl.title || pl.name, note, [start, ' ', pluginHideButton(pl)]));
 		});
 		var manage = webuiEl('div', {className: 'webui-form-section'},
 			webuiEl('div', {className: 'webui-form-section-title'}, webuiL('set.plugins_manage', 'Management')),
 			pluginRow(webuiL('set.plugins_reload', 'Re-read the plugin list'), null,
-				pluginButton(REFRESH_ICON, webuiL('set.plugins_reload_btn', 'Reload'), reloadPluginList)));
+				webuiTitled(pluginButton(REFRESH_ICON, webuiL('set.plugins_reload_btn', 'Reload'), reloadPluginList),
+					webuiL('tip.plugins_reload', "Read the box's plugin folders again, for one added or taken away"))));
 		// where the services went that the former plugin page started
 		var exts = await webuiDiscoverExtensions().catch(function() { return []; });
 		var services = (exts || []).find(function(m) { return m.dir === 'services' && m.enabled && m.url; });
 		if (services)
 			manage.appendChild(pluginRow(webuiL('set.plugins_services', 'Services such as NFS or Samba'), null,
-				webuiEl('a', {className: 'webui-btn', attrs: {href: services.url}}, services.name)));
+				webuiEl('a', {className: 'webui-btn', title: webuiL('tip.services', 'Start and stop services of the box such as NFS or Samba'),
+					attrs: {href: services.url}}, services.name)));
 		el.replaceChildren(installed, manage);
 		pluginShowRunning(!!data.running);
 	} catch (e) {
@@ -1370,6 +1374,7 @@ function pluginHideButton(pl) {
 		function(btn) { setPluginHidden(pl, !pl.hidden, btn); });
 	b.setAttribute('aria-label', (pl.hidden ? webuiL('set.plugins_show_label', 'Show %s in the box\'s menus') :
 		webuiL('set.plugins_hide_label', 'Hide %s in the box\'s menus')).replace('%s', title));
+	b.title = b.getAttribute('aria-label');
 	return b;
 }
 
@@ -1486,7 +1491,8 @@ function drawShares(el, items) {
 	var all = webuiEl('div', {className: 'webui-form-row'},
 		webuiEl('label', {}, webuiL('set.mnt_mount_auto', 'All set to Auto-Mount')),
 		webuiEl('span', {className: 'webui-row-actions'},
-			webuiEl('button', {type: 'button', className: 'webui-btn primary', on: {click: function() { mountAutomaticShares(this); }}},
+			webuiEl('button', {type: 'button', className: 'webui-btn primary', title: webuiL('tip.mnt_all', 'Mount every share set to Auto-Mount now'),
+				on: {click: function() { mountAutomaticShares(this); }}},
 				webuiMarkup(MOUNT_ICON), webuiL('set.mnt_mount', 'Mount'))));
 	el.replaceChildren(all, ...items.map(function(sh) { return shareSlot(sh, false); }));
 }
@@ -1570,9 +1576,9 @@ function shareFields(sh) {
 		shareRow(webuiL('set.mnt_mac', 'MAC address'), input('mac', sh.mac)),
 		credentials,
 		shareRow(webuiL('set.mnt_actions', 'Actions'), webuiEl('span', {className: 'webui-row-actions'},
-			button(SAVE_ICON, webuiL('bqe.save', 'Save'), function() { saveShare(i); }), ' ',
-			button(MOUNT_ICON, webuiL('set.mnt_mount', 'Mount'), function() { shareAction(i, 'mount'); }), ' ',
-			button(EJECT_ICON, webuiL('set.mnt_umount', 'Unmount'), function() { shareAction(i, 'unmount'); })))
+			webuiTitled(button(SAVE_ICON, webuiL('bqe.save', 'Save'), function() { saveShare(i); }), webuiL('tip.mnt_save', 'Keep this share as entered')), ' ',
+			webuiTitled(button(MOUNT_ICON, webuiL('set.mnt_mount', 'Mount'), function() { shareAction(i, 'mount'); }), webuiL('tip.mnt_mount', 'Mount this share now')), ' ',
+			webuiTitled(button(EJECT_ICON, webuiL('set.mnt_umount', 'Unmount'), function() { shareAction(i, 'unmount'); }), webuiL('tip.mnt_umount', 'Unmount this share now'))))
 	];
 }
 

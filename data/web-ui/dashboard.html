@@ -454,19 +454,19 @@
 						</div>
 					</div>
 					<div class="webui-now-actions">
-						<button type="button" class="webui-btn primary" id="rec-btn" onclick="toggleRecording()">
+						<button title="Record the programme running now, or stop its recording" data-l-title="tip.rec_now" type="button" class="webui-btn primary" id="rec-btn" onclick="toggleRecording()">
 							<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="12" cy="12" r="6"/></svg>
 							<span data-l="dash.record">Record</span>
 						</button>
-						<button type="button" class="webui-btn" onclick="showCurrentEpgInfo()">
+						<button title="Title, time and text of the programme running now" data-l-title="tip.epg_info_now" type="button" class="webui-btn" onclick="showCurrentEpgInfo()">
 							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg>
 							<span data-l="dash.epg_info">Programme info</span>
 						</button>
-						<a class="webui-btn" href="/bouquets.html" data-l="nav.sub_channels">Channel list</a>
-						<a class="webui-btn" href="/epg.html" data-l="nav.epg">EPG</a>
+						<a title="Open the channel list" data-l-title="tip.open_channels" class="webui-btn" href="/bouquets.html" data-l="nav.sub_channels">Channel list</a>
+						<a title="Open the programme guide" data-l-title="tip.open_epg" class="webui-btn" href="/epg.html" data-l="nav.epg">EPG</a>
 						<div class="webui-seg" role="group" aria-label="TV or radio" data-l-aria-label="dash.tv_or_radio">
-							<button type="button" id="mode-tv" aria-pressed="true" onclick="switchMode('tv')" data-l="dash.tv">TV</button>
-							<button type="button" id="mode-radio" aria-pressed="false" onclick="switchMode('radio')" data-l="dash.radio">Radio</button>
+							<button title="Switch the box to TV" data-l-title="tip.mode_tv" type="button" id="mode-tv" aria-pressed="true" onclick="switchMode('tv')" data-l="dash.tv">TV</button>
+							<button title="Switch the box to radio" data-l-title="tip.mode_radio" type="button" id="mode-radio" aria-pressed="false" onclick="switchMode('radio')" data-l="dash.radio">Radio</button>
 						</div>
 					</div>
 				</div>
@@ -483,7 +483,7 @@
 				</header>
 				<div class="webui-card-body" id="timer-list"></div>
 				<footer class="webui-card-footer">
-					<a href="/timer.html" class="webui-btn" data-l="dash.timer_list">Timer list</a>
+					<a title="Open the timer list" data-l-title="tip.open_timers" href="/timer.html" class="webui-btn" data-l="dash.timer_list">Timer list</a>
 				</footer>
 			</section>
 
@@ -542,23 +542,23 @@
 					</h2>
 				</header>
 				<div class="webui-card-body webui-quick">
-					<a href="/extensions/screenshot/index.html" class="webui-btn" data-ext-link="screenshot" hidden>
+					<a title="A picture of what the TV shows" data-l-title="tip.screenshot" href="/extensions/screenshot/index.html" class="webui-btn" data-ext-link="screenshot" hidden>
 						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9a2 2 0 0 1 2-2h1l2-3h8l2 3h1a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><circle cx="12" cy="13" r="3"/></svg>
 						<span data-l="dash.screenshot">Screenshot</span>
 					</a>
-					<a href="/extensions/files/index.html" class="webui-btn" data-ext-link="files" hidden>
+					<a title="The files on the box" data-l-title="tip.files" href="/extensions/files/index.html" class="webui-btn" data-ext-link="files" hidden>
 						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
 						<span data-l="tools.files">Files</span>
 					</a>
-					<button type="button" class="webui-btn" onclick="webuiShowMessageDialog()">
+					<button title="Show a message on the TV" data-l-title="tip.message" type="button" class="webui-btn" onclick="webuiShowMessageDialog()">
 						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
 						<span data-l="tools.message">Message</span>
 					</button>
-					<button type="button" class="webui-btn" onclick="webuiShowRemote()">
+					<button title="The remote control in the browser" data-l-title="tip.remote" type="button" class="webui-btn" onclick="webuiShowRemote()">
 						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="7" y="2" width="10" height="20" rx="2"/><circle cx="12" cy="17" r="1"/></svg>
 						<span data-l="tools.remote_sub">Remote control</span>
 					</button>
-					<button type="button" class="webui-btn" onclick="sendStandby()">
+					<button title="Put the box into standby" data-l-title="tip.standby" type="button" class="webui-btn" onclick="sendStandby()">
 						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 3v9M6.3 6.3a8 8 0 1 0 11.4 0"/></svg>
 						<span data-l="dash.standby">Standby</span>
 					</button>

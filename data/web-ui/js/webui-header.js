@@ -1101,7 +1101,7 @@ function webuiGetRemoteHTML(opts) {
 		'</div>' +
 
 		/* Numpad trigger — reveals the numpad sheet on every viewport */
-		'<button type="button" class="webui-rc-btn webui-rc-sheet-trigger" aria-label="' + escapeHtml(webuiL('rc.numpad', 'Numpad')) + '" aria-expanded="false" onclick="webuiToggleRcSheet(\'' + id + '\')">123' +
+		'<button type="button" class="webui-rc-btn webui-rc-sheet-trigger" aria-label="' + escapeHtml(webuiL('rc.numpad', 'Numpad')) + '" title="' + escapeHtml(webuiL('tip.numpad', 'The number keys and the other keys of the remote')) + '" aria-expanded="false" onclick="webuiToggleRcSheet(\'' + id + '\')">123' +
 			'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true" focusable="false"><polyline points="6 9 12 15 18 9"/></svg>' +
 		'</button>' +
 
@@ -1971,6 +1971,14 @@ function _webuiCloseMessage() {
 	_webuiMessageOpener = null;
 }
 
+// An element with a tip (title) of what it does, handed back for a list
+// of children
+function webuiTitled(el, text) {
+	if (el && text)
+		el.title = text;
+	return el;
+}
+
 /* A help text behind a button, shared by the pages:
      <span class="webui-help">
        <button type="button" class="webui-btn webui-help-btn" aria-expanded="false"
@@ -2203,18 +2211,20 @@ function webuiState(kind, title, text, opts) {
 		p.textContent = text;
 		box.appendChild(p);
 	}
-	var button = function(label, onClick, primary) {
+	var button = function(label, onClick, primary, tip) {
 		var b = document.createElement('button');
 		b.type = 'button';
 		b.className = 'webui-btn' + (primary ? ' primary' : '');
 		b.textContent = label;
+		if (tip)
+			b.title = tip;
 		b.addEventListener('click', onClick);
 		box.appendChild(b);
 	};
 	if (opts.action)
-		button(opts.action.label, opts.action.onClick, true);
+		button(opts.action.label, opts.action.onClick, true, opts.action.tip);
 	if (opts.retry)
-		button(webuiL('bc.reload', 'Reload'), opts.retry, !opts.action);
+		button(webuiL('bc.reload', 'Reload'), opts.retry, !opts.action, webuiL('tip.retry', 'Ask the box again'));
 	return box;
 }
 

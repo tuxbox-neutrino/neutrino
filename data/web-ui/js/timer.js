@@ -195,7 +195,8 @@ function renderTimerList() {
 	if (timers.length === 0) {
 		list.replaceChildren(webuiEl('li', {}, currentFilter === 'all'
 			? webuiState('empty', webuiL('dash.no_timers', 'No timers programmed'), webuiL('dash.no_timers_hint', 'Timers are set in the EPG or on the timer list.'),
-				{action: {label: webuiL('timer.new', 'New timer'), onClick: () => openTimerModal()}})
+				{action: {label: webuiL('timer.new', 'New timer'), onClick: () => openTimerModal(),
+					tip: webuiL('tip.timer_new', 'A timer for a recording, a switch, standby or a reminder')}})
 			: webuiState('empty', webuiL('tm.none_found', 'No timers found'), '')));
 		return;
 	}

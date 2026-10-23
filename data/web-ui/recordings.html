@@ -338,26 +338,26 @@
 					<span class="webui-card-value" id="mediaCount"></span>
 					<div class="webui-media-controls">
 						<input type="search" id="mediaSearch" placeholder="Search titles" data-l-placeholder="media.search" aria-label="Search titles" data-l-aria-label="media.search">
-						<select id="mediaSort" aria-label="Sort" data-l-aria-label="media.sort">
+						<select title="What the recordings are sorted by" data-l-title="tip.media_sort" id="mediaSort" aria-label="Sort" data-l-aria-label="media.sort">
 							<option value="start" data-l="media.sort_start">Date</option>
 							<option value="title" data-l="media.sort_title">Title</option>
 							<option value="channel" data-l="media.sort_channel">Channel</option>
 							<option value="duration" data-l="media.sort_duration">Length</option>
 							<option value="size" data-l="media.sort_size">Size</option>
 						</select>
-						<select id="mediaOrder" aria-label="Order" data-l-aria-label="media.order">
+						<select title="Ascending or descending" data-l-title="tip.media_order" id="mediaOrder" aria-label="Order" data-l-aria-label="media.order">
 							<option value="" data-l="media.order_auto">Usual order</option>
 							<option value="asc" data-l="media.order_asc">Ascending</option>
 							<option value="desc" data-l="media.order_desc">Descending</option>
 						</select>
 					</div>
 					<label class="webui-source-pick">
-						<select id="sourceSelect" aria-label="Sources" data-l-aria-label="media.sources"></select>
+						<select title="The folder the recordings come from" data-l-title="tip.media_source" id="sourceSelect" aria-label="Sources" data-l-aria-label="media.sources"></select>
 					</label>
 				</header>
 				<div class="webui-media-note" id="mediaPartial" hidden data-l="media.partial">A directory is still being read; the list fills in shortly.</div>
 				<ul class="webui-media-list" id="mediaList"></ul>
-				<button type="button" class="webui-btn webui-media-more" id="mediaMore" hidden data-l="media.more">Load more</button>
+				<button title="Load the next recordings of the list" data-l-title="tip.media_more" type="button" class="webui-btn webui-media-more" id="mediaMore" hidden data-l="media.more">Load more</button>
 			</section>
 		</div>
 	</main>

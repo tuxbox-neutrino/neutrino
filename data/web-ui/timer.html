@@ -608,7 +608,7 @@
 				<p class="webui-filter-group-label" id="filter-state-label" data-l="tm.state">State</p>
 				<ul class="webui-filter-list" id="filterStates" aria-labelledby="filter-state-label"></ul>
 				<div class="webui-filter-new">
-					<button type="button" class="webui-btn primary" onclick="openTimerModal()">
+					<button title="A timer for a recording, a switch, standby or a reminder" data-l-title="tip.timer_new" type="button" class="webui-btn primary" onclick="openTimerModal()">
 						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" style="width:1rem;height:1rem"><path d="M12 5v14M5 12h14"/></svg>
 						<span data-l="timer.new">New timer</span>
 					</button>
@@ -622,10 +622,10 @@
 						<span id="timerListTitle" data-l="nav.sub_timers">Timer list</span>
 					</h2>
 					<label class="webui-filter-pick">
-						<select id="filterSelect" aria-label="Filter" data-l-aria-label="tm.filter"></select>
+						<select title="Show only the timers of a kind or a state" data-l-title="tip.timer_filter" id="filterSelect" aria-label="Filter" data-l-aria-label="tm.filter"></select>
 					</label>
 					<span class="webui-card-value" id="timerCount"></span>
-					<button type="button" class="webui-btn primary webui-timer-new-small" onclick="openTimerModal()" data-l="timer.new">New timer</button>
+					<button title="A timer for a recording, a switch, standby or a reminder" data-l-title="tip.timer_new" type="button" class="webui-btn primary webui-timer-new-small" onclick="openTimerModal()" data-l="timer.new">New timer</button>
 				</header>
 				<ul class="webui-timer-list" id="timerList"></ul>
 			</section>
