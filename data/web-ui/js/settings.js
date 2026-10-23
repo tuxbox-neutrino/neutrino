@@ -632,7 +632,7 @@ var _extUpdates = {};
    an area of its own, a card on the overview, or reached by its address
    alone (webuiRenderNav, webuiInjectExtensions). */
 function extPlaces() {
-	var areaLabels = {now: ['nav.area_now', 'Now'], channels: ['nav.area_channels', 'Channels'], epg: ['nav.epg', 'EPG'],
+	var areaLabels = {now: ['nav.area_now', 'Dashboard'], channels: ['nav.area_channels', 'Channels'], epg: ['nav.epg', 'EPG'],
 		timers: ['nav.timer', 'Timer'], recordings: ['nav.recordings', 'Recordings'], files: ['nav.area_files', 'Files'],
 		system: ['nav.area_system', 'System']};
 	return WEBUI_EXT_AREAS.map(function(a) {

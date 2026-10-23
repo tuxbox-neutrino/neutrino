@@ -376,19 +376,6 @@ function loadSystemInfo() {
 	});
 }
 
-// Software versions, which do not change while the page is open
-function loadVersions() {
-	// the reading the header and the footer already made
-	webuiSystemInfoOnce().then(webuiVersions).then(function(data) {
-		if (data) {
-			if (data.webui) setText('webui-version', data.webui);
-			if (data.api) setText('api-version', data.api);
-			if (data.copyright && data.copyright.text)
-				setText('webui-footer-copyright', data.copyright.text);
-		}
-	});
-}
-
 // What the box records, from GET /api/v1/recordings; the time left comes
 // from the timer that carries the recording.
 async function refreshRecordings() {
@@ -825,7 +812,6 @@ webuiAfterTexts(function() {
 
 	refreshEvented();
 	followTheBox();
-	loadVersions();
 	loadSystemInfo();
 	loadTunerStatus();
 	loadStreamInfo();

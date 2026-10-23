@@ -138,7 +138,7 @@ async function loadChannels(bouquet) {
 		titleEl.textContent = webuiL('bq.all_channels', 'All channels');
 	} else {
 		const bq = bouquetsData.find(b => String(b.id) === String(bouquet));
-		titleEl.textContent = bq ? bq.name : webuiL('nav.sub_channels', 'Channel list');
+		titleEl.textContent = bq ? bq.name : webuiL('nav.sub_channels', 'Channels');
 	}
 
 	try {

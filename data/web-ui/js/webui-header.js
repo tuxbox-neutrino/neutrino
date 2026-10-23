@@ -36,7 +36,14 @@ const WEBUI_ICONS = {
 	settings: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>',
 	tools: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>',
 	files: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>',
-	more: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M5 12h.01M12 12h.01M19 12h.01"/></svg>'
+	more: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M5 12h.01M12 12h.01M19 12h.01"/></svg>',
+	tv: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="15" rx="2"/><polyline points="17 2 12 7 7 2"/></svg>',
+	power: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v9"/><path d="M6.3 6.3a8 8 0 1 0 11.4 0"/></svg>',
+	plug: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 2v6M15 2v6M6 8h12v4a6 6 0 0 1-12 0z"/><path d="M12 18v4"/></svg>',
+	puzzle: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3h4v3a2 2 0 1 0 4 0V3h3v7h-3a2 2 0 1 0 0 4h3v7H3V3h7z"/></svg>',
+	server: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg>',
+	info: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg>',
+	collapse: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="11 17 6 12 11 7"/><polyline points="18 17 13 12 18 7"/></svg>'
 };
 
 // Shared modal close button; its name is set once the texts are in
@@ -45,17 +52,6 @@ function _webuiCloseBtn(onclick) {
 	return '<button type="button" class="webui-modal-close" aria-label="Close" data-l-aria-label="msg.close" onclick="' + onclick + '">' +
 		'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" focusable="false"><path d="M6 18L18 6M6 6l12 12"/></svg>' +
 	'</button>';
-}
-
-// Footer HTML, built once the texts are in
-function webuiFooterHTML() {
-	return `
-<footer class="webui-footer">
-	Neutrino-Web-UI <span id="webui-footer-version">--</span> ·
-	<a href="#" onclick="webuiShowAbout(); return false;">${webuiLH('about.link', 'About')}</a> ·
-	<span id="webui-footer-copyright">Copyright © Tuxbox Project</span>
-</footer>
-`;
 }
 
 // About modal HTML, built once the texts are in
@@ -113,38 +109,54 @@ function webuiAboutHTML() {
 }
 
 /* The areas of the navigation and the pages of each (Phase 4). A page
-   belongs to one area; the areas stand in the head, the pages of the area
-   shown in a row below it when it has more than one, and on a phone the
-   first four areas are a tab bar at the bottom and the rest come under
-   "More". An extension's page joins the area its manifest or the extension
-   manager names (webuiInjectExtensions); in Files it comes before the core's
-   page there, elsewhere after them. An area opens its home: the page it
-   names where that is there, else its first page of the interface itself,
-   so which extensions are installed and how they are called does not change
-   where a click on the area leads; the home stands first in the row.
-   settings.html belongs to Files or System for three of its categories. */
+   belongs to one area. On a phone the first four areas are a tab bar at the
+   bottom, the rest come under "More", and the pages of the area shown stand
+   in a row below the head when it has more than one; on a wider screen every
+   page stands in the side bar, in the groups of WEBUI_SIDE_GROUPS. An
+   extension's page joins the area its manifest or the extension manager
+   names (webuiInjectExtensions); in Files it comes before the core's page
+   there, elsewhere after them. An area opens its home: the page it names
+   where that is there, else its first page of the interface itself, so which
+   extensions are installed and how they are called does not change where a
+   click on the area leads; the home stands first in the row. settings.html
+   belongs to Files or System for three of its categories. */
 const WEBUI_AREAS = [
-	{id: 'now', key: 'nav.area_now', en: 'Now', icon: 'dashboard', tab: true,
-	 pages: [{page: 'dashboard', href: '/dashboard.html', key: 'nav.sub_overview', en: 'Overview'}]},
-	{id: 'channels', key: 'nav.area_channels', en: 'Channels', icon: 'bouquets', tab: true,
-	 pages: [{page: 'bouquets', href: '/bouquets.html', key: 'nav.sub_channels', en: 'Channel list'}]},
+	{id: 'now', key: 'nav.area_now', en: 'Dashboard', icon: 'dashboard', tab: true,
+	 pages: [{page: 'dashboard', href: '/dashboard.html', key: 'nav.sub_overview', en: 'Dashboard', icon: 'dashboard'}]},
+	{id: 'channels', key: 'nav.area_channels', en: 'Channels', icon: 'tv', tab: true,
+	 pages: [{page: 'bouquets', href: '/bouquets.html', key: 'nav.sub_channels', en: 'Channels', icon: 'tv'}]},
 	{id: 'epg', key: 'nav.epg', en: 'EPG', icon: 'epg', tab: true,
-	 pages: [{page: 'epg', href: '/epg.html', key: 'nav.sub_guide', en: 'Guide'}]},
+	 pages: [{page: 'epg', href: '/epg.html', key: 'nav.sub_guide', en: 'EPG', icon: 'epg',
+		tipKey: 'nav.tip_guide', tipEn: 'Programme guide on a time line'}]},
 	{id: 'timers', key: 'nav.timer', en: 'Timer', icon: 'timer', tab: true,
-	 pages: [{page: 'timer', href: '/timer.html', key: 'nav.sub_timers', en: 'Timer list'}]},
+	 pages: [{page: 'timer', href: '/timer.html', key: 'nav.sub_timers', en: 'Timers', icon: 'timer'}]},
 	{id: 'recordings', key: 'nav.recordings', en: 'Recordings', icon: 'recordings',
-	 pages: [{page: 'recordings', href: '/recordings.html', key: 'nav.sub_archive', en: 'Archive'}]},
+	 pages: [{page: 'recordings', href: '/recordings.html', key: 'nav.sub_archive', en: 'Recordings', icon: 'recordings'}]},
 	{id: 'files', key: 'nav.area_files', en: 'Files', icon: 'files', extFirst: true, home: 'ext-files',
-	 pages: [{page: 'settings#mounts', href: '/settings.html#mounts', key: 'reg.mounts', en: 'Network mounts'}]},
+	 pages: [{page: 'settings#mounts', href: '/settings.html#mounts', key: 'reg.mounts', en: 'Network mounts', icon: 'server'}]},
 	{id: 'system', key: 'nav.area_system', en: 'System', icon: 'tools',
-	 pages: [{page: 'tools', href: '/tools.html', key: 'nav.sub_boxcontrol', en: 'Box control'},
-		{page: 'settings#plugins', href: '/settings.html#plugins', key: 'nav.sub_plugins', en: 'Plugins'},
-		{page: 'settings#extensions', href: '/settings.html#extensions', key: 'nav.sub_extensions', en: 'Extensions'}]},
+	 pages: [{page: 'tools', href: '/tools.html', key: 'nav.sub_boxcontrol', en: 'Box control', icon: 'power'},
+		{page: 'settings#plugins', href: '/settings.html#plugins', key: 'nav.sub_plugins', en: 'Plugins', icon: 'plug'},
+		{page: 'settings#extensions', href: '/settings.html#extensions', key: 'nav.sub_extensions', en: 'Extensions', icon: 'puzzle'}]},
 	{id: 'settings', key: 'nav.settings', en: 'Settings', icon: 'settings',
-	 pages: [{page: 'settings', href: '/settings.html', key: 'nav.settings', en: 'Settings'}]}
+	 pages: [{page: 'settings', href: '/settings.html', key: 'nav.settings', en: 'Settings', icon: 'settings'}]}
 ];
 // the areas an extension may name (its own area aside)
 const WEBUI_EXT_AREAS = ['now', 'channels', 'epg', 'timers', 'recordings', 'files', 'system'];
+
+/* The groups of the side bar: the interface's own television pages; the
+   tools, which are the extensions' pages of the television areas, the file
+   manager and those with an area of their own; the system with its own
+   pages, the extensions that set up network shares beside Network mounts,
+   and its extensions. Settings stands at the foot, About below it. core
+   names the areas whose own pages a group takes, ext those whose extension
+   pages: 'own' the areas of their own, 'files:home' the page Files opens
+   with, 'files:rest' the others there. */
+const WEBUI_SIDE_GROUPS = [
+	{id: 'tv', key: 'nav.group_tv', en: 'Television', core: ['now', 'channels', 'epg', 'timers', 'recordings'], ext: []},
+	{id: 'tools', key: 'nav.group_tools', en: 'Tools', core: [], ext: ['now', 'channels', 'epg', 'timers', 'recordings', 'files:home', 'own']},
+	{id: 'system', key: 'nav.group_system', en: 'System', core: ['system', 'files'], ext: ['files:rest', 'system']}
+];
 
 var _webuiNavShown = '';	// the page the navigation was last drawn for
 var _webuiNavExts = null;	// the extensions' places, once known
@@ -179,13 +191,16 @@ function _webuiNavExtsKept() {
 function _webuiNavAreas(exts) {
 	var areas = WEBUI_AREAS.map(function(a) {
 		return {id: a.id, label: webuiL(a.key, a.en), icon: a.icon, tab: !!a.tab, extFirst: !!a.extFirst, home: a.home || '',
-			pages: a.pages.map(function(p) { return {page: p.page, href: p.href, label: webuiL(p.key, p.en)}; })};
+			pages: a.pages.map(function(p) {
+				return {page: p.page, href: p.href, label: webuiL(p.key, p.en), icon: p.icon || '',
+					tip: p.tipKey ? webuiL(p.tipKey, p.tipEn) : ''};
+			})};
 	});
 	var byId = {};
 	areas.forEach(function(a) { byId[a.id] = a; });
 	var added = {};
 	(exts || []).forEach(function(x) {
-		var entry = {page: 'ext-' + x.dir, href: x.url, label: x.name, ext: true};
+		var entry = {page: 'ext-' + x.dir, href: x.url, label: x.name, ext: true, extIcon: x.icon || ''};
 		if (x.own) {
 			areas.push({id: 'ext-' + x.dir, label: x.name, icon: null, extIcon: x.icon || '', own: true, pages: [entry]});
 			return;
@@ -218,7 +233,84 @@ function _webuiNavIcon(a) {
 	return a.extIcon || WEBUI_ICONS.more;
 }
 
-// Draws the areas, the row of the shown area's pages and the tab bar.
+// A page's link in the side bar: its icon and its name, the name its
+// tooltip as well, which is all a narrow side bar shows of it
+function _webuiSideLink(p, area, page) {
+	var on = p.page === page;
+	var a = document.createElement('a');
+	a.href = p.href;
+	a.className = 'webui-side-link' + (on ? ' active' : '');
+	a.setAttribute('data-page', p.page);
+	a.setAttribute('data-area', area);
+	if (on)
+		a.setAttribute('aria-current', 'page');
+	a.title = p.tip || p.label;
+	a.innerHTML = p.ext ? (p.extIcon || WEBUI_EXT_STAR) : (WEBUI_ICONS[p.icon] || WEBUI_ICONS.more);
+	var label = document.createElement('span');
+	label.className = 'webui-side-label';
+	label.textContent = p.label;
+	a.appendChild(label);
+	var li = document.createElement('li');
+	li.appendChild(a);
+	return li;
+}
+
+// The side bar's groups with their pages, and Settings at its foot
+function _webuiRenderSide(areas, page) {
+	var host = document.getElementById('webui-side-groups');
+	if (!host)
+		return;
+	var byId = {};
+	areas.forEach(function(a) { byId[a.id] = a; });
+	host.replaceChildren();
+	WEBUI_SIDE_GROUPS.forEach(function(g) {
+		var items = [];
+		g.core.forEach(function(id) {
+			((byId[id] || {}).pages || []).forEach(function(p) {
+				if (!p.ext) items.push(_webuiSideLink(p, id, page));
+			});
+		});
+		g.ext.forEach(function(spec) {
+			var id = spec.split(':')[0], part = spec.split(':')[1] || '';
+			(id === 'own' ? areas.filter(function(a) { return a.own; }) : [byId[id]]).forEach(function(a) {
+				((a || {}).pages || []).forEach(function(p) {
+					var home = p.page === a.home;
+					if (p.ext && (!part || (part === 'home') === home))
+						items.push(_webuiSideLink(p, a.id, page));
+				});
+			});
+		});
+		if (!items.length)
+			return;
+		var label = document.createElement('span');
+		label.className = 'webui-side-group';
+		label.id = 'webui-side-group-' + g.id;
+		label.textContent = webuiL(g.key, g.en);
+		var list = document.createElement('ul');
+		list.className = 'webui-side-links';
+		list.setAttribute('aria-labelledby', label.id);
+		list.append.apply(list, items);
+		host.append(label, list);
+	});
+	var end = document.getElementById('webui-side-end');
+	if (end)
+		end.replaceChildren.apply(end, ((byId.settings || {}).pages || []).map(function(p) {
+			return _webuiSideLink(p, 'settings', page);
+		}));
+}
+
+// The page's name in the head: as the navigation calls it, else as the
+// page's own title does without the interface's name before it
+function _webuiPageTitle(areas, page) {
+	for (var i = 0; i < areas.length; i++)
+		for (var k = 0; k < areas[i].pages.length; k++)
+			if (areas[i].pages[k].page === page)
+				return areas[i].pages[k].label;
+	return document.title.replace(/^Neutrino-Web-UI\s*-\s*/, '');
+}
+
+// Draws the side bar, the page's name, the row of the shown area's pages
+// and the tab bar.
 function webuiRenderNav(pageName) {
 	var page = _webuiNavPage(pageName);
 	_webuiNavShown = pageName || '';
@@ -232,18 +324,10 @@ function webuiRenderNav(pageName) {
 		return a;
 	};
 
-	var list = document.getElementById('webui-nav-menu');
-	if (list) {
-		list.replaceChildren();
-		areas.forEach(function(a) {
-			var on = current === a;
-			var el = link(a.pages.length ? a.pages[0].href : '#', {'data-area': a.id, 'data-page': a.pages.length ? a.pages[0].page : '',
-				'aria-current': on ? 'page' : null, 'class': on ? 'active' : null}, '<span>' + escapeHtml(a.label) + '</span>');
-			var li = document.createElement('li');
-			li.appendChild(el);
-			list.appendChild(li);
-		});
-	}
+	_webuiRenderSide(areas, page);
+	var title = document.getElementById('webui-page-title');
+	if (title)
+		title.textContent = _webuiPageTitle(areas, page);
 
 	var sub = document.getElementById('webui-subnav');
 	if (sub) {
@@ -312,13 +396,23 @@ function webuiToggleMoreMenu(ev) {
 		}
 		menu.appendChild(item);
 	});
+	// About, which the side bar of a wider screen has at its foot
+	var about = document.createElement('button');
+	about.type = 'button';
+	about.innerHTML = WEBUI_ICONS.info + '<span>' + webuiLH('about.link', 'About') + '</span>';
+	about.addEventListener('click', function() {
+		menu.remove();
+		if (btn) btn.setAttribute('aria-expanded', 'false');
+		webuiShowAbout();
+	});
+	menu.appendChild(about);
 	document.body.appendChild(menu);
 	if (btn) btn.setAttribute('aria-expanded', 'true');
 	// Escape closes it and hands the focus back to "More", and so does Tab
 	// on its last entry, as the menu is the last thing on the page; leaving
 	// it by Shift+Tab or a click closes it as well
 	menu.addEventListener('keydown', function(e) {
-		var links = menu.querySelectorAll('a');
+		var links = menu.querySelectorAll('a, button');
 		var out = e.key === 'Tab' && !e.shiftKey && document.activeElement === links[links.length - 1];
 		if (e.key !== 'Escape' && !out)
 			return;
@@ -349,39 +443,88 @@ function webuiToggleMoreMenu(ev) {
 	}, 0);
 }
 
+/* The side bar of a wider screen: the interface's name and the box's, the
+   pages in their groups (webuiRenderNav), Settings, About and the switch to
+   a narrow bar of icons, which the browser keeps (webuiToggleSide). */
+function webuiGetSideHTML() {
+	return `
+<aside class="webui-side" id="webui-side">
+	<a href="/" class="webui-side-brand" title="${WEBUI_CONFIG.title}">
+		<span class="webui-mark" aria-hidden="true">N</span>
+		<span class="webui-side-name"><b>${WEBUI_CONFIG.title}</b><small id="webui-side-host"></small></span>
+	</a>
+	<nav class="webui-side-nav" aria-label="${webuiLH('nav.pages', 'Pages')}">
+		<div class="webui-side-groups" id="webui-side-groups"></div>
+		<ul class="webui-side-links webui-side-end" id="webui-side-end"></ul>
+	</nav>
+	<div class="webui-side-foot">
+		<button type="button" class="webui-side-link" onclick="webuiShowAbout()" title="${webuiLH('about.tip', 'Versions, licence and links')}">
+			${WEBUI_ICONS.info}<span class="webui-side-label">${webuiLH('about.link', 'About')}</span>
+		</button>
+		<button type="button" class="webui-side-link webui-side-toggle" id="webui-side-toggle" onclick="webuiToggleSide()" aria-pressed="false" title="${webuiLH('nav.narrow_tip', 'Side bar narrow or wide')}">
+			${WEBUI_ICONS.collapse}<span class="webui-side-label">${webuiLH('nav.narrow', 'Collapse')}</span>
+		</button>
+	</div>
+</aside>`;
+}
+
+// The side bar narrow or wide, as it was last left in this browser
+function _webuiSideNarrow() {
+	try { return localStorage.getItem('webui-side') === 'narrow'; } catch (e) { return false; }
+}
+
+function _webuiSideShow(narrow) {
+	document.documentElement.classList.toggle('webui-side-narrow', narrow);
+	var t = document.getElementById('webui-side-toggle');
+	if (t) t.setAttribute('aria-pressed', narrow ? 'true' : 'false');
+}
+
+function webuiToggleSide() {
+	var narrow = !document.documentElement.classList.contains('webui-side-narrow');
+	try {
+		if (narrow) localStorage.setItem('webui-side', 'narrow');
+		else localStorage.removeItem('webui-side');
+	} catch (e) { /* not kept then */ }
+	_webuiSideShow(narrow);
+}
+
+// The side bar put before the page, once
+function _webuiInsertSide() {
+	if (document.getElementById('webui-side'))
+		return;
+	document.body.insertAdjacentHTML('afterbegin', webuiGetSideHTML());
+	document.documentElement.classList.add('webui-with-side');
+	_webuiSideShow(_webuiSideNarrow());
+}
+
 // Generate header HTML; the navigation in it is drawn by webuiRenderNav
 function webuiGetHeaderHTML(activePage) {
 	return `
 <header class="webui-header">
 	<div class="webui-head-bar">
-		<a href="/dashboard.html" class="webui-logo">
-			<img src="${WEBUI_CONFIG.logo}" alt="" onerror="this.remove()">
-			<span>${WEBUI_CONFIG.title}</span>
+		<a href="/" class="webui-head-brand" aria-label="${WEBUI_CONFIG.title}" title="${WEBUI_CONFIG.title}">
+			<span class="webui-mark" aria-hidden="true">N</span>
 		</a>
-
-		<nav class="webui-areas-nav" aria-label="${webuiLH('nav.areas', 'Areas')}">
-			<ul class="webui-nav-links" id="webui-nav-menu"></ul>
-		</nav>
+		<h1 class="webui-page-title" id="webui-page-title"></h1>
 
 		<div class="webui-header-right">
-			<span class="webui-hostname" id="webui-hostname">--</span>
 			<span class="webui-clock" id="webui-clock">--:--</span>
-			<button class="webui-theme-toggle webui-lang-btn" id="webui-lang-btn" onclick="webuiToggleLangMenu(event)" title="${webuiLH('lang.title', 'Language')}" aria-label="${webuiLH('lang.title', 'Language')}" aria-haspopup="true" aria-expanded="false">
+			<button type="button" class="webui-theme-toggle webui-lang-btn" id="webui-lang-btn" onclick="webuiToggleLangMenu(event)" title="${webuiLH('lang.title', 'Language')}" aria-label="${webuiLH('lang.title', 'Language')}" aria-haspopup="true" aria-expanded="false">
 				<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true" focusable="false">
 					<circle cx="12" cy="12" r="9" stroke-width="2"/>
 					<path stroke-width="2" d="M3 12h18M12 3a15 15 0 010 18M12 3a15 15 0 000 18"/>
 				</svg>
 				<span class="webui-lang-code" id="webui-lang-code"></span>
 			</button>
-			<button class="webui-theme-toggle" onclick="webuiToggleTheme()" title="${webuiLH('theme.toggle', 'Toggle theme')}">
-				<svg id="webui-theme-icon-dark" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+			<button type="button" class="webui-theme-toggle" onclick="webuiToggleTheme()" title="${webuiLH('theme.toggle', 'Toggle theme')}" aria-label="${webuiLH('theme.toggle', 'Toggle theme')}">
+				<svg id="webui-theme-icon-dark" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
 					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
 				</svg>
-				<svg id="webui-theme-icon-light" class="webui-hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+				<svg id="webui-theme-icon-light" class="webui-hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
 					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>
 				</svg>
 			</button>
-			<button class="webui-theme-toggle" id="webui-logout-btn" hidden onclick="webuiLogout()" aria-label="${webuiLH('hdr.logout', 'Log out')}" title="${webuiLH('hdr.logout', 'Log out')}">
+			<button type="button" class="webui-theme-toggle" id="webui-logout-btn" hidden onclick="webuiLogout()" aria-label="${webuiLH('hdr.logout', 'Log out')}" title="${webuiLH('hdr.logout', 'Log out')}">
 				<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
 					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
 					<polyline stroke-linecap="round" stroke-linejoin="round" stroke-width="2" points="16 17 21 12 16 7"/>
@@ -736,9 +879,9 @@ function webuiSystemInfoOnce() {
 	return _webuiSystemInfoOnce;
 }
 
-// Load hostname
+// The box's name under the interface's in the side bar
 function webuiLoadHostname() {
-	const el = document.getElementById('webui-hostname');
+	const el = document.getElementById('webui-side-host');
 	if (!el) return;
 	webuiSystemInfoOnce()
 		.then(data => {
@@ -768,6 +911,9 @@ function webuiInitHeader(pageName) {
 	} else {
 		document.body.insertAdjacentHTML('afterbegin', webuiGetHeaderHTML());
 	}
+	_webuiInsertSide();
+	if (!document.getElementById('webui-about-modal'))
+		document.body.insertAdjacentHTML('beforeend', webuiAboutHTML());
 
 	// Set theme
 	webuiApplyTheme(webuiGetTheme());
@@ -834,39 +980,6 @@ function webuiUpdateHeaderSpacer() {
 		const height = wrapper.offsetHeight;
 		spacer.style.height = height + 'px';
 	}
-}
-
-// Initialize footer
-function webuiInitFooter() {
-	// Check if footer already exists
-	if (document.querySelector('.webui-footer')) return;
-
-	// Insert footer at end of body
-	document.body.insertAdjacentHTML('beforeend', webuiFooterHTML());
-
-	// Insert about modal
-	if (!document.getElementById('webui-about-modal')) {
-		document.body.insertAdjacentHTML('beforeend', webuiAboutHTML());
-	}
-
-	// Load versions from API
-	webuiSystemInfoOnce()
-		.then(sys => webuiVersions(sys))
-		.then(data => {
-			if (data.webui) {
-				const el = document.getElementById('webui-footer-version');
-				if (el) el.textContent = data.webui;
-			}
-			if (data.api) {
-				const el = document.getElementById('webui-footer-api');
-				if (el) el.textContent = data.api;
-			}
-			if (data.copyright && data.copyright.text) {
-				const el = document.getElementById('webui-footer-copyright');
-				if (el) el.textContent = data.copyright.text;
-			}
-		})
-		.catch(() => {});
 }
 
 // Shared helper functions
@@ -2333,10 +2446,8 @@ function webuiShowAbout() {
 			}
 
 			// Update copyright from API
-			if (data.copyright && data.copyright.text) {
+			if (data.copyright && data.copyright.text)
 				setEl('about-copyright', data.copyright.text);
-				setEl('webui-footer-copyright', data.copyright.text);
-			}
 		})
 		.catch(() => {
 			// nothing to offer then, instead of a loading text for good
@@ -2638,7 +2749,8 @@ async function webuiInjectExtensions(pageName) {
    area the extension manager or its manifest names (area), System where
    neither names one of the areas an extension may join, an area of its own
    for slot nav; none for a card on the overview (dashboard) or a page
-   reached by its address alone (page). */
+   reached by its address alone (page). Its icon goes with it, for the side
+   bar and for an area of its own. */
 /* The places of the extensions' pages in the navigation, kept for the next
    page of this tab so it draws them at once; drawn anew only where they
    changed. Also called by the extension manager after it saved. */
@@ -2658,7 +2770,7 @@ function _webuiNavPlaces(exts) {
 			return;
 		out.push({dir: m.dir, name: m.name, url: m.url, own: m.slot === 'nav',
 			area: WEBUI_EXT_AREAS.indexOf(m.area) >= 0 ? m.area : 'system',
-			icon: m.slot === 'nav' ? ((webuiExtIcon(m) || {}).outerHTML || WEBUI_EXT_STAR) : ''});
+			icon: (webuiExtIcon(m) || {}).outerHTML || WEBUI_EXT_STAR});
 	});
 	return out;
 }
@@ -2854,6 +2966,8 @@ function webuiInit() {
 
 	// Initialize if header exists (either pre-rendered or just generated)
 	if (document.querySelector('.webui-header')) {
+		_webuiInsertSide();
+
 		// Set theme
 		webuiApplyTheme(webuiGetTheme());
 
@@ -2872,9 +2986,6 @@ function webuiInit() {
 
 		// Update on window resize
 		window.addEventListener('resize', webuiUpdateHeaderSpacer);
-
-		// Initialize footer (if not already present)
-		webuiInitFooter();
 
 		// Always insert about modal if not present
 		if (!document.getElementById('webui-about-modal')) {

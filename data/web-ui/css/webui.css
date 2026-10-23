@@ -48,6 +48,8 @@ html.webui-i18n-pending body {
 	/* how wide a page's content may grow: the whole window, on every page
 	   alike (each page's container takes it) */
 	--webui-page-max: none;
+	/* the side bar of a wider screen */
+	--webui-side-w: 14rem;
 
 	/* Border radius */
 	--webui-radius: 0.4rem;
@@ -171,20 +173,6 @@ html.webui-i18n-pending body {
 	color: var(--webui-text-secondary);
 }
 
-[data-theme="light"] .webui-nav-links a {
-	color: var(--webui-text-primary);
-	font-weight: 500;
-}
-
-[data-theme="light"] .webui-nav-links a:hover {
-	color: var(--webui-accent);
-}
-
-[data-theme="light"] .webui-nav-links a.active {
-	color: var(--webui-accent);
-	font-weight: 600;
-}
-
 [data-theme="light"] .webui-clock {
 	color: var(--webui-text-secondary);
 	font-weight: 500;
@@ -195,25 +183,12 @@ html.webui-i18n-pending body {
 	font-weight: 600;
 }
 
-[data-theme="light"] .webui-logo span {
-	color: var(--webui-text-primary);
-}
-
 [data-theme="light"] .webui-card-title {
 	color: var(--webui-text-primary);
 }
 
 [data-theme="light"] .webui-card-header {
 	border-bottom-color: var(--webui-border-subtle);
-}
-
-[data-theme="light"] .webui-footer {
-	color: var(--webui-text-secondary);
-	border-top-color: var(--webui-border-subtle);
-}
-
-[data-theme="light"] .webui-footer a {
-	color: var(--webui-accent);
 }
 
 /* Light theme - Bouquets channel buttons */
@@ -281,12 +256,6 @@ html.webui-i18n-pending body {
 /* Light theme - Subheader */
 [data-theme="light"] .webui-subheader {
 	background: #f6f8fa;
-	border-bottom-color: #e5e7eb;
-}
-
-/* Light theme - Header */
-[data-theme="light"] .webui-header {
-	background: #fff;
 	border-bottom-color: #e5e7eb;
 }
 
@@ -361,14 +330,15 @@ body:not(.has-subheader) .webui-header-spacer {
 	height: 2.8rem; /* Geschätzte Höhe für nur Header */
 }
 
-/* the bar: the name, the areas, the tools; Pico's own spacing of lists in a
-   nav would pull the areas and pages out of line, so the head sets its own */
+/* the bar: the page's name and the tools, the interface's mark before them
+   on a phone; Pico's own spacing of lists in a nav would pull the row of
+   pages out of line, so the head sets its own */
 .webui-head-bar {
 	display: flex;
 	align-items: center;
-	justify-content: space-between;
-	gap: 1rem;
+	gap: 0.75rem;
 	width: 100%;
+	min-height: 2.5rem;
 }
 
 .webui-header nav ul,
@@ -382,80 +352,272 @@ body:not(.has-subheader) .webui-header-spacer {
 	margin: 0;
 }
 
-.webui-areas-nav {
+/* the interface's mark: an N on the accent */
+.webui-mark {
+	display: grid;
+	place-items: center;
+	flex: none;
+	width: 2.1rem;
+	height: 2.1rem;
+	border-radius: 0.55rem;
+	background: var(--webui-accent);
+	color: var(--webui-on-accent);
+	font-weight: 800;
+	font-size: 0.95rem;
+	line-height: 1;
+}
+
+.webui-head-brand {
+	display: none;
+	text-decoration: none;
+}
+
+/* the page's name, the heading of every page */
+.webui-page-title {
 	flex: 1 1 auto;
 	min-width: 0;
-}
-
-.webui-logo {
-	display: flex;
-	align-items: center;
-	gap: 0.4rem;
+	margin: 0;
+	font-size: 1.3rem;
 	font-weight: 700;
-	font-size: var(--webui-font-sm);
-	color: var(--webui-accent);
-	text-decoration: none;
-	flex-shrink: 0;
+	line-height: 1.3;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
 }
 
-.webui-logo img {
-	height: clamp(18px, 2.5vw, 24px);
-	width: auto;
-}
-
-.webui-logo span {
-	display: inline;
-}
-
-/* hide text when logo image is present
-   (img is removed via onerror if logo doesn't exist) */
-.webui-logo img + span {
-	display: none;
-}
-
-/* the areas, centred while they fit; the margins instead of centring the
-   row keep its start reachable once it scrolls, as one or two extensions
-   with an area of their own can make it longer than the room */
-.webui-nav-links {
+/* The side bar of a wider screen: the interface's and the box's name, the
+   pages in their groups, Settings, About and the switch to icons only */
+.webui-side {
+	position: fixed;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	z-index: 100;
+	width: var(--webui-side-w);
 	display: flex;
-	gap: 2px;
-	flex-wrap: nowrap;
-	justify-content: flex-start;
-	align-items: center;
-	overflow-x: auto;
-	scrollbar-width: none;
+	flex-direction: column;
+	gap: 0.25rem;
+	padding: 0.9rem 0.65rem 0.75rem;
+	background: var(--pico-card-background-color);
+	border-right: 1px solid var(--pico-muted-border-color);
 }
 
-.webui-nav-links > li:first-child {
-	margin-left: auto;
-}
-
-.webui-nav-links > li:last-child {
-	margin-right: auto;
-}
-
-.webui-nav-links a {
+.webui-side-brand {
 	--pico-color: inherit;
-	display: block;
-	padding: 0.35rem 0.65rem;
-	border-radius: var(--webui-radius);
-	color: var(--pico-muted-color);
+	display: flex;
+	align-items: center;
+	gap: 0.65rem;
+	padding: 0.2rem 0.4rem 0.75rem;
+	color: var(--pico-color);
 	text-decoration: none;
-	transition: var(--webui-transition);
-	font-size: 0.875rem;
-	font-weight: 550;
+}
+
+.webui-side-name {
+	display: flex;
+	flex-direction: column;
+	min-width: 0;
+	line-height: 1.25;
+}
+
+.webui-side-name b {
+	font-size: 1rem;
 	white-space: nowrap;
 }
 
-.webui-nav-links a:hover {
+.webui-side-name small {
+	font-size: 0.75rem;
+	color: var(--pico-muted-color);
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+/* Pico lays out a nav and the lists in it as rows and pulls the lists out
+   with negative margins: the side bar sets its own */
+.webui-side nav.webui-side-nav {
+	display: flex;
+	flex-direction: column;
+	flex: 1 1 auto;
+	min-height: 0;
+}
+
+.webui-side-groups {
+	flex: 1 1 auto;
+	min-height: 0;
+	overflow-y: auto;
+	scrollbar-width: thin;
+}
+
+.webui-side-group {
+	display: block;
+	margin: 0.75rem 0.6rem 0.15rem;
+	font-size: 0.7rem;
+	font-weight: 700;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	color: var(--pico-muted-color);
+}
+
+.webui-side ul.webui-side-links {
+	display: flex;
+	flex-direction: column;
+	align-items: stretch;
+	gap: 2px;
+	margin: 0;
+	padding: 0;
+}
+
+.webui-side ul.webui-side-links > li {
+	display: block;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.webui-side ul.webui-side-end {
+	margin-top: 0.5rem;
+	padding-top: 0.5rem;
+	border-top: 1px solid var(--pico-muted-border-color);
+}
+
+.webui-side .webui-side-link {
+	--pico-color: inherit;
+	display: flex;
+	align-items: center;
+	gap: 0.65rem;
+	width: 100%;
+	margin: 0;
+	padding: 0.32rem 0.6rem;
+	border: 0;
+	border-radius: 0.5rem;
+	background: none;
+	box-shadow: none;
 	color: var(--pico-color);
+	font-size: 0.875rem;
+	font-weight: 500;
+	line-height: 1.35;
+	text-align: left;
+	text-decoration: none;
+	cursor: pointer;
+}
+
+.webui-side-link svg,
+.webui-side-link .webui-ext-icon {
+	width: 18px;
+	height: 18px;
+	flex: none;
+	color: var(--pico-muted-color);
+}
+
+.webui-side-label {
+	min-width: 0;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.webui-side .webui-side-link:hover {
 	background: var(--webui-bg-elevated);
 }
 
-.webui-nav-links a.active {
-	color: var(--pico-color);
-	background: var(--webui-bg-elevated);
-	box-shadow: inset 0 -2px 0 var(--webui-accent);
+.webui-side .webui-side-link.active {
+	background: var(--webui-accent-light);
+	color: var(--webui-accent);
+	font-weight: 600;
+}
+
+.webui-side .webui-side-link.active svg,
+.webui-side .webui-side-link.active .webui-ext-icon {
+	color: var(--webui-accent);
+}
+
+/* About and the switch side by side; the switch shows its icon alone */
+.webui-side-foot {
+	display: flex;
+	align-items: center;
+	gap: 2px;
+}
+
+.webui-side .webui-side-toggle {
+	flex: none;
+	width: auto;
+}
+
+.webui-side-toggle .webui-side-label {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	overflow: hidden;
+	clip: rect(0 0 0 0);
+	white-space: nowrap;
+}
+
+/* narrow: the icons alone, their names as tooltips and for screen readers */
+html.webui-side-narrow {
+	--webui-side-w: 4.25rem;
+}
+
+html.webui-side-narrow .webui-side-name,
+html.webui-side-narrow .webui-side-label {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	overflow: hidden;
+	clip: rect(0 0 0 0);
+	white-space: nowrap;
+}
+
+html.webui-side-narrow .webui-side-group {
+	height: 1px;
+	margin: 0.6rem 0.5rem;
+	overflow: hidden;
+	color: transparent;
+	background: var(--pico-muted-border-color);
+}
+
+html.webui-side-narrow .webui-side-brand,
+html.webui-side-narrow .webui-side .webui-side-link {
+	justify-content: center;
+	padding-left: 0;
+	padding-right: 0;
+}
+
+html.webui-side-narrow .webui-side-toggle svg {
+	transform: scaleX(-1);
+}
+
+html.webui-side-narrow .webui-side-foot {
+	flex-direction: column;
+	align-items: stretch;
+}
+
+html.webui-side-narrow .webui-side .webui-side-toggle {
+	width: 100%;
+}
+
+/* the page beside the side bar, the head above the page only; the side bar
+   lists every page, so the row of the area's pages is the phone's */
+@media (min-width: 901px) {
+	html.webui-with-side body {
+		padding-left: var(--webui-side-w);
+	}
+
+	html.webui-with-side .webui-header-wrapper {
+		left: var(--webui-side-w);
+	}
+
+	html.webui-with-side .webui-header {
+		background: var(--pico-background-color);
+		padding: 0.7rem 1.5rem;
+	}
+
+	html.webui-with-side .webui-subnav-nav {
+		display: none;
+	}
+
+	html.webui-with-side .webui-toast-host {
+		left: calc(50% + var(--webui-side-w) / 2);
+	}
 }
 
 /* the row of the shown area's pages, when it has more than one */
@@ -563,7 +725,28 @@ body:not(.has-subheader) .webui-header-spacer {
 	text-decoration: none;
 }
 
+/* About, a button among the links */
+.webui-more-menu button {
+	--pico-color: inherit;
+	display: flex;
+	align-items: center;
+	gap: 0.6rem;
+	width: 100%;
+	min-height: 2.75rem;
+	margin: 0;
+	padding: 0 0.75rem;
+	border: 0;
+	border-radius: var(--webui-radius);
+	background: none;
+	box-shadow: none;
+	color: var(--pico-color);
+	font: inherit;
+	text-align: left;
+	cursor: pointer;
+}
+
 .webui-more-menu a svg,
+.webui-more-menu button svg,
 .webui-more-menu a .webui-ext-icon {
 	width: 20px;
 	height: 20px;
@@ -571,7 +754,8 @@ body:not(.has-subheader) .webui-header-spacer {
 	flex-shrink: 0;
 }
 
-.webui-more-menu a:hover {
+.webui-more-menu a:hover,
+.webui-more-menu button:hover {
 	background: var(--webui-bg-elevated);
 }
 
@@ -580,20 +764,26 @@ body:not(.has-subheader) .webui-header-spacer {
 	background: var(--webui-accent-light);
 }
 
-/* the box's name and the clock give the areas their room on a narrow
-   screen; below 900 px the eight areas no longer fit beside the name and the
-   buttons, in German neither, and the tab bar takes over (tablets in
-   portrait as well) */
-@media (max-width: 1100px) {
-	.webui-header .webui-hostname,
+/* the clock gives the page's name its room on a phone */
+@media (max-width: 600px) {
 	.webui-header .webui-clock {
 		display: none;
 	}
 }
 
+/* up to 900 px (tablets in portrait as well) no side bar: the tab bar takes
+   over, the interface's mark stands before the page's name */
 @media (max-width: 900px) {
-	.webui-areas-nav {
+	.webui-side {
 		display: none;
+	}
+
+	.webui-head-brand {
+		display: flex;
+	}
+
+	.webui-page-title {
+		font-size: 1.1rem;
 	}
 
 	.webui-tabbar {
@@ -718,27 +908,6 @@ body:not(.has-subheader) .webui-header-spacer {
 	font-weight: 700;
 	letter-spacing: 0.02em;
 	line-height: 1;
-}
-
-/* ============================================
-   Footer
-   ============================================ */
-.webui-footer {
-	flex-shrink: 0; /* Don't shrink footer */
-	text-align: center;
-	padding: 0.5rem 1rem;
-	font-size: 0.75rem;
-	color: var(--pico-muted-color);
-	border-top: 1px solid var(--pico-muted-border-color);
-}
-
-.webui-footer a {
-	color: var(--webui-accent);
-	text-decoration: none;
-}
-
-.webui-footer a:hover {
-	text-decoration: underline;
 }
 
 /* ============================================
@@ -1748,11 +1917,14 @@ body ul.webui-side-list > li {
 .webui-file-btn:focus-visible,
 .webui-action-btn:focus-visible,
 .webui-mode-switch-btn:focus-visible,
-.webui-nav-links a:focus-visible,
+.webui-side-link:focus-visible,
+.webui-side-brand:focus-visible,
+.webui-head-brand:focus-visible,
 .webui-subnav a:focus-visible,
 .webui-tabbar a:focus-visible,
 .webui-tabbar button:focus-visible,
 .webui-more-menu a:focus-visible,
+.webui-more-menu button:focus-visible,
 .webui-theme-toggle:focus-visible,
 .webui-popover-close:focus-visible,
 .webui-modal-close:focus-visible,
@@ -1789,6 +1961,8 @@ textarea:focus-visible {
 .webui-action-btn:is(:hover, :focus, :active),
 .webui-mode-switch-btn:is(:hover, :focus, :active),
 .webui-tabbar button:is(:hover, :focus, :active),
+.webui-side button.webui-side-link:is(:hover, :focus, :active),
+.webui-more-menu button:is(:hover, :focus, :active),
 .webui-confirm-actions button:is(:hover, :focus, :active),
 .webui-card-dot:is(:hover, :focus, :active),
 .webui-card-toggle:is(:hover, :focus, :active),
