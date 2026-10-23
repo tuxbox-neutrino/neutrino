@@ -13,21 +13,40 @@
 	<link rel="stylesheet" href="/css/pico.min.css?v=1">
 	<link rel="stylesheet" href="/css/webui.css?v=90">
 	<style>
-	/* The box control (Phase 4): its parts as cards side by side, one under
-	   the other on a phone; each row says what it does and holds its
-	   buttons. */
+	/* The box control (Phase 4): its parts as cards side by side, shared out
+	   evenly over the rows as the overview's tiles are (webuiBalanceGrid),
+	   the cards of a row as high as each other; two to a row on a narrow
+	   screen, one under the other on a phone. Each row of a card says what
+	   it does and holds its buttons. */
 	.webui-boxcontrol {
 		display: grid;
-		grid-template-columns: repeat(auto-fill, minmax(min(100%, 24rem), 1fr));
+		grid-template-columns: repeat(60, minmax(0, 1fr));
 		gap: 1rem;
-		align-items: start;
+		align-items: stretch;
 		max-width: var(--webui-page-max);
 		margin: 0 auto;
 		padding: 1rem;
 	}
 
+	.webui-boxcontrol > .webui-card {
+		grid-column: span var(--dash-span, 20);
+	}
+
+	@media (max-width: 1100px) {
+		.webui-boxcontrol > .webui-card {
+			grid-column: span 30;
+		}
+	}
+
+	@media (max-width: 760px) {
+		.webui-boxcontrol > .webui-card {
+			grid-column: span 60;
+		}
+	}
+
 	.webui-boxcontrol .webui-card-body {
 		display: grid;
+		align-content: start;
 		gap: 0.25rem;
 		padding: 0.5rem 1rem 0.75rem;
 	}

@@ -2881,31 +2881,59 @@ function webuiInit() {
 }
 
 /* ============================================
-   Grid-Balancer (shared, 12-Track-Raster)
+   Grid balancer (shared)
    ============================================ */
 
 /**
- * Restreihen-Balancer: verteilt Karten eines 12-Track-Grids so, dass
- * jede Reihe die Breite fuellt (Kartenzahl variabel, Erweiterungen
- * injizieren asynchron). Idempotent; unterhalb des Breakpoints
- * uebernehmen die Media-Queries der Seite. Das Grid braucht
- * `grid-template-columns: repeat(12, 1fr)` und auf den Karten
- * `grid-column: span var(--dash-span, 4)`.
- * @param {string} selector - CSS-Selektor des Grids
+ * Shares the cards of a grid out over as few rows as the grid's width
+ * allows, evenly: five cards where four fit a row stand three and two, the
+ * two sharing their row's width, not four and one stretched across. Each
+ * card is given its span as --dash-span; the grid has opts.tracks columns
+ * (60 shares out evenly to rows of one to six) and its cards take
+ * `grid-column: span var(--dash-span, ...)`. Below the breakpoint the spans
+ * are taken away again and the page's media queries decide.
+ * @param {string} selector - CSS selector of the grid
  * @param {Object} [opts]
- * @param {number} [opts.cardMin=300] - Ziel-Kartenbreite fuer Karten/Reihe
- * @param {number} [opts.maxPer=6] - Deckel Karten je Reihe (span >= 2)
- * @param {number} [opts.breakpoint=1100] - darunter Spans entfernen
- * @param {string} [opts.wideClass] - Klasse fuer Karten ab span >= 6
- * @param {boolean} [opts.even] - Reihen glatt teilen, wenn die
- *        Kartenzahl es hergibt (verhindert gestreckte Restreihen)
+ * @param {number} [opts.tracks=12] - the grid's columns
+ * @param {number} [opts.cardMin=300] - the narrowest a card should be, in px
+ * @param {number} [opts.maxPer=6] - at most this many cards to a row
+ * @param {number} [opts.breakpoint=1100] - at or below this window width, no spans
+ * @param {string} [opts.skip] - cards that keep their own place (a band
+ *        across the page), matched as a selector
+ * @param {string} [opts.wideClass] - a class for cards half the width or more
+ * @param {boolean} [opts.watch] - again whenever cards come or go (extensions
+ *        add theirs later) and when the window changes its size
  */
 function webuiBalanceGrid(selector, opts) {
 	opts = opts || {};
 	var grid = document.querySelector(selector);
 	if (!grid) return;
+	if (opts.watch && !grid._webuiBalanced) {
+		grid._webuiBalanced = true;
+		var again = null;
+		// cards that come or go, and cards shown or hidden (hidden on each card)
+		var seen = new WeakSet();
+		var mo = new MutationObserver(function() { soon(); });
+		var watchCards = function() {
+			Array.prototype.forEach.call(grid.children, function(c) {
+				if (seen.has(c)) return;
+				seen.add(c);
+				mo.observe(c, {attributes: true, attributeFilter: ['hidden']});
+			});
+		};
+		var soon = function() {
+			clearTimeout(again);
+			again = setTimeout(function() {
+				watchCards();
+				webuiBalanceGrid(selector, Object.assign({}, opts, {watch: false}));
+			}, 100);
+		};
+		mo.observe(grid, {childList: true});
+		watchCards();
+		window.addEventListener('resize', soon);
+	}
 	var cards = Array.prototype.filter.call(grid.children, function(c) {
-		return c.offsetParent !== null; // nur sichtbare zaehlen
+		return c.offsetParent !== null && !(opts.skip && c.matches(opts.skip));
 	});
 	if (window.innerWidth <= (opts.breakpoint || 1100)) {
 		cards.forEach(function(c) {
@@ -2914,21 +2942,17 @@ function webuiBalanceGrid(selector, opts) {
 		});
 		return;
 	}
-	var per = Math.max(2, Math.min(opts.maxPer || 6,
-		Math.floor(window.innerWidth / (opts.cardMin || 300))));
-	if (opts.even) {
-		var p = per;
-		while (p > 2 && cards.length % p) p--;
-		if (cards.length % p === 0) per = p; // nur wenn glatt aufgeht
-	}
-	var span = Math.floor(12 / per);          // Grundspan
-	var rest = cards.length % per;            // Karten in letzter Reihe
+	if (!cards.length) return;
+	var tracks = opts.tracks || 12;
+	var most = Math.max(1, Math.min(opts.maxPer || 6, Math.floor(grid.clientWidth / (opts.cardMin || 300))));
+	// as few rows as the widest row allows, the cards shared out evenly over them
+	var rows = Math.ceil(cards.length / most);
+	var per = Math.ceil(cards.length / rows);
+	var last = cards.length - per * (rows - 1);
 	cards.forEach(function(c, i) {
-		var s = span;
-		if (rest && i >= cards.length - rest)
-			s = Math.floor(12 / rest);        // letzte Reihe fuellt auf
+		var s = Math.floor(tracks / (i >= per * (rows - 1) ? last : per));
 		c.style.setProperty('--dash-span', s);
-		if (opts.wideClass) c.classList.toggle(opts.wideClass, s >= 6);
+		if (opts.wideClass) c.classList.toggle(opts.wideClass, s * 2 >= tracks);
 	});
 }
 

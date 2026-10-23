@@ -16,11 +16,13 @@
 	<link rel="stylesheet" href="/css/webui.css?v=90">
 	<style>
 	/* The overview (Phase 4, variant A): what runs now as a band across the
-	   page, the tiles below it, three to a row on a wide screen, two on a
-	   narrow one, one on a phone, where they stand one under the other. */
+	   page, the tiles below it shared out evenly over as few rows as the
+	   width allows (webuiBalanceGrid: five as three and two), two to a row
+	   on a narrow screen, one on a phone, where they stand one under the
+	   other. 60 columns share out evenly to rows of one to six tiles. */
 	.webui-dashboard {
 		display: grid;
-		grid-template-columns: repeat(12, minmax(0, 1fr));
+		grid-template-columns: repeat(60, minmax(0, 1fr));
 		gap: 1rem;
 		max-width: var(--webui-page-max);
 		margin: 0 auto;
@@ -31,7 +33,7 @@
 	.webui-dashboard > .webui-card {
 		display: flex;
 		flex-direction: column;
-		grid-column: span 4;
+		grid-column: span var(--dash-span, 20);
 	}
 
 	.webui-dashboard > .webui-card > .webui-card-body {
@@ -46,7 +48,7 @@
 
 	@media (max-width: 1100px) {
 		.webui-dashboard > .webui-card {
-			grid-column: span 6;
+			grid-column: span 30;
 		}
 	}
 
@@ -57,7 +59,7 @@
 		}
 
 		.webui-dashboard > .webui-card {
-			grid-column: span 12;
+			grid-column: span 60;
 		}
 	}
 
