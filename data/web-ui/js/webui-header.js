@@ -2125,8 +2125,10 @@ function webuiTitled(el, text) {
          aria-controls="ID" onclick="webuiHelpToggle(this)">…</button>
        <div class="webui-help-panel" id="ID" hidden>…</div>
      </span>
-   The panel opens below the button; the button again, Escape or a click
-   elsewhere closes it, Escape giving the focus back to the button. */
+   The panel opens below the button, moved left as far as it must to stay
+   inside the window (a button near the right edge of a phone); the button
+   again, Escape or a click elsewhere closes it, Escape giving the focus
+   back to the button. */
 function webuiHelpToggle(btn) {
 	var panel = document.getElementById(btn.getAttribute('aria-controls'));
 	if (!panel)
@@ -2155,6 +2157,12 @@ function webuiHelpToggle(btn) {
 			btn.focus();
 	};
 	panel.hidden = false;
+	// 16px from the window's edges, as the panel's width keeps them
+	panel.style.left = '';
+	var r = panel.getBoundingClientRect();
+	var room = document.documentElement.clientWidth - 16;
+	if (r.right > room)
+		panel.style.left = Math.max(16 - r.left, room - r.right) + 'px';
 	btn.setAttribute('aria-expanded', 'true');
 	btn._webuiHelpClose = close;
 	// the click that opened it is past the document already
