@@ -49,6 +49,10 @@
    src/httpd/Makefile.am). */
 #include <config.h>
 
+/* The web server's name and version, as it gives them in the head of each
+   answer (WEBSERVERNAME), for the interface's About window. */
+#include "yconfig.h"
+
 #ifndef DISABLE_LEGACY_API
 #include "httpd/compat/mount.h"
 #endif
@@ -126,6 +130,8 @@ const FieldDesc kBoxFields[] = {
 	HTTPD_MEMBER("machine", FieldType::String, "the machine the kernel runs on, such as armv7l or x86_64"),
 	HTTPD_MEMBER("neutrino_version", FieldType::String, "the version of the program"),
 	HTTPD_MEMBER("neutrino_git", FieldType::String, "the revision the program was built from, and empty where the build does not say"),
+	HTTPD_MEMBER("webserver_name", FieldType::String, "the web server answering, as it names itself in the head of each answer"),
+	HTTPD_MEMBER("webserver_version", FieldType::String, "that web server's version"),
 	HTTPD_OBJECT("support", &kSupportSchema, "where to find help, as the box's own information screen says"),
 };
 
@@ -342,6 +348,10 @@ Response boxInfo(const Request &)
 #else
 	j.value("");
 #endif
+	j.key("webserver_name");
+	j.value(HTTPD_NAME);
+	j.key("webserver_version");
+	j.value(HTTPD_VERSION);
 	j.key("support");
 	j.beginObject();
 	j.key("homepage");

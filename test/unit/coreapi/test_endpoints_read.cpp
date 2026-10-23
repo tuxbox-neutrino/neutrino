@@ -2934,6 +2934,8 @@ TEST_CASE("the processor, the load, the temperature and where to find help are w
 	REQUIRE(got["os"].asString() == "Tuxbox OS 4.0");
 	REQUIRE(got["machine"].asString() == "armv7l");
 	REQUIRE(!got["neutrino_version"].asString().empty());
+	REQUIRE(got["webserver_name"].asString() == "nhttpd");
+	REQUIRE(!got["webserver_version"].asString().empty());
 	REQUIRE(got["support"]["forum"].asString() == "https://forum.tuxbox-neutrino.org");
 	REQUIRE(got["support"]["copyright"].asString() == "Copyright 2026 Tuxbox Project");
 
