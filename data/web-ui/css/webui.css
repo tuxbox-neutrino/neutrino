@@ -45,6 +45,9 @@ html.webui-i18n-pending body {
 	/* Spacing - using relative units */
 	--webui-gap: 0.8%;
 	--webui-card-padding: 3%;
+	/* how wide a page's content may grow: the whole window, on every page
+	   alike (each page's container takes it) */
+	--webui-page-max: none;
 
 	/* Border radius */
 	--webui-radius: 0.4rem;
