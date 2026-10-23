@@ -38,5 +38,7 @@
 	"msg.load_fail": "Loading failed",
 	"msg.loading": "Loading...",
 	"si.refresh": "Refresh",
-	"tools.files": "Files"
+	"tools.files": "Files",
+	"fm.split": "Width of the folder list",
+	"fm.split_title": "Drag to widen or narrow the folder list (double click: back)"
 }

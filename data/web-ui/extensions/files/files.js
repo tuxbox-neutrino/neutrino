@@ -542,6 +542,10 @@ webuiExtTexts('files').then(async function() {
 });
 
 webuiExtTexts('files').then(function() {
+	// the line between folders and files where it was left in this browser
+	if (typeof webuiSplitter === 'function')
+		webuiSplitter(document.getElementById('fmSplit'), {grid: document.querySelector('main.webui-files-grid'),
+			prop: '--fm-side', key: 'webui-split-files', start: 240, min: 160, maxShare: 0.6});
 	webuiInitMobileAccordion({
 		cardOrder: ['card-sidebar', 'card-files'],
 		storageKey: 'webui-files-card',

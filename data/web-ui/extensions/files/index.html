@@ -13,11 +13,13 @@
 	<link rel="stylesheet" href="/css/pico.min.css">
 	<link rel="stylesheet" href="/css/webui.css">
 	<style>
-		/* 2-column grid layout */
+		/* Two columns, the folders and the files, with a handle between them
+		   (webuiSplitter) that moves the line: wide enough for a whole path
+		   if one wants, kept for this browser. One under the other on a phone. */
 		main.webui-files-grid {
 			display: grid;
-			grid-template-columns: 240px 1fr;
-			gap: 0.6rem;
+			grid-template-columns: var(--fm-side, 240px) 10px minmax(0, 1fr);
+			gap: 0.6rem 0.25rem;
 			padding: 0.5rem;
 			overflow: hidden;
 		}
@@ -26,6 +28,10 @@
 			main.webui-files-grid {
 				grid-template-columns: 1fr;
 				grid-template-rows: auto 1fr;
+			}
+
+			main.webui-files-grid > .webui-split-handle {
+				display: none;
 			}
 		}
 
@@ -468,6 +474,8 @@
 				<ul class="webui-plain-list webui-quick-list" id="quickList"></ul>
 			</div>
 		</article>
+
+		<div class="webui-split-handle" id="fmSplit" aria-label="Width of the folder list" data-l-aria-label="fm.split" title="Drag to widen or narrow the folder list" data-l-title="fm.split_title"></div>
 
 		<!-- File List Card -->
 		<article class="webui-card webui-panel-card webui-card-sm webui-filelist-card" id="card-files">

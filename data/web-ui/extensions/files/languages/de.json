@@ -38,5 +38,7 @@
 	"msg.load_fail": "Fehler beim Laden",
 	"msg.loading": "Lade...",
 	"si.refresh": "Aktualisieren",
-	"tools.files": "Dateien"
+	"tools.files": "Dateien",
+	"fm.split": "Breite der Ordnerliste",
+	"fm.split_title": "Ziehen, um die Ordnerliste breiter oder schmaler zu machen (Doppelklick: zurück)"
 }
