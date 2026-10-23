@@ -21,15 +21,19 @@
 	.webui-boxcontrol {
 		display: grid;
 		grid-template-columns: repeat(60, minmax(0, 1fr));
-		gap: 1rem;
+		/* the space between the cards as their margin: 59 gaps between the
+		   columns would hold the grid at 944 px at least */
+		column-gap: 0;
+		row-gap: 1rem;
 		align-items: stretch;
 		max-width: var(--webui-page-max);
 		margin: 0 auto;
-		padding: 1rem;
+		padding: 1rem 0.5rem;
 	}
 
 	.webui-boxcontrol > .webui-card {
 		grid-column: span var(--dash-span, 20);
+		margin-inline: 0.5rem;
 	}
 
 	@media (max-width: 1100px) {

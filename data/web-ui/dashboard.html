@@ -19,14 +19,18 @@
 	   page, the tiles below it shared out evenly over as few rows as the
 	   width allows (webuiBalanceGrid: five as three and two), two to a row
 	   on a narrow screen, one on a phone, where they stand one under the
-	   other. 60 columns share out evenly to rows of one to six tiles. */
+	   other. 60 columns share out evenly to rows of one to six tiles; the
+	   space between the tiles is their margin, as 59 gaps between the
+	   columns would hold the grid at 944 px at least, wider than a phone and
+	   than a laptop's window beside the side bar. */
 	.webui-dashboard {
 		display: grid;
 		grid-template-columns: repeat(60, minmax(0, 1fr));
-		gap: 1rem;
+		column-gap: 0;
+		row-gap: 1rem;
 		max-width: var(--webui-page-max);
 		margin: 0 auto;
-		padding: 1rem;
+		padding: 1rem 0.5rem;
 	}
 
 	/* a tile's foot stays at its bottom when its row is higher */
@@ -34,6 +38,7 @@
 		display: flex;
 		flex-direction: column;
 		grid-column: span var(--dash-span, 20);
+		margin-inline: 0.5rem;
 	}
 
 	.webui-dashboard > .webui-card > .webui-card-body {
@@ -54,12 +59,13 @@
 
 	@media (max-width: 760px) {
 		.webui-dashboard {
-			gap: 0.75rem;
-			padding: 0.75rem;
+			row-gap: 0.75rem;
+			padding: 0.75rem 0.375rem;
 		}
 
 		.webui-dashboard > .webui-card {
 			grid-column: span 60;
+			margin-inline: 0.375rem;
 		}
 	}
 
