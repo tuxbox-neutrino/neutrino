@@ -91,46 +91,83 @@
 	}
 
 	/* the band: logo, channel, programme, time and progress, the state,
-	   then what records or plays, then the actions */
+	   then what records or plays, then the actions. The programme is its
+	   largest text, the channel with its number above it; without a guide
+	   the channel takes the programme's place. The logo stands on the dark
+	   tile the channel list gives it, in both themes. */
 	.webui-now {
 		display: grid;
-		grid-template-columns: 64px minmax(0, 1fr) auto;
-		gap: 0.75rem 1rem;
+		grid-template-columns: 112px minmax(0, 1fr) auto;
+		gap: 0.75rem 1.25rem;
 		align-items: center;
-		padding: 1rem;
+		padding: 1.1rem 1.25rem;
 	}
 
 	.webui-now-logo {
 		display: grid;
 		place-items: center;
-		width: 64px;
+		width: 112px;
 		height: 64px;
-		border-radius: var(--webui-radius);
-		background: var(--webui-bg-elevated);
+		border-radius: var(--webui-radius-lg);
+		background: #1e242e;
 		overflow: hidden;
 	}
 
 	.webui-now-logo img {
-		max-width: 56px;
-		max-height: 56px;
+		max-width: 100px;
+		max-height: 52px;
 		object-fit: contain;
 	}
 
 	.webui-now-logo svg {
 		width: 28px;
 		height: 28px;
+		color: #9aa7b5;
+	}
+
+	.webui-now-chan {
+		display: flex;
+		align-items: baseline;
+		gap: 0.5rem;
+		min-width: 0;
+	}
+
+	.webui-now-num {
 		color: var(--pico-muted-color);
+		font-size: var(--webui-font-sm);
+		font-weight: 600;
+		font-variant-numeric: tabular-nums;
 	}
 
 	.webui-now h2 {
 		margin: 0;
-		font-size: 1.25rem;
-		line-height: 1.25;
+		font-size: var(--webui-font-sm);
+		font-weight: 600;
+		line-height: 1.3;
+		color: var(--pico-muted-color);
 	}
 
 	.webui-now-show {
-		margin: 0.15rem 0 0;
+		margin: 0.1rem 0 0;
+		font-size: 1.4rem;
+		font-weight: 700;
+		line-height: 1.25;
+	}
+
+	.webui-now.no-epg h2 {
+		font-size: 1.4rem;
+		font-weight: 700;
+		color: var(--pico-color);
+	}
+
+	.webui-now.no-epg .webui-now-show {
 		font-size: 1rem;
+		font-weight: 400;
+		color: var(--pico-muted-color);
+	}
+
+	#now-progress {
+		margin-top: 0.5rem;
 	}
 
 	.webui-now-meta {
@@ -194,17 +231,23 @@
 
 	@media (max-width: 760px) {
 		.webui-now {
-			grid-template-columns: 48px minmax(0, 1fr);
+			grid-template-columns: 72px minmax(0, 1fr);
+			padding: 0.9rem 1rem;
 		}
 
 		.webui-now-logo {
-			width: 48px;
-			height: 48px;
+			width: 72px;
+			height: 44px;
 		}
 
 		.webui-now-logo img {
-			max-width: 42px;
-			max-height: 42px;
+			max-width: 64px;
+			max-height: 36px;
+		}
+
+		.webui-now-show,
+		.webui-now.no-epg h2 {
+			font-size: 1.15rem;
 		}
 
 		#now-state {
@@ -221,6 +264,11 @@
 	.webui-dash-rows {
 		margin: 0;
 		padding: 0;
+		list-style: none;
+	}
+
+	/* Pico gives every li a marker, a row's state included */
+	.webui-dash-rows > li {
 		list-style: none;
 	}
 
@@ -254,10 +302,149 @@
 		color: var(--pico-muted-color);
 	}
 
-	/* the box's values open the system information where it is there; kept
-	   hidden while the tile says it could not read them */
-	#system-body > [hidden] {
+	/* The box's load as four gauges across the page: the processor, the
+	   memory, the disk, and the temperature where the box knows it, else
+	   how long it has run. Four to a row, two where the page is narrower
+	   (a container query, so the side bar's width counts), the ring above
+	   its words where a gauge gets narrow. They open the system
+	   information where it is there. */
+	.webui-dashboard > .webui-dash-gauges {
+		grid-column: 1 / -1;
+		margin-inline: 0.5rem;
+		container-type: inline-size;
+	}
+
+	.webui-gauges {
+		display: grid;
+		grid-template-columns: repeat(4, minmax(0, 1fr));
+		gap: 1rem;
+	}
+
+	.webui-gauge {
+		display: flex;
+		align-items: center;
+		gap: 1rem;
+		min-width: 0;
+		padding: 1rem 1.1rem;
+		border-radius: var(--webui-radius-lg);
+		background: var(--pico-card-background-color);
+		box-shadow: var(--webui-shadow);
+	}
+
+	[data-theme="light"] .webui-gauge {
+		border: 1px solid var(--webui-border-subtle);
+	}
+
+	.webui-gauge[hidden],
+	.webui-gauges[hidden] {
 		display: none;
+	}
+
+	.webui-gauge-ring {
+		position: relative;
+		flex: none;
+		width: 84px;
+		height: 84px;
+	}
+
+	.webui-gauge-ring svg {
+		width: 100%;
+		height: 100%;
+		transform: rotate(-90deg);
+	}
+
+	.webui-gauge-ring circle {
+		fill: none;
+		stroke-width: 9;
+	}
+
+	.webui-gauge-ring .track {
+		stroke: var(--pico-muted-border-color);
+	}
+
+	.webui-gauge-ring .fill {
+		stroke: var(--webui-accent);
+		stroke-linecap: round;
+		stroke-dasharray: 0 226.2;
+		transition: stroke-dasharray 0.6s ease;
+	}
+
+	.webui-gauge.ok .fill {
+		stroke: var(--webui-success);
+	}
+
+	.webui-gauge.warn .fill {
+		stroke: var(--webui-warning);
+	}
+
+	.webui-gauge.danger .fill {
+		stroke: var(--webui-danger);
+	}
+
+	.webui-gauge.empty .fill {
+		stroke: none;
+	}
+
+	.webui-gauge-ring b {
+		position: absolute;
+		inset: 0;
+		display: grid;
+		place-items: center;
+		font-size: 1.05rem;
+		font-variant-numeric: tabular-nums;
+	}
+
+	.webui-gauge h3 {
+		margin: 0 0 0.1rem;
+		font-size: 0.95rem;
+		font-weight: 600;
+	}
+
+	.webui-gauge p {
+		margin: 0;
+		color: var(--pico-muted-color);
+		font-size: var(--webui-font-sm);
+		font-variant-numeric: tabular-nums;
+		overflow-wrap: anywhere;
+	}
+
+	/* the time it has run, where the box tells no temperature */
+	.webui-gauge-plain .webui-gauge-ring svg {
+		visibility: hidden;
+	}
+
+	@container (max-width: 54rem) {
+		.webui-gauges {
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+		}
+	}
+
+	@container (max-width: 30rem) {
+		.webui-gauges {
+			gap: 0.75rem;
+		}
+
+		.webui-gauge {
+			flex-direction: column;
+			gap: 0.5rem;
+			padding: 0.85rem 0.6rem;
+			text-align: center;
+		}
+
+		.webui-gauge-ring {
+			width: 64px;
+			height: 64px;
+		}
+
+		.webui-gauge-ring b {
+			font-size: 0.95rem;
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.webui-gauge-ring .fill {
+			transition: none;
+		}
 	}
 
 	.webui-metrics {
@@ -389,22 +576,42 @@
 		margin-right: 0.25rem;
 	}
 
-	/* quick actions, as high as a button whatever the tile's height */
+	/* quick actions as tiles, an icon over its word, as many to a row as
+	   the tile has room for */
 	.webui-quick {
-		display: flex;
-		flex-wrap: wrap;
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(6.5rem, 1fr));
 		gap: 0.5rem;
-		align-content: flex-start;
-		align-items: flex-start;
+		align-content: start;
+	}
+
+	.webui-quick .webui-btn {
+		flex-direction: column;
+		gap: 0.4rem;
+		min-height: 4.6rem;
+		padding: 0.6rem 0.4rem;
+		font-size: var(--webui-font-sm);
+		white-space: normal;
+		text-align: center;
 	}
 
 	.webui-quick .webui-btn svg {
-		width: 1rem;
-		height: 1rem;
+		width: 1.4rem;
+		height: 1.4rem;
 	}
 
 	.webui-quick [hidden] {
 		display: none;
+	}
+
+	/* the latest recordings: when, what, and Play on TV */
+	.webui-recent-row {
+		grid-template-columns: minmax(7ch, auto) minmax(0, 1fr) auto;
+	}
+
+	.webui-recent-row .webui-btn svg {
+		width: 0.9rem;
+		height: 0.9rem;
 	}
 
 	/* the network's interfaces: a long name gives way, the address stays */
@@ -439,7 +646,10 @@
 						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
 					</div>
 					<div>
-						<h2 id="now-channel" data-l="msg.loading">Loading...</h2>
+						<div class="webui-now-chan">
+							<span class="webui-now-num" id="now-number"></span>
+							<h2 id="now-channel" data-l="msg.loading">Loading...</h2>
+						</div>
 						<p class="webui-now-show" id="now-show"></p>
 						<div class="webui-now-meta" id="now-meta"></div>
 						<div class="webui-progress" id="now-progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-labelledby="now-show" hidden><span></span></div>
@@ -478,6 +688,28 @@
 				</div>
 			</section>
 
+			<!-- the box's load -->
+			<section class="webui-dash-gauges" id="card-gauges" aria-label="Load of the box" data-l-aria-label="dash.load_title">
+				<div class="webui-gauges" id="gauges">
+				<div class="webui-gauge" id="gauge-cpu" data-ext-open="sysinfo" title="Show system details" data-l-title="dash.sys_details">
+					<div class="webui-gauge-ring" role="img"><svg viewBox="0 0 84 84" aria-hidden="true"><circle class="track" cx="42" cy="42" r="36"/><circle class="fill" cx="42" cy="42" r="36"/></svg><b>--</b></div>
+					<div><h3 data-l="dash.cpu">CPU</h3><p>--</p></div>
+				</div>
+				<div class="webui-gauge" id="gauge-ram" data-ext-open="sysinfo" title="Show system details" data-l-title="dash.sys_details">
+					<div class="webui-gauge-ring" role="img"><svg viewBox="0 0 84 84" aria-hidden="true"><circle class="track" cx="42" cy="42" r="36"/><circle class="fill" cx="42" cy="42" r="36"/></svg><b>--</b></div>
+					<div><h3 data-l="dash.ram">RAM</h3><p>--</p></div>
+				</div>
+				<div class="webui-gauge" id="gauge-disk" data-ext-open="sysinfo" title="Show system details" data-l-title="dash.sys_details">
+					<div class="webui-gauge-ring" role="img"><svg viewBox="0 0 84 84" aria-hidden="true"><circle class="track" cx="42" cy="42" r="36"/><circle class="fill" cx="42" cy="42" r="36"/></svg><b>--</b></div>
+					<div><h3 data-l="dash.disk">Disk</h3><p>--</p></div>
+				</div>
+				<div class="webui-gauge" id="gauge-temp" data-ext-open="sysinfo" title="Show system details" data-l-title="dash.sys_details">
+					<div class="webui-gauge-ring" role="img"><svg viewBox="0 0 84 84" aria-hidden="true"><circle class="track" cx="42" cy="42" r="36"/><circle class="fill" cx="42" cy="42" r="36"/></svg><b>--</b></div>
+					<div><h3 data-l="dash.temp">Temperature</h3><p>--</p></div>
+				</div>
+				</div>
+			</section>
+
 			<!-- the next timers -->
 			<section class="webui-card" id="card-timer" aria-labelledby="timer-title">
 				<header class="webui-card-header">
@@ -491,29 +723,6 @@
 				<footer class="webui-card-footer">
 					<a title="Open the timer list" data-l-title="tip.open_timers" href="/timer.html" class="webui-btn" data-l="dash.timer_list">Timer list</a>
 				</footer>
-			</section>
-
-			<!-- the box -->
-			<section class="webui-card" id="card-system" aria-labelledby="system-title">
-				<header class="webui-card-header">
-					<h2 class="webui-card-title" id="system-title">
-						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="2"/><path d="M9 2v4M15 2v4M9 18v4M15 18v4M2 9h4M2 15h4M18 9h4M18 15h4"/></svg>
-						<span data-l="dash.box">Box</span>
-					</h2>
-					<span class="webui-card-value" id="temp-value"></span>
-				</header>
-				<div class="webui-card-body webui-dash-table" id="system-body">
-					<div class="webui-metrics" data-ext-open="sysinfo" title="Show system details" data-l-title="dash.sys_details">
-						<div class="webui-meter" id="meter-cpu"><b data-l="dash.cpu">CPU</b><div class="webui-progress"><span></span></div><span>--</span></div>
-						<div class="webui-meter" id="meter-ram"><b data-l="dash.ram">RAM</b><div class="webui-progress"><span></span></div><span>--</span></div>
-						<div class="webui-meter" id="meter-disk"><b data-l="dash.disk">Disk</b><div class="webui-progress"><span></span></div><span>--</span></div>
-					</div>
-					<dl class="webui-kv">
-						<dt data-l="dash.uptime">Up for</dt><dd id="sys-uptime">--</dd>
-						<dt data-l="dash.box_name">Box</dt><dd id="sys-box">--</dd>
-						<dt data-l="dash.kernel">Kernel</dt><dd id="sys-kernel">--</dd>
-					</dl>
-				</div>
 			</section>
 
 			<!-- reception: the tuners, the picture, the sound -->
@@ -585,6 +794,23 @@
 						<ul class="webui-dash-rows" id="net-list"></ul>
 					</div>
 				</div>
+			</section>
+
+			<!-- the latest recordings -->
+			<section class="webui-card" id="card-recent" aria-labelledby="recent-title">
+				<header class="webui-card-header">
+					<h2 class="webui-card-title" id="recent-title">
+						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M7 4v16M17 4v16M2 9h5M2 15h5M17 9h5M17 15h5"/></svg>
+						<span data-l="dash.recent">Latest recordings</span>
+					</h2>
+					<span class="webui-card-value" id="recent-count"></span>
+				</header>
+				<div class="webui-card-body">
+					<ul class="webui-dash-rows" id="recent-list"></ul>
+				</div>
+				<footer class="webui-card-footer">
+					<a title="Open the recordings" data-l-title="tip.open_recordings" href="/recordings.html" class="webui-btn" data-l="media.all">All recordings</a>
+				</footer>
 			</section>
 		</div>
 	</main>

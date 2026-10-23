@@ -22,16 +22,22 @@ function setText(id, str) {
 	withEl(id, function(el) { el.textContent = str; });
 }
 
-/* A meter of the box tile: the bar, the value beside it, and the warning
-   colours from 70 and 90 percent on, or by the class asked for. */
-function setMeter(id, percent, value, level) {
+/* A gauge of the box's load: its ring filled to percent, the value in it
+   (also the ring's name for a screen reader), a line below its own name,
+   and the warning colours from 70 and 90 percent on, or the level asked
+   for ('ok' green, '' the accent). */
+function setGauge(id, percent, value, sub, level) {
 	withEl(id, function(el) {
 		var pct = Math.max(0, Math.min(100, Math.round(percent || 0)));
-		el.querySelector('.webui-progress > span').style.width = pct + '%';
-		el.lastElementChild.textContent = value;
-		el.classList.remove('warn', 'danger');
+		el.querySelector('.fill').style.strokeDasharray = (226.2 * pct / 100).toFixed(1) + ' 226.2';
+		var ring = el.querySelector('.webui-gauge-ring');
+		ring.querySelector('b').textContent = value;
+		ring.setAttribute('aria-label', value);
+		el.querySelector('p').textContent = sub || '';
+		el.classList.remove('ok', 'warn', 'danger', 'empty');
 		var cls = level !== undefined ? level : pct >= 90 ? 'danger' : pct >= 70 ? 'warn' : '';
 		if (cls) el.classList.add(cls);
+		if (pct === 0) el.classList.add('empty');
 	});
 }
 
@@ -63,8 +69,9 @@ const dash = {
 	playback: null,
 	playbackAt: 0,		// when the playback state was read, to count its position on
 	channelRead: 0,			// counts channel reads, so an older answer arriving last is dropped
-	systemShown: false,		// the box tile showed values once
-	tunerShown: false		// and the reception tile
+	systemShown: false,		// the gauges showed values once
+	tunerShown: false,		// and the reception tile
+	recentShown: false		// and the latest recordings
 };
 
 // A read that fails is no answer: the tile keeps what it shows or says
@@ -158,9 +165,11 @@ function showChannel() {
 	logoEl.innerHTML = logoEl._symbol;
 	if (!ch) {
 		setText('now-channel', NO_CHANNEL);
+		setText('now-number', '');
 		return;
 	}
 	setText('now-channel', ch.name || '--');
+	setText('now-number', ch.number ? String(ch.number) : '');
 	// the symbol stays until the logo is there, and for good without one
 	webuiEl('img', {attrs: {src: '/api/v1/channels/' + encodeURIComponent(ch.id) + '/logo', alt: ''},
 		on: {load: function() { if (dash.shown === key) logoEl.replaceChildren(this); }}});
@@ -193,6 +202,7 @@ async function refreshGuide() {
 // what follows, and how far it has run
 function showGuide() {
 	const ev = dash.now;
+	withEl('now-show', function(el) { el.closest('.webui-now').classList.toggle('no-epg', !ev); });
 	if (ev) {
 		setText('now-show', ev.title || '--');
 	} else {
@@ -283,69 +293,62 @@ function showState() {
 	});
 }
 
-/* A box tile that never showed values says it could not read them, in
-   front of the values it keeps hidden meanwhile (they carry the link to the
-   system information), and offers to read again. */
+/* Gauges that never showed values say they could not be read, in place of
+   the gauges (they carry the link to the system information), and offer to
+   read again. */
 function systemFailed(failed) {
-	withEl('system-body', function(body) {
-		var st = body.querySelector(':scope > .webui-state');
+	withEl('card-gauges', function(sec) {
+		var st = sec.querySelector(':scope > .webui-state');
 		if (failed && !st)
-			body.prepend(webuiState('error', webuiL('state.failed', 'Could not be read'), '', {retry: loadSystemInfo}));
+			sec.prepend(webuiState('error', webuiL('state.failed', 'Could not be read'), '', {retry: loadSystemInfo}));
 		else if (!failed && st)
 			st.remove();
-		Array.prototype.forEach.call(body.children, function(el) {
-			if (!el.classList.contains('webui-state')) el.hidden = failed;
-		});
+		withEl('gauges', function(g) { g.hidden = failed; });
 	});
 }
 
 // Load System Info: /api/v1/system/info in the old shape (webui-header.js);
-// a box tile that never showed values says why it holds none
+// gauges that never showed values say why they hold none
 function loadSystemInfo() {
 	webuiSystemInfo({interfaces: true}).then(function(data) {
 		systemFailed(!data && !dash.systemShown);
 		if (!data) return;
 		dash.systemShown = true;
 
-		// Uptime
-		setText('sys-uptime', formatUptime(data.uptime || 0));
-
-		// Temperature in the tile's head, warm from 70 °C on
-		withEl('temp-value', function(el) {
-			const t = data.temperature;
-			el.textContent = (t !== null && t !== undefined) ? t + ' °C' : '';
-			el.style.color = (t !== null && t !== undefined && t >= 70) ? 'var(--webui-danger)' : '';
-		});
-
 		// CPU - show real CPU usage percentage, else the load
 		if (data.cpu && data.cpu.percent !== undefined) {
-			setMeter('meter-cpu', data.cpu.percent, data.cpu.percent + ' %' + (data.cpu.cores ? ' · ' + data.cpu.cores + ' ' + webuiL('dash.cores', 'cores') : ''));
+			setGauge('gauge-cpu', data.cpu.percent, data.cpu.percent + ' %',
+				data.cpu.cores ? data.cpu.cores + ' ' + webuiL('dash.cores', 'cores') : '');
 		} else if (data.load && data.load.length >= 1) {
 			const load1 = data.load[0];
-			setMeter('meter-cpu', Math.min(100, Math.round(load1 * 12.5)), webuiL('dash.load_1m', 'Load (1 min)') + ' ' + load1.toFixed(2), getCpuLevel(load1));
+			setGauge('gauge-cpu', Math.min(100, Math.round(load1 * 12.5)), load1.toFixed(2),
+				webuiL('dash.load_1m', 'Load (1 min)'), getCpuLevel(load1));
 		}
 
 		// Memory - used of the total
 		if (data.memory)
-			setMeter('meter-ram', data.memory.percent || 0, formatKB(data.memory.used) + ' / ' + formatKB(data.memory.total));
+			setGauge('gauge-ram', data.memory.percent || 0, (data.memory.percent || 0) + ' %',
+				formatKB(data.memory.used) + ' / ' + formatKB(data.memory.total));
 
 		// Disk - what is free
 		if (data.disk)
-			setMeter('meter-disk', data.disk.percent || 0, formatKB(data.disk.free) + ' ' + webuiL('dash.free', 'free'));
+			setGauge('gauge-disk', data.disk.percent || 0, (data.disk.percent || 0) + ' %',
+				formatKB(data.disk.free) + ' ' + webuiL('dash.free', 'free'));
 
-		// Box name from hostname (sysinfo gives real hostname);
-		// keep the previous text when neither field is present
-		if (data.box && data.box.name) {
-			setText('sys-box', data.box.name);
-		} else if (data.hostname) {
-			setText('sys-box', data.hostname);
-		}
-
-		// Kernel - short version
-		if (data.kernel) {
-			const k = data.kernel.split(' ')[0] || data.kernel;
-			setText('sys-kernel', k);
-		}
+		// The temperature, warm from 60 and hot from 70 °C on, and how long
+		// the box has run below it; where it tells no temperature, that time
+		// in its place
+		withEl('gauge-temp', function(el) {
+			const t = data.temperature;
+			const known = t !== null && t !== undefined;
+			const up = formatUptime(data.uptime || 0);
+			el.classList.toggle('webui-gauge-plain', !known);
+			el.querySelector('h3').textContent = known ? webuiL('dash.temp', 'Temperature') : webuiL('dash.uptime', 'Up for');
+			if (known)
+				setGauge('gauge-temp', t, t + ' °C', webuiL('dash.up_for', 'up for %s').replace('%s', up), t >= 70 ? 'danger' : t >= 60 ? 'warn' : 'ok');
+			else
+				setGauge('gauge-temp', 0, up, '', '');
+		});
 
 		// Hostname in network tile's head
 		if (data.hostname)
@@ -373,6 +376,40 @@ function loadSystemInfo() {
 				webuiEl('span', {}, iface.ip || webuiL('dash.no_ip', 'no IP'), macStr ? webuiEl('small', {}, macStr) : null),
 				webuiEl('span', {className: 'webui-pill' + (iface.up ? ' ok' : '')}, iface.up ? webuiL('dash.up', 'up') : webuiL('dash.down', 'down')));
 		});
+	});
+}
+
+// The latest recordings, from GET /api/v1/recordings/archive: the three
+// newest, each with Play on TV; read again when a recording ends. A list
+// that never showed says why it is empty.
+async function refreshRecent() {
+	const list = document.getElementById('recent-list');
+	if (!list) return;
+	const got = await dashRead('/recordings/archive', {limit: 3, sort: 'start', order: 'desc'});
+	if (got.error) {
+		if (!dash.recentShown)
+			list.replaceChildren(webuiEl('li', {}, webuiStateFor(got.error, {retry: refreshRecent})));
+		return;
+	}
+	dash.recentShown = true;
+	const page = got.data || {};
+	const items = page.items || [];
+	setText('recent-count', page.total ? String(page.total) : '');
+	if (!items.length) {
+		list.replaceChildren(webuiEl('li', {}, webuiState('empty', webuiL('dash.recent_none', 'No recordings yet'), '')));
+		return;
+	}
+	// titles and channels come from the recordings and go in as text
+	webuiSync(list, items, function(r) { return r.id; }, function(r) {
+		const title = r.title || r.channel || r.id;
+		const len = r.duration ? Math.round(r.duration / 60) + ' min' : '';
+		return webuiEl('li', {className: 'webui-dash-row webui-recent-row'},
+			webuiEl('b', {}, r.start ? dayAndClock(r.start) : ''),
+			webuiEl('span', {}, title, webuiEl('small', {}, [r.channel, len].filter(Boolean).join(' · '))),
+			webuiEl('button', {type: 'button', className: 'webui-btn', title: webuiL('media.play', 'Play on TV'),
+				attrs: {'aria-label': webuiL('media.play', 'Play on TV') + ': ' + title},
+				on: {click: function() { webuiPlayRecording(r.id); }}},
+				webuiMarkup('<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><polygon points="6 4 20 12 6 20"/></svg>')));
 	});
 }
 
@@ -586,7 +623,7 @@ function followTheBox() {
 		},
 		standby: function() { refreshChannel(false); refreshPlayback(); },
 		'record-start': function() { refreshTimers().then(refreshRecordings); },
-		'record-stop': function() { refreshTimers().then(refreshRecordings); },
+		'record-stop': function() { refreshTimers().then(refreshRecordings); refreshRecent(); },
 		'timer-changed': refreshTimers,
 		'epg-updated': function(d) {
 			if (d && dash.channel && sameLow48(d.channel_id, dash.channel.id))
@@ -801,7 +838,7 @@ function updateStreamInfoUI(resolution, height, aspect, fps, audio) {
 // Init, once the texts are in
 webuiAfterTexts(function() {
 	// the tiles share their rows out evenly, the extensions' as they come
-	webuiBalanceGrid('.webui-dashboard', {tracks: 60, cardMin: 380, maxPer: 4, skip: '.webui-dash-now', watch: true});
+	webuiBalanceGrid('.webui-dashboard', {tracks: 60, cardMin: 380, maxPer: 4, skip: '.webui-dash-now, .webui-dash-gauges', watch: true});
 	NO_CHANNEL = webuiL('dash.no_channel', 'No channel');
 	NO_EPG = webuiL('dash.no_epg', 'No EPG data');
 	NO_TUNER = webuiL('dash.no_tuner', 'No tuner');
@@ -809,12 +846,14 @@ webuiAfterTexts(function() {
 	// until the first answers: the tiles that list say they load
 	withEl('timer-list', function(el) { el.replaceChildren(webuiState('loading', webuiL('msg.loading', 'Loading...'), '')); });
 	withEl('tuner-list', function(el) { el.replaceChildren(webuiState('loading', webuiL('msg.loading', 'Loading...'), '')); });
+	withEl('recent-list', function(el) { el.replaceChildren(webuiEl('li', {}, webuiState('loading', webuiL('msg.loading', 'Loading...'), ''))); });
 
 	refreshEvented();
 	followTheBox();
 	loadSystemInfo();
 	loadTunerStatus();
 	loadStreamInfo();
+	refreshRecent();
 
 	// No event for these: asked on a timer, while visible
 	whileVisible(30000, loadSystemInfo);
@@ -838,6 +877,7 @@ webuiAfterTexts(function() {
 			loadSystemInfo();
 			loadTunerStatus();
 			loadStreamInfo();
+			refreshRecent();
 			return new Promise(resolve => setTimeout(resolve, 800));
 		});
 	}
