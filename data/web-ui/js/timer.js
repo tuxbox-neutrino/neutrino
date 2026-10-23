@@ -9,7 +9,6 @@ let timersShown = false;	// the list was drawn once, so a failed read later keep
 let currentFilter = 'all';
 let openDetail = '';		// the timer whose details are open, kept across a refresh
 let currentMode = 'tv';
-const names = Object.create(null);	// channel id -> name
 
 const TIMER_TYPE_LABELS = WEBUI_TIMER_TYPE_LABELS;
 const TIMER_STATE_LABELS = WEBUI_TIMER_STATE_LABELS;
@@ -85,27 +84,11 @@ function dateOf(sec) {
 	const d = new Date(sec * 1000);
 	return webuiPad2(d.getDate()) + '.' + webuiPad2(d.getMonth() + 1) + '.' + d.getFullYear();
 }
-function clock(sec) { return webuiFormatTime(new Date(sec * 1000)); }
+const clock = webuiClock;
 
 // A timer without a channel names "0"
 function channelOf(t) {
 	return t.channel_id && t.channel_id !== '0' ? t.channel_id : '';
-}
-
-// The names of the channels the timers name, each asked once, also
-// while two reads of the list overlap
-const naming = Object.create(null);
-async function ensureNames(ids) {
-	await Promise.all(ids.map(id => {
-		if (!id || id in names) return null;
-		if (!naming[id]) {
-			naming[id] = webuiV1('GET', '/channels/' + encodeURIComponent(id)).catch(() => null).then(ch => {
-				names[id] = (ch && ch.name) || '';
-				delete naming[id];
-			});
-		}
-		return naming[id];
-	}));
 }
 
 // A read that fails keeps a list drawn before; the first one says why
@@ -116,7 +99,7 @@ async function loadTimers() {
 	try {
 		const r = await webuiV1('GET', '/timers');
 		const items = (r && r.items) || [];
-		await ensureNames(items.map(channelOf));
+		await webuiEnsureNames(items.map(channelOf));
 		if (read !== timersRead) return;
 		allTimers = items;
 		timersShown = true;
@@ -225,7 +208,7 @@ function detail(label, value) {
 function timerRow(timer) {
 	const typeNum = typeNumber(timer);
 	const state = timer.state || 0;
-	const channel = names[channelOf(timer)] || '';
+	const channel = webuiNames[channelOf(timer)] || '';
 	const typeLabel = TIMER_TYPE_LABELS[typeNum] || WEBUI_TIMER_TYPES[typeNum] || String(timer.kind);
 	const title = timer.title || channel || typeLabel;
 	const stateLabel = TIMER_STATE_LABELS[state] || '';
@@ -847,5 +830,5 @@ async function selectChannelById(channelId) {
 		if (cSel) cSel.value = channelId;
 		if (cSel && cSel.value === channelId) return;
 	}
-	if (cSel) options(cSel, [webuiEl('option', {value: channelId}, names[channelId] || channelId)]);
+	if (cSel) options(cSel, [webuiEl('option', {value: channelId}, webuiNames[channelId] || channelId)]);
 }

@@ -874,6 +874,12 @@ function webuiPad2(n) {
 	return String(n).padStart(2, '0');
 }
 
+/* A time of the guide, a timer or a recording (seconds since 1970) on the
+   clock as the pages show it, "--:--" for none */
+function webuiClock(sec) {
+	return sec ? webuiFormatTime(new Date(sec * 1000)) : '--:--';
+}
+
 function webuiFormatTime(date) {
 	return webuiPad2(date.getHours()) + ':' + webuiPad2(date.getMinutes());
 }

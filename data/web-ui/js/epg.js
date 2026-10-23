@@ -22,7 +22,7 @@ let gridRows = Object.create(null);	// channel id -> {channel, el, events}, for 
 let gridWindow = null;		// {start, stop} of the grid shown
 
 const formatTime = webuiFormatTime;
-function clock(sec) { return formatTime(new Date(sec * 1000)); }
+const clock = webuiClock;
 
 function initTimeSelect() {
 	const select = document.getElementById('timeSelect');

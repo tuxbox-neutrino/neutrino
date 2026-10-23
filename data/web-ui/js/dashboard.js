@@ -62,8 +62,6 @@ const dash = {
 	timersRead: false,	// whether the timers were read once, so a failure later keeps them
 	playback: null,
 	playbackAt: 0,		// when the playback state was read, to count its position on
-	names: Object.create(null),	// channel id -> name, for timers and recordings
-	naming: Object.create(null),	// channel id -> the read of its name under way
 	channelRead: 0,			// counts channel reads, so an older answer arriving last is dropped
 	systemShown: false,		// the box tile showed values once
 	tunerShown: false		// and the reception tile
@@ -83,9 +81,7 @@ function dashRead(path, query) {
 		function(e) { return {error: e}; });
 }
 
-function clock(sec) {
-	return sec ? webuiFormatTime(new Date(sec * 1000)) : '--:--';
-}
+const clock = webuiClock;
 
 // "today 20:15", "tomorrow 06:00", else the date and the time
 function dayAndClock(sec) {
@@ -110,21 +106,6 @@ function remaining(stopSec) {
 	if (!stopSec || stopSec <= now) return '';
 	const min = Math.max(1, Math.round((stopSec - now) / 60)), hr = Math.floor(min / 60);
 	return hr > 0 ? hr + ' h ' + (min % 60) + ' min' : min + ' min';
-}
-
-// The names of the channels timers and recordings name by id, each asked
-// once, also while two tiles ask at the same time.
-async function ensureNames(ids) {
-	await Promise.all(ids.map(function(id) {
-		if (!id || id in dash.names) return null;
-		if (!dash.naming[id]) {
-			dash.naming[id] = dashGet('/channels/' + encodeURIComponent(id)).then(function(ch) {
-				dash.names[id] = (ch && ch.name) || '';
-				delete dash.naming[id];
-			});
-		}
-		return dash.naming[id];
-	}));
 }
 
 // takeMode: whether the mode is read off the channel's kind, which it is
@@ -155,7 +136,7 @@ async function refreshChannel(takeMode) {
 		return;
 	}
 	dash.channel = {id: ch.id, name: ch.name || '', kind: ch.kind || '', number: ch.number || 0};
-	dash.names[ch.id] = ch.name || '';
+	webuiNames[ch.id] = ch.name || '';
 	if (takeMode)
 		setMode(ch.kind === 'radio' || ch.kind === 'webradio' ? 'radio' : 'tv');
 	showChannel();
@@ -413,7 +394,7 @@ function loadVersions() {
 async function refreshRecordings() {
 	const r = await dashGet('/recordings');
 	dash.recordings = ((r && r.items) || []).filter(function(it) { return !it.timeshift; });
-	await ensureNames(dash.recordings.map(function(it) { return it.channel_id; }));
+	await webuiEnsureNames(dash.recordings.map(function(it) { return it.channel_id; }));
 	showRecording();
 }
 
@@ -432,7 +413,7 @@ function showRecording() {
 	}
 	if (!rec) return;
 
-	const channel = dash.names[rec.channel_id] || '';
+	const channel = webuiNames[rec.channel_id] || '';
 	const timer = dash.timers.find(function(t) { return t.id === rec.id; });
 	const left = timer && remaining(timer.stop);
 	setText('rec-title', rec.title || channel || RECORDING);
@@ -543,7 +524,7 @@ async function refreshTimers() {
 	}
 	dash.timersRead = true;
 	dash.timers = (got.data && got.data.items) || [];
-	await ensureNames(dash.timers.map(function(t) { return t.channel_id; }));
+	await webuiEnsureNames(dash.timers.map(function(t) { return t.channel_id; }));
 	showTimers();
 	showRecording();
 }
@@ -576,7 +557,7 @@ function showTimers() {
 		return (row.running ? 'run-' : 'next-') + row.timer.id;
 	}, function(row) {
 		const timer = row.timer;
-		const channel = dash.names[timer.channel_id] || '';
+		const channel = webuiNames[timer.channel_id] || '';
 		const label = webuiGetTimerType({type_number: timerTypeNumber(timer)});
 		const what = [channel, label].filter(Boolean).join(' · ');
 		if (row.running) {

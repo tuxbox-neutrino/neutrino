@@ -590,8 +590,24 @@ let webuiEpgModalIsRecording = false;
 let _webuiEpgModalOnTimer = null;
 let _webuiEpgModalToken = 0;
 
-function _webuiClock(sec) {
-	return webuiFormatTime(new Date(sec * 1000));
+
+/* The names of channels by their v1 ids, for the lists that hold ids alone
+   (timers, recordings): each asked of the box once and kept for the page,
+   also while two reads ask at once; '' for a channel the box does not
+   know. The overview and the timer list share them. */
+const webuiNames = Object.create(null);
+const _webuiNaming = Object.create(null);
+async function webuiEnsureNames(ids) {
+	await Promise.all(ids.map(function(id) {
+		if (!id || id in webuiNames) return null;
+		if (!_webuiNaming[id]) {
+			_webuiNaming[id] = webuiV1('GET', '/channels/' + encodeURIComponent(id)).catch(function() { return null; }).then(function(ch) {
+				webuiNames[id] = (ch && ch.name) || '';
+				delete _webuiNaming[id];
+			});
+		}
+		return _webuiNaming[id];
+	}));
 }
 
 // A guide read that finds nothing is an answer, not a failure
@@ -667,7 +683,7 @@ async function webuiShowEpgModal(channelId, channelName, opts) {
 		webuiEpgModalEvent = ev;
 		const end = ev.start + ev.duration;
 		titleEl.textContent = ev.title || '--';
-		timeEl.textContent = _webuiClock(ev.start) + ' - ' + _webuiClock(end) +
+		timeEl.textContent = webuiClock(ev.start) + ' - ' + webuiClock(end) +
 			(ev.duration > 0 ? ' (' + webuiL('epg.minutes', '%s min').replace('%s', Math.round(ev.duration / 60)) + ')' : '');
 		descEl.textContent = ev.description || '';
 		// how far it has run, for the one running now; a later one can be zapped to by a timer
@@ -691,7 +707,7 @@ async function webuiShowEpgModal(channelId, channelName, opts) {
 		const next = win && (win.items || []).find(function(e) { return e.start >= end; });
 		if (next) {
 			nextTitleEl.textContent = next.title || '--';
-			nextTimeEl.textContent = _webuiClock(next.start) + ' - ' + _webuiClock(next.start + next.duration);
+			nextTimeEl.textContent = webuiClock(next.start) + ' - ' + webuiClock(next.start + next.duration);
 			nextSection.style.display = 'block';
 		}
 	} catch (e) {

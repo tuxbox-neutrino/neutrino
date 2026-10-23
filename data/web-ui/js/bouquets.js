@@ -13,9 +13,7 @@ const SVG_INFO = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" str
 const SVG_REC = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="12" cy="12" r="6"/></svg>';
 const SVG_STREAM = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M7 5v14l11-7z"/></svg>';
 
-function clock(sec) {
-	return webuiFormatTime(new Date(sec * 1000));
-}
+const clock = webuiClock;
 
 // the channels of the list shown, by id, for what their rows open
 let channelsShown = Object.create(null);
