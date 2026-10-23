@@ -13,13 +13,14 @@
 	<link rel="stylesheet" href="/css/pico.min.css?v=1">
 	<link rel="stylesheet" href="/css/webui.css?v=90">
 	<style>
-		/* The recordings (Phase 4): the sources beside the list on a wide
-		   screen, a choice above it on a phone; search and order in the
-		   list's head; each recording a row whose title opens its details,
-		   with Play on TV as its action and the others in a menu. */
+		/* The recordings (Phase 4 C, as on the approved sample page): a bar
+		   with the search, the folders as chips, the order and the view; the
+		   recordings as tiles with their cover or their channel's logo, or as
+		   rows of a list; on a wide screen the one chosen in a column beside
+		   them with its details and actions, else in a sheet. */
 		.webui-media {
 			display: grid;
-			grid-template-columns: fit-content(18rem) minmax(0, 1fr);
+			grid-template-columns: minmax(0, 1fr);
 			gap: 1rem;
 			align-items: start;
 			max-width: var(--webui-page-max);
@@ -27,42 +28,84 @@
 			padding: 1rem;
 		}
 
-		/* Pico lays a nav and the lists in it out as a row: here a column */
-		.webui-media > nav.webui-media-sources {
-			display: block;
-			position: sticky;
-			top: 0;
-		}
-
-		.webui-media-list-card .webui-card-header {
-			flex-wrap: wrap;
-		}
-
-		.webui-card-value {
-			color: var(--pico-muted-color);
-			font-variant-numeric: tabular-nums;
-		}
-
-		.webui-media-controls {
+		.webui-media-bar {
 			display: flex;
-			flex: 1 1 22rem;
 			flex-wrap: wrap;
-			gap: 0.4rem;
-			justify-content: flex-end;
+			align-items: center;
+			gap: 0.6rem;
 		}
 
-		.webui-media-controls input[type="search"] {
-			flex: 1 1 12rem;
-			min-width: 0;
-		}
-
-		.webui-source-pick {
-			display: none;
-			flex: 1 1 100%;
+		.webui-media-bar input[type="search"] {
+			flex: 1 1 14rem;
+			max-width: 20rem;
+			height: 2.4rem;
 			margin: 0;
+			padding-top: 0;
+			padding-bottom: 0;
 		}
 
-		.webui-source-pick select {
+		/* Pico draws a [role="group"] as a full-width bar of joined fields,
+		   its buttons stretched: the chips undo it */
+		.webui-media-chips,
+		.webui-media-chips[role="group"] {
+			--pico-group-box-shadow: none;
+			display: flex;
+			flex-wrap: wrap;
+			gap: 0.35rem;
+			width: auto;
+			margin: 0;
+			padding: 0;
+			border: 0;
+			background: none;
+			box-shadow: none;
+		}
+
+		.webui-media-chips button,
+		.webui-media-chips[role="group"] > button {
+			--pico-color: inherit;
+			flex: none;
+			max-width: 14rem;
+			margin: 0;
+			padding: 0.3rem 0.8rem;
+			overflow: hidden;
+			border: 1px solid var(--pico-muted-border-color);
+			border-radius: 999px;
+			background: none;
+			box-shadow: none;
+			color: var(--pico-color);
+			font-size: var(--webui-font-sm);
+			text-overflow: ellipsis;
+			white-space: nowrap;
+		}
+
+		.webui-media-chips button:is(:hover, :focus, :active) {
+			/* Pico's button colour on hover, focus and press outweighs the reset above */
+			--pico-color: inherit;
+			border-color: var(--webui-accent);
+		}
+
+		.webui-media-chips button[aria-pressed="true"] {
+			border-color: transparent;
+			background: var(--webui-accent-light);
+			color: var(--webui-accent);
+			font-weight: 600;
+		}
+
+		.webui-media-count {
+			margin-left: auto;
+			color: var(--pico-muted-color);
+			font-size: var(--webui-font-sm);
+			font-variant-numeric: tabular-nums;
+			white-space: nowrap;
+		}
+
+		.webui-media-order {
+			display: flex;
+			gap: 0.35rem;
+		}
+
+		.webui-media-order select {
+			width: auto;
 			margin: 0;
 			padding-top: 0.3rem;
 			padding-bottom: 0.3rem;
@@ -75,41 +118,133 @@
 			list-style: none;
 		}
 
-		@media (max-width: 760px) {
-			.webui-media {
-				grid-template-columns: minmax(0, 1fr);
-				padding: 0.75rem;
-			}
-
-			.webui-media > nav.webui-media-sources {
-				display: none;
-			}
-
-			.webui-source-pick {
-				display: block;
-			}
+		.webui-media-list > li {
+			list-style: none;
 		}
 
-		.webui-media-controls input,
-		.webui-media-controls select {
-			margin: 0;
-			font-size: var(--webui-font-sm, 0.8rem);
-			padding: 0.3rem 0.5rem;
-			height: auto;
+		/* tiles: a picture 16:9 with the length and Play on TV on it, the
+		   title and what it is below; the one chosen outlined */
+		.webui-media-list.tiles {
+			display: grid;
+			grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
+			gap: 1rem;
 		}
 
-		.webui-media-sort {
+		.webui-media-list.tiles > li:not(.webui-media-tile) {
+			grid-column: 1 / -1;
+		}
+
+		.webui-media-tile {
 			display: flex;
-			gap: 0.3rem;
+			flex-direction: column;
+			margin: 0;
+			overflow: hidden;
+			border-radius: var(--webui-radius-lg);
+			outline: 2px solid transparent;
+			outline-offset: 2px;
+			background: var(--pico-card-background-color);
+			box-shadow: var(--webui-shadow);
 		}
 
-		.webui-media-row {
-			display: flex;
-			align-items: center;
-			gap: 0.6rem;
+		[data-theme="light"] .webui-media-tile {
+			border: 1px solid var(--webui-border-subtle);
+		}
+
+		.webui-media-tile.chosen {
+			outline-color: var(--webui-accent);
+		}
+
+		.webui-media-thumb {
+			position: relative;
+			display: grid;
+			place-items: center;
+			aspect-ratio: 16 / 9;
+			overflow: hidden;
+			background: #1e242e;
+			color: #9aa7b5;
+		}
+
+		.webui-media-thumb > img {
+			width: 100%;
+			height: 100%;
+			object-fit: cover;
+		}
+
+		.webui-media-thumb > svg {
+			width: 2rem;
+			height: 2rem;
+		}
+
+		.webui-media-thumb .webui-media-logo {
+			width: 7rem;
+			height: 3.2rem;
+		}
+
+		.webui-media-tile .webui-media-thumb::after {
+			content: "";
+			position: absolute;
+			inset: auto 0 0 0;
+			height: 55%;
+			background: linear-gradient(to top, rgba(0, 0, 0, 0.65), transparent);
+			pointer-events: none;
+		}
+
+		.webui-media-len {
+			position: absolute;
+			right: 0.6rem;
+			bottom: 0.6rem;
+			z-index: 1;
+			padding: 0.1rem 0.45rem;
+			border-radius: 0.35rem;
+			background: rgba(0, 0, 0, 0.6);
+			color: #fff;
+			font-size: 0.75rem;
+			font-weight: 600;
+			font-variant-numeric: tabular-nums;
+		}
+
+		.webui-media-tile .webui-media-thumb .webui-pill {
+			position: absolute;
+			top: 0.6rem;
+			left: 0.6rem;
+			z-index: 1;
+			background: rgba(0, 0, 0, 0.6);
+			color: #7ee2a8;
+		}
+
+		.webui-media-tile-play {
+			position: absolute;
+			left: 0.6rem;
+			bottom: 0.5rem;
+			z-index: 1;
+			display: grid;
+			place-items: center;
+			width: 2.3rem;
+			height: 2.3rem;
 			margin: 0;
-			padding: 0.45rem 1rem;
-			border-bottom: 1px solid var(--pico-muted-border-color);
+			padding: 0;
+			border: 0;
+			border-radius: 50%;
+			background: rgba(255, 255, 255, 0.92);
+			box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+			color: #111;
+		}
+
+		.webui-media-tile-play:is(:hover, :focus, :active) {
+			--pico-color: #111;
+			background: #fff;
+			color: #111;
+		}
+
+		.webui-media-tile-play:focus-visible {
+			outline: 2px solid var(--webui-focus-color);
+			outline-offset: 2px;
+		}
+
+		.webui-media-tile-play svg {
+			width: 0.95rem;
+			height: 0.95rem;
+			margin-left: 2px;
 		}
 
 		/* the title opens the details: a button that reads as a title */
@@ -141,31 +276,68 @@
 			border-radius: 2px;
 		}
 
-		.webui-media-row:hover {
-			background: var(--pico-secondary-background, rgba(127, 127, 127, 0.08));
+		.webui-media-tile .webui-media-open {
+			flex: 1 1 auto;
+			padding: 0.6rem 0.75rem 0.75rem;
 		}
 
-		.webui-media-cover {
+		.webui-media-title,
+		.webui-media-meta {
+			display: block;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			white-space: nowrap;
+		}
+
+		.webui-media-title {
+			font-weight: 600;
+			font-size: 0.9rem;
+		}
+
+		.webui-media-meta {
+			color: var(--pico-muted-color);
+			font-size: 0.75rem;
+		}
+
+		/* rows: the list view, a card of rows */
+		.webui-media-list.rows {
+			overflow: hidden;
+			border-radius: var(--webui-radius-lg);
+			background: var(--pico-card-background-color);
+			box-shadow: var(--webui-shadow);
+		}
+
+		.webui-media-row {
+			display: flex;
+			align-items: center;
+			gap: 0.6rem;
+			margin: 0;
+			padding: 0.45rem 1rem;
+			border-bottom: 1px solid var(--pico-muted-border-color);
+		}
+
+		.webui-media-row.chosen {
+			box-shadow: inset 3px 0 0 var(--webui-accent);
+		}
+
+		.webui-media-row:hover {
+			background: var(--webui-bg-elevated);
+		}
+
+		.webui-media-row .webui-media-thumb {
 			flex: 0 0 4.2rem;
 			height: 2.4rem;
 			border-radius: 4px;
-			overflow: hidden;
-			display: flex;
-			align-items: center;
-			justify-content: center;
-			background: var(--pico-muted-border-color);
-			color: var(--pico-muted-color);
 		}
 
-		.webui-media-cover img {
-			width: 100%;
-			height: 100%;
-			object-fit: cover;
-		}
-
-		.webui-media-cover svg {
+		.webui-media-row .webui-media-thumb > svg {
 			width: 1.2rem;
 			height: 1.2rem;
+		}
+
+		.webui-media-row .webui-media-thumb .webui-media-logo {
+			width: 3.8rem;
+			height: 2rem;
 		}
 
 		.webui-media-info {
@@ -174,23 +346,7 @@
 			line-height: 1.3;
 		}
 
-		.webui-media-title {
-			font-weight: 600;
-			font-size: 0.85rem;
-			white-space: nowrap;
-			overflow: hidden;
-			text-overflow: ellipsis;
-		}
-
-		.webui-media-meta {
-			font-size: 0.7rem;
-			color: var(--pico-muted-color);
-			white-space: nowrap;
-			overflow: hidden;
-			text-overflow: ellipsis;
-		}
-
-		.webui-media-title .webui-pill {
+		.webui-media-row .webui-media-title .webui-pill {
 			margin-left: 0.4rem;
 			vertical-align: 1px;
 		}
@@ -211,6 +367,15 @@
 		}
 
 		@media (max-width: 760px) {
+			.webui-media {
+				padding: 0.75rem;
+			}
+
+			.webui-media-list.tiles {
+				grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr));
+				gap: 0.75rem;
+			}
+
 			/* the action's word gives way to its symbol on a phone */
 			.webui-media-play span {
 				display: none;
@@ -225,7 +390,81 @@
 
 		.webui-media-more {
 			display: block;
-			margin: 0.6rem auto;
+			margin: 1rem auto 0;
+		}
+
+		/* the column beside the list, on a wide screen only */
+		.webui-media-detail {
+			display: none;
+		}
+
+		@media (min-width: 1200px) {
+			.webui-media {
+				grid-template-columns: minmax(0, 1fr) 22rem;
+			}
+
+			.webui-media-bar,
+			.webui-media-note {
+				grid-column: 1 / -1;
+			}
+
+			.webui-media-detail {
+				display: block;
+				position: sticky;
+				top: 0;
+			}
+		}
+
+		.webui-media-detail .webui-media-thumb {
+			border-radius: 0;
+		}
+
+		.webui-media-detail .webui-media-thumb .webui-media-logo {
+			width: 10rem;
+			height: 4.5rem;
+		}
+
+		.webui-media-detail-body {
+			padding: 1rem 1.1rem 1.1rem;
+		}
+
+		.webui-media-detail-body h2 {
+			margin: 0 0 0.2rem;
+			font-size: 1.2rem;
+			line-height: 1.3;
+		}
+
+		.webui-media-detail-sub {
+			margin: 0 0 0.75rem;
+			color: var(--pico-muted-color);
+			font-size: var(--webui-font-sm);
+		}
+
+		.webui-media-detail-acts {
+			display: grid;
+			grid-template-columns: 1fr 1fr;
+			gap: 0.5rem;
+			margin-top: 1rem;
+		}
+
+		.webui-media-detail-acts .webui-btn {
+			justify-content: center;
+			margin: 0;
+			padding: 0.45rem 0.6rem;
+			font-size: var(--webui-font-sm);
+		}
+
+		.webui-media-detail-acts .webui-btn svg {
+			width: 0.95rem;
+			height: 0.95rem;
+		}
+
+		.webui-media-detail-acts .primary {
+			grid-column: 1 / -1;
+		}
+
+		.webui-media-detail-acts .webui-media-delete {
+			color: var(--webui-danger);
 		}
 
 		.webui-media-detail-cover {
@@ -241,7 +480,7 @@
 			grid-template-columns: auto 1fr;
 			gap: 0.15rem 0.8rem;
 			font-size: 0.78rem;
-			margin-bottom: 0.6rem;
+			margin: 0 0 0.6rem;
 		}
 
 		.webui-media-detail-facts dt {
@@ -250,6 +489,7 @@
 
 		.webui-media-detail-facts dd {
 			margin: 0;
+			overflow-wrap: anywhere;
 		}
 
 		.webui-media-detail-text {
@@ -273,46 +513,35 @@
 
 	<main>
 		<div class="webui-media">
-			<nav class="webui-card webui-media-sources" aria-labelledby="sources-title">
-				<header class="webui-card-header">
-					<h2 class="webui-card-title" id="sources-title">
-						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg>
-						<span data-l="media.sources">Sources</span>
-					</h2>
-				</header>
-				<ul class="webui-source-list webui-side-list" id="sourceList"></ul>
-			</nav>
-
-			<section class="webui-card webui-media-list-card" aria-labelledby="media-title">
-				<header class="webui-card-header">
-					<h2 class="webui-card-title">
-						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M7 4v16M17 4v16M2 9h5M2 15h5M17 9h5M17 15h5"/></svg>
-						<span id="media-title" data-l="nav.sub_archive">Recordings</span>
-					</h2>
-					<span class="webui-card-value" id="mediaCount"></span>
-					<div class="webui-media-controls">
-						<input type="search" id="mediaSearch" placeholder="Search titles" data-l-placeholder="media.search" aria-label="Search titles" data-l-aria-label="media.search">
-						<select title="What the recordings are sorted by" data-l-title="tip.media_sort" id="mediaSort" aria-label="Sort" data-l-aria-label="media.sort">
-							<option value="start" data-l="media.sort_start">Date</option>
-							<option value="title" data-l="media.sort_title">Title</option>
-							<option value="channel" data-l="media.sort_channel">Channel</option>
-							<option value="duration" data-l="media.sort_duration">Length</option>
-							<option value="size" data-l="media.sort_size">Size</option>
-						</select>
-						<select title="Ascending or descending" data-l-title="tip.media_order" id="mediaOrder" aria-label="Order" data-l-aria-label="media.order">
-							<option value="" data-l="media.order_auto">Usual order</option>
-							<option value="asc" data-l="media.order_asc">Ascending</option>
-							<option value="desc" data-l="media.order_desc">Descending</option>
-						</select>
-					</div>
-					<label class="webui-source-pick">
-						<select title="The folder the recordings come from" data-l-title="tip.media_source" id="sourceSelect" aria-label="Sources" data-l-aria-label="media.sources"></select>
-					</label>
-				</header>
-				<div class="webui-media-note" id="mediaPartial" hidden data-l="media.partial">A directory is still being read; the list fills in shortly.</div>
-				<ul class="webui-media-list" id="mediaList"></ul>
+			<div class="webui-media-bar">
+				<input type="search" id="mediaSearch" placeholder="Search titles" data-l-placeholder="media.search" aria-label="Search titles" data-l-aria-label="media.search">
+				<div class="webui-media-chips" id="sourceChips" role="group" aria-label="Sources" data-l-aria-label="media.sources"></div>
+				<span class="webui-media-count" id="mediaCount"></span>
+				<div class="webui-media-order">
+					<select title="What the recordings are sorted by" data-l-title="tip.media_sort" id="mediaSort" aria-label="Sort" data-l-aria-label="media.sort">
+						<option value="start" data-l="media.sort_start">Date</option>
+						<option value="title" data-l="media.sort_title">Title</option>
+						<option value="channel" data-l="media.sort_channel">Channel</option>
+						<option value="duration" data-l="media.sort_duration">Length</option>
+						<option value="size" data-l="media.sort_size">Size</option>
+					</select>
+					<select title="Ascending or descending" data-l-title="tip.media_order" id="mediaOrder" aria-label="Order" data-l-aria-label="media.order">
+						<option value="" data-l="media.order_auto">Usual order</option>
+						<option value="asc" data-l="media.order_asc">Ascending</option>
+						<option value="desc" data-l="media.order_desc">Descending</option>
+					</select>
+				</div>
+				<div class="webui-seg" role="group" aria-label="View" data-l-aria-label="media.view">
+					<button title="Show the recordings as tiles" data-l-title="tip.media_tiles" type="button" id="viewTiles" aria-pressed="true" data-l="media.view_tiles">Tiles</button>
+					<button title="Show the recordings as a list" data-l-title="tip.media_list" type="button" id="viewList" aria-pressed="false" data-l="media.view_list">List</button>
+				</div>
+			</div>
+			<div class="webui-media-note" id="mediaPartial" hidden data-l="media.partial">A directory is still being read; the list fills in shortly.</div>
+			<div class="webui-media-main">
+				<ul class="webui-media-list tiles" id="mediaList" aria-label="Recordings" data-l-aria-label="nav.sub_archive"></ul>
 				<button title="Load the next recordings of the list" data-l-title="tip.media_more" type="button" class="webui-btn webui-media-more" id="mediaMore" hidden data-l="media.more">Load more</button>
-			</section>
+			</div>
+			<aside class="webui-card webui-media-detail" id="mediaDetail" aria-label="The chosen recording" data-l-aria-label="media.chosen"></aside>
 		</div>
 	</main>
 
