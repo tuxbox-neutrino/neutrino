@@ -73,7 +73,8 @@ static void fillIn(std::string &text, const std::string &value, size_t &at)
 static const int kFirstPasswordShown = 300;
 
 /* Where the web interface answers: http:// and the box's address, its port
-   where that is not 80. The box's name where it has no address yet (the
+   where that is not 80; https:// where the server speaks it, its port where
+   that is not 443. The box's name where it has no address yet (the
    network can come up after the start), a dash where it has neither. */
 static std::string webAddress()
 {
@@ -89,7 +90,14 @@ static std::string webAddress()
 	CConfigFile config(',');
 	config.loadConfig(HTTPD_CONFIGFILE);
 	const int port = config.getInt32("WebsiteMain.port", HTTPD_STANDARD_PORT);
-	return "http://" + ip + (port == 80 ? std::string() : ":" + std::to_string(port));
+#ifdef Y_CONFIG_USE_OPEN_SSL
+	// read as the server reads it (yhttpd.cpp): "true" and nothing else
+	const bool ssl = config.getString("WebsiteMain.ssl", "false") == "true";
+#else
+	const bool ssl = false;
+#endif
+	const std::string scheme = ssl ? "https://" : "http://";
+	return scheme + ip + (port == (ssl ? 443 : 80) ? std::string() : ":" + std::to_string(port));
 }
 
 /* The one message with the first password, at the start that drew it, from the
