@@ -7,7 +7,6 @@ let currentChannelId = null;	// the v1 id of the channel the box plays
 let currentMode = 'tv';		// the list shown: the one the box plays from
 let currentBouquetNumber = '';	// the v1 bouquet id, '' for all channels
 let bouquetsData = [];		// the bouquets of that list, hidden ones left out
-let logosOffered = true;	// false once the box says it hands no logos out
 let recordedIds = new Set();	// the channels the box records now
 
 const SVG_INFO = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg>';
@@ -16,6 +15,14 @@ const SVG_STREAM = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" s
 
 function clock(sec) {
 	return webuiFormatTime(new Date(sec * 1000));
+}
+
+// the channels of the list shown, by id, for what their rows open
+let channelsShown = Object.create(null);
+
+// A channel's programme in the shared dialog: the one that runs now
+function showInfo(ch) {
+	webuiShowEpgModal(ch.id, ch.name, {event: epgNow[ch.id], number: ch.number});
 }
 
 function rowOf(channelId) {
@@ -99,22 +106,17 @@ function selectBouquet(bouquet) {
 // One channel: its number, logo, name, what runs on it, its state, Zap
 // and the menu with the other actions
 function channelRow(ch) {
-	const logo = webuiEl('span', {className: 'webui-channel-logo', attrs: {'aria-hidden': 'true'}},
-		currentMode === 'radio' ? webuiL('dash.radio', 'Radio') : webuiL('dash.tv', 'TV'));
-	// a logo only while the box hands them out, loaded as its row comes
-	// into view (so it is in the page from the start); one that fails
-	// leaves the text
-	if (logosOffered)
-		logo.replaceChildren(webuiEl('img', {attrs: {src: '/api/v1/channels/' + encodeURIComponent(ch.id) + '/logo', alt: '', loading: 'lazy'},
-			on: {error: function() { logo.textContent = currentMode === 'radio' ? webuiL('dash.radio', 'Radio') : webuiL('dash.tv', 'TV'); }}}));
+	// the logo while the box hands them out, else the kind of channel
+	const logo = webuiChannelLogo(ch.id, currentMode === 'radio' ? webuiL('dash.radio', 'Radio') : webuiL('dash.tv', 'TV'));
 	const zap = webuiEl('button', {type: 'button', className: 'webui-btn webui-channel-zap',
 		attrs: {'aria-label': webuiL('bq.zap_title', 'Switch channel') + ': ' + ch.name}, on: {click: () => zapTo(ch.id)}},
 		webuiL('bq.zap_title', 'Switch channel'));
 	const menu = webuiMenuButton(webuiL('bq.more', 'More for %s').replace('%s', ch.name), () => [
-		{label: webuiL('dash.epg_info', 'Programme info'), icon: SVG_INFO, onClick: () => webuiShowEpgModal(ch.id, ch.name)},
+		{label: webuiL('dash.epg_info', 'Programme info'), icon: SVG_INFO, onClick: () => showInfo(ch)},
 		{label: webuiL('bq.rec_title', 'Record programme'), icon: SVG_REC, onClick: () => webuiRecordEvent(ch.id, ch.name, epgNow[ch.id])},
 		{label: webuiL('bq.stream_title', 'Start stream'), icon: SVG_STREAM, onClick: () => webuiStreamChannel(ch.id, ch.name)}
 	]);
+	channelsShown[ch.id] = ch;
 	return webuiEl('li', {className: 'webui-channel-row', data: {id: ch.id}},
 		webuiEl('span', {className: 'webui-channel-num'}, ch.number > 0 ? String(ch.number) : ''),
 		logo,
@@ -122,18 +124,6 @@ function channelRow(ch) {
 		webuiEl('span', {className: 'webui-channel-now'}),
 		webuiEl('span', {className: 'webui-channel-state'}),
 		webuiEl('span', {className: 'webui-channel-acts'}, zap, menu));
-}
-
-// Whether the box hands logos out at all, asked once with the first
-// channel: a list of hundreds would otherwise ask for each in vain.
-async function checkLogos(channelId) {
-	try {
-		const r = await fetch('/api/v1/channels/' + encodeURIComponent(channelId) + '/logo', {credentials: 'same-origin'});
-		if (r.status === 404) {
-			const p = await r.json().catch(() => null);
-			if (p && p.type === '/errors/logos-not-offered') logosOffered = false;
-		}
-	} catch (e) { /* asked again on the next list */ }
 }
 
 let channelsToken = 0;
@@ -163,9 +153,10 @@ async function loadChannels(bouquet) {
 			list.replaceChildren(webuiEl('li', {}, webuiState('empty', webuiL('bq.no_channels', 'No channels found'), '')));
 			return;
 		}
-		if (logosOffered) await checkLogos(channels[0].id);
+		await webuiLogosOffered(channels[0].id);
 		if (token !== channelsToken) return;
 
+		channelsShown = Object.create(null);
 		list.replaceChildren.apply(list, channels.map(channelRow));
 		markCurrent();
 
@@ -229,9 +220,14 @@ function showNow(channelId, events, now) {
 		return;
 	}
 	epgNow[channelId] = ev;
-	cell.replaceChildren(webuiEl('span', {title: ev.title || ''}, ev.title || ''),
+	// the programme opens its information, as a click on it did before
+	const ch = channelsShown[channelId];
+	cell.replaceChildren(webuiEl('button', {type: 'button', className: 'webui-channel-now-open',
+		attrs: {title: webuiL('dash.epg_info', 'Programme info') + ': ' + (ev.title || '')},
+		on: {click: () => ch && showInfo(ch)}},
+		webuiEl('span', {}, ev.title || ''),
 		webuiEl('small', {}, clock(ev.start) + ' – ' + clock(ev.start + ev.duration)),
-		webuiEl('div', {className: 'webui-progress', attrs: {'aria-hidden': 'true'}}, webuiEl('span')));
+		webuiEl('div', {className: 'webui-progress', attrs: {'aria-hidden': 'true'}}, webuiEl('span'))));
 	updateChannelProgress(channelId);
 }
 

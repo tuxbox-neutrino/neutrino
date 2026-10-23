@@ -318,6 +318,7 @@
 	"epg.none": "Keine Programmdaten",
 	"epg.timer_zap": "Umschalt-Timer",
 	"epg.minutes": "%s Min.",
+	"epg.number": "Programmplatz %s",
 	"epg.timer_rec_mark": "Aufnahme-Timer gesetzt",
 	"epg.timer_zap_mark": "Umschalt-Timer gesetzt",
 	"bq.loading_channels": "Lade Sender...",

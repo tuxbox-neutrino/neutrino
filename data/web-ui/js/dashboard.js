@@ -4,7 +4,7 @@
 // Show EPG info for current channel
 function showCurrentEpgInfo() {
 	if (dash.channel)
-		webuiShowEpgModal(dash.channel.id, dash.channel.name);
+		webuiShowEpgModal(dash.channel.id, dash.channel.name, {number: dash.channel.number});
 }
 
 // Format helpers — use shared versions from webui-header.js
@@ -53,7 +53,7 @@ function getCpuLevel(load) {
 let NO_CHANNEL, NO_EPG, NO_TUNER, RECORDING;
 
 const dash = {
-	channel: null,		// {id, name, kind} of the current channel, null for none
+	channel: null,		// {id, name, kind, number} of the current channel, null for none
 	shown: null,		// the channel key the band shows, so a reread of the same one changes nothing
 	now: null,		// the guide event running on the current channel
 	next: null,		// and the one after it
@@ -154,7 +154,7 @@ async function refreshChannel(takeMode) {
 		showGuide();
 		return;
 	}
-	dash.channel = {id: ch.id, name: ch.name || '', kind: ch.kind || ''};
+	dash.channel = {id: ch.id, name: ch.name || '', kind: ch.kind || '', number: ch.number || 0};
 	dash.names[ch.id] = ch.name || '';
 	if (takeMode)
 		setMode(ch.kind === 'radio' || ch.kind === 'webradio' ? 'radio' : 'tv');

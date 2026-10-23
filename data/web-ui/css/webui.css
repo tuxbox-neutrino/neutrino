@@ -1132,6 +1132,37 @@ body:not(.has-subheader) .webui-header-spacer {
 	color: var(--webui-accent);
 }
 
+/* A channel's logo (webuiChannelLogo). Logos are drawn for a TV's dark
+   screen, white wordmarks among them, so their tile stays dark in the
+   light theme as well; a channel without one shows its text on the
+   page's own ground. A page sets the size its place wants. */
+.webui-channel-logo {
+	display: inline-grid;
+	place-items: center;
+	flex: none;
+	width: 96px;
+	height: 40px;
+	border-radius: 4px;
+	background: #1e242e;
+	overflow: hidden;
+	font-size: 0.65rem;
+	font-weight: 600;
+	line-height: 1.1;
+	text-align: center;
+}
+
+.webui-channel-logo img {
+	max-width: calc(100% - 6px);
+	max-height: calc(100% - 6px);
+	object-fit: contain;
+}
+
+.webui-channel-logo.no-logo {
+	background: var(--webui-bg-elevated);
+	color: var(--pico-muted-color);
+	padding: 0 0.25rem;
+}
+
 /* ============================================
    EPG Info Modal
    ============================================ */
@@ -1159,7 +1190,7 @@ body:not(.has-subheader) .webui-header-spacer {
 	border-radius: var(--webui-radius-lg);
 	box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
 	width: 90%;
-	max-width: 500px;
+	max-width: 560px;
 	max-height: 85vh;
 	overflow: hidden;
 	display: flex;
@@ -1178,6 +1209,32 @@ body:not(.has-subheader) .webui-header-spacer {
 	align-items: center;
 	padding: 1rem 1.25rem;
 	border-bottom: 1px solid var(--pico-muted-border-color);
+}
+
+/* the channel: its logo, its name and number */
+.webui-epg-modal-channel {
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+	min-width: 0;
+}
+
+.webui-epg-modal-channel-text {
+	min-width: 0;
+}
+
+.webui-epg-modal-number {
+	color: var(--pico-muted-color);
+	font-size: var(--webui-font-xs);
+	font-variant-numeric: tabular-nums;
+}
+
+.webui-epg-modal-footer .webui-btn.webui-epg-rec-btn {
+	color: var(--webui-danger);
+}
+
+.webui-epg-modal-footer [hidden] {
+	display: none;
 }
 
 .webui-epg-modal-header h3 {
@@ -1258,6 +1315,7 @@ body:not(.has-subheader) .webui-header-spacer {
 
 .webui-epg-modal-footer {
 	display: flex;
+	flex-wrap: wrap;
 	justify-content: flex-end;
 	gap: 0.5rem;
 	padding: 1rem 1.25rem;
@@ -1533,36 +1591,6 @@ body:not(.has-subheader) .webui-header-spacer {
 	padding: 0;
 }
 
-.webui-channel-item {
-	display: flex;
-	align-items: center;
-	gap: 2%;
-	padding: 2%;
-	border-bottom: 1px solid var(--pico-muted-border-color);
-	border-left: 3px solid transparent;
-	cursor: pointer;
-	transition: var(--webui-transition);
-}
-
-.webui-channel-item:hover {
-	background: var(--webui-accent-light);
-}
-
-.webui-channel-item.active {
-	background: var(--webui-accent-light);
-	border-left-color: var(--webui-accent);
-}
-
-.webui-channel-logo {
-	width: 8%;
-	min-width: 30px;
-	max-width: 40px;
-	aspect-ratio: 1;
-	object-fit: contain;
-	background: var(--pico-card-sectioning-background-color);
-	border-radius: 4px;
-}
-
 .webui-channel-name {
 	flex: 1;
 	font-weight: 500;
@@ -1570,11 +1598,6 @@ body:not(.has-subheader) .webui-header-spacer {
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;
-}
-
-.webui-channel-epg {
-	font-size: var(--webui-font-xs);
-	color: var(--pico-muted-color);
 }
 
 /* Note: Footer styles are defined earlier in this file */

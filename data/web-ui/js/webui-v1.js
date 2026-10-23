@@ -482,24 +482,70 @@ function _webuiV1Open() {
 }
 
 // ---- EPG dialog, recording and streaming over /api/v1 -------------------
-// Shared by the dashboard, the channel list and the timer list. Channel ids
-// are v1's: hexadecimal without leading zeros.
+// Shared by the dashboard, the channel list, the guide and the timer list.
+// Channel ids are v1's: hexadecimal without leading zeros.
 
-// EPG Info Modal HTML Template, built on its first opening, once the texts
-// are in
+/* Whether the box hands channel logos out at all, asked once with the
+   first channel a page draws: a list of hundreds would otherwise ask for
+   each in vain. Unknown (null) until asked; a failed ask is asked again. */
+let _webuiLogos = null;
+async function webuiLogosOffered(channelId) {
+	if (_webuiLogos !== null || !channelId)
+		return _webuiLogos !== false;
+	try {
+		const r = await fetch('/api/v1/channels/' + encodeURIComponent(channelId) + '/logo', {credentials: 'same-origin'});
+		// a channel without a logo is a 404 as well, but not this one
+		const p = r.status === 404 ? await r.json().catch(() => null) : null;
+		_webuiLogos = !(p && p.type === '/errors/logos-not-offered');
+	} catch (e) { /* asked again next time */ }
+	return _webuiLogos !== false;
+}
+
+/* A channel's logo as the pages draw it: a tile holding the picture,
+   loaded as it comes into view, or the text given where there is none
+   (the box hands none out, or has none for the channel). className adds
+   the size a place wants. */
+function webuiChannelLogo(channelId, text, className) {
+	const tile = document.createElement('span');
+	tile.className = 'webui-channel-logo' + (className ? ' ' + className : '');
+	tile.setAttribute('aria-hidden', 'true');
+	const none = function() {
+		tile.replaceChildren(document.createTextNode(text || ''));
+		tile.classList.add('no-logo');
+	};
+	if (_webuiLogos === false || !channelId) {
+		none();
+		return tile;
+	}
+	const img = document.createElement('img');
+	img.alt = '';
+	img.loading = 'lazy';
+	img.onerror = none;
+	img.src = '/api/v1/channels/' + encodeURIComponent(channelId) + '/logo';
+	tile.appendChild(img);
+	return tile;
+}
+
+// The dialog, built on its first opening, once the texts are in
 function _webuiEpgModalHTML() {
 	return `
 <div class="webui-epg-modal-backdrop" id="webuiEpgModal" onclick="webuiCloseEpgModal(event)">
 	<div class="webui-epg-modal" onclick="event.stopPropagation()">
 		<div class="webui-epg-modal-header">
-			<h3 id="webuiEpgModalChannel">--</h3>
+			<div class="webui-epg-modal-channel">
+				<span id="webuiEpgModalLogo"></span>
+				<div class="webui-epg-modal-channel-text">
+					<h3 id="webuiEpgModalChannel">--</h3>
+					<div class="webui-epg-modal-number" id="webuiEpgModalNumber"></div>
+				</div>
+			</div>
 			${_webuiCloseBtn('webuiCloseEpgModal()')}
 		</div>
 		<div class="webui-epg-modal-body">
 			<div class="webui-epg-current">
 				<div class="webui-epg-title" id="webuiEpgCurrentTitle">${webuiLH('msg.loading', 'Loading...')}</div>
 				<div class="webui-epg-time" id="webuiEpgCurrentTime">--:-- - --:--</div>
-				<div class="webui-epg-progress" aria-hidden="true">
+				<div class="webui-epg-progress" id="webuiEpgProgress" aria-hidden="true">
 					<div class="webui-epg-progress-bar" id="webuiEpgProgressBar" style="width: 0%"></div>
 				</div>
 				<div class="webui-epg-description" id="webuiEpgCurrentDesc"></div>
@@ -511,19 +557,24 @@ function _webuiEpgModalHTML() {
 			</div>
 		</div>
 		<div class="webui-epg-modal-footer">
-			<button type="button" class="webui-btn" onclick="webuiCloseEpgModal()">${webuiLH('msg.close', 'Close')}</button>
-			<button type="button" class="webui-btn" id="webuiEpgRecBtn" onclick="webuiEpgModalToggleRec()" style="color:var(--webui-danger,#ef4444)">
-				<svg viewBox="0 0 24 24" fill="currentColor" style="width:1rem;height:1rem;margin-right:0.3rem" aria-hidden="true">
-					<circle cx="12" cy="12" r="8"/>
-				</svg>
+			<button type="button" class="webui-btn" onclick="webuiEpgModalZap()" title="${webuiLH('epg.zap_title', 'Switch to this channel now')}">
+				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polygon points="5,3 19,12 5,21"/></svg>
+				<span>${webuiLH('epg.zap', 'Zap')}</span>
+			</button>
+			<button type="button" class="webui-btn" id="webuiEpgZapTimerBtn" onclick="webuiEpgModalZapTimer()" title="${webuiLH('epg.timer_zap_title', 'Set a zap timer')}" hidden>
+				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12,6 12,12 16,14"/></svg>
+				<span>${webuiLH('epg.timer_zap', 'Zap timer')}</span>
+			</button>
+			<button type="button" class="webui-btn webui-epg-rec-btn" id="webuiEpgRecBtn" onclick="webuiEpgModalToggleRec()">
+				<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="12" cy="12" r="8"/></svg>
 				<span>${webuiLH('rec.start', 'Record')}</span>
 			</button>
-			<button type="button" class="webui-btn primary" onclick="webuiStreamChannel()">
-				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:1rem;height:1rem;margin-right:0.3rem" aria-hidden="true">
+			<button type="button" class="webui-btn primary" onclick="webuiStreamChannel()" title="${webuiLH('bq.stream_title', 'Start stream')}">
+				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
 					<path d="M5 17H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-1"/>
 					<polygon points="12,15 17,21 7,21"/>
 				</svg>
-				${webuiLH('msg.stream', 'Stream')}
+				<span>${webuiLH('msg.stream', 'Stream')}</span>
 			</button>
 		</div>
 	</div>
@@ -536,6 +587,7 @@ let webuiEpgModalChannelId = null;
 let webuiEpgModalChannelName = null;
 let webuiEpgModalEvent = null;
 let webuiEpgModalIsRecording = false;
+let _webuiEpgModalOnTimer = null;
 let _webuiEpgModalToken = 0;
 
 function _webuiClock(sec) {
@@ -550,8 +602,18 @@ function _webuiV1Maybe(path, query) {
 	});
 }
 
-// What runs now on a channel, its long text and what follows
-async function webuiShowEpgModal(channelId, channelName) {
+// whether an event runs now
+function _webuiEpgRuns(ev) {
+	const now = Date.now() / 1000;
+	return !!ev && ev.start <= now && now < ev.start + ev.duration;
+}
+
+/* A programme of a channel: the event given (opts.event, a programme of the
+   guide), else what runs now on the channel; its long text, what follows
+   it, and the channel's logo and number (opts.number). opts.onTimer is
+   called once a timer was set from the dialog. */
+async function webuiShowEpgModal(channelId, channelName, opts) {
+	opts = opts || {};
 	if (!document.getElementById('webuiEpgModal'))
 		document.body.insertAdjacentHTML('beforeend', _webuiEpgModalHTML());
 
@@ -559,8 +621,10 @@ async function webuiShowEpgModal(channelId, channelName) {
 	const titleEl = document.getElementById('webuiEpgCurrentTitle');
 	const timeEl = document.getElementById('webuiEpgCurrentTime');
 	const descEl = document.getElementById('webuiEpgCurrentDesc');
+	const progress = document.getElementById('webuiEpgProgress');
 	const progressBar = document.getElementById('webuiEpgProgressBar');
 	const channelEl = document.getElementById('webuiEpgModalChannel');
+	const numberEl = document.getElementById('webuiEpgModalNumber');
 	const nextSection = document.getElementById('webuiEpgNextSection');
 	const nextTitleEl = document.getElementById('webuiEpgNextTitle');
 	const nextTimeEl = document.getElementById('webuiEpgNextTime');
@@ -569,13 +633,21 @@ async function webuiShowEpgModal(channelId, channelName) {
 	webuiEpgModalChannelId = channelId;
 	webuiEpgModalChannelName = channelName || webuiL('epg.programme', 'Programme');
 	webuiEpgModalEvent = null;
+	_webuiEpgModalOnTimer = opts.onTimer || null;
 
 	channelEl.textContent = webuiEpgModalChannelName;
+	numberEl.textContent = opts.number > 0 ? webuiL('epg.number', 'Programme %s').replace('%s', opts.number) : '';
+	await webuiLogosOffered(channelId);
+	if (token !== _webuiEpgModalToken) return;
+	document.getElementById('webuiEpgModalLogo').replaceChildren(
+		webuiChannelLogo(channelId, webuiEpgModalChannelName.slice(0, 12), 'webui-epg-modal-logo'));
 	titleEl.textContent = webuiL('msg.loading', 'Loading...');
 	timeEl.textContent = '--:-- - --:--';
 	descEl.textContent = '';
 	progressBar.style.width = '0%';
+	progress.hidden = true;
 	nextSection.style.display = 'none';
+	document.getElementById('webuiEpgZapTimerBtn').hidden = true;
 
 	modal.classList.add('open');
 	document.body.style.overflow = 'hidden';
@@ -584,13 +656,10 @@ async function webuiShowEpgModal(channelId, channelName) {
 	modal._webuiRelease = webuiDialogA11y(modal.querySelector('.webui-epg-modal'), {close: function() { webuiCloseEpgModal(); }});
 
 	webuiEpgModalUpdateRecBtn(false);
-	webuiCheckRecordingForChannel(channelId).then(function(rec) {
-		if (token === _webuiEpgModalToken) webuiEpgModalUpdateRecBtn(!!rec);
-	});
 
 	try {
-		const ev = await _webuiV1Maybe('/epg/current', {channel: channelId});
-		if (token !== _webuiEpgModalToken) return;	// opened for another channel meanwhile
+		const ev = opts.event || await _webuiV1Maybe('/epg/current', {channel: channelId});
+		if (token !== _webuiEpgModalToken) return;	// opened for another programme meanwhile
 		if (!ev) {
 			titleEl.textContent = webuiL('epg.nodata', 'No EPG data available');
 			return;
@@ -598,17 +667,24 @@ async function webuiShowEpgModal(channelId, channelName) {
 		webuiEpgModalEvent = ev;
 		const end = ev.start + ev.duration;
 		titleEl.textContent = ev.title || '--';
-		timeEl.textContent = _webuiClock(ev.start) + ' - ' + _webuiClock(end);
+		timeEl.textContent = _webuiClock(ev.start) + ' - ' + _webuiClock(end) +
+			(ev.duration > 0 ? ' (' + webuiL('epg.minutes', '%s min').replace('%s', Math.round(ev.duration / 60)) + ')' : '');
 		descEl.textContent = ev.description || '';
-		if (ev.duration > 0) {
-			const pct = Math.min(100, Math.max(0, (Date.now() / 1000 - ev.start) / ev.duration * 100));
-			progressBar.style.width = pct + '%';
+		// how far it has run, for the one running now; a later one can be zapped to by a timer
+		if (_webuiEpgRuns(ev)) {
+			progress.hidden = false;
+			progressBar.style.width = Math.min(100, Math.max(0, (Date.now() / 1000 - ev.start) / ev.duration * 100)) + '%';
+			webuiCheckRecordingForChannel(channelId).then(function(rec) {
+				if (token === _webuiEpgModalToken) webuiEpgModalUpdateRecBtn(!!rec);
+			});
+		} else if (ev.start > Date.now() / 1000) {
+			document.getElementById('webuiEpgZapTimerBtn').hidden = false;
 		}
 
-		const full = await _webuiV1Maybe('/epg/event', {id: ev.id, start: ev.start}).catch(function() { return null; });
+		const full = ev.id ? await _webuiV1Maybe('/epg/event', {id: ev.id, start: ev.start}).catch(function() { return null; }) : null;
 		if (token !== _webuiEpgModalToken) return;
-		if (full)
-			descEl.textContent = [full.description, full.long_description].filter(Boolean).join('\n\n');
+		const text = full ? [full.description, full.long_description].filter(Boolean).join('\n\n') : '';
+		descEl.textContent = text || ev.description || webuiL('epg.no_desc', 'No description available');
 
 		const win = await _webuiV1Maybe('/epg', {channel: channelId, from: end, to: end + 6 * 3600}).catch(function() { return null; });
 		if (token !== _webuiEpgModalToken) return;
@@ -638,6 +714,41 @@ function webuiCloseEpgModal(event) {
 	document.body.style.overflow = '';
 	// what it showed is no event a later Rec elsewhere may take
 	webuiEpgModalEvent = null;
+	_webuiEpgModalOnTimer = null;
+}
+
+// The dialog's channel, now: closed once the box switched
+async function webuiEpgModalZap() {
+	if (!webuiEpgModalChannelId) return;
+	try {
+		if (await webuiV1Zap(webuiEpgModalChannelId))
+			webuiCloseEpgModal();
+	} catch (e) {
+		webuiToastError('', e);
+	}
+}
+
+/* A zap timer at an event's start, or this minute for one that runs.
+   Resolves true once it is set. */
+async function webuiZapTimer(channelId, ev) {
+	try {
+		await webuiV1('POST', '/timers', {body: {kind: 'zapto', channel_id: channelId,
+			start: Math.max(ev.start, Math.floor(Date.now() / 60000) * 60), epg_id: ev.id, epg_start: ev.start}});
+		webuiShowToast(webuiL('epg.timer_zap_set', 'Zap timer set!'));
+		return true;
+	} catch (e) {
+		webuiToastError(webuiL('epg.timer_fail', 'Setting the timer failed'), e);
+		return false;
+	}
+}
+
+async function webuiEpgModalZapTimer() {
+	const ev = webuiEpgModalEvent, done = _webuiEpgModalOnTimer;
+	if (!ev || !webuiEpgModalChannelId) return;
+	if (await webuiZapTimer(webuiEpgModalChannelId, ev)) {
+		webuiCloseEpgModal();
+		if (done) done();
+	}
 }
 
 // A playlist for a player on this computer: the box's stream server with the
@@ -710,8 +821,10 @@ async function webuiStopRecording(recordingId) {
 	}
 }
 
-// EPG Modal: toggle between Record and Stop
+// The dialog's Record: a recording of the programme it shows, or, for the
+// one running now while the box records it, the end of that recording
 async function webuiEpgModalToggleRec() {
+	const done = _webuiEpgModalOnTimer;
 	if (webuiEpgModalIsRecording) {
 		// this channel's recording and no other: one that ended since the
 		// dialog opened leaves nothing to stop here
@@ -719,7 +832,11 @@ async function webuiEpgModalToggleRec() {
 		if (!rec || await webuiStopRecording(rec.id))
 			webuiEpgModalUpdateRecBtn(false);
 	} else if (await webuiRecordEvent()) {
-		webuiCheckRecordingForChannel(webuiEpgModalChannelId).then(function(rec) { webuiEpgModalUpdateRecBtn(!!rec); });
+		if (done) done();
+		if (_webuiEpgRuns(webuiEpgModalEvent))
+			webuiCheckRecordingForChannel(webuiEpgModalChannelId).then(function(rec) { webuiEpgModalUpdateRecBtn(!!rec); });
+		else
+			webuiCloseEpgModal();
 	}
 }
 

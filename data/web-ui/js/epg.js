@@ -16,12 +16,10 @@ let currentMode = 'tv';
 let currentStartTime = null;
 let currentChannelId = null;
 let bouquetError = null;	// why the bouquets could not be read, null once they were
-let selectedProgram = null;	// {channelId, channelName, ev}
 let timers = [];
 let gridToken = 0;
 let gridRows = Object.create(null);	// channel id -> {channel, el, events}, for the grid shown
 let gridWindow = null;		// {start, stop} of the grid shown
-let releaseModal = null;
 
 const formatTime = webuiFormatTime;
 function clock(sec) { return formatTime(new Date(sec * 1000)); }
@@ -120,6 +118,8 @@ async function loadEpg() {
 		}
 
 		const now = Math.floor(Date.now() / 1000);
+		await webuiLogosOffered(channels[0].id);
+		if (token !== gridToken) return;
 
 		const slots = [];
 		for (let i = 0; i < TOTAL_MINUTES / MINUTES_PER_SLOT; i++)
@@ -139,7 +139,9 @@ async function loadEpg() {
 				webuiEl('div', {className: 'webui-epg-channel-name', title: zapLabel, tabIndex: 0,
 					attrs: {role: 'button', 'aria-label': zapLabel},
 					on: {click: () => zapTo(channel.id), keydown: ev => pressed(ev, () => zapTo(channel.id))}},
-					webuiEl('span', {}, channel.name)),
+					// its number and its logo, its name where it has none
+					channel.number > 0 ? webuiEl('span', {className: 'webui-epg-channel-num'}, String(channel.number)) : null,
+					webuiChannelLogo(channel.id, channel.name)),
 				programs));
 		});
 		grid.replaceChildren(header, rows);
@@ -303,64 +305,11 @@ async function zapped() {
 	document.querySelectorAll('.webui-epg-row').forEach(row => row.classList.toggle('playing', row.dataset.id === currentChannelId));
 }
 
-// The detail dialog; the long text is asked for when it opens
-async function showProgramDetail(channel, ev) {
-	selectedProgram = {channelId: channel.id, channelName: channel.name, ev: ev};
-	document.getElementById('modalTitle').textContent = ev.title || '-';
-	document.getElementById('modalSubtitle').textContent = channel.name || '-';
-	const minutes = Math.round(ev.duration / 60);
-	document.getElementById('modalInfo').textContent =
-		clock(ev.start) + ' – ' + clock(ev.start + ev.duration) + ' (' + webuiL('epg.minutes', '%s min').replace('%s', minutes) + ')';
-	const descEl = document.getElementById('modalDesc');
-	descEl.textContent = ev.description || '';
-	const modal = document.getElementById('epgModal');
-	modal.classList.add('open');
-	if (releaseModal) releaseModal();
-	releaseModal = webuiDialogA11y(modal.querySelector('.webui-epg-modal-content'), {close: closeModal});
-	const shown = selectedProgram;
-	const full = await webuiV1('GET', '/epg/event', {query: {id: ev.id, start: ev.start}}).catch(() => null);
-	if (selectedProgram !== shown) return;
-	const desc = full ? [full.description, full.long_description].filter(Boolean).join('\n\n') : (ev.description || '');
-	descEl.textContent = desc || webuiL('epg.no_desc', 'No description available');
-}
-
-function closeModal() {
-	document.getElementById('epgModal').classList.remove('open');
-	selectedProgram = null;
-	if (releaseModal) {
-		releaseModal();
-		releaseModal = null;
-	}
-}
-
-// A recording of the event, through the helper the other pages share; the
-// grid shows its mark once the timer event comes in
-async function setTimerRec() {
-	if (!selectedProgram) return;
-	if (await webuiRecordEvent(selectedProgram.channelId, selectedProgram.channelName, selectedProgram.ev)) {
-		closeModal();
-		if (!webuiV1EventsLive()) timersChanged();
-	}
-}
-
-// A zap timer at the event's start, or this minute for one running
-async function setTimerZap() {
-	if (!selectedProgram) return;
-	const ev = selectedProgram.ev;
-	try {
-		await webuiV1('POST', '/timers', {body: {kind: 'zapto', channel_id: selectedProgram.channelId,
-			start: Math.max(ev.start, Math.floor(Date.now() / 60000) * 60), epg_id: ev.id, epg_start: ev.start}});
-		webuiShowToast(webuiL('epg.timer_zap_set', 'Zap timer set!'));
-		closeModal();
-		if (!webuiV1EventsLive()) timersChanged();
-	} catch (e) {
-		webuiToastError(webuiL('epg.timer_fail', 'Setting the timer failed'), e);
-	}
-}
-
-async function zapNow() {
-	if (!selectedProgram) return;
-	if (await zapTo(selectedProgram.channelId)) closeModal();
+// A programme in the shared dialog, the marks of the grid following a
+// timer set from it
+function showProgramDetail(channel, ev) {
+	webuiShowEpgModal(channel.id, channel.name, {event: ev, number: channel.number,
+		onTimer: () => { if (!webuiV1EventsLive()) timersChanged(); }});
 }
 
 // Zap: a file the player plays, or a box in standby, is asked about first
@@ -386,9 +335,6 @@ function changeTime(hours) {
 
 document.getElementById('bouquetSelect').addEventListener('change', loadEpg);
 document.getElementById('timeSelect').addEventListener('change', loadEpg);
-document.getElementById('epgModal').addEventListener('click', function(e) {
-	if (e.target === this) closeModal();
-});
 
 // once the texts are in, which the grid is drawn with
 webuiAfterTexts(function() {

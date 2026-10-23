@@ -318,6 +318,7 @@
 	"epg.none": "No programme data",
 	"epg.timer_zap": "Zap timer",
 	"epg.minutes": "%s min",
+	"epg.number": "Channel number %s",
 	"epg.timer_rec_mark": "recording timer set",
 	"epg.timer_zap_mark": "zap timer set",
 	"bq.loading_channels": "Loading channels...",

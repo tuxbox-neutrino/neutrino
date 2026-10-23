@@ -120,7 +120,7 @@
 	/* a channel */
 	.webui-channel-row {
 		display: grid;
-		grid-template-columns: 3.5ch 48px minmax(10rem, 1fr) minmax(0, 1.4fr) auto auto;
+		grid-template-columns: 3.5ch 96px minmax(10rem, 1fr) minmax(0, 1.4fr) auto auto;
 		gap: 0.75rem;
 		align-items: center;
 		margin: 0;
@@ -144,25 +144,6 @@
 		text-align: right;
 	}
 
-	.webui-channel-logo {
-		display: grid;
-		place-items: center;
-		width: 48px;
-		height: 32px;
-		border-radius: 4px;
-		background: var(--webui-bg-elevated);
-		color: var(--pico-muted-color);
-		font-size: 0.65rem;
-		font-weight: 600;
-		overflow: hidden;
-	}
-
-	.webui-channel-logo img {
-		max-width: 44px;
-		max-height: 28px;
-		object-fit: contain;
-	}
-
 	.webui-channel-name {
 		min-width: 0;
 		overflow: hidden;
@@ -176,7 +157,36 @@
 		font-size: var(--webui-font-sm);
 	}
 
-	.webui-channel-now > span {
+	/* the programme: a button that opens its information */
+	.webui-channel-now-open {
+		display: block;
+		width: 100%;
+		min-width: 0;
+		margin: 0;
+		padding: 0.15rem 0.35rem;
+		border: 0;
+		border-radius: 4px;
+		background: none;
+		box-shadow: none;
+		--pico-color: inherit;
+		color: var(--pico-color);
+		font: inherit;
+		text-align: left;
+		cursor: pointer;
+	}
+
+	.webui-channel-now-open:is(:hover, :focus, :active) {
+		/* Pico's button colour on hover, focus and press outweighs the reset above */
+		--pico-color: inherit;
+		background: var(--webui-bg-elevated);
+	}
+
+	.webui-channel-now-open:focus-visible {
+		outline: 2px solid var(--webui-focus-color);
+		outline-offset: 1px;
+	}
+
+	.webui-channel-now-open > span {
 		display: block;
 		overflow: hidden;
 		text-overflow: ellipsis;
@@ -210,7 +220,12 @@
 		}
 
 		.webui-channel-row {
-			grid-template-columns: 3.5ch 48px minmax(0, 1fr) auto auto;
+			grid-template-columns: 3.5ch 80px minmax(0, 1fr) auto auto;
+		}
+
+		.webui-channel-logo {
+			width: 80px;
+			height: 36px;
 		}
 
 		/* the programme under the name */
@@ -250,7 +265,7 @@
 		}
 
 		.webui-channel-row {
-			grid-template-columns: 40px minmax(0, 1fr) auto;
+			grid-template-columns: 64px minmax(0, 1fr) auto;
 			gap: 0.6rem;
 			padding: 0.5rem 0.75rem;
 		}
@@ -262,8 +277,8 @@
 		.webui-channel-logo {
 			grid-column: 1;
 			grid-row: 1 / span 2;
-			width: 40px;
-			height: 28px;
+			width: 64px;
+			height: 32px;
 		}
 
 		.webui-channel-name,
