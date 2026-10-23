@@ -441,6 +441,41 @@
 		}
 	}
 
+	/* The same two steps by the window's width, for a browser without
+	   container queries (Safari before 16, Chrome before 105, Firefox
+	   before 110). The wide side bar and the margins take some 265px from
+	   901px on, so the gauges' row is narrower than 54rem below 1130px;
+	   it is narrower than 30rem below 513px, where there is no side bar. */
+	@supports not (container-type: inline-size) {
+		@media (max-width: 1129px) {
+			.webui-gauges {
+				grid-template-columns: repeat(2, minmax(0, 1fr));
+			}
+		}
+
+		@media (max-width: 512px) {
+			.webui-gauges {
+				gap: 0.75rem;
+			}
+
+			.webui-gauge {
+				flex-direction: column;
+				gap: 0.5rem;
+				padding: 0.85rem 0.6rem;
+				text-align: center;
+			}
+
+			.webui-gauge-ring {
+				width: 64px;
+				height: 64px;
+			}
+
+			.webui-gauge-ring b {
+				font-size: 0.95rem;
+			}
+		}
+	}
+
 	@media (prefers-reduced-motion: reduce) {
 		.webui-gauge-ring .fill {
 			transition: none;
@@ -456,35 +491,39 @@
 	   bars in the second, their values in the third. Every bar starts and
 	   ends where the others do, and the values of the rows below start
 	   where the bars do. The parts keep their boxes, so the values that
-	   open the system information stay a target to click and to focus. */
-	.webui-dash-table {
-		display: grid;
-		grid-template-columns: max-content minmax(0, 1fr) max-content;
-		column-gap: 0.75rem;
-		align-content: start;
-	}
+	   open the system information stay a target to click and to focus.
+	   A browser without subgrid (Safari before 16, Chrome before 117)
+	   draws each part on its own, as the other pages do. */
+	@supports (grid-template-columns: subgrid) {
+		.webui-dash-table {
+			display: grid;
+			grid-template-columns: max-content minmax(0, 1fr) max-content;
+			column-gap: 0.75rem;
+			align-content: start;
+		}
 
-	.webui-dash-table > *,
-	.webui-dash-table .webui-metrics > .webui-meter,
-	.webui-dash-table #tuner-list > *,
-	.webui-dash-table .webui-tuner > *,
-	.webui-dash-table .webui-dash-picture > * {
-		grid-column: 1 / -1;
-	}
+		.webui-dash-table > *,
+		.webui-dash-table .webui-metrics > .webui-meter,
+		.webui-dash-table #tuner-list > *,
+		.webui-dash-table .webui-tuner > *,
+		.webui-dash-table .webui-dash-picture > * {
+			grid-column: 1 / -1;
+		}
 
-	.webui-dash-table .webui-metrics,
-	.webui-dash-table .webui-meter,
-	.webui-dash-table .webui-kv,
-	.webui-dash-table #tuner-list,
-	.webui-dash-table .webui-tuner,
-	.webui-dash-table .webui-dash-picture {
-		display: grid;
-		grid-template-columns: subgrid;
-		column-gap: normal;
-	}
+		.webui-dash-table .webui-metrics,
+		.webui-dash-table .webui-meter,
+		.webui-dash-table .webui-kv,
+		.webui-dash-table #tuner-list,
+		.webui-dash-table .webui-tuner,
+		.webui-dash-table .webui-dash-picture {
+			display: grid;
+			grid-template-columns: subgrid;
+			column-gap: normal;
+		}
 
-	.webui-dash-table .webui-kv dd {
-		grid-column: 2 / -1;
+		.webui-dash-table .webui-kv dd {
+			grid-column: 2 / -1;
+		}
 	}
 
 	/* Pico colours a role="link" as a link: the values keep their own */
