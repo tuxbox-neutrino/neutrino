@@ -1564,19 +1564,19 @@ menu.hint_net_ftpd Enable file transfer using FTP
 menu.hint_net_gateway Enter gateway/router IP address
 menu.hint_net_hostname Change your box hostname
 menu.hint_net_httpd Configure the web server (nhttpd)
-menu.hint_net_httpd_auth Require login for the web interface
-menu.hint_net_httpd_first_password Shows the password the box set for the first sign-in to the web interface; that sign-in then asks for a password of your own
-menu.hint_net_httpd_host Bind address or host\n(leave empty or 0.0.0.0 for all)
-menu.hint_net_httpd_loglevel Set the web server log verbosity
-menu.hint_net_httpd_noauth Clients that may access without login\n(comma-separated IPs/hosts)
-menu.hint_net_httpd_pass Password for the web interface and the API; leave empty to keep the stored one
-menu.hint_net_httpd_port TCP port for the web interface (1-65535)
-menu.hint_net_httpd_reset_password Resets the web interface login to root and a new first password; the first sign-in then asks for a password of your own
-menu.hint_net_httpd_ssl Enable HTTPS for the web interface
+menu.hint_net_httpd_auth On: every page of the web interface asks for the sign-in. Off: looking needs none, only changing asks for it
+menu.hint_net_httpd_first_password Shows address, user and password for the first sign-in to the web interface; grey once it has a password of its own
+menu.hint_net_httpd_host Address the web interface answers on: empty or 0.0.0.0 for every network connection of the box
+menu.hint_net_httpd_loglevel How much the web server logs, for finding faults; off in daily use
+menu.hint_net_httpd_noauth Devices that need no sign-in: the start of their address, e.g. 192.168.1. for the whole home network; empty for none
+menu.hint_net_httpd_pass A password of your own for the web interface and the API; left empty keeps the one there is. Forgotten? Reset it below
+menu.hint_net_httpd_port Port of the web interface: opened as http://box:port, for 80 http://box is enough
+menu.hint_net_httpd_reset_password Password forgotten? Resets the sign-in to root and a new first password and shows both; the next sign-in asks for one of your own
+menu.hint_net_httpd_ssl Web interface encrypted over HTTPS; needs a PEM file with certificate and key
 menu.hint_net_httpd_ssl_cafile Path to CA file (optional)
 menu.hint_net_httpd_ssl_pemfile Path to PEM file with certificate and key
-menu.hint_net_httpd_threading Handle connections in separate threads
-menu.hint_net_httpd_user Username for HTTP authentication
+menu.hint_net_httpd_threading On: several requests at once; needed for the pages of the web interface to update themselves
+menu.hint_net_httpd_user User for the sign-in to the web interface and the API (mostly root)
 menu.hint_net_if Select interface to config
 menu.hint_net_ipaddress Enter your box IP address
 menu.hint_net_mount Configure, mount and un-mount network shares\nNFS and CIFS supported
@@ -2270,8 +2270,7 @@ networkmenu.httpd_auth Authentication
 networkmenu.httpd_first_password Show the first password
 networkmenu.httpd_first_password_failed The first password could not be set.\nThe web interface login stays as it was (the password the box shipped with).
 networkmenu.httpd_first_password_none No first password stands any more; the web interface has a password of its own.
-networkmenu.httpd_first_password_shown Web interface: user %s, password %s\nThe first sign-in asks for a password of your own.
-networkmenu.httpd_first_password_start Web interface: user %s, password %s\nThe first sign-in asks for a password of your own.\nShown again under System settings > Network > Web server (nhttpd).
+networkmenu.httpd_first_password_shown Sign-in to the web interface\nAddress: %s\nUser: %s\nPassword: %s\n\nThe first sign-in asks for a password of your own.\nShown again under System settings > Network > Web server (nhttpd) > Show the first password.
 networkmenu.httpd_host Bind address
 networkmenu.httpd_loglevel Log level
 networkmenu.httpd_noauth No-auth clients
@@ -2280,7 +2279,6 @@ networkmenu.httpd_port Port
 networkmenu.httpd_port_invalid Invalid port. Use 1-65535.
 networkmenu.httpd_reset_password Reset web password
 networkmenu.httpd_reset_password_ask The web interface login is reset to user root and a new first password, which is shown here afterwards.\nThe next sign-in over the web has to set a password of your own.\nContinue?
-networkmenu.httpd_reset_password_done Reset: user root, password %s.\nThe next sign-in asks for a password of your own.
 networkmenu.httpd_reset_password_failed The web password could not be reset
 networkmenu.httpd_save_failed Failed to save nhttpd.conf
 networkmenu.httpd_ssl Enable SSL

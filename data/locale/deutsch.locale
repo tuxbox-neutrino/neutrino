@@ -1564,19 +1564,19 @@ menu.hint_net_ftpd Aktivieren Sie die Dateiübertragung über FTP
 menu.hint_net_gateway Geben Sie die Gateway-Adresse des Routers ein
 menu.hint_net_hostname Ändern Sie den Hostnamen der Box
 menu.hint_net_httpd Webserver (nhttpd) konfigurieren
-menu.hint_net_httpd_auth Anmeldung für das Webinterface erzwingen
-menu.hint_net_httpd_first_password Zeigt das Passwort, das die Box für die erste Anmeldung an der Weboberfläche festgelegt hat; danach wird ein eigenes verlangt
-menu.hint_net_httpd_host Bind-Adresse oder Host\n(leer oder 0.0.0.0 für alle)
-menu.hint_net_httpd_loglevel Log-Level des Webservers
-menu.hint_net_httpd_noauth Clients ohne Login\n(kommagetrennte IPs/Hosts)
-menu.hint_net_httpd_pass Passwort für Web-Oberfläche und API; leer lassen behält das bisherige
-menu.hint_net_httpd_port TCP-Port für das Webinterface (1-65535)
-menu.hint_net_httpd_reset_password Setzt den Zugang der Weboberfläche auf root und ein neues Passwort für den ersten Zugang zurück; danach wird beim ersten Login ein eigenes Passwort verlangt
-menu.hint_net_httpd_ssl HTTPS für das Webinterface aktivieren
+menu.hint_net_httpd_auth Ein: Jede Seite der Weboberfläche verlangt die Anmeldung. Aus: Ansehen geht ohne Anmeldung, nur Ändern verlangt sie
+menu.hint_net_httpd_first_password Zeigt Adresse, Benutzer und Passwort für die erste Anmeldung an der Weboberfläche; grau, sobald sie ein eigenes Passwort hat
+menu.hint_net_httpd_host Adresse, auf der die Weboberfläche antwortet: leer oder 0.0.0.0 für alle Netzwerkverbindungen der Box
+menu.hint_net_httpd_loglevel Wie viel der Webserver protokolliert, für die Fehlersuche; im Alltag aus
+menu.hint_net_httpd_noauth Geräte, die ohne Anmeldung zugreifen: der Anfang ihrer Adresse, z. B. 192.168.1. für das ganze Heimnetz; leer für keines
+menu.hint_net_httpd_pass Eigenes Passwort für Weboberfläche und API; leer lassen behält das bisherige. Vergessen? Unten zurücksetzen
+menu.hint_net_httpd_port Port der Weboberfläche: aufgerufen als http://Box:Port, bei 80 genügt http://Box
+menu.hint_net_httpd_reset_password Passwort vergessen? Setzt die Anmeldung auf root und ein neues Passwort für den ersten Zugang zurück und zeigt beides an; die nächste Anmeldung verlangt ein eigenes
+menu.hint_net_httpd_ssl Weboberfläche verschlüsselt über HTTPS; braucht eine PEM-Datei mit Zertifikat und Schlüssel
 menu.hint_net_httpd_ssl_cafile Pfad zur CA-Datei (optional)
 menu.hint_net_httpd_ssl_pemfile Pfad zur PEM-Datei mit Zertifikat und Schlüssel
-menu.hint_net_httpd_threading Verbindungen in separaten Threads bearbeiten
-menu.hint_net_httpd_user Benutzername für die HTTP-Authentifizierung
+menu.hint_net_httpd_threading Ein: mehrere Anfragen zugleich; nötig, damit sich die Seiten der Weboberfläche von selbst aktualisieren
+menu.hint_net_httpd_user Benutzer für die Anmeldung an Weboberfläche und API (meist root)
 menu.hint_net_if Wählen Sie die Schnittstelle zur Konfiguration
 menu.hint_net_ipaddress Geben Sie die IP-Adresse für die Box ein
 menu.hint_net_mount Bearbeiten Sie NFS- und CIFS-Netzwerkfreigaben
@@ -2270,8 +2270,7 @@ networkmenu.httpd_auth Authentifizierung
 networkmenu.httpd_first_password Passwort für den ersten Zugang anzeigen
 networkmenu.httpd_first_password_failed Das Passwort für den ersten Zugang ließ sich nicht festlegen.\nDie Anmeldung an der Weboberfläche bleibt, wie sie war (das Passwort, mit dem die Box ausgeliefert wurde).
 networkmenu.httpd_first_password_none Es gilt kein Passwort für den ersten Zugang mehr; die Weboberfläche hat ein eigenes Passwort.
-networkmenu.httpd_first_password_shown Weboberfläche: Benutzer %s, Passwort %s\nBei der ersten Anmeldung wird ein eigenes Passwort verlangt.
-networkmenu.httpd_first_password_start Weboberfläche: Benutzer %s, Passwort %s\nBei der ersten Anmeldung wird ein eigenes Passwort verlangt.\nWieder abrufbar unter Einstellungen > Netzwerk > Webserver (nhttpd).
+networkmenu.httpd_first_password_shown Anmeldung an der Weboberfläche\nAdresse: %s\nBenutzer: %s\nPasswort: %s\n\nBei der ersten Anmeldung wird ein eigenes Passwort festgelegt.\nWieder angezeigt unter Einstellungen > Netzwerk > Webserver (nhttpd) > Passwort für den ersten Zugang anzeigen.
 networkmenu.httpd_host Bind-Adresse
 networkmenu.httpd_loglevel Log-Level
 networkmenu.httpd_noauth Ausnahmen (kein Login)
@@ -2280,7 +2279,6 @@ networkmenu.httpd_port Port
 networkmenu.httpd_port_invalid Ungültiger Port. 1-65535 verwenden.
 networkmenu.httpd_reset_password Web-Passwort zurücksetzen
 networkmenu.httpd_reset_password_ask Der Zugang der Weboberfläche wird auf Benutzer root und ein neues Passwort für den ersten Zugang zurückgesetzt, das danach hier angezeigt wird.\nBeim nächsten Login über das Web muss ein eigenes Passwort festgelegt werden.\nWeiter?
-networkmenu.httpd_reset_password_done Zurückgesetzt: Benutzer root, Passwort %s.\nBeim nächsten Login wird ein eigenes Passwort verlangt.
 networkmenu.httpd_reset_password_failed Das Web-Passwort konnte nicht zurückgesetzt werden
 networkmenu.httpd_save_failed nhttpd.conf konnte nicht gespeichert werden
 networkmenu.httpd_ssl SSL aktivieren

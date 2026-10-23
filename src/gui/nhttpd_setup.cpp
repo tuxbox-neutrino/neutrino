@@ -42,6 +42,9 @@
 #include <httpd/webconfig.h>
 
 #include <libconfigfile/configfile.h>
+#include <libnet.h>
+
+#include <unistd.h>
 
 extern void yhttpd_reload_config();
 
@@ -63,6 +66,46 @@ static void fillIn(std::string &text, const std::string &value, size_t &at)
 		return;
 	text.replace(found, 2, value);
 	at = found + value.size();
+}
+
+/* Seconds the message with the first password stands: until OK, and five
+   minutes at most, so a start nobody watches goes on to the picture. */
+static const int kFirstPasswordShown = 300;
+
+/* Where the web interface answers: http:// and the box's address, its port
+   where that is not 80. The box's name where it has no address yet (the
+   network can come up after the start), a dash where it has neither. */
+static std::string webAddress()
+{
+	std::string ip, mask, broadcast;
+	netGetIP(g_settings.ifname, ip, mask, broadcast);
+	if (ip.empty() || ip == "0.0.0.0")
+	{
+		char name[256] = "";
+		if (gethostname(name, sizeof(name) - 1) != 0 || !name[0])
+			return "-";
+		ip = name;
+	}
+	CConfigFile config(',');
+	config.loadConfig(HTTPD_CONFIGFILE);
+	const int port = config.getInt32("WebsiteMain.port", HTTPD_STANDARD_PORT);
+	return "http://" + ip + (port == 80 ? std::string() : ":" + std::to_string(port));
+}
+
+/* The one message with the first password, at the start that drew it, from the
+   menu and after a reset: where the web interface answers, the user, the
+   password, that the first sign-in asks for one of one's own, and where the
+   message is found again. Every copy of the password is wiped afterwards. */
+static void showFirstPasswordText(std::string &first)
+{
+	std::string text = g_Locale->getText(LOCALE_NETWORKMENU_HTTPD_FIRST_PASSWORD_SHOWN);
+	size_t at = 0;
+	fillIn(text, webAddress(), at);
+	fillIn(text, login_bridge::user(), at);
+	fillIn(text, first, at);
+	first.assign(first.size(), '\0');
+	ShowMsg(LOCALE_NETWORKMENU_HTTPD, text, CMsgBox::mbrOk, CMsgBox::mbOk, NEUTRINO_ICON_INFO, MSGBOX_MIN_WIDTH, kFirstPasswordShown);
+	text.assign(text.size(), '\0');
 }
 
 CNhttpdSetup::CNhttpdSetup()
@@ -124,27 +167,23 @@ void CNhttpdSetup::resetPassword()
 	username = login_bridge::user();
 	password.clear();
 	password_mask = "********";
-	std::string done = g_Locale->getText(LOCALE_NETWORKMENU_HTTPD_RESET_PASSWORD_DONE);
-	size_t at = 0;
-	fillIn(done, first, at);
-	first.assign(first.size(), '\0');
 	// a first password stands now, so the entry showing it again does too
 	if (first_fwd)
 		first_fwd->setActive(true);
-	ShowMsg(LOCALE_NETWORKMENU_HTTPD_RESET_PASSWORD, done, CMsgBox::mbrOk, CMsgBox::mbOk, NEUTRINO_ICON_INFO);
-	done.assign(done.size(), '\0');
+	// the same message as at the first start
+	showFirstPasswordText(first);
 }
 
 /* At the start only when this run drew the password, so it is shown once and not
-   on every start until somebody changes it, and with a time limit, since nobody
-   may be watching. Where the box still opens to a password it shipped with,
-   because the first one could not be written, that is said instead, without
-   naming any password; asked from the menu where neither stands, which is a box
-   whose password was changed since the menu opened, that is said. Whatever held
-   the password is wiped afterwards. */
+   on every start until somebody changes it, and not for longer than five minutes,
+   since nobody may be watching. Where the box still opens to a password it
+   shipped with, because the first one could not be written, that is said
+   instead, without naming any password; asked from the menu where neither
+   stands, which is a box whose password was changed since the menu opened, that
+   is said. Whatever held the password is wiped afterwards. */
 void CNhttpdSetup::showFirstPassword(bool at_start)
 {
-	const int timeout = at_start ? 60 : NO_TIMEOUT;
+	const int timeout = at_start ? kFirstPasswordShown : NO_TIMEOUT;
 	std::string first = httpd::firstPasswordInEffect();
 	if (first.empty())
 	{
@@ -162,14 +201,7 @@ void CNhttpdSetup::showFirstPassword(bool at_start)
 		return;
 	}
 
-	std::string text = g_Locale->getText(at_start ? LOCALE_NETWORKMENU_HTTPD_FIRST_PASSWORD_START
-						       : LOCALE_NETWORKMENU_HTTPD_FIRST_PASSWORD_SHOWN);
-	size_t at = 0;
-	fillIn(text, login_bridge::user(), at);
-	fillIn(text, first, at);
-	first.assign(first.size(), '\0');
-	ShowMsg(LOCALE_NETWORKMENU_HTTPD, text, CMsgBox::mbrOk, CMsgBox::mbOk, NEUTRINO_ICON_INFO, MSGBOX_MIN_WIDTH, timeout);
-	text.assign(text.size(), '\0');
+	showFirstPasswordText(first);
 }
 
 void CNhttpdSetup::loadConfig()
