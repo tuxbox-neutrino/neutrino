@@ -258,6 +258,42 @@
 		margin-bottom: 0.6rem;
 	}
 
+	/* A tile's values as one table (subgrid): the names of the bars and of
+	   the rows below them in a first column as wide as the widest, the
+	   bars in the second, their values in the third. Every bar starts and
+	   ends where the others do, and the values of the rows below start
+	   where the bars do. The parts keep their boxes, so the values that
+	   open the system information stay a target to click and to focus. */
+	.webui-dash-table {
+		display: grid;
+		grid-template-columns: max-content minmax(0, 1fr) max-content;
+		column-gap: 0.75rem;
+		align-content: start;
+	}
+
+	.webui-dash-table > *,
+	.webui-dash-table .webui-metrics > .webui-meter,
+	.webui-dash-table #tuner-list > *,
+	.webui-dash-table .webui-tuner > *,
+	.webui-dash-table .webui-dash-picture > * {
+		grid-column: 1 / -1;
+	}
+
+	.webui-dash-table .webui-metrics,
+	.webui-dash-table .webui-meter,
+	.webui-dash-table .webui-kv,
+	.webui-dash-table #tuner-list,
+	.webui-dash-table .webui-tuner,
+	.webui-dash-table .webui-dash-picture {
+		display: grid;
+		grid-template-columns: subgrid;
+		column-gap: normal;
+	}
+
+	.webui-dash-table .webui-kv dd {
+		grid-column: 2 / -1;
+	}
+
 	/* Pico colours a role="link" as a link: the values keep their own */
 	.webui-ext-open,
 	.webui-ext-open[role="link"] {
@@ -460,7 +496,7 @@
 					</h2>
 					<span class="webui-card-value" id="temp-value"></span>
 				</header>
-				<div class="webui-card-body" id="system-body">
+				<div class="webui-card-body webui-dash-table" id="system-body">
 					<div class="webui-metrics" data-ext-open="sysinfo" title="Show system details" data-l-title="dash.sys_details">
 						<div class="webui-meter" id="meter-cpu"><b data-l="dash.cpu">CPU</b><div class="webui-progress"><span></span></div><span>--</span></div>
 						<div class="webui-meter" id="meter-ram"><b data-l="dash.ram">RAM</b><div class="webui-progress"><span></span></div><span>--</span></div>
@@ -483,7 +519,7 @@
 					</h2>
 					<span class="webui-pill" id="tuner-quality" hidden></span>
 				</header>
-				<div class="webui-card-body">
+				<div class="webui-card-body webui-dash-table">
 					<div id="tuner-list"></div>
 					<div class="webui-dash-picture">
 						<dl class="webui-kv">
