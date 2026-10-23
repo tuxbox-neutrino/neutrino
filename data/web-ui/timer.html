@@ -34,39 +34,18 @@
 			top: 0;
 		}
 
+		/* the filters: the shared side list (webui.css), each entry with its icon
+		   in front and its count at the end */
 		.webui-timer-filters ul.webui-filter-list {
-			display: block;
-			margin: 0;
 			padding: 0 0.35rem;
-			list-style: none;
-		}
-
-		.webui-timer-filters .webui-filter-list li {
-			display: block;
-			margin: 0;
-			padding: 0;
 		}
 
 		.webui-filter-list button {
-			--pico-color: inherit;
 			display: flex;
 			gap: 0.5rem;
 			align-items: center;
-			width: 100%;
-			margin: 0;
 			padding: 0.4rem 0.6rem;
-			border: 0;
-			border-radius: var(--webui-radius);
-			background: none;
-			box-shadow: none;
-			color: var(--pico-color);
-			font-size: var(--webui-font-sm);
-			text-align: left;
-		}
-
-		.webui-filter-list button:is(:hover, :focus, :active) {
-			/* Pico's button colour on hover, focus and press outweighs the reset above */
-			--pico-color: inherit;
+			overflow: visible;
 		}
 
 		.webui-filter-list button svg {
@@ -74,16 +53,6 @@
 			width: 1rem;
 			height: 1rem;
 			color: var(--pico-muted-color);
-		}
-
-		.webui-filter-list button:hover {
-			background: var(--webui-bg-elevated);
-		}
-
-		.webui-filter-list button[aria-pressed="true"] {
-			background: var(--webui-accent-light);
-			color: var(--webui-accent);
-			font-weight: 600;
 		}
 
 		.webui-filter-list .webui-filter-count {
@@ -604,9 +573,9 @@
 					</h2>
 				</header>
 				<p class="webui-filter-group-label" id="filter-type-label" data-l="tm.type">Type</p>
-				<ul class="webui-filter-list" id="filterTypes" aria-labelledby="filter-type-label"></ul>
+				<ul class="webui-filter-list webui-side-list" id="filterTypes" aria-labelledby="filter-type-label"></ul>
 				<p class="webui-filter-group-label" id="filter-state-label" data-l="tm.state">State</p>
-				<ul class="webui-filter-list" id="filterStates" aria-labelledby="filter-state-label"></ul>
+				<ul class="webui-filter-list webui-side-list" id="filterStates" aria-labelledby="filter-state-label"></ul>
 				<div class="webui-filter-new">
 					<button title="A timer for a recording, a switch, standby or a reminder" data-l-title="tip.timer_new" type="button" class="webui-btn primary" onclick="openTimerModal()">
 						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" style="width:1rem;height:1rem"><path d="M12 5v14M5 12h14"/></svg>

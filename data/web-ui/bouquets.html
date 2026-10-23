@@ -48,49 +48,6 @@
 	}
 
 	/* Pico sets a list in a nav as a row of links: here it is a column */
-	.webui-bouquet-side ul.webui-bouquet-list {
-		display: block;
-		margin: 0;
-	}
-
-	.webui-bouquet-side .webui-bouquet-list li {
-		display: block;
-		margin: 0;
-		padding: 0;
-	}
-
-	.webui-bouquet-list button {
-		--pico-color: inherit;
-		display: block;
-		width: 100%;
-		margin: 0;
-		padding: 0.45rem 0.7rem;
-		border: 0;
-		border-radius: var(--webui-radius);
-		background: none;
-		box-shadow: none;
-		color: var(--pico-color);
-		font-size: var(--webui-font-sm);
-		text-align: left;
-		overflow: hidden;
-		text-overflow: ellipsis;
-		white-space: nowrap;
-	}
-
-	.webui-bouquet-list button:is(:hover, :focus, :active) {
-		/* Pico's button colour on hover, focus and press outweighs the reset above */
-		--pico-color: inherit;
-	}
-
-	.webui-bouquet-list button:hover {
-		background: var(--webui-bg-elevated);
-	}
-
-	.webui-bouquet-list button[aria-current="true"] {
-		background: var(--webui-accent-light);
-		color: var(--webui-accent);
-		font-weight: 600;
-	}
 
 	.webui-bouquet-pick {
 		display: none;
@@ -310,7 +267,7 @@
 						<span data-l="nav.bouquets">Bouquets</span>
 					</h2>
 				</header>
-				<ul class="webui-bouquet-list" id="bouquetList"></ul>
+				<ul class="webui-bouquet-list webui-side-list" id="bouquetList"></ul>
 			</nav>
 
 			<section class="webui-card webui-channel-side" aria-labelledby="currentBouquetName">

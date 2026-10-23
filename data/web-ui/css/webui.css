@@ -786,6 +786,58 @@ body:not(.has-subheader) .webui-header-spacer {
 }
 
 /* Compact popover for inline forms (e.g. message send) */
+/* A list of choices at the side of a page (the channel list's bouquets,
+   the recordings' sources, the timers' filters): its entries buttons
+   across its width, the chosen one (aria-current, or aria-pressed for a
+   filter) marked */
+/* body: as heavy as Pico's nav ul:first-of-type, which pulls a list in a
+   nav out by its spacing, and later, so the list stays in its card */
+body ul.webui-side-list {
+	display: block;
+	margin: 0;
+	padding: 0.35rem;
+	list-style: none;
+}
+
+body ul.webui-side-list > li {
+	display: block;
+	margin: 0;
+	padding: 0;
+}
+
+.webui-side-list button {
+	--pico-color: inherit;
+	display: block;
+	width: 100%;
+	margin: 0;
+	padding: 0.45rem 0.7rem;
+	border: 0;
+	border-radius: var(--webui-radius);
+	background: none;
+	box-shadow: none;
+	color: var(--pico-color);
+	font-size: var(--webui-font-sm);
+	text-align: left;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.webui-side-list button:is(:hover, :focus, :active) {
+	/* Pico's button colour on hover, focus and press outweighs the reset above */
+	--pico-color: inherit;
+}
+
+.webui-side-list button:hover {
+	background: var(--webui-bg-elevated);
+}
+
+.webui-side-list button:is([aria-current="true"], [aria-pressed="true"]) {
+	background: var(--webui-accent-light);
+	color: var(--webui-accent);
+	font-weight: 600;
+}
+
 /* The handle between two columns (webuiSplitter): a line that shows where
    it can be taken, wider for the pointer than it looks */
 .webui-split-handle {
