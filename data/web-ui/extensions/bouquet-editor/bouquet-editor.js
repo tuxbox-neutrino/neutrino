@@ -423,6 +423,11 @@ function bqeStateIn(ul, block) {
 function bqeRenderAll() {
 	var f = (document.getElementById('bqeFilter').value || '').toLowerCase();
 	var can = bqeEditable() && bqeAllOf === bqeMode() ? '' : ' disabled';
+	// an add that is off says why, not "add"
+	var addTitle = !can ? webuiLH('bqe.t_add', 'add') :
+		!bqeSel ? webuiLH('bqe.pick_left', 'Pick a bouquet on the left') :
+		bqeShared(bqeSel.name) ? webuiLH('bqe.shared', 'More than one bouquet carries this name - rename one of them on the box first') :
+		webuiLH('msg.loading', 'Loading...');
 	var inBq = {};
 	bqeChan.forEach(function(c) { inBq[c.id] = true; });
 	var html = '';
@@ -437,7 +442,7 @@ function bqeRenderAll() {
 		html += '<li draggable="true" data-id="' + esc(c.id) + '" data-name="' + esc(c.name) + '">' +
 			'<span class="nm">' + esc(c.name) + '</span>' +
 			(inBq[c.id] ? '<span class="flags">' + webuiLH('bqe.in_bouquet', 'in bouquet') + '</span>' :
-			'<button type="button" class="bqe-mini" data-act="add"' + can + ' title="' + webuiLH('bqe.t_add', 'add') + '" aria-label="' + webuiLH('bqe.t_add', 'add') + '">' + I_PLUS + '</button>') +
+			'<button type="button" class="bqe-mini" data-act="add"' + can + ' title="' + addTitle + '" aria-label="' + webuiLH('bqe.t_add', 'add') + '">' + I_PLUS + '</button>') +
 			'</li>';
 	}
 	if (hits > shown)

@@ -52,11 +52,12 @@
 		.bqe-mini:hover { color: var(--webui-accent); border-color: var(--webui-accent); }
 		.bqe-mini svg { width: 12px; height: 12px; flex-shrink: 0; }
 		.bqe-mini.attn { color: var(--webui-on-accent); background: var(--webui-accent); border-color: var(--webui-accent); }
-		/* Bouquet-Zeilen: Aktionen erst bei Hover bzw. Auswahl zeigen,
-		   sonst frisst die Knopfleiste die Spalte auf und die Namen
-		   trunkieren zu "1…" (Touch: Tap waehlt aus → Aktionen) */
+		/* A bouquet row shows its buttons once it is chosen (or holds the
+		   focus), not under the pointer: they take the right part of the
+		   row, so buttons that appeared on hover stood where a click meant
+		   to choose the row landed, and moved, hid or locked the bouquet
+		   instead. Always shown, they would cut every name short. */
 		#bqeBouquets li .bqe-mini { display: none; }
-		#bqeBouquets li:hover .bqe-mini,
 		#bqeBouquets li.sel .bqe-mini,
 		#bqeBouquets li:focus-within .bqe-mini { display: inline-flex; }
 		.bqe-mini.on { color: var(--webui-accent); border-color: var(--webui-accent); }
