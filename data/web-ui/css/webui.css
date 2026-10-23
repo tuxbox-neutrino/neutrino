@@ -783,6 +783,41 @@ body:not(.has-subheader) .webui-header-spacer {
 }
 
 /* Compact popover for inline forms (e.g. message send) */
+/* A help text behind a button (webuiHelpToggle): the panel opens below it,
+   over what follows */
+.webui-help {
+	position: relative;
+	display: inline-flex;
+}
+
+.webui-help-panel {
+	position: absolute;
+	top: calc(100% + 0.4rem);
+	left: 0;
+	z-index: 1040;
+	width: min(28rem, calc(100vw - 2rem));
+	padding: 0.75rem 1rem;
+	background: var(--pico-card-background-color);
+	border: 1px solid var(--webui-border-subtle);
+	border-radius: var(--webui-radius-lg);
+	box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
+	color: var(--pico-color);
+	font-size: var(--webui-font-sm);
+	line-height: 1.5;
+}
+
+.webui-help-panel[hidden] {
+	display: none;
+}
+
+.webui-help-panel p {
+	margin: 0 0 0.5rem;
+}
+
+.webui-help-panel p:last-child {
+	margin-bottom: 0;
+}
+
 .webui-popover {
 	display: none;
 	position: fixed;

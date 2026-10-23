@@ -1971,6 +1971,49 @@ function _webuiCloseMessage() {
 	_webuiMessageOpener = null;
 }
 
+/* A help text behind a button, shared by the pages:
+     <span class="webui-help">
+       <button type="button" class="webui-btn webui-help-btn" aria-expanded="false"
+         aria-controls="ID" onclick="webuiHelpToggle(this)">…</button>
+       <div class="webui-help-panel" id="ID" hidden>…</div>
+     </span>
+   The panel opens below the button; the button again, Escape or a click
+   elsewhere closes it, Escape giving the focus back to the button. */
+function webuiHelpToggle(btn) {
+	var panel = document.getElementById(btn.getAttribute('aria-controls'));
+	if (!panel)
+		return;
+	if (btn._webuiHelpClose) {
+		btn._webuiHelpClose(false);
+		return;
+	}
+	var away = function(e) {
+		if (!panel.contains(e.target) && !btn.contains(e.target))
+			close(false);
+	};
+	var key = function(e) {
+		if (e.key === 'Escape') {
+			e.preventDefault();
+			close(true);
+		}
+	};
+	var close = function(back) {
+		panel.hidden = true;
+		btn.setAttribute('aria-expanded', 'false');
+		document.removeEventListener('click', away, true);
+		document.removeEventListener('keydown', key, true);
+		btn._webuiHelpClose = null;
+		if (back)
+			btn.focus();
+	};
+	panel.hidden = false;
+	btn.setAttribute('aria-expanded', 'true');
+	btn._webuiHelpClose = close;
+	// the click that opened it is past the document already
+	document.addEventListener('click', away, true);
+	document.addEventListener('keydown', key, true);
+}
+
 function webuiShowMessageDialog() {
 	var pop = document.getElementById('webui-message-pop');
 	if (pop && pop.classList.contains('open')) {
