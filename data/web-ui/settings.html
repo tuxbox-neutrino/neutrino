@@ -451,6 +451,22 @@
 		.settings-save-bar[hidden] {
 			display: none;
 		}
+
+		/* a panel's own save row (makePanelSaveRow): at the panel's foot it
+		   stays in view while the panel scrolls, so a long list of
+		   extensions no longer hides it below the fold */
+		.settings-panel-save {
+			display: flex;
+			gap: 0.5rem;
+			justify-content: flex-end;
+			position: sticky;
+			bottom: 0;
+			z-index: 2;
+			margin: 0.75rem -1.2rem 0;
+			padding: 0.7rem 1.2rem;
+			border-top: 1px solid var(--pico-muted-border-color);
+			background: var(--pico-card-background-color);
+		}
 		.settings-save-bar .note {
 			margin-right: auto;
 			color: var(--pico-muted-color);
@@ -609,6 +625,7 @@
 			.webui-settings-mobile-nav { display: flex; }
 			.webui-settings-layout { padding: 0.5rem; }
 			.settings-card { padding: 0.8rem; }
+			.settings-panel-save { margin: 0.75rem -0.8rem 0; padding: 0.7rem 0.8rem; }
 			.settings-card .webui-form-row select,
 			.settings-card .webui-form-row input[type="text"],
 			.settings-card .webui-form-row input[type="number"],

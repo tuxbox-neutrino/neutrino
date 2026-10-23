@@ -251,8 +251,11 @@ function makeFileControl(inputId, accept) {
 // (ExtConfig, Erweiterungen, WoL) — Optik wie die zentrale Save-Leiste.
 // display:flex inline, weil .webui-row-actions nur innerhalb von
 // .webui-form-row automatisch flext (hier steht die Zeile solo)
+/* A panel's own save (the extension list, an extension's settings, WoL):
+   a row at the foot of the panel that stays in view while the panel
+   scrolls, as the save bar of the settings does */
 function makePanelSaveRow(onclick, label) {
-	return '<div class="webui-row-actions" style="display:flex;gap:0.5rem;justify-content:flex-end;margin-top:0.6rem">' +
+	return '<div class="settings-panel-save">' +
 		'<button type="button" class="webui-btn primary" onclick="' + onclick + '">' +
 		SAVE_ICON + (label || webuiLH('bqe.save', 'Save')) + '</button></div>';
 }
