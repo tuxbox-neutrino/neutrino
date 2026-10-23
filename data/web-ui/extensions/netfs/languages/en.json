@@ -40,5 +40,7 @@
 	"netfs.umount_text": "Every network filesystem the box has mounted is unmounted, also one this file does not name. A recording on one loses it.",
 	"netfs.umount_title": "Unmount all network filesystems?",
 	"netfs.unreadable": "%s lines of the file could not be read. Saving an entry keeps the readable entries and drops those lines.",
-	"netfs.user": "User"
+	"netfs.user": "User",
+	"netfs.tip_mount_all": "Mount every entry of the file now",
+	"netfs.tip_umount_all": "Unmount every entry of the file now"
 }

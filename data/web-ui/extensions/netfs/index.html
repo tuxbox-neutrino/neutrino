@@ -172,8 +172,8 @@
 		<div class="netfs-bar">
 			<span><span data-l="netfs.file">File</span>: <code id="netfs-file"></code></span>
 			<span class="webui-row-actions" id="netfs-fstab-actions">
-				<button type="button" class="webui-btn" onclick="netfsMountAll(this)" data-l="netfs.mount_all">Mount all</button>
-				<button type="button" class="webui-btn" onclick="netfsUnmountAll(this)" data-l="netfs.umount_all">Unmount all</button>
+				<button title="Mount every entry of the file now" data-l-title="netfs.tip_mount_all" type="button" class="webui-btn" onclick="netfsMountAll(this)" data-l="netfs.mount_all">Mount all</button>
+				<button title="Unmount every entry of the file now" data-l-title="netfs.tip_umount_all" type="button" class="webui-btn" onclick="netfsUnmountAll(this)" data-l="netfs.umount_all">Unmount all</button>
 			</span>
 			<span class="webui-row-actions" id="netfs-automount-actions" hidden>
 				<button type="button" class="webui-btn" onclick="netfsReload(this)" data-l="netfs.reload">Restart the automounter</button>

@@ -40,5 +40,7 @@
 	"netfs.umount_text": "Jedes Netzwerk-Dateisystem, das die Box eingehängt hat, wird ausgehängt, auch eines, das diese Datei nicht nennt. Eine Aufnahme darauf verliert es.",
 	"netfs.umount_title": "Alle Netzwerk-Dateisysteme aushängen?",
 	"netfs.unreadable": "%s Zeilen der Datei konnten nicht gelesen werden. Beim Speichern eines Eintrags bleiben die lesbaren Einträge, diese Zeilen entfallen.",
-	"netfs.user": "Benutzer"
+	"netfs.user": "Benutzer",
+	"netfs.tip_mount_all": "Alle Einträge der Datei jetzt einhängen",
+	"netfs.tip_umount_all": "Alle Einträge der Datei jetzt aushängen"
 }
