@@ -27,5 +27,6 @@
 	"si.system": "System",
 	"si.temperature": "Temperature",
 	"si.total": "total",
-	"si.uptime": "Uptime"
+	"si.uptime": "Uptime",
+	"sys.tip_reload": "Read the figures of the box again"
 }

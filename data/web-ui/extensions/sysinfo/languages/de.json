@@ -27,5 +27,6 @@
 	"si.system": "System",
 	"si.temperature": "Temperatur",
 	"si.total": "gesamt",
-	"si.uptime": "Laufzeit"
+	"si.uptime": "Laufzeit",
+	"sys.tip_reload": "Die Angaben der Box neu lesen"
 }
