@@ -722,6 +722,13 @@ async function webuiShowEpgModal(channelId, channelName, opts) {
 	modal.querySelector('.webui-epg-modal').setAttribute('aria-labelledby', 'webuiEpgModalChannel webuiEpgCurrentTitle');
 
 	webuiEpgModalUpdateRecBtn(false);
+	// Stop recording while the box records the channel: for the programme
+	// running now, and where the box has no guide for the channel
+	const recorded = function() {
+		webuiCheckRecordingForChannel(channelId).then(function(rec) {
+			if (token === _webuiEpgModalToken) webuiEpgModalUpdateRecBtn(!!rec);
+		});
+	};
 
 	try {
 		const ev = opts.event || await _webuiV1Maybe('/epg/current', {channel: channelId});
@@ -729,6 +736,7 @@ async function webuiShowEpgModal(channelId, channelName, opts) {
 		if (!ev) {
 			titleEl.textContent = webuiL('epg.nodata', 'No EPG data available');
 			timeEl.textContent = '';
+			recorded();
 			return;
 		}
 		webuiEpgModalEvent = ev;
@@ -746,9 +754,7 @@ async function webuiShowEpgModal(channelId, channelName, opts) {
 			document.getElementById('webuiEpgRunText').textContent = [
 				webuiL('epg.running_since', 'on since %s').replace('%s', webuiClock(ev.start)),
 				webuiL('dash.left', '%s left').replace('%s', _webuiEpgMinutes(end - now))].join(' · ');
-			webuiCheckRecordingForChannel(channelId).then(function(rec) {
-				if (token === _webuiEpgModalToken) webuiEpgModalUpdateRecBtn(!!rec);
-			});
+			recorded();
 		} else if (ev.start > now) {
 			document.getElementById('webuiEpgZapTimerBtn').hidden = false;
 		} else {
