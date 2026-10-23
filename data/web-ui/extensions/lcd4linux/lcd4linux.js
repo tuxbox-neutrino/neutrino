@@ -1,5 +1,6 @@
 // The script of the LCD4Linux page (extension lcd4linux): the picture
-// LCD4Linux draws of the front display, taken again every few seconds.
+// LCD4Linux draws of the front display, taken again every few seconds, on a
+// page of the interface or full screen.
 
 // seconds between two pictures: the interface's screenshot timeout where it
 // names one of at least a second, else 15
@@ -47,6 +48,16 @@ async function lcdShow() {
 		lcdShown(false);
 }
 
+// The picture alone on the whole screen, and back; a browser without full
+// screen keeps its page
+function lcdFullscreen(on) {
+	var stage = document.getElementById('lcd-stage');
+	if (on && stage.requestFullscreen)
+		stage.requestFullscreen().catch(function() { /* the page stays */ });
+	else if (!on && document.fullscreenElement && document.exitFullscreen)
+		document.exitFullscreen();
+}
+
 document.getElementById('lcd-picture').addEventListener('load', function() { lcdShown(true); });
 document.getElementById('lcd-picture').addEventListener('error', function() {
 	lcdShown(false, webuiL('lcd.no_picture', 'The picture of the display could not be read.'));
@@ -54,6 +65,8 @@ document.getElementById('lcd-picture').addEventListener('error', function() {
 
 (async function() {
 	await webuiExtTexts('lcd4linux');
+	if (!document.getElementById('lcd-stage').requestFullscreen)
+		document.getElementById('lcd-full').hidden = true;
 	document.getElementById('lcd-picture').alt = webuiL('lcd.alt', 'The front display as LCD4Linux draws it');
 	try {
 		var r = await lcdRead('/webui/settings');

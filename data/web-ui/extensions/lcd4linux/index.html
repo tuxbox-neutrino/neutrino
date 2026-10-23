@@ -1,57 +1,103 @@
 <!DOCTYPE html>
-<html lang="en" class="webui-i18n-pending">
+<html lang="en" data-theme="dark" class="webui-i18n-pending">
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>LCD4Linux</title>
+	<title data-l="manifest.name" data-l-prefix="Neutrino-Web-UI - ">Neutrino-Web-UI - LCD4Linux</title>
 	<link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png">
 	<link rel="icon" type="image/png" href="/favicon/favicon-32x32.png" sizes="32x32">
 	<link rel="icon" type="image/png" href="/favicon/favicon-16x16.png" sizes="16x16">
 	<link rel="mask-icon" href="/favicon/safari-pinned-tab.svg" color="#212121">
 	<link rel="manifest" href="webapp.json">
 	<meta name="theme-color" content="#212121">
+	<script>
+		// Apply the stored theme before first paint: webui-header.js runs
+		// too late, and some pages never load it at all.
+		try { var m = localStorage.getItem('webui-mode'); if (m !== 'light' && m !== 'dark') m = (localStorage.getItem('webui-theme') || localStorage.getItem('yweb-theme')) === 'light' || matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'; document.documentElement.setAttribute('data-theme', m); } catch (e) {}
+	</script>
+	<link rel="stylesheet" href="/css/pico.min.css">
+	<link rel="stylesheet" href="/css/webui.css">
 	<style>
-		/* a screen of its own, for a tablet beside the box: the picture alone,
-		   in the middle, on the dark of the display */
-		html, body {
-			margin: 0;
-			padding: 0;
-			height: 100%;
+		/* A page of the interface: the head and its way back, the picture
+		   of the front display in a card on the dark of the display. Full
+		   screen (for a tablet beside the box) shows the picture alone,
+		   Escape or the button leaves it again. */
+		.lcd-wrap {
+			padding: 1rem;
 		}
 
-		body {
-			background-color: #212121;
+		.lcd-card .webui-card-header {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			gap: 0.5rem;
+		}
+
+		.lcd-stage {
+			display: grid;
+			place-items: center;
+			min-height: min(60vh, 480px);
+			padding: 1rem;
+			background: #212121;
 			color: #bdbdbd;
-			font-family: system-ui, sans-serif;
 		}
 
-		.lcd {
-			position: absolute;
-			left: 50%;
-			top: 50%;
-			transform: translate(-50%, -50%);
-			max-width: 100vw;
-			max-height: 100vh;
-			text-align: center;
-		}
-
-		/* no Pico on this page: hidden has to win over a display of its own */
-		[hidden] {
-			display: none !important;
-		}
-
-		.lcd img {
+		.lcd-stage img {
 			display: block;
+			max-width: 100%;
+			max-height: calc(100vh - 220px);
+		}
+
+		.lcd-stage:fullscreen {
+			min-height: 100vh;
+			padding: 0;
+		}
+
+		.lcd-stage:fullscreen img {
 			max-width: 100vw;
 			max-height: 100vh;
+		}
+
+		/* the button out of full screen, on the picture's dark */
+		.lcd-leave {
+			display: none;
+			position: fixed;
+			top: 0.75rem;
+			right: 0.75rem;
+		}
+
+		.lcd-stage:fullscreen .lcd-leave {
+			display: inline-flex;
+		}
+
+		/* no Pico on the picture's text: hidden has to win over a display of its own */
+		.lcd-stage [hidden] {
+			display: none !important;
 		}
 	</style>
 </head>
 <body>
-	<div class="lcd">
-		<img id="lcd-picture" alt="The front display as LCD4Linux draws it" hidden>
-		<div id="lcd-off" role="status" hidden>LCD4Linux is not drawing on this box.</div>
-	</div>
+	<div class="webui-header-wrapper" data-page="ext-lcd4linux"></div>
+	<div class="webui-header-spacer"></div>
+
+	<main class="lcd-wrap">
+		<article class="webui-card lcd-card">
+			<header class="webui-card-header">
+				<h3 class="webui-card-title" data-l="manifest.name">LCD4Linux</h3>
+				<button type="button" class="webui-btn" id="lcd-full" onclick="lcdFullscreen(true)" title="The picture alone, full screen" data-l-title="lcd.full_title">
+					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+						<path d="M8 3H5a2 2 0 0 0-2 2v3M21 8V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3M16 21h3a2 2 0 0 0 2-2v-3"/>
+					</svg>
+					<span data-l="lcd.full">Full screen</span>
+				</button>
+			</header>
+			<div class="lcd-stage" id="lcd-stage">
+				<img id="lcd-picture" alt="The front display as LCD4Linux draws it" hidden>
+				<div id="lcd-off" role="status" hidden>LCD4Linux is not drawing on this box.</div>
+				<button type="button" class="webui-btn lcd-leave" onclick="lcdFullscreen(false)" data-l="lcd.leave">Leave full screen</button>
+			</div>
+		</article>
+	</main>
 
 	<script src="/js/webui-i18n.js"></script>
 	<script src="/js/webui-header.js"></script>

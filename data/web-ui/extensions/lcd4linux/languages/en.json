@@ -4,5 +4,8 @@
 	"lcd.off": "LCD4Linux is not drawing on this box.",
 	"lcd.alt": "The front display as LCD4Linux draws it",
 	"lcd.no_answer": "The box does not answer.",
-	"lcd.no_picture": "The picture of the display could not be read."
+	"lcd.no_picture": "The picture of the display could not be read.",
+	"lcd.full": "Full screen",
+	"lcd.full_title": "The picture alone, full screen",
+	"lcd.leave": "Leave full screen"
 }

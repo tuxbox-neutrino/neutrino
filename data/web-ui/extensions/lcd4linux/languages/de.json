@@ -4,5 +4,8 @@
 	"lcd.off": "LCD4Linux zeichnet auf dieser Box nicht.",
 	"lcd.alt": "Das Frontdisplay, wie LCD4Linux es zeichnet",
 	"lcd.no_answer": "Die Box antwortet nicht.",
-	"lcd.no_picture": "Das Bild des Displays ließ sich nicht lesen."
+	"lcd.no_picture": "Das Bild des Displays ließ sich nicht lesen.",
+	"lcd.full": "Vollbild",
+	"lcd.full_title": "Nur das Bild, auf dem ganzen Bildschirm",
+	"lcd.leave": "Vollbild verlassen"
 }
