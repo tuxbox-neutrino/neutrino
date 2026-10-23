@@ -432,6 +432,22 @@ function webuiV1Zap(channelId) {
 	});
 }
 
+// Plays a finished recording on the TV through POST
+// /api/v1/recordings/archive/{id}/play, asking as above, and says so.
+async function webuiPlayRecording(id) {
+	try {
+		const ok = await webuiV1Lifting('/recordings/archive/' + encodeURIComponent(id) + '/play', {}, {
+			title: webuiL('media.ask_title', 'Play recording'),
+			ok: webuiL('media.play', 'Play on TV'),
+			stop: webuiL('media.ask_stop', 'The player is playing a file. Stop it and play this recording?'),
+			wake: webuiL('media.ask_wake', 'The box is in standby. Switch it on and play this recording?')
+		});
+		if (ok) webuiShowToast(webuiL('media.played', 'Playback started'));
+	} catch (e) {
+		webuiToastError('', e);
+	}
+}
+
 // A yes or no in a sheet (webui-dom.js); without the helper layer the
 // browser's own confirm.
 function _webuiV1Ask(text, title, ok) {

@@ -218,19 +218,7 @@ async function showDetail(id) {
 }
 
 // On the TV: a file the player plays, or a box in standby, is asked about first
-async function play(id) {
-	try {
-		const ok = await webuiV1Lifting(archive(id) + '/play', {}, {
-			title: webuiL('media.ask_title', 'Play recording'),
-			ok: webuiL('media.play', 'Play on TV'),
-			stop: webuiL('media.ask_stop', 'The player is playing a file. Stop it and play this recording?'),
-			wake: webuiL('media.ask_wake', 'The box is in standby. Switch it on and play this recording?')
-		});
-		if (ok) webuiShowToast(webuiL('media.played', 'Playback started'));
-	} catch (e) {
-		webuiToastError('', e);
-	}
-}
+const play = webuiPlayRecording;
 
 // Delete with a question; the box says why it cannot (recording,
 // playing, a share it may not write)
