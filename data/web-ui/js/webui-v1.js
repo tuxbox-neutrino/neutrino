@@ -691,10 +691,15 @@ async function webuiShowEpgModal(channelId, channelName, opts) {
 
 	channelEl.textContent = webuiEpgModalChannelName;
 	numberEl.textContent = opts.number > 0 ? webuiL('epg.number', 'Programme %s').replace('%s', opts.number) : '';
-	await webuiLogosOffered(channelId);
-	if (token !== _webuiEpgModalToken) return;
-	document.getElementById('webuiEpgModalLogo').replaceChildren(
-		webuiChannelLogo(channelId, webuiEpgModalChannelName.slice(0, 12), 'webui-epg-modal-logo'));
+	// the logo once the box has said whether it hands logos out (asked
+	// once a page); the dialog opens without waiting for that, an empty
+	// tile of the logo's size keeping its place
+	const logo = document.getElementById('webuiEpgModalLogo');
+	logo.replaceChildren(webuiEl('span', {className: 'webui-channel-logo webui-epg-modal-logo', attrs: {'aria-hidden': 'true'}}));
+	webuiLogosOffered(channelId).then(function() {
+		if (token === _webuiEpgModalToken)
+			logo.replaceChildren(webuiChannelLogo(channelId, webuiEpgModalChannelName.slice(0, 12), 'webui-epg-modal-logo'));
+	});
 	titleEl.textContent = webuiL('msg.loading', 'Loading...');
 	timeEl.textContent = '--:-- – --:--';
 	subEl.textContent = '';
