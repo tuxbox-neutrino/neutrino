@@ -86,6 +86,11 @@
 			cursor: pointer;
 		}
 
+		.netfs-slot-head:is(:hover, :focus, :active) {
+			/* Pico's button colour on hover, focus and press outweighs the reset above */
+			--pico-color: inherit;
+		}
+
 		.netfs-slot-head:hover {
 			background: rgba(255, 255, 255, 0.03);
 		}
