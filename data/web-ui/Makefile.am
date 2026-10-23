@@ -26,8 +26,22 @@ install_DATA = \
 	favicon.ico \
 	index.html \
 	wizard.html \
-	robots.txt \
-	version.txt
+	robots.txt
+
+# The interface's version, the package's; a fork's own name and version,
+# and the Neutrino-Web-UI it is based on, where configure was given them.
+# Written at every build, so it follows the version line without a hand.
+nodist_install_DATA = version.txt
+
+version.txt: $(top_builddir)/config.status
+	$(AM_V_GEN){ \
+		name='$(WEBUI_NAME)'; own='$(WEBUI_VERSION)'; \
+		echo "version=$${own:-$(PACKAGE_VERSION)}"; \
+		if test -n "$$name"; then echo "name=$$name"; fi; \
+		if test -n "$$name$$own"; then echo "base=$(PACKAGE_VERSION)"; fi; \
+	} > $@
+
+CLEANFILES = version.txt
 
 install-data-hook:
 	@# what an earlier version installed and this one no longer has

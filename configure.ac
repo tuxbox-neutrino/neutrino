@@ -16,6 +16,19 @@ define(ver_date, m4_esyscmd([
 ]))
 
 AC_INIT(Tuxbox-Neutrino,ver_major.ver_minor.ver_micro,,,[https://github.com/tuxbox-neutrino/neutrino])
+
+# The web interface carries the package's version (data/web-ui/version.txt,
+# written by the build). A fork that ships it under a name and version of
+# its own gives them here; the interface then names both and says which
+# version of Neutrino-Web-UI it is based on.
+AC_ARG_WITH([webui-name],
+	AS_HELP_STRING([--with-webui-name=NAME], [the name the web interface shows, for a fork (default Neutrino-Web-UI)]),
+	[WEBUI_NAME="$withval"], [WEBUI_NAME=""])
+AC_ARG_WITH([webui-version],
+	AS_HELP_STRING([--with-webui-version=VERSION], [the web interface's version, for a fork (default the package's)]),
+	[WEBUI_VERSION="$withval"], [WEBUI_VERSION=""])
+AC_SUBST(WEBUI_NAME)
+AC_SUBST(WEBUI_VERSION)
 AM_INIT_AUTOMAKE([nostdinc foreign])
 m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES])
 
