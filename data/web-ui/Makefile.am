@@ -2,7 +2,6 @@ SUBDIRS = \
 	css \
 	favicon \
 	img \
-	info \
 	js \
 	languages \
 	lcd4linux
