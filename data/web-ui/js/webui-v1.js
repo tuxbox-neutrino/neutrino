@@ -70,7 +70,18 @@ async function webuiV1Session() {
 	return false;
 }
 
-function _webuiV1Send(method, path, opts) {
+/* The token a change has to carry, read before the page's first change goes
+   out: without it every first change of a page was refused (403) and sent
+   again, a failed request in the browser's console each time. A later 403
+   still reads it again (a session that timed out, or one opened since). */
+var _webuiV1FirstRead = null;
+
+async function _webuiV1Send(method, path, opts) {
+	if (method !== 'GET' && !_webuiV1Csrf) {
+		if (!_webuiV1FirstRead)
+			_webuiV1FirstRead = webuiV1Session();
+		await _webuiV1FirstRead;
+	}
 	var headers = {};
 	var init = {method: method, credentials: 'same-origin', cache: 'no-store', headers: headers};
 	if (opts.raw !== undefined) {
