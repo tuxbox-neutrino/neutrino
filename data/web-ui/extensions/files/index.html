@@ -209,6 +209,11 @@
 			text-decoration: underline;
 			cursor: pointer;
 		}
+
+		.fm-link:is(:hover, :focus, :active) {
+			/* Pico's button colour on hover, focus and press outweighs the reset above */
+			--pico-color: inherit;
+		}
 		.fm-link:focus-visible {
 			outline: 2px solid var(--webui-accent);
 			outline-offset: 2px;
