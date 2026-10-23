@@ -16,5 +16,6 @@ install_DATA = \
 	webui-dom.js \
 	webui-header.js \
 	webui-i18n.js \
+	webui-signin.js \
 	webui-v1.js \
 	wizard.js
