@@ -370,7 +370,7 @@ void CFrontend::getFEInfo(void)
 			break;
 		case FE_OFDM:
 			deliverySystemMask |= DVB_T;
-#ifdef SYS_DVBT2
+#if _HAVE_DVB57
 			if (info.caps & FE_CAN_2G_MODULATION)
 				deliverySystemMask |= DVB_T2;
 #endif
