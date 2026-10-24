@@ -881,7 +881,9 @@ void CRCInput::getMsg_us(neutrino_msg_t * msg, neutrino_msg_data_t * data, uint6
 				p= new unsigned char[ emsg.dataSize + 1 ];
 				if ( p!=NULL )
 				{
-					read_bytes= recv(fd_eventclient, p, emsg.dataSize, MSG_WAITALL);
+					// an event without a body is the header alone; a read of nothing
+					// can still fail once the sender has closed
+					read_bytes = emsg.dataSize ? recv(fd_eventclient, p, emsg.dataSize, MSG_WAITALL) : 0;
 					//printf("[neutrino] eventbody read %d bytes - initiator %x\n", read_bytes, emsg.initiatorID );
 					// a text whose sender left the end off ends here all the same
 					p[emsg.dataSize] = 0;
