@@ -62,6 +62,7 @@ bool CLuaMenuChangeObserver::changeNotify(lua_State *L, const std::string &luaAc
 		DisplayErrorMessage(isString ? lua_tostring(L, -1):null, "Lua Script Error:");
 	}
 	double res = lua_isnumber(L, -1) ? lua_tonumber(L, -1) : 0;
+	lua_pop(L, 1);
 	return (((int)res == menu_return::RETURN_REPAINT) || ((int)res == menu_return::RETURN_EXIT_REPAINT));
 }
 
@@ -250,7 +251,7 @@ int CLuaMenuStringinput::exec(CMenuTarget* /*parent*/, const std::string & /*act
 		}
 		if (lua_isnumber(L, -1))
 			res = (int) lua_tonumber(L, -1);
-		lua_pop(L, 2);
+		lua_pop(L, 1);
 	}
 	return res;
 }
@@ -304,7 +305,7 @@ int CLuaMenuKeyboardinput::exec(CMenuTarget* /*parent*/, const std::string & /*a
 		}
 		if (lua_isnumber(L, -1))
 			res = (int) lua_tonumber(L, -1);
-		lua_pop(L, 2);
+		lua_pop(L, 1);
 	}
 	return res;
 }
