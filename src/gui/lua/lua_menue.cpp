@@ -255,6 +255,12 @@ int CLuaMenuStringinput::exec(CMenuTarget* /*parent*/, const std::string & /*act
 	return res;
 }
 
+/* What the row of a masked entry shows: whether a value is set, not the value. */
+static std::string maskedText(const std::string &value)
+{
+	return value.empty() ? "" : "********";
+}
+
 CLuaMenuKeyboardinput::CLuaMenuKeyboardinput(lua_State *_L, std::string _luaAction, std::string _luaId, const char *_name, std::string *_value, int _size, CChangeObserver *_observ, const char *_icon, std::string _help, std::string _help2, bool _masked) : CLuaMenuForwarder(_L, _luaAction, _luaId)
 {
 	Init(_name, _value, _size, _observ, _icon, _help, _help2, _masked);
@@ -266,6 +272,7 @@ void CLuaMenuKeyboardinput::Init(const char *_name, std::string *_value, int _si
 	value  = _value;
 	size   = _size;
 	masked = _masked;
+	row    = NULL;
 	icon   = _icon;
 	observ = _observ;
 	help   = _help;
@@ -280,6 +287,8 @@ int CLuaMenuKeyboardinput::exec(CMenuTarget* /*parent*/, const std::string & /*a
 	i->setMasked(masked);
 	i->exec(NULL, "");
 	delete i;
+	if (masked && row)
+		row->setOption(maskedText(*value));
 	if (!luaAction.empty()) {
 		lua_pushglobaltable(L);
 		lua_getfield(L, -1, luaAction.c_str());
@@ -510,11 +519,20 @@ int CLuaInstMenu::MenuAddItem(lua_State *L)
 			lua_Integer size = 0;	tableLookup(L, "size", size);
 			std::string help = "";	tableLookup(L, "help", help);
 			std::string help2 = "";	tableLookup(L, "help2", help2);
-			lua_Integer masked = 0;	tableLookup(L, "masked", masked);
-			CLuaMenuKeyboardinput *keyboardinput = new CLuaMenuKeyboardinput(L, action, id, b->name.c_str(), &b->str_val, size, D->observ, icon, help, help2, masked != 0);
-			mi = new CMenuForwarder(b->name, enabled, b->str_val, keyboardinput, NULL/*ActionKey*/, directkey, icon, right_icon);
-			if (masked)
-				static_cast<CMenuForwarder *>(mi)->setOption("********");
+			// masked=1, or masked=true
+			lua_Integer masked_n = 0;
+			b->masked = false;
+			if (tableLookup(L, "masked", masked_n))
+				b->masked = masked_n != 0;
+			else
+				tableLookup(L, "masked", b->masked);
+			CLuaMenuKeyboardinput *keyboardinput = new CLuaMenuKeyboardinput(L, action, id, b->name.c_str(), &b->str_val, size, D->observ, icon, help, help2, b->masked);
+			CMenuForwarder *row = new CMenuForwarder(b->name, enabled, b->str_val, keyboardinput, NULL/*ActionKey*/, directkey, icon, right_icon);
+			if (b->masked) {
+				row->setOption(maskedText(b->str_val));
+				keyboardinput->setRow(row);
+			}
+			mi = row;
 			D->targets.push_back(keyboardinput);
 		} else if (type == "filebrowser") {
 			b->str_val = value;
@@ -665,7 +683,8 @@ int CLuaInstMenu::MenuSetValue(lua_State *L)
 	 * type. Ask the item itself which family it belongs to.
 	 */
 	if (!item->mi->isMenueOptionChooser()) {
-		static_cast<CMenuForwarder*>(item->mi)->setOption(value);
+		// a masked entry shows whether the value given is empty, never the value
+		static_cast<CMenuForwarder*>(item->mi)->setOption(item->masked ? maskedText(value) : value);
 		return 0;
 	}
 

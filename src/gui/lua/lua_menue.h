@@ -32,6 +32,7 @@ struct CLuaMenuItem {
 	std::string name;
 	std::string type;			/* item type as named by the script */
 	std::vector<luamenu_option_t> options;	/* "chooser" only */
+	bool masked;				/* "keyboardinput" only: its value is never shown */
 	CMenuItem *mi;
 };
 
@@ -108,11 +109,14 @@ class CLuaMenuKeyboardinput : public CLuaMenuForwarder
 		const char *icon;
 		int size;
 		bool masked;
+		CMenuForwarder *row;
 		CChangeObserver *observ;
 		std::string help, help2;
 		void Init(const char *_name, std::string *_value, int _size, CChangeObserver *_observ, const char *_icon, std::string _help, std::string _help2, bool _masked);
 	public:
 		CLuaMenuKeyboardinput(lua_State *_L, std::string _luaAction, std::string _luaId, const char *_name, std::string *_value, int _size, CChangeObserver *_observ, const char *_icon, std::string _help, std::string _help2, bool _masked = false);
+		// the menu row of a masked entry, told after each input whether a value is set
+		void setRow(CMenuForwarder *_row) { row = _row; }
 		int exec(CMenuTarget* parent=NULL, const std::string & actionKey="");
 };
 
