@@ -235,6 +235,7 @@ var ZAP_ICON = sIcon('<polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
 var MOUNT_ICON = sIcon('<line x1="22" y1="12" x2="2" y2="12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/><line x1="6" y1="16" x2="6.01" y2="16"/><line x1="10" y1="16" x2="10.01" y2="16"/>');
 var EJECT_ICON = sIcon('<path d="M12 5l7 9H5l7-9z"/><line x1="5" y1="19" x2="19" y2="19"/>');
 var RESTORE_ICON = sIcon('<polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/>');
+var OPEN_ICON = sIcon('<path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>');
 var TRASH_ICON = sIcon('<polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>');
 
 // Markup-Helfer: gestyltes Datei-Control (.webui-file aus webui.css);
@@ -681,7 +682,11 @@ async function loadExtensionsPanel() {
 			html += '<div class="ext-name">' + escapeHtml(m.name) +
 				(upd ? '<span class="ext-badge">v' + escapeHtml(upd.version) + '</span>' : '') +
 				' <small style="color:var(--pico-muted-color)">v' + escapeHtml(m.version || '?') +
-				(m.url ? ' — <a href="' + escapeHtml(m.url) + '">' + escapeHtml(m.entry) + '</a>' : ' — ' + webuiLH('set.ext_settings_only', 'settings only')) + '</small></div>' +
+				(m.url ? '' : ' — ' + webuiLH('set.ext_settings_only', 'settings only')) + '</small>' +
+				// its page by a symbol, not by the name of its file
+				(m.url ? '<a class="ext-open" href="' + escapeHtml(m.url) + '" title="' + webuiLH('set.ext_open', 'Open its page') + '"' +
+					' aria-label="' + webuiLH('set.ext_open', 'Open its page') + ': ' + escapeHtml(m.name) + '">' +
+					OPEN_ICON.replace('<svg ', '<svg aria-hidden="true" focusable="false" ') + '</a>' : '') + '</div>' +
 				'<div><select id="extslot_' + m.dir + '" aria-label="' + webuiLH('set.ext_col_place', 'Place') + ': ' + escapeHtml(m.name) + '"' +
 				' title="' + webuiLH('tip.ext_place', 'Where the extension shows: an area of the navigation, a tile of the dashboard, or its address only') + '">' +
 				extPlaces().map(function(pl) {

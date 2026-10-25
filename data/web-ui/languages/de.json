@@ -517,6 +517,7 @@
 	"set.ext_none": "Keine Erweiterungen gefunden",
 	"set.ext_found": "Gefundene Erweiterungen",
 	"set.ext_settings_only": "nur Einstellungen",
+	"set.ext_open": "Seite öffnen",
 	"set.ext_saved": "Gespeichert - die Navigation zeigt es gleich, das Dashboard beim nächsten Öffnen",
 	"set.ext_col_action": "Aktion",
 	"set.ext_action_done": "Ausgeführt",

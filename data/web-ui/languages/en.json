@@ -517,6 +517,7 @@
 	"set.ext_none": "No extensions found",
 	"set.ext_found": "Discovered extensions",
 	"set.ext_settings_only": "settings only",
+	"set.ext_open": "Open its page",
 	"set.ext_saved": "Saved - the navigation shows it at once, the dashboard the next time it opens",
 	"set.ext_col_action": "Action",
 	"set.ext_action_done": "Done",

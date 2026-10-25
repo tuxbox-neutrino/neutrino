@@ -639,6 +639,19 @@
 			padding: 0.25rem 0.5rem;
 			font-size: var(--webui-font-xs);
 		}
+		/* the extension's page, opened from its row: a symbol with a
+		   24px target around it */
+		.ext-grid .ext-open {
+			display: inline-flex;
+			vertical-align: middle;
+			padding: 5px;
+			margin: -5px -5px -5px 0.1rem;
+			color: var(--webui-accent);
+			border-radius: var(--webui-radius);
+		}
+		.ext-grid .ext-open:hover {
+			background: var(--webui-accent-light);
+		}
 		/* update badge next to the extension name after a manual check */
 		.ext-badge {
 			display: inline-block;
