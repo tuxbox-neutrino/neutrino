@@ -92,6 +92,17 @@
 		}
 		/* channel edits not applied yet, marked on the switch as well */
 		#bqeViews button.bqe-unsaved::after { content: ' \25CF'; color: var(--webui-accent); }
+		/* On a phone Apply and Discard stand in the toolbar, which every one
+		   of the three views shows, instead of in the head of the channel
+		   list, which only one of them shows; they take the place of the
+		   "unsaved changes" mark, which the switch carries as well. */
+		.bqe-acts { display: none; }
+		@media (max-width: 760px) {
+			.bqe-dirty.on { display: none; }
+			.bqe-acts.on { display: flex; gap: 0.5rem; width: 100%; }
+			.bqe-acts .webui-btn { flex: 1 1 0; justify-content: center; min-height: 40px; margin: 0; }
+			#bqeApplyBtn, #bqeDiscardBtn { display: none; }
+		}
 	</style>
 </head>
 <body>
@@ -123,6 +134,14 @@
 				</div>
 			</span>
 			<span class="bqe-dirty" id="bqeDirty">&#9679; <span data-l="bqe.unsaved">unsaved changes</span></span>
+			<span class="bqe-acts" id="bqeActs">
+				<button type="button" class="webui-btn" id="bqeActsDiscard" onclick="bqeDiscard()" title="Discard the channel changes not applied yet" data-l-title="bqe.discard_title" disabled data-l="bqe.discard">Discard</button>
+				<button type="button" class="webui-btn primary" id="bqeActsApply" onclick="bqeApplyChannels()" title="Take over the channel list of this bouquet" data-l-title="bqe.apply_title" disabled>
+					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+						<polyline points="20 6 9 17 4 12"/>
+					</svg>
+					<span data-l="bqe.apply">Apply</span></button>
+			</span>
 		</div>
 
 		<div class="bqe-stale" id="bqeStale" role="status" hidden>

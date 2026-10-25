@@ -109,6 +109,17 @@ function setDirty(d) {
 	// Uebernehmen hervorheben, solange die Arbeitskopie abweicht
 	document.getElementById('bqeApplyBtn').classList.toggle('attn', d);
 	document.getElementById('bqeDiscardBtn').disabled = !d;
+	document.getElementById('bqeActsDiscard').disabled = !d;
+	// The phone's pair goes with the changes, and a focus in it goes to the
+	// view shown; so does one the pair let drop to the page, which a button
+	// does when it is switched off while Apply runs.
+	var acts = document.getElementById('bqeActs');
+	var at = document.activeElement;
+	var had = !d && bqePhone.matches && acts.classList.contains('on') &&
+		(!at || at === document.body || acts.contains(at));
+	acts.classList.toggle('on', d);
+	if (had)
+		document.querySelector('#bqeViews [aria-pressed="true"]').focus();
 	bqeUpdateApply();
 }
 
@@ -116,9 +127,11 @@ function setDirty(d) {
 // bouquet in the shown mode and changed since, and one at a time.
 function bqeUpdateApply() {
 	var shared = !!(bqeSel && bqeShared(bqeSel.name));
-	var apply = document.getElementById('bqeApplyBtn');
-	apply.disabled = shared || bqeApplying || !bqeChanDirty || !bqeChanReady();
-	apply.title = shared ? webuiL('bqe.shared', 'More than one bouquet carries this name - rename one of them on the box first') : webuiL('bqe.apply_title', 'Take over the channel list of this bouquet');
+	['bqeApplyBtn', 'bqeActsApply'].forEach(function(id) {
+		var apply = document.getElementById(id);
+		apply.disabled = shared || bqeApplying || !bqeChanDirty || !bqeChanReady();
+		apply.title = shared ? webuiL('bqe.shared', 'More than one bouquet carries this name - rename one of them on the box first') : webuiL('bqe.apply_title', 'Take over the channel list of this bouquet');
+	});
 }
 
 function bqeShowStale(on) {
