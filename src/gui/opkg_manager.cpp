@@ -870,8 +870,8 @@ int COPKGManager::initMenu()
 		}
 	}
 	/* remove the package-generated files... */
-	unlink("/tmp/.restart");
-	unlink("/tmp/.force_restart");
+	unlink("/tmp/.restart_neutrino");
+	unlink("/tmp/.force_restart_neutrino");
 	unlink("/tmp/.reboot");
 
 	delete menu;
