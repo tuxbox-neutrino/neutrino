@@ -94,3 +94,5 @@ CHintBox::~CHintBox() {}
 
 void netGetHostname(std::string &);
 void netGetHostname(std::string &) {}
+bool netDefaultRoute(std::string &, std::string &);
+bool netDefaultRoute(std::string &, std::string &) { return false; }
