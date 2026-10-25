@@ -517,6 +517,7 @@ function webuiGetHeaderHTML(activePage) {
 		<h1 class="webui-page-title" id="webui-page-title"></h1>
 
 		<div class="webui-header-right">
+			<span class="webui-hostname" id="webui-hostname"></span>
 			<span class="webui-clock" id="webui-clock">--:--</span>
 			<button type="button" class="webui-theme-toggle webui-lang-btn" id="webui-lang-btn" onclick="webuiToggleLangMenu(event)" title="${webuiLH('lang.title', 'Language')}" aria-label="${webuiLH('lang.title', 'Language')}" aria-haspopup="true" aria-expanded="false">
 				<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true" focusable="false">
@@ -893,14 +894,24 @@ function webuiSystemInfoOnce() {
 	return _webuiSystemInfoOnce;
 }
 
-// The box's name and the interface's version under the interface's name
-// in the side bar; a fork's own name in its place
+// The box's name in the header beside the clock, and with the interface's
+// version under the interface's name in the side bar; a fork's own name in
+// its place
 function webuiLoadHostname() {
 	const el = document.getElementById('webui-side-host');
-	if (!el) return;
+	const head = document.getElementById('webui-hostname');
+	if (!el && !head) return;
 	webuiSystemInfoOnce()
 		.then(data => {
-			const host = (data && (data.hostname || (data.box && data.box.name))) || 'neutrino';
+			const named = data && (data.hostname || (data.box && data.box.name));
+			const host = named || 'neutrino';
+			// the header names the box only by a name the box gave
+			if (head && named) {
+				head.textContent = named;
+				// the whole name where a narrow header cuts it short
+				head.title = named;
+			}
+			if (!el) return;
 			el.textContent = host;
 			return webuiVersions(data).then(v => {
 				if (v.webui) el.textContent = host + ' · ' + v.webui;
@@ -908,7 +919,7 @@ function webuiLoadHostname() {
 				if (name && v.webui_name) name.textContent = v.webui_name;
 			});
 		})
-		.catch(() => { if (!el.textContent) el.textContent = 'neutrino'; });
+		.catch(() => { if (el && !el.textContent) el.textContent = 'neutrino'; });
 }
 
 // The page shown, marked in the navigation: drawn anew for it

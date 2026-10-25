@@ -865,6 +865,24 @@ html.webui-side-narrow .webui-side .webui-side-toggle {
 	font-size: var(--webui-font-xs);
 }
 
+/* in the header a long name gives way before the page title does */
+.webui-header .webui-hostname {
+	max-width: 12rem;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.webui-header .webui-hostname:empty {
+	display: none;
+}
+
+@media (max-width: 600px) {
+	.webui-header .webui-hostname {
+		max-width: 5.5rem;
+	}
+}
+
 /* Theme toggle button — single definition (the former duplicate near
    the button templates has been removed; its winning padding/svg size
    are folded in here so the rendering is unchanged). */
@@ -875,6 +893,9 @@ html.webui-side-narrow .webui-side .webui-side-toggle {
 	background: none;
 	border: none;
 	padding: 0.3rem;
+	/* Pico gives [type=button] the bottom margin of a form field; centred
+	   with it, the icons sat 8px above the clock and the page title */
+	margin: 0;
 	cursor: pointer;
 	color: var(--pico-color);
 	border-radius: var(--webui-radius);
