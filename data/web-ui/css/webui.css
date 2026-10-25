@@ -15,10 +15,12 @@ html.webui-i18n-pending body {
    ============================================ */
 :root {
 	/* Brand colors: a blue in both themes, lighter on the dark one so it
-	   keeps its contrast; text on it at least 4.5:1 in both (Phase 4). */
-	--webui-accent: #79a6e8;
-	--webui-accent-hover: #93b8ee;
-	--webui-accent-light: rgba(121, 166, 232, 0.15);
+	   keeps its contrast; text on it at least 4.5:1 in both (Phase 4).
+	   Hue and saturation are the logo's (#1f6feb, img/logo.png), the
+	   brightness the one each value had before, so each contrast stayed. */
+	--webui-accent: #74a6f3;
+	--webui-accent-hover: #90b8f5;
+	--webui-accent-light: rgba(116, 166, 243, 0.15);
 	/* Focus outline colour: the accent clears 3:1 on both backgrounds. */
 	--webui-focus-color: var(--webui-accent);
 
@@ -76,9 +78,9 @@ html.webui-i18n-pending body {
 
 /* Light theme - override variables */
 [data-theme="light"] {
-	--webui-accent: #2f5f9e;
-	--webui-accent-hover: #264e83;
-	--webui-accent-light: rgba(47, 95, 158, 0.10);
+	--webui-accent: #1258c6;
+	--webui-accent-hover: #0f49a2;
+	--webui-accent-light: rgba(18, 88, 198, 0.10);
 	--webui-on-accent: #ffffff;
 	--webui-text-primary: #17202b;
 	--webui-text-secondary: #556372;
@@ -116,12 +118,12 @@ html.webui-i18n-pending body {
 	--pico-primary: var(--webui-accent);
 	--pico-primary-background: var(--webui-accent);
 	--pico-primary-border: var(--webui-accent);
-	--pico-primary-underline: rgba(121, 166, 232, 0.5);
+	--pico-primary-underline: rgba(116, 166, 243, 0.5);
 	--pico-primary-hover: var(--webui-accent-hover);
 	--pico-primary-hover-background: var(--webui-accent-hover);
 	--pico-primary-hover-border: var(--webui-accent-hover);
 	--pico-primary-hover-underline: var(--webui-accent-hover);
-	--pico-primary-focus: rgba(121, 166, 232, 0.25);
+	--pico-primary-focus: rgba(116, 166, 243, 0.25);
 	--pico-primary-inverse: var(--webui-on-accent);
 }
 [data-theme="light"] {
@@ -138,12 +140,12 @@ html.webui-i18n-pending body {
 	--pico-primary: var(--webui-accent);
 	--pico-primary-background: var(--webui-accent);
 	--pico-primary-border: var(--webui-accent);
-	--pico-primary-underline: rgba(47, 95, 158, 0.5);
+	--pico-primary-underline: rgba(18, 88, 198, 0.5);
 	--pico-primary-hover: var(--webui-accent-hover);
 	--pico-primary-hover-background: var(--webui-accent-hover);
 	--pico-primary-hover-border: var(--webui-accent-hover);
 	--pico-primary-hover-underline: var(--webui-accent-hover);
-	--pico-primary-focus: rgba(47, 95, 158, 0.25);
+	--pico-primary-focus: rgba(18, 88, 198, 0.25);
 	--pico-primary-inverse: var(--webui-on-accent);
 }
 
@@ -356,19 +358,14 @@ body:not(.has-subheader) .webui-header-spacer {
 	margin: 0;
 }
 
-/* the interface's mark: an N on the accent */
+/* the interface's mark: the logo of tuxbox-neutrino (img/logo.png, the
+   "n" in its own blue, which keeps 3:1 on either ground) */
 .webui-mark {
-	display: grid;
-	place-items: center;
+	display: block;
 	flex: none;
 	width: 2.1rem;
 	height: 2.1rem;
-	border-radius: 0.55rem;
-	background: var(--webui-accent);
-	color: var(--webui-on-accent);
-	font-weight: 800;
-	font-size: 0.95rem;
-	line-height: 1;
+	object-fit: contain;
 }
 
 .webui-head-brand {
@@ -1437,11 +1434,14 @@ body ul.webui-side-list > li {
 	background: linear-gradient(135deg, color-mix(in srgb, var(--webui-accent) 22%, var(--pico-card-background-color)) 0%, var(--pico-card-background-color) 78%);
 }
 
+/* on a tile of the card's ground: the head's tint behind it would leave
+   the logo under 3:1 in the dark theme */
 .webui-about-head .webui-mark {
 	width: 3.25rem;
 	height: 3.25rem;
+	padding: 0.4rem;
 	border-radius: 0.85rem;
-	font-size: 1.4rem;
+	background: var(--pico-card-background-color);
 }
 
 .webui-about-title {

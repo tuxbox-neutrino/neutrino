@@ -65,7 +65,7 @@ function webuiAboutHTML() {
 <div class="webui-modal-backdrop" id="webui-about-modal" onclick="webuiCloseAbout(event)">
 	<div class="webui-modal webui-about" onclick="event.stopPropagation()">
 		<header class="webui-about-head">
-			<span class="webui-mark" aria-hidden="true">N</span>
+			<img class="webui-mark" src="${WEBUI_CONFIG.logo}" alt="" width="160" height="160">
 			<div class="webui-about-title">
 				<h3 id="about-name">${WEBUI_CONFIG.title}</h3>
 				<p id="about-version-line"></p>
@@ -460,7 +460,7 @@ function webuiGetSideHTML() {
 	return `
 <aside class="webui-side" id="webui-side">
 	<a href="/" class="webui-side-brand" title="${WEBUI_CONFIG.title}">
-		<span class="webui-mark" aria-hidden="true">N</span>
+		<img class="webui-mark" src="${WEBUI_CONFIG.logo}" alt="" width="160" height="160">
 		<span class="webui-side-name"><b>${WEBUI_CONFIG.title}</b><small id="webui-side-host"></small></span>
 	</a>
 	<nav class="webui-side-nav" aria-label="${webuiLH('nav.pages', 'Pages')}">
@@ -513,7 +513,7 @@ function webuiGetHeaderHTML(activePage) {
 <header class="webui-header">
 	<div class="webui-head-bar">
 		<a href="/" class="webui-head-brand" aria-label="${WEBUI_CONFIG.title}" title="${WEBUI_CONFIG.title}">
-			<span class="webui-mark" aria-hidden="true">N</span>
+			<img class="webui-mark" src="${WEBUI_CONFIG.logo}" alt="" width="160" height="160">
 		</a>
 		<h1 class="webui-page-title" id="webui-page-title"></h1>
 
