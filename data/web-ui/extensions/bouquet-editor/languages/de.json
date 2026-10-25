@@ -21,7 +21,7 @@
 	"bqe.gone_msg": "Diese Kanäle, die die Liste weglässt, stehen in keinem anderen Bouquet. Die Box vergisst einen Kanal, der sein letztes Bouquet verlässt, und erst ein Sendersuchlauf bringt ihn zurück:",
 	"bqe.gone_title": "Kanäle von der Box entfernen?",
 	"bqe.hidden": "ausgeblendet",
-	"bqe.hint": "Kanäle lassen sich per Ziehen sortieren und aus \"Alle Kanäle\" herüberziehen (Doppelklick fügt ebenfalls hinzu). Anlegen, Umbenennen, Verschieben, Ein-/Ausblenden, Sperren und Löschen speichert die Box sofort; eine geänderte Kanalliste mit \"Übernehmen\".",
+	"bqe.hint": "Kanäle lassen sich per Ziehen oder mit den Pfeilen sortieren und aus \"Alle Kanäle\" per Ziehen oder mit + hinzufügen (Doppelklick fügt ebenfalls hinzu). Anlegen, Umbenennen, Verschieben, Ein-/Ausblenden, Sperren und Löschen speichert die Box sofort; eine geänderte Kanalliste mit \"Übernehmen\".",
 	"bqe.in_bouquet": "im Bouquet",
 	"bqe.locked": "gesperrt",
 	"bqe.mode": "Modus",
@@ -33,7 +33,7 @@
 	"bqe.none_picked": "Kein Bouquet gewählt",
 	"bqe.not_read": "Kanalliste nicht gelesen - Bouquet noch einmal wählen",
 	"bqe.pick_first": "Erst Bouquet wählen",
-	"bqe.pick_left": "Bouquet links wählen",
+	"bqe.pick_left": "Ein Bouquet in der Bouquet-Liste wählen",
 	"bqe.reload": "Neu laden",
 	"bqe.reload_discard": "Neu laden, nicht übernommene Änderungen verwerfen",
 	"bqe.rename_name": "Neuer Name",
@@ -55,7 +55,7 @@
 	"tools.bqedit": "Bouquet-Editor",
 	"bqe.help": "Hilfe",
 	"bqe.help_title": "So funktioniert der Editor",
-	"bqe.hint_rows": "Links ein Bouquet wählen: Seine Zeile zeigt dann ihre Knöpfe, und seine Kanäle erscheinen in der Mitte.",
+	"bqe.hint_rows": "Ein Bouquet wählen: Seine Zeile zeigt dann ihre Knöpfe, und seine Kanäle erscheinen daneben, am Handy unter \"Kanäle\".",
 	"bqe.tip_mode": "TV- oder Radio-Bouquets bearbeiten",
 	"bqe.tip_new": "Ein neues, leeres Bouquet anlegen"
 }

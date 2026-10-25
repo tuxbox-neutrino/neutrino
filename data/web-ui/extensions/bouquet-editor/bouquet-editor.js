@@ -105,6 +105,7 @@ function bqeChanClear() {
 function setDirty(d) {
 	bqeChanDirty = d;
 	document.getElementById('bqeDirty').classList.toggle('on', d);
+	document.querySelector('#bqeViews [data-view="channels"]').classList.toggle('bqe-unsaved', d);
 	// Uebernehmen hervorheben, solange die Arbeitskopie abweicht
 	document.getElementById('bqeApplyBtn').classList.toggle('attn', d);
 	document.getElementById('bqeDiscardBtn').disabled = !d;
@@ -465,12 +466,37 @@ function bqeAllEvent(e) {
 	bqeChAdd(li.dataset.id, li.dataset.name);
 }
 
+// On a phone one list shows at a time, the one the switch above them
+// names; choosing a bouquet there goes on to its channels.
+var bqePhone = window.matchMedia('(max-width: 760px)');
+
+function bqeView(v) {
+	document.querySelector('.bqe-grid').dataset.view = v;
+	document.querySelectorAll('#bqeViews button').forEach(function(b) {
+		b.setAttribute('aria-pressed', b.dataset.view === v ? 'true' : 'false');
+	});
+}
+
+function bqeToChannels() {
+	if (!bqePhone.matches)
+		return;
+	var from = document.activeElement;
+	bqeView('channels');
+	// the row chosen is hidden with its list now: the focus goes to the switch
+	if (from && from.closest && from.closest('[data-pane="bouquets"]'))
+		document.querySelector('#bqeViews [data-view="channels"]').focus();
+}
+
 // Choosing the bouquet shown again reads its list once more when that
 // read had failed.
 function bqeSelect(b) {
-	if (bqeSel && b.id === bqeSel.id && (bqeChanReady() || bqeChanReading)) return;
+	if (bqeSel && b.id === bqeSel.id && (bqeChanReady() || bqeChanReading)) {
+		bqeToChannels();
+		return;
+	}
 	bqeUnlessDirty(async function() {
 		bqeSel = {id: b.id, name: b.name};
+		bqeToChannels();
 		bqeChanClear();
 		bqeRenderBouquets();
 		var reading = bqeLoadChannels();
@@ -756,6 +782,10 @@ window.addEventListener('beforeunload', function(e) {
 	e.returnValue = '';
 });
 
+document.getElementById('bqeViews').addEventListener('click', function(e) {
+	var b = e.target.closest('button[data-view]');
+	if (b) bqeView(b.dataset.view);
+});
 document.getElementById('bqeBouquets').addEventListener('click', bqeBouquetEvent);
 document.getElementById('bqeBouquets').addEventListener('keydown', bqeBouquetEvent);
 document.getElementById('bqeAll').addEventListener('click', bqeAllEvent);

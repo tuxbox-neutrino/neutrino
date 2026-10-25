@@ -79,6 +79,19 @@
 			.bqe-pane { min-height: 240px; height: auto; }
 			.bqe-pane .webui-card-body { max-height: calc(100vh - 300px); }
 		}
+		/* A phone shows one list at a time, chosen above them: stacked, the
+		   bouquet list filled the screen and the channels lay out of reach
+		   below it. The id outweighs .webui-seg[role="group"]. */
+		#bqeViews { display: none; }
+		@media (max-width: 760px) {
+			#bqeViews { display: flex; width: 100%; margin: 0 0 0.6rem; }
+			#bqeViews button { flex: 1 1 0; min-height: 36px; padding-left: 0.4rem; padding-right: 0.4rem; }
+			.bqe-grid[data-view="bouquets"] > .bqe-pane:not([data-pane="bouquets"]),
+			.bqe-grid[data-view="channels"] > .bqe-pane:not([data-pane="channels"]),
+			.bqe-grid[data-view="all"] > .bqe-pane:not([data-pane="all"]) { display: none; }
+		}
+		/* channel edits not applied yet, marked on the switch as well */
+		#bqeViews button.bqe-unsaved::after { content: ' \25CF'; color: var(--webui-accent); }
 	</style>
 </head>
 <body>
@@ -117,8 +130,16 @@
 			<button type="button" class="bqe-mini attn" onclick="bqeReloadAll(true)" title="Reload, discarding the changes not applied" data-l-title="bqe.reload_discard" data-l="bqe.reload">Reload</button>
 		</div>
 
-		<div class="bqe-grid">
-			<article class="webui-card webui-panel-card webui-card-sm bqe-pane">
+		<!-- on a phone one list at a time: the bouquets, the channels of the
+		     bouquet chosen, all channels to add from -->
+		<div class="webui-seg bqe-views" id="bqeViews" role="group" aria-label="View" data-l-aria-label="media.view">
+			<button type="button" data-view="bouquets" aria-pressed="true" data-l="nav.bouquets">Bouquets</button>
+			<button type="button" data-view="channels" aria-pressed="false" data-l="bqe.channels">Channels</button>
+			<button type="button" data-view="all" aria-pressed="false" data-l="bqe.all_channels">All channels</button>
+		</div>
+
+		<div class="bqe-grid" data-view="bouquets">
+			<article class="webui-card webui-panel-card webui-card-sm bqe-pane" data-pane="bouquets">
 				<header class="webui-card-header">
 					<h3 class="webui-card-title">
 						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -131,7 +152,7 @@
 					<ul class="webui-plain-list bqe-list" id="bqeBouquets"></ul>
 				</div>
 			</article>
-			<article class="webui-card webui-panel-card webui-card-sm bqe-pane">
+			<article class="webui-card webui-panel-card webui-card-sm bqe-pane" data-pane="channels">
 				<header class="webui-card-header">
 					<h3 class="webui-card-title">
 						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -150,7 +171,7 @@
 					<ul class="webui-plain-list bqe-list" id="bqeChannels" ondragover="bqeListOver(event)" ondragleave="bqeListLeave(event)" ondrop="bqeListDrop(event)"></ul>
 				</div>
 			</article>
-			<article class="webui-card webui-panel-card webui-card-sm bqe-pane">
+			<article class="webui-card webui-panel-card webui-card-sm bqe-pane" data-pane="all">
 				<header class="webui-card-header">
 					<h3 class="webui-card-title">
 						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">

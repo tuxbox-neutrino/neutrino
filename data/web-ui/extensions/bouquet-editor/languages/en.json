@@ -21,7 +21,7 @@
 	"bqe.gone_msg": "No other bouquet holds these channels, which the list leaves out. The box forgets a channel that leaves its last bouquet, and only a channel scan brings it back:",
 	"bqe.gone_title": "Remove channels from the box?",
 	"bqe.hidden": "hidden",
-	"bqe.hint": "Reorder channels by dragging and pull them over from \"All channels\" (double-click adds too). Creating, renaming, moving, hiding, locking and deleting a bouquet is saved on the box at once; a changed channel list with \"Apply\".",
+	"bqe.hint": "Reorder channels by dragging or with the arrows, and add them from \"All channels\" by dragging or with + (double-click adds too). Creating, renaming, moving, hiding, locking and deleting a bouquet is saved on the box at once; a changed channel list with \"Apply\".",
 	"bqe.in_bouquet": "in bouquet",
 	"bqe.locked": "locked",
 	"bqe.mode": "Mode",
@@ -33,7 +33,7 @@
 	"bqe.none_picked": "No bouquet selected",
 	"bqe.not_read": "Channel list not read - choose the bouquet again",
 	"bqe.pick_first": "Pick a bouquet first",
-	"bqe.pick_left": "Pick a bouquet on the left",
+	"bqe.pick_left": "Choose a bouquet in the list of bouquets",
 	"bqe.reload": "Reload",
 	"bqe.reload_discard": "Reload, discarding the changes not applied",
 	"bqe.rename_name": "New name",
@@ -55,7 +55,7 @@
 	"tools.bqedit": "Bouquet editor",
 	"bqe.help": "Help",
 	"bqe.help_title": "How the editor works",
-	"bqe.hint_rows": "Choose a bouquet on the left: its row then shows its buttons, and its channels come up in the middle.",
+	"bqe.hint_rows": "Choose a bouquet: its row then shows its buttons, and its channels come up beside it, on a phone under \"Channels\".",
 	"bqe.tip_mode": "Edit the TV or the radio bouquets",
 	"bqe.tip_new": "Make a new, empty bouquet"
 }
