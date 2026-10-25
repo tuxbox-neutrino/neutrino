@@ -102,9 +102,19 @@ async function loadList(more) {
 		shown.push(rec);
 		list.appendChild(itemFor(rec));
 	});
-	if (!more && items.length === 0)
-		list.appendChild(webuiEl('li', {}, webuiState('empty', webuiL('media.none', 'No recordings found'),
-			document.getElementById('mediaSearch').value.trim() ? webuiL('media.none_search', 'Nothing matches these words.') : '')));
+	if (!more && items.length === 0) {
+		const empty = webuiEl('li', {}, webuiState('empty', webuiL('media.none', 'No recordings found'),
+			words ? webuiL('media.none_search', 'Nothing matches these words.') : ''));
+		list.appendChild(empty);
+		// no recordings at all: a folder that is not there says why
+		if (!words && !source)
+			webuiMissingRecordFolders().then(r => {
+				if (!r.missing.length || token !== listToken || !empty.isConnected) return;
+				const why = r.partial ? webuiL('media.folder_slow', 'No answer in time, the drive or network share hangs or is not attached: %s') :
+					webuiL('media.folder_missing', 'Not there now, the drive or network share not attached: %s');
+				empty.replaceChildren(webuiState('empty', webuiL('media.none', 'No recordings found'), why.replace('%s', r.missing.join(', '))));
+			});
+	}
 
 	nextOffset = (page && typeof page.next_offset === 'number') ? page.next_offset : null;
 	moreBtn.hidden = nextOffset === null;

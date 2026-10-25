@@ -1900,6 +1900,8 @@ function switchCategory(catId) {
 		v1setApplyConditions();
 	}
 	panel.classList.add('active');
+	// a folder of a row that is not there now, asked each time it shows
+	v1setFolderCheck(panel);
 	// back to a plugin list drawn before: a plugin may have been started at
 	// the box meanwhile
 	if (catId === 'plugins' && document.getElementById('pluginsRunning'))

@@ -979,6 +979,62 @@ function v1setMark(row) {
 	row.insertBefore(back, row.querySelector(':scope > .webui-set-help, :scope > .webui-set-error'));
 }
 
+/* A folder the box records into or reads films from that is not there now,
+   because the drive or network share it lies on is not attached, is said at
+   its row: a recording would fail there, or land in the box's own memory
+   where the box makes the folder anew (MakeFileName in
+   src/driver/record.cpp makes the last part of the path). Held against what
+   the box holds, not against an edit; asked whenever the panel shows, so a
+   share attached meanwhile takes the mark away. */
+function v1setFolderCheck(panel) {
+	if (!panel || typeof webuiMissingRecordFolders !== 'function')
+		return;
+	var rows = Array.prototype.filter.call(panel.querySelectorAll('[data-v1row]'), function(row) {
+		var item = V1SET.items[row.dataset.v1row];
+		return item && _v1setIsFolder(item);
+	});
+	if (!rows.length)
+		return;
+	webuiMissingRecordFolders().then(function(r) {
+		rows.forEach(function(row) {
+			var held = String(V1SET.values[row.dataset.v1row] || '').replace(/\/+$/, '');
+			v1setFolderMark(row, held !== '' && r.missing.indexOf(held) >= 0, r.partial);
+		});
+	});
+}
+
+// slow: the box's list was cut short, the folder may hang rather than be gone
+function v1setFolderMark(row, gone, slow) {
+	var note = row.querySelector(':scope > .webui-set-missing');
+	var field = row.querySelector('[data-v1key]');
+	if (note && gone && note.dataset.slow !== (slow ? '1' : '0'))
+		v1setFolderMark(row, false);
+	note = row.querySelector(':scope > .webui-set-missing');
+	if (!gone) {
+		if (note) {
+			if (field) {
+				var rest = (field.getAttribute('aria-describedby') || '').split(' ').filter(function(i) { return i && i !== note.id; });
+				if (rest.length) field.setAttribute('aria-describedby', rest.join(' '));
+				else field.removeAttribute('aria-describedby');
+			}
+			note.remove();
+		}
+		return;
+	}
+	if (note)
+		return;
+	var id = 'v1set_' + row.dataset.v1row.replace(/[^A-Za-z0-9_-]/g, '_') + '_missing';
+	note = webuiEl('div', {className: 'webui-set-missing', id: id, attrs: {role: 'status'}, data: {slow: slow ? '1' : '0'}},
+		webuiEl('span', {className: 'webui-pill danger'}, slow ? webuiL('set.folder_slow', 'no answer') : webuiL('set.folder_missing', 'not there')),
+		webuiEl('span', {}, slow ?
+			webuiL('set.folder_slow_text', 'This folder did not answer in time: the drive or network share for it hangs or is not attached. A recording there may fail, or go into the box\'s own memory if the box makes the folder anew.') :
+			webuiL('set.folder_missing_text', 'This folder is not there now: the drive or network share for it is not attached. A recording fails then, or goes into the box\'s own memory if the box makes the folder anew.')));
+	// below the row's own line, above what it differs in, its help and a refusal
+	row.insertBefore(note, row.querySelector(':scope > .webui-set-back, :scope > .webui-set-help, :scope > .webui-set-error'));
+	if (field)
+		field.setAttribute('aria-describedby', ((field.getAttribute('aria-describedby') || '') + ' ' + id).trim());
+}
+
 // After an input: the row it is in, and the count of its panel
 function v1setMarkFor(el) {
 	var row = el && el.closest && el.closest('[data-v1row]');
@@ -1335,6 +1391,7 @@ async function v1setReread() {
 	V1SET.values = fresh;
 	v1setApplyConditions();
 	v1setMarkAll();
+	v1setFolderCheck(document.querySelector('#settingsContent .settings-panel.active'));
 	if (typeof webuiUpdateSaveBar === 'function')
 		webuiUpdateSaveBar();
 }

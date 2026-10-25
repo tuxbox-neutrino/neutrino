@@ -2687,6 +2687,29 @@ async function _webuiV1Read(path) {
 	return r.ok ? r.json() : null;
 }
 
+/* The directories a recording goes into or the movie browser reads from
+   (the roots of GET /api/v1/recordings/folders) that are not there now,
+   because the drive or network share they lie on is not attached, as
+   {missing, partial}: missing [] when all are there or the box does not
+   say. A share that went away holds the answer for about three seconds;
+   a root the box did not reach in that time is listed as not there and
+   the list as partial, so partial means a folder may hang rather than be
+   gone. */
+async function webuiMissingRecordFolders() {
+	var d = null;
+	try {
+		d = await _webuiV1Read('/recordings/folders');
+	} catch (ignore) {}
+	return {
+		missing: ((d && d.items) || []).filter(function(f) {
+			return f.root && f.present === false;
+		}).map(function(f) {
+			return String(f.path).replace(/\/+$/, '');
+		}),
+		partial: !!(d && d.partial)
+	};
+}
+
 /* Asked once per page: whoever asks while the answer is on its way waits for
    the same answer instead of taking a list still being filled. */
 function webuiDiscoverExtensions() {
