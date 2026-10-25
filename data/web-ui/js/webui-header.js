@@ -1188,6 +1188,20 @@ function webuiGetRemoteHTML(opts) {
 	var svgRight = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>';
 	var svgPower = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18.36 6.64a9 9 0 11-12.73 0"/><line x1="12" y1="2" x2="12" y2="12"/></svg>';
 	var svgMute = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>';
+	var svgPrev = '<svg viewBox="0 0 24 24" fill="currentColor"><polygon points="19 20 9 12 19 4"/><rect x="5" y="4" width="2.5" height="16"/></svg>';
+	var svgNext = '<svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 4 15 12 5 20"/><rect x="16.5" y="4" width="2.5" height="16"/></svg>';
+
+	/* The letters a number key gives where the box asks for text by
+	   pressing it again and again (src/gui/widget/stringinput.cpp, its
+	   SMS input), shown under the digit; 0 and 1 give the digit first,
+	   then the space (shown as \u2423) and the signs. */
+	var letters = {'1': '+.,:!?', '2': 'abc', '3': 'def', '4': 'ghi', '5': 'jkl',
+		'6': 'mno', '7': 'pqrs', '8': 'tuv', '9': 'wxyz', '0': '\u2423-_/'};
+	function digit(d) {
+		return '<button type="button" class="webui-rc-btn webui-rc-digit" onclick="' + onKey + "('KEY_" + d + "')\" title=\"" +
+			escapeHtml(d + ' ' + letters[d]) + '" aria-label="' + d + '"><span>' + d + '</span><small aria-hidden="true">' +
+			escapeHtml(letters[d]) + '</small></button>';
+	}
 
 	return '<div class="webui-remote" id="' + id + '" data-rc-onkey="' + onKey + '">' +
 
@@ -1219,7 +1233,7 @@ function webuiGetRemoteHTML(opts) {
 					'<div></div>' + iconBtn('webui-rc-arrow', 'KEY_DOWN', webuiL('rc.down', 'Down'), svgDown) + '<div></div>' +
 				'</div>' +
 				'<div class="webui-rc-pair">' +
-					btn('webui-rc-func', 'KEY_HELP', webuiL('rc.info', 'Info')) +
+					btn('webui-rc-func', 'KEY_INFO', webuiL('rc.info', 'Info')) +
 					btn('webui-rc-func', 'KEY_EPG', webuiL('rc.epg', 'EPG')) +
 				'</div>' +
 			'</div>' +
@@ -1230,12 +1244,16 @@ function webuiGetRemoteHTML(opts) {
 			'</div>' +
 		'</div>' +
 
-		/* Zone D: Media */
-		'<div class="webui-rc-row webui-rc-media">' +
+		/* Zone D: Media. Play and Pause as two keys, as the movie player of
+		   most boxes takes them; where it takes one key for both,
+		   _webuiRcPlayerKeys makes them that one key. */
+		'<div class="webui-rc-row webui-rc-media" data-rc-player="1">' +
 			iconBtn('', 'KEY_REWIND', webuiL('rc.rewind', 'Rewind'), '<svg viewBox="0 0 24 24" fill="currentColor"><polygon points="19 20 9 12 19 4"/><polygon points="14 20 4 12 14 4"/></svg>') +
-			iconBtn('', 'KEY_PLAY', webuiL('rc.play', 'Play'), '<svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21"/></svg>') +
+			iconBtn('webui-rc-play', 'KEY_PLAY', webuiL('rc.play', 'Play'), '<svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21"/></svg>') +
+			iconBtn('webui-rc-pause', 'KEY_PAUSE', webuiL('rc.pause', 'Pause'), '<svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>') +
 			iconBtn('', 'KEY_FORWARD', webuiL('rc.forward', 'Forward'), '<svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 4 15 12 5 20"/><polygon points="10 4 20 12 10 20"/></svg>') +
 			iconBtn('', 'KEY_STOP', webuiL('rc.stop', 'Stop'), '<svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12"/></svg>') +
+			iconBtn('webui-rc-rec', 'KEY_RECORD', webuiL('rc.record', 'Record'), '<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="7"/></svg>') +
 		'</div>' +
 
 		/* Zone E: Colour keys (always visible) */
@@ -1263,11 +1281,18 @@ function webuiGetRemoteHTML(opts) {
 			'<div class="webui-rc-sheet" onclick="event.stopPropagation()">' +
 				'<div class="webui-rc-sheet-handle"></div>' +
 				'<div class="webui-rc-numpad">' +
-					btn('', 'KEY_1', '1') + btn('', 'KEY_2', '2') + btn('', 'KEY_3', '3') +
-					btn('', 'KEY_4', '4') + btn('', 'KEY_5', '5') + btn('', 'KEY_6', '6') +
-					btn('', 'KEY_7', '7') + btn('', 'KEY_8', '8') + btn('', 'KEY_9', '9') +
-					'<div></div>' + btn('', 'KEY_0', '0') + '<div></div>' +
+					digit('1') + digit('2') + digit('3') +
+					digit('4') + digit('5') + digit('6') +
+					digit('7') + digit('8') + digit('9') +
+					'<div></div>' + digit('0') + '<div></div>' +
 				'</div>' +
+				'<div class="webui-rc-row webui-rc-more">' +
+					btn('webui-rc-func', 'KEY_HELP', webuiL('rc.help', 'Help')) +
+					btn('webui-rc-func', 'KEY_SLEEP', webuiL('rc.sleep', 'Sleep'), webuiL('rc.sleep_tip', 'Sleep timer')) +
+					iconBtn('webui-rc-func', 'KEY_PREVIOUS', webuiL('rc.prev', 'Previous'), svgPrev) +
+					iconBtn('webui-rc-func', 'KEY_NEXT', webuiL('rc.next', 'Next'), svgNext) +
+				'</div>' +
+				'<p class="webui-rc-hint">' + webuiLH('rc.text_hint', 'Typing on the box: press a number key again and again for the letters under it; Red switches a letter between small and capital. On the box\'s on-screen keyboard, Menu switches the character set and Blue the capitals.') + '</p>' +
 			'</div>' +
 		'</div>' +
 
@@ -1417,7 +1442,59 @@ function webuiRenderRemote(hostId, opts) {
 	opts = opts || {};
 	host.innerHTML = webuiGetRemoteHTML(opts);
 	webuiInitRemoteRepeat(opts.id || 'webui-remote');
+	// a skin has the keys of its own remote control
+	if (!WEBUI_CONFIG.remoteRenderer)
+		_webuiRcPlayerKeys(opts.id || 'webui-remote');
 	_webuiRemoteInstances[hostId] = opts;
+}
+
+/* The movie player's play and pause keys as the box has them set: each of
+   the two keys sends the key its setting names (a Vu+ pauses with its
+   play/pause key), and where mpkey.play and mpkey.pause name the same key,
+   as on boxes whose remote control has one play/pause key, the remote shows
+   that one key: a Play that pauses a running film is not what its label
+   says. The settings keep the kernel's key code; these are the codes a
+   player key is set to by default, by the names POST /osd/remote/key
+   takes. Asked once per page; a box that does not answer keeps the two
+   keys as they are drawn. */
+var WEBUI_RC_PLAYER_NAMES = {164: 'KEY_PLAYPAUSE', 207: 'KEY_PLAY', 119: 'KEY_PAUSE'};
+var _webuiRcPlayerAsked = null;
+
+function _webuiRcPlayerSettings() {
+	if (!_webuiRcPlayerAsked)
+		_webuiRcPlayerAsked = _webuiV1Read('/settings/keybindings').then(function(d) {
+			var v = {};
+			((d && d.items) || []).forEach(function(i) { v[i.id] = i.value; });
+			return {play: parseInt(v['mpkey.play'], 10), pause: parseInt(v['mpkey.pause'], 10)};
+		}).catch(function() { return null; });
+	return _webuiRcPlayerAsked;
+}
+
+function _webuiRcPlayerKeys(id) {
+	_webuiRcPlayerSettings().then(function(k) {
+		var root = document.getElementById(id);
+		if (!root || !k || isNaN(k.play) || isNaN(k.pause))
+			return;
+		var play = root.querySelector('[data-rc-player] .webui-rc-play');
+		var pause = root.querySelector('[data-rc-player] .webui-rc-pause');
+		if (!play || !pause)
+			return;
+		var onKey = root.getAttribute('data-rc-onkey') || 'webuiSendKey';
+		if (k.play !== k.pause) {
+			play.setAttribute('onclick', onKey + "('" + (WEBUI_RC_PLAYER_NAMES[k.play] || 'KEY_PLAY') + "')");
+			pause.setAttribute('onclick', onKey + "('" + (WEBUI_RC_PLAYER_NAMES[k.pause] || 'KEY_PAUSE') + "')");
+			return;
+		}
+		var label = webuiL('rc.playpause', 'Play/Pause');
+		play.setAttribute('onclick', onKey + "('" + (WEBUI_RC_PLAYER_NAMES[k.play] || 'KEY_PLAYPAUSE') + "')");
+		play.title = label;
+		play.setAttribute('aria-label', label);
+		play.innerHTML = '<svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="currentColor"><polygon points="3 4 12 12 3 20"/><rect x="14" y="4" width="3" height="16"/><rect x="19" y="4" width="3" height="16"/></svg>';
+		// the focus stays on a key that is still there
+		if (document.activeElement === pause)
+			play.focus();
+		pause.remove();
+	});
 }
 
 /**

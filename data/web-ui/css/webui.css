@@ -3489,6 +3489,37 @@ html:not([data-theme="dark"]) .webui-rc-sheet-handle { background-color: #aaa; }
 	letter-spacing: -0.01em;
 }
 
+/* the digit with the letters the box gives for it under it */
+.webui-remote .webui-rc-digit {
+	flex-direction: column;
+	gap: 1px;
+	line-height: 1.1;
+}
+
+.webui-remote .webui-rc-digit small {
+	font-size: 0.62rem;
+	font-weight: 500;
+	letter-spacing: 0.06em;
+	opacity: 0.75;
+}
+
+/* the keys of the box's remote control beyond the main ones */
+.webui-remote .webui-rc-more {
+	gap: 5px;
+}
+
+.webui-remote .webui-rc-more .webui-rc-btn svg {
+	width: 16px;
+	height: 16px;
+}
+
+.webui-remote .webui-rc-hint {
+	margin: 0;
+	font-size: 0.72rem;
+	line-height: 1.4;
+	color: var(--pico-muted-color);
+}
+
 /* ── Media controls ── */
 .webui-remote .webui-rc-media {
 	display: flex;
@@ -3498,11 +3529,19 @@ html:not([data-theme="dark"]) .webui-rc-sheet-handle { background-color: #aaa; }
 .webui-remote .webui-rc-media .webui-rc-btn {
 	flex: 1;
 	height: 36px;
+	/* six keys share the row: on a phone each is narrower than the 44px
+	   the other keys keep, and stays as tall */
+	min-width: 0;
 }
 
 .webui-remote .webui-rc-media .webui-rc-btn svg {
 	width: 16px;
 	height: 16px;
+}
+
+/* Record in the red of the colour key, readable on both themes' keys */
+.webui-remote .webui-rc-rec svg {
+	color: #e53935;
 }
 
 /* ── Remote row helper ── */
