@@ -354,9 +354,21 @@
 
 		/* Responsive */
 		@media (max-width: 768px) {
+			/* Two lines: the bouquet across the width, the time with its
+			   buttons under it. Stacked one control to a line, the
+			   bouquet's flex basis above (16rem) became its height, and the
+			   toolbar took half of a phone's screen. */
 			.webui-epg-toolbar {
-				flex-direction: column;
-				align-items: stretch;
+				flex-wrap: wrap;
+				gap: 0.4rem;
+			}
+
+			.webui-epg-toolbar #bouquetSelect {
+				flex: 1 1 100%;
+			}
+
+			.webui-epg-toolbar #timeSelect {
+				flex: 1 1 5rem;
 			}
 
 			.webui-epg-select {
