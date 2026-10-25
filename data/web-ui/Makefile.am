@@ -21,6 +21,7 @@ install_DATA = \
 	settings.html \
 	timer.html \
 	recordings.html \
+	remote.html \
 	tools.html \
 	favicon.ico \
 	index.html \

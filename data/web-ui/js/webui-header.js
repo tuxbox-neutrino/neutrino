@@ -131,7 +131,8 @@ function webuiAboutHTML() {
    belongs to Files or System for three of its categories. */
 const WEBUI_AREAS = [
 	{id: 'now', key: 'nav.area_now', en: 'Dashboard', icon: 'dashboard', tab: true,
-	 pages: [{page: 'dashboard', href: '/dashboard.html', key: 'nav.sub_overview', en: 'Dashboard', icon: 'dashboard'}]},
+	 pages: [{page: 'dashboard', href: '/dashboard.html', key: 'nav.sub_overview', en: 'Dashboard', icon: 'dashboard'},
+		{page: 'remote', href: '/remote.html', key: 'tools.remote_sub', en: 'Remote control', icon: 'remote'}]},
 	{id: 'channels', key: 'nav.area_channels', en: 'Channels', icon: 'tv', tab: true,
 	 pages: [{page: 'bouquets', href: '/bouquets.html', key: 'nav.sub_channels', en: 'Channels', icon: 'tv'}]},
 	{id: 'epg', key: 'nav.epg', en: 'EPG', icon: 'epg', tab: true,
@@ -2651,7 +2652,7 @@ var WEBUI_MOVED_PAGES = {
 	none: 'dashboard.html',
 	control: 'dashboard.html',
 	bouquets: 'bouquets.html',
-	remote: 'extensions/screenshot/index.html',
+	remote: 'remote.html',
 	screenshot: 'extensions/screenshot/index.html',
 	'files.html': 'extensions/files/index.html',
 	'sysinfo.html': 'extensions/sysinfo/index.html',

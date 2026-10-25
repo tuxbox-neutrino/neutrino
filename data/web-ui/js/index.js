@@ -6,15 +6,15 @@
 (function () {
 	var fallback = '/dashboard.html';
 	// the interface's own pages a start page can be
-	var core = ['dashboard', 'bouquets', 'epg', 'timer', 'recordings', 'tools',
-		'settings'];
+	var core = ['dashboard', 'remote', 'bouquets', 'epg', 'timer', 'recordings',
+		'tools', 'settings'];
 	// start pages stored under another name, the same list as
 	// WEBUI_MOVED_PAGES in webui-header.js: what the classic settings
 	// page and the shipped yWeb.conf write ("none" there), and pages
 	// that became extensions
 	var classic = {
 		none: 'dashboard.html', bouquets: 'bouquets.html',
-		control: 'dashboard.html', remote: 'extensions/screenshot/index.html',
+		control: 'dashboard.html', remote: 'remote.html',
 		screenshot: 'extensions/screenshot/index.html',
 		'files.html': 'extensions/files/index.html',
 		'sysinfo.html': 'extensions/sysinfo/index.html',

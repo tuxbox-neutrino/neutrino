@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark" class="webui-i18n-pending">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title data-l="tools.remote_sub" data-l-prefix="Neutrino-Web-UI - ">Neutrino-Web-UI - Remote control</title>
+	<link rel="icon" href="/favicon/favicon.ico">
+	<script>
+		// Apply the stored theme before first paint: webui-header.js runs
+		// too late, and some pages never load it at all.
+		try { var m = localStorage.getItem('webui-mode'); if (m !== 'light' && m !== 'dark') m = (localStorage.getItem('webui-theme') || localStorage.getItem('yweb-theme')) === 'light' || matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'; document.documentElement.setAttribute('data-theme', m); } catch (e) {}
+	</script>
+	<link rel="stylesheet" href="/css/pico.min.css?v=1">
+	<link rel="stylesheet" href="/css/webui.css?v=1">
+	<style>
+	/* The remote control as a page of its own, to open the interface with
+	   on a phone: the panel the dashboard opens in a window, here in the
+	   middle of the page. */
+	.webui-remote-page {
+		max-width: 360px;
+		margin: 0 auto;
+		padding: 0.75rem 1rem 1.5rem;
+	}
+	</style>
+</head>
+<body>
+	<div class="webui-header-wrapper" data-page="remote"></div>
+	<div class="webui-header-spacer"></div>
+
+	<main>
+		<div class="webui-remote-page" id="remoteHost"></div>
+	</main>
+
+	<script src="/js/webui-i18n.js?v=1"></script>
+	<script src="/js/webui-header.js?v=1"></script>
+	<script src="/js/webui-dom.js?v=1"></script>
+	<script src="/js/webui-v1.js?v=1"></script>
+	<script src="/js/remote.js?v=1"></script>
+</body>
+</html>

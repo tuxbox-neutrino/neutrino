@@ -8,6 +8,7 @@ install_DATA = \
 	login.js \
 	password.js \
 	recordings.js \
+	remote.js \
 	settings-registry.js \
 	settings-v1.js \
 	settings.js \
