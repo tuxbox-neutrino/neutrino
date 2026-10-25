@@ -74,14 +74,28 @@
 		white-space: nowrap;
 	}
 
-	/* a channel */
+	/* a channel; its columns and its inset, for each width below. The list
+	   carries the inset and its rows reach back over it, so a row and its
+	   highlight span the card while its cells keep the inset: a row's own
+	   inline padding would, with subgrid, land on its first and last cells
+	   as extra margin and squeeze the fixed first column. */
+	.webui-channel-list {
+		--webui-channel-cols: 3.5ch 96px minmax(10rem, 1fr) minmax(0, 1.4fr) auto auto;
+		--webui-channel-gap: 0.75rem;
+		--webui-channel-inset: 1rem;
+		padding-inline: var(--webui-channel-inset);
+	}
+
+	.webui-channel-list > li {
+		margin: 0 calc(-1 * var(--webui-channel-inset));
+	}
+
 	.webui-channel-row {
 		display: grid;
-		grid-template-columns: 3.5ch 96px minmax(10rem, 1fr) minmax(0, 1.4fr) auto auto;
-		gap: 0.75rem;
+		grid-template-columns: var(--webui-channel-cols);
+		gap: var(--webui-channel-gap);
 		align-items: center;
-		margin: 0;
-		padding: 0.5rem 1rem;
+		padding: 0.5rem var(--webui-channel-inset);
 		border-top: 1px solid var(--pico-muted-border-color);
 	}
 
@@ -92,6 +106,28 @@
 	.webui-channel-row[aria-current="true"] {
 		background: var(--webui-accent-light);
 		box-shadow: inset 3px 0 0 var(--webui-accent);
+	}
+
+	/* The rows share the list's columns, so a column starts in every row
+	   where it does in the others: on its own, a row gave its name and
+	   programme the room its state and actions left, and the playing
+	   channel (a pill, no Switch) moved them. A browser without subgrid
+	   (Safari before 16, Chrome before 117) draws each row on its own. */
+	@supports (grid-template-columns: subgrid) {
+		.webui-channel-list {
+			display: grid;
+			grid-template-columns: var(--webui-channel-cols);
+			column-gap: var(--webui-channel-gap);
+		}
+
+		.webui-channel-list > li {
+			grid-column: 1 / -1;
+		}
+
+		.webui-channel-row {
+			grid-template-columns: subgrid;
+			column-gap: normal;
+		}
 	}
 
 	.webui-channel-num {
@@ -176,8 +212,8 @@
 			grid-template-columns: 220px minmax(0, 1fr);
 		}
 
-		.webui-channel-row {
-			grid-template-columns: 3.5ch 80px minmax(0, 1fr) auto auto;
+		.webui-channel-list {
+			--webui-channel-cols: 3.5ch 80px minmax(0, 1fr) auto auto;
 		}
 
 		.webui-channel-logo {
@@ -221,10 +257,10 @@
 			display: block;
 		}
 
-		.webui-channel-row {
-			grid-template-columns: 64px minmax(0, 1fr) auto;
-			gap: 0.6rem;
-			padding: 0.5rem 0.75rem;
+		.webui-channel-list {
+			--webui-channel-cols: 64px minmax(0, 1fr) auto;
+			--webui-channel-gap: 0.6rem;
+			--webui-channel-inset: 0.75rem;
 		}
 
 		.webui-channel-num {

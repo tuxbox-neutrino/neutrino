@@ -264,6 +264,7 @@
 
 	/* rows of a tile: a time or a name in front, what it is, a state */
 	.webui-dash-rows {
+		--webui-dash-cols: minmax(8ch, auto) minmax(0, 1fr) auto;
 		margin: 0;
 		padding: 0;
 		list-style: none;
@@ -276,7 +277,7 @@
 
 	.webui-dash-row {
 		display: grid;
-		grid-template-columns: minmax(8ch, auto) minmax(0, 1fr) auto;
+		grid-template-columns: var(--webui-dash-cols);
 		gap: 0.6rem;
 		align-items: center;
 		margin: 0;
@@ -302,6 +303,27 @@
 	.webui-dash-row small {
 		display: block;
 		color: var(--pico-muted-color);
+	}
+
+	/* The rows of a tile share its columns, as the channel list's do: a
+	   front that needs more room (a running recording's time left, an
+	   interface's longer state) moves the column in every row, not in its
+	   own. A browser without subgrid draws each row on its own. */
+	@supports (grid-template-columns: subgrid) {
+		.webui-dash-rows {
+			display: grid;
+			grid-template-columns: var(--webui-dash-cols);
+			column-gap: 0.6rem;
+		}
+
+		.webui-dash-rows > li {
+			grid-column: 1 / -1;
+		}
+
+		.webui-dash-row {
+			grid-template-columns: subgrid;
+			column-gap: normal;
+		}
 	}
 
 	/* The box's load as four gauges across the page: the processor, the
@@ -646,8 +668,8 @@
 	}
 
 	/* the latest recordings: when, what, and Play on TV */
-	.webui-recent-row {
-		grid-template-columns: minmax(7ch, auto) minmax(0, 1fr) auto;
+	#recent-list {
+		--webui-dash-cols: minmax(7ch, auto) minmax(0, 1fr) auto;
 	}
 
 	.webui-recent-row .webui-btn svg {
@@ -656,8 +678,8 @@
 	}
 
 	/* the network's interfaces: a long name gives way, the address stays */
-	.webui-net-row {
-		grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr) auto;
+	#net-list {
+		--webui-dash-cols: minmax(0, 1fr) minmax(0, 1.2fr) auto;
 	}
 
 	.webui-net-row > b,
