@@ -28,6 +28,13 @@
 // is sent once more afterwards: a page that keeps count of its changes on the
 // way leaves the wait out.
 //
+// A change the box takes long to answer shows that it is under way, a bar
+// at the top and a spinner on the button whose click sent it
+// (webuiWaitBegin in webui-header.js); nothing shows while the sign-in is
+// open, and reads show nothing. opts.mark = false leaves the button out
+// (the bar alone), for a button pressed again and again, such as a key of
+// the remote control.
+//
 // webuiV1Events({name: function(data) {...}}) opens one EventSource on
 // /api/v1/events and calls the handler of each event that arrives with its
 // data ({channel_id, value, text}). The browser reconnects by itself, except
@@ -138,25 +145,36 @@ async function _webuiV1ChangeOwed(resp) {
 
 async function webuiV1(method, path, opts) {
 	opts = opts || {};
-	var resp = await _webuiV1Send(method, path, opts);
-	if (await _webuiV1ChangeOwed(resp))
-		throw await _webuiV1Error(resp, method, path);
-	var declined = false;
-	if (resp.status === 403) {
-		// no open session, or a stale token
-		if (opts.refused) opts.refused();
-		var open = await webuiV1Session();
-		if (open || await webuiV1SignIn()) {
-			if (opts.retried) opts.retried();
-			resp = await _webuiV1Send(method, path, opts);
-		} else {
-			declined = true;
+	// the button is the one of the click being handled, so taken before the
+	// first await
+	var waits = method !== 'GET' && typeof webuiWaitBegin === 'function';
+	var btn = waits && opts.mark !== false ? webuiWaitButton() : null;
+	var done = waits ? webuiWaitBegin(btn) : null;
+	try {
+		var resp = await _webuiV1Send(method, path, opts);
+		if (await _webuiV1ChangeOwed(resp))
+			throw await _webuiV1Error(resp, method, path);
+		var declined = false;
+		if (resp.status === 403) {
+			// no open session, or a stale token
+			if (done) done();
+			if (opts.refused) opts.refused();
+			var open = await webuiV1Session();
+			if (open || await webuiV1SignIn()) {
+				if (opts.retried) opts.retried();
+				if (waits) done = webuiWaitBegin(btn);
+				resp = await _webuiV1Send(method, path, opts);
+			} else {
+				declined = true;
+			}
 		}
+		if (!resp.ok) throw _webuiV1Declined(await _webuiV1Error(resp, method, path), declined);
+		if (resp.status === 202 || resp.status === 204) return null;
+		var type = resp.headers.get('Content-Type') || '';
+		return await (type.indexOf('json') >= 0 ? resp.json() : resp.text());
+	} finally {
+		if (done) done();
 	}
-	if (!resp.ok) throw _webuiV1Declined(await _webuiV1Error(resp, method, path), declined);
-	if (resp.status === 202 || resp.status === 204) return null;
-	var type = resp.headers.get('Content-Type') || '';
-	return type.indexOf('json') >= 0 ? resp.json() : resp.text();
 }
 
 // A picture (or any other file) as a Blob, for a screenshot: the same

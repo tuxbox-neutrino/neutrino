@@ -205,7 +205,13 @@ Kernpunkte:
   `<script src="/js/webui-v1.js"></script>`:
   `var info = await webuiV1('GET', '/system/info');` — er meldet sich
   bei einer abgelaufenen Sitzung neu an und wirft einen `Error` mit dem
-  `code` der Ablehnung. Jede Route beschreibt das Dokument der Box
+  `code` der Ablehnung. Eine Änderung, die er sendet und deren Antwort
+  auf sich warten lässt, zeigt einen Balken oben auf der Seite und einen
+  Spinner auf dem Knopf, dessen Klick sie geschickt hat; eine Wartezeit
+  aus mehreren Anfragen markiert
+  `var done = webuiWaitBegin(webuiWaitButton());` … `done();` aus dem
+  Kopf-Skript, aufgerufen im Klick-Handler vor seinem ersten `await`
+  (danach gilt kein Knopf mehr als geklickt). Jede Route beschreibt das Dokument der Box
   selbst, `/api/openapi.json`, durchsuchbar in der Erweiterung
   API-Referenz (`api-docs`), wo das Paket Swagger UI installiert ist. Die alten Routen `/api/v4/`
   und `/control/` gehören nicht zu diesem Vertrag.

@@ -1104,11 +1104,12 @@ async function webuiApi(endpoint, params, opts) {
 
 // A key of the remote control. Over /api/v1 where the page loads webui-v1.js
 // (session, CSRF token), else over the old interface, which extensions and
-// older pages still use.
+// older pages still use. A key the box answers late is not marked busy (the
+// bar alone shows it): a busy button takes no press, and each press is sent.
 async function webuiSendKey(key) {
 	var v1 = typeof webuiV1 === 'function';
 	var send = v1
-		? function() { return webuiV1('POST', '/osd/remote/key', {body: {name: key}}); }
+		? function() { return webuiV1('POST', '/osd/remote/key', {body: {name: key}, mark: false}); }
 		: function() { return webuiApi('rcem', key, {raw: true}); };
 	if (key === 'KEY_POWER') {
 		try {
@@ -2534,6 +2535,124 @@ function webuiShowToast(message, isError) {
 	const shown = isError ? 6000 : 3000;
 	setTimeout(() => { toast.classList.add('leaving'); }, shown - 500);
 	setTimeout(() => { toast.remove(); }, shown);
+}
+
+// A change the box takes long to answer shows that it is under way: after
+// WEBUI_WAIT_DELAY ms a thin moving bar at the top of the page, and the
+// button whose click sent it a spinner in place of its words, until the
+// answer is in; a quick answer shows nothing. webuiV1 does this for every
+// change it sends. A wait that is not one request is marked by its page,
+// in the click handler before its first await (the clicked button is known
+// only until then):
+//   var done = webuiWaitBegin(webuiWaitButton());  ...  done();
+// A button its page shows busy already (aria-busy on it or around it)
+// keeps what the page shows.
+var WEBUI_WAIT_DELAY = 400;
+var _webuiWaits = 0;		// waits under way
+var _webuiWaitShow = null;	// the timer that brings the bar
+var _webuiWaitHide = null;	// the timer that takes it away
+var _webuiWaitSince = 0;	// when the bar came, 0 while it is away
+var _webuiClicked = null;	// the button of the click being handled
+
+/* The button of the click the page handles right now: known before the
+   page's own handlers run, gone once they and what they started at once
+   are through. */
+document.addEventListener('click', function(e) {
+	var btn = e.target && e.target.closest ? e.target.closest('button') : null;
+	_webuiClicked = btn;
+	if (btn) setTimeout(function() { if (_webuiClicked === btn) _webuiClicked = null; }, 0);
+}, true);
+
+function webuiWaitButton() {
+	return _webuiClicked;
+}
+
+function _webuiWaitBar() {
+	var bar = document.getElementById('webui-wait');
+	if (!bar && document.body) {
+		bar = document.createElement('div');
+		bar.id = 'webui-wait';
+		bar.className = 'webui-wait';
+		bar.hidden = true;
+		bar.setAttribute('role', 'progressbar');
+		bar.setAttribute('aria-label', webuiL('msg.waiting', 'Waiting for the box'));
+		document.body.appendChild(bar);
+	}
+	return bar;
+}
+
+/* The spinner stands over the button's words, so the button keeps its
+   size and its lines, in the colour the words had, whatever the button's
+   kind; a button placed on its own keeps its place. Waits that overlap on
+   one button (a second click before the first was marked) share one mark:
+   the first puts it on, the last takes it off. */
+function _webuiWaitMark(btn, on) {
+	btn._webuiWaitN = (btn._webuiWaitN || 0) + (on ? 1 : -1);
+	if (on && btn._webuiWaitN === 1) {
+		var cs = getComputedStyle(btn);
+		btn._webuiWaitKept = {position: btn.style.position, whiteSpace: btn.style.whiteSpace};
+		btn.style.setProperty('--webui-wait-ink', cs.color);
+		if (cs.position === 'static') btn.style.position = 'relative';
+		// Pico keeps a busy element on one line
+		btn.style.whiteSpace = cs.whiteSpace;
+		btn.classList.add('webui-waiting');
+		btn.setAttribute('aria-busy', 'true');
+	} else if (!on && btn._webuiWaitN === 0) {
+		var kept = btn._webuiWaitKept || {};
+		btn.classList.remove('webui-waiting');
+		btn.removeAttribute('aria-busy');
+		btn.style.removeProperty('--webui-wait-ink');
+		btn.style.position = kept.position || '';
+		btn.style.whiteSpace = kept.whiteSpace || '';
+	}
+}
+
+// Starts a wait; the function it returns ends it (once, however often it
+// is called). btn: the button to mark, or null for the bar alone.
+function webuiWaitBegin(btn) {
+	if (btn && btn.closest('[aria-busy="true"]'))
+		btn = null;
+	var done = false;
+	var marked = false;
+	var mark = btn ? setTimeout(function() {
+		if (done || !btn.isConnected) return;
+		_webuiWaitMark(btn, true);
+		marked = true;
+	}, WEBUI_WAIT_DELAY) : null;
+	if (++_webuiWaits === 1) {
+		clearTimeout(_webuiWaitHide);
+		_webuiWaitHide = null;
+		if (!_webuiWaitSince && !_webuiWaitShow) {
+			_webuiWaitShow = setTimeout(function() {
+				_webuiWaitShow = null;
+				var bar = _webuiWaitBar();
+				if (!bar) return;
+				bar.hidden = false;
+				_webuiWaitSince = Date.now();
+			}, WEBUI_WAIT_DELAY);
+		}
+	}
+	return function() {
+		if (done) return;
+		done = true;
+		clearTimeout(mark);
+		if (marked) _webuiWaitMark(btn, false);
+		if (--_webuiWaits > 0) return;
+		if (_webuiWaitShow) {
+			clearTimeout(_webuiWaitShow);
+			_webuiWaitShow = null;
+			return;
+		}
+		if (!_webuiWaitSince) return;
+		// the bar stays a moment: a change that sends its next request at
+		// once keeps one bar, and a bar that just came does not flash
+		_webuiWaitHide = setTimeout(function() {
+			_webuiWaitHide = null;
+			_webuiWaitSince = 0;
+			var bar = document.getElementById('webui-wait');
+			if (bar) bar.hidden = true;
+		}, Math.max(150, 400 - (Date.now() - _webuiWaitSince)));
+	};
 }
 
 // About Modal

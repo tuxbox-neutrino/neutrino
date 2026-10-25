@@ -203,7 +203,13 @@ Key points:
   `<script src="/js/webui-v1.js"></script>`:
   `var info = await webuiV1('GET', '/system/info');` — it signs in
   again on a stale session and throws an `Error` carrying the refusal's
-  `code`. Every route is described in the box's own document,
+  `code`. A change it sends that the box takes long to answer shows a
+  bar at the top of the page and a spinner on the button whose click
+  sent it; a wait made of more than one request is marked with
+  `var done = webuiWaitBegin(webuiWaitButton());` … `done();` from the
+  header script, called in the click handler before its first `await`
+  (afterwards no button counts as clicked). Every route is described in
+  the box's own document,
   `/api/openapi.json`, browsable in the API reference extension
   (`api-docs`) where the Swagger UI package is installed. The old `/api/v4/` and `/control/` routes are
   not part of this contract.

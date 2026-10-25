@@ -697,6 +697,74 @@ html.webui-side-narrow .webui-side .webui-side-toggle {
 	opacity: 0;
 }
 
+/* A change the box takes long to answer (webuiWaitBegin): a thin bar at
+   the very top that keeps moving, above the dialogs too */
+.webui-wait {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	z-index: 10001;
+	height: 3px;
+	overflow: hidden;
+	background: var(--webui-accent-light);
+	pointer-events: none;
+}
+
+.webui-wait[hidden] {
+	display: none;
+}
+
+.webui-wait::after {
+	content: "";
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	width: 30%;
+	background: var(--webui-accent);
+	animation: webui-wait-run 1.1s ease-in-out infinite;
+}
+
+@keyframes webui-wait-run {
+	from { transform: translateX(-100%); }
+	to { transform: translateX(340%); }
+}
+
+/* Without motion the bar stands full; the spinner below keeps turning, as
+   Pico's own does: it is the only sign that something is under way. */
+@media (prefers-reduced-motion: reduce) {
+	.webui-wait::after {
+		width: 100%;
+		animation: none;
+	}
+}
+
+/* and a spinner on the button whose click sent it, over its words and in
+   their colour (the script places the button and names the colour). The
+   words go transparent over any colour the button's kind or state gives
+   them; Pico's own spinner for aria-busy is not drawn here. */
+.webui-waiting {
+	color: transparent !important;
+}
+
+.webui-waiting[aria-busy="true"]::before {
+	content: none;
+}
+
+.webui-waiting::after {
+	content: "";
+	position: absolute;
+	inset: 0;
+	width: 1em;
+	height: 1em;
+	margin: auto;
+	border: 2px solid var(--webui-wait-ink, currentColor);
+	border-right-color: transparent;
+	border-radius: 50%;
+	animation: webui-spin 0.8s linear infinite;
+}
+
 /* the tab bar, on a phone only, and what "More" opens above it */
 .webui-tabbar {
 	display: none;

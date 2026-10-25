@@ -257,6 +257,7 @@
 	"sb.sleep": "Box geht in Standby",
 	"sb.fail": "Standby fehlgeschlagen",
 	"msg.loading": "Lade...",
+	"msg.waiting": "Warte auf die Box",
 	"si.refresh": "Aktualisieren",
 	"si.network": "Netzwerk",
 	"si.no_ifaces": "Keine Interfaces",

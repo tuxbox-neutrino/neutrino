@@ -1983,11 +1983,16 @@ async function saveSettings() {
 	// no edits while the box answers and the form is drawn again: a
 	// refusal arriving late must not replace a newer input
 	var go = async function() {
+		// one wait for the whole save, which is several requests; the
+		// button is the Save clicked, or the question's own, which shows
+		// its busy mark itself
+		var done = webuiWaitBegin(webuiWaitButton());
 		settingsBusy(true);
 		try {
 			await saveSettingsNow(values, params, changed, v1dirty);
 		} finally {
 			settingsBusy(false);
+			done();
 		}
 	};
 	var risks = settingsRisks(v1dirty);
