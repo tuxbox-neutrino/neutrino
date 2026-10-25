@@ -1149,7 +1149,9 @@ async function webuiSendKey(key) {
  *   The returned HTML must have a single root element with id=opts.id and
  *   data-rc-onkey=opts.onKey. Buttons call the opts.onKey global with a
  *   valid KEY_* name (generated rcsim.h table; note KEY_TIME, not
- *   KEY_TIMER). Opt into auto-repeat/press feedback via data-rc-repeat +
+ *   KEY_TIMER, and KEY_HOME for Exit: the table has no KEY_EXIT, which
+ *   the box answers with 400). Opt into auto-repeat/press feedback via
+ *   data-rc-repeat +
  *   data-rc-key attributes. Use real <button type="button"> elements with
  *   aria-labels on icon-only keys and aria-hidden SVGs.
  *   See extensions/README.md for a minimal renderer example.
@@ -1207,7 +1209,7 @@ function webuiGetRemoteHTML(opts) {
 			'<div class="webui-rc-pad">' +
 				'<div class="webui-rc-pair">' +
 					btn('webui-rc-func', 'KEY_SETUP', webuiL('rc.menu', 'Menu')) +
-					btn('webui-rc-func', 'KEY_EXIT', webuiL('rc.exit', 'Exit')) +
+					btn('webui-rc-func', 'KEY_HOME', webuiL('rc.exit', 'Exit')) +
 				'</div>' +
 				'<div class="webui-rc-dpad">' +
 					'<div></div>' + iconBtn('webui-rc-arrow', 'KEY_UP', webuiL('rc.up', 'Up'), svgUp) + '<div></div>' +

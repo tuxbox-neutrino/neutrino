@@ -162,8 +162,9 @@ Contract:
   `data-rc-onkey=opts.onKey`; `opts.onKey` is the **name** of a global
   function taking a `KEY_*` string.
 - Valid key names come from the generated `rcsim.h` table (source:
-  `src/driver/rcinput.h`); note **`KEY_TIME`** (not `KEY_TIMER`) and
-  `KEY_FAVORITES`.
+  `src/driver/rcinput.h`); note **`KEY_TIME`** (not `KEY_TIMER`),
+  `KEY_FAVORITES`, and **`KEY_HOME`** for Exit: the table has no
+  `KEY_EXIT`, and the box refuses a name it does not have.
 - Use real `<button type="button">` elements; icon-only keys need
   `aria-label`, inline SVGs `aria-hidden="true"`. Buttons opt into
   auto-repeat and press feedback via `data-rc-repeat="1"` +

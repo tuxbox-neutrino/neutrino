@@ -164,7 +164,9 @@ Vertrag:
   einer globalen Funktion, die einen `KEY_*`-String entgegennimmt.
 - Gültige Key-Namen stammen aus der generierten `rcsim.h`-Tabelle
   (Quelle: `src/driver/rcinput.h`); Achtung: **`KEY_TIME`** (nicht
-  `KEY_TIMER`) und `KEY_FAVORITES`.
+  `KEY_TIMER`), `KEY_FAVORITES` und **`KEY_HOME`** für Exit: Die
+  Tabelle kennt kein `KEY_EXIT`, und einen Namen, den sie nicht hat,
+  lehnt die Box ab.
 - Echte `<button type="button">`-Elemente verwenden; reine Icon-Tasten
   brauchen `aria-label`, Inline-SVGs `aria-hidden="true"`. Tasten
   melden sich mit `data-rc-repeat="1"` + `data-rc-key="KEY_…"` für
