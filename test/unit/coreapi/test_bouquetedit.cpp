@@ -417,6 +417,27 @@ TEST_CASE("the order a list is written in is the order the bouquet holds", "[bou
 	REQUIRE(holds(e.fake.bouquet_members[2], DLF));
 }
 
+TEST_CASE("a channel a list names twice is held once, where the list names it first",
+          "[bouquetedit]")
+{
+	/* The route keeps the first mention, but this layer is reached by more
+	   than the route, and the box would put a channel named twice in twice:
+	   it reads the half once, before anything is sent. */
+	Edit e;
+
+	ChannelIdList asked;
+	asked.push_back(ZDF);
+	asked.push_back(ERSTE);
+	asked.push_back(ZDF);
+	REQUIRE(channels::setBouquetChannels("Favoriten", asked, channels::Mode::Tv).ok());
+
+	ChannelIdList once;
+	once.push_back(ZDF);
+	once.push_back(ERSTE);
+	REQUIRE(televisionOf(e.fake.bouquet_members[2]) == once);
+	REQUIRE(holds(e.fake.bouquet_members[2], DLF));
+}
+
 TEST_CASE("a list naming a channel the box does not have changes nothing", "[bouquetedit]")
 {
 	Edit e;
@@ -749,6 +770,30 @@ TEST_CASE("a half filled in the wrong order is not the list that was asked for",
 	turned.push_back(ERSTE);
 	turned.push_back(ZDF);
 	REQUIRE(televisionOf(e.fake.bouquet_members[2]) == turned);
+}
+
+TEST_CASE("a half the bouquet file named a channel twice in reads back as the list",
+          "[bouquetedit]")
+{
+	/* The bouquet file named ERSTE twice. The box keeps the second one behind
+	   the list, and the listing answers ERSTE once, so the half reads back as
+	   the list that was sent. A reading back held to every entry answered that
+	   nothing had changed, for every list sent to such a bouquet. */
+	Edit e;
+	e.fake.repeats_kept = true;
+	e.fake.bouquet_members[2].push_back(e.fake.channels[0]);
+
+	ChannelIdList asked;
+	asked.push_back(ZDF);
+	asked.push_back(ERSTE);
+	REQUIRE(channels::setBouquetChannels("Favoriten", asked, channels::Mode::Tv).ok());
+
+	// The box as it is: the repeat behind the list, the list in its order.
+	ChannelIdList held;
+	held.push_back(ZDF);
+	held.push_back(ERSTE);
+	held.push_back(ERSTE);
+	REQUIRE(televisionOf(e.fake.bouquet_members[2]) == held);
 }
 
 TEST_CASE("a list that cannot be read back is not a change that did not happen",

@@ -25,6 +25,7 @@
 #include "coreapi/base/deps.h"
 #include "coreapi/settings/settingstable.h"
 
+#include <algorithm>
 #include <cstdio>
 #include <cstring>
 #include <map>
@@ -128,6 +129,7 @@ struct FakeChannelSource : public coreapi::ChannelSource
 		  rename_cuts_name(false),
 		  rename_lands_beside(false),
 		  order_ignored(false),
+		  repeats_kept(false),
 		  reads_fail_after_write(false) {}
 
 	coreapi::Status allChannels(bool tv, coreapi::ChannelList &out) const
@@ -345,6 +347,11 @@ struct FakeChannelSource : public coreapi::ChannelSource
 	// back asking only which channels are in the half would pass.
 	bool order_ignored;
 
+	/* A channel the half held twice stays twice, the second behind the list,
+	   which is what the box does: the list names it, so it is not taken out,
+	   and the moves put the second one behind everything the list names. */
+	bool repeats_kept;
+
 	/* The list stops being readable once a change has been made. That window
 	   is between a write and the read after it and neither of them can see
 	   into it, because the box rebuilds this list from a thread of its own.
@@ -496,6 +503,19 @@ struct FakeChannelSource : public coreapi::ChannelSource
 			for (size_t j = 0; j < channels.size(); j++)
 				if (channels[j].id == ids[at])
 					kept.push_back(channels[j]);
+		}
+		if (repeats_kept)
+		{
+			std::vector<coreapi::ChannelId> seen;
+			for (size_t i = 0; i < was.size(); i++)
+			{
+				if (isTv(was[i].kind) != tv)
+					continue;
+				if (std::find(seen.begin(), seen.end(), was[i].id) == seen.end())
+					seen.push_back(was[i].id);
+				else if (std::find(ids.begin(), ids.end(), was[i].id) != ids.end())
+					kept.push_back(was[i]);
+			}
 		}
 		bouquet_members[id] = kept;
 		recount(id);

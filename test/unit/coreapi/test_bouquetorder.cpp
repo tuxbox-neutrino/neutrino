@@ -142,6 +142,17 @@ TEST_CASE("a channel named twice is placed once", "[bouquetorder]")
 	REQUIRE(ordered("abc", "ccab") == "cab");
 }
 
+TEST_CASE("a channel the half holds twice is placed once and its repeat left behind",
+          "[bouquetorder]")
+{
+	/* A bouquet file can name a channel twice, and the half then holds both.
+	   The first is put where the list asks, the second ends up behind it with
+	   whatever else the list does not name, so the half read with each channel
+	   once is the list. */
+	REQUIRE(ordered("abac", "abc") == "abca");
+	REQUIRE(ordered("aabc", "cba") == "cbaa");
+}
+
 TEST_CASE("the plan is written against what the moves leave and not against what arrived",
           "[bouquetorder]")
 {

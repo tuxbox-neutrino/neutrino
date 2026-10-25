@@ -33,6 +33,7 @@
 #include <cstddef>
 #include <cstdio>
 #include <cstring>
+#include <set>
 #include <string>
 #include <utility>
 #include <vector>
@@ -650,10 +651,31 @@ bool isTelevision(ServiceKind k)
 	return k != ServiceKind::Radio && k != ServiceKind::WebRadio;
 }
 
+/* Each channel once, at the first place the list names it. A bouquet file can
+   name a channel twice and the box then holds both, while the listing answers
+   each channel once, so this is the half as a caller reads it. */
+ChannelIdList onceEach(const ChannelIdList &list)
+{
+	ChannelIdList out;
+	out.reserve(list.size());
+	std::set<ChannelId> seen;
+	for (size_t i = 0; i < list.size(); i++)
+		if (seen.insert(list[i]).second)
+			out.push_back(list[i]);
+	return out;
+}
+
 /* The half the list was written to, whole. Compared as a sequence and not as a
    set, because the box counts the numbers it draws beside a channel off that
    order, so a read that only asked which channels are in the half would pass a
-   write that put them in and lost the order. */
+   write that put them in and lost the order.
+
+   Compared as the listing answers it, each channel once. A half that held a
+   channel twice keeps the second one: the list names the channel, so it is not
+   taken out, and taking it out would take out both and could take the channel
+   off the box. The moves put it behind the list, and a reading back held to
+   every entry found the half longer than the list and answered that nothing
+   had changed, for every list sent to such a bouquet. */
 Result<void> probeChannels(const std::string &name, const ChannelIdList &ids, Mode kind)
 {
 	uint32_t id = 0;
@@ -675,7 +697,7 @@ Result<void> probeChannels(const std::string &name, const ChannelIdList &ids, Mo
 	for (size_t i = 0; i < now.size(); i++)
 		if (isTelevision(now[i].kind) == (kind == Mode::Tv))
 			half.push_back(now[i].id);
-	return (half == ids) ? ok() : notChanged();
+	return (onceEach(half) == ids) ? ok() : notChanged();
 }
 
 /* What the list costs the box: the channels the half holds now that the list
@@ -857,12 +879,17 @@ Result<void> setBouquetLock(const std::string &name, bool locked)
 	return settled(done, probeFlag(name, Flag::Locked, locked));
 }
 
-Result<void> setBouquetChannels(const std::string &name, const ChannelIdList &ids, Mode kind,
+Result<void> setBouquetChannels(const std::string &name, const ChannelIdList &asked, Mode kind,
                                 bool remove_from_box)
 {
 	Result<uint32_t> at = position(name);
 	if (!at.ok())
 		return fail(at.error());
+
+	/* A channel named twice once, where it is named first, as the route already
+	   reads a body. The box would put it in twice, the half being read before
+	   anything is sent. */
+	const ChannelIdList ids = onceEach(asked);
 
 	/* Every one of them before any of them, because what follows replaces what
 	   the bouquet held: a list checked as it was applied would leave the bouquet
