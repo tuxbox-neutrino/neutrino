@@ -511,7 +511,7 @@ bool COPKGManager::isFilteredPackage(std::string &package_name, opkg_pattern_lis
 		}
 		else if (p.substr(0, 1) == "^")
 		{ /* match at beginning */
-			if (package_name.find(p.substr(1)) != std::string::npos)
+			if (package_name.compare(0, patlen, p, 1, patlen) == 0)
 				res = true;
 		}
 		else
