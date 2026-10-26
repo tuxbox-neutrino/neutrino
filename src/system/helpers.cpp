@@ -407,7 +407,7 @@ int my_system(int argc, const char *arg, ...)
 #define ARGV_MAX 64
 	/* static right now but could be made dynamic if necessary */
 	int argv_max = ARGV_MAX;
-	const char *argv[ARGV_MAX];
+	const char *argv[ARGV_MAX + 1]; /* ARGV_MAX arguments and the sentinel */
 	va_list args;
 	argv[0] = arg;
 	va_start(args, arg);
