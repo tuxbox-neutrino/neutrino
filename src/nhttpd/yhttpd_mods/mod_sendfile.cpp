@@ -37,6 +37,11 @@
 //			Modified-Since date, the server SHOULD return a 304 (Not
 //			Modified) response.
 //
+//	Note (RFC 2616 / 14.25): some servers use an exact date comparison
+//	rather than a less-than function; clients are advised to send back the
+//	exact Last-Modified string. This handler compares exactly, so a newer
+//	file carrying an earlier date (clock set back) goes out again.
+//
 //	yjogol: ASSUMPTION Date-Format is ONLY RFC 1123 compatible!
 //=============================================================================
 
@@ -92,7 +97,15 @@ THandleStatus CmodSendfile::Hook_PrepareResponse(CyhookHandler *hh) {
 			if (S_ISREG(statbuf.st_mode)) {
 				// get file size and modify date
 				hh->ContentLength = statbuf.st_size;
-				hh->LastModified = statbuf.st_mtime;
+				// Packages and images clamp their files to one reference time
+				// per build, and two builds can share it: an update can bring
+				// a file with the modification time of the one it replaces.
+				// The change time cannot be set from user space; a file
+				// unpacked on the box carries the time of that unpacking, so
+				// the later of the two tells the versions apart as long as
+				// the box's clock was past the reference time at installation.
+				hh->LastModified = (statbuf.st_ctime > statbuf.st_mtime)
+						? statbuf.st_ctime : statbuf.st_mtime;
 			}
 			close(filed);
 
@@ -110,8 +123,13 @@ THandleStatus CmodSendfile::Hook_PrepareResponse(CyhookHandler *hh) {
 			// normalize obj_last_modified to GMT
 			struct tm *tmp = gmtime(&(hh->LastModified));
 			time_t LastModifiedGMT = mktime(tmp);
+			// A copy is current only if it carries exactly the date this
+			// file goes out with: the client sends back the date it was
+			// given. Any other date, earlier or later, belongs to another
+			// version; once the clock has been set back, a newer file can
+			// carry an earlier date.
 			bool modified = (if_modified_since == (time_t) - 1)
-					|| (if_modified_since < LastModifiedGMT);
+					|| (if_modified_since != LastModifiedGMT);
 
 			// Send normal or not-modified header
 			if (modified) {
