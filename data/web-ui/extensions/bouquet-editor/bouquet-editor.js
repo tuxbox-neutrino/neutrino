@@ -40,6 +40,7 @@ var I_KEY = sIcon('<rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><pat
 var I_X = sIcon('<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>');
 var I_PLUS = sIcon('<line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>');
 var I_EYEOFF = sIcon('<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/>');
+var I_AUTO = sIcon('<path d="M21 12a9 9 0 0 1-15.5 6.2L3 16"/><path d="M3 12a9 9 0 0 1 15.5-6.2L21 8"/><path d="M3 21v-5h5"/><path d="M21 3v5h-5"/>');
 var I_TWIN = sIcon('<rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>');
 
 function bqeMode() {
@@ -57,6 +58,21 @@ function bqeShared(name) {
 	for (var i = 0; i < bqeBouquets.length; i++)
 		if (bqeBouquets[i].name === name && ++n > 1) return true;
 	return false;
+}
+
+// A bouquet the box builds itself (editable false: the one of the
+// channels no other bouquet holds, WebTV, web radio) is shown and never
+// changed, as the box would make it again.
+function bqeFixed(b) {
+	return !!b && b.editable === false;
+}
+
+function bqeSelFixed() {
+	return !!bqeSel && bqeFixed(bqeById(bqeSel.id));
+}
+
+function bqeFixedText() {
+	return webuiL('bqe.fixed', 'The box builds this bouquet itself - it cannot be changed here');
 }
 
 function bqePath(name, sub) {
@@ -87,10 +103,10 @@ function bqeChanReady() {
 	return !!(bqeSel && bqeChanOf && bqeChanOf.sel === bqeSel && bqeChanOf.mode === bqeMode());
 }
 
-// A bouquet whose name another one carries cannot be applied, so its
-// list is not edited either.
+// A bouquet whose name another one carries cannot be applied, and one
+// the box builds itself takes no change, so neither list is edited.
 function bqeEditable() {
-	return bqeChanReady() && !bqeShared(bqeSel.name);
+	return bqeChanReady() && !bqeShared(bqeSel.name) && !bqeSelFixed();
 }
 
 // The working copy goes; nothing can be edited until the chosen
@@ -127,10 +143,12 @@ function setDirty(d) {
 // bouquet in the shown mode and changed since, and one at a time.
 function bqeUpdateApply() {
 	var shared = !!(bqeSel && bqeShared(bqeSel.name));
+	var fixed = bqeSelFixed();
 	['bqeApplyBtn', 'bqeActsApply'].forEach(function(id) {
 		var apply = document.getElementById(id);
-		apply.disabled = shared || bqeApplying || !bqeChanDirty || !bqeChanReady();
-		apply.title = shared ? webuiL('bqe.shared', 'More than one bouquet carries this name - rename one of them on the box first') : webuiL('bqe.apply_title', 'Take over the channel list of this bouquet');
+		apply.disabled = shared || fixed || bqeApplying || !bqeChanDirty || !bqeChanReady();
+		apply.title = shared ? webuiL('bqe.shared', 'More than one bouquet carries this name - rename one of them on the box first') :
+			fixed ? bqeFixedText() : webuiL('bqe.apply_title', 'Take over the channel list of this bouquet');
 	});
 }
 
@@ -332,22 +350,27 @@ function bqeRenderBouquets() {
 	bqeBouquets.forEach(function(b) {
 		var n = radio ? b.radio_count : b.tv_count;
 		var shared = bqeShared(b.name);
-		var off = shared ? ' disabled title="' + webuiLH('bqe.shared', 'More than one bouquet carries this name - rename one of them on the box first') + '"' : '';
+		var fixed = bqeFixed(b);
+		// a row that takes no change says why on each of its buttons
+		var why = shared ? webuiL('bqe.shared', 'More than one bouquet carries this name - rename one of them on the box first') :
+			fixed ? bqeFixedText() : '';
+		var off = why ? ' disabled title="' + escapeHtml(why) + '"' : '';
 		// a switch keeps its name and says its state by aria-pressed; only
 		// the hint for the mouse says what a click does next
 		function btn(act, cls, title, icon, pressed, name) {
 			return '<button type="button" class="bqe-mini' + cls + '" data-act="' + act + '"' +
 				(pressed === undefined ? '' : ' aria-pressed="' + pressed + '"') +
-				(shared ? off : ' title="' + escapeHtml(title) + '"') + ' aria-label="' + escapeHtml(name || title) + '">' + icon + '</button>';
+				(why ? off : ' title="' + escapeHtml(title) + '"') + ' aria-label="' + escapeHtml(name || title) + '">' + icon + '</button>';
 		}
-		function flag(text, icon) {
-			return '<span role="img" title="' + escapeHtml(text) + '" aria-label="' + escapeHtml(text) + '">' + icon + '</span>';
+		function flag(text, icon, kind) {
+			return '<span role="img"' + (kind ? ' data-flag="' + kind + '"' : '') + ' title="' + escapeHtml(text) + '" aria-label="' + escapeHtml(text) + '">' + icon + '</span>';
 		}
 		var sel = bqeSel && b.id === bqeSel.id;
 		html += '<li tabindex="0" data-id="' + esc(b.id) + '"' + (sel ? ' class="sel" aria-current="true"' : '') + '>' +
 			'<span class="nm">' + esc(b.id) + ' ' + esc(b.name) + '</span>' +
 			'<span class="flags">' +
 				(shared ? flag(webuiL('bqe.shared', 'More than one bouquet carries this name - rename one of them on the box first'), I_TWIN) : '') +
+				(fixed ? flag(bqeFixedText(), I_AUTO, 'fixed') : '') +
 				(b.hidden ? flag(webuiL('bqe.hidden', 'hidden'), I_EYEOFF) : '') +
 				(b.locked ? flag(webuiL('bqe.locked', 'locked'), I_KEY) : '') +
 				' ' + n + '</span>' +
@@ -402,6 +425,7 @@ function bqeRenderChannels() {
 	var ready = bqeChanReady();
 	var off = bqeEditable() ? '' : ' disabled';
 	bqeUpdateApply();
+	document.getElementById('bqeFixed').hidden = !bqeSelFixed();
 	document.getElementById('bqeChTitle').textContent = !bqeSel ? webuiL('bqe.channels', 'Channels') :
 		(webuiL('bqe.channels', 'Channels') + ': ' + bqeSel.name + (ready ? ' (' + bqeChan.length + ')' : ''));
 	var html = '';
@@ -441,6 +465,7 @@ function bqeRenderAll() {
 	var addTitle = !can ? webuiLH('bqe.t_add', 'add') :
 		!bqeSel ? webuiLH('bqe.pick_left', 'Pick a bouquet on the left') :
 		bqeShared(bqeSel.name) ? webuiLH('bqe.shared', 'More than one bouquet carries this name - rename one of them on the box first') :
+		bqeSelFixed() ? escapeHtml(bqeFixedText()) :
 		webuiLH('msg.loading', 'Loading...');
 	var inBq = {};
 	bqeChan.forEach(function(c) { inBq[c.id] = true; });
@@ -655,7 +680,7 @@ function bqeChAdd(id, name) {
 // off the box, so the box refuses it until the user has said so here.
 async function bqeApplyChannels(remove, fromQuestion) {
 	if (!bqeSel) { webuiShowToast(webuiL('bqe.none_picked', 'No bouquet selected'), true); return; }
-	if (bqeApplying || !bqeChanDirty || !bqeChanReady() || bqeShared(bqeSel.name)) return;
+	if (bqeApplying || !bqeChanDirty || !bqeChanReady() || bqeShared(bqeSel.name) || bqeSelFixed()) return;
 	// while the question is open, only its answer sends the list
 	if (!fromQuestion && document.querySelector('.webui-confirm-backdrop')) return;
 	bqeApplying = true;

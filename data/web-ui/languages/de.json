@@ -190,6 +190,7 @@
 	"err.restore-refused": "Die Box hat die Sicherungsdatei abgelehnt",
 	"err.wake-not-sent": "Das Weckpaket wurde nicht gesendet",
 	"err.script-missing": "Dafür hat die Box kein Skript",
+	"err.bouquet-not-editable": "Dieses Bouquet erstellt die Box selbst, es lässt sich nicht ändern",
 	"err.extension-refused.400": "Signatur oder Archiv passen nicht",
 	"err.extension-refused.409": "Gerade wird eine andere Erweiterung installiert oder entfernt",
 	"err.extension-refused.501": "Dieses Image kann signierte Erweiterungen nicht prüfen",

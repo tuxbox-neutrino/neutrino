@@ -190,6 +190,7 @@
 	"err.restore-refused": "The box refused the backup file",
 	"err.wake-not-sent": "The wake-up packet was not sent",
 	"err.script-missing": "The box has no script for this",
+	"err.bouquet-not-editable": "The box builds this bouquet itself, it cannot be changed",
 	"err.extension-refused.400": "Signature or archive do not match",
 	"err.extension-refused.409": "Another extension is being installed or removed",
 	"err.extension-refused.501": "This image cannot check signed extensions",

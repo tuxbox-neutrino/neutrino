@@ -40,6 +40,8 @@
 	"bqe.renamed": "Renamed",
 	"bqe.search": "search...",
 	"bqe.shared": "More than one bouquet carries this name - rename one of them on the box first",
+	"bqe.fixed": "The box builds this bouquet itself - it cannot be changed here",
+	"bqe.fixed_note": "The box builds this bouquet itself (the channels no other bouquet holds, WebTV, web radio) and makes it again, so a change would not last. It is only shown here.",
 	"bqe.t_add": "add",
 	"bqe.t_del": "delete",
 	"bqe.t_down": "down",

@@ -2395,6 +2395,7 @@ var WEBUI_ERR_TEXTS = {
 	'restore-refused': 'The box refused the backup file',
 	'wake-not-sent': 'The wake-up packet was not sent',
 	'script-missing': 'The box has no script for this',
+	'bouquet-not-editable': 'The box builds this bouquet itself, it cannot be changed',
 	// one code for several refusals: its words by the kind of answer too
 	'extension-refused.400': 'Signature or archive do not match',
 	'extension-refused.409': 'Another extension is being installed or removed',

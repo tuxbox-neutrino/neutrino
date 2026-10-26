@@ -40,6 +40,8 @@
 	"bqe.renamed": "Umbenannt",
 	"bqe.search": "suchen...",
 	"bqe.shared": "Diesen Namen tragen mehrere Bouquets - erst eines davon auf der Box umbenennen",
+	"bqe.fixed": "Dieses Bouquet erstellt die Box selbst - hier nicht änderbar",
+	"bqe.fixed_note": "Dieses Bouquet erstellt die Box selbst (übrige Kanäle, WebTV, Webradio) und baut es immer wieder neu, eine Änderung bliebe nicht erhalten. Es wird hier nur angezeigt.",
 	"bqe.t_add": "hinzufügen",
 	"bqe.t_del": "löschen",
 	"bqe.t_down": "runter",

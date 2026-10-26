@@ -64,6 +64,7 @@
 		.bqe-mini:disabled { opacity: 0.5; cursor: default; }
 		.bqe-stale { display: flex; align-items: center; gap: 0.6rem; margin: 0 0 0.8rem; padding: 0.4rem 0.8rem; border: 1px solid var(--webui-accent); border-radius: var(--webui-radius); font-size: var(--webui-font-xs); }
 		.bqe-stale[hidden] { display: none; }
+		.bqe-note { margin: 0 0 0.6rem; font-size: var(--webui-font-xs); }
 		/* Drag & Drop: Einfuegelinie oben/unten, Ziel-Rahmen der Liste */
 		.bqe-list li[draggable="true"] { cursor: grab; }
 		.bqe-list li[draggable="true"]:active { cursor: grabbing; }
@@ -187,6 +188,7 @@
 					<button type="button" class="bqe-mini" id="bqeDiscardBtn" onclick="bqeDiscard()" title="Discard the channel changes not applied yet" data-l-title="bqe.discard_title" disabled data-l="bqe.discard">Discard</button>
 				</header>
 				<div class="webui-card-body">
+					<p class="webui-text-muted bqe-note" id="bqeFixed" hidden data-l="bqe.fixed_note">The box builds this bouquet itself (the channels no other bouquet holds, WebTV, web radio) and makes it again, so a change would not last. It is only shown here.</p>
 					<ul class="webui-plain-list bqe-list" id="bqeChannels" ondragover="bqeListOver(event)" ondragleave="bqeListLeave(event)" ondrop="bqeListDrop(event)"></ul>
 				</div>
 			</article>
