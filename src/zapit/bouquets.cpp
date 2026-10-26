@@ -588,6 +588,11 @@ void CBouquetManager::parseBouquetsXml(const char *fname, bool bUser)
 				newBouquet->bUseCI = useci ? (strcmp(useci, "1") == 0) : false;
 			}
 			channel_node = xmlChildrenNode(search);
+			/* A file may name a channel twice in one bouquet. The bouquet takes
+			   it once, from the first entry: a second one would show the channel
+			   twice in the list and count it twice for the bouquet's lock,
+			   while removing it takes away every entry and counts once. */
+			std::set<t_channel_id> in_bouquet;
 			while ((channel_node = xmlGetNextOccurence(channel_node, "S")) != NULL) {
 				std::string name2;
 				name = xmlGetAttribute(channel_node, "n");
@@ -638,7 +643,10 @@ void CBouquetManager::parseBouquetsXml(const char *fname, bool bUser)
 						snprintf(buf, sizeof(buf), "%llx", chan->getChannelID() & 0xFFFFFFFFFFFFULL);
 						chan->setEPGmap("#" + new_epgxml + "=" + buf);
 					}
-					newBouquet->addServiceLocked(chan);
+					if (in_bouquet.insert(chan->getChannelID()).second)
+						newBouquet->addServiceLocked(chan);
+					else
+						INFO("Skipping second entry of %s in bouquet %s", chan->getName().c_str(), newBouquet->Name.c_str());
 				} else if (bUser) {
 					if (url) {
 						chid = create_channel_id64(0, 0, 0, 0, 0, url);
@@ -657,7 +665,8 @@ void CBouquetManager::parseBouquetsXml(const char *fname, bool bUser)
 					chan->bLocked = clock;
 					if(!(uname.empty()))
 						chan->setUserName(uname);
-					newBouquet->addServiceLocked(chan);
+					if (in_bouquet.insert(chan->getChannelID()).second)
+						newBouquet->addServiceLocked(chan);
 					CServiceManager::getInstance()->SetServicesChanged(false);
 				}
 
