@@ -759,7 +759,18 @@ TEST_CASE("a name under a directory too long to spell is still read", "[storage]
 	const std::string name(64, 'n');
 	REQUIRE(deep.size() + 1 + name.size() > PATH_MAX);
 	REQUIRE(writeFile(shortcut + "/" + name, "0123456789012"));
-	REQUIRE(chown((shortcut + "/" + name).c_str(), 1234, 5678) == 0);
+
+	/* An owner that is not nought, so that a reading is told from nothing read. Only
+	   root may give a file away; anybody else already owns it under a number that is
+	   not nought, and it is that number the listing has to bring back. */
+	uid_t uid = ::geteuid();
+	gid_t gid = ::getegid();
+	if (uid == 0)
+	{
+		uid = 1234;
+		gid = 5678;
+		REQUIRE(chown((shortcut + "/" + name).c_str(), uid, gid) == 0);
+	}
 
 	storage::setRoots(box.dir);
 	Listing r = storage::list(shortcut);
@@ -767,8 +778,8 @@ TEST_CASE("a name under a directory too long to spell is still read", "[storage]
 	const FileEntry *entry = findEntry(r.value(), name.c_str());
 	REQUIRE(entry != NULL);
 	REQUIRE(entry->attributes_read);
-	REQUIRE(entry->uid == 1234);
-	REQUIRE(entry->gid == 5678);
+	REQUIRE(entry->uid == uid);
+	REQUIRE(entry->gid == gid);
 	REQUIRE(entry->size == 13);
 }
 

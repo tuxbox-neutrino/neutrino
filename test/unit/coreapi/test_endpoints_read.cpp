@@ -1821,6 +1821,12 @@ TEST_CASE("a credential for part of the box reaches that part and no other root"
 	ShippedRoutes shipped;
 	MediaAndElsewhere box;
 
+	/* The media roots this build ships are /media, /mnt and /hdd, and all three belong
+	   to root, so as anybody else there is nowhere to put the admitted name. Catch2 here
+	   has no way to skip, and a case that cannot run must not be written as one that
+	   passes, so as anybody else this goes red. The note is so that the red line says
+	   which of the two it is. */
+	INFO("this needs to run as root: it makes a directory under /mnt, which is one of the media roots the build ships");
 	REQUIRE_FALSE(box.dir.empty());
 	REQUIRE(putFile(box.mine, "the bytes"));
 	REQUIRE(putFile(box.theirs, "not yours"));
