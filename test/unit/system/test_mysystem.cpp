@@ -114,6 +114,22 @@ bool childrenAreDiscarded()
 	return now.sa_handler == SIG_IGN;
 }
 
+// The ampersand case does not wait for the script: give it time to create
+// its file and, once the file is there, to finish writing to it.
+bool argsWritten()
+{
+	for (int i = 0; i < 200; i++)
+	{
+		if (access(sp().argfile.c_str(), F_OK) == 0)
+		{
+			usleep(100000);
+			return true;
+		}
+		usleep(10000);
+	}
+	return false;
+}
+
 } // namespace
 
 TEST_CASE("an argument that only carries an ampersand is handed on whole", "[mysystem]")
@@ -143,6 +159,7 @@ TEST_CASE("an argument that is the ampersand still asks for the background behav
 
 	int ret = my_system(3, sp().script.c_str(), "&", "second");
 	bool discarded = childrenAreDiscarded();
+	bool ran = argsWritten();
 	std::string args = readArgs();
 
 	// Put back before anything can fail: every later case in this binary would
@@ -151,11 +168,15 @@ TEST_CASE("an argument that is the ampersand still asks for the background behav
 		REQUIRE(sigaction(SIGCHLD, &previous, NULL) == 0);
 
 	REQUIRE(saved);
+	REQUIRE(ran);
 	// The ampersand and everything behind it is dropped, which is what asking
 	// for it has always meant.
 	REQUIRE(args == "");
-	// Collected by the kernel rather than by the call, so there is no status.
+	// The call waits for the shell that starts the command, not for the
+	// command, so there is no status of the command.
 	REQUIRE(ret == 0);
-	REQUIRE(discarded);
+	// That shell starts the command in the background and ends at once;
+	// SIGCHLD of this process stays as it was.
+	REQUIRE_FALSE(discarded);
 	REQUIRE_FALSE(childrenAreDiscarded());
 }
