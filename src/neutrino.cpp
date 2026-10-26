@@ -139,6 +139,7 @@
 #include <system/setting_helpers.h>
 #include <system/settings.h>
 #include <system/helpers.h>
+#include <system/rootdisk.h>
 #include <system/proc_tools.h>
 #include <system/sysload.h>
 
@@ -890,7 +891,9 @@ int CNeutrinoApp::loadSetup(const char *fname)
 	if (g_settings.timeshiftdir.empty())
 	{
 		timeshiftdir = g_settings.network_nfs_recordingdir + "/.timeshift";
-		safe_mkdir(timeshiftdir.c_str());
+		// not into the box's own storage; a recording makes it once the drive is there
+		if (!dir_on_root_disk(timeshiftdir.c_str()))
+			safe_mkdir(timeshiftdir.c_str());
 	}
 	else
 	{

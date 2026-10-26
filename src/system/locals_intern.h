@@ -2780,6 +2780,7 @@ const char * locale_real_names[] =
 	"streaminfo.videosystem",
 	"streaming.busy",
 	"streaming.decryptmode",
+	"streaming.dir_internal",
 	"streaming.dir_not_writable",
 	"streaming.ecmmode",
 	"streaming.overflow",

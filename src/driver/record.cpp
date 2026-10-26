@@ -33,6 +33,7 @@
 #include <sys/un.h>
 #include <sys/stat.h>
 #include <sys/vfs.h>
+#include <sys/sysinfo.h>
 #include <errno.h>
 #include <math.h>
 
@@ -48,6 +49,7 @@
 #include <system/setting_helpers.h>
 #include <system/fsmounter.h>
 #include <system/helpers.h>
+#include <system/rootdisk.h>
 
 #include <driver/display.h>
 #include <driver/record.h>
@@ -914,23 +916,48 @@ void CRecordInstance::FillMovieInfo(CZapitChannel * channel, APIDList & apid_lis
 	recMovieInfo->VtxtPid = allpids.PIDs.vtxtpid;
 }
 
+/* A folder a recording may go into: not on the box's own storage, made if it
+   is missing, and on a file system check_dir takes. The box mounts its drives
+   without making Neutrino wait, so a timer that woke the box can meet a mount
+   point that is still empty: for a timer recording in the first two minutes
+   after the system start the folder is asked about again every 2 s, for up to
+   20 s. Recordings started by hand and timeshift do not wait, as this runs on
+   the thread that draws the screen. */
+static record_error_msg_t recordingDirectory(const std::string &dir, bool timer)
+{
+	for (int tries = 0; dir_on_root_disk(dir.c_str()); tries++)
+	{
+		struct sysinfo info;
+		if (!timer || tries == 10 || sysinfo(&info) != 0 || info.uptime > 120)
+		{
+			printf("[record] %s lies on the box's own storage\n", dir.c_str());
+			return RECORD_INTERNAL_DIRECTORY;
+		}
+		sleep(2);
+	}
+	safe_mkdir(dir.c_str());
+	return check_dir(dir.c_str()) ? RECORD_INVALID_DIRECTORY : RECORD_OK;
+}
+
 record_error_msg_t CRecordInstance::MakeFileName(CZapitChannel * channel)
 {
 	std::string ext_channel_name;
 	unsigned int pos;
 
-	safe_mkdir(Directory.c_str());
-	if(check_dir(Directory.c_str())) {
+	/* recording_id is the timer's event id, and 0 for a recording started by
+	   hand; a timer waits for its own folder only, the fallback is asked once */
+	record_error_msg_t usable = recordingDirectory(Directory, recording_id != 0);
+	if (usable != RECORD_OK) {
 		/* check if Directory and network_nfs_recordingdir the same */
 		if(g_settings.network_nfs_recordingdir != Directory) {
-			safe_mkdir(g_settings.network_nfs_recordingdir.c_str());
 			/* not the same, check network_nfs_recordingdir and return error if not ok */
-			if(check_dir(g_settings.network_nfs_recordingdir.c_str()))
-				return RECORD_INVALID_DIRECTORY;
+			usable = recordingDirectory(g_settings.network_nfs_recordingdir, false);
+			if (usable != RECORD_OK)
+				return usable;
 			/* fallback to g_settings.network_nfs_recordingdir */
 			Directory = g_settings.network_nfs_recordingdir;
 		}else{
-			return RECORD_INVALID_DIRECTORY;
+			return usable;
 		}
 	}
 
@@ -1212,6 +1239,8 @@ static neutrino_locale_t recordErrorToLocale(record_error_msg_t error_msg)
 			return LOCALE_STREAMING_BUSY;
 		case RECORD_INVALID_DIRECTORY:
 			return LOCALE_STREAMING_DIR_NOT_WRITABLE;
+		case RECORD_INTERNAL_DIRECTORY:
+			return LOCALE_STREAMING_DIR_INTERNAL;
 		case RECORD_INVALID_CHANNEL:
 			return LOCALE_CHANNELLIST_RECORDING_NOT_POSSIBLE;
 		case RECORD_FAILURE:

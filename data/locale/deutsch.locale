@@ -2753,6 +2753,7 @@ streaminfo.signal Tuner
 streaminfo.videosystem Videosystem
 streaming.busy Einer oder mehrere Aufnahmeprozesse sind aktiv.\nSollte die Aufnahme eigentlich beendet sein,\nschafft ein Neustart der GUI Abhilfe.
 streaming.decryptmode HTTP Streams entschlüsseln
+streaming.dir_internal Das Aufnahmeverzeichnis liegt im internen Speicher der Box.\nIst der Datenträger eingehängt? Die Aufnahme wird nicht gestartet.
 streaming.dir_not_writable Das Aufnahmeverzeichnis ist nicht beschreibbar.\nAufnahmen sind daher nicht möglich.
 streaming.ecmmode Berechtigungen senden
 streaming.overflow Aufnahme-Puffer Überlauf! Bitte ggf. einige Aufnahmen beenden.

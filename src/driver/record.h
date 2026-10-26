@@ -58,7 +58,9 @@ enum record_error_msg_t
         RECORD_BUSY			= -1,
         RECORD_INVALID_DIRECTORY	= -2,
         RECORD_INVALID_CHANNEL		= -3,
-        RECORD_FAILURE			= -4
+        RECORD_FAILURE			= -4,
+        // the folder lies on the box's own storage (rootdisk.h)
+        RECORD_INTERNAL_DIRECTORY	= -5
 };
 
 class CRecordInstance

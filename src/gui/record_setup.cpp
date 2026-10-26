@@ -57,6 +57,7 @@
 #include <system/debug.h>
 #include <system/helpers.h>
 #include <system/hddstat.h>
+#include <system/rootdisk.h>
 
 CRecordSetup::CRecordSetup()
 {
@@ -98,7 +99,9 @@ int CRecordSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 			if(g_settings.timeshiftdir.empty())
 			{
 				timeshiftDir = g_settings.network_nfs_recordingdir + "/.timeshift";
-				safe_mkdir(timeshiftDir.c_str());
+				// not into the box's own storage; a recording makes it once the drive is there
+				if (!dir_on_root_disk(timeshiftDir.c_str()))
+					safe_mkdir(timeshiftDir.c_str());
 				printf("New timeshift dir: %s\n", timeshiftDir.c_str());
 				CRecordManager::getInstance()->SetTimeshiftDirectory(timeshiftDir);
 			}
@@ -130,7 +133,8 @@ int CRecordSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 				{
 					timeshiftDir = g_settings.network_nfs_recordingdir + "/.timeshift";
 					setSettingsText(g_settings.timeshiftdir, newdir);
-					safe_mkdir(timeshiftDir.c_str());
+					if (!dir_on_root_disk(timeshiftDir.c_str()))
+						safe_mkdir(timeshiftDir.c_str());
 					printf("New timeshift == rec dir\n");
 				}
 				printf("New timeshift dir: %s\n", timeshiftDir.c_str());
