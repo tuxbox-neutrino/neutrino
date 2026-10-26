@@ -1115,16 +1115,27 @@ void CBouquetManager::deletePosition(t_satellite_position satellitePosition)
 	Bouquets = tmplist;
 }
 
-CZapitBouquet* CBouquetManager::addBouquetIfNotExist(const std::string &name)
+/* The web channel bouquet of that name, a provider bouquet that carries it or
+   one made new, marked as web TV or web radio in the same hold of the channel
+   lock that finds or adds it. Threads other than this one walk the bouquets
+   and read the marks off each one under that lock; a mark set after the hold
+   would leave a new bouquet in the vector for a moment as one the box writes
+   to its files and lets be changed. */
+CZapitBouquet* CBouquetManager::addBouquetIfNotExist(const std::string &name, bool webtv)
 {
+	CServiceManager::ChannelGuard guard;
 	CZapitBouquet* bouquet = NULL;
 
 	int bouquetId = existsBouquet(name.c_str(), true);
 	if (bouquetId == -1)
-		bouquet = addBouquet(name, false);
+		bouquet = addBouquetLocked(name, false);
 	else
 		bouquet = Bouquets[bouquetId];
 
+	if (webtv)
+		bouquet->bWebtv = true;
+	else
+		bouquet->bWebradio = true;
 	return bouquet;
 }
 
@@ -1369,11 +1380,7 @@ void CBouquetManager::loadWebchannels(int mode)
 						}
 					}
 
-					pbouquet = addBouquetIfNotExist(bouquet_name);
-					if (mode == MODE_WEBTV)
-						pbouquet->bWebtv = true;
-					else
-						pbouquet->bWebradio = true;
+					pbouquet = addBouquetIfNotExist(bouquet_name, mode == MODE_WEBTV);
 
 					while ((xmlGetNextOccurence(l1, (mode == MODE_WEBTV) ? "webtv" : "webradio")))
 					{
@@ -1410,11 +1417,7 @@ void CBouquetManager::loadWebchannels(int mode)
 						if (genre)
 						{
 							std::string bname = bouquet_name + " " + genre;
-							gbouquet = addBouquetIfNotExist(bname);
-							if (mode == MODE_WEBTV)
-								gbouquet->bWebtv = true;
-							else
-								gbouquet->bWebradio = true;
+							gbouquet = addBouquetIfNotExist(bname, mode == MODE_WEBTV);
 						}
 						if (title && url)
 						{
@@ -1549,11 +1552,7 @@ void CBouquetManager::loadWebchannels(int mode)
 							script = ReadMarkerValue(strInfoLine, TVG_SCRIPT_MARKER);
 						}
 
-						pbouquet = addBouquetIfNotExist((mode == MODE_WEBTV) ? "WebTV" : "WebRadio");
-						if (mode == MODE_WEBTV)
-							pbouquet->bWebtv = true;
-						else
-							pbouquet->bWebradio = true;
+						pbouquet = addBouquetIfNotExist((mode == MODE_WEBTV) ? "WebTV" : "WebRadio", mode == MODE_WEBTV);
 
 					}
 					else if (strLine[0] != '#')
@@ -1579,11 +1578,7 @@ void CBouquetManager::loadWebchannels(int mode)
 										bname = group;
 									else
 										bname += " " + group;
-									gbouquet = addBouquetIfNotExist(bname);
-									if (mode == MODE_WEBTV)
-										gbouquet->bWebtv = true;
-									else
-										gbouquet->bWebradio = true;
+									gbouquet = addBouquetIfNotExist(bname, mode == MODE_WEBTV);
 								}
 
 								t_channel_id chid = create_channel_id64(0, 0, 0, 0, 0, url);
@@ -1697,22 +1692,14 @@ void CBouquetManager::loadWebchannels(int mode)
 
 							desc = "e2 stream";
 
-							pbouquet = addBouquetIfNotExist((mode == MODE_WEBTV) ? "WebTV" : "WebRadio");
-							if (mode == MODE_WEBTV)
-								pbouquet->bWebtv = true;
-							else
-								pbouquet->bWebradio = true;
+							pbouquet = addBouquetIfNotExist((mode == MODE_WEBTV) ? "WebTV" : "WebRadio", mode == MODE_WEBTV);
 
 							CZapitBouquet* gbouquet = pbouquet;
 							if (!group.empty())
 							{
 								std::string bname = (mode == MODE_WEBTV) ? "WebTV" : "WebRadio";
 								bname += ": " + group;
-								gbouquet = addBouquetIfNotExist(bname);
-								if (mode == MODE_WEBTV)
-									gbouquet->bWebtv = true;
-								else
-									gbouquet->bWebradio = true;
+								gbouquet = addBouquetIfNotExist(bname, mode == MODE_WEBTV);
 							}
 
 							if (!url.empty())
