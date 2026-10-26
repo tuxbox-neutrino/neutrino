@@ -401,13 +401,8 @@ int my_system(int argc, const char *arg, ...)
 {
 	// Per call, and never shared: the ampersand belongs to the one command that
 	// carried it, and a value that outlived the call would detach commands that
-	// did not ask and leave this process unable to be told what any of its
-	// children exit with.
-	// volatile because vfork() shares this stack with the child: a copy the
-	// compiler keeps in a register instead of reloading from memory is not
-	// guaranteed to still hold the parent's value once the child (which reads
-	// it too, to decide the SIGCHLD handling) has run.
-	volatile bool background = false;
+	// did not ask.
+	bool background = false;
 	int i = 0, ret, childExit = 0;
 #define ARGV_MAX 64
 	/* static right now but could be made dynamic if necessary */
@@ -429,9 +424,8 @@ int my_system(int argc, const char *arg, ...)
 
 		// The argument has to be the ampersand, not merely carry one: a file
 		// name such as "Film & Serie.iso" is a value and not a request to
-		// detach, and matching it here both cut the argument list short at
-		// that point and left this process unable to be told about any of its
-		// children afterwards.
+		// detach, and matching it here would cut the argument list short at
+		// that point.
 		if (argv[i] != NULL && strcmp(argv[i], "&") == 0)
 		{
 			background = true;
@@ -445,8 +439,25 @@ int my_system(int argc, const char *arg, ...)
 
 	pid_t pid;
 	int maxfd = getdtablesize();// sysconf(_SC_OPEN_MAX);
+	/* A command to run detached is handed to a shell that starts it in the
+	   background and ends at once: the call waits for that shell alone, and
+	   the command, left without its parent, is collected by init. SIGCHLD
+	   stays as it is, so every other child of this process still tells what
+	   it exits with. The shell looks the command up by itself, so a name it
+	   has as a builtin (echo, kill, test) runs as that builtin. Put together
+	   before vfork(): the child only reads it. */
+	const char *detach[ARGV_MAX + 5];
 	if (background)
-		signal(SIGCHLD, SIG_IGN);
+	{
+		int n = 0;
+		detach[n++] = "sh";
+		detach[n++] = "-c";
+		detach[n++] = "\"$@\" &";
+		detach[n++] = "sh";
+		for (int k = 0; argv[k] != NULL; k++)
+			detach[n++] = argv[k];
+		detach[n] = NULL;
+	}
 	switch (pid = vfork())
 	{
 		case -1: /* can't vfork */
@@ -455,15 +466,12 @@ int my_system(int argc, const char *arg, ...)
 			break;
 		case 0: /* child process */
 			ret = 0;
-
-			if (background)
-				signal(SIGCHLD, SIG_DFL);
-
 			for (i = 3; i < maxfd; i++)
 				close(i);
 			if (setsid() == -1)
 				perror("my_system setsid");
-			if (execvp(argv[0], (char *const *)argv))
+			if (background ? execv("/bin/sh", (char *const *)detach)
+				       : execvp(argv[0], (char *const *)argv))
 			{
 				ret = -errno;
 				if (errno != ENOENT) /* don't complain if argv[0] only does not exist */
@@ -472,19 +480,11 @@ int my_system(int argc, const char *arg, ...)
 			_exit(ret); // terminate c h i l d proces s only
 		default: /* parent returns to calling process */
 			ret = 0;
-			/* A background child is not waited for: a background call
-			   ignores SIGCHLD, so the kernel reaps the child by itself, and
-			   waitpid() would block until the child has ended and then fail
-			   with ECHILD.
-			   The ignored disposition is not put back, so from then on no
-			   wait in this process gets an exit status: a my_system() in the
-			   foreground answers 0, and pclose() cannot tell one either. */
-			if (!background)
-			{
-				waitpid(pid, &childExit, 0);
-				if (WEXITSTATUS(childExit) != 0)
-					ret = (signed char)WEXITSTATUS(childExit);
-			}
+			/* for a detached command the shell that started it, which ends
+			   at once */
+			waitpid(pid, &childExit, 0);
+			if (WEXITSTATUS(childExit) != 0)
+				ret = (signed char)WEXITSTATUS(childExit);
 			break;
 	}
 	va_end(args);
