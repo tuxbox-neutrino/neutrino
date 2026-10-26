@@ -308,6 +308,56 @@ TEST_CASE("a name two bouquets carry is refused and not taken as the first", "[b
 	REQUIRE(e.fake.bouquets[2].hidden);
 }
 
+// What a call naming a bouquet the box builds itself must not do, for all six.
+void refusedAsBuiltByBox(const char *which, const Result<void> &r)
+{
+	INFO(which);
+	REQUIRE_FALSE(r.ok());
+	REQUIRE(r.error().status == Status::Conflict);
+	REQUIRE(r.error().code == ErrorCode::BouquetNotEditable);
+}
+
+TEST_CASE("a bouquet the box builds itself is refused before anything is sent", "[bouquetedit]")
+{
+	/* The bouquet of the channels no other bouquet holds is made again at every
+	   renumbering and the web channel ones at every reload, and the box writes
+	   none of them to its files. A change to one would be gone again, so every
+	   call is refused before the box is told anything. */
+	Edit e;
+	BouquetInfo other = bq(4, "Unbekannter Provider");
+	other.user_bouquet = false;
+	other.editable = false;
+	e.fake.bouquets.push_back(other);
+	// the name it carries inside the box, which a route resolves as well
+	e.fake.internal_names[4] = "Other";
+	const size_t before = e.fake.bouquets.size();
+
+	const char *names[] = { "Unbekannter Provider", "Other" };
+	for (size_t n = 0; n < 2; n++)
+	{
+		INFO(names[n]);
+		refusedAsBuiltByBox("delete", channels::deleteBouquet(names[n]));
+		refusedAsBuiltByBox("rename", channels::renameBouquet(names[n], "Andere"));
+		refusedAsBuiltByBox("move", channels::moveBouquet(names[n], channels::Direction::Up));
+		refusedAsBuiltByBox("hide", channels::setBouquetHidden(names[n], true));
+		refusedAsBuiltByBox("lock", channels::setBouquetLock(names[n], true));
+		refusedAsBuiltByBox("fill", channels::setBouquetChannels(names[n], one(ZDF), channels::Mode::Tv));
+	}
+
+	// Nothing changed and nothing was written.
+	REQUIRE(e.fake.bouquets.size() == before);
+	REQUIRE(e.fake.bouquets[3].name == "Unbekannter Provider");
+	REQUIRE(e.fake.bouquets[3].id == 4u);
+	REQUIRE_FALSE(e.fake.bouquets[3].hidden);
+	REQUIRE_FALSE(e.fake.bouquets[3].locked);
+	REQUIRE(e.fake.bouquet_members[4].empty());
+	REQUIRE(e.fake.saves == 0);
+
+	// The bouquets beside it are still reached.
+	REQUIRE(channels::setBouquetHidden("Drittes Bouquet", true).ok());
+	REQUIRE(e.fake.bouquets[2].hidden);
+}
+
 TEST_CASE("a bouquet that was made is in the list and one that was taken away is not",
           "[bouquetedit]")
 {

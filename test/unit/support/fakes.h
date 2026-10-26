@@ -80,6 +80,9 @@ struct FakeChannelSource : public coreapi::ChannelSource
 	// More than one bouquet, so resolving the wrong one can be told apart
 	// from resolving none.
 	std::map<uint32_t, coreapi::ChannelList> bouquet_members;
+	// A bouquet's name inside the box, by its id, beside the one it shows: the
+	// real source answers to both, and the list carries only the second.
+	std::map<uint32_t, std::string> internal_names;
 
 	// Anything but Ok is handed back untouched, which is the only way into a
 	// caller's error branches and the only way to check that it forwards the
@@ -382,7 +385,8 @@ struct FakeChannelSource : public coreapi::ChannelSource
 		uint32_t found = 0;
 		for (size_t i = 0; i < bouquets.size(); i++)
 		{
-			if (bouquets[i].name != name)
+			std::map<uint32_t, std::string>::const_iterator inside = internal_names.find((uint32_t) i + 1);
+			if (bouquets[i].name != name && (inside == internal_names.end() || inside->second != name))
 				continue;
 			// a name two bouquets carry, as the real source answers it
 			if (found)

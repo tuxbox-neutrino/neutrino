@@ -135,6 +135,7 @@ const Walked kWalked[] = {
 	CODE(NameTaken),
 	CODE(NameShared),
 	CODE(ChannelWouldBeRemoved),
+	CODE(BouquetNotEditable),
 	CODE(NotAPlainFile),
 	CODE(SideFileInTheWay),
 	CODE(NotEmpty),

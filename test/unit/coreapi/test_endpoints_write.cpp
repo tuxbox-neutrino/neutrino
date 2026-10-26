@@ -3122,6 +3122,56 @@ TEST_CASE("a bouquet name two bouquets carry is answered as shared", "[write]")
 	REQUIRE(box.channels.saves == 0);
 }
 
+TEST_CASE("a bouquet the box builds itself is listed as one a change does not last in",
+          "[write]")
+{
+	ShippedRoutes shipped;
+	BoxFixture box;
+	giveBouquets(box.channels);
+	coreapi::BouquetInfo web;
+	web.id = 3;
+	web.name = "WebTV";
+	web.editable = false;
+	box.channels.bouquets.push_back(web);
+
+	// The listing says which is which, so a page offers no change it cannot keep.
+	const std::string listed = authedGet("/api/v1/bouquets").body;
+	REQUIRE_FALSE(bouquetNamed(listed, "WebTV")["editable"].asBool());
+	REQUIRE(bouquetNamed(listed, "Erstes")["editable"].asBool());
+	REQUIRE(bouquetNamed(listed, "Zweites")["editable"].asBool());
+
+	// Every write that names it is refused, and none of them reaches the box.
+	const Reply hide = authedPut("/api/v1/bouquets/WebTV/hidden", "{\"on\":true}");
+	REQUIRE(hide.code == 409);
+	REQUIRE(hide.body.find("bouquet-not-editable") != std::string::npos);
+	REQUIRE(authedPut("/api/v1/bouquets/WebTV/locked", "{\"on\":true}").code == 409);
+	REQUIRE(authedPut("/api/v1/bouquets/WebTV/name", "{\"name\":\"Anders\"}").code == 409);
+	REQUIRE(authedPut("/api/v1/bouquets/WebTV/position", "{\"direction\":\"up\"}").code == 409);
+	REQUIRE(authedPut("/api/v1/bouquets/WebTV/channels?mode=tv", "[]").code == 409);
+	REQUIRE(authedDelete("/api/v1/bouquets/WebTV").code == 409);
+
+	/* The bouquet of the remaining channels shows a caption and answers to its
+	   name inside the box as well; addressed by that one it is refused alike. */
+	coreapi::BouquetInfo rest;
+	rest.id = 4;
+	rest.name = "Unbekannter Provider";
+	rest.editable = false;
+	box.channels.bouquets.push_back(rest);
+	box.channels.internal_names[4] = "Other";
+	const Reply inside = authedPut("/api/v1/bouquets/Other/hidden", "{\"on\":true}");
+	REQUIRE(inside.code == 409);
+	REQUIRE(inside.body.find("bouquet-not-editable") != std::string::npos);
+	REQUIRE(authedDelete("/api/v1/bouquets/Other").code == 409);
+
+	const std::string after_all = authedGet("/api/v1/bouquets").body;
+	const ::Json::Value after = bouquetNamed(after_all, "WebTV");
+	REQUIRE(after["id"].asUInt() == 3u);
+	REQUIRE_FALSE(after["hidden"].asBool());
+	REQUIRE_FALSE(after["locked"].asBool());
+	REQUIRE_FALSE(bouquetNamed(after_all, "Unbekannter Provider")["hidden"].asBool());
+	REQUIRE(box.channels.saves == 0);
+}
+
 TEST_CASE("a bouquet name carrying a separator and a percent is one name", "[write]")
 {
 	ShippedRoutes shipped;

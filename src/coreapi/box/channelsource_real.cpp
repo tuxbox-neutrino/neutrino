@@ -192,8 +192,9 @@ class RealChannelSource : public ChannelSource
 		/* The channel lock covers the bouquet vector as well as the channel
 		   map: a reload frees every bouquet in it from another thread, and the
 		   two counts below are the length of lists that thread empties and
-		   fills. It covers each bouquet's two names and its hidden, locked and
-		   user flags too, every writer of those taking it, which is what makes
+		   fills. It covers each bouquet's two names, its hidden, locked and
+		   user flags and the marks of a bouquet the box builds itself too,
+		   every writer of those taking it, which is what makes
 		   the copies below whole; the channels' numbers, which the renumbering
 		   hands out in one hold; and their lock and state flags, which the
 		   bouquet load, the web channel load, the channel list and the editors
@@ -217,6 +218,8 @@ class RealChannelSource : public ChannelSource
 				bi.hidden       = b->bHidden;
 				bi.locked       = b->bLocked;
 				bi.user_bouquet = b->bUser;
+				// as the channel list on screen offers editing
+				bi.editable     = !b->bOther && !b->bWebtv && !b->bWebradio;
 				bi.tv_count     = (uint32_t) b->tvChannels.size();
 				bi.radio_count  = (uint32_t) b->radioChannels.size();
 				out.push_back(bi);

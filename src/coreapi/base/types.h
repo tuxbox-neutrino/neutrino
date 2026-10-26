@@ -190,13 +190,18 @@ struct BouquetInfo
 	bool        hidden;
 	bool        locked;
 	bool        user_bouquet;
+	/* False for a bouquet the box builds itself and writes to none of its
+	   bouquet files: the one of the channels no other bouquet holds, made
+	   again at every renumbering, and the web channel ones, read again from
+	   their sources at every reload. A change to one would not last. */
+	bool        editable;
 	// A bouquet keeps its television and radio members in separate lists.
 	uint32_t    tv_count;
 	uint32_t    radio_count;
 
 	BouquetInfo()
 		: id(0), hidden(false), locked(false), user_bouquet(false),
-		  tv_count(0), radio_count(0) {}
+		  editable(true), tv_count(0), radio_count(0) {}
 };
 
 /* Two identifiers, because the file is not named after the one every route

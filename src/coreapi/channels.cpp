@@ -464,9 +464,12 @@ Result<void> setMode(Mode m, bool wake)
 namespace
 {
 
-/* The position the source addresses that name by. One place, so that no two of
-   the calls below can disagree about which bouquet a name means, and so that
-   the answer for a name nothing carries is written once. */
+/* The position the source addresses that name by, for a call that changes the
+   bouquet. One place, so that no two of the calls below can disagree about
+   which bouquet a name means, and so that the answers for a name nothing
+   carries and for a bouquet the box builds itself are written once. Such a
+   bouquet is refused before anything is sent: the box writes it to none of its
+   files and makes it again, so a change to it would not last. */
 Result<uint32_t> position(const std::string &name)
 {
 	uint32_t id = 0;
@@ -480,6 +483,18 @@ Result<uint32_t> position(const std::string &name)
 	if (s != Status::Ok)
 		return fail(s, ErrorCode::BouquetListUnavailable,
 			    "the bouquet list could not be read");
+
+	/* Asked of the position the name resolved to and not of the name: a
+	   bouquet answers to its name inside the box as well as to the one it
+	   shows, and the list carries only the second. */
+	BouquetList all;
+	s = channelSource().allBouquets(all);
+	if (s != Status::Ok)
+		return fail(s, ErrorCode::BouquetListUnavailable,
+			    "the bouquet list could not be read");
+	if (id >= 1 && id <= all.size() && !all[id - 1].editable)
+		return fail(Status::Conflict, ErrorCode::BouquetNotEditable,
+			    "the box builds this bouquet itself, so a change to it would not last");
 	return ok(id);
 }
 
