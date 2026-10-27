@@ -174,15 +174,11 @@ class CIPInput : public CCStructuredInputDialog
 
 //----------------------------------------------------------------------------------------------------
 
-class CDateInput : public CExtendedInput
+/* The date and time inputs run on the cc structured dialog. The date keeps
+   the text its menu row shows in getValue() - the timer list writes into
+   it - and reads the time_t again at every open. */
+class CDateInput : public CCStructuredInputDialog
 {
-	private:
-		time_t* time;
-
-	protected:
-		virtual void onBeforeExec();
-		virtual void onAfterExec();
-
 	public:
 		CDateInput(const neutrino_locale_t Name, time_t* Time, const neutrino_locale_t Hint_1 = NONEXISTANT_LOCALE, const neutrino_locale_t Hint_2 = NONEXISTANT_LOCALE, CChangeObserver* Observ = NULL);
 };
@@ -197,11 +193,9 @@ class CMACInput : public CCStructuredInputDialog
 
 //----------------------------------------------------------------------------------------------------
 
-class CTimeInput : public CExtendedInput
+///*cancel is true after exec() unless the time was saved
+class CTimeInput : public CCStructuredInputDialog
 {
-	protected:
-		virtual void onBeforeExec();
-		virtual void onAfterExec();
 	public:
 		CTimeInput(const neutrino_locale_t Name, std::string *Value, const neutrino_locale_t Hint_1 = NONEXISTANT_LOCALE, const neutrino_locale_t Hint_2 = NONEXISTANT_LOCALE, CChangeObserver* Observ = NULL, bool* cancel=NULL);
 };

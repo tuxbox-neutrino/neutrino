@@ -487,90 +487,11 @@ CIPInput::CIPInput(const neutrino_locale_t Name, std::string *Value, const neutr
 
 //-----------------------------#################################-------------------------------------------------------
 CDateInput::CDateInput(const neutrino_locale_t Name, time_t* Time, const neutrino_locale_t Hint_1, const neutrino_locale_t Hint_2, CChangeObserver* Observ)
-	: CExtendedInput(Name, &valueStringTmp, Hint_1, Hint_2, Observ)
+	: CCStructuredInputDialog(Name, Time, Observ)
 {
-	time=Time;
-	char value[40];
-	struct tm *tmTime = localtime(time);
-	snprintf(value, sizeof(value), "%02d.%02d.%04d %02d:%02d", tmTime->tm_mday, tmTime->tm_mon+1,
-				tmTime->tm_year+1900,
-				tmTime->tm_hour, tmTime->tm_min);
-	setSettingsText(*valueString, std::string(value));
-
-	addInputField( new CExtendedInput_Item_Char("0123") );
-	addInputField( new CExtendedInput_Item_Char("0123456789") );
-	addInputField( new CExtendedInput_Item_Char(".",false) );
-	addInputField( new CExtendedInput_Item_Char("01") );
-	addInputField( new CExtendedInput_Item_Char("0123456789") );
-	addInputField( new CExtendedInput_Item_Char(".",false) );
-	addInputField( new CExtendedInput_Item_Char("2",false) );
-	addInputField( new CExtendedInput_Item_Char("0",false) );
-	addInputField( new CExtendedInput_Item_Char("0123456789") );
-	addInputField( new CExtendedInput_Item_Char("0123456789") );
-	addInputField( new CExtendedInput_Item_Spacer(20) );
-	addInputField( new CExtendedInput_Item_Char("012") );
-	addInputField( new CExtendedInput_Item_Char("0123456789") );
-	addInputField( new CExtendedInput_Item_Char(":",false) );
-	addInputField( new CExtendedInput_Item_Char("012345") );
-	addInputField( new CExtendedInput_Item_Char("0123456789") );
-	addInputField( new CExtendedInput_Item_newLiner(30) );
+	setHintText(CCTextInputDialog::joinHintLines(localeText(Hint_1), localeText(Hint_2)));
 }
 
-void CDateInput::onBeforeExec()
-{
-	char value[40];
-	struct tm *tmTime = localtime(time);
-	snprintf(value, sizeof(value), "%02d.%02d.%04d %02d:%02d", tmTime->tm_mday, tmTime->tm_mon+1,
-				tmTime->tm_year+1900,
-				tmTime->tm_hour, tmTime->tm_min);
-	setSettingsText(*valueString, std::string(value));
-}
-
-void CDateInput::onAfterExec()
-{
-	struct tm tmTime;
-	sscanf(valueString->c_str(), "%02d.%02d.%04d %02d:%02d", &tmTime.tm_mday, &tmTime.tm_mon,
-			&tmTime.tm_year,
-			&tmTime.tm_hour, &tmTime.tm_min);
-	tmTime.tm_mon -= 1;
-	tmTime.tm_year -= 1900;
-	tmTime.tm_sec = 0;
-
-	tmTime.tm_isdst = -1;
-
-	if(tmTime.tm_year>129)
-		tmTime.tm_year=129;
-	if(tmTime.tm_year<0)
-		tmTime.tm_year=0;
-	if(tmTime.tm_mon>11)
-		tmTime.tm_mon=11;
-	if(tmTime.tm_mon<0)
-		tmTime.tm_mon=0;
-	if(tmTime.tm_mday>31) //-> eine etwas laxe pruefung, aber mktime biegt das wieder grade
-		tmTime.tm_mday=31;
-	if(tmTime.tm_mday<1)
-		tmTime.tm_mday=1;
-	if(tmTime.tm_hour>23)
-		tmTime.tm_hour=23;
-	if(tmTime.tm_hour<0)
-		tmTime.tm_hour=0;
-	if(tmTime.tm_min>59)
-		tmTime.tm_min=59;
-	if(tmTime.tm_min<0)
-		tmTime.tm_min=0;
-	if(tmTime.tm_sec>59)
-		tmTime.tm_sec=59;
-	if(tmTime.tm_sec<0)
-		tmTime.tm_sec=0;
-
-	*time=mktime(&tmTime);
-	char value[40];
-	struct tm *tmTime2 = localtime(time);
-	snprintf(value, sizeof(value), "%02d.%02d.%04d %02d:%02d", tmTime2->tm_mday, tmTime2->tm_mon+1,
-				tmTime2->tm_year+1900,
-				tmTime2->tm_hour, tmTime2->tm_min);
-	setSettingsText(*valueString, std::string(value));
-}
 //-----------------------------#################################-------------------------------------------------------
 
 CMACInput::CMACInput(const neutrino_locale_t Name, std::string *Value, const neutrino_locale_t Hint_1, const neutrino_locale_t Hint_2, CChangeObserver* Observ)
@@ -582,64 +503,12 @@ CMACInput::CMACInput(const neutrino_locale_t Name, std::string *Value, const neu
 //-----------------------------#################################-------------------------------------------------------
 
 CTimeInput::CTimeInput(const neutrino_locale_t Name, std::string* Value, const neutrino_locale_t Hint_1, const neutrino_locale_t Hint_2, CChangeObserver* Observ, bool* Cancel)
-	: CExtendedInput(Name, &valueStringTmp, Hint_1, Hint_2, Observ, Cancel)
+	: CCStructuredInputDialog(Name, FORMAT_TIME, Value, Observ)
 {
-	valueString = Value;
-	frameBuffer = CFrameBuffer::getInstance();
-#if 1
-	// As nobody else seems to use this class I feel free to make some minor (and mostly backwards-compatible)
-	// adjustments to make it suitable for movieplayer playtime selection ... --martii
-
-	const char *v = valueString->c_str();
-	if (!isdigit(*v)) {
-		addInputField( new CExtendedInput_Item_Char("=+-") );
-		addInputField( new CExtendedInput_Item_Spacer(20) );
-	}
-	addInputField( new CExtendedInput_Item_Char("0123456789") );
-	addInputField( new CExtendedInput_Item_Char("0123456789") );
-	v = strstr(v, ":");
-	if (v) {
-		v++;
-		addInputField( new CExtendedInput_Item_Char(":",false) );
-		addInputField( new CExtendedInput_Item_Char("0123456789") );
-		addInputField( new CExtendedInput_Item_Char("0123456789") );
-		v = strstr(v, ":");
-		if (v) {
-			addInputField( new CExtendedInput_Item_Char(":",false) );
-			addInputField( new CExtendedInput_Item_Char("0123456789") );
-			addInputField( new CExtendedInput_Item_Char("0123456789") );
-		}
-	}
-#else
-	addInputField( new CExtendedInput_Item_Char("=+-") );
-	addInputField( new CExtendedInput_Item_Spacer(20) );
-	addInputField( new CExtendedInput_Item_Char("0123456789") );
-	addInputField( new CExtendedInput_Item_Char("0123456789") );
-	addInputField( new CExtendedInput_Item_Char(":",false) );
-	addInputField( new CExtendedInput_Item_Char("0123456789") );
-	addInputField( new CExtendedInput_Item_Char("0123456789") );
-	addInputField( new CExtendedInput_Item_Char(":",false) );
-	addInputField( new CExtendedInput_Item_Char("0123456789") );
-	addInputField( new CExtendedInput_Item_Char("0123456789") );
-#endif
-	addInputField( new CExtendedInput_Item_newLiner(30) );
+	setHintText(CCTextInputDialog::joinHintLines(localeText(Hint_1), localeText(Hint_2)));
+	setCancelFlag(Cancel);
 }
 
-void CTimeInput::onBeforeExec()
-{
-#if 0 //--martii
-	strcpy(value, "= 00:00:00");
-#endif
-}
-
-void CTimeInput::onAfterExec()
-{
-#if 0 //--martii
-	char tmp[10+1];
-	strcpy(tmp, value);
-	strcpy(value+1, tmp+2);
-#endif
-}
 //-----------------------------#################################-------------------------------------------------------
 
 CIntInput::CIntInput(const neutrino_locale_t Name, int *Value, const unsigned int Size, const neutrino_locale_t Hint_1, const neutrino_locale_t Hint_2, CChangeObserver* Observ)
