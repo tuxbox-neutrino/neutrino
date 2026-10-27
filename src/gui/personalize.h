@@ -53,8 +53,6 @@
 
 #include <gui/widget/menue.h>
 #include <gui/user_menue_setup.h>
-#include "widget/stringinput.h"
-#include "widget/stringinput_ext.h"
 #include <string>
 #include <vector>
 #include <configfile.h>
@@ -134,6 +132,8 @@ typedef struct personalize_settings_t
 	int personalize_default_val;
 } personalize_settings_struct_t;
 
+
+class CPINChangeWidget;
 
 class CPersonalizeGui : public CMenuTarget, public CChangeObserver, public CPINProtection
 {

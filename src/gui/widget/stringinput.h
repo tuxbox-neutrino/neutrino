@@ -34,19 +34,14 @@
 
 #include <string>
 
-/* Counts the string inputs that are open. The string input, the PIN input and
-   the extended input edit the string they were handed in place and count on
-   nothing else changing it while they are open: they pad the string once to
-   its width and index it up to that width, and the address inputs keep
-   pointers into it. A value put into that string from elsewhere meanwhile ends
-   neutrino at the next key, or leaves the input writing into a buffer that is
-   gone. The keyboard input and the text input dialog edit a copy, but put it
-   back into the setting when they close, on cancel too, over any value put
-   there meanwhile. So code that puts new values into the settings asks this
-   first and waits while an input is open, and asks to be told when the last
-   one closes: that one posts STRING_INPUTS_CLOSED, which the screen the input
-   was opened from hands on before it saves anything on its way out. One open
-   on a script's thread counts as well. */
+/* Counts the input dialogs that are open. Each of them edits a copy and
+   writes its target when the value is saved; the text input dialog also
+   writes back the value it started with when it is left otherwise, over
+   any value put there meanwhile. So code that puts new values into the
+   settings asks this first and waits while an input is open, and asks to
+   be told when the last one closes: that one posts STRING_INPUTS_CLOSED,
+   which the screen the input was opened from hands on before it saves
+   anything on its way out. One open on a script's thread counts as well. */
 class CStringInputOpen
 {
 	public:

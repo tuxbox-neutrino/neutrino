@@ -46,6 +46,7 @@
 #include <gui/widget/icons.h>
 #include <gui/widget/menue_options.h>
 #include <gui/widget/stringinput.h>
+#include <gui/widget/stringinput_ext.h>
 #include <gui/widget/msgbox.h>
 #include <gui/widget/keyboard_input.h>
 

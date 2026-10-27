@@ -21,14 +21,6 @@
 #ifndef _LUASTRINGINPUT_H
 #define _LUASTRINGINPUT_H
 
-class CLuaStringInput
-{
-	public:
-		CStringInput *b;
-		CLuaStringInput();
-		~CLuaStringInput();
-};
-
 class CLuaInstStringInput
 {
 	public:

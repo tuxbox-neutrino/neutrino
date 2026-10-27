@@ -39,6 +39,7 @@
 #include "glcdsetup.h"
 #include <gui/widget/menue_options.h>
 #include <gui/widget/colorchooser.h>
+#include <gui/widget/stringinput.h>
 #include <neutrino_menue.h>
 #include "glcdthemes.h"
 
