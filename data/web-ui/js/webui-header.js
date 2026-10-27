@@ -352,6 +352,7 @@ function webuiRenderNav(pageName) {
 				escapeHtml(p.label)));
 			sub.appendChild(li);
 		});
+		_webuiSubnavEdges(sub);
 	}
 
 	var tabs = document.getElementById('webui-tabbar');
@@ -378,6 +379,40 @@ function webuiRenderNav(pageName) {
 	// the row of pages changes the head's height
 	if (typeof webuiUpdateHeaderSpacer === 'function')
 		webuiUpdateHeaderSpacer();
+}
+
+/* Which side of the row of pages runs past the edge, as data-more on its
+   nav for the stylesheet, and the page shown brought into sight: the row
+   scrolls sideways without a bar, and on a narrow screen the page a link
+   elsewhere opened stood out of sight. The marks follow the row's scrolling
+   and every change of its width. */
+var _webuiSubnavMark = null;
+function _webuiSubnavEdges(sub) {
+	var nav = sub.parentElement;
+	if (!nav) return;
+	_webuiSubnavMark = function() {
+		var start = !sub.hidden && sub.scrollLeft > 1;
+		var end = !sub.hidden && sub.scrollLeft + sub.clientWidth < sub.scrollWidth - 1;
+		var more = [start ? 'start' : '', end ? 'end' : ''].filter(Boolean).join(' ');
+		if (more) nav.setAttribute('data-more', more);
+		else nav.removeAttribute('data-more');
+	};
+	var here = sub.querySelector('a[aria-current="page"]');
+	if (here && !sub.hidden) {
+		var box = sub.getBoundingClientRect(), it = here.getBoundingClientRect();
+		if (it.left < box.left || it.right > box.right)
+			sub.scrollLeft += it.left - box.left - (box.width - it.width) / 2;
+	}
+	_webuiSubnavMark();
+	if (sub.dataset.edges) return;
+	sub.dataset.edges = '1';
+	var mark = function() { if (_webuiSubnavMark) _webuiSubnavMark(); };
+	sub.addEventListener('scroll', mark, {passive: true});
+	window.addEventListener('resize', mark);
+	if (typeof ResizeObserver === 'function')
+		new ResizeObserver(mark).observe(sub);
+	if (document.fonts && document.fonts.ready)
+		document.fonts.ready.then(mark);
 }
 
 // "More" on the phone: the areas the tab bar has no room for, above it

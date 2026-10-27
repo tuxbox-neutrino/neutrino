@@ -634,6 +634,69 @@ html.webui-side-narrow .webui-side .webui-side-toggle {
 	display: none;
 }
 
+/* The row scrolls sideways without a bar, so a row cut at the edge read as
+   one that ends there. The side with more pages fades out under a mark
+   pointing that way (data-more, set by webuiRenderNav); the fade is as tall
+   as a page's link and lets clicks and taps through to it. */
+.webui-subnav-nav {
+	position: relative;
+}
+
+.webui-subnav-nav::before,
+.webui-subnav-nav::after {
+	position: absolute;
+	top: 0.35rem;
+	height: 1.8rem;
+	width: 2.25rem;
+	display: none;
+	align-items: center;
+	pointer-events: none;
+	color: var(--pico-muted-color);
+	font-size: 1.15rem;
+	line-height: 1;
+}
+
+.webui-subnav-nav::before {
+	content: "\2039";
+	content: "\2039" / "";
+	left: 0;
+	justify-content: flex-start;
+	padding-left: 0.1rem;
+	background: linear-gradient(to right, var(--pico-card-background-color) 45%, transparent);
+}
+
+.webui-subnav-nav::after {
+	content: "\203A";
+	content: "\203A" / "";
+	right: 0;
+	justify-content: flex-end;
+	padding-right: 0.1rem;
+	background: linear-gradient(to left, var(--pico-card-background-color) 45%, transparent);
+}
+
+.webui-subnav-nav[data-more~="start"]::before,
+.webui-subnav-nav[data-more~="end"]::after {
+	display: flex;
+}
+
+/* A wheel turns the page and not the row, so where the pointer is a mouse
+   the row carries a thin bar to reach the pages past the edge */
+@media (hover: hover) and (pointer: fine) {
+	.webui-subnav {
+		scrollbar-width: thin;
+		scrollbar-color: var(--pico-muted-border-color) transparent;
+	}
+
+	.webui-subnav::-webkit-scrollbar {
+		height: 6px;
+	}
+
+	.webui-subnav::-webkit-scrollbar-thumb {
+		background: var(--pico-muted-border-color);
+		border-radius: 3px;
+	}
+}
+
 .webui-subnav a {
 	--pico-color: inherit;
 	display: block;
