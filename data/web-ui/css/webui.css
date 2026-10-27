@@ -621,6 +621,16 @@ html.webui-side-narrow .webui-side .webui-side-toggle {
 	}
 }
 
+/* the power key in the head, in the danger colour while the box is in
+   standby */
+.webui-power-btn[data-state="standby"] {
+	color: var(--webui-danger);
+}
+
+.webui-power-btn[hidden] {
+	display: none;
+}
+
 /* the row of the shown area's pages, when it has more than one */
 .webui-subnav {
 	display: flex;

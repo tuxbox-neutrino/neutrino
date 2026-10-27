@@ -555,6 +555,7 @@ function webuiGetHeaderHTML(activePage) {
 		<div class="webui-header-right">
 			<span class="webui-hostname" id="webui-hostname"></span>
 			<span class="webui-clock" id="webui-clock">--:--</span>
+			<button type="button" class="webui-theme-toggle webui-power-btn" id="webui-power-btn" onclick="webuiPowerKey()" title="${webuiLH('sb.key_sleep', 'Put the box into standby')}" aria-label="${webuiLH('sb.key_sleep', 'Put the box into standby')}">${WEBUI_ICONS.power.replace('<svg ', '<svg aria-hidden="true" focusable="false" ')}</button>
 			<button type="button" class="webui-theme-toggle webui-lang-btn" id="webui-lang-btn" onclick="webuiToggleLangMenu(event)" title="${webuiLH('lang.title', 'Language')}" aria-label="${webuiLH('lang.title', 'Language')}" aria-haspopup="true" aria-expanded="false">
 				<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true" focusable="false">
 					<circle cx="12" cy="12" r="9" stroke-width="2"/>
@@ -870,6 +871,85 @@ function webuiUpdateClock() {
 	if (clock) clock.textContent = webuiFormatTime(new Date(webuiBoxNow()));
 }
 
+/* The power key in the head. Its colour says whether the box is in standby;
+   going to standby is asked first, waking is not. The box can also be
+   switched with its own remote control and no event says so on every page,
+   so the state is read when the page opens, when it comes back into view,
+   every half minute while it is shown and after the key was pressed. */
+function _webuiPowerShow(awake) {
+	var btn = document.getElementById('webui-power-btn');
+	if (!btn) return;
+	if (awake === false) btn.dataset.state = 'standby';
+	else delete btn.dataset.state;
+	var text = awake === false ? webuiL('sb.key_wake', 'Wake the box') : webuiL('sb.key_sleep', 'Put the box into standby');
+	btn.title = text;
+	btn.setAttribute('aria-label', text);
+}
+
+/* The state read without a sign-in, as the head's other reads are: a caller
+   the box lets read nothing gets no sign-in dialog from the key's own
+   reading, only from a press. Also for a page that learned of a change (the
+   overview's standby event). */
+async function webuiPowerRead() {
+	if (document.hidden) return;
+	try {
+		var st = await _webuiV1Read('/system/standby');
+		if (st) _webuiPowerShow(!st.on);
+	} catch (e) { /* the key keeps what it showed */ }
+}
+
+/* After a press: the box takes the request at once and switches a moment
+   later, so the state is read every 2 s until it is the one asked for
+   (standby true or false), at most six times; with nothing asked for
+   (null) three times. */
+function _webuiPowerSettle(standby) {
+	var tries = 0;
+	var look = async function() {
+		var st = null;
+		try { st = await _webuiV1Read('/system/standby'); } catch (e) { /* read again */ }
+		if (st) _webuiPowerShow(!st.on);
+		var done = standby === null ? tries >= 2 : (st && !!st.on === standby);
+		if (!done && ++tries < 6) setTimeout(look, 2000);
+	};
+	setTimeout(look, 2000);
+}
+
+function _webuiPowerInit() {
+	var btn = document.getElementById('webui-power-btn');
+	if (!btn) return;
+	// a page without the REST helpers has no way to switch the box
+	if (typeof webuiV1 !== 'function') {
+		btn.hidden = true;
+		return;
+	}
+	webuiPowerRead();
+	setInterval(webuiPowerRead, 30000);
+	document.addEventListener('visibilitychange', function() {
+		if (!document.hidden) webuiPowerRead();
+	});
+}
+
+// Standby after asking, waking without; for the head and the overview
+async function webuiPowerKey() {
+	var send = async function(on) {
+		await webuiV1('POST', '/system/standby', {body: {on: on}});
+		webuiShowToast(on ? webuiL('sb.sleep', 'Box goes to standby') : webuiL('sb.wake', 'Waking the box'));
+		_webuiPowerShow(!on);
+		_webuiPowerSettle(on);
+	};
+	try {
+		var st = await webuiV1('GET', '/system/standby');
+		if (st && st.on) {
+			await send(false);
+			return;
+		}
+		webuiShowConfirm(webuiL('dash.standby', 'Standby'), webuiLH('sb.confirm', 'Put the box into standby?'),
+			webuiL('dash.standby', 'Standby'), function() { return send(true); }, {variant: 'ok'});
+	} catch (e) {
+		webuiToastError(webuiL('sb.fail', 'Standby failed'), e);
+	}
+}
+
 /* What the box says about itself, over /api/v1, in the shape the pages
    have always read (the old sysinfo answer): sizes in kilobytes, the root
    filesystem as disk, every storage filesystem in disks, the interfaces with
@@ -1041,6 +1121,7 @@ function webuiInitHeader(pageName) {
 
 	// Load hostname
 	webuiLoadHostname();
+	_webuiPowerInit();
 	// Erweiterungen in die Slots dieser Seite injizieren (async, still)
 	if (typeof webuiInjectExtensions === 'function')
 		setTimeout(function() { webuiInjectExtensions(pageName); }, 0);
@@ -1193,8 +1274,19 @@ async function webuiSendKey(key) {
 		? function() { return webuiV1('POST', '/osd/remote/key', {body: {name: key}, mark: false}); }
 		: function() { return webuiApi('rcem', key, {raw: true}); };
 	if (key === 'KEY_POWER') {
+		var press = send;
+		var awake = null;
+		/* the power key in the head follows what this key did: it toggles, so
+		   a box that was awake goes to standby (true) and one in standby
+		   wakes (false); unknown where the state could not be read */
+		send = function() {
+			return press().then(function(r) {
+				_webuiPowerSettle(awake);
+				return r;
+			});
+		};
 		try {
-			var awake = v1
+			awake = v1
 				? (await webuiV1('GET', '/system/standby')).on === false
 				: (await webuiApi('standby', {status: ''})).standby === false;
 			if (awake) {
@@ -3335,6 +3427,7 @@ function webuiInit() {
 
 		// Load hostname
 		webuiLoadHostname();
+		_webuiPowerInit();
 
 		// Calculate and set spacer height
 		webuiUpdateHeaderSpacer();

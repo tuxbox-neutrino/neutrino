@@ -257,6 +257,8 @@
 	"sb.wake": "Box wird aufgeweckt",
 	"sb.sleep": "Box geht in Standby",
 	"sb.fail": "Standby fehlgeschlagen",
+	"sb.key_sleep": "Box in Standby versetzen",
+	"sb.key_wake": "Box aufwecken",
 	"msg.loading": "Lade...",
 	"msg.waiting": "Warte auf die Box",
 	"si.refresh": "Aktualisieren",

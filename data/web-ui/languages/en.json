@@ -257,6 +257,8 @@
 	"sb.wake": "Waking the box",
 	"sb.sleep": "Box goes to standby",
 	"sb.fail": "Standby failed",
+	"sb.key_sleep": "Put the box into standby",
+	"sb.key_wake": "Wake the box",
 	"msg.loading": "Loading...",
 	"msg.waiting": "Waiting for the box",
 	"si.refresh": "Refresh",

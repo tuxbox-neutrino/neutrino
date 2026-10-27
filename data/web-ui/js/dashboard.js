@@ -460,29 +460,10 @@ function toggleRecording() {
 	setTimeout(function() { if (!webuiV1EventsLive()) refreshEvented(); }, 1500);
 }
 
-// Standby: wake a sleeping box, put an awake one to sleep after asking
-async function toggleStandby(inStandby) {
-	try {
-		await webuiV1('POST', '/system/standby', {body: {on: !inStandby}});
-		webuiShowToast(inStandby ? webuiL('sb.wake', 'Waking the box') : webuiL('sb.sleep', 'Box goes to standby'));
-	} catch (e) {
-		webuiToastError(webuiL('sb.fail', 'Standby failed'), e);
-	}
-}
-
-async function sendStandby() {
-	try {
-		const st = await webuiV1('GET', '/system/standby');
-		const inStandby = !!(st && st.on);
-		if (!inStandby) {
-			webuiShowConfirm(webuiL('dash.standby', 'Standby'), webuiLH('sb.confirm', 'Put the box into standby?'), webuiL('dash.standby', 'Standby'),
-				function() { return toggleStandby(false); }, {variant: 'ok'});
-			return;
-		}
-		await toggleStandby(true);
-	} catch (e) {
-		webuiToastError(webuiL('sb.fail', 'Standby failed'), e);
-	}
+// Standby: wake a sleeping box, put an awake one to sleep after asking,
+// the same way as the power key in the head
+function sendStandby() {
+	return webuiPowerKey();
 }
 
 // TV/Radio Mode: read off the current channel and the mode event
@@ -621,7 +602,7 @@ function followTheBox() {
 			refreshChannel(false);
 			loadStreamInfo();
 		},
-		standby: function() { refreshChannel(false); refreshPlayback(); },
+		standby: function() { refreshChannel(false); refreshPlayback(); webuiPowerRead(); },
 		'record-start': function() { refreshTimers().then(refreshRecordings); },
 		'record-stop': function() { refreshTimers().then(refreshRecordings); refreshRecent(); },
 		'timer-changed': refreshTimers,
