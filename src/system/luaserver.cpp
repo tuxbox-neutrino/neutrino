@@ -127,6 +127,7 @@ class luaserver_data
 		std::string script;
 
 		luaserver_data(int _fd, std::string &_script) {
+			lua = NULL;
 			fd = dup(_fd);
 			fcntl(fd, F_SETFD, FD_CLOEXEC);
 			script = _script;
@@ -173,11 +174,14 @@ void *CLuaServer::luaserver_thread(void *arg) {
 
 	luaserver_data *lsd = (class luaserver_data *)arg;
 
+	/* The watchdog aborts this instance as soon as the client is gone, which
+	   may already be the case when a request had to wait for may_run. */
+	CLuaInstance *lua = new CLuaInstance();
+	lsd->lua = lua;
+
 	pthread_t wdthr;
 	pthread_create (&wdthr, NULL, luaclient_watchdog, (void *) lsd);
 
-	CLuaInstance *lua = new CLuaInstance();
-	lsd->lua = *&lua;
 	std::string result_code;
 	std::string result_string;
 	std::string error_string;
