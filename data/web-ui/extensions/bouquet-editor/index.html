@@ -35,8 +35,8 @@
 		   Knoepfe gleich hoch — sonst waechst die Zeile bei Hover/
 		   Auswahl (Knoepfe erscheinen) und die Liste verrutscht */
 		.bqe-list li { display: flex; align-items: center; gap: 0.3rem; margin: 0; padding: 0.22rem 0.4rem; min-height: 1.85rem; border-radius: 4px; font-size: 0.78rem; line-height: 1.3; cursor: pointer; }
-		.bqe-list li:hover { background: rgba(255,255,255,0.04); }
-		[data-theme="light"] .bqe-list li:hover { background: rgba(0,0,0,0.05); }
+		@media (hover: hover) { .bqe-list li:hover { background: rgba(255,255,255,0.04); } }
+		@media (hover: hover) { [data-theme="light"] .bqe-list li:hover { background: rgba(0,0,0,0.05); } }
 		.bqe-list li.sel { background: var(--webui-accent-light); outline: 1px solid var(--webui-accent); }
 		.bqe-list li .nm { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 		.bqe-list li .flags { color: var(--pico-muted-color); font-size: 0.68rem; font-variant-numeric: tabular-nums; }
@@ -46,10 +46,10 @@
 		#bqeFilter { min-height: 24px; }
 		/* a list still being read, or one that failed, with Reload */
 		.bqe-list li.bqe-state { display: block; padding: 0; cursor: default; }
-		.bqe-list li.bqe-state:hover { background: none; }
+		@media (hover: hover) { .bqe-list li.bqe-state:hover { background: none; } }
 		.bqe-list li.bqe-state .webui-state { padding: 1.25rem 0.75rem; }
 		.bqe-mini { display: inline-flex; align-items: center; justify-content: center; gap: 0.25rem; margin: 0; background: none; border: 1px solid var(--pico-muted-border-color); border-radius: 4px; color: var(--pico-muted-color); cursor: pointer; padding: 0.1rem 0.25rem; font-size: 0.75rem; line-height: 1.5; }
-		.bqe-mini:hover { color: var(--webui-accent); border-color: var(--webui-accent); }
+		@media (hover: hover) { .bqe-mini:hover { color: var(--webui-accent); border-color: var(--webui-accent); } }
 		.bqe-mini svg { width: 12px; height: 12px; flex-shrink: 0; }
 		.bqe-mini.attn { color: var(--webui-on-accent); background: var(--webui-accent); border-color: var(--webui-accent); }
 		/* A bouquet row shows its buttons once it is chosen (or holds the
