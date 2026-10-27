@@ -163,14 +163,23 @@ CCInputDialogBase::CCInputDialogBase(const int &w,
 {
 	cc_item_type.id = CC_ITEMTYPE_FRM_INPUT_DIALOG;
 	idb_title_locale = NONEXISTANT_LOCALE;
-
+	idb_prepared = false;
 	corner_rad = RADIUS_LARGE;
+}
+
+void CCInputDialogBase::prepareWindow()
+{
+	if (idb_prepared)
+		return;
+	idb_prepared = true;
+
 	setWindowHeaderColor(COL_MENUHEAD_PLUS_0);
 	setWindowHeaderTextColor(COL_MENUHEAD_TEXT);
 	setWindowFooterColor(COL_MENUFOOT_PLUS_0);
 	setWindowHeaderButtons(CComponentsHeader::CC_BTN_EXIT);
 	enableShadow();
 	Refresh();
+	applyDialogStyle();
 }
 
 int CCInputDialogBase::getDialogHintHeight(Font *font, int lines)
@@ -259,10 +268,18 @@ CCTextInputDialog::CCTextInputDialog(const std::string &title,
 	cid_field_col_body = getInputFieldBodyColor();
 	cid_field_col_body_focus = getInputFieldBodyFocusColor();
 	cid_field_col_placeholder = getInputFieldPlaceholderColor();
+	cid_built = false;
+}
 
+void CCTextInputDialog::ensureBuilt()
+{
+	if (cid_built)
+		return;
+	cid_built = true;
+
+	prepareWindow();
 	initDialogItems();
-	applyDialogStyle();
-	initFooterButtons();
+	initFooterButtons(cid_keyboard ? cid_keyboard->getLayoutName() : std::string());
 	layoutDialogItems();
 }
 
@@ -904,7 +921,9 @@ void CCTextInputDialog::resetFieldColors()
 void CCTextInputDialog::setExtraFooterButtons(const std::vector<button_label_cc> &buttons)
 {
 	idb_extra_buttons = buttons;
-	initFooterButtons(cid_keyboard ? cid_keyboard->getLayoutName() : std::string());
+	/* Before the first open the footer is built with them anyway */
+	if (cid_built)
+		initFooterButtons(cid_keyboard ? cid_keyboard->getLayoutName() : std::string());
 }
 
 int CCTextInputDialog::getTimeoutSec() const
@@ -962,6 +981,7 @@ int CCTextInputDialog::exec(CMenuTarget *parent, const std::string & /*actionKey
 	if (parent)
 		parent->hide();
 
+	ensureBuilt();
 	onBeforeExec();
 
 	const std::string original_value = cid_value ? *cid_value : "";

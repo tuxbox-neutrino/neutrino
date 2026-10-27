@@ -894,7 +894,7 @@ class CCMultiFieldPhase0Dialog : public CCInputDialogBase
 				"speichert, Gruen loescht links vom "
 				"Cursor, Gelb leert das aktive Feld.";
 			md_focus_order.reserve(4);
-			applyDialogStyle();
+			prepareWindow();
 			initHint();
 			addEntry("Proxy-Server",
 				server,

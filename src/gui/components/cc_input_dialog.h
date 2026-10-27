@@ -50,10 +50,21 @@ class CCInputDialogBase : public CMenuTarget, public CComponentsWindow
 		};
 
 	protected:
+		/**
+		 * Builds only what CComponentsWindow builds itself. Header
+		 * buttons, colours and shadow follow in prepareWindow(), at the
+		 * first open: menus build their input dialogs in dozens - the
+		 * movie browser's bookmark menu three per bookmark - and most
+		 * of them are never opened.
+		 */
 		CCInputDialogBase(const int &w,
 			const int &h,
 			const std::string &caption,
 			const std::string &icon_name);
+
+		///finishes the window; once, before it is first laid out or painted
+		void prepareWindow();
+		bool idb_prepared;
 
 		///applies header, body and footer colours; call again after every Refresh()
 		void applyDialogStyle();
@@ -156,6 +167,7 @@ class CCTextInputDialog : public CCInputDialogBase
 		int cid_timeout_sec;
 		bool cid_confirm_discard;
 		bool cid_close_on_cancel_info;
+		bool cid_built;
 		CCInputBuffer cid_buffer;
 		CComponentsText *cid_hint;
 		CCInputField *cid_field;
@@ -193,6 +205,8 @@ class CCTextInputDialog : public CCInputDialogBase
 		void setFieldFocus(const bool &focused);
 		bool confirmDiscard();
 		bool save();
+		///builds window, items and footer at the first open
+		void ensureBuilt();
 		void applyHookResult(int hook, bool &loop, int &res);
 		int getTimeoutSec() const;
 

@@ -121,9 +121,6 @@ void CCStructuredInputDialog::init(format_t format)
 	csd_decimal_max = 999;
 	csd_font = NULL;
 	valueString = getTarget() ? getTarget() : &valueStringTmp;
-
-	applyDialogStyle();
-	initFooterButtons();
 }
 
 std::string *CCStructuredInputDialog::getTarget()
@@ -901,6 +898,15 @@ int CCStructuredInputDialog::exec(CMenuTarget *parent, const std::string & /*act
 
 	std::string *target = getTarget();
 	const std::string original = target ? *target : std::string();
+
+	if (!csd_built)
+	{
+		/* The window waits for its first open; the moviebrowser builds
+		 * date inputs only to read their text. */
+		prepareWindow();
+		initFooterButtons();
+		csd_built = true;
+	}
 
 	/* Built at every open: a time's hours are as wide as its value. */
 	defineSegments(original);
