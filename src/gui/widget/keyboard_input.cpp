@@ -687,20 +687,34 @@ void CKeyboardInput::hide()
 	frameBuffer->paintBackgroundBoxRel(x, y, width + OFFSET_SHADOW, height + OFFSET_SHADOW);
 }
 
+/* one '*' per character, not per byte, as the cc input dialog masks a password */
+static std::string maskText(const std::string &text)
+{
+	size_t chars = 0;
+	for (size_t i = 0; i < text.size(); i++)
+		if ((text[i] & 0xc0) != 0x80)
+			chars++;
+	return std::string(chars, '*');
+}
+
 std::string CKeyboardInput::getVfdText()
 {
 	/* The screen masks a secret, so the front display and the graphic LCD
-	   have to as well, or it shows there in clear text while it is typed:
-	   one '*' per character, as the cc input dialog does. */
+	   have to as well, or it shows there in clear text while it is typed. */
 	std::string &value = inputString->getValue();
-	if (!masked)
-		return value;
+	return masked ? maskText(value) : value;
+}
 
-	size_t chars = 0;
-	for (size_t i = 0; i < value.size(); i++)
-		if ((value[i] & 0xc0) != 0x80)
-			chars++;
-	return std::string(chars, '*');
+std::string &CKeyboardInput::getValue()
+{
+	/* A menu row without text of its own shows this, and the front display
+	   shows that row while it is selected - the network setup's key row
+	   starts that way as long as no key is set. */
+	if (!masked)
+		return *valueString;
+
+	valueStringTmp = maskText(*valueString);
+	return valueStringTmp;
 }
 
 int CKeyboardInput::paintFooter(bool show)

@@ -128,6 +128,7 @@ class CKeyboardInput : public CMenuTarget,  public sigc::trackable
 
 		void hide();
 		int exec( CMenuTarget* parent, const std::string & actionKey );
+		std::string &getValue();
 
 		void forceSaveScreen(bool enable);
 		/* for secrets: every character but the one being edited shows as '*';
