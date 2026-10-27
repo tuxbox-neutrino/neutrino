@@ -44,7 +44,9 @@ class CCInputDialogBase : public CMenuTarget, public CComponentsWindow
 			RES_CLEAR,
 			RES_CANCEL,
 			RES_CAPS,
-			RES_LAYOUT
+			RES_LAYOUT,
+			///first result free for the buttons a derived dialog adds
+			RES_USER = 32
 		};
 
 	protected:
@@ -58,6 +60,13 @@ class CCInputDialogBase : public CMenuTarget, public CComponentsWindow
 
 		///fills the footer with save/backspace/clear/cancel and their direct keys
 		void initFooterButtons(const std::string &layout_name = std::string());
+
+		/**
+		 * Buttons initFooterButtons() appends behind its own. Data, not a
+		 * virtual call: the footer is first built in the constructor,
+		 * where a derived class is not there yet to be asked.
+		 */
+		std::vector<button_label_cc> idb_extra_buttons;
 
 		///returns the button_result_t a key belongs to, or -1 if no button claims it
 		int sendButtonKey(neutrino_msg_t msg);
@@ -141,6 +150,9 @@ class CCTextInputDialog : public CCInputDialogBase
 	private:
 		std::string *cid_value;
 		CChangeObserver *cid_observ;
+		int cid_exit_result;
+		int cid_timeout_sec;
+		bool cid_confirm_discard;
 		CCInputBuffer cid_buffer;
 		CComponentsText *cid_hint;
 		CCInputField *cid_field;
@@ -172,14 +184,69 @@ class CCTextInputDialog : public CCInputDialogBase
 		std::string getVfdText() const;
 		///the text being edited to the front display and the graphic LCD, masked like the field
 		void showDisplayText();
-		void refreshField();
 		void showMaxCharsError();
 		void focusFieldFromKeyboard();
 		void setFieldFocus(const bool &focused);
-		void clearInlineError();
-		void showInlineError(const std::string &text);
 		bool confirmDiscard();
 		bool save();
+		void applyHookResult(int hook, bool &loop, int &res);
+		int getTimeoutSec() const;
+
+	protected:
+		/**
+		 * What a hook asks the message loop to do. Every hook defaults
+		 * to HOOK_PASS, so a dialog that overrides none behaves exactly
+		 * like this class.
+		 */
+		enum hook_result_t
+		{
+			///not taken: the loop goes on as if there were no hook
+			HOOK_PASS = 0,
+			///taken; nothing on screen changed
+			HOOK_DONE,
+			///taken; the buffer changed, so the field is repainted
+			HOOK_REFRESH,
+			///save as the save key does and close if that succeeds
+			HOOK_SAVE,
+			///close unsaved at once, with the result of setExitResult()
+			HOOK_EXIT
+		};
+
+		///runs first in exec(): load a value that is not a string into the target
+		virtual void onBeforeExec() {}
+		///turns the target's value into the text the field starts with
+		virtual std::string prepareInitialText(const std::string &raw) { return raw; }
+		/**
+		 * Sees every message before the dialog does, except those the
+		 * on-screen keyboard takes while it has the focus.
+		 */
+		virtual int onDialogMsg(neutrino_msg_t /*msg*/, neutrino_msg_data_t /*data*/) { return HOOK_PASS; }
+		///gets the footer results this class has no meaning for, RES_USER and up
+		virtual int onButtonResult(int /*btn_res*/) { return HOOK_PASS; }
+		///runs after a glyph typed on the remote went into the buffer
+		virtual int onAfterInsert() { return HOOK_PASS; }
+		///runs in save() once the text is in the target, before the observer hears of it
+		virtual void commitValue() {}
+
+		CCInputBuffer &getBuffer() { return cid_buffer; }
+		CCInputField *getField() { return cid_field; }
+		bool hasKeyboard() const { return cid_keyboard != NULL; }
+		///points the dialog at another string, e.g. one that mirrors a number
+		void setValueTarget(std::string *value);
+		///the result exec() returns after HOOK_EXIT
+		void setExitResult(int res) { cid_exit_result = res; }
+		///false: cancel and timeout leave without asking about the edits
+		void setConfirmDiscard(bool enable) { cid_confirm_discard = enable; }
+		///seconds without a key before the dialog closes; -1 = the menu timeout
+		void setTimeoutSec(int sec) { cid_timeout_sec = sec; }
+		///the field's colours while it shows something special; resetFieldColors() undoes it
+		void setFieldColors(fb_pixel_t text, fb_pixel_t body, fb_pixel_t body_focus);
+		void resetFieldColors();
+		///replaces the buttons appended behind the shared four
+		void setExtraFooterButtons(const std::vector<button_label_cc> &buttons);
+		void refreshField();
+		void clearInlineError();
+		void showInlineError(const std::string &text);
 
 	public:
 		CCTextInputDialog(const std::string &title,
