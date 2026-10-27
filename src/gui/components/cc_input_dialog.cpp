@@ -746,8 +746,6 @@ bool CCTextInputDialog::save()
 	if (cid_value)
 		setSettingsText(*cid_value, cid_buffer.getText());
 
-	notifyObserver(cid_observ, cid_value);
-
 	OnAfterSave();
 	cid_saved = true;
 	return true;
@@ -890,6 +888,11 @@ int CCTextInputDialog::exec(CMenuTarget *parent, const std::string & /*actionKey
 	cid_buffer.setText(original_value);
 	cid_buffer.moveEnd();
 	syncDialogState();
+	/* What the field shows at the start, not what the target held: the
+	 * buffer drops what its filter or limit refuses, and comparing with
+	 * the raw value would ask to discard edits nobody made. Leaving
+	 * unsaved still writes the raw value back. */
+	const std::string start_text = cid_buffer.getText();
 	cid_field->ensureCursorVisible();
 	paint();
 
@@ -970,7 +973,7 @@ int CCTextInputDialog::exec(CMenuTarget *parent, const std::string & /*actionKey
 		}
 		else if (msg == CRCInput::RC_timeout)
 		{
-			if (cid_buffer.getText() != original_value &&
+			if (cid_buffer.getText() != start_text &&
 				!confirmDiscard())
 			{
 				/* RC_timeout is above RC_MaxRC, so the renewal at
@@ -1001,7 +1004,7 @@ int CCTextInputDialog::exec(CMenuTarget *parent, const std::string & /*actionKey
 							loop = false;
 						break;
 					case RES_CANCEL:
-						if (cid_buffer.getText() != original_value &&
+						if (cid_buffer.getText() != start_text &&
 							!confirmDiscard())
 							break;
 						loop = false;
@@ -1089,6 +1092,13 @@ int CCTextInputDialog::exec(CMenuTarget *parent, const std::string & /*actionKey
 
 	hide();
 	releaseFrontDisplay();
+
+	/* Told only once the dialog is gone, as the old input windows did:
+	 * an observer may paint a box of its own or set up the fonts anew,
+	 * and would do so over a dialog whose caret still blinks. */
+	if (cid_saved)
+		notifyObserver(cid_observ, cid_value);
+
 	return res;
 }
 
