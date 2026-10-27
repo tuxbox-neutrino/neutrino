@@ -326,9 +326,11 @@ int CLuaInstMisc::checkVersion(lua_State *L)
 				g_Locale->getText(LOCALE_LUA_VERSIONSCHECK2),
 				major, minor);
 		DisplayErrorMessage(msg, "Lua Script Error:");
-
+		/* the script is no longer stopped here, so tell it */
+		lua_pushinteger(L, 0);
+		return 1;
 	}
-	lua_pushinteger(L, 1); /* for backward compatibility */
+	lua_pushinteger(L, 1);
 	return 1;
 }
 
