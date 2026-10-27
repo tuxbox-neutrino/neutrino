@@ -136,17 +136,50 @@ THandleStatus CmodSendfile::Hook_PrepareResponse(CyhookHandler *hh) {
 				hh->RangeStart = 0;
 				hh->RangeEnd = hh->ContentLength - 1;
 				const char *range = (hh->HeaderList["Range"].empty()) ? NULL : hh->HeaderList["Range"].c_str();
-				if ((range &&
-				     (sscanf(range, "bytes=%" PRId64 "-%" PRId64, &hh->RangeStart, &hh->RangeEnd) != 2) &&
-				     (sscanf(range, "bytes=%" PRId64 "-", &hh->RangeStart) != 1))
-				 || (hh->RangeStart > hh->RangeEnd)
-				 || (hh->RangeEnd > hh->ContentLength - 1)) {
-					hh->SetError(HTTP_REQUEST_RANGE_NOT_SATISFIABLE);
+				/* bytes=first-last, bytes=first- up to the end, and bytes=-n
+				   for the last n bytes; a last byte past the end means the
+				   end. A Range that cannot be read, in another unit or with
+				   its last byte before its first, is ignored and the whole
+				   file goes out (RFC 7233); one that starts past the end, or
+				   asks for no bytes at all, cannot be served. */
+				bool satisfiable = true;
+				if (range) {
+					int64_t first = 0, last = hh->ContentLength - 1, suffix = 0;
+					bool readable = true;
+					if (sscanf(range, "bytes=-%" SCNd64, &suffix) == 1) {
+						satisfiable = suffix > 0;
+						if (satisfiable)
+							first = (suffix < hh->ContentLength) ? hh->ContentLength - suffix : 0;
+					} else if (sscanf(range, "bytes=%" SCNd64 "-%" SCNd64, &first, &last) == 2) {
+						if (first < 0 || last < first)
+							readable = false;
+						else if (last > hh->ContentLength - 1)
+							last = hh->ContentLength - 1;
+					} else if (sscanf(range, "bytes=%" SCNd64 "-", &first) != 1 || first < 0)
+						readable = false;
+					if (!readable)
+						range = NULL;
+					else {
+						if (first > last)
+							satisfiable = false;
+						hh->RangeStart = first;
+						hh->RangeEnd = last;
+					}
+				}
+				if (!satisfiable) {
+					// handled here: without HANDLED_ERROR the next modules
+					// take the request on and it ends as 404
+					hh->SetError(HTTP_REQUEST_RANGE_NOT_SATISFIABLE, HANDLED_ERROR);
 					aprintf("mod_sendfile: Client requested range '%s' which is outside of [0,%lld]\n", range, hh->ContentLength - 1);
 				} else {
 					hh->SendFile(fullfilename);
 					hh->ResponseMimeType = mime;
-					if (hh->RangeStart && (hh->RangeEnd != hh->ContentLength - 1))
+					/* Every range that was asked for and is served goes out as
+					   206 with its Content-Range, the one from the first byte and
+					   the one up to the last included: a 200 says that the body
+					   is the whole file, and a player seeking in a recording
+					   takes a part of it for all of it. */
+					if (range)
 						hh->httpStatus = HTTP_PARTIAL_CONTENT;
 				}
 			} else

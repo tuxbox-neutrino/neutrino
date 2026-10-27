@@ -326,8 +326,12 @@ std::string CyhookHandler::BuildHeader(bool cache) {
 			result += "Content-Encoding: gzip\r\n";
 		// content-len, last-modified
 		if (httpStatus == HTTP_NOT_MODIFIED || httpStatus == HTTP_NOT_FOUND || httpStatus == HTTP_REQUEST_RANGE_NOT_SATISFIABLE
-				|| (httpStatus == HTTP_UNAUTHORIZED && GetContentLength() == 0))
+				|| (httpStatus == HTTP_UNAUTHORIZED && GetContentLength() == 0)) {
 			result += "Content-Length: 0\r\n";
+			// a refused range says how long the file is, for a range that fits
+			if (httpStatus == HTTP_REQUEST_RANGE_NOT_SATISFIABLE)
+				result += string_printf("Content-Range: bytes */%lld\r\n", ContentLength);
+		}
 		else if (GetContentLength() > 0) {
 			time_t mod_time = time(NULL);
 			if (LastModified != (time_t) - 1)
