@@ -125,6 +125,8 @@ class CCTextInputDialog : public CCInputDialogBase
 		std::string getFieldFontReference() const;
 		std::string getVisibleHintText() const;
 		std::string getVfdText() const;
+		///the text being edited to the front display and the graphic LCD, masked like the field
+		void showDisplayText();
 		void refreshField();
 		void showMaxCharsError();
 		void focusFieldFromKeyboard();
