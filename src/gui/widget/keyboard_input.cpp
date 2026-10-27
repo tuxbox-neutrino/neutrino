@@ -41,7 +41,6 @@
 
 #include <system/helpers.h>
 #include "keyboard_input.h"
-#include "keyboard_keys.h"
 
 std::string UTF8ToString(const char * &text)
 {
@@ -234,97 +233,6 @@ void CKeyboardInput::init()
 	y = getScreenStartY(height);
 	*inputString = *valueString;
 	changed = false;
-}
-
-CKeyboardLayoutData::CKeyboardLayoutData()
-{
-	kld_index = 0;
-	kld_caps = 0;
-	kld_initialized = false;
-}
-
-size_t CKeyboardLayoutData::getLayoutCount()
-{
-	return LAYOUT_COUNT;
-}
-
-void CKeyboardLayoutData::initByLocale(const std::string &locale)
-{
-	if (kld_initialized)
-		return;
-
-	kld_initialized = true;
-	kld_index = 0;
-	for (size_t i = 0; i < LAYOUT_COUNT; i++) {
-		if (keyboards[i].locale == locale) {
-			kld_index = i;
-			return;
-		}
-	}
-}
-
-void CKeyboardLayoutData::initByPreference(const std::string &preferred, const std::string &fallback)
-{
-	initByLocale(resolveLocale(preferred, fallback));
-}
-
-std::string CKeyboardLayoutData::resolveLocale(const std::string &preferred, const std::string &fallback)
-{
-	if (hasLocale(preferred))
-		return preferred;
-	if (hasLocale(fallback))
-		return fallback;
-	return keyboards[0].locale;
-}
-
-bool CKeyboardLayoutData::hasLocale(const std::string &locale)
-{
-	if (locale.empty())
-		return false;
-
-	for (size_t i = 0; i < LAYOUT_COUNT; i++) {
-		if (keyboards[i].locale == locale)
-			return true;
-	}
-	return false;
-}
-
-void CKeyboardLayoutData::nextLayout()
-{
-	kld_initialized = true;
-	kld_index++;
-	if (kld_index >= LAYOUT_COUNT)
-		kld_index = 0;
-}
-
-void CKeyboardLayoutData::toggleCaps()
-{
-	kld_caps = kld_caps ? 0 : 1;
-}
-
-void CKeyboardLayoutData::setCaps(const bool &caps)
-{
-	kld_caps = caps ? 1 : 0;
-}
-
-const std::string &CKeyboardLayoutData::glyphAt(const int &row, const int &column) const
-{
-	static const std::string none;
-
-	if (row < 0 || row >= KEY_ROWS || column < 0 || column >= KEY_COLUMNS)
-		return none;
-
-	return keyboards[kld_index].keys[kld_caps][row][column];
-}
-
-const std::string &CKeyboardLayoutData::getLayoutName() const
-{
-	return keyboards[kld_index].name;
-}
-
-const std::string &CKeyboardLayoutData::getLayoutLocale() const
-{
-	return keyboards[kld_index].locale;
 }
 
 void CKeyboardInput::setLayout()

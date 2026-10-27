@@ -19,7 +19,7 @@
 #include "cc_frm.h"
 #include "cc_frm_chain.h"
 
-#include <gui/widget/keyboard_layout.h>
+#include "cc_keyboard_layout.h"
 
 #include <sigc++/signal.h>
 

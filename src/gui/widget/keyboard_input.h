@@ -31,7 +31,7 @@
 #include <string>
 #include <sigc++/signal.h>
 
-#include "keyboard_layout.h"
+#include <gui/components/cc_keyboard_layout.h>
 
 class CFrameBuffer;
 class CInputString
