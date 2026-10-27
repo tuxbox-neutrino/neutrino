@@ -51,8 +51,13 @@ THandleStatus CmodCache::Hook_PrepareResponse(CyhookHandler *hh) {
 		// normalize obj_last_modified to GMT
 		struct tm created_tm;
 		time_t obj_last_modified_gmt = mktime(gmtime_r(&(CacheList[url].created), &created_tm));
+		/* Current only with exactly the date this page was cached under, as
+		   for files: the client sends back the date it was given, and any
+		   other date belongs to another version. After the clock was set
+		   back, a page cached since carries an earlier date than a copy the
+		   client still holds. */
 		bool modified = (if_modified_since == (time_t) - 1)
-				|| (if_modified_since < obj_last_modified_gmt);
+				|| (if_modified_since != obj_last_modified_gmt);
 
 		// Send file or not-modified header
 		if (modified) {
