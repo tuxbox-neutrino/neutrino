@@ -50,6 +50,7 @@
 #include <gui/widget/msgbox.h>
 #include <gui/widget/menue_options.h>
 #include <gui/widget/stringinput.h>
+#include <gui/components/cc_structured_input_dialog.h>
 
 #include <driver/screen_max.h>
 #include <driver/framebuffer.h>
@@ -897,7 +898,9 @@ int CScanSetup::showScanMenuFrontendSetup()
 		mc->setHint("", LOCALE_MENU_HINT_SCAN_LADIRECTION);
 		rotorMenu->addItem(mc);
 
-		CStringInput * toff1 = new CStringInput(LOCALE_EXTRA_LATITUDE, &zapit_lat_str, 10, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, "0123456789.");
+		/* Degrees with six places; north or south is the chooser above */
+		CCStructuredInputDialog * toff1 = new CCStructuredInputDialog(LOCALE_EXTRA_LATITUDE, CCStructuredInputDialog::FORMAT_DECIMAL, &zapit_lat_str);
+		toff1->setDecimal(2, 6, 90);
 		mf = new CMenuDForwarder(LOCALE_EXTRA_LATITUDE, true, zapit_lat_str, toff1, "", CRCInput::convertDigitToKey(shortcut++));
 		mf->setHint("", LOCALE_MENU_HINT_SCAN_LATITUDE);
 		rotorMenu->addItem(mf);
@@ -906,7 +909,8 @@ int CScanSetup::showScanMenuFrontendSetup()
 		mc->setHint("", LOCALE_MENU_HINT_SCAN_LODIRECTION);
 		rotorMenu->addItem(mc);
 
-		CStringInput * toff2 = new CStringInput(LOCALE_EXTRA_LONGITUDE, &zapit_long_str, 10, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, "0123456789.");
+		CCStructuredInputDialog * toff2 = new CCStructuredInputDialog(LOCALE_EXTRA_LONGITUDE, CCStructuredInputDialog::FORMAT_DECIMAL, &zapit_long_str);
+		toff2->setDecimal(3, 6, 180);
 		mf = new CMenuDForwarder(LOCALE_EXTRA_LONGITUDE, true, zapit_long_str, toff2, "", CRCInput::convertDigitToKey(shortcut++));
 		mf->setHint("", LOCALE_MENU_HINT_SCAN_LONGITUDE);
 		rotorMenu->addItem(mf);
