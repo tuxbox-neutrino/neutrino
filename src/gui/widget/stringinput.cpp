@@ -880,3 +880,58 @@ CPLPINInput::CPLPINInput(const neutrino_locale_t Name, std::string *Value, int S
 	setHintText(joinHintLines(lockHint(FSK), localeText(Hint_2)));
 	watchLockStatus(FSK);
 }
+
+CPINChangeWidget::CPINChangeWidget(const neutrino_locale_t Name, std::string *Value, int Size, const neutrino_locale_t Hint_1, const char * const /*Valid_Chars*/, CChangeObserver* Observ)
+{
+	name = Name;
+	value = Value;
+	size = Size > 0 ? Size : 0;
+	hint = Hint_1;
+	observ = Observ;
+}
+
+int CPINChangeWidget::exec(CMenuTarget* parent, const std::string &)
+{
+	if (parent)
+		parent->hide();
+
+	neutrino_locale_t first_hint = hint;
+	while (true)
+	{
+		std::string entered;
+		CCPinInputDialog enter(name, &entered, size);
+		enter.setHintText(localeText(first_hint));
+		/* Nothing below to hand them to: this is a menu of its own. */
+		enter.setLeaveOnUpDown(false);
+		int res = enter.exec(NULL, "");
+		if (!enter.wasSaved())
+			return res == menu_return::RETURN_EXIT_ALL ? res : menu_return::RETURN_REPAINT;
+
+		std::string repeated;
+		CCPinInputDialog repeat(name, &repeated, size);
+		repeat.setHintText(localeText(LOCALE_PINPROTECTION_REPEAT));
+		repeat.setLeaveOnUpDown(false);
+		res = repeat.exec(NULL, "");
+		if (!repeat.wasSaved())
+			return res == menu_return::RETURN_EXIT_ALL ? res : menu_return::RETURN_REPAINT;
+
+		if (entered == repeated)
+		{
+			if (value)
+			{
+				setSettingsText(*value, entered);
+				if (observ)
+					observ->changeNotify(name, (void *) value->c_str());
+			}
+			return menu_return::RETURN_REPAINT;
+		}
+
+		first_hint = LOCALE_PINPROTECTION_MISMATCH;
+	}
+}
+
+std::string &CPINChangeWidget::getValue(void)
+{
+	valueStringTmp.assign(value ? value->size() : 0, '*');
+	return valueStringTmp;
+}

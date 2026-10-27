@@ -121,7 +121,8 @@ int CParentalSetup::showParentalSetup()
 	plock->addItem(new CMenuOptionNumberChooser(LOCALE_PARENTALLOCK_ZAPTIME, (int *)&g_settings.parentallock_zaptime, !parentallocked, 0, 10000));
 
 	CPINChangeWidget pinChangeWidget(LOCALE_PARENTALLOCK_CHANGEPIN, &g_settings.parentallock_pincode, 4, LOCALE_PARENTALLOCK_CHANGEPIN_HINT1);
-	mf = new CMenuForwarder(LOCALE_PARENTALLOCK_CHANGEPIN, true, g_settings.parentallock_pincode, &pinChangeWidget);
+	/* No option text: the row shows the widget's stars, not the PIN */
+	mf = new CMenuForwarder(LOCALE_PARENTALLOCK_CHANGEPIN, true, NULL, &pinChangeWidget);
 	mf->setHint("", LOCALE_MENU_HINT_PARENTALLOCK_CHANGEPIN);
 	plock->addItem(mf);
 

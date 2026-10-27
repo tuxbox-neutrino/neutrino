@@ -444,7 +444,8 @@ void CPersonalizeGui::ShowPinSetup(CMenuWidget* p_widget, CPINChangeWidget * &pi
 {
 	pin_widget = new CPINChangeWidget(LOCALE_PERSONALIZE_PINCODE, &g_settings.personalize_pincode, 4, LOCALE_PERSONALIZE_PINHINT);
 
-	CMenuForwarder * fw_pin_setup = new CMenuForwarder(LOCALE_PERSONALIZE_PINCODE, true, g_settings.personalize_pincode, pin_widget, NULL, CRCInput::RC_red);
+	/* No option text: the row shows the widget's stars, not the PIN */
+	CMenuForwarder * fw_pin_setup = new CMenuForwarder(LOCALE_PERSONALIZE_PINCODE, true, NULL, pin_widget, NULL, CRCInput::RC_red);
  	pin_setup_notifier = new CPinSetupNotifier(fw_pin_setup);
  	p_widget->addItem(new CMenuOptionChooser(LOCALE_PERSONALIZE_PIN_IN_USE, &g_settings.personalize[SNeutrinoSettings::P_MAIN_PINSTATUS], OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, pin_setup_notifier));
 

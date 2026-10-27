@@ -182,11 +182,22 @@ class CPLPINInput : public CPINInput
 		CPLPINInput(const neutrino_locale_t Name, std::string *Value, int Size, const neutrino_locale_t Hint_2, int FSK);
 };
 
-class CPINChangeWidget : public CStringInput
+/* Sets a new PIN: asks for it twice, as stars both times, and stores it
+   only when both entries match - a PIN typed blind once is a PIN nobody
+   knows. getValue() gives the menu row stars as well; a row that is to
+   show them must not get the PIN as its option text. */
+class CPINChangeWidget : public CMenuTarget
 {
+	private:
+		neutrino_locale_t name;
+		std::string *value;
+		int size;
+		neutrino_locale_t hint;
+		CChangeObserver *observ;
 	public:
-		CPINChangeWidget(const neutrino_locale_t Name, std::string *Value, int Size, const neutrino_locale_t Hint_1, const char * const Valid_Chars= (const char *) "0123456789", CChangeObserver* Observ = NULL)
-		: CStringInput(Name, Value, Size, Hint_1, NONEXISTANT_LOCALE, Valid_Chars, Observ){};
+		CPINChangeWidget(const neutrino_locale_t Name, std::string *Value, int Size, const neutrino_locale_t Hint_1, const char * const Valid_Chars = NULL, CChangeObserver* Observ = NULL);
+		int exec(CMenuTarget* parent, const std::string & actionKey);
+		std::string &getValue(void);
 };
 
 

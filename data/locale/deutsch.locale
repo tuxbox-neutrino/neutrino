@@ -2473,6 +2473,8 @@ ping.protocol ist nicht erreichbar (Host- oder Protokoll-Fehler)
 ping.socket ist nicht erreichbar (Socket-Fehler)
 ping.unreachable ist nicht erreichbar (unerreichbar)
 pinprotection.head PIN-Abfrage
+pinprotection.mismatch Die beiden Eingaben stimmen nicht überein. Bitte die neue PIN noch einmal eingeben.
+pinprotection.repeat Neue PIN zur Bestätigung noch einmal eingeben.
 pinprotection.wrongcode Geben Sie den Code nocheinmal ein!
 plugins.hdd_dir Externes Plugin-Verzeichnis
 plugins.no_plugin Kein Plugin

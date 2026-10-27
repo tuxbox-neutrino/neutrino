@@ -2500,6 +2500,8 @@ const char * locale_real_names[] =
 	"ping.socket",
 	"ping.unreachable",
 	"pinprotection.head",
+	"pinprotection.mismatch",
+	"pinprotection.repeat",
 	"pinprotection.wrongcode",
 	"plugins.hdd_dir",
 	"plugins.no_plugin",
