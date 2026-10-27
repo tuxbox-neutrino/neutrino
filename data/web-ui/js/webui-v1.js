@@ -649,12 +649,13 @@ let _webuiEpgModalToken = 0;
 /* The names of channels by their v1 ids, for the lists that hold ids alone
    (timers, recordings): each asked of the box once and kept for the page,
    also while two reads ask at once; '' for a channel the box does not
-   know. The overview and the timer list share them. */
+   know. The overview and the timer list share them. A timer without a
+   channel (a reminder, a sleep timer) carries the id 0, which names none. */
 const webuiNames = Object.create(null);
 const _webuiNaming = Object.create(null);
 async function webuiEnsureNames(ids) {
 	await Promise.all(ids.map(function(id) {
-		if (!id || id in webuiNames) return null;
+		if (!id || id === '0' || id in webuiNames) return null;
 		if (!_webuiNaming[id]) {
 			_webuiNaming[id] = webuiV1('GET', '/channels/' + encodeURIComponent(id)).catch(function() { return null; }).then(function(ch) {
 				webuiNames[id] = (ch && ch.name) || '';
