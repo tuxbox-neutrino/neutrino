@@ -53,16 +53,10 @@
 CUpdateSettings::CUpdateSettings()
 {
 	width = 40;
-#ifdef USE_SMS_INPUT
-	input_url_file = new CStringInputSMS(LOCALE_FLASHUPDATE_URL_FILE, g_settings.softupdate_url_file, 30, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, "abcdefghijklmnopqrstuvwxyz0123456789!""$%&/()=?-. ");
-#endif
 }
 
 CUpdateSettings::~CUpdateSettings()
 {
-#ifdef USE_SMS_INPUT
-	delete input_url_file;
-#endif
 }
 
 #if ENABLE_EXTUPDATE
@@ -109,7 +103,6 @@ int CUpdateSettings::exec(CMenuTarget *parent, const std::string &actionKey)
 
 		return res;
 	}
-#ifndef USE_SMS_INPUT
 	else if (actionKey == "select_url_config_file")
 	{
 		CFileBrowser fileBrowser;
@@ -123,7 +116,6 @@ int CUpdateSettings::exec(CMenuTarget *parent, const std::string &actionKey)
 
 		return res;
 	}
-#endif
 
 	res = initMenu();
 	return res;

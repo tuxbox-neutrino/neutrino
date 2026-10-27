@@ -40,6 +40,7 @@
 #include <driver/display.h>
 #include <driver/fontrenderer.h>
 #include <gui/components/cc.h>
+#include <gui/widget/keyboard_input.h>
 #include <gui/widget/msgbox.h>
 #include <gui/widget/hintbox.h>
 #include <gui/widget/stringinput.h>
@@ -85,7 +86,9 @@ inline int CBookmarkManager::createBookmark(const std::string &name, const std::
 int CBookmarkManager::createBookmark(const std::string &url, const std::string &time)
 {
 	std::string bookmarkname;
-	CStringInputSMS bookmarkname_input(LOCALE_MOVIEPLAYER_BOOKMARKNAME, &bookmarkname, 25, LOCALE_MOVIEPLAYER_BOOKMARKNAME_HINT1, LOCALE_MOVIEPLAYER_BOOKMARKNAME_HINT2, "abcdefghijklmnopqrstuvwxyz0123456789-_", this);
+	CKeyboardInput bookmarkname_input(LOCALE_MOVIEPLAYER_BOOKMARKNAME, &bookmarkname, 25, this, NULL, LOCALE_MOVIEPLAYER_BOOKMARKNAME_HINT1, LOCALE_MOVIEPLAYER_BOOKMARKNAME_HINT2);
+	bookmarkname_input.setFilterMode(CCInputBuffer::FILTER_CHARSET);
+	bookmarkname_input.setCharset("abcdefghijklmnopqrstuvwxyz0123456789-_");
 	bookmarkname_input.exec(NULL, "");
 	if (bookmarkname_entered)
 	{

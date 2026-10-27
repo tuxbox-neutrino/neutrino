@@ -101,9 +101,6 @@ int CLuaInstStringInput::StringInputExec(lua_State *L)
 	if (pin)
 		i = new CPINInput(name, &value, size,
 				     NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, valid_chars.c_str(), NULL);
-	else if (sms)
-		i = new CStringInputSMS(name, &value, size,
-				     NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, valid_chars.c_str(), NULL, icon.c_str());
 	else
 		i = new CStringInput(name, &value, size,
 				     NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, valid_chars.c_str(), NULL, icon.c_str());

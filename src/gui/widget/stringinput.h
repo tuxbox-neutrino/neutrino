@@ -125,31 +125,6 @@ class CStringInput : public CMenuTarget
 		void forceSaveScreen(bool enable);
 };
 
-class CStringInputSMS : public CStringInput
-{
-		int 	arraySizes[10];
-		char	Chars[10][10];					// maximal 10 character in one CharList entry!
-
-		int keyCounter;
-		int last_digit;
-
-		virtual void NormalKeyPressed(const neutrino_msg_t key);
-		virtual void keyBackspacePressed(void);
-		virtual void keyRedPressed();
-		virtual void keyYellowPressed();
-		virtual void keyUpPressed();
-		virtual void keyDownPressed();
-		virtual void keyLeftPressed();
-		virtual void keyRightPressed();
-
-		virtual void paint(bool dummy = false);
-		void initSMS(const char * const Valid_Chars);
-
-	public:
-		CStringInputSMS(const neutrino_locale_t Name, std::string* Value, int Size, const neutrino_locale_t Hint_1, const neutrino_locale_t Hint_2, const char * const Valid_Chars, CChangeObserver* Observ = NULL, const char * const Icon = NULL);
-		CStringInputSMS(const std::string &Name, std::string* Value, int Size, const neutrino_locale_t Hint_1, const neutrino_locale_t Hint_2, const char * const Valid_Chars, CChangeObserver* Observ = NULL, const char * const Icon = NULL);
-};
-
 /* The PIN prompts run on the cc PIN dialog: digits only, stars, closing on
    the last digit, up and down handed on to the screen below. The old
    constructors stay, so the menus that ask for a PIN keep their code.

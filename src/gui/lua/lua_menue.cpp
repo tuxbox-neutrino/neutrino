@@ -229,13 +229,10 @@ void CLuaMenuStringinput::Init(const char *_name, std::string *_value, int _size
 int CLuaMenuStringinput::exec(CMenuTarget* /*parent*/, const std::string & /*actionKey*/)
 {
 	int res = menu_return::RETURN_REPAINT;
-	CStringInput *i;
-	if (sms)
-		i = new CStringInputSMS((char *)name, value, size,
-					NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, valid_chars.c_str(), observ, icon);
-	else
-		i = new CStringInput((char *)name, value, size,
-				     NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, valid_chars.c_str(), observ, icon);
+	/* "sms" asked for the multi-tap letters on the digit keys; the input
+	   dialog brings an on-screen keyboard for letters instead. */
+	CStringInput *i = new CStringInput((char *)name, value, size,
+			NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, valid_chars.c_str(), observ, icon);
 	i->exec(NULL, "");
 	delete i;
 	if (!luaAction.empty()) {

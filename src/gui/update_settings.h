@@ -36,12 +36,6 @@
 
 #include "update.h"
 
-//#define USE_SMS_INPUT
-
-#ifdef USE_SMS_INPUT
-#include "gui/widget/stringinput.h"
-#endif
-
 #include <string>
 
 // helper class to enable/disable update config url item
@@ -60,10 +54,6 @@ class CUpdateSettings : public CMenuTarget, CChangeObserver
 	private:
 		int width;
 		int initMenu();
-
-#ifdef USE_SMS_INPUT
-		CStringInputSMS *input_url_file;
-#endif
 
 	public:
 		CUpdateSettings();
