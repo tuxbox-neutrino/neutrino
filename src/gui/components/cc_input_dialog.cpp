@@ -1196,13 +1196,11 @@ int CCTextInputDialog::exec(CMenuTarget *parent, const std::string & /*actionKey
 				/* 4. System messages. The caret holds still while the
 				 * application has the message: it may raise a box of
 				 * its own over this dialog, and the blink would go on
-				 * painting through it. The infobar's timer ticks open
-				 * nothing and come often, so they leave the caret be. */
+				 * painting through it. Every message - a timer tick
+				 * brings the scrambled channel hint. */
 				else
 				{
-					const bool hold_caret = msg != NeutrinoMessages::EVT_TIMER;
-					if (hold_caret)
-						cid_field->cancelCaretBlink(true);
+					cid_field->cancelCaretBlink(true);
 
 					const int flags = forwardMessage(msg, data);
 					if ((flags & messages_return::cancel_all) ||
@@ -1212,7 +1210,7 @@ int CCTextInputDialog::exec(CMenuTarget *parent, const std::string & /*actionKey
 						loop = false;
 						res = menu_return::RETURN_EXIT_ALL;
 					}
-					else if (hold_caret)
+					else if (isPainted())
 						cid_field->paint(false);
 				}
 			}

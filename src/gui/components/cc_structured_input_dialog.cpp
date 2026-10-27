@@ -1013,16 +1013,14 @@ int CCStructuredInputDialog::exec(CMenuTarget *parent, const std::string & /*act
 					 * the message, as in the text input dialog: a box
 					 * it raises would get the blink painted over it. */
 					CCInputField *active = csd_segments[csd_active]->field;
-					const bool hold_caret = msg != NeutrinoMessages::EVT_TIMER;
-					if (hold_caret)
-						active->cancelCaretBlink(true);
+					active->cancelCaretBlink(true);
 
 					if (forwardMessage(msg, data) & messages_return::cancel_all)
 					{
 						loop = false;
 						res = menu_return::RETURN_EXIT_ALL;
 					}
-					else if (hold_caret)
+					else if (isPainted())
 						active->paint(false);
 				}
 			}
