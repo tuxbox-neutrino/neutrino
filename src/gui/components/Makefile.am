@@ -43,6 +43,7 @@ libneutrino_gui_components_a_SOURCES = \
 	cc_input_dialog.cpp \
 	cc_input_field.cpp \
 	cc_numeric_input_dialog.cpp \
+	cc_pin_input_dialog.cpp \
 	cc_item.cpp \
 	cc_item_infobox.cpp \
 	cc_item_picture.cpp \

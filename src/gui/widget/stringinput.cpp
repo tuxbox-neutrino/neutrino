@@ -840,154 +840,43 @@ void CStringInputSMS::paint(bool /*unused*/)
 	CStringInput::paint(true /* sms */);
 }
 
-void CPINInput::paintChar(int pos)
+static std::string localeText(const neutrino_locale_t locale)
 {
-	CStringInput::paintChar(pos, (valueString->at(pos) == ' ') ? ' ' : '*');
+	return locale == NONEXISTANT_LOCALE ? "" : g_Locale->getText(locale);
 }
 
-int CPINInput::exec( CMenuTarget* parent, const std::string & )
+CPINInput::CPINInput(const neutrino_locale_t Name, std::string *Value, int Size, const neutrino_locale_t Hint_1, const neutrino_locale_t Hint_2, const char * const /*Valid_Chars*/, CChangeObserver* Observ)
+	: CCPinInputDialog(Name, Value, Size > 0 ? Size : 0, Observ)
 {
-	CStringInputOpen counted;
-	neutrino_msg_t      msg;
-	neutrino_msg_data_t data;
-
-	int res = menu_return::RETURN_REPAINT;
-
-	if (parent)
-		parent->hide();
-
-	if (size > (int) valueString->length())
-		setSettingsText(*valueString, *valueString + std::string(size - valueString->length(), ' '));
-
-	paint();
-
-	bool loop = true;
-
-	while(loop)
-	{
-		g_RCInput->getMsg( &msg, &data, 300 );
-
-		if (msg==CRCInput::RC_left)
-		{
-			keyLeftPressed();
-		}
-		else if (msg==CRCInput::RC_right)
-		{
-			keyRightPressed();
-		}
-		else if (CRCInput::isNumeric(msg))
-		{
-			int old_selected = selected;
-			NormalKeyPressed(msg);
-			if ( old_selected == ( size- 1 ) )
-				loop=false;
-		}
-		else if ( (msg==CRCInput::RC_up) ||
-				  (msg==CRCInput::RC_down) )
-		{
-			g_RCInput->postMsg( msg, data );
-			res = menu_return::RETURN_EXIT;
-			loop=false;
-		}
-		else if (CNeutrinoApp::getInstance()->backKey(msg) || (msg==CRCInput::RC_timeout) || (msg==CRCInput::RC_ok))
-		{
-			loop=false;
-		}
-		else
-		{
-			int r = handleOthers(msg, data);
-			if (r & (messages_return::cancel_all | messages_return::cancel_info))
-			{
-				res = (r & messages_return::cancel_all) ? menu_return::RETURN_EXIT_ALL : menu_return::RETURN_EXIT;
-				loop = false;
-			}
-			else if ( r & messages_return::unhandled )
-			{
-				if ( CNeutrinoApp::getInstance()->handleMsg( msg, data ) & ( messages_return::cancel_all | messages_return::cancel_info ) )
-				{
-					loop = false;
-					res = menu_return::RETURN_EXIT_ALL;
-				}
-			}
-		}
-	}
-
-	hide();
-
-	/* trim shortens what it is handed and then answers with the rest, so it is
-	   given a copy: the member itself changes once, under the lock. */
-	std::string trimmed = *valueString;
-	setSettingsText(*valueString, trim(trimmed));
-
-	if ( (observ) && (msg==CRCInput::RC_ok) )
-	{
-		observ->changeNotify(name, (void *) valueString->c_str());
-	}
-
-	return res;
+	init(Hint_1, Hint_2);
 }
 
-void CEnquiryInput::paintChar(int pos)
+CPINInput::CPINInput(const std::string &Name, std::string *Value, int Size, const neutrino_locale_t Hint_1, const neutrino_locale_t Hint_2, const char * const /*Valid_Chars*/, CChangeObserver* Observ)
+	: CCPinInputDialog(Name, Value, Size > 0 ? Size : 0, Observ)
 {
-	if (blind)
-		CStringInput::paintChar(pos, (valueString->at(pos) == ' ') ? ' ' : '*');
-	else
-			CStringInput::paintChar(pos, valueString->at(pos));
+	init(Hint_1, Hint_2);
 }
 
-int CPLPINInput::handleOthers(neutrino_msg_t msg, neutrino_msg_data_t data)
+void CPINInput::init(const neutrino_locale_t Hint_1, const neutrino_locale_t Hint_2)
 {
-	int res = messages_return::unhandled;
-
-	if ( msg == NeutrinoMessages::EVT_PROGRAMLOCKSTATUS )
-	{
-		// trotzdem handlen
-		CNeutrinoApp::getInstance()->handleMsg(msg, data);
-
-		if (data != (neutrino_msg_data_t) fsk)
-			res = messages_return::cancel_info;
-	}
-
-	return res;
+	setHintText(joinHintLines(localeText(Hint_1), localeText(Hint_2)));
 }
 
-const char * CPLPINInput::getHint1(void)
+/* The age hint was written for the old window and never shown: its
+   constructor dropped Hint_1 and nothing called the text for it. */
+static std::string lockHint(int fsk)
 {
-	if (fsk == 0x100)
-	{
-		hint_1 = LOCALE_PARENTALLOCK_LOCKEDCHANNEL;
-		return g_Locale->getText(hint_1);
-	}
-	else
-	{
-		sprintf(hint, g_Locale->getText(LOCALE_PARENTALLOCK_LOCKEDPROGRAM), fsk);
-		return hint;
-	}
+	if (fsk >= 0x100)
+		return g_Locale->getText(LOCALE_PARENTALLOCK_LOCKEDCHANNEL);
+
+	char hint[128];
+	snprintf(hint, sizeof(hint), g_Locale->getText(LOCALE_PARENTALLOCK_LOCKEDPROGRAM), fsk);
+	return hint;
 }
 
-#define borderwidth OFFSET_SHADOW // FIXME: do we need border around ??
-
-int CPLPINInput::exec( CMenuTarget* parent, const std::string & )
+CPLPINInput::CPLPINInput(const neutrino_locale_t Name, std::string *Value, int Size, const neutrino_locale_t Hint_2, int FSK)
+	: CPINInput(Name, Value, Size)
 {
-	fb_pixel_t * pixbuf = new fb_pixel_t[(width+ 2* borderwidth) * (height+ 2* borderwidth)];
-
-	if (pixbuf)
-		frameBuffer->SaveScreen(x- borderwidth, y- borderwidth, width+ 2* borderwidth, height+ 2* borderwidth, pixbuf);
-
-	// clear border
-	frameBuffer->paintBackgroundBoxRel(x- borderwidth, y- borderwidth, width+ 2* borderwidth, borderwidth);
-	frameBuffer->paintBackgroundBoxRel(x- borderwidth, y+ height, width+ 2* borderwidth, borderwidth);
-	frameBuffer->paintBackgroundBoxRel(x- borderwidth, y, borderwidth, height);
-	frameBuffer->paintBackgroundBoxRel(x+ width, y, borderwidth, height);
-
-	int res = CPINInput::exec ( parent, "" );
-
-	if (pixbuf)
-	{
-		frameBuffer->RestoreScreen(x - borderwidth, y- borderwidth, width+ 2* borderwidth, height+ 2* borderwidth, pixbuf);
-		delete[] pixbuf;//Mismatching allocation and deallocation: pixbuf
-		pixBuf = NULL;
-	}
-
-	return ( res );
+	setHintText(joinHintLines(lockHint(FSK), localeText(Hint_2)));
+	watchLockStatus(FSK);
 }

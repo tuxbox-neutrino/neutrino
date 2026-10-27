@@ -27,6 +27,7 @@
 #define __stringinput__
 
 #include "menue.h"
+#include <gui/components/cc_pin_input_dialog.h>
 
 #include <system/localize.h>
 
@@ -149,49 +150,36 @@ class CStringInputSMS : public CStringInput
 		CStringInputSMS(const std::string &Name, std::string* Value, int Size, const neutrino_locale_t Hint_1, const neutrino_locale_t Hint_2, const char * const Valid_Chars, CChangeObserver* Observ = NULL, const char * const Icon = NULL);
 };
 
-class CPINInput : public CStringInput
-{
-	protected:
-		virtual void paintChar(int pos);
-	public:
-		CPINInput(const neutrino_locale_t Name, std::string *Value, int Size, const neutrino_locale_t Hint_1 = NONEXISTANT_LOCALE, const neutrino_locale_t Hint_2 = NONEXISTANT_LOCALE, const char * const Valid_Chars= (const char *)"0123456789", CChangeObserver* Observ = NULL)
-		 : CStringInput(Name, Value, Size, Hint_1, Hint_2, Valid_Chars, Observ, (char *) NEUTRINO_ICON_LOCK) {};
-		CPINInput(const std::string &Name, std::string *Value, int Size, const neutrino_locale_t Hint_1 = NONEXISTANT_LOCALE, const neutrino_locale_t Hint_2 = NONEXISTANT_LOCALE, const char * const Valid_Chars= (const char *)"0123456789", CChangeObserver* Observ = NULL)
-		 : CStringInput(Name, Value, Size, Hint_1, Hint_2, Valid_Chars, Observ, (char *) NEUTRINO_ICON_LOCK) {};
-
-		 int exec( CMenuTarget* parent, const std::string & actionKey );
-};
-
-// For CI
-class CEnquiryInput : public CPINInput
+/* The PIN prompts run on the cc PIN dialog: digits only, stars, closing on
+   the last digit, up and down handed on to the screen below. The old
+   constructors stay, so the menus that ask for a PIN keep their code.
+   Valid_Chars is gone with the old window: a PIN is digits. */
+class CPINInput : public CCPinInputDialog
 {
 	private:
-		bool blind;
-	protected:
-		virtual void paintChar(int pos);
+		void init(const neutrino_locale_t Hint_1, const neutrino_locale_t Hint_2);
 	public:
-		CEnquiryInput(const neutrino_locale_t Name, std::string *Value, int Size, bool Blind, const neutrino_locale_t Hint_1 = NONEXISTANT_LOCALE, const neutrino_locale_t Hint_2 = NONEXISTANT_LOCALE, const char * const Valid_Chars= (const char *)"0123456789", CChangeObserver* Observ = NULL)
-		 : CPINInput(Name, Value, Size, Hint_1, Hint_2, Valid_Chars, Observ) { blind = Blind; }
-		CEnquiryInput(const std::string &Name, std::string *Value, int Size, bool Blind, const neutrino_locale_t Hint_1 = NONEXISTANT_LOCALE, const neutrino_locale_t Hint_2 = NONEXISTANT_LOCALE, const char * const Valid_Chars= (const char *)"0123456789", CChangeObserver* Observ = NULL)
-		 : CPINInput(Name, Value, Size, Hint_1, Hint_2, Valid_Chars, Observ) { blind = Blind; }
+		CPINInput(const neutrino_locale_t Name, std::string *Value, int Size, const neutrino_locale_t Hint_1 = NONEXISTANT_LOCALE, const neutrino_locale_t Hint_2 = NONEXISTANT_LOCALE, const char * const Valid_Chars = NULL, CChangeObserver* Observ = NULL);
+		CPINInput(const std::string &Name, std::string *Value, int Size, const neutrino_locale_t Hint_1 = NONEXISTANT_LOCALE, const neutrino_locale_t Hint_2 = NONEXISTANT_LOCALE, const char * const Valid_Chars = NULL, CChangeObserver* Observ = NULL);
 };
 
+// For CI: Blind says whether the CAM wants the answer hidden
+class CEnquiryInput : public CPINInput
+{
+	public:
+		CEnquiryInput(const neutrino_locale_t Name, std::string *Value, int Size, bool Blind, const neutrino_locale_t Hint_1 = NONEXISTANT_LOCALE, const neutrino_locale_t Hint_2 = NONEXISTANT_LOCALE, const char * const Valid_Chars = NULL, CChangeObserver* Observ = NULL)
+		 : CPINInput(Name, Value, Size, Hint_1, Hint_2, Valid_Chars, Observ) { setMasked(Blind); }
+		CEnquiryInput(const std::string &Name, std::string *Value, int Size, bool Blind, const neutrino_locale_t Hint_1 = NONEXISTANT_LOCALE, const neutrino_locale_t Hint_2 = NONEXISTANT_LOCALE, const char * const Valid_Chars = NULL, CChangeObserver* Observ = NULL)
+		 : CPINInput(Name, Value, Size, Hint_1, Hint_2, Valid_Chars, Observ) { setMasked(Blind); }
+};
 
+/* The youth protection prompt: names the locked channel or the age of the
+   locked programme above the caller's hint, and leaves once a program lock
+   event names another age. */
 class CPLPINInput : public CPINInput
 {
-	protected:
-		int  fsk;
-		char hint[100];
-
-		virtual int handleOthers(const neutrino_msg_t msg, const neutrino_msg_data_t data);
-
-		virtual const char * getHint1(void);
-
 	public:
-		CPLPINInput(const neutrino_locale_t Name, std::string *Value, int Size, const neutrino_locale_t Hint_2, int FSK )
-		 : CPINInput(Name, Value, Size, NONEXISTANT_LOCALE, Hint_2) { fsk = FSK; };
-
-		int exec( CMenuTarget* parent, const std::string & actionKey );
+		CPLPINInput(const neutrino_locale_t Name, std::string *Value, int Size, const neutrino_locale_t Hint_2, int FSK);
 };
 
 class CPINChangeWidget : public CStringInput

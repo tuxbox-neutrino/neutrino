@@ -59,6 +59,7 @@
 #include "components/cc_frm_input_row.h"
 #include "components/cc_input_dialog.h"
 #include "components/cc_numeric_input_dialog.h"
+#include "components/cc_pin_input_dialog.h"
 #include "components/cc_timer.h"
 #include "rate_banner.h"
 #include "scan.h"
@@ -321,6 +322,28 @@ int execCCTextInputEmptyTest()
 	}
 
 	return res;
+}
+
+/* Shows what a PIN prompt leaves behind: the result, whether it was
+ * saved and the digits, in clear for the test. Up and down leave the
+ * prompt and move on in this menu, so that case shows no box. */
+int execCCPinInputTest()
+{
+	std::string pin;
+	CCPinInputDialog dialog("PIN eingeben", &pin, 4);
+	dialog.setHintText("Die vierte Ziffer schliesst den Dialog, OK eine "
+		"kuerzere Eingabe. Hoch und Runter verlassen ihn.");
+
+	const int res = dialog.exec(NULL, "");
+	if (res != menu_return::RETURN_EXIT)
+		ShowMsg("CCPinInput Dialog",
+			std::string(dialog.wasSaved() ? "Gespeichert" : "Nicht gespeichert") +
+			", Ergebnis " + to_string(res) + ":\n\"" + pin + "\"",
+			CMsgBox::mbrBack,
+			CMsgBox::mbBack,
+			NEUTRINO_ICON_INFO);
+
+	return menu_return::RETURN_REPAINT;
 }
 
 /* The three shapes the numeric dialog takes over: an int with a range
@@ -1841,6 +1864,10 @@ int CTestMenu::exec(CMenuTarget *parent, const std::string &actionKey)
 	{
 		return execCCMultiFieldPhase0Test();
 	}
+	else if (actionKey == "cc_pin_input")
+	{
+		return execCCPinInputTest();
+	}
 	else if (actionKey.compare(0, 16, "cc_numeric_input") == 0)
 	{
 		return execCCNumericInputTest(actionKey.size() > 17 ? actionKey.substr(17) : "");
@@ -2832,6 +2859,7 @@ void CTestMenu::showCCTests(CMenuWidget *widget)
 	widget->addItem(new CMenuForwarder("CCNumericInput 1-999", true, NULL, this, "cc_numeric_input"));
 	widget->addItem(new CMenuForwarder("CCNumericInput -300..300", true, NULL, this, "cc_numeric_input_negative"));
 	widget->addItem(new CMenuForwarder("CCNumericInput String", true, NULL, this, "cc_numeric_input_string"));
+	widget->addItem(new CMenuForwarder("CCPinInput", true, NULL, this, "cc_pin_input"));
 }
 
 void CTestMenu::showHWTests(CMenuWidget *widget)

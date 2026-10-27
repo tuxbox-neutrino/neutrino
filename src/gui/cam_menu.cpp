@@ -510,8 +510,12 @@ int CCAMMenuHandler::handleCamMsg(const neutrino_msg_t msg, neutrino_msg_data_t 
 		} else {
 			CEnquiryInput *Inquiry = new CEnquiryInput((char *)convertDVBUTF8(pMmiEnquiry->enquiryText, strlen(pMmiEnquiry->enquiryText), 0).c_str(), &ENQAnswer, pMmiEnquiry->answerlen, pMmiEnquiry->blind != 0, NONEXISTANT_LOCALE);
 			Inquiry->exec(NULL, "");
+			/* Only an entered answer is kept: a cancelled prompt leaves it
+			   empty, and storing that would wipe the PIN saved for the
+			   next request. */
+			if (Inquiry->wasSaved())
+				setSettingsText(g_settings.ci_pincode[curslot], ENQAnswer);
 			delete Inquiry;
-			setSettingsText(g_settings.ci_pincode[curslot], ENQAnswer);
 		}
 
 		printf("CCAMMenuHandler::handleCamMsg: input=[%s]\n", ENQAnswer.c_str());
