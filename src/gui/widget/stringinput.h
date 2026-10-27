@@ -27,13 +27,13 @@
 #define __stringinput__
 
 #include "menue.h"
+#include <gui/components/cc_numeric_input_dialog.h>
 #include <gui/components/cc_pin_input_dialog.h>
 
 #include <system/localize.h>
 
 #include <string>
 
-class CFrameBuffer;
 /* Counts the string inputs that are open. The string input, the PIN input and
    the extended input edit the string they were handed in place and count on
    nothing else changing it while they are open: they pad the string once to
@@ -62,67 +62,26 @@ class CStringInputOpen
 		CStringInputOpen &operator=(const CStringInputOpen &);
 };
 
-class CStringInput : public CMenuTarget
+/* The string inputs run on the cc numeric dialog: nearly all of them ask
+   for a number kept as a string, and the old constructors stay. Size is
+   the most digits. A caller whose valid characters or value are no number
+   gets a text input with the on-screen keyboard instead, limited to the
+   valid characters and Size of them - the value then reaches the field as
+   it is, as a weekday mask "XXXXX--" or a coordinate "52.52" must. */
+class CStringInput : public CCNumericInputDialog
 {
+	private:
+		std::string valid_chars;
+		int size;
+		void init(const std::string &Name, int Size, const neutrino_locale_t Hint_1, const neutrino_locale_t Hint_2, const char * const Valid_Chars);
 	protected:
-		CFrameBuffer	*frameBuffer;
-		int x;
-		int y;
-		int width;
-		int height;
-		int hheight; // head font height
-		int iheight;
-		int bheight; // body height
-		int fheight; // footer height
-		int input_h; // input field height
-		int input_w; // input field width
-		int offset;
-		int lower_bound;
-		int upper_bound;
-
-		uint32_t smstimer;
-
-		std::string  head;
-		neutrino_locale_t name;
-		neutrino_locale_t hint_1, hint_2;
-		std::string iconfile;
-		const char * validchars;
-		int          size;
-		int          selected;
-		CChangeObserver * observ;
-		bool force_saveScreen;
-		fb_pixel_t *pixBuf;
-
-		virtual void init(const std::string &Name, std::string *Value, int Size, const neutrino_locale_t Hint_1, const neutrino_locale_t Hint_2, const char * const Valid_Chars, CChangeObserver* Observ, const char * const Icon);
-
-		virtual void paint(bool sms = false);
-		virtual void paintChar(int pos, char c);
-		virtual void paintChar(int pos);
-
-		virtual void NormalKeyPressed(const neutrino_msg_t key);
-		virtual void keyBackspacePressed(void);
-		virtual void keyRedPressed();
-		virtual void keyYellowPressed();
-		virtual void keyBluePressed();
-		virtual void keyUpPressed();
-		virtual void keyDownPressed();
-		virtual void keyLeftPressed();
-		virtual void keyRightPressed();
-		virtual void keyPlusPressed();
-		virtual void keyMinusPressed();
-
-		virtual int handleOthers(const neutrino_msg_t msg, const neutrino_msg_data_t data);
-
+		void onBeforeExec();
 	public:
 		CStringInput(const neutrino_locale_t Name, std::string* Value, int Size, const neutrino_locale_t Hint_1 = NONEXISTANT_LOCALE, const neutrino_locale_t Hint_2 = NONEXISTANT_LOCALE, const char * const Valid_Chars= (const char *) "0123456789. ", CChangeObserver* Observ = NULL, const char * const Icon = NULL);
 		CStringInput(const std::string &Name, std::string* Value, int Size, const neutrino_locale_t Hint_1 = NONEXISTANT_LOCALE, const neutrino_locale_t Hint_2 = NONEXISTANT_LOCALE, const char * const Valid_Chars= (const char *) "0123456789. ", CChangeObserver* Observ = NULL, const char * const Icon = NULL);
-		~CStringInput();
 
-		void hide();
-		int exec( CMenuTarget* parent, const std::string & actionKey );
-		void setMinMax(const int min_value, const int max_value);
-
-		void forceSaveScreen(bool enable);
+		///the dialog saves its background itself
+		void forceSaveScreen(bool /*enable*/) {}
 };
 
 /* The PIN prompts run on the cc PIN dialog: digits only, stars, closing on
