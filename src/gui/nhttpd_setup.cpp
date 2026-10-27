@@ -196,7 +196,9 @@ int CNhttpdSetup::showSetup()
 	menu->addItem(user_fwd);
 
 	CKeyboardInput pass_input(LOCALE_NETWORKMENU_HTTPD_PASS, &password);
-	CMenuForwarder *pass_fwd = new CMenuForwarder(LOCALE_NETWORKMENU_HTTPD_PASS, auth_enabled != 0, password, &pass_input);
+	pass_input.setMasked(true);
+	/* no text of its own: the row shows the masked value of the input */
+	CMenuForwarder *pass_fwd = new CMenuForwarder(LOCALE_NETWORKMENU_HTTPD_PASS, auth_enabled != 0, NULL, &pass_input);
 	pass_fwd->setHint("", LOCALE_MENU_HINT_NET_HTTPD_PASS);
 	auth_items.Add(pass_fwd);
 	menu->addItem(pass_fwd);

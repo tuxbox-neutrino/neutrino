@@ -312,6 +312,7 @@ int CTimerList::exec(CMenuTarget *parent, const std::string &actionKey)
 		remotebox_user.forceSaveScreen(true);
 		CKeyboardInput remotebox_pass(LOCALE_REMOTEBOX_PASS, &pass, 15);
 		remotebox_pass.forceSaveScreen(true);
+		remotebox_pass.setMasked(true);
 
 		// menu add remote box
 		CMenuWidget *rbsetup = new CMenuWidget(LOCALE_REMOTEBOX_HEAD, NEUTRINO_ICON_TIMER);
@@ -319,7 +320,7 @@ int CTimerList::exec(CMenuTarget *parent, const std::string &actionKey)
 		rbsetup->addItem(new CMenuForwarder(LOCALE_REMOTEBOX_RBADDR, true, rbaddress, &remotebox_address));
 		rbsetup->addItem(new CMenuForwarder(LOCALE_REMOTEBOX_PORT, true, port, &remotebox_port));
 		rbsetup->addItem(new CMenuForwarder(LOCALE_REMOTEBOX_USER, true, user, &remotebox_user));
-		rbsetup->addItem(new CMenuForwarder(LOCALE_REMOTEBOX_PASS, true, pass, &remotebox_pass));
+		rbsetup->addItem(new CMenuForwarder(LOCALE_REMOTEBOX_PASS, true, NULL, &remotebox_pass));
 		rbsetup->enableSaveScreen();
 		if ((rbsetup->exec(NULL, "") == true) && (!rbaddress.empty()))
 		{
@@ -401,6 +402,7 @@ int CTimerList::exec(CMenuTarget *parent, const std::string &actionKey)
 		remotebox_user.forceSaveScreen(true);
 		CKeyboardInput remotebox_pass(LOCALE_REMOTEBOX_PASS, &it->pass, 15);
 		remotebox_pass.forceSaveScreen(true);
+		remotebox_pass.setMasked(true);
 
 		// remote box edit
 		CMenuWidget *rbsetup = new CMenuWidget(LOCALE_REMOTEBOX_HEAD, NEUTRINO_ICON_TIMER);
@@ -408,7 +410,7 @@ int CTimerList::exec(CMenuTarget *parent, const std::string &actionKey)
 		rbsetup->addItem(new CMenuForwarder(LOCALE_REMOTEBOX_RBADDR, true, it->rbaddress, &remotebox_address));
 		rbsetup->addItem(new CMenuForwarder(LOCALE_REMOTEBOX_PORT, true, port, &remotebox_port));
 		rbsetup->addItem(new CMenuForwarder(LOCALE_REMOTEBOX_USER, true, it->user, &remotebox_user));
-		rbsetup->addItem(new CMenuForwarder(LOCALE_REMOTEBOX_PASS, true, it->pass, &remotebox_pass));
+		rbsetup->addItem(new CMenuForwarder(LOCALE_REMOTEBOX_PASS, true, NULL, &remotebox_pass));
 		rbsetup->enableSaveScreen();
 		if ((rbsetup->exec(NULL, "") == true) && (!it->rbaddress.empty()))
 		{

@@ -101,7 +101,8 @@ int CWeatherSetup::showWeatherSetup()
 #if ENABLE_WEATHER_KEY_MANAGE
 	changeNotify(LOCALE_WEATHER_API_KEY, NULL);
 	CKeyboardInput weather_api_key_input(LOCALE_WEATHER_API_KEY, &g_settings.weather_api_key, 32, this);
-	CMenuForwarder *mf_we = new CMenuForwarder(LOCALE_WEATHER_API_KEY, true, weather_api_key_short, &weather_api_key_input);
+	weather_api_key_input.setMasked(true);
+	CMenuForwarder *mf_we = new CMenuForwarder(LOCALE_WEATHER_API_KEY, true, NULL, &weather_api_key_input);
 	mf_we->setHint(NEUTRINO_ICON_HINT_SETTINGS, LOCALE_MENU_HINT_WEATHER_API_KEY);
 	ms_oservices->addItem(mf_we);
 #endif
@@ -206,12 +207,7 @@ bool CWeatherSetup::changeNotify(const neutrino_locale_t OptionName, void */*dat
 	{
 		g_settings.weather_enabled = g_settings.weather_enabled && CApiKey::check_weather_api_key();
 		if (g_settings.weather_enabled)
-		{
 			CWeather::getInstance()->updateApi();
-			weather_api_key_short = g_settings.weather_api_key.substr(0, 8) + "...";
-		}
-		else
-			weather_api_key_short.clear();
 		weather_onoff->setActive(CApiKey::check_weather_api_key());
 	}
 	else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_WEATHER_API_VERSION))
