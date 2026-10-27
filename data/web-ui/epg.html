@@ -128,8 +128,10 @@
 			min-height: 52px;
 		}
 
-		.webui-epg-row:hover {
-			background: var(--epg-row-hover);
+		@media (hover: hover) {
+			.webui-epg-row:hover {
+				background: var(--epg-row-hover);
+			}
 		}
 
 		.webui-epg-channel-name {
@@ -147,8 +149,10 @@
 			overflow: hidden;
 		}
 
-		.webui-epg-channel-name:hover {
-			color: var(--webui-accent);
+		@media (hover: hover) {
+			.webui-epg-channel-name:hover {
+				color: var(--webui-accent);
+			}
 		}
 
 		.webui-epg-channel-name span {
@@ -215,12 +219,14 @@
 			justify-content: center;
 		}
 
-		.webui-epg-program:hover {
-			background: var(--webui-accent);
-			border-color: var(--webui-accent);
-			color: var(--webui-on-accent);
-			z-index: 5;
-			box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+		@media (hover: hover) {
+			.webui-epg-program:hover {
+				background: var(--webui-accent);
+				border-color: var(--webui-accent);
+				color: var(--webui-on-accent);
+				z-index: 5;
+				box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+			}
 		}
 
 		/* What runs now: filled as far as it has run, the whole height of its
@@ -264,8 +270,10 @@
 			justify-content: flex-start;
 		}
 
-		.webui-epg-program[role="button"]:hover {
-			color: var(--webui-on-accent);
+		@media (hover: hover) {
+			.webui-epg-program[role="button"]:hover {
+				color: var(--webui-on-accent);
+			}
 		}
 
 		.webui-epg-program:focus-visible,
@@ -322,9 +330,14 @@
 			visibility: hidden;
 		}
 
-		.webui-epg-program:hover .webui-epg-program-time,
 		.webui-epg-program.current .webui-epg-program-time {
 			opacity: 0.9;
+		}
+
+		@media (hover: hover) {
+			.webui-epg-program:hover .webui-epg-program-time {
+				opacity: 0.9;
+			}
 		}
 
 		/* Now marker - small triangle at top of header */

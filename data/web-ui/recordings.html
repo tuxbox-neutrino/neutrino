@@ -266,8 +266,10 @@
 			--pico-color: inherit;
 		}
 
-		.webui-media-open:hover .webui-media-title {
-			color: var(--webui-accent);
+		@media (hover: hover) {
+			.webui-media-open:hover .webui-media-title {
+				color: var(--webui-accent);
+			}
 		}
 
 		.webui-media-open:focus-visible {
@@ -320,8 +322,10 @@
 			box-shadow: inset 3px 0 0 var(--webui-accent);
 		}
 
-		.webui-media-row:hover {
-			background: var(--webui-bg-elevated);
+		@media (hover: hover) {
+			.webui-media-row:hover {
+				background: var(--webui-bg-elevated);
+			}
 		}
 
 		.webui-media-row .webui-media-thumb {

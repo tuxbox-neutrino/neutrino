@@ -132,9 +132,11 @@
 		#settingsSidebar button svg {
 			flex-shrink: 0;
 		}
-		#settingsSidebar button:hover {
-			color: var(--webui-accent);
-			background: var(--webui-accent-light);
+		@media (hover: hover) {
+			#settingsSidebar button:hover {
+				color: var(--webui-accent);
+				background: var(--webui-accent-light);
+			}
 		}
 		#settingsSidebar button.active {
 			color: var(--webui-accent);
@@ -274,9 +276,14 @@
 			color: var(--pico-muted-color);
 			cursor: pointer;
 		}
-		.webui-set-info:hover,
 		.webui-set-info[aria-expanded="true"] {
 			color: var(--webui-accent);
+		}
+
+		@media (hover: hover) {
+			.webui-set-info:hover {
+				color: var(--webui-accent);
+			}
 		}
 		.webui-set-info svg,
 		.webui-set-restart svg {
@@ -462,9 +469,14 @@
 			/* Pico's button colour on hover, focus and press outweighs the reset above */
 			--pico-color: inherit;
 		}
-		.webui-set-hit:hover,
 		.webui-set-hit:focus-visible {
 			background: var(--webui-accent-light);
+		}
+
+		@media (hover: hover) {
+			.webui-set-hit:hover {
+				background: var(--webui-accent-light);
+			}
 		}
 		.webui-set-hit-place {
 			grid-column: 1;
@@ -563,8 +575,10 @@
 			/* Pico's button colour on hover, focus and press outweighs the reset above */
 			--pico-color: inherit;
 		}
-		.mount-slot-header:hover {
-			background: rgba(255,255,255,0.03);
+		@media (hover: hover) {
+			.mount-slot-header:hover {
+				background: rgba(255,255,255,0.03);
+			}
 		}
 		.mount-slot-header .slot-summary {
 			color: var(--pico-muted-color);
@@ -662,8 +676,10 @@
 			color: var(--webui-accent);
 			border-radius: var(--webui-radius);
 		}
-		.ext-grid .ext-open:hover {
-			background: var(--webui-accent-light);
+		@media (hover: hover) {
+			.ext-grid .ext-open:hover {
+				background: var(--webui-accent-light);
+			}
 		}
 		/* update badge next to the extension name after a manual check */
 		.ext-badge {

@@ -154,9 +154,11 @@ html.webui-i18n-pending body {
 	color: var(--webui-text-secondary);
 }
 
-[data-theme="light"] .webui-theme-toggle:hover {
-	background: var(--webui-accent-light);
-	color: var(--webui-text-primary);
+@media (hover: hover) {
+	[data-theme="light"] .webui-theme-toggle:hover {
+		background: var(--webui-accent-light);
+		color: var(--webui-text-primary);
+	}
 }
 
 [data-theme="light"] .webui-action-btn {
@@ -165,10 +167,12 @@ html.webui-i18n-pending body {
 	color: var(--webui-text-secondary);
 }
 
-[data-theme="light"] .webui-action-btn:hover {
-	background: var(--webui-accent-light);
-	border-color: var(--webui-accent);
-	color: var(--webui-accent);
+@media (hover: hover) {
+	[data-theme="light"] .webui-action-btn:hover {
+		background: var(--webui-accent-light);
+		border-color: var(--webui-accent);
+		color: var(--webui-accent);
+	}
 }
 
 [data-theme="light"] .webui-card {
@@ -204,10 +208,12 @@ html.webui-i18n-pending body {
 	color: #24292f;
 }
 
-[data-theme="light"] .webui-channel-btn:hover {
-	background: var(--webui-accent);
-	border-color: var(--webui-accent);
-	color: var(--webui-on-accent);
+@media (hover: hover) {
+	[data-theme="light"] .webui-channel-btn:hover {
+		background: var(--webui-accent);
+		border-color: var(--webui-accent);
+		color: var(--webui-on-accent);
+	}
 }
 
 [data-theme="light"] .webui-channel-btn svg {
@@ -231,8 +237,10 @@ html.webui-i18n-pending body {
 	border-bottom-color: #e5e7eb;
 }
 
-[data-theme="light"] .webui-channel-row:hover {
-	background: #f8f9fa;
+@media (hover: hover) {
+	[data-theme="light"] .webui-channel-row:hover {
+		background: #f8f9fa;
+	}
 }
 
 [data-theme="light"] .webui-channel-row.current {
@@ -248,9 +256,11 @@ html.webui-i18n-pending body {
 	color: #24292f;
 }
 
-[data-theme="light"] .webui-epg-btn:hover {
-	background: #e0e0e0;
-	border-color: var(--webui-accent);
+@media (hover: hover) {
+	[data-theme="light"] .webui-epg-btn:hover {
+		background: #e0e0e0;
+		border-color: var(--webui-accent);
+	}
 }
 
 [data-theme="light"] .webui-epg-select {
@@ -517,8 +527,10 @@ body:not(.has-subheader) .webui-header-spacer {
 	text-overflow: ellipsis;
 }
 
-.webui-side .webui-side-link:hover {
-	background: var(--webui-bg-elevated);
+@media (hover: hover) {
+	.webui-side .webui-side-link:hover {
+		background: var(--webui-bg-elevated);
+	}
 }
 
 .webui-side .webui-side-link.active {
@@ -719,9 +731,11 @@ html.webui-side-narrow .webui-side .webui-side-toggle {
 	white-space: nowrap;
 }
 
-.webui-subnav a:hover {
-	color: var(--pico-color);
-	background: var(--webui-bg-elevated);
+@media (hover: hover) {
+	.webui-subnav a:hover {
+		color: var(--pico-color);
+		background: var(--webui-bg-elevated);
+	}
 }
 
 .webui-subnav a.active {
@@ -896,9 +910,11 @@ html.webui-side-narrow .webui-side .webui-side-toggle {
 	flex-shrink: 0;
 }
 
-.webui-more-menu a:hover,
-.webui-more-menu button:hover {
-	background: var(--webui-bg-elevated);
+@media (hover: hover) {
+	.webui-more-menu a:hover,
+	.webui-more-menu button:hover {
+		background: var(--webui-bg-elevated);
+	}
 }
 
 .webui-more-menu a.active {
@@ -1042,8 +1058,10 @@ html.webui-side-narrow .webui-side .webui-side-toggle {
 	align-items: center;
 }
 
-.webui-theme-toggle:hover {
-	background: var(--webui-accent-light);
+@media (hover: hover) {
+	.webui-theme-toggle:hover {
+		background: var(--webui-accent-light);
+	}
 }
 
 /* Pico sets its button colour again on hover, focus and press, with a
@@ -1160,8 +1178,10 @@ body ul.webui-side-list > li {
 	--pico-color: inherit;
 }
 
-.webui-side-list button:hover {
-	background: var(--webui-bg-elevated);
+@media (hover: hover) {
+	.webui-side-list button:hover {
+		background: var(--webui-bg-elevated);
+	}
 }
 
 .webui-side-list button:is([aria-current="true"], [aria-pressed="true"]) {
@@ -1191,10 +1211,15 @@ body ul.webui-side-list > li {
 	background: var(--pico-muted-border-color);
 }
 
-.webui-split-handle:hover::before,
 .webui-split-handle.dragging::before,
 .webui-split-handle:focus-visible::before {
 	background: var(--webui-accent);
+}
+
+@media (hover: hover) {
+	.webui-split-handle:hover::before {
+		background: var(--webui-accent);
+	}
 }
 
 .webui-split-handle:focus-visible {
@@ -1274,8 +1299,10 @@ body ul.webui-side-list > li {
 	transition: var(--webui-transition);
 }
 
-.webui-popover-close:hover {
-	background: var(--webui-accent-light);
+@media (hover: hover) {
+	.webui-popover-close:hover {
+		background: var(--webui-accent-light);
+	}
 }
 
 .webui-popover form {
@@ -1338,9 +1365,11 @@ body ul.webui-side-list > li {
 	transition: var(--webui-transition);
 }
 
-.webui-modal-close:hover {
-	background: var(--webui-accent-light);
-	color: var(--pico-color);
+@media (hover: hover) {
+	.webui-modal-close:hover {
+		background: var(--webui-accent-light);
+		color: var(--pico-color);
+	}
 }
 
 .webui-modal-close svg {
@@ -1610,8 +1639,10 @@ body ul.webui-side-list > li {
 	font-size: 0.85rem;
 }
 
-.webui-about-links a:hover {
-	text-decoration: underline;
+@media (hover: hover) {
+	.webui-about-links a:hover {
+		text-decoration: underline;
+	}
 }
 
 .webui-about-legal {
@@ -2012,8 +2043,20 @@ body ul.webui-side-list > li {
 
 .webui-epg-round:is(:hover, :focus, :active) {
 	--pico-color: inherit;
+}
+
+/* highlighted under the keyboard's focus and while pressed; under a pointer
+   only where one can hover, as a tap leaves its focus behind */
+.webui-epg-round:is(:focus-visible, :active) {
 	background: var(--webui-accent-light);
 	border-color: var(--webui-accent);
+}
+
+@media (hover: hover) {
+	.webui-epg-round:hover {
+		background: var(--webui-accent-light);
+		border-color: var(--webui-accent);
+	}
 }
 
 .webui-epg-round:focus-visible {
@@ -2086,8 +2129,10 @@ body ul.webui-side-list > li {
 	min-width: 0; /* Prevent grid blowout */
 }
 
-.webui-card:hover {
-	box-shadow: var(--webui-shadow-hover);
+@media (hover: hover) {
+	.webui-card:hover {
+		box-shadow: var(--webui-shadow-hover);
+	}
 }
 
 .webui-card-header {
@@ -2366,14 +2411,16 @@ body ul.webui-side-list > li {
 	text-decoration: none;
 }
 
-.webui-btn:hover,
-.webui-action-btn:hover,
-.webui-mode-switch-btn:hover {
-	background: var(--webui-accent-light);
-	border-color: var(--webui-accent);
-	color: var(--webui-accent);
-	transform: translateY(-1px);
-	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+@media (hover: hover) {
+	.webui-btn:hover,
+	.webui-action-btn:hover,
+	.webui-mode-switch-btn:hover {
+		background: var(--webui-accent-light);
+		border-color: var(--webui-accent);
+		color: var(--webui-accent);
+		transform: translateY(-1px);
+		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+	}
 }
 
 .webui-btn:active,
@@ -2500,10 +2547,12 @@ textarea:focus-visible {
 	color: var(--webui-on-accent);
 }
 
-.webui-btn.primary:hover {
-	background: var(--webui-accent-hover);
-	border-color: var(--webui-accent-hover);
-	color: var(--webui-on-accent);
+@media (hover: hover) {
+	.webui-btn.primary:hover {
+		background: var(--webui-accent-hover);
+		border-color: var(--webui-accent-hover);
+		color: var(--webui-on-accent);
+	}
 }
 
 .webui-btn.danger {
@@ -2514,10 +2563,12 @@ textarea:focus-visible {
 
 /* Eigener Hover: der generische .webui-btn:hover faerbt sonst
    destruktive Knoepfe in den Akzent um */
-.webui-btn.danger:hover {
-	background: var(--webui-danger-fill-hover);
-	border-color: var(--webui-danger-fill-hover);
-	color: white;
+@media (hover: hover) {
+	.webui-btn.danger:hover {
+		background: var(--webui-danger-fill-hover);
+		border-color: var(--webui-danger-fill-hover);
+		color: white;
+	}
 }
 
 .webui-btn.sm {
@@ -2560,12 +2611,14 @@ textarea:focus-visible {
 	color: #212529;
 }
 
-[data-theme="light"] .webui-btn:hover,
-[data-theme="light"] .webui-action-btn:hover,
-[data-theme="light"] .webui-mode-switch-btn:hover {
-	background: var(--webui-accent-light);
-	border-color: var(--webui-accent);
-	color: var(--webui-accent);
+@media (hover: hover) {
+	[data-theme="light"] .webui-btn:hover,
+	[data-theme="light"] .webui-action-btn:hover,
+	[data-theme="light"] .webui-mode-switch-btn:hover {
+		background: var(--webui-accent-light);
+		border-color: var(--webui-accent);
+		color: var(--webui-accent);
+	}
 }
 
 [data-theme="light"] .webui-btn.primary {
@@ -2574,9 +2627,11 @@ textarea:focus-visible {
 	color: var(--webui-on-accent);
 }
 
-[data-theme="light"] .webui-btn.primary:hover {
-	background: var(--webui-accent-hover);
-	color: var(--webui-on-accent);
+@media (hover: hover) {
+	[data-theme="light"] .webui-btn.primary:hover {
+		background: var(--webui-accent-hover);
+		color: var(--webui-on-accent);
+	}
 }
 
 /* danger braucht wie primary einen Light-Override, sonst gewinnt
@@ -2587,10 +2642,12 @@ textarea:focus-visible {
 	color: white;
 }
 
-[data-theme="light"] .webui-btn.danger:hover {
-	background: var(--webui-danger-fill-hover);
-	border-color: var(--webui-danger-fill-hover);
-	color: white;
+@media (hover: hover) {
+	[data-theme="light"] .webui-btn.danger:hover {
+		background: var(--webui-danger-fill-hover);
+		border-color: var(--webui-danger-fill-hover);
+		color: white;
+	}
 }
 
 /* Ghost-Variante: rahmenlos für Sekundär-Aktionen — nach den
@@ -2600,8 +2657,10 @@ textarea:focus-visible {
 	border-color: transparent;
 }
 
-.webui-btn.ghost:hover {
-	border-color: var(--pico-muted-border-color);
+@media (hover: hover) {
+	.webui-btn.ghost:hover {
+		border-color: var(--pico-muted-border-color);
+	}
 }
 
 /* ============================================
@@ -2701,8 +2760,10 @@ textarea:focus-visible {
 	border-bottom: none;
 }
 
-.webui-nav-item:hover {
-	background: var(--webui-accent-light);
+@media (hover: hover) {
+	.webui-nav-item:hover {
+		background: var(--webui-accent-light);
+	}
 }
 
 .webui-nav-item.active {
@@ -2747,8 +2808,10 @@ textarea:focus-visible {
 	border-bottom-color: #e5e7eb;
 }
 
-[data-theme="light"] .webui-nav-item:hover {
-	background: #f8f9fa;
+@media (hover: hover) {
+	[data-theme="light"] .webui-nav-item:hover {
+		background: #f8f9fa;
+	}
 }
 
 /* Kompakter Karten-Kopf (M5e) — schlanke Panel-Karten der
@@ -2884,8 +2947,10 @@ textarea:focus-visible {
 	border-bottom: none;
 }
 
-.webui-list-row:hover {
-	background: var(--webui-accent-light);
+@media (hover: hover) {
+	.webui-list-row:hover {
+		background: var(--webui-accent-light);
+	}
 }
 
 .webui-list-row.active {
@@ -2924,8 +2989,10 @@ textarea:focus-visible {
 	border-bottom-color: #e5e7eb;
 }
 
-[data-theme="light"] .webui-list-row:hover {
-	background: #f8f9fa;
+@media (hover: hover) {
+	[data-theme="light"] .webui-list-row:hover {
+		background: #f8f9fa;
+	}
 }
 
 /* ============================================
@@ -3124,9 +3191,11 @@ textarea:focus-visible {
 	transform: scale(1.2);
 }
 
-.webui-card-dot:hover::before {
-	background: var(--webui-accent);
-	opacity: 0.7;
+@media (hover: hover) {
+	.webui-card-dot:hover::before {
+		background: var(--webui-accent);
+		opacity: 0.7;
+	}
 }
 
 .webui-card-dot:focus-visible {
@@ -4032,8 +4101,10 @@ body.webui-remote-open {
 [data-theme="light"] .webui-form-group[open] > summary {
 	border-bottom-color: var(--webui-border-subtle);
 }
-.webui-form-group > summary:hover {
-	background: var(--pico-card-background-color);
+@media (hover: hover) {
+	.webui-form-group > summary:hover {
+		background: var(--pico-card-background-color);
+	}
 }
 .webui-form-group-count {
 	margin-left: auto;
@@ -4132,8 +4203,10 @@ body.webui-remote-open {
 	--pico-color: inherit;
 }
 
-.webui-lang-menu button:hover {
-	background: var(--webui-accent-light);
+@media (hover: hover) {
+	.webui-lang-menu button:hover {
+		background: var(--webui-accent-light);
+	}
 }
 
 .webui-lang-menu button.active {
@@ -4476,10 +4549,16 @@ dialog.webui-sheet footer button.danger {
 	color: var(--pico-muted-color);
 }
 
-.webui-menu button:hover,
 .webui-menu button:focus-visible {
 	background: var(--webui-bg-elevated);
 	outline: none;
+}
+
+@media (hover: hover) {
+	.webui-menu button:hover {
+		background: var(--webui-bg-elevated);
+		outline: none;
+	}
 }
 
 .webui-menu button:focus-visible {

@@ -127,8 +127,10 @@
 			--pico-color: inherit;
 		}
 
-		.webui-timer-more:hover {
-			background: var(--webui-bg-elevated);
+		@media (hover: hover) {
+			.webui-timer-more:hover {
+				background: var(--webui-bg-elevated);
+			}
 		}
 
 		.webui-timer-more svg {
@@ -203,8 +205,10 @@
 			cursor: pointer;
 		}
 
-		.webui-timer-row:hover {
-			background: var(--webui-accent-light);
+		@media (hover: hover) {
+			.webui-timer-row:hover {
+				background: var(--webui-accent-light);
+			}
 		}
 
 		.webui-timer-row.state-running {
@@ -408,8 +412,10 @@
 			border-bottom-color: #e5e7eb;
 		}
 
-		[data-theme="light"] .webui-timer-row:hover {
-			background: #f8f9fa;
+		@media (hover: hover) {
+			[data-theme="light"] .webui-timer-row:hover {
+				background: #f8f9fa;
+			}
 		}
 
 
