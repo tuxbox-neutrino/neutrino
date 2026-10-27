@@ -565,9 +565,10 @@ int CKeyboardInput::exec(CMenuTarget* parent, const std::string &)
 		if (changed)
 		{
 			changed = false;
-			CVFD::getInstance()->showMenuText(1, inputString->c_str() , selected+1);
+			std::string vfd_text = getVfdText();
+			CVFD::getInstance()->showMenuText(1, vfd_text.c_str(), selected+1);
 #ifdef ENABLE_GRAPHLCD
-			cGLCD::lockChannel(inputString->c_str(), "", 0);
+			cGLCD::lockChannel(vfd_text, "", 0);
 #endif
 		}
 		g_RCInput->getMsgAbsoluteTimeout(&msg, &data, &timeoutEnd, true);
@@ -684,6 +685,22 @@ int CKeyboardInput::exec(CMenuTarget* parent, const std::string &)
 void CKeyboardInput::hide()
 {
 	frameBuffer->paintBackgroundBoxRel(x, y, width + OFFSET_SHADOW, height + OFFSET_SHADOW);
+}
+
+std::string CKeyboardInput::getVfdText()
+{
+	/* The screen masks a secret, so the front display and the graphic LCD
+	   have to as well, or it shows there in clear text while it is typed:
+	   one '*' per character, as the cc input dialog does. */
+	std::string &value = inputString->getValue();
+	if (!masked)
+		return value;
+
+	size_t chars = 0;
+	for (size_t i = 0; i < value.size(); i++)
+		if ((value[i] & 0xc0) != 0x80)
+			chars++;
+	return std::string(chars, '*');
 }
 
 int CKeyboardInput::paintFooter(bool show)
