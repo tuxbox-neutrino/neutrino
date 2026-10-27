@@ -2743,7 +2743,6 @@ bool CZapProtection::check()
 
 		res = PINInput->exec(getParent(), "");
 		delete PINInput; PINInput = NULL;
-		cPIN[4] = 0;
 //		strcpy(systemstr, CONFIGDIR "/pinentered.sh ");
 //		strcat(systemstr, cPIN.c_str());
 //		system(systemstr);

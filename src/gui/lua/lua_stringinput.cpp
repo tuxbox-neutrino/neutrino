@@ -79,7 +79,7 @@ int CLuaInstStringInput::StringInputExec(lua_State *L)
 
 	// TODO: Locales?
 
-	std::string valid_chars = "abcdefghijklmnopqrstuvwxyz0123456789!\"ง$%&/()=?-.@,_: ";
+	std::string valid_chars = "abcdefghijklmnopqrstuvwxyz0123456789!\"ยง$%&/()=?-.@,_: ";
 	tableLookup(L, "valid_chars", valid_chars);
 
 	// TODO: CChangeObserver?

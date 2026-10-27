@@ -190,7 +190,10 @@ int CWeatherSetup::findLocation()
 	ret = zipcode.exec(NULL, "");
 	zipcode.hide();
 
-	if (CWeather::getInstance()->FindCoords(g_settings.weather_postalcode))
+	/* Back leaves the code as it was; searching for it again only costs
+	   a download and can move the location the user kept. */
+	if (ret == menu_return::RETURN_REPAINT &&
+	    CWeather::getInstance()->FindCoords(g_settings.weather_postalcode))
 	{
 		city_shown = settingsText(g_settings.weather_city);
 		CWeather::getInstance()->setCoords(settingsText(g_settings.weather_location), settingsText(g_settings.weather_city));

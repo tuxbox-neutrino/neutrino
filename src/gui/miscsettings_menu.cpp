@@ -762,7 +762,10 @@ int CMiscMenue::showMiscSettingsMenuStreaming()
 
 	// port
 	CIntInput * miscSettings_streamingport = new CIntInput(LOCALE_STREAMING_PORT, &g_settings.streaming_port, 5, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, this);
-	CMenuForwarder * mf = new CMenuDForwarder(LOCALE_STREAMING_PORT, true, to_string(g_settings.streaming_port), miscSettings_streamingport);
+	/* No option text of its own: the row keeps a pointer to the string it
+	   is handed, and a temporary is gone once this line has run. Without
+	   one it shows the input's value, which also follows a change. */
+	CMenuForwarder * mf = new CMenuDForwarder(LOCALE_STREAMING_PORT, true, NULL, miscSettings_streamingport);
 	ms_sservices->addItem(mf);
 #if 0
 	// entitlements

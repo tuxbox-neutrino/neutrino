@@ -92,8 +92,10 @@ int CSleepTimerWidget::exec(CMenuTarget* parent, const std::string &/*actionKey*
 
 	delete inbox;
 
-	/* exit pressed, cancel timer setup */
-	if(ret == menu_return::RETURN_EXIT_REPAINT)
+	/* Only a saved value sets the timer: leaving through standby or a
+	   shutdown returns neither code of the back key, and the text left in
+	   the input then is not what the user chose. */
+	if (ret != menu_return::RETURN_REPAINT)
 	{
 		is_running = false;
 		return res;
