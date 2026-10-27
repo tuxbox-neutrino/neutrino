@@ -45,6 +45,11 @@
 /* A character of the edited value, written under the lock that the readers of
    a text setting take off the box's loop: the input fields point into the
    value itself, and that value is often a setting. */
+static std::string localeText(const neutrino_locale_t locale)
+{
+	return locale == NONEXISTANT_LOCALE ? "" : g_Locale->getText(locale);
+}
+
 static void setCharLocked(char *p, char c)
 {
 	CSettingsTextGuard lock;
@@ -474,49 +479,10 @@ void CExtendedInput_Item_Char::keyPressed(const int key)
 
 //-----------------------------#################################-------------------------------------------------------
 
-CIPInput::CIPInput(const neutrino_locale_t Name, std::string *Value, const neutrino_locale_t Hint_1, const neutrino_locale_t Hint_2, CChangeObserver* Observ) : CExtendedInput(Name, Value, Hint_1, Hint_2, Observ)
+CIPInput::CIPInput(const neutrino_locale_t Name, std::string *Value, const neutrino_locale_t Hint_1, const neutrino_locale_t Hint_2, CChangeObserver* Observ)
+	: CCStructuredInputDialog(Name, FORMAT_IP, Value, Observ)
 {
-	addInputField( new CExtendedInput_Item_Char("012") );
-	addInputField( new CExtendedInput_Item_Char("0123456789") );
-	addInputField( new CExtendedInput_Item_Char("0123456789") );
-	addInputField( new CExtendedInput_Item_Spacer(20) );
-	addInputField( new CExtendedInput_Item_Char("012") );
-	addInputField( new CExtendedInput_Item_Char("0123456789") );
-	addInputField( new CExtendedInput_Item_Char("0123456789") );
-	addInputField( new CExtendedInput_Item_Spacer(20) );
-	addInputField( new CExtendedInput_Item_Char("012") );
-	addInputField( new CExtendedInput_Item_Char("0123456789") );
-	addInputField( new CExtendedInput_Item_Char("0123456789") );
-	addInputField( new CExtendedInput_Item_Spacer(20) );
-	addInputField( new CExtendedInput_Item_Char("012") );
-	addInputField( new CExtendedInput_Item_Char("0123456789") );
-	addInputField( new CExtendedInput_Item_Char("0123456789") );
-	addInputField( new CExtendedInput_Item_newLiner(30) );
-}
-
-void CIPInput::onBeforeExec()
-{
-	if (valueString->empty())
-	{
-		setSettingsText(*valueString, "000.000.000.000");
-		return;
-	}
-	unsigned char ip[4];
-	sscanf(valueString->c_str(), "%hhu.%hhu.%hhu.%hhu", &ip[0], &ip[1], &ip[2], &ip[3]);
-	char s[20];
-	snprintf(s, sizeof(s), "%03hhu.%03hhu.%03hhu.%03hhu", ip[0], ip[1], ip[2], ip[3]);
-	setSettingsText(*valueString, std::string(s));
-}
-
-void CIPInput::onAfterExec()
-{
-	int ip[4];
-	sscanf(valueString->c_str(), "%3d.%3d.%3d.%3d", &ip[0], &ip[1], &ip[2], &ip[3] );
-	char s[20];
-	snprintf(s, sizeof(s), "%d.%d.%d.%d", ip[0], ip[1], ip[2], ip[3]);
-	setSettingsText(*valueString, std::string(s));
-	if(*valueString == "0.0.0.0")
-		setSettingsText(*valueString, "");
+	setHintText(CCTextInputDialog::joinHintLines(localeText(Hint_1), localeText(Hint_2)));
 }
 
 //-----------------------------#################################-------------------------------------------------------
@@ -607,52 +573,10 @@ void CDateInput::onAfterExec()
 }
 //-----------------------------#################################-------------------------------------------------------
 
-CMACInput::CMACInput(const neutrino_locale_t Name, std::string * Value, const neutrino_locale_t Hint_1, const neutrino_locale_t Hint_2, CChangeObserver* Observ) : CExtendedInput(Name, Value, Hint_1, Hint_2, Observ)
+CMACInput::CMACInput(const neutrino_locale_t Name, std::string *Value, const neutrino_locale_t Hint_1, const neutrino_locale_t Hint_2, CChangeObserver* Observ)
+	: CCStructuredInputDialog(Name, FORMAT_MAC, Value, Observ)
 {
-	frameBuffer = CFrameBuffer::getInstance();
-	addInputField( new CExtendedInput_Item_Char("0123456789ABCDEF") );
-	addInputField( new CExtendedInput_Item_Char("0123456789ABCDEF") );
-	addInputField( new CExtendedInput_Item_Spacer(20) );
-	addInputField( new CExtendedInput_Item_Char("0123456789ABCDEF") );
-	addInputField( new CExtendedInput_Item_Char("0123456789ABCDEF") );
-	addInputField( new CExtendedInput_Item_Spacer(20) );
-	addInputField( new CExtendedInput_Item_Char("0123456789ABCDEF") );
-	addInputField( new CExtendedInput_Item_Char("0123456789ABCDEF") );
-	addInputField( new CExtendedInput_Item_Spacer(20) );
-	addInputField( new CExtendedInput_Item_Char("0123456789ABCDEF") );
-	addInputField( new CExtendedInput_Item_Char("0123456789ABCDEF") );
-	addInputField( new CExtendedInput_Item_Spacer(20) );
-	addInputField( new CExtendedInput_Item_Char("0123456789ABCDEF") );
-	addInputField( new CExtendedInput_Item_Char("0123456789ABCDEF") );
-	addInputField( new CExtendedInput_Item_Spacer(20) );
-	addInputField( new CExtendedInput_Item_Char("0123456789ABCDEF") );
-	addInputField( new CExtendedInput_Item_Char("0123456789ABCDEF") );
-	addInputField( new CExtendedInput_Item_newLiner(30) );
-}
-
-void CMACInput::onBeforeExec()
-{
-	if (valueString->empty())
-	{
-		setSettingsText(*valueString, "00:00:00:00:00:00");
-		return;
-	}
-	int mac[6];
-	sscanf(valueString->c_str(), "%x:%x:%x:%x:%x:%x", &mac[0], &mac[1], &mac[2], &mac[3], &mac[4], &mac[5] );
-	char s[20];
-	snprintf(s, sizeof(s), "%02x:%02x:%02x:%02x:%02x:%02x", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
-	setSettingsText(*valueString, std::string(s));
-}
-
-void CMACInput::onAfterExec()
-{
-	int mac[6];
-	sscanf(valueString->c_str(), "%x:%x:%x:%x:%x:%x", &mac[0], &mac[1], &mac[2], &mac[3], &mac[4], &mac[5] );
-	char s[20];
-	snprintf(s, sizeof(s), "%02x:%02x:%02x:%02x:%02x:%02x", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
-	setSettingsText(*valueString, std::string(s));
-	if(*valueString == "00:00:00:00:00:00")
-		setSettingsText(*valueString, "");
+	setHintText(CCTextInputDialog::joinHintLines(localeText(Hint_1), localeText(Hint_2)));
 }
 
 //-----------------------------#################################-------------------------------------------------------
@@ -717,11 +641,6 @@ void CTimeInput::onAfterExec()
 #endif
 }
 //-----------------------------#################################-------------------------------------------------------
-
-static std::string localeText(const neutrino_locale_t locale)
-{
-	return locale == NONEXISTANT_LOCALE ? "" : g_Locale->getText(locale);
-}
 
 CIntInput::CIntInput(const neutrino_locale_t Name, int *Value, const unsigned int Size, const neutrino_locale_t Hint_1, const neutrino_locale_t Hint_2, CChangeObserver* Observ)
 	: CCNumericInputDialog(Name, Value, Observ)

@@ -2768,6 +2768,7 @@ stringinput.char_not_allowed Character not allowed here.
 stringinput.clear clear all
 stringinput.empty_not_allowed Input must not be empty.
 stringinput.insert Insert
+stringinput.invalid_date This date does not exist.
 stringinput.maxchars_reached Maximum number of characters reached.
 stringinput.range Allowed values are %d to %d.
 stringinput.save Save

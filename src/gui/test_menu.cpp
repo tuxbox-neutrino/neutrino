@@ -60,6 +60,7 @@
 #include "components/cc_input_dialog.h"
 #include "components/cc_numeric_input_dialog.h"
 #include "components/cc_pin_input_dialog.h"
+#include "components/cc_structured_input_dialog.h"
 #include "components/cc_timer.h"
 #include "rate_banner.h"
 #include "scan.h"
@@ -339,6 +340,78 @@ int execCCPinInputTest()
 		ShowMsg("CCPinInput Dialog",
 			std::string(dialog.wasSaved() ? "Gespeichert" : "Nicht gespeichert") +
 			", Ergebnis " + to_string(res) + ":\n\"" + pin + "\"",
+			CMsgBox::mbrBack,
+			CMsgBox::mbBack,
+			NEUTRINO_ICON_INFO);
+
+	return menu_return::RETURN_REPAINT;
+}
+
+/* One entry per format of the structured dialog, each showing what it
+ * saved. Static values, so a second open starts from the first one's. */
+int execCCStructuredInputTest(const std::string &variant)
+{
+	static std::string ip = "192.168.1.20";
+	static std::string mac = "00:1a:2b:3c:4d:5e";
+	static time_t when = time(NULL);
+	static std::string jump = "01:23:45";
+	static std::string weekdays = "XXXXX--";
+	static std::string coordinate = "52.520000";
+	std::string saved;
+	bool ok;
+
+	if (variant == "datetime")
+	{
+		CCStructuredInputDialog dialog(LOCALE_TIMERLIST_ALARMTIME, &when);
+		dialog.setHintText("Ziffern ueberschreiben, Hoch/Runter zaehlen die Stelle.");
+		dialog.exec(NULL, "");
+		ok = dialog.wasSaved();
+		saved = dialog.getValue();
+	}
+	else
+	{
+		CCStructuredInputDialog::format_t format = CCStructuredInputDialog::FORMAT_IP;
+		std::string *value = &ip;
+		std::string hint = "Zwoelf Ziffern am Stueck; alles 0 speichert leer.";
+		if (variant == "mac")
+		{
+			format = CCStructuredInputDialog::FORMAT_MAC;
+			value = &mac;
+			hint = "Hoch/Runter erreicht A-F.";
+		}
+		else if (variant == "time")
+		{
+			format = CCStructuredInputDialog::FORMAT_TIME;
+			value = &jump;
+			hint = "Stunden, Minuten, Sekunden.";
+		}
+		else if (variant == "weekdays")
+		{
+			format = CCStructuredInputDialog::FORMAT_WEEKDAYS;
+			value = &weekdays;
+			hint = g_Locale->getText(LOCALE_TIMERLIST_WEEKDAYS_HINT_1);
+			hint += "\n";
+			hint += g_Locale->getText(LOCALE_TIMERLIST_WEEKDAYS_HINT_2);
+		}
+		else if (variant == "decimal")
+		{
+			format = CCStructuredInputDialog::FORMAT_DECIMAL;
+			value = &coordinate;
+			hint = "Breitengrad 0 bis 90 mit sechs Stellen.";
+		}
+
+		CCStructuredInputDialog dialog(NONEXISTANT_LOCALE, format, value);
+		if (format == CCStructuredInputDialog::FORMAT_DECIMAL)
+			dialog.setDecimal(3, 6, 90);
+		dialog.setHintText(hint);
+		dialog.exec(NULL, "");
+		ok = dialog.wasSaved();
+		saved = *value;
+	}
+
+	if (ok)
+		ShowMsg("CCStructuredInput Dialog",
+			makeInputDialogSaveText("Gespeichert", saved),
 			CMsgBox::mbrBack,
 			CMsgBox::mbBack,
 			NEUTRINO_ICON_INFO);
@@ -1868,6 +1941,10 @@ int CTestMenu::exec(CMenuTarget *parent, const std::string &actionKey)
 	{
 		return execCCPinInputTest();
 	}
+	else if (actionKey.compare(0, 19, "cc_structured_input") == 0)
+	{
+		return execCCStructuredInputTest(actionKey.size() > 20 ? actionKey.substr(20) : "");
+	}
 	else if (actionKey.compare(0, 16, "cc_numeric_input") == 0)
 	{
 		return execCCNumericInputTest(actionKey.size() > 17 ? actionKey.substr(17) : "");
@@ -2860,6 +2937,12 @@ void CTestMenu::showCCTests(CMenuWidget *widget)
 	widget->addItem(new CMenuForwarder("CCNumericInput -300..300", true, NULL, this, "cc_numeric_input_negative"));
 	widget->addItem(new CMenuForwarder("CCNumericInput String", true, NULL, this, "cc_numeric_input_string"));
 	widget->addItem(new CMenuForwarder("CCPinInput", true, NULL, this, "cc_pin_input"));
+	widget->addItem(new CMenuForwarder("CCStructuredInput IP", true, NULL, this, "cc_structured_input_ip"));
+	widget->addItem(new CMenuForwarder("CCStructuredInput MAC", true, NULL, this, "cc_structured_input_mac"));
+	widget->addItem(new CMenuForwarder("CCStructuredInput Datum", true, NULL, this, "cc_structured_input_datetime"));
+	widget->addItem(new CMenuForwarder("CCStructuredInput Zeit", true, NULL, this, "cc_structured_input_time"));
+	widget->addItem(new CMenuForwarder("CCStructuredInput Wochentage", true, NULL, this, "cc_structured_input_weekdays"));
+	widget->addItem(new CMenuForwarder("CCStructuredInput Dezimal", true, NULL, this, "cc_structured_input_decimal"));
 }
 
 void CTestMenu::showHWTests(CMenuWidget *widget)

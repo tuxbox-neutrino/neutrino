@@ -35,6 +35,7 @@
 
 #include "menue.h"
 #include <gui/components/cc_numeric_input_dialog.h>
+#include <gui/components/cc_structured_input_dialog.h>
 
 #include <system/localize.h>
 
@@ -162,12 +163,11 @@ class CExtendedInput_Item_Char : public CExtendedInput_Item
 
 //----------------------------------------------------------------------------------------------------
 
-class CIPInput : public CExtendedInput
+/* The address inputs run on the cc structured dialog: four segments of
+   0-255, or six hex pairs. The old constructors stay; an address of zeros
+   still saves as "". */
+class CIPInput : public CCStructuredInputDialog
 {
-	protected:
-		virtual void onBeforeExec();
-		virtual void onAfterExec();
-
 	public:
 		CIPInput(const neutrino_locale_t Name, std::string *Value, const neutrino_locale_t Hint_1 = NONEXISTANT_LOCALE, const neutrino_locale_t Hint_2 = NONEXISTANT_LOCALE, CChangeObserver* Observ = NULL);
 };
@@ -189,12 +189,8 @@ class CDateInput : public CExtendedInput
 
 //----------------------------------------------------------------------------------------------------
 
-class CMACInput : public CExtendedInput
+class CMACInput : public CCStructuredInputDialog
 {
-	protected:
-		virtual void onBeforeExec();
-		virtual void onAfterExec();
-
 	public:
 		CMACInput(const neutrino_locale_t Name, std::string *Value, const neutrino_locale_t Hint_1 = NONEXISTANT_LOCALE, const neutrino_locale_t Hint_2 = NONEXISTANT_LOCALE, CChangeObserver* Observ = NULL);
 };
