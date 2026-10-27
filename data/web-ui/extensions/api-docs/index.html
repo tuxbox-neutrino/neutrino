@@ -19,7 +19,7 @@ document.documentElement.setAttribute("data-theme", theme);
 [data-theme="light"] { --webui-accent: #1258c6; --webui-accent-hover: #0f49a2; --webui-on-accent: #ffffff; }
 .swagger-ui .btn.execute { background: var(--webui-accent); border-color: var(--webui-accent);
   color: var(--webui-on-accent); }
-.swagger-ui .btn.execute:hover { background: var(--webui-accent-hover); }
+@media (hover: hover) { .swagger-ui .btn.execute:hover { background: var(--webui-accent-hover); } }
 .swagger-ui .btn.authorize { color: var(--webui-accent); border-color: var(--webui-accent); }
 .swagger-ui .btn.authorize svg { fill: var(--webui-accent); }
 .swagger-ui *:focus-visible { outline: 2px solid var(--webui-accent); outline-offset: 1px; }
@@ -157,7 +157,7 @@ body { margin: 0; background: var(--doc-bg); color: var(--webui-text-primary); }
 /* What a person acts on, and only that. */
 .swagger-ui .btn.execute { background: var(--webui-accent); border-color: var(--webui-accent);
   color: #17120c; }
-.swagger-ui .btn.execute:hover { background: var(--webui-accent-hover); }
+@media (hover: hover) { .swagger-ui .btn.execute:hover { background: var(--webui-accent-hover); } }
 .swagger-ui .btn.authorize { color: var(--webui-accent); border-color: var(--webui-accent); }
 .swagger-ui .btn.authorize svg { fill: var(--webui-accent); }
 .swagger-ui .btn { background: transparent; border-color: var(--doc-line); }
@@ -226,7 +226,7 @@ body { margin: 0; background: var(--doc-bg); color: var(--webui-text-primary); }
 .swagger-ui .json-schema-2020-12-expand-deep-button { color: var(--webui-text-secondary); }
 .swagger-ui section.models { border-color: var(--doc-line); }
 .swagger-ui section.models.is-open h4 { border-bottom-color: var(--doc-line); }
-.swagger-ui section.models h4:hover { background: var(--doc-surface-2); }
+@media (hover: hover) { .swagger-ui section.models h4:hover { background: var(--doc-surface-2); } }
 .swagger-ui .json-schema-2020-12 { background: var(--doc-surface-2); }
 .swagger-ui .json-schema-2020-12--embedded,
 .swagger-ui .json-schema-2020-12-accordion,
