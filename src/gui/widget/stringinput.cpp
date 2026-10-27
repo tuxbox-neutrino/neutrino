@@ -72,7 +72,9 @@ static std::string localeText(const neutrino_locale_t locale)
 	return locale == NONEXISTANT_LOCALE ? "" : g_Locale->getText(locale);
 }
 
-static const char *const NUMBER_CHARS = "0123456789 .";
+/* A point is no digit: with it in the valid characters the value may be a
+   decimal, and the numeric dialog takes whole numbers only. */
+static const char *const NUMBER_CHARS = "0123456789 ";
 
 CStringInput::CStringInput(const neutrino_locale_t Name, std::string* Value, int Size, const neutrino_locale_t Hint_1, const neutrino_locale_t Hint_2, const char * const Valid_Chars, CChangeObserver* Observ, const char * const Icon)
 	: CCNumericInputDialog(Name, Value, Observ, Icon ? Icon : NEUTRINO_ICON_EDIT)

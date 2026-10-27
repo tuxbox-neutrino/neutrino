@@ -58,11 +58,12 @@ class CStringInputOpen
 };
 
 /* The string inputs run on the cc numeric dialog: nearly all of them ask
-   for a number kept as a string, and the old constructors stay. Size is
-   the most digits. A caller whose valid characters or value are no number
+   for a whole number kept as a string, and the old constructors stay. Size
+   is the most digits. A caller whose valid characters are more than digits
+   and a space - a decimal point, letters - or whose value is no number
    gets a text input with the on-screen keyboard instead, limited to the
-   valid characters and Size of them - the value then reaches the field as
-   it is, as a weekday mask "XXXXX--" or a coordinate "52.52" must. */
+   valid characters and Size of them: the keyboard has the point the remote
+   lacks, and the value reaches the field as it is. */
 class CStringInput : public CCNumericInputDialog
 {
 	private:
@@ -72,8 +73,8 @@ class CStringInput : public CCNumericInputDialog
 	protected:
 		void onBeforeExec();
 	public:
-		CStringInput(const neutrino_locale_t Name, std::string* Value, int Size, const neutrino_locale_t Hint_1 = NONEXISTANT_LOCALE, const neutrino_locale_t Hint_2 = NONEXISTANT_LOCALE, const char * const Valid_Chars= (const char *) "0123456789. ", CChangeObserver* Observ = NULL, const char * const Icon = NULL);
-		CStringInput(const std::string &Name, std::string* Value, int Size, const neutrino_locale_t Hint_1 = NONEXISTANT_LOCALE, const neutrino_locale_t Hint_2 = NONEXISTANT_LOCALE, const char * const Valid_Chars= (const char *) "0123456789. ", CChangeObserver* Observ = NULL, const char * const Icon = NULL);
+		CStringInput(const neutrino_locale_t Name, std::string* Value, int Size, const neutrino_locale_t Hint_1 = NONEXISTANT_LOCALE, const neutrino_locale_t Hint_2 = NONEXISTANT_LOCALE, const char * const Valid_Chars= (const char *) "0123456789 ", CChangeObserver* Observ = NULL, const char * const Icon = NULL);
+		CStringInput(const std::string &Name, std::string* Value, int Size, const neutrino_locale_t Hint_1 = NONEXISTANT_LOCALE, const neutrino_locale_t Hint_2 = NONEXISTANT_LOCALE, const char * const Valid_Chars= (const char *) "0123456789 ", CChangeObserver* Observ = NULL, const char * const Icon = NULL);
 
 		///the dialog saves its background itself
 		void forceSaveScreen(bool /*enable*/) {}
