@@ -1352,6 +1352,10 @@ void CRCInput::getMsg_us(neutrino_msg_t * msg, neutrino_msg_data_t * data, uint6
 				}
 				if (ev.type != EV_KEY)
 					continue; /* ignore... */
+				/* The coolstream driver hands a written EV_SYN back as key 0. Taken
+				   as a key, it ends a pending long press as a short press of key 0. */
+				if (ev.code == KEY_RESERVED)
+					continue;
 				/* try to compensate for possible changes in wall clock
 				 * kernel ev.time default uses CLOCK_REALTIME, as does gettimeofday().
 				 * so subtract gettimeofday() from ev.time and then add
