@@ -170,6 +170,7 @@ void CLuaMenuFilebrowser::Init(std::string *_value, bool _dirMode)
 {
 	value   = _value;
 	dirMode = _dirMode;
+	showValue(value);
 }
 
 int CLuaMenuFilebrowser::exec(CMenuTarget* /*parent*/, const std::string& /*actionKey*/)
@@ -222,6 +223,7 @@ void CLuaMenuStringinput::Init(const char *_name, std::string *_value, int _size
 	icon        = _icon;
 	observ      = _observ;
 	sms         = _sms;
+	showValue(value);
 }
 
 int CLuaMenuStringinput::exec(CMenuTarget* /*parent*/, const std::string & /*actionKey*/)
@@ -278,6 +280,9 @@ void CLuaMenuKeyboardinput::Init(const char *_name, std::string *_value, int _si
 	observ = _observ;
 	help   = _help;
 	help2  = _help2;
+	// a masked row never falls back to the value, it is told what to show
+	if (!masked)
+		showValue(value);
 }
 
 int CLuaMenuKeyboardinput::exec(CMenuTarget* /*parent*/, const std::string & /*actionKey*/)
@@ -456,6 +461,7 @@ int CLuaInstMenu::MenuAddItem(lua_State *L)
 		if (type == "forwarder") {
 			b->str_val = value;
 			CLuaMenuForwarder *forwarder = new CLuaMenuForwarder(L, action, id);
+			forwarder->showValue(&b->str_val);
 			mi = new CMenuForwarder(b->name, enabled, b->str_val, forwarder, NULL/*ActionKey*/, directkey, icon, right_icon);
 			if (!hint.empty() || hint_icon)
 				mi->setHint(hint_icon, hint);
@@ -684,8 +690,14 @@ int CLuaInstMenu::MenuSetValue(lua_State *L)
 	 * type. Ask the item itself which family it belongs to.
 	 */
 	if (!item->mi->isMenueOptionChooser()) {
-		// a masked entry shows whether the value given is empty, never the value
-		static_cast<CMenuForwarder*>(item->mi)->setOption(item->masked ? maskedText(value) : value);
+		/*
+		 * Set the value the entry edits, so that its input opens with it.
+		 * Without a text of its own the row shows that value through the
+		 * entry's target and follows every later input; a masked row is
+		 * told whether a value is set, never the value.
+		 */
+		item->str_val = value;
+		static_cast<CMenuForwarder*>(item->mi)->setOption(item->masked ? maskedText(value) : "");
 		return 0;
 	}
 

@@ -70,6 +70,8 @@ class CLuaMenuForwarder : public CMenuTarget
 		CLuaMenuForwarder(lua_State *L, std::string _luaAction, std::string _luaId);
 		~CLuaMenuForwarder();
 		int exec(CMenuTarget* parent=NULL, const std::string & actionKey="");
+		// what the menu row shows while it has no text of its own
+		void showValue(std::string *_value) { valueString = _value; }
 };
 
 class CLuaMenuFilebrowser : public CLuaMenuForwarder
