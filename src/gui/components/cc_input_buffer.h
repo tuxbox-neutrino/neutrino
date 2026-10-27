@@ -28,7 +28,9 @@ class CCInputBuffer
 			FILTER_FREE = 0,
 			FILTER_NUMERIC,
 			FILTER_ASCII_VISIBLE,
-			FILTER_HEX
+			FILTER_HEX,
+			///the glyphs given to setCharset(); an empty set takes any glyph
+			FILTER_CHARSET
 		};
 
 	private:
@@ -39,6 +41,8 @@ class CCInputBuffer
 		size_t ib_max_chars;
 		bool ib_allow_empty;
 		input_filter_mode_t ib_filter_mode;
+		std::vector<std::string> ib_charset;
+		std::vector<std::string> ib_kept_glyphs;
 
 		static std::string utf8ToGlyph(const char *&text);
 		bool isAllowedGlyph(const std::string &glyph) const;
@@ -76,6 +80,17 @@ class CCInputBuffer
 		bool isAcceptable() const;
 		void setFilterMode(input_filter_mode_t mode);
 		input_filter_mode_t getFilterMode() const;
+
+		/**
+		 * The glyphs FILTER_CHARSET accepts, given as one UTF-8 string.
+		 *
+		 * setText() keeps every glyph of the value it is handed, also
+		 * one outside the set, and such a glyph may be typed again
+		 * afterwards: the set says what can be entered, it must not
+		 * change a value nobody edited. A coordinate "52.52" stays
+		 * intact even when the set only names the digits.
+		 */
+		void setCharset(const std::string &glyphs);
 };
 
 #endif

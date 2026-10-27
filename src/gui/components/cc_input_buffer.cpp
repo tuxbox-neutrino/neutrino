@@ -85,6 +85,11 @@ bool CCInputBuffer::isAllowedGlyph(const std::string &glyph) const
 		case FILTER_HEX:
 			return glyph.size() == 1 &&
 				std::isxdigit((unsigned char) glyph[0]) != 0;
+		case FILTER_CHARSET:
+			if (ib_charset.empty())
+				return true;
+			return std::find(ib_charset.begin(), ib_charset.end(), glyph) != ib_charset.end() ||
+				std::find(ib_kept_glyphs.begin(), ib_kept_glyphs.end(), glyph) != ib_kept_glyphs.end();
 		case FILTER_FREE:
 		default:
 			return true;
@@ -111,12 +116,22 @@ void CCInputBuffer::rebuildValueCache() const
 void CCInputBuffer::setText(const std::string &text)
 {
 	ib_glyphs.clear();
+	ib_kept_glyphs.clear();
 
 	const char *cursor = text.c_str();
 	while (*cursor)
 	{
 		std::string glyph = utf8ToGlyph(cursor);
-		if (isAllowedGlyph(glyph))
+		bool allowed = isAllowedGlyph(glyph);
+		if (!allowed && ib_filter_mode == FILTER_CHARSET && !glyph.empty())
+		{
+			/* The value is the caller's, the set only rules typing.
+			 * Dropping the glyph here would save a changed value
+			 * on the first OK. */
+			ib_kept_glyphs.push_back(glyph);
+			allowed = true;
+		}
+		if (allowed)
 		{
 			if (ib_max_chars && ib_glyphs.size() >= ib_max_chars)
 				break;
@@ -297,4 +312,19 @@ void CCInputBuffer::setFilterMode(input_filter_mode_t mode)
 CCInputBuffer::input_filter_mode_t CCInputBuffer::getFilterMode() const
 {
 	return ib_filter_mode;
+}
+
+void CCInputBuffer::setCharset(const std::string &glyphs)
+{
+	ib_charset.clear();
+
+	const char *cursor = glyphs.c_str();
+	while (*cursor)
+	{
+		std::string glyph = utf8ToGlyph(cursor);
+		if (!glyph.empty() &&
+			std::find(ib_charset.begin(), ib_charset.end(), glyph) == ib_charset.end())
+			ib_charset.push_back(glyph);
+		cursor++;
+	}
 }

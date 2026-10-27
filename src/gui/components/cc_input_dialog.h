@@ -275,6 +275,8 @@ class CCTextInputDialog : public CCInputDialogBase
 		void setMaxChars(size_t max_chars);
 		void setAllowEmpty(bool allow_empty = true);
 		void setFilterMode(CCInputBuffer::input_filter_mode_t mode);
+		///the glyphs FILTER_CHARSET lets through, see CCInputBuffer::setCharset()
+		void setCharset(const std::string &glyphs);
 
 		/**
 		 * Rejects a value before it is written back. The slot gets the

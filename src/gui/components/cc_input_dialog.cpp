@@ -813,6 +813,11 @@ void CCTextInputDialog::setFilterMode(CCInputBuffer::input_filter_mode_t mode)
 	cid_buffer.setFilterMode(mode);
 }
 
+void CCTextInputDialog::setCharset(const std::string &glyphs)
+{
+	cid_buffer.setCharset(glyphs);
+}
+
 void CCTextInputDialog::setValidator(const sigc::slot<bool, const std::string &, std::string &> &validator)
 {
 	cid_validator = validator;
