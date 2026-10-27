@@ -88,6 +88,52 @@ class CCInputDialogBase : public CMenuTarget, public CComponentsWindow
 
 		///height of the hint line above the input area
 		static int getDialogHintHeight(Font *font);
+
+		/* Measures and colours every dialog of this family shares, so
+		 * that a field looks the same whichever dialog it sits in. */
+		static int getInputDialogWidth();
+		static int getInputDialogMinHeight();
+		static int getInputDialogPad();
+		static int getInputFieldInset();
+		static int getInputFieldPaddingX();
+		static int getInputFieldPaddingY();
+		static int getInputFieldHeight(Font *font);
+		static int getInputDialogCaretWidth(Font *font);
+		///the largest menu font that fits reference_text into body_w
+		static Font *getInputDialogFieldFont(const int body_w, const std::string &reference_text);
+		static fb_pixel_t getInputFieldTextColor();
+		static fb_pixel_t getInputFieldFrameColor();
+		static fb_pixel_t getInputFieldBodyColor();
+		static fb_pixel_t getInputFieldBodyFocusColor();
+		static fb_pixel_t getInputFieldPlaceholderColor();
+
+		/**
+		 * The title as a locale, NONEXISTANT_LOCALE for a dialog built
+		 * from a string. notifyObserver() needs it: the menu observers
+		 * implement the locale overload of changeNotify() only.
+		 */
+		neutrino_locale_t idb_title_locale;
+
+		///announces a saved value through the overload that fits the title
+		void notifyObserver(CChangeObserver *observ, std::string *value);
+
+		/**
+		 * Asks whether to discard the edits. Stop a blinking caret before
+		 * asking: its timer thread would keep painting through the box.
+		 * Returns true when the edits are to go.
+		 */
+		bool askDiscard();
+
+		///shows the text being edited on the front display and the graphic LCD
+		void showFrontDisplay(const std::string &text, size_t cursor);
+		///gives the graphic LCD back to the channel display
+		void releaseFrontDisplay();
+
+		/**
+		 * Hands a message the dialog has no use for to the application.
+		 * Returns true when the application asks every menu to close.
+		 */
+		static bool forwardMessage(neutrino_msg_t msg, neutrino_msg_data_t data);
 };
 
 class CCTextInputDialog : public CCInputDialogBase
@@ -95,7 +141,6 @@ class CCTextInputDialog : public CCInputDialogBase
 	private:
 		std::string *cid_value;
 		CChangeObserver *cid_observ;
-		neutrino_locale_t cid_title_locale;
 		CCInputBuffer cid_buffer;
 		CComponentsText *cid_hint;
 		CCInputField *cid_field;
