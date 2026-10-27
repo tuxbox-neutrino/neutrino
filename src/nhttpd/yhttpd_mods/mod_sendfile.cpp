@@ -121,8 +121,8 @@ THandleStatus CmodSendfile::Hook_PrepareResponse(CyhookHandler *hh) {
 			}
 
 			// normalize obj_last_modified to GMT
-			struct tm *tmp = gmtime(&(hh->LastModified));
-			time_t LastModifiedGMT = mktime(tmp);
+			struct tm lm_tm;
+			time_t LastModifiedGMT = mktime(gmtime_r(&(hh->LastModified), &lm_tm));
 			// A copy is current only if it carries exactly the date this
 			// file goes out with: the client sends back the date it was
 			// given. Any other date, earlier or later, belongs to another

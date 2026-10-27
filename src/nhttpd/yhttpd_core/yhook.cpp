@@ -299,16 +299,20 @@ std::string CyhookHandler::BuildHeader(bool cache) {
 		if (!cache && (HookVarList["CacheCategory"]).empty())
 			result += "Cache-Control: no-cache\r\n";
 		else {
-			time_t x_time = time(NULL);
-			struct tm *ptm = gmtime(&x_time);
-			ptm->tm_mday += 1;
-			x_time = mktime(ptm);
-			strftime(timeStr, sizeof(timeStr), RFC1123FMT, gmtime(&x_time));
+			/* gmtime_r and not gmtime throughout: every connection has a
+			   thread of its own, and gmtime hands all of them the same
+			   static struct. A day after now, counted in seconds: mktime
+			   would read the GMT fields as local time and move the date
+			   by the zone's offset. */
+			time_t x_time = time(NULL) + 24 * 60 * 60;
+			struct tm tm_buf;
+			strftime(timeStr, sizeof(timeStr), RFC1123FMT, gmtime_r(&x_time, &tm_buf));
 			result += string_printf("Expires: %s\r\n", timeStr);
 		}
 		result += "Server: " WEBSERVERNAME "\r\n";
 		// actual date
-		strftime(timeStr, sizeof(timeStr), RFC1123FMT, gmtime(&timer));
+		struct tm now_tm;
+		strftime(timeStr, sizeof(timeStr), RFC1123FMT, gmtime_r(&timer, &now_tm));
 		result += string_printf("Date: %s\r\n", timeStr);
 		// connection type
 #ifdef Y_CONFIG_FEATURE_KEEP_ALIVE
@@ -329,7 +333,8 @@ std::string CyhookHandler::BuildHeader(bool cache) {
 			if (LastModified != (time_t) - 1)
 				mod_time = LastModified;
 
-			strftime(timeStr, sizeof(timeStr), RFC1123FMT, gmtime(&mod_time));
+			struct tm mod_tm;
+			strftime(timeStr, sizeof(timeStr), RFC1123FMT, gmtime_r(&mod_time, &mod_tm));
 			result += string_printf("Last-Modified: %s\r\n", timeStr);
 			if (status == HANDLED_SENDFILE && !cached) {
 				result += string_printf("Accept-Ranges: bytes\r\n");

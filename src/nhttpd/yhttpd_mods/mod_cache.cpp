@@ -49,8 +49,8 @@ THandleStatus CmodCache::Hook_PrepareResponse(CyhookHandler *hh) {
 		}
 
 		// normalize obj_last_modified to GMT
-		struct tm *tmp = gmtime(&(CacheList[url].created));
-		time_t obj_last_modified_gmt = mktime(tmp);
+		struct tm created_tm;
+		time_t obj_last_modified_gmt = mktime(gmtime_r(&(CacheList[url].created), &created_tm));
 		bool modified = (if_modified_since == (time_t) - 1)
 				|| (if_modified_since < obj_last_modified_gmt);
 
@@ -205,7 +205,8 @@ void CmodCache::yshowCacheInfo(CyhookHandler *hh) {
 	for (; i != CacheList.end(); ++i) {
 		TCache *item = &((*i).second);
 		char timeStr[80];
-		strftime(timeStr, sizeof(timeStr), RFC1123FMT, gmtime(&(item->created)));
+		struct tm created_tm;
+		strftime(timeStr, sizeof(timeStr), RFC1123FMT, gmtime_r(&(item->created), &created_tm));
 		yresult
 				+= string_printf(
 						"<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td>"
