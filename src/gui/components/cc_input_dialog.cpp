@@ -173,12 +173,12 @@ CCInputDialogBase::CCInputDialogBase(const int &w,
 	Refresh();
 }
 
-int CCInputDialogBase::getDialogHintHeight(Font *font)
+int CCInputDialogBase::getDialogHintHeight(Font *font, int lines)
 {
 	const int font_h = font ? font->getHeight() : 0;
 
 	return std::max(CFrameBuffer::getInstance()->scale2Res(72),
-			2 * font_h + CFrameBuffer::getInstance()->scale2Res(16));
+			std::max(2, lines) * font_h + CFrameBuffer::getInstance()->scale2Res(16));
 }
 
 void CCInputDialogBase::notifyObserver(CChangeObserver *observ, std::string *value)
@@ -415,7 +415,8 @@ void CCTextInputDialog::layoutDialogItems()
 	const int field_x = pad + field_inset;
 	const int field_w = std::max(0, body_w - 2 * field_inset);
 	const int hint_h = !has_hint ? 0 :
-		CCInputDialogBase::getDialogHintHeight(hint_font);
+		CCInputDialogBase::getDialogHintHeight(hint_font,
+			1 + (int) std::count(visible_hint.begin(), visible_hint.end(), '\n'));
 	const int field_h = getInputFieldHeight(input_font);
 	int keyboard_h = 0;
 	if (cid_keyboard)
@@ -626,7 +627,9 @@ std::string CCTextInputDialog::getFieldFontReference() const
 
 std::string CCTextInputDialog::getVisibleHintText() const
 {
-	return cid_error_text.empty() ? cid_hint_text : cid_error_text;
+	return cid_error_text.empty() ?
+		joinHintLines(cid_hint_text, cid_hint_suffix) :
+		cid_error_text;
 }
 
 void CCTextInputDialog::clearInlineError()
@@ -760,6 +763,13 @@ bool CCTextInputDialog::save()
 void CCTextInputDialog::setHintText(const std::string &hint)
 {
 	cid_hint_text = hint;
+	if (cid_hint)
+		layoutDialogItems();
+}
+
+void CCTextInputDialog::setHintSuffix(const std::string &suffix)
+{
+	cid_hint_suffix = suffix;
 	if (cid_hint)
 		layoutDialogItems();
 }

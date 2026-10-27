@@ -95,8 +95,8 @@ class CCInputDialogBase : public CMenuTarget, public CComponentsWindow
 		 */
 		bool applyBufferResult(int btn_res, CCInputBuffer *buffer);
 
-		///height of the hint line above the input area
-		static int getDialogHintHeight(Font *font);
+		///height of the hint line above the input area, room for at least two lines
+		static int getDialogHintHeight(Font *font, int lines = 2);
 
 		/* Measures and colours every dialog of this family shares, so
 		 * that a field looks the same whichever dialog it sits in. */
@@ -158,6 +158,7 @@ class CCTextInputDialog : public CCInputDialogBase
 		CCInputField *cid_field;
 		CComponentsKeyboard *cid_keyboard;
 		std::string cid_hint_text;
+		std::string cid_hint_suffix;
 		std::string cid_error_text;
 		std::string cid_placeholder;
 		std::string cid_field_font_reference;
@@ -247,6 +248,8 @@ class CCTextInputDialog : public CCInputDialogBase
 		void refreshField();
 		void clearInlineError();
 		void showInlineError(const std::string &text);
+		///a line of the dialog's own below the caller's hint, e.g. a value range
+		void setHintSuffix(const std::string &suffix);
 
 	public:
 		CCTextInputDialog(const std::string &title,

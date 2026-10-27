@@ -2794,6 +2794,7 @@ const char * locale_real_names[] =
 	"stringinput.empty_not_allowed",
 	"stringinput.insert",
 	"stringinput.maxchars_reached",
+	"stringinput.range",
 	"stringinput.save",
 	"stringinput.save_failed",
 	"stringinput.space",

@@ -2767,6 +2767,7 @@ stringinput.clear clear all
 stringinput.empty_not_allowed Input must not be empty.
 stringinput.insert Insert
 stringinput.maxchars_reached Maximum number of characters reached.
+stringinput.range Allowed values are %d to %d.
 stringinput.save Save
 stringinput.save_failed Input cannot be saved.
 stringinput.space Space

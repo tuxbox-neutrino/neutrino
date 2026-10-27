@@ -58,6 +58,7 @@
 #include "color_custom.h"
 #include "components/cc_frm_input_row.h"
 #include "components/cc_input_dialog.h"
+#include "components/cc_numeric_input_dialog.h"
 #include "components/cc_timer.h"
 #include "rate_banner.h"
 #include "scan.h"
@@ -314,6 +315,56 @@ int execCCTextInputEmptyTest()
 	{
 		ShowMsg("CCTextInput Empty Dialog",
 			makeInputDialogSaveText("Gespeicherter Text", value),
+			CMsgBox::mbrBack,
+			CMsgBox::mbBack,
+			NEUTRINO_ICON_INFO);
+	}
+
+	return res;
+}
+
+/* The three shapes the numeric dialog takes over: an int with a range
+ * (number choosers, CIntInput), a range below zero, and a string padded
+ * with zeros as the sleep timer hands it in. Static values, so a second
+ * open shows what the first one saved. */
+int execCCNumericInputTest(const std::string &variant)
+{
+	static int number = 240;
+	static int offset = -15;
+	static std::string padded = "030";
+	int res;
+
+	if (variant == "negative")
+	{
+		CCNumericInputDialog dialog("Zahl mit Vorzeichen", &offset);
+		dialog.setHintText("Blau oder die Minustaste wechselt das "
+			"Vorzeichen.");
+		dialog.setRange(-300, 300);
+		res = dialog.exec(NULL, "");
+	}
+	else if (variant == "string")
+	{
+		CCNumericInputDialog dialog("Zahl als Text", &padded);
+		dialog.setHintText("Drei Stellen ohne Bereich, mit fuehrender "
+			"Null wie beim Sleeptimer.");
+		dialog.setMaxDigits(3);
+		res = dialog.exec(NULL, "");
+	}
+	else
+	{
+		CCNumericInputDialog dialog("Zahl eingeben", &number);
+		dialog.setHintText("Die erste Ziffer ersetzt den Wert, Hoch und "
+			"Runter zaehlen.");
+		dialog.setRange(1, 999);
+		res = dialog.exec(NULL, "");
+	}
+
+	if (res == menu_return::RETURN_REPAINT)
+	{
+		const std::string saved = variant == "negative" ? to_string(offset) :
+			variant == "string" ? padded : to_string(number);
+		ShowMsg("CCNumericInput Dialog",
+			makeInputDialogSaveText("Gespeicherte Zahl", saved),
 			CMsgBox::mbrBack,
 			CMsgBox::mbBack,
 			NEUTRINO_ICON_INFO);
@@ -1790,6 +1841,10 @@ int CTestMenu::exec(CMenuTarget *parent, const std::string &actionKey)
 	{
 		return execCCMultiFieldPhase0Test();
 	}
+	else if (actionKey.compare(0, 16, "cc_numeric_input") == 0)
+	{
+		return execCCNumericInputTest(actionKey.size() > 17 ? actionKey.substr(17) : "");
+	}
 	else if (actionKey == "window")
 	{
 		if (window == NULL)
@@ -2772,6 +2827,11 @@ void CTestMenu::showCCTests(CMenuWidget *widget)
 	widget->addItem(new CMenuForwarder("Scrollbar", true, NULL, this, "scrollbar"));
 	widget->addItem(new CMenuForwarder("Record", true, NULL, this, "show_records"));
 	widget->addItem(new CMenuForwarder("Icon", true, NULL, this, "icon"));
+	/* Appended behind the others: the GUI tests count their way down to
+	 * the entries above. */
+	widget->addItem(new CMenuForwarder("CCNumericInput 1-999", true, NULL, this, "cc_numeric_input"));
+	widget->addItem(new CMenuForwarder("CCNumericInput -300..300", true, NULL, this, "cc_numeric_input_negative"));
+	widget->addItem(new CMenuForwarder("CCNumericInput String", true, NULL, this, "cc_numeric_input_string"));
 }
 
 void CTestMenu::showHWTests(CMenuWidget *widget)

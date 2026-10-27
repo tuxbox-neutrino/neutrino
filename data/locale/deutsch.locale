@@ -2767,6 +2767,7 @@ stringinput.clear Alles löschen
 stringinput.empty_not_allowed Eingabe darf nicht leer sein.
 stringinput.insert Einfügen
 stringinput.maxchars_reached Maximale Zeichenzahl erreicht.
+stringinput.range Erlaubt sind Werte von %d bis %d.
 stringinput.save Speichern
 stringinput.save_failed Eingabe kann nicht gespeichert werden.
 stringinput.space Leerzeichen
