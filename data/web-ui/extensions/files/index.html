@@ -98,8 +98,10 @@
 			border-radius: var(--webui-radius);
 		}
 
-		.webui-breadcrumb a:hover {
-			background: var(--webui-accent-light);
+		@media (hover: hover) {
+			.webui-breadcrumb a:hover {
+				background: var(--webui-accent-light);
+			}
 		}
 
 		.webui-breadcrumb-sep {
@@ -129,8 +131,10 @@
 			border-bottom: none;
 		}
 
-		.webui-file-row:hover {
-			background: var(--webui-accent-light);
+		@media (hover: hover) {
+			.webui-file-row:hover {
+				background: var(--webui-accent-light);
+			}
 		}
 
 		.webui-file-row.is-dir {
@@ -267,9 +271,21 @@
 			transition: opacity 0.15s ease;
 		}
 
-		.webui-file-row:hover .webui-file-actions,
 		.webui-file-row:focus-within .webui-file-actions {
 			opacity: 1;
+		}
+
+		@media (hover: hover) {
+			.webui-file-row:hover .webui-file-actions {
+				opacity: 1;
+			}
+		}
+
+		/* where nothing can hover, nothing would bring them out */
+		@media (hover: none) {
+			.webui-file-actions {
+				opacity: 1;
+			}
 		}
 
 		.webui-file-actions .webui-btn {
@@ -447,8 +463,10 @@
 			border-bottom-color: #e5e7eb;
 		}
 
-		[data-theme="light"] .webui-file-row:hover {
-			background: #f8f9fa;
+		@media (hover: hover) {
+			[data-theme="light"] .webui-file-row:hover {
+				background: #f8f9fa;
+			}
 		}
 
 	</style>
