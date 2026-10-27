@@ -604,12 +604,27 @@ void CCStructuredInputDialog::layoutItems()
 	const int footer_h = getFooterObject() ? getFooterObject()->getHeight() : 0;
 	const int target_h = std::max(getInputDialogMinHeight(),
 			header_h + footer_h + fields_y + field_h + pad + 2 * fr_thickness);
-	if (height != target_h)
+	/* A reason on a dialog without a hint moves the fields down, and
+	 * grows the window once the minimum height no longer holds. A
+	 * painted form skips its frame and background on the next paint,
+	 * and a field moved under a blinking caret leaves the caret behind,
+	 * so give the old pixels back first and paint anew once everything
+	 * sits at its new place - the sequence of the text input dialog. */
+	const bool fields_move = isPainted() && !csd_segments.empty() &&
+		csd_segments[0]->field->getYPos() != fields_y;
+	bool geometry_changed = false;
+	if (height != target_h || fields_move)
 	{
-		height = target_h;
-		setCenterPos(CC_ALONG_X | CC_ALONG_Y);
-		Refresh();
-		applyDialogStyle();
+		geometry_changed = isPainted();
+		if (geometry_changed)
+			hide();
+		if (height != target_h)
+		{
+			height = target_h;
+			setCenterPos(CC_ALONG_X | CC_ALONG_Y);
+			Refresh();
+			applyDialogStyle();
+		}
 	}
 	setCenterPos(CC_ALONG_X | CC_ALONG_Y);
 
@@ -639,6 +654,9 @@ void CCStructuredInputDialog::layoutItems()
 		}
 		pos_x += separator_w[i];
 	}
+
+	if (geometry_changed)
+		paint(CC_SAVE_SCREEN_YES);
 }
 
 void CCStructuredInputDialog::refreshSegment(size_t index)

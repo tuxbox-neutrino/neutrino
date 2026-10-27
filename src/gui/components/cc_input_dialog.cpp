@@ -446,8 +446,15 @@ void CCTextInputDialog::layoutDialogItems()
 			header_h + footer_h + body_content_h +
 			2 * fr_thickness);
 
+	const int field_y = has_hint ? (pad + hint_h + gap) : pad;
+
+	/* A hint that comes or goes moves the field even where the height
+	 * stays at its minimum, and a field moved inside a painted window
+	 * leaves its blinking caret behind: the window body is not painted
+	 * again over it. So that counts as a change of geometry too. */
+	const bool field_moves = isPainted() && cid_field->getYPos() != field_y;
 	bool geometry_changed = false;
-	if (height != target_h)
+	if (height != target_h || field_moves)
 	{
 		/* A painted window must give its pixels back before it moves:
 		 * paintForm() skips paintInit() while is_painted stands, so
@@ -458,15 +465,16 @@ void CCTextInputDialog::layoutDialogItems()
 		geometry_changed = isPainted();
 		if (geometry_changed)
 			hide();
-		height = target_h;
-		setCenterPos(CC_ALONG_X | CC_ALONG_Y);
-		Refresh();
-		applyDialogStyle();
+		if (height != target_h)
+		{
+			height = target_h;
+			setCenterPos(CC_ALONG_X | CC_ALONG_Y);
+			Refresh();
+			applyDialogStyle();
+		}
 	}
 
 	setCenterPos(CC_ALONG_X | CC_ALONG_Y);
-
-	const int field_y = has_hint ? (pad + hint_h + gap) : pad;
 
 	cid_hint->setTextFont(hint_font);
 	cid_hint->setDimensionsAll(pad, pad, body_w, hint_h);
@@ -722,7 +730,11 @@ void CCTextInputDialog::setFieldFocus(const bool &focused)
 
 	cid_field->setFieldFocus(focused);
 	cid_keyboard->setKeyFocus(!focused);
-	cid_field->paint(false);
+	/* Also called while the dialog is not on screen - taking the
+	 * keyboard away before an open - and a field painted then lands
+	 * where the window is not, before it saves its backdrop. */
+	if (isPainted())
+		cid_field->paint(false);
 }
 
 bool CCTextInputDialog::save()

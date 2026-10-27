@@ -381,9 +381,11 @@ int execCCStructuredInputTest(const std::string &variant)
 		}
 		else if (variant == "time")
 		{
+			/* No hint, as the movie player's jump time has none: a
+			 * refused value then grows the window while it is open. */
 			format = CCStructuredInputDialog::FORMAT_TIME;
 			value = &jump;
-			hint = "Stunden, Minuten, Sekunden.";
+			hint.clear();
 		}
 		else if (variant == "weekdays")
 		{
