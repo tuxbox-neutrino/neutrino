@@ -26,115 +26,35 @@
 
 #include "menue.h"
 
+#include <gui/components/cc_input_dialog.h>
 #include <system/localize.h>
 
 #include <string>
-#include <sigc++/signal.h>
 
-#include <gui/components/cc_keyboard_layout.h>
-
-class CFrameBuffer;
-class CInputString
+/*
+ * The keyboard dialog's interface on top of CCTextInputDialog, so every
+ * caller and the Lua keyboardinput entry get the cc dialog with its
+ * on-screen keyboard.
+ *
+ * Size limits the number of characters, 0 means no limit. The old dialog
+ * took it as a number of character boxes, cut a longer value to what
+ * fitted on screen and wrote it back that way even on cancel.
+ */
+class CKeyboardInput : public CCTextInputDialog
 {
 	private:
-		size_t len;
-		std::vector<std::string> inputString;
-		std::string valueString;
-
-	public:
-		CInputString(int Size);
-		size_t length();
-		void clear();
-		std::string &at(size_t pos);
-		void assign(size_t n, char c);
-		const char* c_str();
-		CInputString & operator=(const std::string &str);
-		std::string &getValue();
-};
-
-class CKeyboardInput : public CMenuTarget,  public sigc::trackable
-{
-	protected:
-		CFrameBuffer	*frameBuffer;
-		int x;
-		int y;
-		int width;
-		int height;
-		int hheight; // head font height
-		int iheight; // input string height
-		int bheight; // body height
-		int fheight; // footer height
-		int input_h; // input field height
-		int input_w; // input field width
-		int iwidth;  // input width
-		int offset;
-		int key_y;
-
-		// keyboard
-		int key_w;   // keyboard key width
-		int key_h;   // keyboard key height
-		int kwidth;  // keyboard width
-		int srow, scol;
-		enum {
-			FOCUS_KEY,
-			FOCUS_STRING
-		};
-		int focus;
-		CKeyboardLayoutData layout;
-		CInputString * inputString;
-
-		std::string  title;
-		neutrino_locale_t hint_1, hint_2;
-		std::string hintText_1, hintText_2;
-		std::string iconfile;
-		int          inputSize;
-		int          selected;
-		bool	     changed;
-		CChangeObserver * observ;
-		bool force_saveScreen;
-		bool masked;
-		fb_pixel_t *pixBuf;
-
-		void keyDigiPressed(const neutrino_msg_t key);
-
-		void init();
-
-		void paint();
-		int  paintFooter(bool show = true);
-		void paintChar(int pos, std::string &c);
-		void paintChar(int pos);
-		void paintKeyboard();
-		void paintKey(int row, int column);
-		std::string getVfdText();
-
-		void NormalKeyPressed();
-		void clearString();
-		void switchCaps();
-		void keyUpPressed();
-		void keyDownPressed();
-		void keyLeftPressed();
-		void keyRightPressed();
-		void insertChar();
-		void deleteChar();
-		void keyBackspacePressed();
-		void switchLayout();
-		void setLayout();
+		void init(const std::string &Name, int Size, const std::string &Hint_1, const std::string &Hint_2);
 
 	public:
 		CKeyboardInput(const neutrino_locale_t Name, std::string* Value, int Size = 0, CChangeObserver* Observ = NULL, const char * const Icon = NULL, const neutrino_locale_t Hint_1 = NONEXISTANT_LOCALE, const neutrino_locale_t Hint_2 = NONEXISTANT_LOCALE);
 		CKeyboardInput(const std::string      &Name, std::string* Value, int Size = 0, CChangeObserver* Observ = NULL, const char * const Icon = NULL, const neutrino_locale_t Hint_1 = NONEXISTANT_LOCALE, const neutrino_locale_t Hint_2 = NONEXISTANT_LOCALE);
 		CKeyboardInput(const std::string      &Name, std::string* Value, int Size = 0, CChangeObserver* Observ = NULL, const char * const Icon = NULL, std::string HintText_1 = "", std::string HintText_2 = "");
-		~CKeyboardInput();
 
-		void hide();
-		int exec( CMenuTarget* parent, const std::string & actionKey );
-		std::string &getValue();
-
-		void forceSaveScreen(bool enable);
-		/* for secrets: every character but the one being edited shows as '*';
-		   the text for the front display and the graphic LCD masks all of them */
-		void setMasked(bool enable) { masked = enable; }
-		sigc::signal<void> OnAfterSave;
+		/* the cc window saves and restores its background itself */
+		void forceSaveScreen(bool /*enable*/) {}
+		/* for secrets: every character shows as '*' - in the field, in a
+		   menu row without text of its own and on the front display */
+		void setMasked(bool enable) { enablePasswordMode(enable); }
 };
 
 #endif

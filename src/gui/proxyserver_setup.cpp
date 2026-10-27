@@ -45,29 +45,14 @@
 
 namespace
 {
-std::string makeDialogHint(const neutrino_locale_t hint1,
-	const neutrino_locale_t hint2)
-{
-	std::string hint = g_Locale->getText(hint1);
-	const std::string hint_extra = g_Locale->getText(hint2);
-
-	if (!hint_extra.empty())
-	{
-		if (!hint.empty())
-			hint += "\n";
-		hint += hint_extra;
-	}
-
-	return hint;
-}
-
 void initProxyTextDialog(CCTextInputDialog &dialog,
 	const neutrino_locale_t title,
 	const neutrino_locale_t hint1,
 	const neutrino_locale_t hint2,
 	const bool password_mode = false)
 {
-	dialog.setHintText(makeDialogHint(hint1, hint2));
+	dialog.setHintText(CCTextInputDialog::joinHintLines(g_Locale->getText(hint1),
+			g_Locale->getText(hint2)));
 	dialog.setPlaceholder(g_Locale->getText(title));
 
 	/* Without the keyboard none of these three fields can be filled in:

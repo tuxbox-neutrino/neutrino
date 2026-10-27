@@ -154,6 +154,8 @@ class CCTextInputDialog : public CCInputDialogBase
 		virtual ~CCTextInputDialog() {};
 
 		void setHintText(const std::string &hint);
+		///one hint text from two lines, either of which may be empty
+		static std::string joinHintLines(const std::string &first, const std::string &second);
 		void setPlaceholder(const std::string &text);
 		void setFieldFontReference(const std::string &text);
 		void setMaxChars(size_t max_chars);

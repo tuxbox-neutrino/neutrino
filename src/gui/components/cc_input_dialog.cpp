@@ -724,6 +724,20 @@ void CCTextInputDialog::setHintText(const std::string &hint)
 		layoutDialogItems();
 }
 
+std::string CCTextInputDialog::joinHintLines(const std::string &first, const std::string &second)
+{
+	std::string hint = first;
+
+	if (!second.empty())
+	{
+		if (!hint.empty())
+			hint += "\n";
+		hint += second;
+	}
+
+	return hint;
+}
+
 void CCTextInputDialog::setPlaceholder(const std::string &text)
 {
 	cid_placeholder = text;

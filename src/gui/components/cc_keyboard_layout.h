@@ -32,9 +32,9 @@ struct keyboard_layout
  * The keyboard layouts without a keyboard: which layout is active, whether
  * caps is on, and what glyph sits at a given row and column.
  *
- * Holds no widget and paints nothing, so both the legacy CKeyboardInput and
- * the cc on-screen keyboard can share one set of tables and one notion of
- * what "the current layout" means.
+ * Holds no widget and paints nothing: the cc on-screen keyboard draws the
+ * keys, this keeps the tables and the one notion of what "the current
+ * layout" means.
  */
 class CKeyboardLayoutData
 {
