@@ -989,10 +989,23 @@ int CCStructuredInputDialog::exec(CMenuTarget *parent, const std::string & /*act
 					else
 						typeGlyph(glyph);
 				}
-				else if (forwardMessage(msg, data))
+				else
 				{
-					loop = false;
-					res = menu_return::RETURN_EXIT_ALL;
+					/* The caret holds still while the application has
+					 * the message, as in the text input dialog: a box
+					 * it raises would get the blink painted over it. */
+					CCInputField *active = csd_segments[csd_active]->field;
+					const bool hold_caret = msg != NeutrinoMessages::EVT_TIMER;
+					if (hold_caret)
+						active->cancelCaretBlink(true);
+
+					if (forwardMessage(msg, data) & messages_return::cancel_all)
+					{
+						loop = false;
+						res = menu_return::RETURN_EXIT_ALL;
+					}
+					else if (hold_caret)
+						active->paint(false);
 				}
 			}
 		}

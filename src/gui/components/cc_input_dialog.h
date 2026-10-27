@@ -139,10 +139,12 @@ class CCInputDialogBase : public CMenuTarget, public CComponentsWindow
 		void releaseFrontDisplay();
 
 		/**
-		 * Hands a message the dialog has no use for to the application.
-		 * Returns true when the application asks every menu to close.
+		 * Hands a message the dialog has no use for to the application
+		 * and returns its messages_return flags: cancel_all asks every
+		 * menu to close, cancel_info the prompt that is up - a CAM
+		 * closing its enquiry sends that one.
 		 */
-		static bool forwardMessage(neutrino_msg_t msg, neutrino_msg_data_t data);
+		static int forwardMessage(neutrino_msg_t msg, neutrino_msg_data_t data);
 };
 
 class CCTextInputDialog : public CCInputDialogBase
@@ -153,6 +155,7 @@ class CCTextInputDialog : public CCInputDialogBase
 		int cid_exit_result;
 		int cid_timeout_sec;
 		bool cid_confirm_discard;
+		bool cid_close_on_cancel_info;
 		CCInputBuffer cid_buffer;
 		CComponentsText *cid_hint;
 		CCInputField *cid_field;
@@ -240,6 +243,8 @@ class CCTextInputDialog : public CCInputDialogBase
 		void setConfirmDiscard(bool enable) { cid_confirm_discard = enable; }
 		///seconds without a key before the dialog closes; -1 = the menu timeout
 		void setTimeoutSec(int sec) { cid_timeout_sec = sec; }
+		///true: a request to close the prompt that is up (cancel_info) closes this one
+		void setCloseOnCancelInfo(bool enable) { cid_close_on_cancel_info = enable; }
 		///the field's colours while it shows something special; resetFieldColors() undoes it
 		void setFieldColors(fb_pixel_t text, fb_pixel_t body, fb_pixel_t body_focus);
 		void resetFieldColors();

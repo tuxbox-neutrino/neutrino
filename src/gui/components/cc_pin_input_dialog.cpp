@@ -54,6 +54,9 @@ void CCPinInputDialog::initPin(size_t length)
 	enablePasswordMode(true);
 	setConfirmDiscard(false);
 	setTimeoutSec(30);
+	/* A CAM that closes its enquiry says so with cancel_info, and the
+	 * old PIN window left on it as on cancel_all. */
+	setCloseOnCancelInfo(true);
 }
 
 void CCPinInputDialog::setMasked(bool masked)

@@ -221,10 +221,9 @@ void CCInputDialogBase::releaseFrontDisplay()
 #endif
 }
 
-bool CCInputDialogBase::forwardMessage(neutrino_msg_t msg, neutrino_msg_data_t data)
+int CCInputDialogBase::forwardMessage(neutrino_msg_t msg, neutrino_msg_data_t data)
 {
-	return (CNeutrinoApp::getInstance()->handleMsg(msg, data) &
-		messages_return::cancel_all) != 0;
+	return CNeutrinoApp::getInstance()->handleMsg(msg, data);
 }
 
 CCTextInputDialog::CCTextInputDialog(const std::string &title,
@@ -244,6 +243,7 @@ CCTextInputDialog::CCTextInputDialog(const std::string &title,
 	cid_exit_result = menu_return::RETURN_EXIT_REPAINT;
 	cid_timeout_sec = -1;
 	cid_confirm_discard = true;
+	cid_close_on_cancel_info = false;
 	cid_hint = NULL;
 	cid_field = NULL;
 	cid_keyboard = NULL;
@@ -1181,11 +1181,27 @@ int CCTextInputDialog::exec(CMenuTarget *parent, const std::string & /*actionKey
 					else
 						showMaxCharsError();
 				}
-				/* 4. System messages */
-				else if (forwardMessage(msg, data))
+				/* 4. System messages. The caret holds still while the
+				 * application has the message: it may raise a box of
+				 * its own over this dialog, and the blink would go on
+				 * painting through it. The infobar's timer ticks open
+				 * nothing and come often, so they leave the caret be. */
+				else
 				{
-					loop = false;
-					res = menu_return::RETURN_EXIT_ALL;
+					const bool hold_caret = msg != NeutrinoMessages::EVT_TIMER;
+					if (hold_caret)
+						cid_field->cancelCaretBlink(true);
+
+					const int flags = forwardMessage(msg, data);
+					if ((flags & messages_return::cancel_all) ||
+						(cid_close_on_cancel_info &&
+						(flags & messages_return::cancel_info)))
+					{
+						loop = false;
+						res = menu_return::RETURN_EXIT_ALL;
+					}
+					else if (hold_caret)
+						cid_field->paint(false);
 				}
 			}
 		}
