@@ -95,6 +95,7 @@ class CCTextInputDialog : public CCInputDialogBase
 	private:
 		std::string *cid_value;
 		CChangeObserver *cid_observ;
+		neutrino_locale_t cid_title_locale;
 		CCInputBuffer cid_buffer;
 		CComponentsText *cid_hint;
 		CCInputField *cid_field;
@@ -135,6 +136,18 @@ class CCTextInputDialog : public CCInputDialogBase
 
 	public:
 		CCTextInputDialog(const std::string &title,
+			std::string *value,
+			CChangeObserver *observ = NULL,
+			const std::string &icon = NEUTRINO_ICON_EDIT);
+
+		/**
+		 * The same dialog with a localized title. A save is then
+		 * announced through changeNotify(neutrino_locale_t, ...) with
+		 * that locale - the overload the menu observers implement -
+		 * where the std::string constructor announces it through the
+		 * std::string overload, which none of them does.
+		 */
+		CCTextInputDialog(const neutrino_locale_t title,
 			std::string *value,
 			CChangeObserver *observ = NULL,
 			const std::string &icon = NEUTRINO_ICON_EDIT);

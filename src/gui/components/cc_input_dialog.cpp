@@ -194,6 +194,7 @@ CCTextInputDialog::CCTextInputDialog(const std::string &title,
 	cid_value = value;
 	valueString = cid_value ? cid_value : &valueStringTmp;
 	cid_observ = observ;
+	cid_title_locale = NONEXISTANT_LOCALE;
 	cid_hint = NULL;
 	cid_field = NULL;
 	cid_keyboard = NULL;
@@ -214,6 +215,18 @@ CCTextInputDialog::CCTextInputDialog(const std::string &title,
 	applyDialogStyle();
 	initFooterButtons();
 	layoutDialogItems();
+}
+
+CCTextInputDialog::CCTextInputDialog(const neutrino_locale_t title,
+	std::string *value,
+	CChangeObserver *observ,
+	const std::string &icon)
+	: CCTextInputDialog(title == NONEXISTANT_LOCALE ? "" : g_Locale->getText(title),
+		  value,
+		  observ,
+		  icon)
+{
+	cid_title_locale = title;
 }
 
 void CCInputDialogBase::applyDialogStyle()
@@ -688,7 +701,16 @@ bool CCTextInputDialog::save()
 		setSettingsText(*cid_value, cid_buffer.getText());
 
 	if (cid_observ && cid_value)
-		cid_observ->changeNotify(ccw_caption, (void *) cid_value->c_str());
+	{
+		/* The menu observers implement the locale overload only, so a
+		 * localized title is announced there - as the old keyboard
+		 * dialog did until 3d6a0c381a passed its title string instead
+		 * and every such observer fell silent. */
+		if (cid_title_locale != NONEXISTANT_LOCALE)
+			cid_observ->changeNotify(cid_title_locale, (void *) cid_value->c_str());
+		else
+			cid_observ->changeNotify(ccw_caption, (void *) cid_value->c_str());
+	}
 
 	OnAfterSave();
 	cid_saved = true;
