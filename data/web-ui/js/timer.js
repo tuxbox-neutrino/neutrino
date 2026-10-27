@@ -347,7 +347,7 @@ let cachedRecDirs = null;
 let releaseTimerModal = null;
 
 function buildTimerModalHtml() {
-	const now = new Date();
+	const now = new Date(webuiBoxNow());
 	const todayStr = webuiFormatDateInput(now);
 	const nowTime = webuiFormatTime(now);
 	const stop = new Date(now.getTime() + 2 * 3600000);

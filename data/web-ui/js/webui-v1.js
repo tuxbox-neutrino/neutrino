@@ -66,7 +66,7 @@ function _webuiV1Url(path, query) {
 async function webuiV1Session() {
 	_webuiV1Csrf = null;
 	try {
-		var resp = await fetch('/api/v1/session', {credentials: 'same-origin', cache: 'no-store'});
+		var resp = await webuiFetchBox('/api/v1/session', {credentials: 'same-origin', cache: 'no-store'});
 		if (!resp.ok) return false;
 		var s = await resp.json();
 		if (s && s.authenticated && s.csrf && s.csrf_header) {
@@ -101,7 +101,7 @@ async function _webuiV1Send(method, path, opts) {
 	}
 	if (method !== 'GET' && _webuiV1Csrf)
 		headers[_webuiV1Csrf.header] = _webuiV1Csrf.token;
-	return fetch(_webuiV1Url(path, opts.query), init);
+	return webuiFetchBox(_webuiV1Url(path, opts.query), init);
 }
 
 async function _webuiV1Error(resp, method, path) {
@@ -183,7 +183,7 @@ async function webuiV1(method, path, opts) {
 async function webuiV1Blob(path, query, opts) {
 	opts = opts || {};
 	var url = _webuiV1Url(path, query);
-	var get = function() { return fetch(url, {credentials: 'same-origin', cache: 'no-store'}); };
+	var get = function() { return webuiFetchBox(url, {credentials: 'same-origin', cache: 'no-store'}); };
 	var resp = await get();
 	if (await _webuiV1ChangeOwed(resp))
 		throw await _webuiV1Error(resp, 'GET', path);
@@ -202,7 +202,7 @@ async function webuiV1Blob(path, query, opts) {
 // (Content-Disposition), else under fallback; the same sign-in on 403 as
 // webuiV1. Resolves to the name it was saved under.
 async function webuiV1Download(path, fallback) {
-	var get = function() { return fetch(_webuiV1Url(path), {credentials: 'same-origin', cache: 'no-store'}); };
+	var get = function() { return webuiFetchBox(_webuiV1Url(path), {credentials: 'same-origin', cache: 'no-store'}); };
 	var resp = await get();
 	if (await _webuiV1ChangeOwed(resp))
 		throw await _webuiV1Error(resp, 'GET', path);
@@ -358,7 +358,7 @@ function _webuiV1SignInDialog() {
 			// a wrong password says so; any other refusal says what the box said
 			var why = webuiL('v1.signin_failed', 'Sign-in failed');
 			try {
-				var resp = await fetch('/api/v1/login', {
+				var resp = await webuiFetchBox('/api/v1/login', {
 					method: 'POST', credentials: 'same-origin', cache: 'no-store',
 					headers: {'Content-Type': 'application/json'},
 					body: JSON.stringify({user: user.value, password: pass.value})
@@ -527,7 +527,7 @@ async function webuiLogosOffered(channelId) {
 	if (_webuiLogos !== null || !channelId)
 		return _webuiLogos !== false;
 	try {
-		const r = await fetch('/api/v1/channels/' + encodeURIComponent(channelId) + '/logo', {credentials: 'same-origin'});
+		const r = await webuiFetchBox('/api/v1/channels/' + encodeURIComponent(channelId) + '/logo', {credentials: 'same-origin'});
 		// a channel without a logo is a 404 as well, but not this one
 		const p = r.status === 404 ? await r.json().catch(() => null) : null;
 		_webuiLogos = !(p && p.type === '/errors/logos-not-offered');
@@ -620,7 +620,7 @@ function _webuiEpgModalHTML() {
 // "Today", "Tomorrow" or the weekday and date of a time in seconds, and the
 // programme's day, time and length in one line
 function _webuiEpgDay(sec) {
-	const d = new Date(sec * 1000), now = new Date();
+	const d = new Date(sec * 1000), now = new Date(webuiBoxNow());
 	const day = function(x) { return new Date(x.getFullYear(), x.getMonth(), x.getDate()).getTime(); };
 	const diff = Math.round((day(d) - day(now)) / 86400000);
 	if (diff === 0) return webuiL('epg.today', 'Today');
@@ -675,7 +675,7 @@ function _webuiV1Maybe(path, query) {
 
 // whether an event runs now
 function _webuiEpgRuns(ev) {
-	const now = Date.now() / 1000;
+	const now = webuiBoxNow() / 1000;
 	return !!ev && ev.start <= now && now < ev.start + ev.duration;
 }
 
@@ -759,7 +759,7 @@ async function webuiShowEpgModal(channelId, channelName, opts) {
 		}
 		webuiEpgModalEvent = ev;
 		const end = ev.start + ev.duration;
-		const now = Date.now() / 1000;
+		const now = webuiBoxNow() / 1000;
 		titleEl.textContent = ev.title || '--';
 		timeEl.textContent = _webuiEpgWhen(ev);
 		webuiEpgModalUpdateRecBtn(false);
@@ -863,7 +863,7 @@ async function webuiEpgModalZap() {
 async function webuiZapTimer(channelId, ev) {
 	try {
 		await webuiV1('POST', '/timers', {body: {kind: 'zapto', channel_id: channelId,
-			start: Math.max(ev.start, Math.floor(Date.now() / 60000) * 60), epg_id: ev.id, epg_start: ev.start}});
+			start: Math.max(ev.start, Math.floor(webuiBoxNow() / 60000) * 60), epg_id: ev.id, epg_start: ev.start}});
 		webuiShowToast(webuiL('epg.timer_zap_set', 'Zap timer set!'));
 		return true;
 	} catch (e) {
@@ -911,7 +911,7 @@ async function webuiRecordEvent(channelId, channelName, ev) {
 			webuiShowToast(webuiL('epg.nodata', 'No EPG data available'), true);
 			return false;
 		}
-		const minute = Math.floor(Date.now() / 60000) * 60;
+		const minute = Math.floor(webuiBoxNow() / 60000) * 60;
 		const body = {kind: 'record', channel_id: channelId, start: Math.max(ev.start, minute),
 			stop: ev.start + ev.duration, title: ev.title || ''};
 		if (ev.id) {
@@ -977,7 +977,7 @@ function webuiEpgModalUpdateRecBtn(isRecording) {
 	const btn = document.getElementById('webuiEpgRecBtn');
 	if (!btn) return;
 	const ev = webuiEpgModalEvent;
-	const later = !!ev && ev.start > Date.now() / 1000;
+	const later = !!ev && ev.start > webuiBoxNow() / 1000;
 	const label = btn.querySelector('span');
 	if (label) label.textContent = isRecording ? webuiL('rec.stop', 'Stop recording') :
 		later ? webuiL('rec.plan', 'Plan recording') : webuiL('rec.start', 'Record');

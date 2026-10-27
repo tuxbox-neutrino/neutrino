@@ -26,7 +26,7 @@ const clock = webuiClock;
 
 function initTimeSelect() {
 	const select = document.getElementById('timeSelect');
-	const now = new Date();
+	const now = new Date(webuiBoxNow());
 	now.setMinutes(0, 0, 0);
 	const options = [];
 	for (let i = 0; i < 24; i++) {
@@ -117,7 +117,7 @@ async function loadEpg() {
 			return;
 		}
 
-		const now = Math.floor(Date.now() / 1000);
+		const now = webuiBoxSec();
 		await webuiLogosOffered(channels[0].id);
 		if (token !== gridToken) return;
 
@@ -198,7 +198,7 @@ function fillRow(target) {
 	const channel = target.channel, el = target.el, events = target.events || [];
 	const win = gridWindow;
 	if (!win) return;
-	const now = Math.floor(Date.now() / 1000);
+	const now = webuiBoxSec();
 	const boxes = [];
 	events.forEach(ev => {
 		const evStop = ev.start + ev.duration;
@@ -256,7 +256,7 @@ function placeNow(now) {
 // By the minute: the line of now and what runs now move on
 function tickNow() {
 	if (!gridWindow) return;
-	const now = Math.floor(Date.now() / 1000);
+	const now = webuiBoxSec();
 	placeNow(now);
 	markNow(document.getElementById('epgGrid'), now);
 }
@@ -347,7 +347,7 @@ webuiAfterTexts(function() {
 		zap: zapped
 	});
 	setInterval(tickNow, 60000);
-	window.addEventListener('resize', () => placeNow(Math.floor(Date.now() / 1000)));
+	window.addEventListener('resize', () => placeNow(webuiBoxSec()));
 	return loadBouquets().then(loadEpg);
 });
 

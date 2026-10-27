@@ -178,7 +178,7 @@ const epgNow = {};	// channel id -> the event running now
 let progressUpdateInterval = null;
 
 async function loadEpgInfo(channels, bouquet, token) {
-	const now = Math.floor(Date.now() / 1000);
+	const now = webuiBoxSec();
 	const pages = [];
 	if (bouquet) {
 		pages.push({bouquet: bouquet});
@@ -236,14 +236,14 @@ function updateChannelProgress(channelId) {
 	if (!ev || !row) return;
 	const bar = row.querySelector('.webui-channel-now .webui-progress > span');
 	if (!bar) return;
-	const now = Date.now() / 1000;
+	const now = webuiBoxNow() / 1000;
 	bar.style.width = Math.min(100, Math.max(0, (now - ev.start) / ev.duration * 100)) + '%';
 }
 
 // The bars move on; a programme that is over makes way for the next,
 // asked for the channels it concerns
 function updateAllProgress() {
-	const now = Date.now() / 1000;
+	const now = webuiBoxNow() / 1000;
 	const over = [];
 	for (const id of Object.keys(epgNow)) {
 		if (now >= epgNow[id].start + epgNow[id].duration) {
@@ -262,7 +262,7 @@ function startProgressUpdateTimer() {
 
 // What runs now on the named channels, asked again
 async function refreshNow(ids) {
-	const now = Math.floor(Date.now() / 1000);
+	const now = webuiBoxSec();
 	for (let i = 0; i < ids.length; i += 20) {
 		const page = await webuiV1('GET', '/epg/grid', {query: {from: now, to: now + 60, limit: 20,
 			channels: ids.slice(i, i + 20).join(',')}}).catch(() => null);

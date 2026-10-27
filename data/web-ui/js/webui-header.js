@@ -626,7 +626,7 @@ var _webuiSession = null;
 // whether a session is open, and the language of the pages.
 function webuiSessionInfo() {
 	if (!_webuiSession)
-		_webuiSession = fetch('/api/v1/session', {credentials: 'same-origin', cache: 'no-store'})
+		_webuiSession = webuiFetchBox('/api/v1/session', {credentials: 'same-origin', cache: 'no-store'})
 			.then(function(r) { return r.ok ? r.json() : null; })
 			.catch(function() { return null; });
 	return _webuiSession;
@@ -783,10 +783,56 @@ function webuiUpdateThemeIcon(theme) {
 	if (lightIcon) lightIcon.classList.toggle('webui-hidden', theme === 'dark');
 }
 
+/* The box's clock, as the Date header of its answers tells it. The box
+   judges by its own clock what is over and what runs now, and the device
+   this page runs on can be minutes away from it. The header counts whole
+   seconds and is written somewhere between the request leaving and the
+   answer arriving, so each answer bounds the box's lead over this device
+   from below and from above, and the bounds of all answers are intersected.
+   When they no longer meet, one of the two clocks was set in between and the
+   newest answer starts afresh. */
+var _webuiBoxLead = null;	// {lo, hi} in milliseconds, once an answer told it
+
+function webuiNoteBoxDate(header, sentMs, receivedMs) {
+	var said = Date.parse(header || '');
+	// a box before 2020 has not set its clock; a slow answer says too little
+	if (!isFinite(said) || said < Date.UTC(2020, 0, 1) || !(receivedMs >= sentMs) || receivedMs - sentMs > 4000)
+		return;
+	var lo = said - receivedMs, hi = said + 1000 - sentMs;
+	var b = _webuiBoxLead;
+	if (b && lo < b.hi && hi > b.lo) {
+		_webuiBoxLead = {lo: Math.max(b.lo, lo), hi: Math.min(b.hi, hi)};
+		return;
+	}
+	_webuiBoxLead = {lo: lo, hi: hi};
+	// the head's clock was drawn by the device's clock, or by the old estimate
+	if (typeof webuiUpdateClock === 'function')
+		webuiUpdateClock();
+}
+
+// A request to the box whose answer also tells its clock
+async function webuiFetchBox(url, init) {
+	var sent = Date.now();
+	var resp = await fetch(url, init);
+	webuiNoteBoxDate(resp.headers.get('Date'), sent, Date.now());
+	return resp;
+}
+
+// The box's time in milliseconds, the device's until an answer told it
+function webuiBoxNow() {
+	var b = _webuiBoxLead;
+	return Date.now() + (b ? Math.round((b.lo + b.hi) / 2) : 0);
+}
+
+// The box's time in whole seconds, as it counts the times of its programmes
+function webuiBoxSec() {
+	return Math.floor(webuiBoxNow() / 1000);
+}
+
 // Clock
 function webuiUpdateClock() {
 	const clock = document.getElementById('webui-clock');
-	if (clock) clock.textContent = webuiFormatTime(new Date());
+	if (clock) clock.textContent = webuiFormatTime(new Date(webuiBoxNow()));
 }
 
 /* What the box says about itself, over /api/v1, in the shape the pages
@@ -800,7 +846,7 @@ async function webuiSystemInfo(full) {
 	var want = (full && typeof full === 'object') ? full : {mounts: !!full, interfaces: !!full};
 	var read = async function(path) {
 		try {
-			var r = await fetch('/api/v1' + path, {credentials: 'same-origin', cache: 'no-store'});
+			var r = await webuiFetchBox('/api/v1' + path, {credentials: 'same-origin', cache: 'no-store'});
 			return r.ok ? r.json() : null;
 		} catch (e) { return null; }
 	};
@@ -863,7 +909,7 @@ async function webuiVersions(sys) {
 	var info = sys ? sys.info : null;
 	if (!info) {
 		try {
-			var r = await fetch('/api/v1/system/info', {credentials: 'same-origin', cache: 'no-store'});
+			var r = await webuiFetchBox('/api/v1/system/info', {credentials: 'same-origin', cache: 'no-store'});
 			info = r.ok ? await r.json() : {};
 		} catch (e) { info = {}; }
 	}
@@ -2803,7 +2849,7 @@ function webuiStartPages() {
 }
 
 async function _webuiV1Read(path) {
-	var r = await fetch('/api/v1' + path, {credentials: 'same-origin', cache: 'no-store'});
+	var r = await webuiFetchBox('/api/v1' + path, {credentials: 'same-origin', cache: 'no-store'});
 	return r.ok ? r.json() : null;
 }
 
@@ -2867,7 +2913,7 @@ async function _webuiFindExtensions() {
 	try {
 		// read here and not by _webuiV1Read: a refusal or a failure of the
 		// box is not an empty list, and says why (a sign-in, for one)
-		var lr = await fetch('/api/v1/webui/extensions', {credentials: 'same-origin', cache: 'no-store'});
+		var lr = await webuiFetchBox('/api/v1/webui/extensions', {credentials: 'same-origin', cache: 'no-store'});
 		if (!lr.ok)
 			throw typeof _webuiV1Error === 'function' ? await _webuiV1Error(lr, 'GET', '/webui/extensions') :
 				Object.assign(new Error('HTTP ' + lr.status), {status: lr.status});

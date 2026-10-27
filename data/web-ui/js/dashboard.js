@@ -93,7 +93,7 @@ const clock = webuiClock;
 // "today 20:15", "tomorrow 06:00", else the date and the time
 function dayAndClock(sec) {
 	const d = new Date(sec * 1000);
-	const today = new Date();
+	const today = new Date(webuiBoxNow());
 	const tomorrow = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1);
 	const same = function(a, b) { return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate(); };
 	const day = same(d, today) ? webuiL('dash.today', 'today') : same(d, tomorrow) ? webuiL('dash.tomorrow', 'tomorrow')
@@ -109,7 +109,7 @@ function duration(sec) {
 
 // what is left until stopSec, as "1 h 20 min" or "18 min"; '' when over
 function remaining(stopSec) {
-	const now = Math.floor(Date.now() / 1000);
+	const now = webuiBoxSec();
 	if (!stopSec || stopSec <= now) return '';
 	const min = Math.max(1, Math.round((stopSec - now) / 60)), hr = Math.floor(min / 60);
 	return hr > 0 ? hr + ' h ' + (min % 60) + ' min' : min + ' min';
@@ -183,7 +183,7 @@ async function refreshGuide() {
 	if (!ch) return;
 	const now = await dashGet('/epg/current', {channel: ch.id});
 	if (dash.channel !== ch) return;	// zapped meanwhile
-	const from = (now && now.start) ? now.start + now.duration : Math.floor(Date.now() / 1000);
+	const from = (now && now.start) ? now.start + now.duration : webuiBoxSec();
 	const win = await dashGet('/epg', {channel: ch.id, from: from, to: from + 12 * 3600});
 	if (dash.channel !== ch) return;
 	dash.now = (now && now.start) ? now : null;
@@ -219,7 +219,7 @@ function tickGuide() {
 		setText('now-meta', next);
 		return;
 	}
-	const t = Date.now() / 1000;
+	const t = webuiBoxNow() / 1000;
 	if (t >= ev.start + ev.duration) {
 		// over: the next one runs now if it has begun, and the guide is asked again
 		dash.now = (dash.next && dash.next.start <= t) ? dash.next : null;
@@ -558,7 +558,7 @@ async function refreshTimers() {
 function showTimers() {
 	const container = document.getElementById('timer-list');
 	if (!container || !dash.timersRead) return;
-	const now = Math.floor(Date.now() / 1000);
+	const now = webuiBoxSec();
 	const running = dash.timers.filter(isRunningRecording);
 	const coming = dash.timers.filter(function(t) { return t.state !== 2 && t.start > now; });
 	const future = coming.slice().sort(function(a, b) { return a.start - b.start; })
