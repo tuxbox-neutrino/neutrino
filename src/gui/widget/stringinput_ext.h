@@ -34,6 +34,7 @@
 #define __stringinput_ext__
 
 #include "menue.h"
+#include <gui/components/cc_numeric_input_dialog.h>
 
 #include <system/localize.h>
 
@@ -211,22 +212,13 @@ class CTimeInput : public CExtendedInput
 
 //----------------------------------------------------------------------------------------------------
 
-class CIntInput : public CExtendedInput
+/* The int inputs run on the cc numeric dialog; the old constructor stays.
+   Size is the most digits, updateValue() reads the int again, and
+   getValue() keeps returning one string for the menu rows that hold it. */
+class CIntInput : public CCNumericInputDialog
 {
-#define MAX_CINTINPUT_SIZE 16
-
- 	int* myValue;
-	unsigned int m_size;
-	protected:
-		virtual void onBeforeExec();
-		virtual void onAfterExec();
-
 	public:
-		/**
-		 *@param Size how many digits can be entered
-		 */
 		CIntInput(const neutrino_locale_t Name, int *Value, const unsigned int Size, const neutrino_locale_t Hint_1 = NONEXISTANT_LOCALE, const neutrino_locale_t Hint_2 = NONEXISTANT_LOCALE, CChangeObserver* Observ = NULL);
-		void updateValue() { onBeforeExec(); }
 };
 
 #endif

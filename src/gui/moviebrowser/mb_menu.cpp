@@ -91,6 +91,8 @@ void CMovieBrowser::initBookMarkMenu(CMenuWidget *BookmarkMenu, MI_MOVIE_INFO* m
 		CKeyboardInput *pBookNameInput = new CKeyboardInput(LOCALE_MOVIEBROWSER_EDIT_BOOK,   &movie_info->bookmarks.user[li].name, MAX_STRING, NULL, NULL, LOCALE_MOVIEBROWSER_EDIT_BOOK_NAME_INFO1, LOCALE_MOVIEBROWSER_EDIT_BOOK_NAME_INFO2);
 		CIntInput *pBookPosIntInput    = new CIntInput(LOCALE_MOVIEBROWSER_EDIT_BOOK, (int *)&movie_info->bookmarks.user[li].pos,     5, LOCALE_MOVIEBROWSER_EDIT_BOOK_POS_INFO1,  LOCALE_MOVIEBROWSER_EDIT_BOOK_POS_INFO2);
 		CIntInput *pBookTypeIntInput   = new CIntInput(LOCALE_MOVIEBROWSER_EDIT_BOOK, (int *)&movie_info->bookmarks.user[li].length, 20, LOCALE_MOVIEBROWSER_EDIT_BOOK_TYPE_INFO1, LOCALE_MOVIEBROWSER_EDIT_BOOK_TYPE_INFO2);
+		/* a negative length jumps back, see the hint */
+		pBookTypeIntInput->allowNegative();
 
 		CMenuWidget* pBookItemMenu = new CMenuWidget(LOCALE_MOVIEBROWSER_BOOK_HEAD, NEUTRINO_ICON_MOVIEPLAYER);
 		pBookItemMenu->addItem(GenericMenuSeparator);

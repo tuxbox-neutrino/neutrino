@@ -37,6 +37,7 @@
 #include <driver/screen_max.h>
 #include <gui/pluginlist.h>
 #include <gui/widget/stringinput.h>
+#include <gui/components/cc_numeric_input_dialog.h>
 #include <gui/infoclock.h>
 #include <gui/osd_helpers.h>
 
@@ -1949,16 +1950,14 @@ int CMenuOptionNumberChooser::exec(CMenuTarget*)
 		else
 			(*optionValue)--;
 	} else if (numeric_input && msg == CRCInput::RC_ok) {
-		int size = 0;
-		int b = lower_bound;
-		if (b < 0) {
-			size++,
-			b = -b;
-		}
-		if (b < upper_bound)
-			b = upper_bound;
-		for (; b; b /= 10, size++);
-		CIntInput cii(name, optionValue, size, LOCALE_IPSETUP_HINT_1, LOCALE_IPSETUP_HINT_2);
+		/* The chooser's bounds go to the dialog: it names them and refuses
+		   a value outside, where the clamp below used to change it behind
+		   the user's back. The title comes from getName(), which also
+		   serves a chooser built with a string instead of a locale. */
+		CCNumericInputDialog cii(std::string(getName()), optionValue);
+		cii.setHintText(CCTextInputDialog::joinHintLines(g_Locale->getText(LOCALE_IPSETUP_HINT_1),
+				g_Locale->getText(LOCALE_IPSETUP_HINT_2)));
+		cii.setRange(lower_bound, upper_bound);
 		cii.exec(NULL, "");
 		if (*optionValue > upper_bound)
 			*optionValue = upper_bound;
