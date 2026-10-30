@@ -266,7 +266,7 @@ const Param kStartRecordingParams[] = {
 	/* Absent reads as no: a recording asked for from outside does not switch
 	   a box on that somebody put into standby, unless the caller says so. */
 	HTTPD_BODY("wake", ParamType::Bool,
-		"whether a box in standby is to be switched on to record"),
+		"whether a box in standby is to record all the same, which it does without leaving standby"),
 };
 
 const RouteRefusal kStartRecordingRefusals[] = {
@@ -630,8 +630,7 @@ void boxAddresses(std::vector<std::string> &out)
 
 // Whether a name is this box: an interface address, a name whose first label is this
 // box's own (any domain after it, a router or mDNS alias included), localhost or a
-// loopback address, or the configured public address. A port or a trailing dot is read
-// and ignored either way.
+// loopback address. A port or a trailing dot is read and ignored either way.
 bool hostNamesThisBox(const std::string &host)
 {
 	std::string stripped = withoutPort(host);
@@ -828,7 +827,8 @@ const Endpoint kRecordingEndpoints[] = {
 	  "channel is not being recorded already.\n\n"
 	  "**Refusals:**\n"
 	  "- `409 box-in-standby`: the box is in standby and `wake` was not `true`. Send "
-	  "again with `wake: true` to switch it on and record.\n"
+	  "again with `wake: true` to record all the same; the box stays in standby while "
+	  "it records.\n"
 	  "- `409 recording-running`: the channel the box is showing is being recorded "
 	  "already.\n\n"
 	  "**Related:** `GET /api/v1/recordings`, `DELETE /api/v1/recordings/{id}`.",
@@ -981,16 +981,16 @@ const Endpoint kRecordingEndpoints[] = {
 	  "Answers an M3U playlist with one entry: the address of the recording's file. A reader on the home "
 	  "network fetches it without a token and the entry carries none. Fetched with the media token of "
 	  "`POST /api/v1/token/media` in the query, the entry carries that very token, so the playlist lasts "
-	  "exactly as long as it does; no token is ever drawn here. Meant for the home network: the public "
-	  "address does not carry these routes. The entry's address is the `Host` only when it names this box "
-	  "itself (an interface address, its hostname under any domain, localhost or the configured public "
-	  "address, a port or a trailing dot either carried or not); anything else is replaced by the address "
+	  "exactly as long as it does; no token is ever drawn here. Meant for the home network. The entry's "
+	  "address is the `Host` only when it names this box itself (an interface address, its hostname under "
+	  "any domain or localhost, a port or a trailing dot either carried or not); anything else is replaced "
+	  "by the address "
 	  "the box itself answered the request on, never echoed.\n\n"
 	  "**Refusals:**\n"
 	  "- `400 missing-parameter`: the token in the address is not a media token this box drew, or is not "
 	  "the credential this request was granted on; it is never written out.\n"
-	  "- `400 no-authority`: the request named no host this box answers to, and the connection could not "
-	  "say its own address either.\n"
+	  "- `400 no-authority`: the request named no plain host, or named one that is not this box and the "
+	  "connection could not say its own address either.\n"
 	  "- `404 no-such-recording`: no recording has that `id`.\n"
 	  "- `403 not-permitted`: the token stands for another part of the box.\n\n"
 	  "**Related:** `GET /api/v1/recordings/archive/{id}/file`.",

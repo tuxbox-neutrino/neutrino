@@ -384,9 +384,9 @@ namespace
 {
 
 /* The two settings the state is made of, and what the box writes in the second.
-   The numbers are the ones the drawing code names, src/gui/infoicons.h, written
-   out here because that header is the graphics stack, which this layer may not
-   reach into. The row that declares the skin lists the same three. */
+   The numbers are the skins as the box stores them (the stilled lines in
+   src/neutrino.cpp call the last one INFOICONS_POPUP); this tree builds no code
+   that draws the icons. The row that declares the skin lists the same three. */
 const char *const kModeKey = "mode_icons";
 const char *const kSkinKey = "mode_icons_skin";
 

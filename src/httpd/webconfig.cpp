@@ -1494,7 +1494,8 @@ void appendKeyDocs(std::string &text)
 		     decimal(d.session_lifetime_s));
 	appendKeyDoc(text, kKeySseMaxStreams, "how many live update streams may be open at once, up to " +
 		     decimal(kSseMaxStreamsMax), decimal(d.sse_max_streams));
-	appendKeyDoc(text, kKeyLegacy, "whether the old /control/ addresses answer, true or false",
+	appendKeyDoc(text, kKeyLegacy, "nothing acts on it: the old /control/ addresses answer whatever "
+		     "it says, true or false",
 		     d.legacy_enabled ? "true" : "false");
 	appendKeyDoc(text, kKeyLogos, "whether the pages show a picture beside a channel, true or false",
 		     d.channel_logos ? "true" : "false");

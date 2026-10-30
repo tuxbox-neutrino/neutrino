@@ -256,7 +256,7 @@ const FieldDesc kWebserverFields[] = {
 		"the address it listens on, and \"0.0.0.0\" for every address of the first family"),
 	HTTPD_MEMBER("user", FieldType::String, "the one name a password is presented under"),
 	HTTPD_MEMBER("has_password", FieldType::Bool,
-		"whether a password is set at all, which is the whole of what is said about it: neither the password nor the form it is stored as ever leaves the box"),
+		"whether a password is set at all, which is the whole of what is said about it: neither the password nor the form it is stored as is ever answered here"),
 	HTTPD_MEMBER("password_shipped", FieldType::Bool,
 		"whether the password in effect still waits to be replaced: one these boxes have shipped with, which anybody can look up, or the first password the box set for itself and showed on its screen; a password a write sets is judged by the read after the restart"),
 	HTTPD_MEMBER("page_login", FieldType::Bool,
@@ -268,9 +268,9 @@ const FieldDesc kWebserverFields[] = {
 	HTTPD_LIST_OF_VALUES("trusted_proxies", ElementType::String,
 		"the networks whose forwarded address is believed, as this box read them; empty where the file has no trusted_proxies line, and also where the line is empty or none of its entries is a network, which still keeps reading without a password off"),
 	HTTPD_MEMBER("legacy_enabled", FieldType::Bool,
-		"whether the copied surface under /control/ is answered at all, which is a line of the file and not something this route writes"),
+		"the line of the file meant to say whether the surface under /control/ is answered; nothing acts on it, so that surface is answered whatever it says, and this route does not write it"),
 	HTTPD_MEMBER("channel_logos", FieldType::Bool,
-		"whether this server hands a channel picture over at all: with it off the route that carries one answers as it does for a channel that has none, so the switch holds for every caller and a page has nothing to read. The television is drawn from the box's own settings and is not touched by it"),
+		"whether this server hands a channel picture over at all: with it off the route that carries one answers not found, as it does for a channel that has none, so the switch holds for every caller and a page has nothing to read. The television is drawn from the box's own settings and is not touched by it"),
 	HTTPD_MEMBER("threading", FieldType::Bool,
 		"whether nhttpd answers each request on a thread of its own, a line of nhttpd.conf"),
 	HTTPD_MEMBER("override_directory", FieldType::String,
@@ -412,11 +412,10 @@ const Schema kChangedSchema = { "webserver-change", HTTPD_FIELDS(kChangedFields)
    for a change that is not one would be a way to take the box off the network for a
    moment by asking it politely for what it already has.
 
-   A MEMBER LEFT OUT MEANS THE VALUE STAYS, and an empty member does not. This is where
-   the route and the screen at the box differ and it is deliberate: the screen opens its
-   password field empty because there is nothing to put in one, so an untouched field
-   there has to mean the stored form stays. A body is not a form. What it names is what
-   the caller means to write, and an empty string is something the caller wrote. */
+   A MEMBER LEFT OUT MEANS THE VALUE STAYS, and so does an empty one: the router reads an
+   empty member as one left out, the way the screen at the box reads an untouched field,
+   unless the member takes the empty string as a value of its own. no_login_prefix is
+   that one (clearable): empty, it exempts nobody. */
 Response webserverWrite(const Request &r)
 {
 	const std::string &path = configPath();
@@ -642,8 +641,9 @@ const Endpoint kWebserverEndpoints[] = {
 	  "caller signs in under, whether a password is set at all and whether it still waits to be replaced "
 	  "(one the boxes shipped with, or the first password the box set for itself), whether the pages ask for the login and of which callers not, how nhttpd serves the pages "
 	  "(threads, the override and hosted directories, files of unknown type), the networks that may read without "
-	  "presenting anything and the proxies whose forwarded address is believed, whether the copied "
-	  "surface under `/control/` is reachable, and whether a channel picture is served at all. This is "
+	  "presenting anything and the proxies whose forwarded address is believed, the file's "
+	  "`legacy_enabled` line, which nothing acts on (the surface under `/control/` is answered whatever "
+	  "it says), and whether a channel picture is served at all. This is "
 	  "a different file from `neutrino.conf`, which `/api/v1/settings` reads and writes.\n"
 	  "\n"
 	  "**Related:** `PUT /api/v1/system/webserver`.",
@@ -652,8 +652,9 @@ const Endpoint kWebserverEndpoints[] = {
 	{ Method::Put, "/api/v1/system/webserver", AuthLevel::System,
 	  "sets this server up, naming only what is to change, and answers what the change means for the caller before the server is put on it",
 	  "Changes how this HTTP server itself is set up, naming only the members to change; a member left "
-	  "out keeps its stored value, while an empty string sent for one is a value the caller meant to "
-	  "write. The file is written first, then this answer is sent, and only after it has gone out does "
+	  "out keeps its stored value, and so does one sent as an empty string, except `no_login_prefix`, "
+	  "where an empty string is the value that exempts nobody. The file is written first, then this "
+	  "answer is sent, and only after it has gone out does "
 	  "the server, if anything that needs one changed, restart on the new file; a caller that moved the "
 	  "port or the bind address therefore still receives this answer on the connection it asked over.\n"
 	  "\n"

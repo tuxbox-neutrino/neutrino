@@ -159,7 +159,7 @@ const Endpoint kConfigEndpoints[] = {
 	  "\n"
 	  "**Refusals:**\n"
 	  "- `404 config-document-unreadable`: the box has never written that document, for instance "
-	  "`ubouquets` before any bouquet was ever edited.\n"
+	  "`ubouquets` before a channel scan or a bouquet edit wrote it.\n"
 	  "\n"
 	  "**Related:** `POST /api/v1/system/reload-setup`.",
 	  HTTPD_PARAMS(kDocumentParams), NULL, &configDocument, false,
@@ -181,9 +181,9 @@ const Endpoint kConfigEndpoints[] = {
 	  "no read route or event that reports when it is done. While a text input is open on the box, "
 	  "the reload waits until it is closed.\n"
 	  "\n"
-	  "**Side effects:** rereads the settings file, resends the channel list configuration to the EPG "
-	  "daemon, and rebuilds the channel list only when one of the flags that decide whether HD, web TV "
-	  "or web radio pseudo channels are included has changed since it was last loaded; otherwise the "
+	  "**Side effects:** rereads the settings file, resends the EPG daemon its part of the settings, "
+	  "and rebuilds the channel list only when one of the flags that decide whether the box builds its "
+	  "lists of HD, web TV or web radio channels has changed since it was last loaded; otherwise the "
 	  "running channel and bouquet lists are left as they are.\n"
 	  "\n"
 	  "**Related:** `GET /api/v1/config/{document}`.",

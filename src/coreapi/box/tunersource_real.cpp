@@ -116,8 +116,8 @@ class RealTunerSource : public TunerSource
 		Status liveSignal(SignalInfo &out) const
 		{
 			CFrontend *fe = CFEManager::getInstance()->getLiveFE();
-			// A box with no tuner and one whose tuner has been given nothing
-			// to receive both arrive here, and neither is a fault.
+			// Only a box with no tuner it could open arrives here, which is not
+			// a fault: the first tuner that opened is assigned from the start.
 			if (fe == NULL)
 				return Status::NotSupported;
 

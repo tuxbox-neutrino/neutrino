@@ -141,17 +141,19 @@ const FieldDesc kTimerFields[] = {
 	HTTPD_MEMBER("repeat", FieldType::Int,
 		"how it repeats, coded as the `repeat` member of `POST /api/v1/timers` (0 once, 1 daily, 2 weekly, "
 		"3 every 2 weeks, 4 every 4 weeks, 5 monthly, 256 plus weekday bits); a timer made outside this API may "
-		"carry a value that API refuses, such as 6 (by event description)"),
+		"carry a value that API refuses"),
 	HTTPD_MEMBER("repeat_count", FieldType::UInt,
 		"how many more times a repeating timer runs, and `0` for without end"),
 	HTTPD_MEMBER("state", FieldType::Int,
 		"where the timer is in its life: 0 scheduled, 1 announced (the `announce` moment has passed), "
 		"2 running; 3 finished and 4 terminated last only until the daemon reschedules or drops the timer"),
 	HTTPD_MEMBER("announce", FieldType::Time,
-		"when the box announces the timer and wakes for it, Unix time in seconds; unless it was set, "
-		"60 seconds before `start`, and 180 seconds before it for a recording"),
+		"when the box announces the timer, Unix time in seconds; unless it was set, "
+		"60 seconds before `start`, and 180 seconds before it for a recording. A box in deep standby "
+		"wakes at least 3 minutes before this for a timer that wakes it"),
 	HTTPD_MEMBER("epg_id", FieldType::ChannelId,
-		"the guide event the timer was made from, hexadecimal as `GET /api/v1/epg` names events, and `0` for none"),
+		"the guide event the timer was made from, or the one the daemon has since found in the guide for its "
+		"time, hexadecimal as `GET /api/v1/epg` names events, and `0` for none"),
 	HTTPD_MEMBER("epg_start", FieldType::Time,
 		"when that guide event begins, Unix time in seconds, and `0` for none"),
 	HTTPD_MEMBER("standby_on", FieldType::Bool,
@@ -511,19 +513,21 @@ const Param kCreateParams[] = {
 		"when a recording ends, Unix time in seconds, after `start`; any value but `0` is refused for the "
 		"kinds that do not record", 0, kLatestTime),
 	HTTPD_BODY_TEXT("title",
-		"the programme title stored with a `record` timer, the text a `remind` timer shows, or the name of the "
-		"plugin an `exec-plugin` timer starts; ignored by the other kinds, and cut to what the daemon stores", 512),
+		"the programme title stored with a `record` or `immediate-record` timer, the text a `remind` timer "
+		"shows, or the name of the plugin an `exec-plugin` timer starts; ignored by the other kinds, and cut to "
+		"what the daemon stores", 512),
 	HTTPD_BODY_IN("repeat", ParamType::Int, kRepeatDoc, 0, kMaxRepeat),
 	HTTPD_BODY_IN("repeat_count", ParamType::UInt,
 		"how many times a repeating timer runs, and `0` (the default) for without end", 0,
 		kMaxRepeatCount),
 	HTTPD_BODY("announce", ParamType::Time,
-		"when the box announces the timer and wakes for it, Unix time in seconds; left out, `0` or less, or "
+		"when the box announces the timer, Unix time in seconds; left out, `0` or less, or "
 		"later than `start`, it becomes 60 seconds before `start`, or 180 seconds before it for `record`; "
-		"an `immediate-record` timer has none"),
+		"an `immediate-record` timer has none. A box in deep standby wakes at least 3 minutes before this "
+		"for a timer that wakes it"),
 	HTTPD_BODY("epg_id", ParamType::ChannelId,
 		"the guide event the timer is made from, hexadecimal as `GET /api/v1/epg` answers it, for `record` and "
-		"`zapto`; with `auto_adjust` the box follows that event"),
+		"`zapto`; with `auto_adjust` the box follows the programme the guide has in the middle of the recording"),
 	HTTPD_BODY_IN("epg_start", ParamType::Time,
 		"when that guide event begins, Unix time in seconds, sent together with `epg_id`", 0, kLatestTime),
 	HTTPD_BODY("standby_on", ParamType::Bool,
@@ -536,8 +540,8 @@ const Param kCreateParams[] = {
 		"whether the box widens a recording by the margins it is set to, starting it earlier and stopping it "
 		"later; `false` when left out, so the timer keeps exactly the `start` and `stop` sent"),
 	HTTPD_BODY("auto_adjust", ParamType::Bool,
-		"whether the box moves a recording onto the guide's own times for the programme `epg_id` names, which it "
-		"does only where the box is set up for it; `false` when left out"),
+		"whether the box moves a recording onto the guide's own times for the programme the guide has in the "
+		"middle of the recording, which it does only where the box is set up for it; `false` when left out"),
 };
 
 /* The id is in the path and everything else is in the body, and every one of
@@ -621,7 +625,7 @@ const Endpoint kTimerEndpoints[] = {
 	  "`GET /api/v1/epg/event`. `recording_safety` and `auto_adjust` are off unless sent, so the timer keeps "
 	  "exactly the times given.\n\n"
 	  "For a recording that starts at once, send `kind` `immediate-record`. It begins at the box's own time, "
-	  "so a caller whose clock is behind or stale is not refused: a `stop` that ends the guide event named by "
+	  "so a caller whose clock is behind or stale is not refused: a `stop` sent with "
 	  "`epg_start` stays as sent while it lies ahead, and any other `stop` keeps its distance from `start`.\n\n"
 	  "**Preconditions:** none on the box state: a timer can be made in standby, and a `record` or `zapto` "
 	  "timer wakes the box from deep standby before it is due.\n\n"

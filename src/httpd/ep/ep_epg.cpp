@@ -621,9 +621,10 @@ const Endpoint kEpgEndpoints[] = {
 	  HTTPD_PARAMS(kSearchParams), &kSearchSchema, &searchEvents, false,
 	  Answers200, HTTPD_REFUSALS(kSearchEventsRefusals) },
 	{ Method::Get, "/api/v1/epg/xmltv", AuthLevel::Read,
-	  "every user bouquet's schedule as one XMLTV document",
-	  "Builds and returns the whole schedule of every channel in the user's visible "
-	  "bouquets as one XMLTV document (`application/xml`), written out as it is "
+	  "every visible user bouquet's schedule as one XMLTV document",
+	  "Builds and returns the schedule of every channel in the user's visible "
+	  "bouquets, at most the first 50 events of each, as one XMLTV document "
+	  "(`application/xml`), written out as it is "
 	  "built rather than assembled in memory first, since a satellite list can run "
 	  "to hundreds of channels and tens of thousands of events. `mode` narrows the "
 	  "document to television or radio channels; left out, it carries both.\n\n"
@@ -654,7 +655,8 @@ const Endpoint kEpgEndpoints[] = {
 	  "one event with the age it is broadcast for, what it is about, and the long text a listing does not carry",
 	  "Returns the full detail of one showing of one event: its short and long "
 	  "texts, the minimum age it is broadcast for, and its genre classification, "
-	  "none of which the listing and search routes carry. `id` and `start` together "
+	  "of which the listing and search routes carry only the short text. `id` and "
+	  "`start` together "
 	  "name the showing, exactly as a listing answered them beside each other, "
 	  "because the guide files more than one showing under the same event "
 	  "identifier.\n\n"

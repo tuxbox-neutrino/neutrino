@@ -186,11 +186,11 @@ Response setRemote(const Request &r)
 const char kInfoIconsValues[] = "static,popup,infoviewer,off";
 
 const char kInfoIconsValueDocs[] =
-	"static: the box draws the icons itself, in the plain skin that keeps them visible\n"
-	"popup: the box draws the icons itself, in the popup skin\n"
-	"infoviewer: the box does not draw the icons; the infobar draws them instead, in its own skin\n"
-	"off: nothing draws the icons; if the skin was infoviewer it is moved to static first, "
-	"so the infobar does not take the drawing back on its own";
+	"static: the icons switched on, in the plain skin\n"
+	"popup: the icons switched on, in the popup skin\n"
+	"infoviewer: the icons switched off, in the infoviewer skin\n"
+	"off: the icons switched off; if the skin was infoviewer it is moved to static first, "
+	"so the state reads back as off and not as infoviewer";
 
 const FieldDesc kInfoIconsFields[] = {
 	HTTPD_MEMBER_OF_SET("state", kInfoIconsValues,
@@ -301,7 +301,8 @@ const Param kMessageParams[] = {
 	HTTPD_BODY_FROM_SET("kind", "which of the 2 ways the box shows the message; see the values below",
 		"hint,box",
 		"hint: a small box that goes away by itself after the box's own popup message timeout, or as soon as OK is pressed\n"
-		"box: a message box that stays on screen until it is dismissed with the back button"),
+		"box: a message box that stays on screen until it is dismissed, with OK or the back button, "
+		"or the box's own interactive message timeout runs out"),
 };
 
 /* What a picture goes out as, from the form it was written in. One place, so
@@ -538,8 +539,8 @@ const Endpoint kOsdEndpoints[] = {
 	  "been applied: watch for the `volume` event on `GET /api/v1/events`, or read "
 	  "`GET /api/v1/osd/volume` again. The level is carried to the box in a single "
 	  "byte, which is why it is bounded to 0 to 100 both here and once more before "
-	  "it is applied. Changing the volume does not turn mute off, so a muted box "
-	  "stays muted at the new level until `PUT /api/v1/osd/mute` is sent.\n\n"
+	  "it is applied. On a muted box, a level above 0 also turns mute off; a level "
+	  "of 0 leaves it muted.\n\n"
 	  "**Related:** `GET /api/v1/osd/volume`, `PUT /api/v1/osd/mute`.",
 	  HTTPD_PARAMS(kVolumeParams), NULL, &setVolume, false,
 	  Answers202, HTTPD_NO_REFUSALS },
@@ -573,17 +574,18 @@ const Endpoint kOsdEndpoints[] = {
 	  "asks the box to start or stop ignoring its remote control", "Sets whether "
 	  "the box ignores key presses from its own remote control. `202` means the "
 	  "box has queued the change: read `GET /api/v1/osd/remote` to see it take "
-	  "effect. This has no effect on `POST /api/v1/osd/remote/key`, which injects "
-	  "a key directly and does not go through the remote control receiver.\n\n"
+	  "effect. This holds for `POST /api/v1/osd/remote/key` as well, whose key "
+	  "reaches the box through the same input as one from the remote control.\n\n"
 	  "**Related:** `GET /api/v1/osd/remote`, `POST /api/v1/osd/remote/key`.",
 	  HTTPD_PARAMS(kRemoteParams), NULL, &setRemote, false,
 	  Answers202, HTTPD_NO_REFUSALS },
 	{ Method::Get, "/api/v1/osd/remote/keys", AuthLevel::Read,
 	  "every key name the box knows", "Lists every key name the box's own input "
 	  "table carries, in the order that table keeps them. A few names appear "
-	  "twice because the table maps 2 physical codes to the same name; sending "
-	  "such a name with `POST /api/v1/osd/remote/key` always reaches the first of "
-	  "those 2 codes. These are the only names `POST /api/v1/osd/remote/key` accepts.\n\n"
+	  "twice because the table carries 2 rows for them, in one case with 2 "
+	  "different codes; sending such a name with `POST /api/v1/osd/remote/key` "
+	  "always reaches the code of the first row. These are the only names "
+	  "`POST /api/v1/osd/remote/key` accepts.\n\n"
 	  "**Related:** `POST /api/v1/osd/remote/key`.",
 	  NULL, 0, &kKeyNameSchema, &getKeyNames, false,
 	  Answers200, HTTPD_NO_REFUSALS },
@@ -592,8 +594,9 @@ const Endpoint kOsdEndpoints[] = {
 	  "named key as a press followed immediately by a release, as though it had "
 	  "come from the remote control. `202` means the box has queued the key; there "
 	  "is no separate event that confirms it was acted on. This writes the key "
-	  "directly to the box's input device and ignores the remote control lock set "
-	  "by `PUT /api/v1/osd/remote`. There is no repeat and no long press: every "
+	  "directly to the box's input device, so a box locked by "
+	  "`PUT /api/v1/osd/remote` ignores it like a key from the remote control. "
+	  "There is no repeat and no long press: every "
 	  "call injects exactly one press and one release.\n\n"
 	  "**Refusals:**\n"
 	  "- `400 no-such-key`: `name` is not one of the names `GET /api/v1/osd/remote/keys` "
@@ -607,7 +610,8 @@ const Endpoint kOsdEndpoints[] = {
 	  "carrying (for example scrambled or carrying subtitles) are in. The box "
 	  "keeps this as 2 separate settings, and this answers their combination as "
 	  "one of the 4 named states; see the values listed for `state` on "
-	  "`PUT /api/v1/osd/infoicons`.\n\n"
+	  "`PUT /api/v1/osd/infoicons`. Nothing that draws on the screen reads these "
+	  "2 settings, so no state changes what the screen shows.\n\n"
 	  "**Related:** `PUT /api/v1/osd/infoicons`.",
 	  NULL, 0, &kInfoIconsSchema, &getInfoIcons, false,
 	  Answers200, HTTPD_NO_REFUSALS },

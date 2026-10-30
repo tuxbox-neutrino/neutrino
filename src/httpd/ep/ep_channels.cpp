@@ -180,7 +180,7 @@ const FieldDesc kAudioTrackFields[] = {
 	HTTPD_MEMBER("description", FieldType::String,
 		"what the stream says the track is, usually a 3 letter ISO 639 language code such as `deu`, not translated here"),
 	HTTPD_MEMBER("selected", FieldType::Bool,
-		"whether this is the track the box is playing, which no track is while the box has not read the channel's streams"),
+		"whether this is the channel's selected track, the one the box plays while the channel is playing, which no track is while the box has not read the channel's streams"),
 };
 
 const Schema kAudioTrackSchema = { "audio-track", HTTPD_FIELDS(kAudioTrackFields) };
@@ -233,7 +233,7 @@ const Schema kChannelSchema = { "channel", HTTPD_FIELDS(kChannelFields) };
 const FieldDesc kChannelDetailFields[] = {
 	HTTPD_CHANNEL_MEMBERS,
 	HTTPD_OBJECT("video", &kVideoSchema,
-		"the picture stream: its coding and its packet id, both unknown while `streams_known` is false"),
+		"the picture stream: its coding and its packet id, both unknown while `streams_known` is false unless the box's service list carries them"),
 	HTTPD_LIST_OF("audio", &kAudioTrackSchema,
 		"the sound tracks, in the order the stream lists them, and empty while streams_known is false"),
 	HTTPD_OBJECT("pids", &kStreamPidsSchema,
@@ -244,7 +244,7 @@ const FieldDesc kChannelDetailFields[] = {
 	   no sound. What a channel scan writes down beforehand is one pid with
 	   neither a codec nor a language. */
 	HTTPD_MEMBER("streams_known", FieldType::Bool,
-		"whether the box has read this channel's streams, which it does when it plays the channel; false leaves audio empty and video unknown or none"),
+		"whether the box has read this channel's streams, which it does when it plays the channel; false leaves audio empty, and video unknown or none unless the box's service list carries it"),
 };
 
 const Schema kChannelDetailSchema = { "channel-detail", HTTPD_FIELDS(kChannelDetailFields) };
@@ -253,7 +253,7 @@ const Schema kChannelDetailSchema = { "channel-detail", HTTPD_FIELDS(kChannelDet
 
 const FieldDesc kChannelPageFields[] = {
 	HTTPD_LIST_OF("items", &kChannelSchema,
-		"the channels of this page, in the order the box holds them"),
+		"the channels of this page, by the number the box shows beside each, or in the bouquet's own order where `bouquet` was given"),
 	/* Absent on the last page rather than empty, and that is why it is the one
 	   member here a reader has to test for. An empty value is an absent one
 	   everywhere a parameter is read, so a client handing an empty cursor back
@@ -268,7 +268,7 @@ const FieldDesc kBouquetFields[] = {
 	HTTPD_MEMBER("id", FieldType::UInt,
 		"the bouquet's position in the box's bouquet list, counted from 1; the `bouquet` of `GET /api/v1/channels` and `GET /api/v1/epg/grid`. It changes when a bouquet before it is moved or removed"),
 	HTTPD_MEMBER("name", FieldType::String,
-		"the bouquet's name, unique on the box, which the `/api/v1/bouquets/{bouquet}` routes address it by"),
+		"the bouquet's name, which the `/api/v1/bouquets/{bouquet}` routes address it by as long as no other bouquet carries it too"),
 	HTTPD_MEMBER("hidden", FieldType::Bool,
 		"whether the box leaves the bouquet out of the channel lists it shows on screen"),
 	HTTPD_MEMBER("locked", FieldType::Bool,
@@ -889,8 +889,9 @@ Response reloadChannelLists(const Request &r)
 	if (!done.ok())
 		return problemFor(done.error());
 
-	/* Accepted and not done. What the box does with it runs on its own loop,
-	   and what a caller sees of it is the next listing it asks for. */
+	/* 202 although the reading is done: the box has read the files again when
+	   this answers, and only the channel lists on its screen are rebuilt
+	   afterwards, on its own loop. */
 	return accepted();
 }
 
@@ -1258,7 +1259,7 @@ const Param kLogoListParams[] = {
 
 const Param kReloadParams[] = {
 	HTTPD_BODY("hard", ParamType::Bool,
-		"`false` (the default) writes the channels the box holds in memory to disc first and then reads them back, so memory wins; `true` skips the write, so the files on disc win over memory"),
+		"`false` (the default) first writes the channels the box holds in memory to disc if it has changed them since it last read or wrote them, and then reads them back, so such a change wins; `true` skips the write, so the files on disc win over memory"),
 };
 
 const Param kChannelFileParams[] = {
@@ -1551,7 +1552,7 @@ const RouteRefusal kFillBouquetRefusals[] = {
 const Endpoint kChannelEndpoints[] = {
 	{ Method::Get, "/api/v1/channels", AuthLevel::Read,
 	  "the channels the box holds, a page at a time",
-	  "Lists the channels of the television or the radio list, or of 1 bouquet, a page at a time, in the order the box holds them. Each entry carries the channel `id` that every other route takes.\n\n"
+	  "Lists the channels of the television or the radio list, or of 1 bouquet, a page at a time, a whole list by the number the box shows beside each channel and a bouquet in its own order. Each entry carries the channel `id` that every other route takes.\n\n"
 	  "To read the whole list, send the first request without `cursor`, then repeat with `cursor` set to the `next_cursor` of the answer until an answer has no `next_cursor`. The cursor is a channel id, not an offset, so the pages keep their place while the list keeps its order; a reload that reorders the list between 2 pages can repeat or leave out channels, so start again without `cursor` once the list changed. A channel listed twice in a bouquet is answered once.\n\n"
 	  "**Refusals:**\n"
 	  "- `400 no-such-channel`: `cursor` names a channel this list does not hold, for example after the list changed; start again without `cursor`.\n"
@@ -1586,7 +1587,7 @@ const Endpoint kChannelEndpoints[] = {
 	  Answers200, HTTPD_REFUSALS(kCurrentCryptRefusals) },
 	{ Method::Get, "/api/v1/channels/{id}", AuthLevel::Read,
 	  "one channel by its identifier, with what its streams are where the box has read them",
-	  "Answers 1 channel by its id, with its picture and sound streams and the packet ids beside them. The box reads a channel's streams when it plays it, so a channel nobody has played since the box started answers `streams_known: false`, an empty `audio` list and a `video` codec of `unknown` or `none`.\n\n"
+	  "Answers 1 channel by its id, with its picture and sound streams and the packet ids beside them. The box reads a channel's streams when it plays it, so a channel nobody has played since the box started can answer `streams_known: false` and an empty `audio` list, with a `video` codec of `unknown` or `none` unless the box's service list carries the picture's pid and coding.\n\n"
 	  "**Refusals:**\n"
 	  "- `404 no-such-channel`: no channel has that id; take ids from `GET /api/v1/channels`.\n\n"
 	  "**Related:** `GET /api/v1/channels/current`, `POST /api/v1/zap`.",
@@ -1633,7 +1634,7 @@ const Endpoint kChannelEndpoints[] = {
 	{ Method::Post, "/api/v1/bouquets", AuthLevel::Write,
 	  "makes a bouquet with nothing in it",
 	  "Makes a new, empty user bouquet. Fill it with `PUT /api/v1/bouquets/{bouquet}/channels`. The answer is `201` once the box has written its bouquet file and the new name reads back from its list; no `Location` header, the bouquet is addressed by the name that was sent.\n\n"
-	  "**Side effects:** the bouquet file is written and reloaded, and every client sees a `bouquets-changed` event on `GET /api/v1/events`.\n\n"
+	  "**Side effects:** the bouquet files are written, and every client sees a `bouquets-changed` event on `GET /api/v1/events`.\n\n"
 	  "**Refusals:**\n"
 	  "- `409 name-taken`: a bouquet of that name exists; choose another name.\n"
 	  "- `500 bouquet-not-changed`: the box did not take the change or it did not read back; read `GET /api/v1/bouquets` and try again.\n"
@@ -1644,7 +1645,7 @@ const Endpoint kChannelEndpoints[] = {
 	{ Method::Delete, "/api/v1/bouquets/{bouquet}", AuthLevel::Write,
 	  "takes a bouquet away, with whatever it holds",
 	  "Removes a bouquet together with the channel entries it holds. Every bouquet after it moves up 1 place, so the `id` numbers of `GET /api/v1/bouquets` change.\n\n"
-	  "**Side effects:** the bouquet file is written and reloaded, and every client sees a `bouquets-changed` event on `GET /api/v1/events`.\n\n"
+	  "**Side effects:** the bouquet files are written, and every client sees a `bouquets-changed` event on `GET /api/v1/events`.\n\n"
 	  "**Refusals:**\n"
 	  "- `404 no-such-bouquet`: no bouquet has that name; read the names from `GET /api/v1/bouquets`.\n"
 	  "- `409 name-shared`: more than one bouquet carries that name, so it names none of them; rename one of them on the box first.\n"
@@ -1657,7 +1658,7 @@ const Endpoint kChannelEndpoints[] = {
 	{ Method::Put, "/api/v1/bouquets/{bouquet}/name", AuthLevel::Write,
 	  "renames it, which moves the name every other route here addresses it by",
 	  "Gives a bouquet a new name. Afterwards the bouquet is addressed by the new name only: the old path no longer names anything.\n\n"
-	  "**Side effects:** the bouquet file is written and reloaded, and every client sees a `bouquets-changed` event on `GET /api/v1/events`.\n\n"
+	  "**Side effects:** the bouquet files are written, and every client sees a `bouquets-changed` event on `GET /api/v1/events`.\n\n"
 	  "**Refusals:**\n"
 	  "- `404 no-such-bouquet`: no bouquet has the name in the path.\n"
 	  "- `409 name-shared`: more than one bouquet carries that name, so it names none of them; rename one of them on the box first.\n"
@@ -1671,7 +1672,7 @@ const Endpoint kChannelEndpoints[] = {
 	{ Method::Put, "/api/v1/bouquets/{bouquet}/position", AuthLevel::Write,
 	  "moves it one place up or down the list, and refuses at either end",
 	  "Moves a bouquet 1 place up or down the bouquet list, swapping it with its neighbour; this also swaps their `id` numbers. To move a bouquet further, send the request again.\n\n"
-	  "**Side effects:** the bouquet file is written and reloaded, and every client sees a `bouquets-changed` event on `GET /api/v1/events`.\n\n"
+	  "**Side effects:** the bouquet files are written, and every client sees a `bouquets-changed` event on `GET /api/v1/events`.\n\n"
 	  "**Refusals:**\n"
 	  "- `400 already-at-the-end`: the bouquet is first and `direction` is `up`, or last and `direction` is `down`.\n"
 	  "- `404 no-such-bouquet`: no bouquet has that name.\n"
@@ -1685,7 +1686,7 @@ const Endpoint kChannelEndpoints[] = {
 	{ Method::Put, "/api/v1/bouquets/{bouquet}/hidden", AuthLevel::Write,
 	  "says whether the box leaves it out of the lists it draws",
 	  "Hides a bouquet from the channel lists the box shows on screen, or shows it again. A hidden bouquet is still answered by `GET /api/v1/bouquets` with `hidden: true`.\n\n"
-	  "**Side effects:** the bouquet file is written and reloaded, and every client sees a `bouquets-changed` event on `GET /api/v1/events`.\n\n"
+	  "**Side effects:** the bouquet files are written, and every client sees a `bouquets-changed` event on `GET /api/v1/events`.\n\n"
 	  "**Refusals:**\n"
 	  "- `404 no-such-bouquet`: no bouquet has that name.\n"
 	  "- `409 name-shared`: more than one bouquet carries that name, so it names none of them; rename one of them on the box first.\n"
@@ -1697,7 +1698,7 @@ const Endpoint kChannelEndpoints[] = {
 	{ Method::Put, "/api/v1/bouquets/{bouquet}/locked", AuthLevel::Write,
 	  "says whether the box asks for the parental code before it opens it",
 	  "Locks a bouquet behind the box's parental PIN, or unlocks it. The lock applies on the box's own screen; this API does not ask for the PIN.\n\n"
-	  "**Side effects:** the bouquet file is written and reloaded, and every client sees a `bouquets-changed` event on `GET /api/v1/events`.\n\n"
+	  "**Side effects:** the bouquet files are written, and every client sees a `bouquets-changed` event on `GET /api/v1/events`.\n\n"
 	  "**Refusals:**\n"
 	  "- `404 no-such-bouquet`: no bouquet has that name.\n"
 	  "- `409 name-shared`: more than one bouquet carries that name, so it names none of them; rename one of them on the box first.\n"
@@ -1708,9 +1709,9 @@ const Endpoint kChannelEndpoints[] = {
 	  Answers204, HTTPD_REFUSALS(kLockBouquetRefusals) },
 	{ Method::Post, "/api/v1/channels/reload", AuthLevel::Write,
 	  "asks the box to read its channel lists again",
-	  "Makes the box read its channel and bouquet files again, for example after they were changed on disc. By default it first writes the channels it holds in memory to disc, so nothing it holds is lost; with `hard: true` it skips that write and the files on disc win. `202` means the box has taken the request and reloads on its own loop.\n\n"
+	  "Makes the box read its channel and bouquet files again, for example after they were changed on disc. By default it first writes the channels it holds in memory to disc if it has changed them since it last read or wrote them, so such a change is not lost; with `hard: true` it skips that write and the files on disc win. `202` means the box has read the files again; the channel lists on its screen are rebuilt afterwards, on its own loop.\n\n"
 	  "**Refusals:**\n"
-	  "- `channel-list-unavailable` (a 5xx status): the box's channel manager could not be reached; try again later.\n\n"
+	  "- `channel-list-unavailable` (a 5xx status): the box's channel manager did not say it had read the files again; try again later.\n\n"
 	  "**Related:** `GET /api/v1/channels`, `GET /api/v1/bouquets`.",
 	  HTTPD_PARAMS(kReloadParams), NULL, &reloadChannelLists, false,
 	  Answers202, HTTPD_NO_REFUSALS },
@@ -1748,7 +1749,7 @@ const Endpoint kChannelEndpoints[] = {
 	  "replaces the television or the radio members of it with the channels the body names, in the order it names them, and empties that half for a body naming none; the body is a JSON array of hexadecimal channel identifiers",
 	  "Replaces the television or the radio channels of a bouquet with the channels the body lists, in that order; the other list of the bouquet stays as it is. `[]` empties the list. The body is a JSON array of hexadecimal channel id strings, at most 4096; every id is checked before anything changes, so a refused request leaves the bouquet untouched.\n\n"
 	  "To add or remove 1 channel, read the current list with `GET /api/v1/channels?bouquet={id}&mode=...`, change it and send the whole list back.\n\n"
-	  "**Side effects:** the bouquet file is written and reloaded, the box renumbers the channels it shows, and every client sees a `bouquets-changed` event on `GET /api/v1/events`. A channel that no other bouquet holds is taken off the box when it leaves this list, so a list leaving one out is refused unless `remove_from_box` is `true`. A channel the body names twice goes in once, where it is named first. A channel this half already held twice (a bouquet file can name one twice) keeps its second entry behind the list, and the listing answers it once.\n\n"
+	  "**Side effects:** the bouquet files are written, the box renumbers the channels it shows, and every client sees a `bouquets-changed` event on `GET /api/v1/events`. A channel that no other bouquet holds is taken off the box when it leaves this list, so a list leaving one out is refused unless `remove_from_box` is `true`. A channel the body names twice goes in once, where it is named first. A channel this half already held twice (a bouquet file can name one twice) keeps its second entry behind the list, and the listing answers it once.\n\n"
 	  "**Refusals:**\n"
 	  "- `400 bad-int` or `400 bad-string`: the body is not 1 JSON array of hexadecimal ids of up to 16 digits.\n"
 	  "- `400 too-many-channels`: more than 4096 ids.\n"

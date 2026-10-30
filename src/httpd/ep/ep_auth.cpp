@@ -105,7 +105,7 @@ const FieldDesc kSessionStateFields[] = {
 	HTTPD_MEMBER("expires_in", FieldType::UInt,
 		"how many seconds the session has left before it runs out, 0 for a caller holding none"),
 	HTTPD_MEMBER("password_change_required", FieldType::Bool,
-		"whether the caller may write while the box still opens to a password it shipped with or to the first password it set for itself: it is to set a password of its own with PUT /api/v1/account/password, and nothing else answers it until then; false for a caller that may not write"),
+		"whether the caller may write while the box still opens to a password it shipped with or to the first password it set for itself: it is to set a password of its own with PUT /api/v1/account/password, and nothing but that route, POST /api/v1/login, GET /api/v1/session and POST /api/v1/logout answers it until then; false for a caller that may not write"),
 	HTTPD_MEMBER("language", FieldType::String,
 		"the code of the language the pages are shown in, such as en or de, said whatever the caller holds, so the sign-in page and the page asking for a new password are shown in it before anything else answers; GET /api/v1/webui/language names the ones there are"),
 };
@@ -556,7 +556,8 @@ const Endpoint kAuthEndpoints[] = {
 	  "to a request that may write: one carrying a bearer token and no session is answered the same "
 	  "`204` as one that really closed something.\n"
 	  "\n"
-	  "**Preconditions:** the request needs write access, which a live session or a bearer token gives; "
+	  "**Preconditions:** the request needs write access, which a live session or a bearer token of the "
+	  "`write` or `system` level gives; "
 	  "a cookie whose session has run out gives none, and such a request is refused with `403` like any "
 	  "other. A request that writes with its session cookie must also carry the second token in the "
 	  "header this server names (`X-CSRF-Token` by default); one authenticated by a bearer token does "
@@ -609,8 +610,8 @@ const Endpoint kAuthEndpoints[] = {
 	  "credential at all, in the query or as a bearer header, so a leaked address exposes the media "
 	  "and nothing more.\n"
 	  "\n"
-	  "**Preconditions:** the caller must already hold a session granted the system level, since this "
-	  "route requires it.\n"
+	  "**Preconditions:** the caller must already be granted the system level, by a session or by a "
+	  "bearer token minted at that level, since this route requires it.\n"
 	  "\n"
 	  "**Side effects:** records the token's hash and expiry in memory only; nothing is written to "
 	  "disk, so the token stops working the moment the box restarts. It lives 6 hours from the moment "

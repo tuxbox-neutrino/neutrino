@@ -79,7 +79,8 @@ const FieldDesc kCpuFields[] = {
 	HTTPD_MEMBER("model", FieldType::String, "the processor as the kernel names it"),
 	HTTPD_MEMBER("cores", FieldType::UInt, "how many cores it has"),
 	HTTPD_MEMBER("load_percent", FieldType::Int,
-		"how busy it was over the tenth of a second this was read in, in percent, and -1 where that could not be read"),
+		"how busy it was in percent: since the previous reading where that was 0.2 to 10 seconds ago, "
+		"otherwise over the tenth of a second this was read in; -1 where that could not be read"),
 };
 
 const Schema kCpuSchema = { "cpu", HTTPD_FIELDS(kCpuFields) };
@@ -109,13 +110,13 @@ const FieldDesc kBoxFields[] = {
 	HTTPD_MEMBER("memory_total", FieldType::UInt,
 		"how much memory the box has, in bytes, and 0 where it could not be read"),
 	HTTPD_MEMBER("memory_free", FieldType::UInt,
-		"how much of that is unused, in bytes; under a memory_total of 0 this is a reading that failed, not an empty box"),
+		"how much of that is unused, counting what the buffers and the cache hold, in bytes; under a memory_total of 0 this is a reading that failed, not an empty box"),
 	HTTPD_MEMBER("root_total", FieldType::UInt,
 		"how large the root filesystem is in bytes, which on the smallest box is the whole of what an image has to fit in"),
 	HTTPD_MEMBER("root_free", FieldType::UInt,
 		"how much of the root filesystem is unwritten, in bytes; under a root_total of 0 this is a reading that failed"),
 	HTTPD_MEMBER("api_doc", FieldType::Bool,
-		"whether this build carries the API documentation, which is the prose in the document this server writes about itself and the reader page beside it, both under one switch"),
+		"whether this build carries the API documentation, which is the prose in the document this server writes about itself"),
 	HTTPD_OBJECT("api", &kApiSchema,
 		"what this interface is, so a caller knows before it asks anything else"),
 	HTTPD_OBJECT("cpu", &kCpuSchema, "the processor and how busy it is"),
@@ -166,7 +167,7 @@ const FieldDesc kDaemonFields[] = {
 	HTTPD_MEMBER("running", FieldType::Bool,
 		"whether a process of its name is in the process table, which is not the same as its having been asked for"),
 	HTTPD_MEMBER("installed", FieldType::Bool,
-		"whether this box carries the thing at all: on a box run by systemd, whether its unit file is installed or its init script is in /etc/init.d; otherwise whether its init script is in either init directory; false for a name every image knows but this build was not given"),
+		"whether this box carries the thing at all: whether its init script is in either init directory or, on a box run by systemd, its unit file is installed; false for a name every image knows but this build was not given"),
 };
 
 const Schema kDaemonSchema = { "daemon", HTTPD_FIELDS(kDaemonFields) };
@@ -180,7 +181,7 @@ const Schema kDaemonListSchema = { "daemon-list", HTTPD_FIELDS(kDaemonListFields
 
 const FieldDesc kUsageFields[] = {
 	HTTPD_MEMBER("name", FieldType::String,
-		"one of the legacy table's own 74 names, or a name /control/ was asked for that the table never had"),
+		"one of the legacy table's own names, or a name /control/ was asked for that the table never had"),
 	HTTPD_MEMBER("calls", FieldType::UInt,
 		"how many times this name has been asked for since this program started"),
 };
@@ -705,7 +706,8 @@ const Endpoint kSystemEndpoints[] = {
 	  "running: the vendor, the model, the chipset, the firmware version, the kernel release, "
 	  "the hostname, its uptime, its memory and root filesystem usage, whether this build "
 	  "carries the API documentation, and the version of this interface itself. Every field is "
-	  "read fresh for each request.\n\n"
+	  "read fresh for each request but `image_version`, `os` and `support`, which are read once "
+	  "and kept for as long as the program runs.\n\n"
 	  "**Refusals:**\n"
 	  "- `500 box-unreadable`: the box could not be identified at all. This is a box fault, not "
 	  "a request problem; try again later.",
@@ -767,11 +769,11 @@ const Endpoint kSystemEndpoints[] = {
 	  Answers200, HTTPD_NO_REFUSALS },
 	{ Method::Get, "/api/v1/system/legacy-usage", AuthLevel::Read,
 	  "how many times /control/ has been asked for each of its names, so retiring one can rest on what still calls it rather than on a guess, and no names at all where this build carries none of that surface",
-	  "Reads how many times the copied `/control/` surface has been asked for each of its own "
-	  "74 names since this program started, plus any name it was asked for that table never "
-	  "had. It exists so that retiring a legacy name can rest on what still calls it rather "
+	  "Reads how many times the `/control/` surface has been asked for each of the "
+	  "names in its own table since this program started, plus any name it was asked for that "
+	  "table never had. It exists so that retiring a legacy name can rest on what still calls it rather "
 	  "than on a guess.\n\n"
-	  "**Preconditions:** none, but on a build without the copied `/control/` surface at all "
+	  "**Preconditions:** none, but on a build without the `/control/` surface at all "
 	  "this answers an empty list rather than refusing, so a page written against it works the "
 	  "same on both kinds of box.",
 	  NULL, 0, &kUsageListSchema, &legacyUsage, false,
@@ -783,8 +785,9 @@ const Endpoint kSystemEndpoints[] = {
 	  "`GET /api/v1/events`, or poll `GET /api/v1/system/standby`. Going to standby while "
 	  "already in it, or coming out of it while not in it, changes nothing and still answers "
 	  "`202`, which is why `on` must name the direction rather than this route toggling it.\n\n"
-	  "**Side effects:** switching to standby stops live playback; a recording or a timer "
-	  "already running is not stopped by it. While the box is in standby, `POST /api/v1/zap` "
+	  "**Side effects:** switching to standby stops live playback and the shift the box keeps "
+	  "of what it is showing; a recording or a timer already running is not stopped by it. "
+	  "While the box is in standby, `POST /api/v1/zap` "
 	  "and `POST /api/v1/mode` are refused with `409 box-in-standby` unless sent with "
 	  "`wake: true`, which switches the box on again as part of carrying out that request.\n\n"
 	  "**Related:** `GET /api/v1/system/standby`, `POST /api/v1/zap`, `POST /api/v1/mode`.",
@@ -808,13 +811,15 @@ const Endpoint kSystemEndpoints[] = {
 	{ Method::Post, "/api/v1/system/shutdown", AuthLevel::System,
 	  "asks the box to switch off", "Asks the box to switch off. `202` means the request has "
 	  "reached the box's own event loop, not that the box is off. While the box's stream server "
-	  "sends a channel to a client the request is dropped and nothing happens at all; while a recording "
-	  "is running or a timer is about to start one, the box instead goes into standby and "
-	  "keeps retrying on its own until nothing is pending, rather than fully powering off "
-	  "straight away. Once it does power off, the connection this request arrived on is "
+	  "sends a channel to a client the request is dropped and nothing happens at all. While a "
+	  "recording is running, the box first shows a confirmation on its own screen; unless that "
+	  "is answered there, it does not switch off. With `shutdown_block_while_recording` on, the "
+	  "box instead goes into standby while a recording is running or a recording timer is still "
+	  "to come, and keeps retrying on its own until nothing is pending, rather than fully "
+	  "powering off straight away. Once it does power off, the connection this request arrived on is "
 	  "dropped and nothing further is answered on it. Unlike standby, shutdown is not reversed "
 	  "by a request to this interface: the box has to be switched on again at the box itself, "
-	  "or by whatever external power control it has.\n\n"
+	  "by a timer that is due to wake it, or by whatever external power control it has.\n\n"
 	  "**Side effects:** live playback and every daemon on the box stop once the box actually "
 	  "powers off.\n\n"
 	  "**Related:** `POST /api/v1/system/reboot`, `POST /api/v1/system/standby`.",
@@ -881,14 +886,13 @@ const Endpoint kSystemEndpoints[] = {
 	  "asks the box to start its own program again without restarting the box", "Asks the box "
 	  "to start its own application again without rebooting the Linux system underneath it. "
 	  "`202` means the request has reached the box's own event loop, not that the restart has "
-	  "happened. If a recording is running, the box first shows a confirmation on its own "
-	  "screen; unless that is answered there, the restart does not happen and this server "
-	  "keeps running, even though the answer already said `202`. When the restart does go "
+	  "happened. If a recording is running, the box refuses the restart with a message on its "
+	  "own screen, and this server keeps running, even though the answer already said `202`. "
+	  "When the restart does go "
 	  "ahead, the connection this request arrived on, and every other connection this server "
 	  "holds, is dropped as the program ends, and this server is unreachable until the new "
 	  "process has come up. A client should retry `GET /api/v1/system/info` after a pause.\n\n"
-	  "**Side effects:** live playback stops and is set up again from scratch; a recording "
-	  "that is allowed to proceed past the confirmation above is stopped as well.\n\n"
+	  "**Side effects:** live playback stops and is set up again from scratch.\n\n"
 	  "**Related:** `POST /api/v1/system/reboot`.",
 	  NULL, 0, NULL, &restart, false,
 	  Answers202, HTTPD_NO_REFUSALS },

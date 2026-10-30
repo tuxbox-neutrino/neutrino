@@ -223,9 +223,11 @@ const Endpoint kTunerEndpoints[] = {
 	  "values are not percentages: divide `strength` or `snr` by `full_scale` to "
 	  "get one.\n\n"
 	  "**Refusals:**\n"
-	  "- `501 no-tuner`: no tuner is currently feeding the live picture, either "
-	  "because the box plays a stream or a recording instead, or because the "
-	  "tuner itself could not be read.",
+	  "- `409 no-tuner`: no tuner is currently feeding the live picture, "
+	  "because the box is in neither TV nor radio mode: it is in standby, plays "
+	  "a stream or a recording, or uses another source such as the AV input.\n"
+	  "- `501 no-tuner`: no tuner is assigned to the live picture, because the "
+	  "box has no tuner it could open.",
 	  NULL, 0, &kSignalSchema, &liveSignal, false,
 	  Answers200, HTTPD_REFUSALS(kLiveSignalRefusals) },
 	{ Method::Get, "/api/v1/tuner/frontends", AuthLevel::Read,
@@ -255,7 +257,8 @@ const Endpoint kTunerEndpoints[] = {
 	{ Method::Post, "/api/v1/tuner/reset", AuthLevel::System,
 	  "puts the tuners down and up again and tunes the running channel afresh, for a picture that has gone while the box carried on",
 	  "Puts the channel daemon into standby and immediately out of it again, "
-	  "which closes and reopens every frontend, then tunes the channel that was "
+	  "which closes and reopens every frontend unless one of them is held, by a "
+	  "recording for example, then tunes the channel that was "
 	  "last playing once more. `204` means the channel daemon accepted the "
 	  "retune; it does not mean the picture is back, which is what "
 	  "`GET /api/v1/tuner/signal` says.\n\n"
@@ -267,7 +270,7 @@ const Endpoint kTunerEndpoints[] = {
 	  "channel daemon's own standby and not only the tuner this client happens "
 	  "to be watching.\n\n"
 	  "**Refusals:**\n"
-	  "- `500 tuner-not-reset`: the channel daemon did not confirm the retune.\n\n"
+	  "- `500 tuner-not-reset`: the retune could not be sent to the channel daemon.\n\n"
 	  "**Related:** `GET /api/v1/tuner/signal`.",
 	  NULL, 0, NULL, &resetTuner, false,
 	  Answers204, HTTPD_REFUSALS(kResetTunerRefusals) },

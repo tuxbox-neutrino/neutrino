@@ -382,7 +382,7 @@ const FieldDesc kSharesFields[] = {
 const Schema kSharesSchema = { "shares", HTTPD_FIELDS(kSharesFields) };
 
 const FieldDesc kShareOutcomeFields[] = {
-	HTTPD_MEMBER("slot", FieldType::UInt, "the slot that was mounted"),
+	HTTPD_MEMBER("slot", FieldType::UInt, "the slot that was to be mounted"),
 	HTTPD_MEMBER("mounted", FieldType::Bool, "whether it was mounted"),
 	HTTPD_MEMBER("code", FieldType::String, "why not, as the refusal of mounting that slot alone would name it; empty where it was mounted"),
 	HTTPD_MEMBER("detail", FieldType::String, "the same, as a sentence; empty where it was mounted"),

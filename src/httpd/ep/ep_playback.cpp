@@ -52,7 +52,7 @@ const Schema kChannelRefSchema = { "playback-channel", HTTPD_FIELDS(kChannelRefF
 
 const FieldDesc kRecordingRefFields[] = {
 	HTTPD_MEMBER("id", FieldType::String, "the recording, as GET /api/v1/recordings/archive names it"),
-	HTTPD_MEMBER("title", FieldType::String, "the programme's title, empty when its metadata names none"),
+	HTTPD_MEMBER("title", FieldType::String, "the programme's title, or the name the player shows for the file where its metadata names none"),
 	HTTPD_MEMBER("channel", FieldType::String, "the channel it was recorded from, empty when unknown"),
 };
 const Schema kRecordingRefSchema = { "playback-recording", HTTPD_FIELDS(kRecordingRefFields) };
@@ -70,7 +70,7 @@ const FieldDesc kPlaybackFields[] = {
 	HTTPD_OBJECT_OPTIONAL("recording", &kRecordingRefSchema, "the recording, only for source recording"),
 	HTTPD_OBJECT_OPTIONAL("file", &kFileRefSchema, "the file, only for source file"),
 	HTTPD_MEMBER_OPTIONAL("position", FieldType::Int, "seconds played, only for a recording or a file"),
-	HTTPD_MEMBER_OPTIONAL("duration", FieldType::Int, "seconds in all, 0 when the player does not know, only for a recording or a file"),
+	HTTPD_MEMBER_OPTIONAL("duration", FieldType::Int, "seconds in all, 0 when neither the player nor, for a recording, the archive knows, only for a recording or a file"),
 	HTTPD_MEMBER_OPTIONAL("paused", FieldType::Bool, "whether the player stands still, only for a recording or a file"),
 	HTTPD_MEMBER_AS_WRITTEN("state", FieldType::String, true,
 		"how the player moves, only for a recording or a file: playing at normal speed, paused, winding forward "
@@ -240,7 +240,8 @@ const Endpoint kPlaybackEndpoints[] = {
 	  "`recording` for a finished recording of the archive the movie player plays; `file` for any other "
 	  "file or stream it plays; `none` in standby or with no channel at all. A recording or file carries "
 	  "where the player stands: `position` and `duration` in seconds as the player last read them, about "
-	  "once a second, `paused` and `state`; `returns_to` names the channel the box goes back to when the "
+	  "once a second (for a recording the archive's `duration` where the player reads none), `paused` and "
+	  "`state`; `returns_to` names the channel the box goes back to when the "
 	  "playback ends. While a recording or file plays, `GET /api/v1/channels/current` answers "
 	  "`404 no-running-channel`.\n\n"
 	  "**Refusals:**\n"

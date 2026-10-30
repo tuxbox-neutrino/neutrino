@@ -1493,7 +1493,7 @@ const Endpoint kSettingsEndpoints[] = {
 	  "leaves behind, or the entry the value names is offered only while other settings allow it, "
 	  "or one half of a pair was sent without the other, together with a value that contradicts "
 	  "it, or beside a partner that was refused; `depends_on` and `detail` name the other "
-	  "settings, in a single refusal as in a `207`.\n"
+	  "settings, in a single refusal as in a `207`, except for an entry's own conditions.\n"
 	  "- `500 channel-list-unavailable`: the id of a start channel was sent alone and the channel list "
 	  "could not be read to name it.\n"
 	  "\n"

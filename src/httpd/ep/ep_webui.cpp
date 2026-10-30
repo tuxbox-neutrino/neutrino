@@ -48,7 +48,8 @@ const Schema kPairSchema = { "webui-setting", HTTPD_FIELDS(kPairFields) };
 
 const FieldDesc kWebuiFields[] = {
 	HTTPD_LIST_OF("items", &kPairSchema,
-		"every key the file holds that is read back, by name, and empty for a box that never wrote it"),
+		"every key the file holds that is read back, by name, and the keys the interface ships a value for "
+		"where nobody set them"),
 	HTTPD_LIST_OF_VALUES("withheld", ElementType::String,
 		"the keys the file holds whose values are not read back: passwords, PINs, tokens and keys to "
 		"a service; written like any other"),
@@ -479,8 +480,8 @@ const RouteRefusal kRemoveRefusals[] = {
 const Endpoint kWebuiEndpoints[] = {
 	{ Method::Get, "/api/v1/webui/settings", AuthLevel::Read,
 	  "what the web interface keeps of its own beside the box's settings",
-	  "Reads the web interface's own settings file: the start page, the box's name and colour as "
-	  "the pages show them, the devices it wakes over the network, which extensions it shows and "
+	  "Reads the web interface's own settings file: the start page, the box's name and colour, "
+	  "the devices it wakes over the network, which extensions it shows and "
 	  "where, and what an extension keeps for itself, in `webui.conf`; a key nobody set is answered "
 	  "with the value the interface ships with. These are not the box's settings, which "
 	  "`/api/v1/settings` reads and writes. A key whose name says it holds a password, a PIN, a "
@@ -493,16 +494,13 @@ const Endpoint kWebuiEndpoints[] = {
 	  "Writes the keys the body names into the web interface's own settings file, in one write of "
 	  "the whole file, and answers it as `GET` does. A key left out keeps its value; an empty value "
 	  "takes the key out, which the pages read the same as a key that is not there. Every key and "
-	  "value is checked before anything is written, so a refused request leaves the file as it was. "
-	  "System, because the old pages read one of these keys, `management_ip`, as who may reach "
-	  "their management menus.\n\n"
+	  "value is checked before anything is written, so a refused request leaves the file as it was.\n\n"
 	  "**Refusals:**\n"
 	  "- `400 bad-name`: a key is not a letter followed by up to 299 letters, digits, "
 	  "underscores, dots and dashes.\n"
 	  "- `400 bad-string`: the body is not one flat object, or a value carries a control byte; "
-	  "`{=` or `=}`, which the template engine of the old pages reads as its own; one of "
-	  "`< > \" ' `` ` `` or a backslash, which the old pages carry into their markup and scripts as "
-	  "they are; or `#`, which the file reads as the start of a comment.\n"
+	  "`{=` or `=}`; one of `< > \" ' `` ` `` or a backslash; or `#`, which the file reads as the "
+	  "start of a comment.\n"
 	  "- `400 duplicate-parameter`: the body names one key twice.\n"
 	  "- `400 missing-parameter`: the body names no key.\n"
 	  "- `400 value-too-long`: a value is longer than 512 bytes.\n"
@@ -519,7 +517,7 @@ const Endpoint kWebuiEndpoints[] = {
 	  "names that it holds. "
 	  "Which of them the pages show, and where, is in `GET /api/v1/webui/settings` "
 	  "(`ext_<dir>_enabled`, `ext_<dir>_slot`), and where those say nothing, in the "
-	  "manifest's `default`.\n\n"
+	  "manifest's `default` and `slot`.\n\n"
 	  "**Related:** `POST /api/v1/webui/extensions`, `DELETE /api/v1/webui/extensions/{dir}`.",
 	  NULL, 0, &kExtensionsSchema, &listExtensions, false,
 	  Answers200, HTTPD_NO_REFUSALS },
@@ -610,7 +608,7 @@ const Endpoint kWebuiEndpoints[] = {
 	  "**Refusals:**\n"
 	  "- `400 bad-name`: no extension or script can carry that name.\n"
 	  "- `400 bad-string`: the body is not one array of up to 32 strings, or an argument is longer "
-	  "than 1024 bytes.\n"
+	  "than 1024 bytes; one longer than 4096 bytes is refused before that, as `400 value-too-long`.\n"
 	  "- `400 leading-dash`: an argument begins with a dash, which the script would read as an "
 	  "option.\n"
 	  "- `400 value-has-zero-byte`: an argument carries a zero byte.\n"
@@ -637,7 +635,7 @@ const Endpoint kWebuiEndpoints[] = {
 	{ Method::Put, "/api/v1/webui/language", AuthLevel::System,
 	  "shows the pages in another language, answering the languages as GET does",
 	  "Writes the language to show the pages in, by its code, into the server's own file and has "
-	  "the server read that file again, so the old pages' texts change with it; the pages read "
+	  "the server read that file again; the pages read "
 	  "their texts when they load. System, because it writes the server's own file.\n\n"
 	  "**Refusals:**\n"
 	  "- `400 not-a-listed-value`: the pages cannot be shown in that language; `GET` names the ones "
