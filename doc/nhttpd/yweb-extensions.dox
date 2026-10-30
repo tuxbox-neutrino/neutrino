@@ -100,8 +100,9 @@ nach /tmp hoch (`PUT`/`PATCH /api/v1/storage/file`):
 - Was installiert ist, nennt `GET /api/v1/webui/extensions`.
 
 Index und Update-Check nur auf Knopfdruck (kein Auto-Fetch externer
-URLs). Default-URL des Index ist der Raw-Link des Meta-Repos
-`tuxbox-neutrino/yweb-extensions`; ueberschreibbar per webui.conf-Key
+URLs). Default-URL des Index ist der Raw-Link des Index-Repos
+`tuxbox-neutrino/neutrino-webui-ext` (Standardzweig per `HEAD`);
+ueberschreibbar per webui.conf-Key
 `ext_index_url`, die Signatur liegt daneben als `<url>.sig`.
 
 \section ywebext_tarball tar.gz-Vertrag
@@ -141,7 +142,7 @@ tar -czf <ordner>.tar.gz -C /tmp/stage <ordner>
 \code{.json}
 {"format": 1, "extensions": [
   {"id": "m3u-converter", "name": "m3u Converter", "version": "1.0.0",
-   "url": "https://github.com/tuxbox-neutrino/yweb-extension-m3u-converter/releases/download/v1.0.0/m3u-converter.tar.gz",
+   "url": "https://github.com/tuxbox-neutrino/neutrino-webui-ext-m3u-converter/releases/download/v1.0.0/m3u-converter.tar.gz",
    "sha256": "<64 Hex-Ziffern>", "description": "..."}
 ]}
 \endcode
@@ -162,14 +163,15 @@ openssl pkeyutl -sign -rawin -inkey index-key.pem -in index.json | base64 -w0 > 
 
 \section ywebext_repos Repo-Vorlage und Versionierung
 
-Offizielle Erweiterungen bekommen je ein eigenes Repo. Die bisherigen
+Offizielle Erweiterungen haben je ein eigenes Repo
+`github.com/tuxbox-neutrino/neutrino-webui-ext-<name>`. Die bisherigen
 `github.com/tuxbox-neutrino/yweb-extension-<name>` (installer,
 m3u-converter, camds, infoicons, hallo-yweb) samt Meta-Repo
 `yweb-extensions` gehören zum alten Skript-Vertrag und laufen mit dieser
 Version nicht. Repo-Layout:
 
 \code{.unparsed}
-yweb-extension-<name>/
+neutrino-webui-ext-<name>/
 ├── manifest.json            (kanonische Version)
 ├── <entry>.html             (entfaellt bei settings-only)
 ├── languages/en.json + de.json
@@ -298,7 +300,8 @@ fetches nothing, the browser loads index and archives and uploads them to
 
 Index and update check only on the user's asking (no automatic external
 fetches). The index's default URL is the raw link of the
-`tuxbox-neutrino/yweb-extensions` meta repo; overridable via the webui.conf
+`tuxbox-neutrino/neutrino-webui-ext` index repo (its default branch
+through `HEAD`); overridable via the webui.conf
 key `ext_index_url`, its signature beside it as `<url>.sig`.
 
 \section ywebext_en_tarball tar.gz contract
@@ -338,7 +341,7 @@ tar -czf <folder>.tar.gz -C /tmp/stage <folder>
 \code{.json}
 {"format": 1, "extensions": [
   {"id": "m3u-converter", "name": "m3u Converter", "version": "1.0.0",
-   "url": "https://github.com/tuxbox-neutrino/yweb-extension-m3u-converter/releases/download/v1.0.0/m3u-converter.tar.gz",
+   "url": "https://github.com/tuxbox-neutrino/neutrino-webui-ext-m3u-converter/releases/download/v1.0.0/m3u-converter.tar.gz",
    "sha256": "<64 hex digits>", "description": "..."}
 ]}
 \endcode
@@ -359,14 +362,15 @@ openssl pkeyutl -sign -rawin -inkey index-key.pem -in index.json | base64 -w0 > 
 
 \section ywebext_en_repos Repo template and versioning
 
-Official extensions each get a repo of their own. The earlier
+Official extensions each have a repo of their own,
+`github.com/tuxbox-neutrino/neutrino-webui-ext-<name>`. The earlier
 `github.com/tuxbox-neutrino/yweb-extension-<name>` (installer,
 m3u-converter, camds, infoicons, hallo-yweb) and the `yweb-extensions`
 meta repo belong to the old script contract and do not work with this
 version. Repo layout:
 
 \code{.unparsed}
-yweb-extension-<name>/
+neutrino-webui-ext-<name>/
 ├── manifest.json            (canonical version)
 ├── <entry>.html             (omitted for settings-only)
 ├── languages/en.json + de.json

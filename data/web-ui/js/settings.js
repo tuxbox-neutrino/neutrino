@@ -808,7 +808,7 @@ async function extUploadAndInstall(blob, originalName, fromIndex, dir) {
 
 // update check and index are explicit user actions (no automatic calls to
 // external URLs); index URL overridable via webui key ext_index_url
-var EXT_INDEX_DEFAULT = 'https://raw.githubusercontent.com/tuxbox-neutrino/yweb-extensions/master/index.json';
+var EXT_INDEX_DEFAULT = 'https://raw.githubusercontent.com/tuxbox-neutrino/neutrino-webui-ext/HEAD/index.json';
 
 // The index as the browser loaded it (a Blob, its bytes untouched), its
 // signature beside it, and what the box read from it once the signature

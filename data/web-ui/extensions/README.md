@@ -263,7 +263,7 @@ anything):
 ### The signed index
 
 The index lives at `ext_index_url` in `webui.conf` (default: the
-`tuxbox-neutrino/yweb-extensions` repository), its signature beside it
+`tuxbox-neutrino/neutrino-webui-ext` repository), its signature beside it
 as `<index-url>.sig`; both have to let a web page read them (GitHub
 raw files do).
 
@@ -345,9 +345,10 @@ tar -czf <folder>.tar.gz -C /tmp/stage <folder>
 
 ## Official extensions
 
-The official extensions are being rebuilt against `/api/v1`; each
-will get a versioned repository of its own and an entry in an update
-index the manager reads. The earlier repositories
+Each official extension has a versioned repository of its own,
+`github.com/tuxbox-neutrino/neutrino-webui-ext-<name>`, and an entry
+in the update index the manager reads, `tuxbox-neutrino/neutrino-webui-ext`.
+The earlier repositories
 `github.com/tuxbox-neutrino/yweb-extension-<name>` (installer,
 m3u-converter, camds, infoicons, hallo-yweb) and their index
 `yweb-extensions` were written for the old script contract; their

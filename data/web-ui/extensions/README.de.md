@@ -269,7 +269,7 @@ herunter):
 ### Der signierte Index
 
 Der Index liegt unter `ext_index_url` in `webui.conf` (Default: das
-Repository `tuxbox-neutrino/yweb-extensions`), seine Signatur daneben
+Repository `tuxbox-neutrino/neutrino-webui-ext`), seine Signatur daneben
 als `<index-url>.sig`; beide müssen das Lesen aus einer Webseite
 erlauben (Raw-Dateien auf GitHub tun das).
 
@@ -357,9 +357,10 @@ tar -czf <ordner>.tar.gz -C /tmp/stage <ordner>
 
 ## Offizielle Erweiterungen
 
-Die offiziellen Erweiterungen werden gegen `/api/v1` neu gebaut; jede
-bekommt ein eigenes versioniertes Repository und einen Eintrag in einem
-Update-Index, den die Verwaltung liest. Die bisherigen Repositories
+Jede offizielle Erweiterung hat ein eigenes versioniertes Repository,
+`github.com/tuxbox-neutrino/neutrino-webui-ext-<name>`, und einen Eintrag
+im Update-Index, den die Verwaltung liest, `tuxbox-neutrino/neutrino-webui-ext`.
+Die bisherigen Repositories
 `github.com/tuxbox-neutrino/yweb-extension-<name>` (installer,
 m3u-converter, camds, infoicons, hallo-yweb) samt ihrem Index
 `yweb-extensions` gehören zum alten Skript-Vertrag; ihre Erweiterungen
