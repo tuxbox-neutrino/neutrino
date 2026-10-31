@@ -42,7 +42,7 @@ for f in "$STRIP" "$BLANK"; do
 	[ -r "$f" ] || { echo "check-exception-boundary.sh: cannot read $f" >&2; exit 1; }
 done
 
-ALLOWED='httpd::compat::knowName httpd::compat::record httpd::setBoundPortFromBridge httpd::boundPort httpd::scheduleReloadAndRestart httpd::saveServerFile CApiBridge::routesOk CApiBridge::registerPrefixes CApiBridge::startEvents CApiBridge::stopEvents'
+ALLOWED='httpd::compat::knowName httpd::compat::record httpd::setBoundPortFromBridge httpd::boundPort httpd::scheduleReloadAndRestart httpd::saveServerFile CApiBridge::routesOk CApiBridge::registerPrefixes CApiBridge::startStreams CApiBridge::stopStreams'
 
 # name, file that defines it; each of these opens with try
 GUARDED='knowName src/httpd/stubs/legacy_usage.cpp
@@ -51,8 +51,8 @@ scheduleReloadAndRestart src/httpd/stubs/server_nhttpd.cpp
 reloadRunner src/httpd/stubs/server_nhttpd.cpp
 saveServerFile src/httpd/webconfig.cpp
 CApiBridge::routesOk src/httpd/nhttpd_bridge.cpp
-CApiBridge::startEvents src/httpd/nhttpd_bridge.cpp
-CApiBridge::stopEvents src/httpd/nhttpd_bridge.cpp
+CApiBridge::startStreams src/httpd/nhttpd_bridge.cpp
+CApiBridge::stopStreams src/httpd/nhttpd_bridge.cpp
 CApiBridge::Hook_SendResponse src/httpd/nhttpd_bridge.cpp
 CApiBridge::Hook_SendStream src/httpd/nhttpd_bridge.cpp'
 

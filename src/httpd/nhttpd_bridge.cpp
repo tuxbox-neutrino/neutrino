@@ -248,10 +248,11 @@ bool CApiBridge::routesOk(std::string *why)
 	}
 }
 
-void CApiBridge::startEvents()
+void CApiBridge::startStreams()
 {
 	try
 	{
+		httpd::carry::endStop();
 		httpd::events::start();
 	}
 	catch (...)
@@ -262,15 +263,27 @@ void CApiBridge::startEvents()
 	}
 }
 
-void CApiBridge::stopEvents()
+void CApiBridge::stopStreams()
 {
 	try
 	{
-		httpd::events::stop();
+		// first, so nothing new is admitted while the rest stops, and every
+		// carried answer starts ending while the event streams are waited for
+		httpd::carry::beginStop();
+		try
+		{
+			httpd::events::stop();
+		}
+		catch (...)
+		{
+			std::fprintf(stderr, "httpd: the event stream did not stop cleanly\n");
+		}
+		// bounded, unlike the wait above: a carried answer holds no hook
+		httpd::carry::waitIdle(httpd::carry::stopBoundMs());
 	}
 	catch (...)
 	{
-		std::fprintf(stderr, "httpd: the event stream did not stop cleanly\n");
+		std::fprintf(stderr, "httpd: the carried answers did not stop cleanly\n");
 	}
 }
 

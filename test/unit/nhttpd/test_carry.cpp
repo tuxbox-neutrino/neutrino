@@ -19,6 +19,7 @@
 
 #include "httpd/carry.h"
 #include "httpd/endpoint.h"
+#include "httpd/events.h"
 #include "httpd/http.h"
 #include "httpd/nhttpd_bridge.h"
 #include "httpd/router.h"
@@ -395,6 +396,7 @@ struct Carriers
 		carry::setKillerForTest(NULL);
 		carry::setCloseProbeForTest(NULL);
 		carry::setSendTimeoutMsForTest(0);
+		carry::setStopBoundMsForTest(0);
 		carry::failThreadStartForTest(false);
 		carry::failJobAllocationForTest(false);
 		carry::endStop();
@@ -759,7 +761,7 @@ TEST_CASE("a far end that stops reading ends the answer at the send limit", "[ca
 	CHECK(probe().finished == 1);
 }
 
-TEST_CASE("a stop ends every carried answer", "[carry]")
+TEST_CASE("a server stop ends every carried answer and every event stream", "[carry]")
 {
 	Carriers c;
 	Front front;
@@ -768,15 +770,79 @@ TEST_CASE("a stop ends every carried answer", "[carry]")
 
 	WireStream a(serving.port, request("GET", kCarriedPath).c_str());
 	WireStream b(serving.port, request("GET", kCarriedPath).c_str());
+	WireStream events_open(serving.port);
 	REQUIRE(a.ok());
 	REQUIRE(b.ok());
+	REQUIRE(events_open.ok());
 	REQUIRE(carry::running() == 2);
+	REQUIRE(events::openStreams() == 1);
 
-	carry::beginStop();
-	CHECK(carry::waitIdle(2000));
+	const int64_t asked = wireNowMs();
+	CApiBridge::stopStreams();
+	// both ended on the stop, well inside the bound
+	CHECK(wireNowMs() - asked < (int64_t) carry::stopBoundMs());
+	CHECK(carry::running() == 0);
+	CHECK(events::openStreams() == 0);
 	CHECK(a.closedWithin(2000));
 	CHECK(b.closedWithin(2000));
-	carry::endStop();
+	CHECK(events_open.closedWithin(2000));
+
+	// closed to new ones until the server starts again
+	{
+		WireStream refused(serving.port, request("GET", kCarriedPath).c_str());
+		REQUIRE(refused.ok());
+		CHECK(refused.code() == 503);
+		CHECK(refused.readToEof(2000).find("server-stopping") != std::string::npos);
+	}
+	CApiBridge::startStreams();
+	{
+		WireStream again(serving.port, request("GET", kCarriedPath).c_str());
+		REQUIRE(again.ok());
+		CHECK(again.code() == 200);
+	}
+	CHECK(waitForRunning(0, 2000) == 0);
+}
+
+TEST_CASE("a server stop waits for a stuck carried answer only up to its bound", "[carry]")
+{
+	Carriers c;
+	CHECK(carry::stopBoundMs() == 5000);
+	carry::setStopBoundMsForTest(300);
+
+	Pair old_job(fetchAnswer("block"));
+	REQUIRE(old_job.outcome == carry::Carrying);
+	REQUIRE(waitForCount(probe().started, 1, 2000));
+
+	const int64_t asked = wireNowMs();
+	CApiBridge::stopStreams();
+	const int64_t took = wireNowMs() - asked;
+	CHECK(took >= 250);
+	CHECK(took < 3000);
+	CHECK(carry::running() == 1);
+
+	// the server comes back while the stuck one still holds its seat
+	CApiBridge::startStreams();
+	Pair new_job(fetchAnswer("idle"));
+	REQUIRE(new_job.outcome == carry::Carrying);
+	CHECK(new_job.read(1000).find(" 200 ") != std::string::npos);
+	CHECK(carry::seatsTaken(carry::Fetch) == 2);
+
+	// it ends late, still cancelled, and what it writes then goes nowhere
+	probe().release = true;
+	REQUIRE(waitForRunning(1, 2000) == 1);
+	CHECK(probe().finished == 1);
+	CHECK(probe().saw_cancelled.load());
+	bool eof = false;
+	CHECK(old_job.read(500, &eof).empty());
+	CHECK(eof);
+	CHECK(new_job.read(300).empty());
+
+	close(new_job.far_end);
+	new_job.far_end = -1;
+	CHECK(waitForRunning(0, 2000) == 0);
+	CHECK(carry::seatsTaken(carry::Fetch) == 0);
+	// the event streams startStreams() brought up go down again
+	CApiBridge::stopStreams();
 }
 
 TEST_CASE("a kind nothing carries is refused with 501, for a GET and a HEAD", "[carry]")

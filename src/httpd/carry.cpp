@@ -92,6 +92,7 @@ const char *const kRetryAfter[kKinds] = { "5", "15" };
 const size_t kJobStack = 512 * 1024;
 
 const unsigned kSendTimeoutDefaultMs = 30000;
+const unsigned kStopBoundDefaultMs = 5000;
 
 /* The register. On the heap and never freed: a job that outlives the stop
    that cancelled it (a fetch stuck in a name lookup, say) still leaves it at
@@ -139,6 +140,7 @@ std::atomic<Writer>     writer_(NULL);
 std::atomic<Killer>     killer_(NULL);
 std::atomic<CloseProbe> close_probe_(NULL);
 std::atomic<unsigned>   send_timeout_ms_(kSendTimeoutDefaultMs);
+std::atomic<unsigned>   stop_bound_ms_(kStopBoundDefaultMs);
 std::atomic<bool>       fail_thread_start_(false);
 std::atomic<bool>       fail_job_allocation_(false);
 std::atomic<size_t>     held_answers_(0);
@@ -824,6 +826,11 @@ unsigned sendTimeoutMs()
 	return send_timeout_ms_.load();
 }
 
+unsigned stopBoundMs()
+{
+	return stop_bound_ms_.load();
+}
+
 void drainForTest()
 {
 	while (!waitIdle(5000))
@@ -854,6 +861,11 @@ void setCloseProbeForTest(CloseProbe p)
 void setSendTimeoutMsForTest(unsigned ms)
 {
 	send_timeout_ms_ = (ms == 0) ? kSendTimeoutDefaultMs : ms;
+}
+
+void setStopBoundMsForTest(unsigned ms)
+{
+	stop_bound_ms_ = (ms == 0) ? kStopBoundDefaultMs : ms;
 }
 
 void failThreadStartForTest(bool fail)

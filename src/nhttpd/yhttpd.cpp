@@ -270,10 +270,12 @@ void Cyhttpd::version(FILE *dest) {
 void Cyhttpd::stop_webserver() {
 	aprintf("stop requested......\n");
 	if (webserver) {
-		// before the hooks go: every open stream is closed and waited for,
-		// so no connection thread is inside the bridge when it is deleted
+		// before the hooks go: every open event stream is closed and waited
+		// for, so no connection thread is inside the bridge when it is
+		// deleted; every carried answer is ended and waited for up to a
+		// bound, its thread being nobody's connection thread
 		if (api_bridge)
-			CApiBridge::stopEvents();
+			CApiBridge::stopStreams();
 		webserver->stop();
 		/* And every other connection thread as well: the hooks below and the
 		   server after them are deleted, and a request still being served
@@ -309,7 +311,7 @@ void Cyhttpd::hooks_attach() {
 			CyhookHandler::attach(api_bridge);
 			// after the attach, so no stream can open before the hook that
 			// carries it exists; refuses streams itself if its thread fails
-			CApiBridge::startEvents();
+			CApiBridge::startStreams();
 		} else {
 			api_bridge = NULL;
 			aprintf("yhttpd: the REST layer is not attached: %s\n", why.c_str());

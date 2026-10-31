@@ -104,7 +104,7 @@ WireServer::WireServer(unsigned max_streams, unsigned beat_ms, Mode m, Cyhook *f
 	if (front != NULL)
 		CyhookHandler::attach(front);
 	CyhookHandler::attach(&bridge);
-	events::start();
+	CApiBridge::startStreams();
 	events::setHeartbeatMs(beat_ms);
 
 	int lfd = socket(AF_INET, SOCK_STREAM, 0);
@@ -161,13 +161,12 @@ void *WireServer::acceptLoop(void *arg)
 
 WireServer::~WireServer()
 {
-	/* The order the shutdown contract states: every carried answer is told to
+	/* The order the server's own stop has: every carried answer is told to
 	   end and every stream is closed and waited out first, so no connection
 	   thread is inside the bridge or the events module when they go; then the
 	   acceptor; then every worker is joined, because the hooks and the config
 	   below must outlive the last HandleConnection. */
-	carry::beginStop();
-	events::stop();
+	CApiBridge::stopStreams();
 	// registerPrefixes installed the first-login gate, which the other cases do not expect
 	httpd::setPasswordOwed(NULL);
 	::shutdown(listener->get_socket(), SHUT_RDWR);
@@ -199,9 +198,7 @@ WireServer::~WireServer()
 	events::setHeartbeatMs(kShippedHeartbeatMs);
 	events::setPendingCeiling(kShippedCeiling);
 	CWebserver::is_threading = threading_was;
-	// a carried answer a case left running ends here, and the next case finds
-	// the door open as a fresh process does
-	carry::waitIdle(5000);
+	// the next case finds the door open, as a fresh process does
 	carry::endStop();
 }
 

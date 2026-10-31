@@ -181,6 +181,13 @@ size_t seatsOf(Kind k);
 // How long a write may wait for a far end that takes nothing.
 unsigned sendTimeoutMs();
 
+/* How long a server stop waits for its carried answers: five seconds. A job
+   still running then is stuck where no cancellation reaches it (a name
+   lookup, say) and ends on its own later; until then it holds its seat, and
+   it touches nothing of the server's, only its own answer and descriptor and
+   the register, which lives as long as the process. */
+unsigned stopBoundMs();
+
 // ---- seams for the suite; nothing in the product sets them
 
 // Waits for every job to end, however long it takes, saying so now and then.
@@ -213,6 +220,8 @@ typedef void (*CloseProbe)(int fd);
 void setCloseProbeForTest(CloseProbe p);
 
 void setSendTimeoutMsForTest(unsigned ms);
+// 0 puts the shipped bound back.
+void setStopBoundMsForTest(unsigned ms);
 // The next thread start fails, and the next job allocation throws.
 void failThreadStartForTest(bool fail);
 void failJobAllocationForTest(bool fail);

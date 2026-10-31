@@ -73,10 +73,16 @@ public:
 	// The prefixes this hook answers, told to the core so the request reader
 	// treats them as API targets.
 	static void registerPrefixes();
-	// The event stream's start and stop for the server that carries it, each
-	// behind the exception barrier every entry from nhttpd has.
-	static void startEvents();
-	static void stopEvents();
+	/* Everything this hook keeps running beside the requests - the event
+	   streams and the carried answers - started with the server and ended
+	   with it, each behind the exception barrier every entry from nhttpd
+	   has. startStreams opens the door to carried answers again; a job an
+	   earlier stop ended stays ended. stopStreams closes it, cancels every
+	   carried answer, stops the event streams and waits for them as long as
+	   it takes, and waits for the carried answers up to carry::stopBoundMs():
+	   they run on threads of their own and touch no hook. */
+	static void startStreams();
+	static void stopStreams();
 	// Whether this request is one of ours, on the decoded url.
 	static bool claims(const CyhookHandler *hh);
 	// Response into the hook handler: status, headers, body; a file as its
