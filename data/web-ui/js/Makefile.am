@@ -1,9 +1,11 @@
 installdir = $(PRIVATE_HTTPDDIR)/js
 
 install_DATA = \
+	LICENSE-Apache-2.0.txt \
 	bouquets.js \
 	dashboard.js \
 	epg.js \
+	hls.min.js \
 	index.js \
 	login.js \
 	password.js \

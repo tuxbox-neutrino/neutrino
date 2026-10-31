@@ -150,6 +150,7 @@
 	"about.license": "License & copyright",
 	"about.based_on": "based on Neutrino-Web-UI %s",
 	"about.mit": "MIT License",
+	"about.apache": "Apache License 2.0",
 	"about.homepage": "Homepage",
 	"about.docs": "Documentation",
 	"about.forum": "Forum",
