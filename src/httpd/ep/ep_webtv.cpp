@@ -440,12 +440,12 @@ const RouteRefusal kWebtvPartRefusals[] = {
 		"the server this channel is played from answered 404"),
 };
 
-/* Read and not public, which is the level the addresses of a stream are handed
-   out at beside this. What these answer is a channel of this box, and a box on
-   a network where a read costs nothing is a box whose channel list is already
-   readable. */
+/* Write and not read. Each of these has the box fetch from a far server, on a
+   seat of its own and over the box's own line, for whoever asks; so they answer
+   a session, or a token of the owner's that may write, and never a reader from
+   the home network who presents nothing. */
 const Endpoint kWebtvEndpoints[] = {
-	{ Method::Get, "/api/v1/webtv/{id}/playlist.m3u8", AuthLevel::Read,
+	{ Method::Get, "/api/v1/webtv/{id}/playlist.m3u8", AuthLevel::Write,
 	  "one channel's playlist, with every address in it answered by this box",
 	  "Fetches the HLS playlist of a web channel (one whose address is a URL and "
 	  "not a tuner) and hands it back with every address inside it, segments, keys, "
@@ -478,7 +478,7 @@ const Endpoint kWebtvEndpoints[] = {
 	  "**Related:** `GET /api/v1/webtv/{id}/stream`, `GET /api/v1/webtv/{id}/part/{token}`.",
 	  HTTPD_PARAMS(kChannelParams), NULL, &webtvPlaylist, false,
 	  Answers200, HTTPD_REFUSALS(kWebtvPlaylistRefusals) },
-	{ Method::Get, "/api/v1/webtv/{id}/stream", AuthLevel::Read,
+	{ Method::Get, "/api/v1/webtv/{id}/stream", AuthLevel::Write,
 	  "one channel's stream, fetched by this box and passed on as it arrives",
 	  "Opens a web channel's address itself, for a channel that is a stream "
 	  "rather than a playlist, and relays the bytes as they arrive, holding the "
@@ -501,7 +501,7 @@ const Endpoint kWebtvEndpoints[] = {
 	  "**Related:** `GET /api/v1/webtv/{id}/playlist.m3u8`.",
 	  HTTPD_PARAMS(kChannelParams), NULL, &webtvStream, false,
 	  Answers200, HTTPD_REFUSALS(kWebtvStreamRefusals) },
-	{ Method::Get, "/api/v1/webtv/{id}/part/{token}", AuthLevel::Read,
+	{ Method::Get, "/api/v1/webtv/{id}/part/{token}", AuthLevel::Write,
 	  "one address out of a playlist this box read, fetched and passed on",
 	  "Fetches the address a `GET /api/v1/webtv/{id}/playlist.m3u8` call minted "
 	  "`token` for, segment, key, map or nested playlist, and relays it, rewriting "

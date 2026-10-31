@@ -26,6 +26,7 @@
 #include "httpd/auth.h"
 #include "httpd/carry.h"
 #include "httpd/credentials.h"
+#include "httpd/endpoints.h"
 #include "httpd/hlsrewrite.h"
 #include "httpd/netmatch.h"
 #include "httpd/nhttpd_bridge.h"
@@ -634,6 +635,8 @@ struct WebBox
 		carry::waitIdle(5000);
 		carry::setCarrier(carry::Fetch, NULL);
 		carry::setStopBoundMsForTest(0);
+		setSessionClockForTest(0);
+		setConfigForTest(defaultWebConfig());
 		webtv::setRefusedNetworksForTest(NULL);
 		webtv::setOpenDelayMsForTest(0);
 		webtv::setPartLifetimeMsForTest(0);
@@ -1995,4 +1998,119 @@ TEST_CASE("a nested playlist a player keeps reading stays past the lifetime", "[
 	}
 	CHECK(far.timesAsked() == 4);
 	CHECK(runningAfter(0, 2000) == 0);
+}
+
+// ================================================================ who may ask
+
+namespace
+{
+
+// A request with the headers given and no credential of the case's own.
+std::string askAs(const char *method, const std::string &path, const std::string &headers)
+{
+	return std::string(method) + " " + path + " HTTP/1.0\r\nHost: box\r\n" + headers + "\r\n";
+}
+
+std::string bearer(const std::string &token)
+{
+	return "Authorization: Bearer " + token + "\r\n";
+}
+
+} // namespace
+
+TEST_CASE("the routes answer a session or a token that may write, and no reader",
+          "[webtv][wire][auth]")
+{
+	WebBox box;
+	FarServer far;
+	REQUIRE(far.start());
+	const std::vector<NetPrefix> only_docs = onlyDocumentationRange();
+	webtv::setRefusedNetworksForTest(&only_docs);
+	far.first = httpReply("application/vnd.apple.mpegurl", "#EXTM3U\n#EXTINF:4,\nseg1.ts\n");
+	const std::string id = box.addWebChannel(0x1234, far.url("/master.m3u8"));
+	const std::string part = partPath(0x1234, far.url("/seg1.ts"), hls::UriKind::Segment);
+
+	// this machine reads as the home network does, without presenting anything
+	WebConfig c = defaultWebConfig();
+	NetPrefix here;
+	REQUIRE(parsePrefix("127.0.0.0/8", &here));
+	c.lan_read.push_back(here);
+	setConfigForTest(c);
+	WireStream lan(box.port(), "GET /api/v1/system/legacy-usage HTTP/1.0\r\nHost: box\r\n\r\n");
+	REQUIRE(lan.ok());
+	REQUIRE(lan.code() == 200);
+
+	const std::string reader = "1111111111111111aaaaaaaaaaaaaaaa";
+	const std::string owner = "2222222222222222bbbbbbbbbbbbbbbb";
+	addApiToken(tokenLookupPrefix(reader), hashSecret(reader), AuthLevel::Read, "", 0);
+	addApiToken(tokenLookupPrefix(owner), hashSecret(owner), AuthLevel::System, "", 0);
+	const std::string media = openScopedToken(mediaScopeName(), AuthLevel::System);
+	REQUIRE(!media.empty());
+
+	// both sessions open at one moment; the second is asked after the lifetime
+	const time_t t0 = 1800000000;
+	setSessionClockForTest(t0);
+	const std::string session = openSession("root");
+	REQUIRE(!session.empty());
+	const std::string cookie = "Cookie: " + std::string(sessionCookieName()) + "=" + session + "\r\n";
+
+	struct Who
+	{
+		const char *name;
+		std::string headers;
+		std::string query;
+		bool through;
+	};
+	const Who who[] = {
+		{ "the home network alone", "", "", false },
+		{ "a token that may read", bearer(reader), "", false },
+		{ "a token that may write", bearer(kToken), "", true },
+		{ "a token of the system", bearer(owner), "", true },
+		{ "a token scoped to media", bearer(media), "", false },
+		{ "a session", cookie, "", true },
+		{ "a scoped token in the address", "", "?token=" + media, false },
+		{ "a standing token in the address", "", "?token=" + std::string(kToken), false },
+	};
+	const std::string paths[] = { playlistPath(id), streamPath(id), part };
+	const char *const methods[] = { "GET", "HEAD" };
+	for (size_t w = 0; w < sizeof(who) / sizeof(who[0]); ++w)
+	{
+		for (size_t p = 0; p < 3; ++p)
+		{
+			for (size_t m = 0; m < 2; ++m)
+			{
+				INFO(who[w].name << ": " << methods[m] << " " << paths[p]);
+				WireStream r(box.port(),
+				             askAs(methods[m], paths[p] + who[w].query, who[w].headers).c_str());
+				REQUIRE(r.ok());
+				const std::string body = r.readToEof(5000);
+				if (who[w].through)
+				{
+					CHECK(r.code() == 200);
+				}
+				else
+				{
+					CHECK(r.code() == 403);
+					if (methods[m][0] == 'G')
+						CHECK(problemCode(body) == "not-permitted");
+				}
+			}
+		}
+	}
+
+	// a session that has run out is nothing
+	setSessionClockForTest(t0 + (time_t) c.session_lifetime_s + 60);
+	for (size_t p = 0; p < 3; ++p)
+	{
+		for (size_t m = 0; m < 2; ++m)
+		{
+			INFO("a session that ran out: " << methods[m] << " " << paths[p]);
+			WireStream r(box.port(), askAs(methods[m], paths[p], cookie).c_str());
+			REQUIRE(r.ok());
+			r.readToEof(5000);
+			CHECK(r.code() == 403);
+		}
+	}
+	setConfigForTest(defaultWebConfig());
+	CHECK(runningAfter(0, 3000) == 0);
 }
