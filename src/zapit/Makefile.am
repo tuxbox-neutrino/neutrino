@@ -25,6 +25,7 @@ libzapit_a_SOURCES = \
 	channel.cpp \
 	fbc.cpp \
 	femanager.cpp \
+	fesearch.cpp \
 	frontend.cpp \
 	getservices.cpp \
 	pat.cpp \

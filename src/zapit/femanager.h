@@ -149,6 +149,19 @@ class CFEManager
 
 		CFrontend *	allocateFE(CZapitChannel * channel, bool forrecord = false);
 
+		/* The frontend a stream of channel may take: one nobody uses and
+		   whose number is not in held, found the way getFrontend walks the
+		   frontends but never one that is busy (fesearch.h). With bind, the
+		   channel's record and stream demux become the frontend's and the
+		   demux reads from it; with no_same_fe the frontend carries the
+		   channel, and with lock it is locked. For fixed demux numbers only. */
+		CFrontend *	pickIdleForStream(CZapitChannel * channel, const std::vector<int> &held,
+					  bool bind, bool lock, bool no_same_fe);
+		/* The picture's frontend for a stream of the live channel: the
+		   channel's stream demux reads from it again - a PiP that ended
+		   leaves its source as it was - and with lock it is locked. */
+		void		holdLiveForStream(CFrontend * live, CZapitChannel * channel, bool lock);
+
 		fe_mode_t	getMode() { return mode; };
 
 		CFrontend *	getFrontend(CZapitChannel * channel);

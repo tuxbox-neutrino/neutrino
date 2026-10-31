@@ -32,6 +32,7 @@
 #include <math.h>
 #include <string.h>
 #include <ctype.h>
+#include <algorithm>
 #include <set>
 
 #include "debug.h"
@@ -41,6 +42,7 @@
 #include "client/zapittools.h"
 #include "femanager.h"
 #include "fbc.h"
+#include "fesearch.h"
 #include "capmt.h"
 #include <hardware/dmx.h>
 #include <OpenThreads/ScopedLock>
@@ -1046,6 +1048,8 @@ bool CFEManager::loopCanTune(CFrontend * fe, CZapitChannel * channel)
 	return false;
 }
 
+/* pickIdleForStream walks the frontends the same way, through
+   fesearch::pickIdle; a change to this walk has to be made there too. */
 CFrontend * CFEManager::getFrontend(CZapitChannel * channel)
 {
 	CFrontend * retfe = NULL;
@@ -1270,6 +1274,97 @@ CFrontend * CFEManager::allocateFE(CZapitChannel * channel, bool forrecord)
 
 	}
 	return frontend;
+}
+
+CFrontend * CFEManager::pickIdleForStream(CZapitChannel * channel, const std::vector<int> &held,
+					  bool bind, bool lock, bool no_same_fe)
+{
+	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
+
+	/* One view per frontend, in the order of the map, so the walk visits
+	   them as getFrontend does; a master lists the views of its links. */
+	std::vector<CFrontend *> fes;
+	std::map<CFrontend *, int> index;
+	for (fe_map_iterator_t it = femap.begin(); it != femap.end(); it++) {
+		index[it->second] = (int) fes.size();
+		fes.push_back(it->second);
+	}
+
+	const t_satellite_position pos = channel->getSatellitePosition();
+	std::vector<fesearch::FeView> views(fes.size());
+	for (size_t i = 0; i < fes.size(); i++) {
+		CFrontend * fe = fes[i];
+		fesearch::FeView &v = views[i];
+		const int femode = fe->getMode();
+
+		v.number = fe->fenumber;
+		if (femode == CFrontend::FE_MODE_MASTER)
+			v.mode = fesearch::FeView::Master;
+		else if (femode == CFrontend::FE_MODE_INDEPENDENT)
+			v.mode = fesearch::FeView::Independent;
+		else
+			v.mode = fesearch::FeView::Other;
+
+		v.usable = v.mode != fesearch::FeView::Other &&
+			   fe->supportsDelivery(channel->delsys) &&
+			   !(fe->isHybrid() && fe->forcedDelivery(channel->delsys));
+		if (v.usable && fe->hasSat() && !SAT_POSITION_CABLE(pos) && !SAT_POSITION_TERR(pos)) {
+			satellite_map_t & satmap = fe->getSatellites();
+			sat_iterator_t sit = satmap.find(pos);
+			v.usable = (sit != satmap.end()) && sit->second.configured;
+		}
+
+		v.locked = fe->Locked() || std::find(held.begin(), held.end(), fe->fenumber) != held.end();
+		v.same_pos = fe->getCurrentSatellitePosition() == pos;
+		v.loop_can_tune = loopCanTune(fe, channel);
+		v.is_twin = femode == CFrontend::FE_MODE_LINK_TWIN;
+		v.have_loop = fe->have_loop;
+		v.have_rotor = fe->have_rotor;
+		if (v.mode == fesearch::FeView::Master) {
+			for (unsigned int k = 0; k < fe->linkmap.size(); k++) {
+				std::map<CFrontend *, int>::const_iterator li = index.find(fe->linkmap[k]);
+				if (li != index.end())
+					v.links.push_back(li->second);
+			}
+		}
+	}
+
+	const int got = fesearch::pickIdle(views);
+	if (got < 0)
+		return NULL;
+	CFrontend * frontend = fes[got];
+	if (!bind)
+		return frontend;
+
+	const fesearch::Binding b = fesearch::binding(frontend->fenumber);
+	channel->setRecordDemux(b.demux);
+	channel->setStreamDemux(b.demux);
+#if HAVE_CST_HARDWARE
+	if(femap.size() > 1)
+#endif
+		cDemux::SetSource(b.demux, b.source);
+	if (no_same_fe)
+		frontend->setChannelID(channel->getChannelID());
+	if (lock)
+		lockFrontend(frontend);
+	return frontend;
+}
+
+void CFEManager::holdLiveForStream(CFrontend * live, CZapitChannel * channel, bool lock)
+{
+	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
+#ifndef DYNAMIC_DEMUX
+	const fesearch::Binding b = fesearch::binding(live->fenumber);
+	channel->setStreamDemux(b.demux);
+#if HAVE_CST_HARDWARE
+	if(femap.size() > 1)
+#endif
+		cDemux::SetSource(b.demux, b.source);
+#else
+	(void) channel;
+#endif
+	if (lock)
+		lockFrontend(live);
 }
 
 void CFEManager::setLiveFE(CFrontend * fe)

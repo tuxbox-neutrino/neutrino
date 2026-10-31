@@ -63,6 +63,7 @@ coreapi_tests_SOURCES = \
 	zapit/test_bouquetname.cpp \
 	zapit/test_zapitclient_getpids.cpp \
 	zapit/test_zapitclient_bouquetwrite.cpp \
+	zapit/test_fesearch.cpp \
 	system/test_atomicfile.cpp \
 	system/test_atomicfile_link.cpp \
 	system/test_getpidof.cpp \
@@ -157,6 +158,8 @@ coreapi_tests_SOURCES = \
 # otherwise be undefined symbols at the end of the line.
 # The xml library is named because the compatibility layer escapes a value with
 # the tree's own converter, and that converter shares an object with the parser.
+# fesearch.o is the frontend search a stream gets, plain code without a tuner,
+# linked so the cases drive the object the program runs.
 # The zapit client archive is what getPIDS lives in, so the case that pins what it
 # does with a daemon that answers short drives that code and not a copy; it needs
 # the connection library after it.
@@ -172,6 +175,7 @@ coreapi_tests_LDADD = \
 	$(top_builddir)/src/system/debug.o \
 	$(top_builddir)/lib/jsoncpp/libjsoncpp.a \
 	$(top_builddir)/src/zapit/channel.o \
+	$(top_builddir)/src/zapit/fesearch.o \
 	$(top_builddir)/src/zapit/client/libzapitclient.a \
 	$(top_builddir)/src/driver/rcinput.o \
 	$(top_builddir)/src/driver/abstime.o \
