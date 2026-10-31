@@ -210,6 +210,11 @@ class CZapit : public OpenThreads::Thread
 		unsigned int ZapTo(const unsigned int pchannel);
 		void PrepareScan();
 
+		/* Holds or probes a frontend for a stream (CMD_STREAM_HOLD,
+		   CMD_STREAM_PROBE), on this thread. */
+		class StreamHoldOps;
+		void HoldForStream(int connfd, bool probe);
+
 		//CZapitSdtMonitor SdtMonitor;
 
 		void run();

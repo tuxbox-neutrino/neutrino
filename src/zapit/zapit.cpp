@@ -57,6 +57,9 @@
 
 #include "satconfig.h"
 #include "femanager.h"
+#include "streamadmission.h"
+#include "streamhold.h"
+#include "streamholdcmd.h"
 
 #if HAVE_CST_HARDWARE
 #include <record_cs.h>
@@ -1154,6 +1157,173 @@ bool CZapit::ZapForRecord(const t_channel_id channel_id)
 	return true;
 }
 
+/* On these boxes a stream locks its frontend, so a recording sees it as busy
+   and does not retune it; elsewhere the stream's hold is the register's
+   alone. */
+#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
+static const bool kHoldLocksFrontend = true;
+#else
+static const bool kHoldLocksFrontend = false;
+#endif
+
+/* What the register calls for a hold that ended. */
+static void releaseStreamFrontend(void *fe)
+{
+	if (kHoldLocksFrontend && fe)
+		CFEManager::getInstance()->unlockFrontend(static_cast<CFrontend *>(fe));
+}
+
+static void collectStreamHolds()
+{
+	streamhold::collect(streamhold::nowMs(), &releaseStreamFrontend);
+}
+
+class CZapit::StreamHoldOps : public streamholdcmd::Ops
+{
+	public:
+		StreamHoldOps(CZapit &z, int fd) : zapit(z), connfd(fd), channel_obj(NULL) {}
+
+		void collect() { collectStreamHolds(); }
+		bool serving() { return zapit.started; }
+		int64_t nowMs() { return CZapitMessages::streamHoldClockMs(); }
+
+		streamholdcmd::Kind channel(uint64_t id)
+		{
+			channel_obj = CServiceManager::getInstance()->FindChannel(id);
+			if (channel_obj == NULL)
+				return streamholdcmd::NoChannel;
+			if (IS_WEBCHAN(id))
+				return streamholdcmd::WebChannel;
+			return streamholdcmd::Broadcast;
+		}
+
+		bool roomForHold() { return streamhold::canOffer(); }
+
+		void lockFrontends() { CFEManager::getInstance()->Lock(); }
+		void unlockFrontends() { CFEManager::getInstance()->Unlock(); }
+
+		void facts(streamadmission::Facts &f)
+		{
+#if ENABLE_QUADPIP
+			f.variant = streamadmission::QuadPip;
+#elif defined(DYNAMIC_DEMUX)
+			f.variant = streamadmission::DynamicDemux;
+#elif HAVE_CST_HARDWARE
+			f.variant = streamadmission::Cst;
+#else
+			f.variant = streamadmission::Plain;
+#endif
+			f.standby = zapit.standby;
+			f.live_channel = zapit.live_channel_id;
+			f.live_dvb = zapit.live_channel_id != 0 && !IS_WEBCHAN(zapit.live_channel_id);
+			f.live_tuned = zapit.live_fe != NULL && zapit.live_fe->tuned;
+			f.live_fe = zapit.live_fe ? zapit.live_fe->getNumber() : -1;
+#if ENABLE_PIP
+			int slots = g_info.hw_caps->pip_devs;
+			if (slots > streamadmission::kMaxSlots)
+				slots = streamadmission::kMaxSlots;
+			f.slots = slots < 0 ? 0 : slots;
+			for (int i = 0; i < f.slots; ++i) {
+				f.slot[i].active = zapit.pip_fe[i] != NULL;
+				f.slot[i].channel = zapit.pip_channel_id[i];
+				f.slot[i].fe = zapit.pip_fe[i] ? zapit.pip_fe[i]->getNumber() : -1;
+			}
+#if !HAVE_CST_HARDWARE && !HAVE_GENERIC_HARDWARE
+			f.avinput_pip = CNeutrinoApp::getInstance()->avinput_pip;
+#endif
+#endif
+		}
+
+		void heldByStreams(std::vector<int> &out)
+		{
+			void *fes[16];
+			const size_t n = streamhold::held(fes, sizeof(fes) / sizeof(fes[0]));
+			for (size_t i = 0; i < n; ++i)
+				if (fes[i])
+					out.push_back(static_cast<CFrontend *>(fes[i])->getNumber());
+		}
+
+		void *holdLive(bool lock)
+		{
+			CFEManager::getInstance()->holdLiveForStream(zapit.live_fe, channel_obj, lock);
+			return zapit.live_fe;
+		}
+
+		void openFrontends() { CFEManager::getInstance()->Open(); }
+
+		void *pickIdle(const std::vector<int> &held, bool bind, bool lock)
+		{
+			return CFEManager::getInstance()->pickIdleForStream(channel_obj, held, bind, lock,
+									     zapit.config.noSameFE);
+		}
+
+		int number(void *fe) { return static_cast<CFrontend *>(fe)->getNumber(); }
+
+		/* As a recording tunes, with the retries a Unicable line needs, but
+		   on the frontend that was chosen and without an event: the picture
+		   did not change. */
+		bool tune(void *p)
+		{
+			CFrontend *fe = static_cast<CFrontend *>(p);
+#ifdef ENABLE_TESTING
+			/* Widens the window between the binding and the tuning, so a
+			   test on a box can start a recording or a zap in it. */
+			const char *delay = getenv("STREAMHOLD_TEST_TUNE_DELAY_MS");
+			if (delay && *delay)
+				usleep((useconds_t) strtoul(delay, NULL, 10) * 1000);
+#endif
+			int retry = std::max(zapit.config.feRetries, (fe->getDiseqcType() == DISEQC_UNICABLE) * 2);
+			bool transponder_change;
+			for (;;) {
+				if (zapit.TuneChannel(fe, channel_obj, transponder_change, false) &&
+				    zapit.ParsePatPmt(channel_obj))
+					return true;
+				if (retry < 1)
+					return false;
+				printf("[zapit] %s: unicable retry tuning %d\n", __func__, retry);
+				fe->tuned = false;
+				retry--;
+			}
+		}
+
+		void unlockFrontend(void *fe)
+		{
+			CFEManager::getInstance()->unlockFrontend(static_cast<CFrontend *>(fe));
+		}
+
+		uint32_t offer(void *fe) { return streamhold::offer(fe, streamhold::nowMs()); }
+		void drop(uint32_t id) { streamhold::drop(id); }
+
+		bool answer(const streamholdcmd::Reply &r)
+		{
+			CZapitClient::responseStreamHold msg;
+			msg.verdict = r.verdict;
+			msg.hold_id = r.hold_id;
+			msg.fenumber = r.fenumber;
+			return CBasicServer::send_data(connfd, &msg, sizeof(msg));
+		}
+
+	private:
+		CZapit &zapit;
+		int connfd;
+		CZapitChannel *channel_obj;
+};
+
+/* The body is read before any lock is taken: a client that is slow to send it
+   must not keep the frontends locked. */
+void CZapit::HoldForStream(int connfd, bool probe)
+{
+	CZapitMessages::commandStreamHold msg;
+	if (!CBasicServer::receive_data(connfd, &msg, sizeof(msg)))
+		return;
+
+	StreamHoldOps ops(*this, connfd);
+	const streamholdcmd::Reply r = streamholdcmd::run(ops, msg.channel_id, msg.deadline_ms,
+							  probe, kHoldLocksFrontend);
+	INFO("stream %s %" PRIx64 ": verdict %d hold %u fe %d", probe ? "probe" : "hold",
+	     msg.channel_id, r.verdict, r.hold_id, r.fenumber);
+}
+
 bool CZapit::ZapForEpg(const t_channel_id channel_id, bool instandby)
 {
 	CZapitChannel* newchannel;
@@ -1656,6 +1826,11 @@ bool CZapit::ParseCommand(CBasicMessage::Header &rmsg, int connfd)
 		SendEvent(CZapitClient::EVT_BACK_ZAP_COMPLETE, &msg.channel_id, sizeof(t_channel_id));
 		break;
 	}
+	case CZapitMessages::CMD_STREAM_HOLD:
+	case CZapitMessages::CMD_STREAM_PROBE:
+		HoldForStream(connfd, rmsg.cmd == CZapitMessages::CMD_STREAM_PROBE);
+		break;
+
 	case CZapitMessages::CMD_ZAPTO_SERVICEID_NOWAIT:
 	case CZapitMessages::CMD_ZAPTO_SUBSERVICEID_NOWAIT: {
 		CZapitMessages::commandZaptoServiceID msgZaptoServiceID;
@@ -3178,6 +3353,9 @@ void CZapit::run()
 	SdtMonitor.Start();
 	while (started && zapit_server.run(zapit_parse_command, CZapitMessages::ACTVERSION, true))
 	{
+		/* Streams that ended since the last command give their frontends
+		   back here, between two commands. */
+		collectStreamHolds();
 		if (pmt_update_fd != -1) {
 			unsigned char buf[4096];
 			int ret = pmtDemux->Read(buf, 4095, 10);
@@ -3239,6 +3417,10 @@ void CZapit::run()
 		/* yuck, don't waste that much cpu time :) */
 		usleep(0);
 	}
+
+	/* Every hold still entered gives its frontend back before the frontend
+	   manager goes; a stream that drops its number later finds nothing. */
+	streamhold::shutdown(&releaseStreamFrontend);
 
 	SaveChannelPids(current_channel);
 	SaveSettings(true);

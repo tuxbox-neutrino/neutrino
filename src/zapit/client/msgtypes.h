@@ -23,6 +23,8 @@
 #define __msgtypes_h__
 
 
+#include <time.h>
+
 #include <connection/basicmessage.h>
 #include "zapitclient.h"
 
@@ -151,7 +153,9 @@ class CZapitMessages
 			CMD_GET_VIDEO_FORMAT	   = 113,
 			CMD_STOP_PIP			   = 114,
 			CMD_ZAPTO_EPG			   = 115,
-			CMD_LOCKRC				   = 116
+			CMD_LOCKRC				   = 116,
+			CMD_STREAM_HOLD			   = 117,
+			CMD_STREAM_PROBE		   = 118
 		};
 
 	struct commandBoolean
@@ -342,6 +346,25 @@ class CZapitMessages
 	{
 		t_channel_id channel_id;
 		responseGetCurrentServiceID():channel_id(0){}
+	};
+
+	/* The clock a stream hold's deadline is on: CLOCK_MONOTONIC in
+	   milliseconds, read the same way by the client and by zapit, which
+	   run in one process. */
+	static int64_t streamHoldClockMs()
+	{
+		struct timespec ts;
+		if (clock_gettime(CLOCK_MONOTONIC, &ts) != 0)
+			return 0;
+		return (int64_t) ts.tv_sec * 1000 + ts.tv_nsec / 1000000;
+	}
+
+	/* A stream asks for a frontend until deadline_ms on that clock. */
+	struct commandStreamHold
+	{
+		t_channel_id channel_id;
+		int64_t      deadline_ms;
+		commandStreamHold() : channel_id(0), deadline_ms(0) {}
 	};
 
 	struct responseZapComplete

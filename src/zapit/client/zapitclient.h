@@ -281,6 +281,32 @@ class CZapitClient:public CBasicClient
 	/* zaps to channel  */
 	void zapTo(const unsigned int channel);
 
+	/* What zapit answers a stream that asks for a frontend. verdict is
+	   0 when granted, 1 when no frontend may be had without changing what
+	   the box shows, 2 for a channel that needs none or does not exist, 3
+	   when zapit stops, the time ran out or the frontend did not tune.
+	   hold_id is the number the stream adopts its hold under, fenumber
+	   the frontend. */
+	struct responseStreamHold
+	{
+		int32_t  verdict;
+		uint32_t hold_id;
+		int32_t  fenumber;
+		responseStreamHold() : verdict(3), hold_id(0), fenumber(-1) {}
+	};
+
+	/* Has zapit hold a frontend for a stream of channel_id, giving it
+	   budget_ms from now to have it tuned. False when no whole answer
+	   came; reply is then a failure without a hold. A Deadline on the
+	   calling thread bounds the exchange itself. */
+	bool holdForStream(const t_channel_id channel_id, unsigned budget_ms, responseStreamHold &reply);
+	/* Whether a stream of channel_id would get a frontend now, without
+	   holding one. */
+	bool probeStream(const t_channel_id channel_id, responseStreamHold &reply);
+ private:
+	bool streamHoldAnswer(bool sent, responseStreamHold &reply);
+ public:
+
 	/* zaps to channel, returns the "zap-status" */
 	unsigned int zapTo_serviceID(const t_channel_id channel_id);
 	unsigned int zapTo_record(const t_channel_id channel_id);

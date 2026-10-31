@@ -161,6 +161,43 @@ void CZapitClient::setAudioChannel(const unsigned int channel)
 	close_connection();
 }
 
+/* The answer is taken only whole: a short or missing one leaves reply a
+   failure without a hold rather than half of an answer. */
+bool CZapitClient::streamHoldAnswer(bool sent, responseStreamHold &reply)
+{
+	reply = responseStreamHold();
+	responseStreamHold got;
+	if (!sent || !CBasicClient::receive_data((char *) &got, sizeof(got)))
+		return false;
+	reply = got;
+	return true;
+}
+
+bool CZapitClient::holdForStream(const t_channel_id channel_id, unsigned budget_ms, responseStreamHold &reply)
+{
+	CZapitMessages::commandStreamHold msg;
+	msg.channel_id = channel_id;
+	msg.deadline_ms = CZapitMessages::streamHoldClockMs() + budget_ms;
+
+	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex);
+	const bool sent = send(CZapitMessages::CMD_STREAM_HOLD, (const char *) &msg, sizeof(msg));
+	const bool ok = streamHoldAnswer(sent, reply);
+	close_connection();
+	return ok;
+}
+
+bool CZapitClient::probeStream(const t_channel_id channel_id, responseStreamHold &reply)
+{
+	CZapitMessages::commandStreamHold msg;
+	msg.channel_id = channel_id;
+
+	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex);
+	const bool sent = send(CZapitMessages::CMD_STREAM_PROBE, (const char *) &msg, sizeof(msg));
+	const bool ok = streamHoldAnswer(sent, reply);
+	close_connection();
+	return ok;
+}
+
 /* zaps to onid_sid, returns the "zap-status" */
 unsigned int CZapitClient::zapTo_serviceID(const t_channel_id channel_id)
 {
