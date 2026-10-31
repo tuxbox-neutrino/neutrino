@@ -2,6 +2,7 @@
  * ep_webtv.cpp - routes that hand a browser a channel played from somewhere else
  *
  * Copyright (C) 2026 NI-Team
+ * Copyright (C) 2026 Tuxbox-Project (carried fetches, refusals)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,6 +21,7 @@
 
 #include "httpd/endpoints.h"
 
+#include "httpd/carry.h"
 #include "httpd/endpoint.h"
 #include "httpd/hlsrewrite.h"
 #include "httpd/http.h"
@@ -85,10 +87,17 @@ std::string partPrefix(coreapi::ChannelId id)
 class PartMinter : public hls::Minter
 {
 	public:
-		PartMinter(coreapi::ChannelId id) : id_(id), prefix_(partPrefix(id)) {}
+		PartMinter(coreapi::ChannelId id, bool nested)
+			: id_(id), prefix_(partPrefix(id)), nested_(nested), too_deep_(false) {}
 
 		bool mint(const std::string &absolute, hls::UriKind kind, std::string &out)
 		{
+			// a playlist read through another one names no further playlist
+			if (nested_ && kind == hls::UriKind::Playlist)
+			{
+				too_deep_ = true;
+				return false;
+			}
 			const std::string token = webtv::mintPart(id_, absolute, kind);
 			if (token.empty())
 				return false;
@@ -96,9 +105,13 @@ class PartMinter : public hls::Minter
 			return true;
 		}
 
+		bool tooDeep() const { return too_deep_; }
+
 	private:
 		coreapi::ChannelId id_;
 		std::string        prefix_;
+		bool               nested_;
+		bool               too_deep_;
 };
 
 Response refusedAddress()
@@ -119,17 +132,23 @@ Response unreachable(const char *why)
    in where the address came from: one takes it off the channel and the other
    out of a playlist this box has already read. What happens to it afterwards
    is the same, and two copies of that would be two answers to what a playlist
-   this box cannot read is. */
-Response playlistFrom(coreapi::ChannelId id, const std::string &url)
+   this box cannot read is.
+
+   Run on the job that carries the answer. Code 0 says the fetch was given up
+   and there is nobody left to answer. nested says the playlist was named by
+   the channel's own one. */
+Response playlistFrom(coreapi::ChannelId id, const std::string &url, bool nested, carry::Job &job)
 {
 	if (!webtv::urlAcceptable(url))
 		return refusedAddress();
 
 	webtv::Document doc;
-	const webtv::Reached got = webtv::fetchBounded(url, kPlaylistCap, doc);
+	const webtv::Reached got = webtv::fetchBounded(url, kPlaylistCap, doc, &job);
 
 	switch (got)
 	{
+		case webtv::Reached::Cancelled:
+			return Response();
 		case webtv::Reached::Refused:
 			return refusedAddress();
 		case webtv::Reached::Unreachable:
@@ -150,10 +169,14 @@ Response playlistFrom(coreapi::ChannelId id, const std::string &url)
 		return unreachable(why);
 	}
 
-	PartMinter minter(id);
+	PartMinter minter(id, nested);
 	std::string body;
 	size_t uris = 0;
 	const hls::Rewritten read = hls::rewrite(doc.body, doc.url, minter, body, uris);
+
+	if (minter.tooDeep())
+		return problemResponse(StatusUnsupportedMedia, coreapi::ErrorCode::PlaylistUnreadable,
+		                       "this playlist names further playlists, deeper than a channel's playlists nest");
 
 	switch (read)
 	{
@@ -192,6 +215,84 @@ Response playlistFrom(coreapi::ChannelId id, const std::string &url)
 	return out;
 }
 
+/* A playlist on the job that carries it: read and rewritten, then answered
+   whole, with its length; a playlist this box cannot read is answered with the
+   refusal that says why, while nothing has been written. */
+void carryPlaylist(carry::Job &job)
+{
+	Response &answer = carry::answerOf(job);
+	const Response out = playlistFrom(answer.relay_channel, answer.relay_url,
+	                                  answer.relay_kind == webtv::RelayNestedPlaylist, job);
+	if (out.code == 0)
+		return;
+	if (out.code != StatusOk)
+	{
+		carry::refuse(job, out);
+		return;
+	}
+	answer.content_type = out.content_type;
+	if (carry::sendHead(job, (int64_t) out.body.size()))
+		carry::sendBody(job, out.body.data(), out.body.size());
+}
+
+/* What a HEAD for one of these is told without anything being fetched: an
+   address this box would not even try is refused as the GET would be. Seats and
+   a server that is stopping are the transport's to say. */
+bool checkFetch(const Response &answer, Response &refusal)
+{
+	if (webtv::urlAcceptable(answer.relay_url))
+		return true;
+	refusal = refusedAddress();
+	return false;
+}
+
+void carryFetch(carry::Job &job)
+{
+	const int kind = carry::answerOf(job).relay_kind;
+	if (kind == webtv::RelayPlaylist || kind == webtv::RelayNestedPlaylist)
+		carryPlaylist(job);
+	else
+		webtv::relay(job);
+}
+
+const carry::Carrier kFetchCarrier = { &checkFetch, &carryFetch };
+
+/* Every answer these routes fetch for is carried: the fetch runs on a job of its
+   own, with one of the transport's seats, and not on the thread that read the
+   request. The carrier is put in place on the way to the first such answer,
+   which is the one moment that is sure to come before the transport asks for
+   it. */
+Response carried(const Response &r)
+{
+	carry::setCarrier(carry::Fetch, &kFetchCarrier);
+	return r;
+}
+
+/* The answer for a playlist of a channel: carried, read and rewritten on its
+   job, with every address in it minted for this channel. nested for one named
+   by the channel's own playlist. */
+Response playlistAnswer(coreapi::ChannelId id, const std::string &url, bool nested)
+{
+	if (!webtv::urlAcceptable(url))
+		return refusedAddress();
+	Response r = webtv::relayOf(url, nested ? webtv::RelayNestedPlaylist : webtv::RelayPlaylist,
+	                            playlistType());
+	r.relay_channel = id;
+	return carried(r);
+}
+
+webtv::RelayKind relayKindOf(hls::UriKind kind)
+{
+	switch (kind)
+	{
+		case hls::UriKind::Playlist: return webtv::RelayNestedPlaylist;
+		case hls::UriKind::Segment:  return webtv::RelaySegment;
+		case hls::UriKind::Map:      return webtv::RelayMap;
+		case hls::UriKind::Key:      return webtv::RelayKey;
+	}
+	return webtv::RelaySegment;
+}
+
 /* The channel, and the address it is played from, or the refusal that says why
    there is none. Answers whether there is an address to go on with. */
 bool addressOf(coreapi::ChannelId id, std::string &url, Response &refusal)
@@ -219,7 +320,7 @@ Response webtvPlaylist(const Request &r)
 	Response refusal;
 	if (!addressOf(id, url, refusal))
 		return refusal;
-	return playlistFrom(id, url);
+	return playlistAnswer(id, url, false);
 }
 
 Response webtvStream(const Request &r)
@@ -231,7 +332,7 @@ Response webtvStream(const Request &r)
 		return refusal;
 	if (!webtv::urlAcceptable(url))
 		return refusedAddress();
-	return webtv::relayOf(url, "application/octet-stream");
+	return carried(webtv::relayOf(url, webtv::RelayStream, "application/octet-stream"));
 }
 
 Response webtvPart(const Request &r)
@@ -254,9 +355,9 @@ Response webtvPart(const Request &r)
 		                       "that name was not minted for this channel");
 
 	if (kind == hls::UriKind::Playlist)
-		return playlistFrom(id, url);
+		return playlistAnswer(id, url, true);
 
-	return webtv::relayOf(url, typeFor(kind));
+	return carried(webtv::relayOf(url, relayKindOf(kind), typeFor(kind)));
 }
 
 const Param kChannelParams[] = {
@@ -280,6 +381,10 @@ const RouteRefusal kWebtvPlaylistRefusals[] = {
 		"this channel is one the box tunes to, not one it plays from an address"),
 	HTTPD_REFUSES_AS(415, NotAPlaylist,
 		"the address this channel names does not answer with a playlist"),
+	HTTPD_REFUSES_AS(415, PlaylistUnreadable,
+		"this playlist addresses stretches of files, which this box does not carry across"),
+	HTTPD_REFUSES_AS(503, TooManyStreams,
+		"the box is already relaying as many streams as it will"),
 	HTTPD_REFUSES_AS(503, UpstreamUnreachable,
 		"the server this channel is played from answered 404"),
 };
@@ -287,15 +392,29 @@ const RouteRefusal kWebtvPlaylistRefusals[] = {
 const RouteRefusal kWebtvStreamRefusals[] = {
 	HTTPD_REFUSES(Denied, AddressRefused,
 		"this channel leads to an address on a network this box does not fetch from"),
+	HTTPD_REFUSES(NotFound, NoSuchChannel,
+		"no channel with that id"),
+	HTTPD_REFUSES(NotFound, NotAWebChannel,
+		"this channel is one the box tunes to, not one it plays from an address"),
 	HTTPD_REFUSES_AS(503, TooManyStreams,
-		"this box is already passing through as many streams as it will"),
+		"the box is already relaying as many streams as it will"),
 	HTTPD_REFUSES_AS(503, UpstreamUnreachable,
 		"the server this channel is played from answered 404"),
 };
 
 const RouteRefusal kWebtvPartRefusals[] = {
+	HTTPD_REFUSES(Denied, AddressRefused,
+		"this channel leads to an address on a network this box does not fetch from"),
 	HTTPD_REFUSES(NotFound, NoSuchPart,
 		"nothing was minted under that name, or what was has aged out"),
+	HTTPD_REFUSES_AS(415, NotAPlaylist,
+		"the address this channel names does not answer with a playlist"),
+	HTTPD_REFUSES_AS(415, PlaylistUnreadable,
+		"this playlist addresses stretches of files, which this box does not carry across"),
+	HTTPD_REFUSES_AS(503, TooManyStreams,
+		"the box is already relaying as many streams as it will"),
+	HTTPD_REFUSES_AS(503, UpstreamUnreachable,
+		"the server this channel is played from answered 404"),
 };
 
 /* Read and not public, which is the level the addresses of a stream are handed
@@ -324,6 +443,10 @@ const Endpoint kWebtvEndpoints[] = {
 	  "plays from an address.\n"
 	  "- `415 not-a-playlist`: the address answered with something other than an "
 	  "HLS playlist; play it with `GET /api/v1/webtv/{id}/stream` instead.\n"
+	  "- `415 playlist-unreadable`: the playlist is longer than this box reads, "
+	  "addresses stretches of files, or carries an address this box cannot resolve.\n"
+	  "- `503 too-many-streams`: the box is already fetching as many playlists and "
+	  "streams as it will; try again after `Retry-After`.\n"
 	  "- `503 upstream-unreachable`: the far server could not be reached or "
 	  "answered outside 200 to 299.\n\n"
 	  "**Related:** `GET /api/v1/webtv/{id}/stream`, `GET /api/v1/webtv/{id}/part/{token}`.",
@@ -342,8 +465,11 @@ const Endpoint kWebtvEndpoints[] = {
 	  "**Refusals:**\n"
 	  "- `403 address-refused`: the channel's address, or one it redirects to, is "
 	  "on a network this box will not fetch from.\n"
-	  "- `503 too-many-streams`: the box is already passing through as many "
-	  "streams as it will.\n"
+	  "- `404 no-such-channel`: no channel has that id.\n"
+	  "- `404 not-a-web-channel`: this channel is one the box tunes to, not one it "
+	  "plays from an address.\n"
+	  "- `503 too-many-streams`: the box is already fetching as many playlists and "
+	  "streams as it will; try again after `Retry-After`.\n"
 	  "- `503 upstream-unreachable`: the far server could not be reached or "
 	  "answered outside 200 to 299.\n\n"
 	  "**Related:** `GET /api/v1/webtv/{id}/playlist.m3u8`.",
@@ -359,9 +485,18 @@ const Endpoint kWebtvEndpoints[] = {
 	  "address of somebody else's choosing. A token is kept for a few minutes "
 	  "after it was minted and then forgotten.\n\n"
 	  "**Refusals:**\n"
+	  "- `403 address-refused`: the address, or one it redirects to, is on a "
+	  "network this box will not fetch from.\n"
 	  "- `404 no-such-part`: nothing was minted under that name, the name was not "
 	  "minted for this channel, or it has aged out; read the playlist again with "
-	  "`GET /api/v1/webtv/{id}/playlist.m3u8` to mint fresh ones.\n\n"
+	  "`GET /api/v1/webtv/{id}/playlist.m3u8` to mint fresh ones.\n"
+	  "- `415 not-a-playlist`, `415 playlist-unreadable`: a nested playlist that "
+	  "is no playlist, one this box cannot read, or one that names further "
+	  "playlists, deeper than a channel's playlists nest.\n"
+	  "- `503 too-many-streams`: the box is already fetching as many playlists and "
+	  "streams as it will; try again after `Retry-After`.\n"
+	  "- `503 upstream-unreachable`: the far server could not be reached or "
+	  "answered outside 200 to 299.\n\n"
 	  "**Related:** `GET /api/v1/webtv/{id}/playlist.m3u8`.",
 	  HTTPD_PARAMS(kPartParams), NULL, &webtvPart, false,
 	  Answers200, HTTPD_REFUSALS(kWebtvPartRefusals) },
@@ -372,5 +507,20 @@ const Endpoint kWebtvEndpoints[] = {
 extern const RouteTable webtvTable = {
 	HTTPD_TABLE("webtv", kWebtvEndpoints)
 };
+
+namespace webtv
+{
+
+bool carriedRoute(const Endpoint &ep)
+{
+	for (size_t i = 0; i < webtvTable.count; ++i)
+	{
+		if (&webtvTable.endpoints[i] == &ep)
+			return true;
+	}
+	return false;
+}
+
+} // namespace webtv
 
 } // namespace httpd

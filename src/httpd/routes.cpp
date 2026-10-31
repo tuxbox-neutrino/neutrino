@@ -23,6 +23,7 @@
 #include "endpoint.h"
 #include "endpoints.h"
 #include "events.h"
+#include "webtv.h"
 #include "doc/openapi.h"
 
 #include <cstddef>
@@ -59,9 +60,8 @@ const RouteTable *installed = NULL;
    The same reasoning rules out a list sized from a count another unit hands over,
    which is why a module states a whole table and not an array and a count. */
 const RouteTable *const kTables[] = {
-	/* On nhttpd, in the source's order, leaving out the two tables that need
-	   the relay transport the source put beneath them: stream and webtv. They
-	   follow with the transport work they need. */
+	/* In the order the document groups them. There is no stream table: nothing
+	   here converts a channel for a browser. */
 	&channelsTable,
 	&epgTable,
 	&settingsTable,
@@ -79,6 +79,7 @@ const RouteTable *const kTables[] = {
 	&tunerTable,
 	&pluginsTable,
 	&configTable,
+	&webtvTable,
 	&recordingsTable,
 	&playbackTable,
 	&openapi::openapiTable,

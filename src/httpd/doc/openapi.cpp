@@ -31,6 +31,7 @@
 #include "openapi.h"
 
 #include "httpd/auth.h"
+#include "httpd/carry.h"
 #include "httpd/endpoint.h"
 #include "httpd/endpoints.h"
 #include "httpd/events.h"
@@ -41,6 +42,7 @@
 #include "httpd/server.h"
 #include "httpd/static.h"
 #include "httpd/status.h"
+#include "httpd/webtv.h"
 
 #include "coreapi/base/version.h"
 
@@ -1768,6 +1770,11 @@ void statedRefusals(const Endpoint &ep, std::vector<StatedRefusal> &out)
 	if (events::isStreamRoute(ep))
 		state(out, StatusServiceUnavailable, coreapi::ErrorCode::TooManyStreams,
 		      events::streamsFullDetail(), "seats");
+	// A carried answer meets a server that stops or restarts between the
+	// route's answer and the job that would carry it.
+	if (webtv::carriedRoute(ep))
+		state(out, StatusServiceUnavailable, coreapi::ErrorCode::ServerStopping,
+		      carry::stoppingDetail(), "stopping");
 }
 
 const char *documentPath()

@@ -96,3 +96,17 @@ void netGetHostname(std::string &);
 void netGetHostname(std::string &) {}
 bool netDefaultRoute(std::string &, std::string &);
 bool netDefaultRoute(std::string &, std::string &) { return false; }
+
+/* The head of a carried answer is written with nhttpd's own writer
+   (carry.cpp), which the routes that carry their answers reach through the
+   tables; the dump carries none. */
+class CyhookHandler
+{
+	public:
+		CyhookHandler();
+		~CyhookHandler();
+		std::string BuildHeader(bool);
+};
+CyhookHandler::CyhookHandler() {}
+CyhookHandler::~CyhookHandler() {}
+std::string CyhookHandler::BuildHeader(bool) { return std::string(); }

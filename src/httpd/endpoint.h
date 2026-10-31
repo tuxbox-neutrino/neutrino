@@ -471,8 +471,14 @@ struct Response
 	   handler reached any other way, which is how every case drives one, is left holding
 	   a response that names what would have been fetched. */
 	std::string relay_url;
+	/* What relay_url is to the page, in the numbering of the module that relays it
+	   (webtv.h), and the channel whose addresses a playlist is rewritten to. Set by
+	   that module beside relay_url and read by the job that carries the answer; 0
+	   for every other answer. */
+	int         relay_kind;
+	uint64_t    relay_channel;
 
-	Response() : code(0), fd(-1), length(0) {}
+	Response() : code(0), fd(-1), length(0), relay_kind(0), relay_channel(0) {}
 };
 
 /* Puts an open file behind a response and states its length from that same

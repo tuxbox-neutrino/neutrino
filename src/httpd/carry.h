@@ -130,7 +130,8 @@ bool cancelled(const Job &j);
 
 /* Waits up to ms for the far end, and answers false once it is gone or the
    job is cancelled: a carrier with nothing to send asks this at least every
-   quarter second, so a peer that left frees its seat at once. */
+   quarter second, so a peer that left frees its seat at once. With 0 it looks
+   once and does not wait. */
 bool waitPeer(Job &j, unsigned ms);
 
 /* The header with the answer's code, type and headers, and length as the
@@ -180,6 +181,9 @@ size_t seatsOf(Kind k);
 
 // How long a write may wait for a far end that takes nothing.
 unsigned sendTimeoutMs();
+
+// What the refusal of a server that is stopping says, for the document.
+const char *stoppingDetail();
 
 /* How long a server stop waits for its carried answers: five seconds. A job
    still running then is stuck where no cancellation reaches it (a name

@@ -53,18 +53,18 @@ listed keys compared against the table	25
 locale names the program has	3089
 memory backed folders tried	1
 options an applier or its notifier branches on	49
-parameters the document describes	186
-refusals the document states against a route	1221
-refusals the routes declare of their own	232
-refusals the shipped routes were seen to give	322
-routes the document describes	131
+parameters the document describes	190
+refusals the document states against a route	1263
+refusals the routes declare of their own	250
+refusals the shipped routes were seen to give	341
+routes the document describes	134
 rows an applier acts on	25
 rows compared against the load and save pass	353
 rows in a section with an applier	222
 rows this build links	361
 rows whose set of values the box decides	3
 rows whose value is not in the settings file	5
-rule refusals the document states	17
+rule refusals the document states	18
 shapes the document files against a route	71
-success codes the document states	141
+success codes the document states	144
 text rules compared against a screen	44

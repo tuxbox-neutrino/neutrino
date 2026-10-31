@@ -310,7 +310,7 @@ Response refusalFor(Reason why, Kind k)
 			                       "this server does not carry an answer of this kind");
 		case Stopping:
 			return problemResponse(StatusServiceUnavailable, coreapi::ErrorCode::ServerStopping,
-			                       "the server is stopping and starts no new stream");
+			                       stoppingDetail());
 		case Admit:
 		case SeatsTaken:
 		case NoResources:
@@ -676,9 +676,9 @@ bool waitPeer(Job &j, unsigned ms)
 	{
 		if (j.stopped.load())
 			return false;
-		const int64_t left = until - monotonicMs();
-		if (left <= 0)
-			return true;
+		int64_t left = until - monotonicMs();
+		if (left < 0)
+			left = 0;
 		struct pollfd p;
 		p.fd = j.fd;
 		/* The half close and not POLLIN: a peer that sends more after its
@@ -695,6 +695,8 @@ bool waitPeer(Job &j, unsigned ms)
 		}
 		if (ready > 0 && (p.revents & (POLLRDHUP | POLLHUP | POLLERR | POLLNVAL)) != 0)
 			return false;
+		if (left == 0)
+			return true;
 	}
 }
 
@@ -824,6 +826,11 @@ size_t seatsOf(Kind k)
 unsigned sendTimeoutMs()
 {
 	return send_timeout_ms_.load();
+}
+
+const char *stoppingDetail()
+{
+	return "the server is stopping and starts no new stream";
 }
 
 unsigned stopBoundMs()

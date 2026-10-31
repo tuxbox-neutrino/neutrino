@@ -2,6 +2,7 @@
  * webtv.cpp - fetching a channel's stream off a far server and passing it on
  *
  * Copyright (C) 2026 NI-Team
+ * Copyright (C) 2026 Tuxbox-Project (carried fetches)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,6 +27,8 @@
 
 #include "coreapi/base/errors.h"
 
+#include <atomic>
+#include <cerrno>
 #include <cstddef>
 #include <cstdio>
 #include <cstring>
@@ -42,10 +45,8 @@
 
 #include <curl/curl.h>
 
-#include <OpenThreads/Condition>
 #include <OpenThreads/Mutex>
 #include <OpenThreads/ScopedLock>
-
 
 namespace httpd
 {
@@ -93,19 +94,6 @@ const char *const kRefused[] =
 	"ff00::/8"
 };
 
-/* What one write to the library carries. A segment arrives in tens of
-   kilobytes at a time, so this is the buffer the library keeps per pass
-   through and not a rate. */
-const size_t kBlockSize = 32u * 1024u;
-
-/* The most one pass through holds for a browser that is not reading it yet.
-
-   This is what makes the fetch and the sending one speed rather than two: past it the
-   thread doing the fetching waits, the far server's window closes, and the box stops
-   pulling bytes it has nowhere to put. Without it a browser that paused would leave
-   this box downloading a live stream into memory for as long as the stream runs. */
-const size_t kPendingCeiling = 256u * 1024u;
-
 // How long to wait for a name and a connection. Past this the far server is
 // not answering, and a channel that takes longer than this to start is a
 // channel that has not started.
@@ -136,19 +124,19 @@ const size_t   kPartCeiling    = 2048;
 // Two bytes of text each, and long enough that nothing guesses one.
 const size_t kTokenBytes = 16;
 
-const size_t   kRelayCeilingDefault  = 6;
-const unsigned kHeaderWaitDefaultMs  = 2000;
+/* How often a fetch made for a browser looks whether that browser is still
+   there. Each look is a poll of its connection; a fetch is given up within
+   this, and the library's own pace of asking, after its browser has left,
+   which is what frees its seat for the next. */
+const int64_t kPeerLookMs = 250;
 
 /* Built on first use rather than at namespace scope, so nothing here needs a
    constructor run before main: the linker drops an object out of a convenience archive
    when nothing on the line asked for a symbol it defines, and a unit whose only effect
    is a constructor defines none.
 
-   What is done under it is appending to a string and walking a list as long as the
-   ceiling on pass throughs. Two things besides: the suspend inside the reader, which
-   the library states may be called from there and which has to happen while the
-   emptiness that led to it still holds, and the wait inside the writer, which gives
-   the lock up while it waits. */
+   What is done under it is walking and changing the list of minted parts, and nothing
+   that waits. */
 OpenThreads::Mutex &lock()
 {
 	static OpenThreads::Mutex m;
@@ -173,8 +161,7 @@ std::vector<Part> &parts()
 }
 
 const std::vector<NetPrefix> *refused_override_ = NULL;
-size_t   relay_ceiling_   = kRelayCeilingDefault;
-unsigned header_wait_ms_  = kHeaderWaitDefaultMs;
+std::atomic<unsigned> open_delay_ms_(0);
 
 std::vector<NetPrefix> *buildRefused()
 {
@@ -200,6 +187,16 @@ int64_t monotonicMs()
 	if (clock_gettime(CLOCK_MONOTONIC, &t) != 0)
 		return 0;
 	return (int64_t) t.tv_sec * 1000 + t.tv_nsec / 1000000;
+}
+
+void napMs(unsigned ms)
+{
+	struct timespec t;
+	t.tv_sec = (time_t) (ms / 1000u);
+	t.tv_nsec = (long) (ms % 1000u) * 1000L * 1000L;
+	while (nanosleep(&t, &t) != 0 && errno == EINTR)
+	{
+	}
 }
 
 /* The library's own one time set up, done here and not where the server starts
@@ -255,6 +252,10 @@ bool addressText(const struct curl_sockaddr *a, std::string &out)
 curl_socket_t openSocket(void *cls, curlsocktype purpose, struct curl_sockaddr *address)
 {
 	(void) purpose;
+
+	const unsigned delay = open_delay_ms_.load();
+	if (delay != 0)
+		napMs(delay);
 
 	bool *refused = (bool *) cls;
 	std::string text;
@@ -354,6 +355,259 @@ size_t intoSink(char *ptr, size_t size, size_t nmemb, void *cls)
 	return n;
 }
 
+// ------------------------------------------------------------- the watch
+
+/* Whether a fetch made for a carried answer goes on: not once a stop has
+   cancelled its job, and not once the browser it is for has gone. */
+struct Watch
+{
+	carry::Job *job;
+	int64_t     looked;
+	bool        given_up;
+
+	explicit Watch(carry::Job *j) : job(j), looked(0), given_up(false) {}
+};
+
+/* The library's progress callback, asked at least once a second while a fetch
+   waits and with every block that arrives; answering anything but zero ends the
+   transfer. The browser's connection is looked at no more often than
+   kPeerLookMs. Reached from C on the job's thread and may not throw; nothing in
+   it allocates. */
+int keepGoing(void *cls, curl_off_t dt, curl_off_t dn, curl_off_t ut, curl_off_t un)
+{
+	(void) dt;
+	(void) dn;
+	(void) ut;
+	(void) un;
+
+	Watch *w = (Watch *) cls;
+	if (w == NULL || w->job == NULL)
+		return 0;
+	if (w->given_up)
+		return 1;
+	if (carry::cancelled(*w->job))
+	{
+		w->given_up = true;
+		return 1;
+	}
+	const int64_t now = monotonicMs();
+	if (now - w->looked >= kPeerLookMs)
+	{
+		w->looked = now;
+		if (!carry::waitPeer(*w->job, 0))
+		{
+			w->given_up = true;
+			return 1;
+		}
+	}
+	return 0;
+}
+
+// A handle and the header list it was given, cleaned up on every way out.
+struct Handle
+{
+	CURL              *h;
+	struct curl_slist *ask;
+
+	Handle() : h(curl_easy_init()), ask(NULL) {}
+	~Handle()
+	{
+		if (h != NULL)
+			curl_easy_cleanup(h);
+		if (ask != NULL)
+			curl_slist_free_all(ask);
+	}
+
+private:
+	Handle(const Handle &);
+	Handle &operator=(const Handle &);
+};
+
+// ------------------------------------------------------- the pass through
+
+/* One pass through, on its job's thread and nowhere else, so nothing here
+   needs a lock: the callbacks below run inside curl_easy_perform on that
+   thread. */
+struct Passing
+{
+	carry::Job *job;
+	CURL       *handle;
+	Watch       watch;
+
+	// What the head that counts said: the last one, and never a redirection's.
+	bool        head_seen;
+	long        code;
+	std::string content_type;
+	bool        has_length;
+	uint64_t    length;
+	/* A body in an encoding. The length the far server states is then the
+	   length of the encoded bytes, and the browser is told no encoding, so the
+	   length is not passed on. */
+	bool        encoded;
+
+	// The header went out; from here every failure only ends the connection.
+	bool        sent;
+	// The far server answered outside 200 to 299, and the transfer was ended.
+	bool        turned_away;
+
+	// The kind's ceiling (byteCeilingOf), 0 for none, and what went out so far.
+	uint64_t    ceiling;
+	uint64_t    passed;
+	// More than the ceiling was announced or sent, and the transfer was ended.
+	bool        too_large;
+
+	explicit Passing(carry::Job &j)
+		: job(&j), handle(NULL), watch(&j), head_seen(false), code(0),
+		  has_length(false), length(0), encoded(false), sent(false), turned_away(false),
+		  ceiling(0), passed(0), too_large(false)
+	{
+	}
+};
+
+// The value of a header line when the line is that header, the name compared
+// without case and the value without the space around it.
+bool headerValue(const std::string &line, const char *name, std::string &value)
+{
+	const size_t n = std::strlen(name);
+	if (line.size() <= n || line[n] != ':' || strncasecmp(line.c_str(), name, n) != 0)
+		return false;
+	size_t from = n + 1;
+	size_t to = line.size();
+	while (from < to && (line[from] == ' ' || line[from] == '\t'))
+		++from;
+	while (to > from && (line[to - 1] == '\r' || line[to - 1] == '\n' ||
+	                     line[to - 1] == ' ' || line[to - 1] == '\t'))
+		--to;
+	value = line.substr(from, to - from);
+	return true;
+}
+
+// A length as the far server wrote it: digits and nothing else.
+bool lengthOf(const std::string &value, uint64_t &out)
+{
+	if (value.empty() || value.size() > 19)
+		return false;
+	uint64_t got = 0;
+	for (size_t i = 0; i < value.size(); ++i)
+	{
+		if (value[i] < '0' || value[i] > '9')
+			return false;
+		got = got * 10u + (uint64_t) (value[i] - '0');
+	}
+	out = got;
+	return true;
+}
+
+// The far server's head, a line at a time. Reached from C and may not throw.
+size_t headLine(char *ptr, size_t size, size_t nmemb, void *cls)
+{
+	Passing *p = (Passing *) cls;
+	const size_t n = size * nmemb;
+	if (p == NULL)
+		return 0;
+
+	try
+	{
+		const std::string line(ptr, n);
+		std::string value;
+		if (line.compare(0, 5, "HTTP/") == 0)
+		{
+			// A redirection brings a head of its own after this one, and the
+			// last of them is the answer's.
+			p->head_seen = false;
+			p->content_type.clear();
+			p->has_length = false;
+			p->length = 0;
+			p->encoded = false;
+		}
+		else if (headerValue(line, "Content-Type", value))
+		{
+			p->content_type = value;
+		}
+		else if (headerValue(line, "Content-Length", value))
+		{
+			p->has_length = lengthOf(value, p->length);
+		}
+		else if (headerValue(line, "Content-Encoding", value))
+		{
+			p->encoded = !value.empty() && strcasecmp(value.c_str(), "identity") != 0;
+		}
+		else if (line == "\r\n" || line == "\n")
+		{
+			long code = 0;
+			curl_easy_getinfo(p->handle, CURLINFO_RESPONSE_CODE, &code);
+			// A head that only says where to look instead, or that the answer
+			// is still to come, is not the answer.
+			if (code >= 200 && (code < 300 || code >= 400))
+			{
+				p->code = code;
+				p->head_seen = true;
+			}
+		}
+	}
+	catch (...)
+	{
+		return 0;
+	}
+	return n;
+}
+
+/* The far server's body, a block at a time: the header goes out with the first
+   block, and every block is written before the next is taken, so a browser
+   that reads slowly slows the fetch down rather than filling the box's memory.
+   Answering short ends the transfer. Reached from C and may not throw. */
+size_t bodyBlock(char *ptr, size_t size, size_t nmemb, void *cls)
+{
+	Passing *p = (Passing *) cls;
+	const size_t n = size * nmemb;
+	if (p == NULL)
+		return 0;
+
+	try
+	{
+		if (!p->sent)
+		{
+			if (!p->head_seen || p->code < 200 || p->code >= 300)
+			{
+				// what comes with a refusal is not the channel
+				p->turned_away = true;
+				return 0;
+			}
+			// a length past the ceiling is refused before anything goes out
+			if (p->ceiling != 0 && p->has_length && p->length > p->ceiling)
+			{
+				p->too_large = true;
+				return 0;
+			}
+			Response &a = carry::answerOf(*p->job);
+			if (!p->content_type.empty())
+				a.content_type = p->content_type;
+			p->sent = true;
+			if (!carry::sendHead(*p->job, (p->has_length && !p->encoded) ? (int64_t) p->length : -1))
+				return 0;
+		}
+		// a body that goes on past the ceiling is cut off where it passes it
+		if (p->ceiling != 0 && p->passed + n > p->ceiling)
+		{
+			p->too_large = true;
+			return 0;
+		}
+		p->passed += n;
+		if (n > 0 && !carry::sendBody(*p->job, ptr, n))
+			return 0;
+	}
+	catch (...)
+	{
+		return 0;
+	}
+	return n;
+}
+
+Response upstreamProblem(const char *why)
+{
+	return problemResponse(StatusServiceUnavailable, coreapi::ErrorCode::UpstreamUnreachable, why);
+}
+
 } // namespace
 
 // --------------------------------------------------------------- the policy
@@ -428,7 +682,7 @@ void setRefusedNetworksForTest(const std::vector<NetPrefix> *list)
 
 // -------------------------------------------------------------- the document
 
-Reached fetchBounded(const std::string &url, size_t cap, Document &out)
+Reached fetchBounded(const std::string &url, size_t cap, Document &out, carry::Job *job)
 {
 	out = Document();
 	if (!urlAcceptable(url))
@@ -452,6 +706,14 @@ Reached fetchBounded(const std::string &url, size_t cap, Document &out)
 	curl_easy_setopt(h, CURLOPT_WRITEFUNCTION, &intoSink);
 	curl_easy_setopt(h, CURLOPT_WRITEDATA, &sink);
 
+	Watch watch(job);
+	if (job != NULL)
+	{
+		curl_easy_setopt(h, CURLOPT_NOPROGRESS, 0L);
+		curl_easy_setopt(h, CURLOPT_XFERINFOFUNCTION, &keepGoing);
+		curl_easy_setopt(h, CURLOPT_XFERINFODATA, &watch);
+	}
+
 	const CURLcode rc = curl_easy_perform(h);
 
 	long code = 0;
@@ -468,6 +730,8 @@ Reached fetchBounded(const std::string &url, size_t cap, Document &out)
 
 	curl_easy_cleanup(h);
 
+	if (watch.given_up)
+		return Reached::Cancelled;
 	if (refused)
 		return Reached::Refused;
 	if (sink.too_large)
@@ -603,16 +867,12 @@ size_t partCeiling()
 
 // ----------------------------------------------------------- the pass through
 
-bool isRelay(const Response &r)
-{
-	return r.code == StatusOk && !r.relay_url.empty();
-}
-
-Response relayOf(const std::string &url, const char *fallback_type)
+Response relayOf(const std::string &url, RelayKind kind, const char *fallback_type)
 {
 	Response out;
 	out.code = StatusOk;
 	out.relay_url = url;
+	out.relay_kind = (int) kind;
 	out.content_type = (fallback_type != NULL) ? fallback_type : "application/octet-stream";
 	/* Both of these are about what sits between this box and the browser. A
 	   cache that stored a live segment would replay it, and a proxy that
@@ -624,24 +884,103 @@ Response relayOf(const std::string &url, const char *fallback_type)
 	return out;
 }
 
-size_t relayCeiling()
+void relay(carry::Job &job)
 {
-	return relay_ceiling_;
+	const std::string url = carry::answerOf(job).relay_url;
+
+	pthread_once(&curl_once_, &initCurl);
+
+	Handle h;
+	if (h.h == NULL)
+	{
+		carry::refuse(job, upstreamProblem("the server this channel is played from could not be reached"));
+		return;
+	}
+
+	Passing p(job);
+	p.handle = h.h;
+	p.ceiling = byteCeilingOf((RelayKind) carry::answerOf(job).relay_kind);
+	bool refused = false;
+
+	configure(h.h, url, &refused);
+	/* Bytes as the far server holds them. They are passed on and not read, and
+	   a browser told no encoding would take packed bytes for the media. */
+	h.ask = curl_slist_append(NULL, "Accept-Encoding: identity");
+	if (h.ask != NULL)
+		curl_easy_setopt(h.h, CURLOPT_HTTPHEADER, h.ask);
+	curl_easy_setopt(h.h, CURLOPT_LOW_SPEED_LIMIT, 1L);
+	curl_easy_setopt(h.h, CURLOPT_LOW_SPEED_TIME, kStallSeconds);
+	curl_easy_setopt(h.h, CURLOPT_HEADERFUNCTION, &headLine);
+	curl_easy_setopt(h.h, CURLOPT_HEADERDATA, &p);
+	curl_easy_setopt(h.h, CURLOPT_WRITEFUNCTION, &bodyBlock);
+	curl_easy_setopt(h.h, CURLOPT_WRITEDATA, &p);
+	curl_easy_setopt(h.h, CURLOPT_NOPROGRESS, 0L);
+	curl_easy_setopt(h.h, CURLOPT_XFERINFOFUNCTION, &keepGoing);
+	curl_easy_setopt(h.h, CURLOPT_XFERINFODATA, &p.watch);
+
+	const CURLcode rc = curl_easy_perform(h.h);
+
+	/* After the header only the close says the rest; a fetch given up has
+	   nobody left to tell. */
+	if (p.sent || p.watch.given_up || carry::cancelled(job))
+		return;
+
+	/* A refused address ends the fetch before a socket exists. It is the one
+	   of these a caller cannot do anything about by asking again. */
+	if (refused)
+	{
+		carry::refuse(job, problemResponse(StatusForbidden, coreapi::ErrorCode::AddressRefused,
+		                                   "this channel leads to an address on a network this box does not fetch from"));
+		return;
+	}
+
+	if (p.too_large)
+	{
+		carry::refuse(job, upstreamProblem("the server this channel is played from sends a part larger than this box passes on"));
+		return;
+	}
+
+	/* A far server that answered a refusal is answered on with one, rather
+	   than with an empty body under a code that says all is well: a player
+	   handed nothing under a 200 reports a broken stream and says nothing
+	   about which of the two ends broke it. */
+	if (p.turned_away || (p.head_seen && (p.code < 200 || p.code >= 300)))
+	{
+		char why[128];
+		std::snprintf(why, sizeof(why),
+		              "the server this channel is played from answered %ld", p.code);
+		carry::refuse(job, upstreamProblem(why));
+		return;
+	}
+
+	// An answer with nothing in it, which is still an answer.
+	if (rc == CURLE_OK && p.head_seen)
+	{
+		carry::sendHead(job, (p.has_length && !p.encoded) ? (int64_t) p.length : 0);
+		return;
+	}
+
+	carry::refuse(job, upstreamProblem("the server this channel is played from could not be reached"));
 }
 
-void setRelayCeilingForTest(size_t n)
+uint64_t byteCeilingOf(RelayKind kind)
 {
-	relay_ceiling_ = n;
+	switch (kind)
+	{
+		case RelaySegment: return 64u * 1024u * 1024u;
+		case RelayMap:     return 4u * 1024u * 1024u;
+		case RelayKey:     return 4u * 1024u;
+		case RelayStream:
+		case RelayPlaylist:
+		case RelayNestedPlaylist:
+			break;
+	}
+	return 0;
 }
 
-unsigned headerWaitMs()
+void setOpenDelayMsForTest(unsigned ms)
 {
-	return header_wait_ms_;
-}
-
-void setHeaderWaitMsForTest(unsigned ms)
-{
-	header_wait_ms_ = ms;
+	open_delay_ms_ = ms;
 }
 
 } // namespace webtv

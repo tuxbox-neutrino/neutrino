@@ -2,6 +2,7 @@
  * webtv.h - fetching a channel's stream off a far server and passing it on
  *
  * Copyright (C) 2026 NI-Team
+ * Copyright (C) 2026 Tuxbox-Project (carried fetches)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +22,7 @@
 #ifndef __httpd_webtv_h__
 #define __httpd_webtv_h__
 
+#include "carry.h"
 #include "endpoint.h"
 #include "hlsrewrite.h"
 #include "netmatch.h"
@@ -30,11 +32,6 @@
 #include <cstddef>
 #include <string>
 #include <vector>
-
-/* Declared rather than included, so that this header costs the library's
-   headers nothing: the only thing wanted from it here is a connection to hand
-   back to the transport. */
-struct MHD_Connection;
 
 namespace httpd
 {
@@ -102,7 +99,10 @@ enum class Reached
 	Unreachable,
 	// More than the ceiling that was given, which is a document that is not
 	// the kind of document that was asked for.
-	TooLarge
+	TooLarge,
+	// Given up on the way, because the browser it was fetched for went away or
+	// the server is stopping: there is nobody left to answer.
+	Cancelled
 };
 
 // What came back from a fetch that ran to the end.
@@ -123,8 +123,12 @@ struct Document
    For the documents that are documents: a playlist is a few kilobytes and is
    read here rather than passed on, because every address inside it has to be
    replaced before a browser sees it. Nothing that is a stream goes through
-   this. */
-Reached fetchBounded(const std::string &url, size_t cap, Document &out);
+   this.
+
+   Fetched for a carried answer, job is that answer's: the fetch is then given up
+   within a second of its browser leaving or of the server stopping. */
+Reached fetchBounded(const std::string &url, size_t cap, Document &out,
+                     carry::Job *job = NULL);
 
 /* Remembers an address this box read out of a playlist and answers the token that
    stands for it, which is what goes into the playlist the page is given.
@@ -154,65 +158,59 @@ void   forgetParts();
 unsigned partLifetimeMs();
 size_t   partCeiling();
 
-// The two shapes of an answer this file turns a connection into, asked of the
-// answer a handler built rather than of the route it came from: what decides
-// is whether the handler named an address to fetch.
-bool isRelay(const Response &r);
-
-/* The answer a handler gives for a stream that is to be passed through.
-
-   The media type is what goes out if the far server names none of its own or
-   does not name one in time, and is never what overrides it: what this hands
-   on is the far server's document, and saying it is something else would be
-   this box deciding for a player what it is about to decode. */
-Response relayOf(const std::string &url, const char *fallback_type);
-
-// What became of turning a connection into a pass through.
-enum Opened
+/* What an address handed to a browser is, kept in the answer (Response::relay_kind)
+   for the job that carries it. A playlist is read and rewritten before it is
+   answered; everything else is passed on as it arrives. */
+enum RelayKind
 {
-	// Queued. The connection belongs to this file until it closes.
-	RelayOpened,
-	// The box is already passing through as many as it will, and the refusal
-	// carries the answer that says so.
-	RelayRefused,
-	// The address was refused, the far server could not be reached, or the
-	// library would not take the response.
-	RelayFailed
+	// A channel's own address, when it is a stream rather than a playlist.
+	RelayStream   = 0,
+	RelaySegment  = 1,
+	RelayMap      = 2,
+	RelayKey      = 3,
+	RelayPlaylist = 4,
+	/* A playlist named by the channel's own one. It is read and rewritten as
+	   well, but names no further playlist: the format nests two levels, and a
+	   chain that goes on is a far server sending this box round in circles. */
+	RelayNestedPlaylist = 5
 };
 
-/* Attaches a pass through to this connection.
+/* The answer a handler gives for an address to be fetched: a carried answer
+   (carry.h), which the bridge hands to a job of its own. The handler adds the
+   channel for a playlist (Response::relay_channel), whose addresses are minted
+   for it.
 
-   Called from the access handler and from nowhere else, the library allowing a
-   response to be queued for a live connection only from there. */
-Opened open(struct MHD_Connection *connection, const Response &r, Response &refusal);
+   The media type is what goes out if the far server names none of its own: what
+   this hands on is the far server's document, and saying it is something else
+   would be this box deciding for a player what it is about to decode. */
+Response relayOf(const std::string &url, RelayKind kind, const char *fallback_type);
 
-/* Ends every pass through and waits for them to be gone.
+/* Carries an answer relayOf() built for anything but a playlist, on its job:
+   the far server's head is
+   waited for; a far server that refuses, an address this box will not
+   connect to and one that cannot be reached are answered as refusals while
+   nothing has been written; the header goes out with the first bytes of the
+   body, stating the far server's length where it named one. Ends when the far
+   server does, when the browser stops reading or leaves, and when the server
+   stops. */
+void relay(carry::Job &job);
 
-   Called where the server is stopped and before the daemon is torn down, for
-   the reason the event streams are: a pass through with nothing to hand on is
-   a suspended connection, and the library says that stopping a daemon while
-   one of its connections is suspended leaks the connection or worse. */
-void stopAll();
+/* The most a passed on answer of a kind may carry, and 0 for no ceiling. A
+   segment, a map and a key are finite and small; past this they are not what
+   the playlist said they were, and a far server could otherwise keep a seat
+   and the box's line busy for as long as it cares to send. A channel's stream
+   has none: it runs for as long as somebody watches. */
+uint64_t byteCeilingOf(RelayKind kind);
 
-// How many are open, which is the one number that says a pass through nobody
-// is reading was let go.
-size_t openRelays();
+/* Holds every connection this file is about to open for ms first, as a slow name
+   lookup would: nothing reaches a fetch that waits there. 0 takes it away.
+   Nothing in the product sets it. */
+void setOpenDelayMsForTest(unsigned ms);
 
-/* The most that may run at once. Each one is a thread and a socket out, so
-   this is what keeps a page opened in ten tabs from being ten fetches of ten
-   streams off a box with one aerial's worth of uplink. */
-size_t relayCeiling();
-void   setRelayCeilingForTest(size_t n);
-
-/* How long the transport waits for the far server's own head before it answers with one
-   of its own.
-
-   A wait and not a promise, and short. What the wait buys is the far server's media
-   type and its status; what it costs is one of the server's few threads standing still.
-   A healthy server answers in a fraction of this and a sick one is a channel that is
-   not going to play anyway. */
-unsigned headerWaitMs();
-void     setHeaderWaitMsForTest(unsigned ms);
+/* Whether ep is one of the routes below. Their answers are carried, so they can
+   meet the refusals the transport gives itself, and the document states those
+   for them by this. */
+bool carriedRoute(const Endpoint &ep);
 
 } // namespace webtv
 
