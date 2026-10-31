@@ -2114,3 +2114,50 @@ TEST_CASE("the routes answer a session or a token that may write, and no reader"
 	setConfigForTest(defaultWebConfig());
 	CHECK(runningAfter(0, 3000) == 0);
 }
+
+TEST_CASE("the two prefixes that carry a v4 address to a relay are refused as well", "[webtv]")
+{
+	webtv::setRefusedNetworksForTest(NULL);
+
+	// 6to4: the v4 address is the next 32 bits, here this machine and the
+	// home network
+	CHECK(webtv::addressRefused("2002:7f00:1::1"));
+	CHECK(webtv::addressRefused("2002:c0a8:101::1"));
+	CHECK(webtv::addressRefused("2002::"));
+	// Teredo
+	CHECK(webtv::addressRefused("2001:0:4136:e378:8000:63bf:3fff:fdd2"));
+	CHECK(webtv::addressRefused("2001::1"));
+
+	// and just beside them the public internet goes on
+	CHECK_FALSE(webtv::addressRefused("2001:1::1"));
+	CHECK_FALSE(webtv::addressRefused("2003::1"));
+	CHECK_FALSE(webtv::addressRefused("2001:4860:4860::8888"));
+}
+
+TEST_CASE("a far server is told the program and its version and nothing more", "[webtv][wire]")
+{
+	WebBox box;
+	FarServer far;
+	REQUIRE(far.start());
+	const std::vector<NetPrefix> only_docs = onlyDocumentationRange();
+	webtv::setRefusedNetworksForTest(&only_docs);
+	far.first = httpReply("application/vnd.apple.mpegurl", "#EXTM3U\n#EXTINF:4,\nseg1.ts\n");
+	const std::string id = box.addWebChannel(0x1234, far.url("/master.m3u8"));
+
+	const std::string paths[] = { playlistPath(id), streamPath(id) };
+	for (size_t i = 0; i < 2; ++i)
+	{
+		INFO(paths[i]);
+		WireStream r(box.port(), ask("GET", paths[i]).c_str());
+		REQUIRE(r.ok());
+		r.readToEof(5000);
+		CHECK(r.code() == 200);
+		const std::string head = far.lastHead();
+		const size_t at = head.find("\r\nUser-Agent: ");
+		REQUIRE(at != std::string::npos);
+		const std::string agent = head.substr(at + 14, head.find("\r\n", at + 2) - at - 14);
+		CHECK(agent.compare(0, 9, "Neutrino/") == 0);
+		CHECK(agent.size() > 9);
+		CHECK(agent.find(' ') == std::string::npos);
+	}
+}

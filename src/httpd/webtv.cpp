@@ -19,6 +19,8 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+#include <config.h>
+
 #include "webtv.h"
 
 #include "http.h"
@@ -67,8 +69,9 @@ namespace
    stops being one: the carrier range, which is a private range on a large network;
    link local, which on this box is whatever a machine on the wire claims; the ranges
    reserved for documentation and for benchmarking; multicast, which is not a thing to
-   open a connection to; and the two blocks that carry a v4 address inside a v6 one,
-   which would otherwise be a spelling of the private ranges. */
+   open a connection to; and the blocks that carry a v4 address inside a v6 one, which
+   would otherwise be spellings of the private ranges: the translation prefix, and 6to4
+   and Teredo, whose relays deliver to the v4 address the v6 one carries. */
 const char *const kRefused[] =
 {
 	"0.0.0.0/8",
@@ -88,7 +91,9 @@ const char *const kRefused[] =
 	"::/128",
 	"::1/128",
 	"64:ff9b::/96",
+	"2001::/32",
 	"2001:db8::/32",
+	"2002::/16",
 	"fc00::/7",
 	"fe80::/10",
 	"ff00::/8"
@@ -111,6 +116,10 @@ const long kStallSeconds = 20;
 const long kDocumentSeconds = 15;
 
 const size_t kMaxRedirects = 5;
+
+// What a far server is told is asking: the program and its version, as a
+// browser names itself, and nothing about the box or the interface.
+const char kUserAgent[] = "Neutrino/" PACKAGE_VERSION;
 
 /* What a channel of these lists is worth as a token, and how many are kept.
 
@@ -315,7 +324,7 @@ void configure(CURL *h, const std::string &url, bool *refused)
 	curl_easy_setopt(h, CURLOPT_CONNECTTIMEOUT, kConnectSeconds);
 	curl_easy_setopt(h, CURLOPT_SSL_VERIFYPEER, 0L);
 	curl_easy_setopt(h, CURLOPT_SSL_VERIFYHOST, 0L);
-	curl_easy_setopt(h, CURLOPT_USERAGENT, "neutrino-ni-web");
+	curl_easy_setopt(h, CURLOPT_USERAGENT, kUserAgent);
 	curl_easy_setopt(h, CURLOPT_OPENSOCKETFUNCTION, &openSocket);
 	curl_easy_setopt(h, CURLOPT_OPENSOCKETDATA, refused);
 
@@ -674,7 +683,7 @@ const std::vector<NetPrefix> &refusedNetworks()
 		return *refused_override_;
 
 	/* Read once and kept, because it is read for every connection this box makes and
-	   the reading is a parse of twenty one lines. Built on first use and never
+	   the reading is a parse of twenty three lines. Built on first use and never
 	   destroyed, so nothing has to run before main; the compiler's own guard is what
 	   makes the first use safe when two fetching threads reach it together.
 
