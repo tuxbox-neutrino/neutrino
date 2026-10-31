@@ -30,6 +30,9 @@
 #include <zapit/femanager.h>
 #include <set>
 #include <map>
+#include <atomic>
+
+#include <driver/streamsetup.h>
 
 extern "C" {
 #include <libavformat/avformat.h>
@@ -52,6 +55,9 @@ class CStreamInstance : public OpenThreads::Thread
 		unsigned char * buf;
 
 		t_channel_id channel_id;
+		/* The hold zapit keeps the frontend under for this stream, dropped
+		   when the stream is deleted; 0 for a web channel. */
+		uint32_t hold_id;
 		stream_pids_t pids;
 		stream_fds_t fds;
 #if LIBAVFORMAT_VERSION_INT >= AV_VERSION_INT(61, 1, 100)
@@ -119,7 +125,7 @@ class CStreamManager : public OpenThreads::Thread
 {
 	private:
 		bool	enabled;
-		bool	running;
+		std::atomic<bool> running;
 		int	listenfd;
 		int	port;
 
@@ -128,17 +134,17 @@ class CStreamManager : public OpenThreads::Thread
 		CZapitClient zapit;
 
 		streammap_t streams;
-		/* Counts AddClient calls currently between accept and streams-map
-		 * insert. StreamStatus treats pending setups as live so that a
-		 * standbyToStandby triggered by the previous stream's stop does
-		 * not zap the tuner away while the next stream is mid-setup. */
-		int pending_starts;
+		/* Counts the setups between accept and the streams map, under
+		 * mutex. StreamStatus treats them as live so that a standby
+		 * triggered by the previous stream's stop does not take the box
+		 * down while the next stream is mid-setup. */
+		streamsetup::StartGate gate;
 
+		class SetupOps;
 		bool	Listen();
-		bool	Parse(int fd, stream_pids_t &pids, t_channel_id &chid, CFrontend * &frontend, bool &is_e2);
+		bool	Parse(int fd, streamsetup::Target &target);
 		void	PreparePids(CZapitChannel * channel, stream_pids_t &pids, bool is_e2);
 		void	CheckStandby(bool enter);
-		CFrontend * FindFrontend(CZapitChannel * channel);
 		bool	StopAll();
 		void	RemoveClient(int fd);
 		void	run();
@@ -153,6 +159,8 @@ class CStreamManager : public OpenThreads::Thread
 		bool StreamStatus(t_channel_id channel_id = 0);
 		bool SetPort(int newport);
 		int GetPort() { return port; }
-		bool AddClient(int fd);
+		/* Takes a client the accept loop has: Refused leaves the
+		   descriptor to the caller, Consumed means a stream has it. */
+		streamsetup::Outcome AddClient(int fd);
 };
 #endif

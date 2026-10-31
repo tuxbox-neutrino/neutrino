@@ -53,6 +53,7 @@
 #include <zapit/capmt.h>
 #include <zapit/zapit.h>
 #include <zapit/pat.h>
+#include <zapit/streamhold.h>
 #include <driver/streamts.h>
 #include <driver/record.h>
 #include <driver/genpsi.h>
@@ -81,6 +82,7 @@ CStreamInstance::CStreamInstance(int clientfd, t_channel_id chid, stream_pids_t 
 	fds.insert(clientfd);
 	pids = _pids;
 	channel_id = chid;
+	hold_id = 0;
 	running = false;
 	dmx = NULL;
 	buf = NULL;
@@ -92,6 +94,9 @@ CStreamInstance::~CStreamInstance()
 {
 	Stop();
 	Close();
+	/* zapit gives the frontend back after its current command. */
+	if (hold_id)
+		streamhold::drop(hold_id);
 }
 
 bool CStreamInstance::Start()
@@ -248,14 +253,6 @@ void CStreamInstance::run()
 	else
 		CCamManager::getInstance()->Start(channel_id, CCamManager::STREAM);
 
-#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
-	CFrontend *live_fe = CZapit::getInstance()->GetLiveFrontend();
-	if(live_fe)
-		CFEManager::getInstance()->unlockFrontend(live_fe);
-	if(frontend)
-		CFEManager::getInstance()->lockFrontend(frontend);
-	//CZapit::getInstance()->SetRecordMode(true);
-#endif
 	while (running) {
 		ssize_t r = dmx->Read(buf, IN_SIZE, 100);
 		if (r > 0)
@@ -269,12 +266,6 @@ void CStreamInstance::run()
 	}
 	else
 		CCamManager::getInstance()->Stop(channel_id, CCamManager::STREAM);
-
-#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
-	if(frontend)
-		CFEManager::getInstance()->unlockFrontend(frontend);
-	//CZapit::getInstance()->SetRecordMode(false);
-#endif
 
 	printf("CStreamInstance::run: exiting %" PRIx64 " (%d fds)\n", channel_id, (int)fds.size());
 
@@ -292,12 +283,11 @@ bool CStreamInstance::HasFd(int fd)
 /************************************************************************/
 CStreamManager *CStreamManager::sm = NULL;
 CStreamManager::CStreamManager()
+	: running(false), gate(mutex, running)
 {
 	enabled = true;
-	running = false;
 	listenfd = -1;
 	port = g_settings.streaming_port;
-	pending_starts = 0;
 }
 
 CStreamManager::~CStreamManager()
@@ -361,95 +351,11 @@ bool CStreamManager::SetPort(int newport)
 	return ret;
 }
 
-CFrontend * CStreamManager::FindFrontend(CZapitChannel * channel)
-{
-	std::set<CFrontend*> frontends;
-	CFrontend * frontend = NULL;
-	CFEManager::getInstance()->Open();
-
-	t_channel_id chid = channel->getChannelID();
-	if (CRecordManager::getInstance()->RecordingStatus(chid)) {
-		printf("CStreamManager::%s: channel %" PRIx64 " recorded, aborting..\n", __func__, chid);
-		return frontend;
-	}
-
-	t_channel_id live_channel_id = 0;
-	CFrontend *live_fe = NULL;
-
-	if (CNeutrinoApp::getInstance()->getMode() != NeutrinoModes::mode_standby) {
-		live_channel_id = CZapit::getInstance()->GetCurrentChannelID();
-		live_fe = CZapit::getInstance()->GetLiveFrontend();
-	}
-
-	if (live_channel_id == chid)
-		return live_fe;
-
-	CFEManager::getInstance()->Lock();
-
-	bool unlock = false;
-	if (!IS_WEBCHAN(live_channel_id)) {
-		unlock = true;
-		if (live_fe)
-			CFEManager::getInstance()->lockFrontend(live_fe);
-	}
-
-	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
-	for (streammap_iterator_t it = streams.begin(); it != streams.end(); ++it)
-		frontends.insert(it->second->frontend);
-
-	for (std::set<CFrontend*>::iterator ft = frontends.begin(); ft != frontends.end(); ++ft)
-		CFEManager::getInstance()->lockFrontend(*ft);
-
-	frontend = CFEManager::getInstance()->allocateFE(channel, true);
-
-	if (unlock && frontend == NULL) {
-		unlock = false;
-		if (live_fe)
-			CFEManager::getInstance()->unlockFrontend(live_fe);
-		frontend = CFEManager::getInstance()->allocateFE(channel, true);
-	}
-
-	CFEManager::getInstance()->Unlock();
-
-	if (frontend) {
-		bool found = (live_fe != NULL && live_fe != frontend) || IS_WEBCHAN(live_channel_id) || SAME_TRANSPONDER(live_channel_id, chid);
-		bool ret = false;
-		if (found)
-			ret = zapit.zapTo_record(chid) > 0;
-		else
-			ret = zapit.zapTo_serviceID(chid) > 0;
-
-		if (ret) {
-#if ENABLE_PIP
-			/* FIXME until proper demux management */
-			t_channel_id pip_channel_id = CZapit::getInstance()->GetPipChannelID();
-			if ((pip_channel_id == chid) && (channel->getStreamDemux() == channel->getPipDemux()))
-				zapit.stopPip();
-#endif
-		} else {
-			frontend = NULL;
-		}
-	}
-
-	CFEManager::getInstance()->Lock();
-	for (std::set<CFrontend*>::iterator ft = frontends.begin(); ft != frontends.end(); ++ft)
-		CFEManager::getInstance()->unlockFrontend(*ft);
-
-#if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
-	if (unlock && !frontend && live_fe)
-#else
-	if (unlock && live_fe)
-#endif
-		CFEManager::getInstance()->unlockFrontend(live_fe);
-
-	CFEManager::getInstance()->Unlock();
-	return frontend;
-}
-
-bool CStreamManager::Parse(int fd, stream_pids_t &pids, t_channel_id &chid, CFrontend * &frontend, bool &is_e2)
+bool CStreamManager::Parse(int fd, streamsetup::Target &target)
 {
 	char cbuf[512];
 	char *bp;
+	bool is_e2 = false;
 
 	cbuf[0] = 0;
 	bp = &cbuf[0];
@@ -486,6 +392,7 @@ bool CStreamManager::Parse(int fd, stream_pids_t &pids, t_channel_id &chid, CFro
 	}
 
 	CZapitChannel * channel = NULL;
+	t_channel_id chid = 0;
 
 	if (CNeutrinoApp::getInstance()->getMode() != NeutrinoModes::mode_standby) {
 		chid = CZapit::getInstance()->GetCurrentChannelID();
@@ -531,25 +438,10 @@ bool CStreamManager::Parse(int fd, stream_pids_t &pids, t_channel_id &chid, CFro
 	if (!channel)
 		return false;
 
-	streammap_iterator_t it = streams.find(chid);
-	if (it != streams.end())
-	{
-		printf("CStreamManager::Parse: channel_id %" PRIx64 " already streaming, just add client %d\n", chid, fd);
-		return true;
-	}
-
-	if (IS_WEBCHAN(chid))
-		return true;
-
-	frontend = FindFrontend(channel);
-	if (!frontend) {
-		printf("CStreamManager::Parse: no free frontend\n");
-		return false;
-	}
-
-	PreparePids(channel, pids, is_e2);
-
-	return !pids.empty();
+	target.channel = chid;
+	target.kind = IS_WEBCHAN(chid) ? streamsetup::Web : streamsetup::Broadcast;
+	target.e2 = is_e2;
+	return true;
 }
 
 void CStreamManager::PreparePids(CZapitChannel *channel, stream_pids_t &pids, bool is_e2)
@@ -608,52 +500,103 @@ void CStreamManager::PreparePids(CZapitChannel *channel, stream_pids_t &pids, bo
 
 }
 
-bool CStreamManager::AddClient(int connfd)
+/* The setup's steps over this manager, zapit and the hold register. The
+   picture, a PiP and a recording are left as they are: the frontend is the
+   one zapit held for the stream, or there is none. */
+class CStreamManager::SetupOps : public streamsetup::Ops
 {
-	stream_pids_t pids;
-	pids.clear();
+	public:
+		explicit SetupOps(CStreamManager &m) : sm(m) {}
 
-	t_channel_id channel_id = 0;
-	CFrontend *frontend = NULL;
-	bool is_e2 = false;
+		bool readTarget(int fd, streamsetup::Target &t) { return sm.Parse(fd, t); }
 
-	/* Mark setup in progress before Parse's zap emits EVT_ZAP_COMPLETE,
-	 * so a concurrent EVT_STREAM_STOP from the previous stream cannot
-	 * trip standbyToStandby's StreamStatus gate while we are mid-setup. */
-	{
-		OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
-		pending_starts++;
-	}
-
-	bool parsed = Parse(connfd, pids, channel_id, frontend, is_e2);
-
-	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
-	pending_starts--;
-	if (!parsed)
-		return false;
-
-	streammap_iterator_t it = streams.find(channel_id);
-	if (it != streams.end()) {
-		it->second->AddClient(connfd);
-	} else {
-		CStreamInstance * stream;
-		if (IS_WEBCHAN(channel_id)) {
-			stream = new CStreamStream(connfd, channel_id, pids);
-		} else {
-			stream = new CStreamInstance(connfd, channel_id, pids);
-			stream->frontend = frontend;
-			stream->is_e2_stream = is_e2;
+		bool runningLocked(uint64_t channel)
+		{
+			return sm.streams.find(channel) != sm.streams.end();
 		}
 
-		int sendsize = 10*IN_SIZE;
-		unsigned int m = sizeof(sendsize);
-		setsockopt(connfd, SOL_SOCKET, SO_SNDBUF, (void *)&sendsize, m);
-		if (stream->Open() && stream->Start())
-			streams.insert(streammap_pair_t(channel_id, stream));
-		else
-			delete stream;
-	}
-	return true;
+		void joinLocked(uint64_t channel, int fd)
+		{
+			printf("CStreamManager::AddClient: channel_id %" PRIx64 " already streaming, just add client %d\n", channel, fd);
+			sm.streams[channel]->AddClient(fd);
+		}
+
+		bool recording(uint64_t channel)
+		{
+			if (!CRecordManager::getInstance()->RecordingStatus(channel))
+				return false;
+			printf("CStreamManager::AddClient: channel %" PRIx64 " recorded, aborting..\n", channel);
+			return true;
+		}
+
+		uint32_t hold(uint64_t channel)
+		{
+			/* Bounds the exchange; zapit has the same time to tune. */
+			CBasicClient::Deadline until(kHoldBudgetMs);
+			CZapitClient::responseStreamHold reply;
+			if (!sm.zapit.holdForStream(channel, kHoldBudgetMs, reply) || reply.verdict != 0) {
+				printf("CStreamManager::AddClient: no frontend for %" PRIx64 " (verdict %d)\n", channel, reply.verdict);
+				return 0;
+			}
+			return reply.hold_id;
+		}
+
+		void *adopt(uint32_t id) { return streamhold::adopt(id, streamhold::nowMs()); }
+		void drop(uint32_t id) { streamhold::drop(id); }
+
+		bool preparePids(const streamsetup::Target &t)
+		{
+			CZapitChannel *channel = CServiceManager::getInstance()->FindChannel(t.channel);
+			if (!channel)
+				return false;
+			sm.PreparePids(channel, pids, t.e2);
+			return !pids.empty();
+		}
+
+		void *buildLocked(int fd, const streamsetup::Target &t, void *fe, uint32_t hold_id)
+		{
+			CStreamInstance *stream;
+			if (t.kind == streamsetup::Web) {
+				stream = new CStreamStream(fd, t.channel, pids);
+			} else {
+				stream = new CStreamInstance(fd, t.channel, pids);
+				stream->frontend = static_cast<CFrontend *>(fe);
+				stream->is_e2_stream = t.e2;
+				stream->hold_id = hold_id;
+			}
+			int sendsize = 10*IN_SIZE;
+			unsigned int m = sizeof(sendsize);
+			setsockopt(fd, SOL_SOCKET, SO_SNDBUF, (void *)&sendsize, m);
+			return stream;
+		}
+
+		bool startLocked(void *s)
+		{
+			CStreamInstance *stream = static_cast<CStreamInstance *>(s);
+			return stream->Open() && stream->Start();
+		}
+
+		void publishLocked(void *s)
+		{
+			CStreamInstance *stream = static_cast<CStreamInstance *>(s);
+			sm.streams.insert(streammap_pair_t(stream->GetChannelId(), stream));
+		}
+
+		void discardLocked(void *s)
+		{
+			delete static_cast<CStreamInstance *>(s);
+		}
+
+	private:
+		static const unsigned kHoldBudgetMs = 10000;
+		CStreamManager &sm;
+		stream_pids_t pids;
+};
+
+streamsetup::Outcome CStreamManager::AddClient(int connfd)
+{
+	SetupOps ops(*this);
+	return streamsetup::run(connfd, gate, ops);
 }
 
 void CStreamManager::RemoveClient(int fd)
@@ -730,11 +673,12 @@ void CStreamManager::run()
 						continue;
 					}
 
-					if (!AddClient(connfd))
+					const streamsetup::Outcome added = AddClient(connfd);
+					if (added.result == streamsetup::Refused)
 					{
 						close(connfd);
 					}
-					else
+					else if (added.published)
 					{
 						bool first_stream = false;
 						mutex.lock();
@@ -769,10 +713,6 @@ bool CStreamManager::StopAll()
 	{
 		OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
 		to_stop.swap(streams);
-		/* Defensive: if the accept thread was cancelled mid-Parse the
-		 * counter is not decremented. Clear it so a later restart begins
-		 * at a consistent zero. */
-		pending_starts = 0;
 	}
 	bool ret = !to_stop.empty();
 	for (streammap_iterator_t it = to_stop.begin(); it != to_stop.end(); ++it) {
@@ -833,7 +773,7 @@ bool CStreamManager::StreamStatus(t_channel_id channel_id)
 	if (channel_id)
 		ret = (streams.find(channel_id) != streams.end());
 	else
-		ret = !streams.empty() || pending_starts > 0;
+		ret = !streams.empty() || gate.pendingLocked() > 0;
 	mutex.unlock();
 	return ret;
 }
