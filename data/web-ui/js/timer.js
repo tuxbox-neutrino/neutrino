@@ -59,6 +59,7 @@ function renderFilters() {
 	const states = document.getElementById('filterStates');
 	types.replaceChildren.apply(types, f.types.map(button));
 	states.replaceChildren.apply(states, f.states.map(button));
+	webuiArrowKeys(types.parentElement, '.webui-filter-list button');
 	const sel = document.getElementById('filterSelect');
 	sel.replaceChildren(
 		webuiEl('optgroup', {attrs: {label: webuiL('tm.type', 'Type')}}, f.types.map(i => webuiEl('option', {value: i[0]}, i[1]))),

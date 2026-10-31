@@ -1842,6 +1842,7 @@ function buildNavigation() {
 	});
 
 	document.getElementById('settingsSidebar').innerHTML = sidebarHtml;
+	webuiArrowKeys(document.getElementById('settingsSidebar'), 'summary, button');
 	document.getElementById('mobileCategorySelect').innerHTML = mobileHtml;
 }
 

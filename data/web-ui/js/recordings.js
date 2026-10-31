@@ -259,6 +259,7 @@ function showSources(sources) {
 	chips.replaceChildren.apply(chips, entries.map(e => webuiEl('button', {type: 'button', data: {source: e[0]},
 		title: e[0] || webuiL('media.all', 'All recordings'),
 		attrs: {'aria-pressed': e[0] === source ? 'true' : 'false'}, on: {click: () => chooseSource(e[0])}}, e[1])));
+	webuiArrowKeys(chips, 'button');
 }
 
 function chooseSource(value) {

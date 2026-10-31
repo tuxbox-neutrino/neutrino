@@ -335,6 +335,7 @@ function webuiRenderNav(pageName) {
 	};
 
 	_webuiRenderSide(areas, page);
+	webuiArrowKeys(document.querySelector('.webui-side-nav'), 'a');
 	var title = document.getElementById('webui-page-title');
 	if (title)
 		title.textContent = _webuiPageTitle(areas, page);
@@ -353,6 +354,7 @@ function webuiRenderNav(pageName) {
 			sub.appendChild(li);
 		});
 		_webuiSubnavEdges(sub);
+		webuiArrowKeys(sub, 'a');
 	}
 
 	var tabs = document.getElementById('webui-tabbar');
@@ -375,6 +377,7 @@ function webuiRenderNav(pageName) {
 		more.innerHTML = WEBUI_ICONS.more + '<span>' + webuiLH('nav.more', 'More') + '</span>';
 		more.addEventListener('click', webuiToggleMoreMenu);
 		tabs.appendChild(more);
+		webuiArrowKeys(tabs, 'a, button');
 	}
 	// the row of pages changes the head's height
 	if (typeof webuiUpdateHeaderSpacer === 'function')
@@ -415,6 +418,49 @@ function _webuiSubnavEdges(sub) {
 		document.fonts.ready.then(mark);
 }
 
+/* The arrow keys within a group of links or buttons (side bar, row of
+   pages, tab bar, the More and language menus, the lists beside a page's
+   content): Down and Right move the focus to the next entry, Up and Left
+   to the one before, both round the ends, Home and End to the first and the
+   last. Tab keeps its order. An entry counts while it is drawn and not
+   disabled. The content of a closed <details> keeps its boxes in Chromium
+   but cannot take the focus, so everything in one is passed over except
+   its own summary, and that only while no closed <details> holds it in
+   turn. The entries are looked up at each key, as the group is drawn
+   again; a group takes the keys once however often that happens. */
+function webuiArrowKeys(group, selector) {
+	if (!group || group._webuiArrowKeys)
+		return;
+	group._webuiArrowKeys = true;
+	var step = {ArrowDown: 1, ArrowRight: 1, ArrowUp: -1, ArrowLeft: -1};
+	var reachable = function(el) {
+		var closed = el.closest('details:not([open])');
+		if (closed && !(el.tagName === 'SUMMARY' && el.parentElement === closed))
+			return false;
+		if (closed && closed.parentElement && closed.parentElement.closest('details:not([open])'))
+			return false;
+		return !el.disabled && el.getClientRects().length > 0;
+	};
+	group.addEventListener('keydown', function(e) {
+		if (e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey || e.shiftKey)
+			return;
+		if (!(e.key in step) && e.key !== 'Home' && e.key !== 'End')
+			return;
+		var all = Array.prototype.filter.call(group.querySelectorAll(selector), reachable);
+		var i = all.indexOf(document.activeElement);
+		if (i < 0)
+			return;
+		if (e.key === 'Home')
+			i = 0;
+		else if (e.key === 'End')
+			i = all.length - 1;
+		else
+			i = (i + step[e.key] + all.length) % all.length;
+		all[i].focus();
+		e.preventDefault();
+	});
+}
+
 // "More" on the phone: the areas the tab bar has no room for, above it
 function webuiToggleMoreMenu(ev) {
 	ev.stopPropagation();
@@ -452,6 +498,7 @@ function webuiToggleMoreMenu(ev) {
 	});
 	menu.appendChild(about);
 	document.body.appendChild(menu);
+	webuiArrowKeys(menu, 'a, button');
 	if (btn) btn.setAttribute('aria-expanded', 'true');
 	// Escape closes it and hands the focus back to "More", and so does Tab
 	// on its last entry, as the menu is the last thing on the page; leaving
@@ -775,6 +822,7 @@ async function webuiToggleLangMenu(ev) {
 	menu.style.top = (r.bottom + 4) + 'px';
 	menu.style.right = Math.max(4, window.innerWidth - r.right) + 'px';
 	document.body.appendChild(menu);
+	webuiArrowKeys(menu, 'button');
 	opener.setAttribute('aria-expanded', 'true');
 	(chosen || menu.querySelector('button')).focus();
 	setTimeout(function() {

@@ -75,6 +75,7 @@ function renderBouquetList(activeBouquet) {
 	list.replaceChildren.apply(list, entries.map(b => webuiEl('li', {},
 		webuiEl('button', {type: 'button', data: {bouquet: b.id}, attrs: {'aria-current': b.id === activeBouquet ? 'true' : 'false'},
 			on: {click: () => selectBouquet(b.id)}}, b.name))));
+	webuiArrowKeys(list, 'button');
 	renderBouquetPick(activeBouquet);
 	currentBouquetNumber = activeBouquet;
 	const activeItem = list.querySelector('[aria-current="true"]');
