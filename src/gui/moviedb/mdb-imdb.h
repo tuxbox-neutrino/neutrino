@@ -32,14 +32,9 @@ class CIMDB
 {
 	private:
 		CHintBox *hintbox;
-		int acc;
-		std::string imdb_url;
-		std::string key; // omdb api key
 
-		std::string googleIMDb(std::string s);
-		std::string utf82url(std::string s);
-		std::string parseString(std::string search1, std::string search2, std::string str);
-		std::string parseFile(std::string search1, std::string search2, const char *file, std::string firstline = "", int line_offset = 0);
+		std::string searchIMDbId(const std::string &title);
+		bool fetchDetails(const std::string &url);
 		std::map<std::string, std::string> m;
 
 		std::string posterfile;
@@ -54,7 +49,6 @@ class CIMDB
 		std::string getEPGText();
 		std::string getMovieText();
 
-		std::string search_url;
 		std::string search_outfile;
 		std::string search_error;
 		std::string imdb_outfile;

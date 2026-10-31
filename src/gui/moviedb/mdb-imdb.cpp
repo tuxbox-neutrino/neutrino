@@ -39,6 +39,7 @@
 #include <json/json.h>
 
 #include "mdb-imdb.h"
+#include "mdb-omdb.h"
 
 CIMDB *CIMDB::getInstance()
 {
@@ -50,16 +51,11 @@ CIMDB *CIMDB::getInstance()
 
 CIMDB::CIMDB()
 {
-	key = g_settings.omdb_api_key;
 	hintbox = NULL;
-	search_url	= "http://www.google.de/search?q=";
-	search_outfile	= "/tmp/google.out";
-	search_error	= "IMDb: Google download failed";
-	imdb_url	= "http://www.omdbapi.com/?plot=full&r=json&apikey=" + key + "&i=";
+	search_outfile	= "/tmp/omdb-search.json";
+	search_error	= "IMDb: OMDb search failed";
 	imdb_outfile	= "/tmp/imdb.json";
 	posterfile	= "/tmp/imdb.jpg";
-
-	acc = 0;
 }
 
 CIMDB::~CIMDB()
@@ -82,188 +78,35 @@ void CIMDB::setTitle(std::string epgtitle)
 	}
 }
 
-std::string CIMDB::utf82url(std::string s)
-{
-	std::stringstream ss;
-	for (size_t i = 0; i < s.length(); ++i)
-	{
-		if (unsigned(s[i]) <= ' ')
-		{
-			ss << '+';
-		}
-		else if (unsigned(s[i]) <= '\x27')
-		{
-			ss << "%" << std::hex << unsigned(s[i]);
-		}
-		else
-		{
-			ss << s[i];
-		}
-	}
-	return ss.str();
-}
-
-std::string CIMDB::parseString(std::string search1, std::string search2, std::string str)
-{
-	std::string ret, search;
-	size_t pos_wildcard, pos_search1, pos_search2;
-	pos_wildcard = pos_search1 = pos_search2 = std::string::npos;
-
-	if ((pos_wildcard = search1.find('*')) != std::string::npos)
-	{
-		search = search1.substr(0, pos_wildcard);
-		//std::cout << "wildcard detected" << '\t' << "= " << search << "[*]" << search1.substr(pos_wildcard+1) << std::endl;
-	}
-	else
-		search = search1;
-
-	//std::cout << "search1" << "\t\t\t" << "= " << '"' << search << '"' << std::endl;
-	if ((pos_search1 = str.find(search)) != std::string::npos)
-	{
-		//std::cout << "search1 found" << "\t\t" << "= " << '"' << search << '"' << " at pos "<< (int)(pos_search1) << " => " << str << std::endl;
-
-		pos_search1 += search.length();
-
-		if (pos_wildcard != std::string::npos)
-		{
-			size_t pos_wildcard_ext;
-			std::string wildcard_ext = search1.substr(pos_wildcard + 1);
-
-			//std::cout << "wildcard_ext" << "\t\t" << "= " << '"' << wildcard_ext << '"' << std::endl;
-			if ((pos_wildcard_ext = str.find(wildcard_ext, pos_wildcard + 1)) != std::string::npos)
-			{
-				//std::cout << "wildcard_ext found" << "\t" << "= " << '"' << wildcard_ext << '"' << " at pos "<< (int)(pos_wildcard_ext) << " => " << str << std::endl;
-				pos_search1 = pos_wildcard_ext + wildcard_ext.length();
-			}
-			else
-			{
-				//std::cout << "wildcard_ext not found in line " << acc << " - exit" << std::endl;
-				return ("");
-			}
-		}
-	}
-	else
-	{
-		//std::cout << "search1 not found in line " << acc << " - exit" << std::endl;
-		return ("");
-	}
-
-	if (pos_search1 != std::string::npos)
-	{
-		//std::cout << "search2 " << "\t\t" << "= " << '"' << search2 << '"' << std::endl;
-
-		if (search2 == "\n")
-		{
-			ret = str.substr(pos_search1, str.length() - pos_search1);
-			return (ret);
-		}
-
-		if ((pos_search2 = str.find(search2, pos_search1)) != std::string::npos)
-		{
-			if (search2.empty())
-				pos_search2 = str.length();
-
-			//std::cout << "search2" << "\t\t\t" << "= " << '"' << search2 << '"' << " found at "<< (int)(pos_search2) << " => " << str << std::endl;
-			ret = str.substr(pos_search1, pos_search2 - pos_search1);
-		}
-		//else
-			//std::cout << "search2 not found in line " << acc << " - exit" << std::endl;
-
-	}
-
-	return (ret);
-}
-
-std::string CIMDB::parseFile(std::string search1, std::string search2, const char *file, std::string firstline, int line_offset)
-{
-
-	acc = 0;
-	std::ifstream fh;
-	std::string str, ret;
-	size_t pos_firstline;
-	pos_firstline = std::string::npos;
-
-	if (firstline.empty())
-		pos_firstline = 0;
-
-	fh.open(file, std::ios::in);
-	if (fh.is_open())
-	{
-		int line = 0;
-		while (!fh.eof())
-		{
-			getline(fh, str);
-			acc++;
-
-			if (pos_firstline == std::string::npos)
-			{
-				if ((pos_firstline = str.find(firstline)) != std::string::npos)
-				{
-					//std::cout << "firstline found " << str << std::endl;
-				}
-				continue;
-			}
-
-			if (line_offset /*&& pos_firstline != std::string::npos*/)
-			{
-				if (line + 1 != line_offset)
-				{
-					line++;
-					continue;
-				}
-			}
-
-			ret = parseString(search1, search2, str);
-
-			if (!ret.empty())
-				break;
-		}
-		fh.close();
-	}
-
-	return (ret);
-}
-
-std::string CIMDB::googleIMDb(std::string s)
+std::string CIMDB::searchIMDbId(const std::string &title)
 {
 	CHTTPTool httpTool;
-	std::string ret = search_error;
-	std::string search_string("title+");
-	char *search_char = (char *) s.c_str();
+	std::string ret;
 
-	m.clear();
-	unlink(search_outfile.c_str());
-	unlink(imdb_outfile.c_str());
-	unlink(posterfile.c_str());
+	if (!httpTool.downloadFile(omdb::searchUrl(g_settings.omdb_api_key, title), search_outfile.c_str()))
+		return ret;
 
-	while (*search_char != 0)
-	{
-		if (*search_char == ' ')
-		{
-			search_string += '+';
-		}
-		else
-		{
-			search_string += *search_char;
-		}
-		search_char++;
-	}
-
-	std::string url = search_url + utf82url(search_string) + "%20www.imdb.com";
-
-	if (httpTool.downloadFile(url, search_outfile.c_str()))
-	{
-		ret = parseFile("https://www.imdb.com/title/", ">", search_outfile.c_str());
-
-		if (ret.empty())
-			ret = parseFile("http://www.imdb.de/title/", ">", search_outfile.c_str());
-
-		std::string delimiters = "/&;";
-		size_t next = ret.find_first_of(delimiters, 0);
-		ret = ret.substr(0, next);
-	}
+	std::ostringstream ss;
+	std::ifstream fh(search_outfile.c_str(), std::ifstream::in);
+	ss << fh.rdbuf();
+	ret = omdb::pickId(ss.str());
 
 	return ret;
+}
+
+bool CIMDB::fetchDetails(const std::string &url)
+{
+	CHTTPTool httpTool;
+
+	m.clear();
+	unlink(imdb_outfile.c_str());
+
+	if (!httpTool.downloadFile(url, imdb_outfile.c_str()))
+		return false;
+
+	initMap(m);
+
+	return m["Response"] == "True" && omdb::isImdbId(m["imdbID"]);
 }
 
 void CIMDB::initMap(std::map<std::string, std::string> &my)
@@ -321,54 +164,49 @@ void CIMDB::initMap(std::map<std::string, std::string> &my)
 int CIMDB::getMovieDetails(const std::string &epgTitle)
 {
 	CHTTPTool httpTool;
-	int ret = 0;
 
-	std::string imdb_id = googleIMDb(epgTitle);
+	m.clear();
+	unlink(search_outfile.c_str());
+	unlink(imdb_outfile.c_str());
+	unlink(posterfile.c_str());
 
-	if (((imdb_id.find(search_error)) != std::string::npos))
-		return ret;
+	std::string title = omdb::searchTerm(epgTitle);
+	if (title.empty())
+		return 0;
 
-	std::string url = imdb_url + imdb_id;
-
-	if (httpTool.downloadFile(url, imdb_outfile.c_str()))
+	// The key is read here and not kept, so a key entered after the first lookup is the one used.
+	// The best match for the title first; if OMDb knows no film of exactly
+	// that name, the first hit of its search.
+	if (!fetchDetails(omdb::titleUrl(g_settings.omdb_api_key, title)))
 	{
-		initMap(m);
-
-		//std::cout << "m now contains " << m.size() << " elements.\n";
-
-		if (m.empty() || m["Response"] != "True")
-			return 0;
-
-		//for (std::map<std::string,std::string>::iterator it=m.begin(); it!=m.end(); ++it)
-		//	std::cout << it->first << " => " << it->second << '\n';
-
-		//download Poster
-		if (m["Poster"] != "N/A")
+		std::string imdb_id = searchIMDbId(title);
+		if (imdb_id.empty() || !fetchDetails(omdb::idUrl(g_settings.omdb_api_key, imdb_id)))
 		{
-			// if possible load bigger image
-			std::string origURL("300");
-			std::string replURL("600");
-
-			if (m["Poster"].compare(m["Poster"].size() - 7, 3, origURL) == 0)
-			{
-				//std::cout << "########## " << m["Poster"] << " contains " << origURL << '\n';
-				m["Poster"].replace(m["Poster"].size() - 7, 3, replURL);
-				//std::cout << "########## New string: " << m["Poster"] << '\n';
-			}
-
-			if (httpTool.downloadFile(m["Poster"], posterfile.c_str()))
-				return 2;
-			else
-			{
-				if (access(posterfile.c_str(), F_OK) == 0)
-					unlink(posterfile.c_str());
-				return 1;
-			}
+			m.clear();
+			m["Response"] = "False";
+			return 0;
 		}
-		ret = 2;
 	}
 
-	return ret;
+	//download Poster
+	if (m["Poster"] != "N/A")
+	{
+		// if possible load bigger image
+		std::string origURL("300");
+		std::string replURL("600");
+
+		if (m["Poster"].size() >= 7 && m["Poster"].compare(m["Poster"].size() - 7, 3, origURL) == 0)
+			m["Poster"].replace(m["Poster"].size() - 7, 3, replURL);
+
+		if (httpTool.downloadFile(m["Poster"], posterfile.c_str()))
+			return 2;
+
+		if (access(posterfile.c_str(), F_OK) == 0)
+			unlink(posterfile.c_str());
+		return 1;
+	}
+
+	return 2;
 }
 
 bool CIMDB::checkElement(std::string element)
