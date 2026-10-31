@@ -4351,6 +4351,16 @@ dialog.webui-sheet footer button.danger {
 	animation: webui-state-turn 1.2s linear infinite;
 }
 
+/* the turning icon above is the state's spinner; for aria-busy Pico would
+   draw its own above it and keep the text from wrapping */
+.webui-state[aria-busy="true"] {
+	white-space: normal;
+}
+
+.webui-state[aria-busy="true"]::before {
+	content: none;
+}
+
 @keyframes webui-state-turn {
 	to { transform: rotate(360deg); }
 }
