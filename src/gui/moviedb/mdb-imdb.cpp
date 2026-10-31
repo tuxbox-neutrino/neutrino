@@ -40,6 +40,7 @@
 
 #include "mdb-imdb.h"
 #include "mdb-omdb.h"
+#include "mdb-wikidata.h"
 
 CIMDB *CIMDB::getInstance()
 {
@@ -92,6 +93,23 @@ std::string CIMDB::searchIMDbId(const std::string &title)
 	ret = omdb::pickId(ss.str());
 
 	return ret;
+}
+
+std::string CIMDB::wikidataIMDbId(const std::string &title)
+{
+	CHTTPTool httpTool;
+	httpTool.setUserAgent(NEUTRINO_USER_AGENT("IMDb lookup"));
+
+	std::vector<std::string> items = wikidata::pickItems(httpTool.downloadString(wikidata::searchUrl(title), -1, 5000, 15));
+
+	for (size_t i = 0; i < items.size(); ++i)
+	{
+		std::string id = wikidata::pickImdbId(httpTool.downloadString(wikidata::claimsUrl(items[i]), -1, 5000, 15));
+		if (!id.empty())
+			return id;
+	}
+
+	return "";
 }
 
 bool CIMDB::fetchDetails(const std::string &url)
@@ -175,16 +193,21 @@ int CIMDB::getMovieDetails(const std::string &epgTitle)
 		return 0;
 
 	// The key is read here and not kept, so a key entered after the first lookup is the one used.
-	// The best match for the title first; if OMDb knows no film of exactly
-	// that name, the first hit of its search.
+	// The best match for the title first. If OMDb knows no film of exactly
+	// that name, which is the rule for a German title, Wikidata is asked for
+	// the IMDb ID, and only then the first hit of OMDb's own search.
 	if (!fetchDetails(omdb::titleUrl(g_settings.omdb_api_key, title)))
 	{
-		std::string imdb_id = searchIMDbId(title);
+		std::string imdb_id = wikidataIMDbId(title);
 		if (imdb_id.empty() || !fetchDetails(omdb::idUrl(g_settings.omdb_api_key, imdb_id)))
 		{
-			m.clear();
-			m["Response"] = "False";
-			return 0;
+			imdb_id = searchIMDbId(title);
+			if (imdb_id.empty() || !fetchDetails(omdb::idUrl(g_settings.omdb_api_key, imdb_id)))
+			{
+				m.clear();
+				m["Response"] = "False";
+				return 0;
+			}
 		}
 	}
 

@@ -38,6 +38,14 @@
 
 #include <string>
 
+/* A User-Agent that names the program, where its makers are found and why it
+   asks, for services that refuse a generic one. The reason is a string
+   literal or a std::string, e.g. NEUTRINO_USER_AGENT("IMDb lookup").
+   PACKAGE_NAME, PACKAGE_VERSION and PACKAGE_URL come from config.h, which the
+   file using this has to include. */
+#define NEUTRINO_USER_AGENT(reason) \
+	(std::string(PACKAGE_NAME "/" PACKAGE_VERSION " (" PACKAGE_URL "; ") + (reason) + ")")
+
 class CHTTPTool
 {
 	private:
@@ -60,6 +68,9 @@ class CHTTPTool
 		/* Set an extra HTTP header sent with the next download call, e.g.
 		 * "X-Tuxbox-Service-Key: <value>". Pass an empty string to clear. */
 		void setExtraHeader(const std::string& header);
+		/* The User-Agent sent from the next call on. Some services refuse
+		 * a generic one and want the program and a way to reach its makers. */
+		void setUserAgent(const std::string& ua) { userAgent = ua; }
 		/* HTTP response code of the last request (0 if none). */
 		long getLastHttpCode() const { return lastHttpCode; }
 

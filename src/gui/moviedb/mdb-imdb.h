@@ -34,6 +34,7 @@ class CIMDB
 		CHintBox *hintbox;
 
 		std::string searchIMDbId(const std::string &title);
+		std::string wikidataIMDbId(const std::string &title);
 		bool fetchDetails(const std::string &url);
 		std::map<std::string, std::string> m;
 

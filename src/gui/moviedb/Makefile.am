@@ -21,4 +21,5 @@ noinst_LIBRARIES = libneutrino_gui_moviedb.a
 libneutrino_gui_moviedb_a_SOURCES = \
 	mdb-imdb.cpp \
 	mdb-omdb.cpp \
-	mdb-tmdb.cpp
+	mdb-tmdb.cpp \
+	mdb-wikidata.cpp
