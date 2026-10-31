@@ -177,6 +177,18 @@ public:
 	// the file the server was told to read. The transport acts on it after
 	// SendResponse, never a hook.
 	std::string	ReloadAfter;
+	// An answer a hook carries on a connection of its own: an object of the
+	// hook's, parked here with HANDLED_STREAM and taken back by the same
+	// hook in its stream pass, which sets both members to NULL as it takes
+	// it. Until then the handler owns it: session_init and the destructor
+	// hand it to CarriedRelease, so an exchange that ends before the stream
+	// pass releases it exactly once. Opaque here. NULL = none.
+	void		*Carried;
+	void		(*CarriedRelease)(void *);
+	// The length the header of a HANDLED_STREAM answer states, -1 for none:
+	// such an answer runs until the connection closes unless its hook knows
+	// how many bytes it is.
+	off_t		StreamLength;
 	time_t 		LastModified;		// Last Modified Time of Item to send / -1 dynamic content
 	std::string	Sendfile;		// Path & Name (local os style) of file to send
 	bool		keep_alive;
@@ -265,6 +277,8 @@ public:
 	void SendOpenedFile(int fd, const std::string& url)	{dropSendFileFd(); SendFileFd = fd; NewURL = url; status = HANDLED_SENDFILE;}
 	void dropSendFileFd()				{if (SendFileFd >= 0) close(SendFileFd); SendFileFd = -1;}
 	void dropPublicFd()				{if (PublicFd >= 0) close(PublicFd); PublicFd = -1;}
+	// Releases a carried answer the stream pass did not take.
+	void dropCarried();
 	void SendRedirect(const std::string& url)	{httpStatus=HTTP_MOVED_TEMPORARILY; NewURL = url; status = HANDLED_REDIRECTION;}
 	void SendRewrite(const std::string& url)	{NewURL = url; status = HANDLED_REWRITE;}
 

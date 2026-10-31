@@ -31,6 +31,9 @@ CyhookHandler::CyhookHandler()
 	PublicFd = -1;
 	SendFileFd = -1;
 	LengthUnknown = false;
+	Carried = NULL;
+	CarriedRelease = NULL;
+	StreamLength = -1;
 	cached = false;
 	keep_alive = 0;
 	_outIndent = 0;
@@ -53,6 +56,19 @@ CyhookHandler::~CyhookHandler()
 		close(SendFd);
 	dropPublicFd();
 	dropSendFileFd();
+	dropCarried();
+}
+
+// Both members cleared before the release runs, so a release that ends up
+// back here finds nothing left to release.
+void CyhookHandler::dropCarried()
+{
+	void *carried = Carried;
+	void (*release)(void *) = CarriedRelease;
+	Carried = NULL;
+	CarriedRelease = NULL;
+	if (carried != NULL && release != NULL)
+		release(carried);
 }
 
 //=============================================================================
@@ -245,6 +261,9 @@ void CyhookHandler::session_init(CStringList _ParamList, CStringList _UrlData,
 	dropSendFileFd();
 	LengthUnknown = false;
 	ReloadAfter.clear();
+	// an answer a broken-off exchange parked and no stream pass took
+	dropCarried();
+	StreamLength = -1;
 	ResponseHeaders.clear();
 	status = HANDLED_NONE;
 	httpStatus = HTTP_OK;
@@ -814,11 +833,14 @@ std::string CyhookHandler::BuildApiHeader() {
 	}
 	// HEAD included: the length is that of the answer a GET would carry.
 	// An answer that is a file states the stretch of it the transport sends.
-	// A stream has no length at all: the body runs until the connection
-	// closes, which Connection: close above already promises, and a HEAD
-	// for one states none either (RFC 9110 8.6). A 204 has no content and
-	// states no length (RFC 9110 15.3.5).
-	if (status != HANDLED_STREAM && !LengthUnknown && httpStatus != HTTP_NO_CONTENT)
+	// A stream has no length unless its hook knows one (StreamLength): the
+	// body runs until the connection closes, which Connection: close above
+	// already promises, and a HEAD for one states none either (RFC 9110
+	// 8.6). A 204 has no content and states no length (RFC 9110 15.3.5).
+	if (status == HANDLED_STREAM) {
+		if (StreamLength >= 0)
+			result += string_printf("Content-Length: %lld\r\n", (long long) StreamLength);
+	} else if (!LengthUnknown && httpStatus != HTTP_NO_CONTENT)
 		result += string_printf("Content-Length: %lld\r\n",
 				(SendFd >= 0) ? (long long) SendFdLength : (long long) yresult.length());
 	result += "\r\n";

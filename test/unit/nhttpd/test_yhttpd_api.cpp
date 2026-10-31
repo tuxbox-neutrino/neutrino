@@ -634,6 +634,106 @@ TEST_CASE("the api header of a stream states no length", "[nhttpd]")
 	CHECK(hh.BuildHeader().find("Content-Length: 0\r\n") != std::string::npos);
 }
 
+TEST_CASE("the api header of a stream states the length its hook knows", "[nhttpd]")
+{
+	CyhookHandler hh = apiHandler(M_GET, HTTP_OK, "");
+	hh.ResponseMimeType = "video/mp2t";
+	hh.status = HANDLED_STREAM;
+	hh.StreamLength = 1234567;
+	CHECK(hh.BuildHeader().find("Content-Length: 1234567\r\n") != std::string::npos);
+	// none known, none stated
+	hh.StreamLength = -1;
+	CHECK(hh.BuildHeader().find("Content-Length:") == std::string::npos);
+	// an empty one is a length as well
+	hh.StreamLength = 0;
+	CHECK(hh.BuildHeader().find("Content-Length: 0\r\n") != std::string::npos);
+	// the stream's length is the stream's only: a finite answer states its body
+	hh.status = HANDLED_READY;
+	hh.yresult = "abc";
+	CHECK(hh.BuildHeader().find("Content-Length: 3\r\n") != std::string::npos);
+}
+
+namespace
+{
+
+int released_answers = 0;
+
+void countRelease(void *p)
+{
+	++released_answers;
+	delete (int *) p;
+}
+
+} // namespace
+
+TEST_CASE("a fresh session carries no answer and states no stream length", "[nhttpd]")
+{
+	CyhookHandler hh;
+	CHECK(hh.Carried == NULL);
+	CHECK(hh.CarriedRelease == NULL);
+	CHECK(hh.StreamLength == -1);
+
+	hh.StreamLength = 99;
+	CStringList none, config;
+	hh.session_init(none, none, none, config, M_GET, false);
+	CHECK(hh.Carried == NULL);
+	CHECK(hh.CarriedRelease == NULL);
+	CHECK(hh.StreamLength == -1);
+}
+
+TEST_CASE("a carried answer the stream pass did not take is released exactly once", "[nhttpd]")
+{
+	CStringList none, config;
+	released_answers = 0;
+
+	SECTION("by the next session on the handler")
+	{
+		CyhookHandler hh;
+		hh.Carried = new int(1);
+		hh.CarriedRelease = &countRelease;
+		hh.session_init(none, none, none, config, M_GET, false);
+		CHECK(released_answers == 1);
+		CHECK(hh.Carried == NULL);
+		CHECK(hh.CarriedRelease == NULL);
+		hh.session_init(none, none, none, config, M_GET, false);
+		CHECK(released_answers == 1);
+	}
+	SECTION("by the handler's end")
+	{
+		{
+			CyhookHandler hh;
+			hh.Carried = new int(2);
+			hh.CarriedRelease = &countRelease;
+		}
+		CHECK(released_answers == 1);
+	}
+	SECTION("twice asked, once released")
+	{
+		CyhookHandler hh;
+		hh.Carried = new int(3);
+		hh.CarriedRelease = &countRelease;
+		hh.dropCarried();
+		hh.dropCarried();
+		CHECK(released_answers == 1);
+	}
+	SECTION("not at all once the stream pass took it")
+	{
+		int *taken = new int(4);
+		{
+			CyhookHandler hh;
+			hh.Carried = taken;
+			hh.CarriedRelease = &countRelease;
+			// what the hook does in its stream pass
+			hh.Carried = NULL;
+			hh.CarriedRelease = NULL;
+			hh.session_init(none, none, none, config, M_GET, false);
+		}
+		CHECK(released_answers == 0);
+		countRelease(taken);
+		CHECK(released_answers == 1);
+	}
+}
+
 TEST_CASE("set_stream_flush lifts the cork and stops the batching", "[nhttpd]")
 {
 	// a real TCP pair: TCP_CORK/TCP_NODELAY do not exist on AF_UNIX
