@@ -551,16 +551,18 @@ TEST_CASE("a minted address is found once and only under its own name", "[webtv]
 	// Long enough that nothing guesses one.
 	CHECK(token.size() == 32);
 
-	coreapi::ChannelId id = 0;
 	std::string url;
 	hls::UriKind kind = hls::UriKind::Playlist;
-	REQUIRE(webtv::findPart(token, id, url, kind));
-	CHECK(id == 0x4211u);
+	REQUIRE(webtv::findPart(token, 0x4211, url, kind));
 	CHECK(url == "https://cdn.example/seg1.ts");
 	CHECK(kind == hls::UriKind::Segment);
 
-	CHECK_FALSE(webtv::findPart("", id, url, kind));
-	CHECK_FALSE(webtv::findPart(std::string(32, '0'), id, url, kind));
+	// under another channel it names nothing
+	url.clear();
+	CHECK_FALSE(webtv::findPart(token, 0x4212, url, kind));
+	CHECK(url.empty());
+	CHECK_FALSE(webtv::findPart("", 0x4211, url, kind));
+	CHECK_FALSE(webtv::findPart(std::string(32, '0'), 0x4211, url, kind));
 
 	// An address this box would not fetch is never minted, so no token can
 	// ever stand for one.
@@ -592,11 +594,9 @@ TEST_CASE("the same segment keeps the address it was given", "[webtv]")
 	CHECK(webtv::mintPart(0x4211, "https://cdn.example/seg7.ts", hls::UriKind::Key) != first);
 
 	// And the one that was reused is still the one it was.
-	coreapi::ChannelId id = 0;
 	std::string url;
 	hls::UriKind kind = hls::UriKind::Playlist;
-	REQUIRE(webtv::findPart(first, id, url, kind));
-	CHECK(id == 0x4211u);
+	REQUIRE(webtv::findPart(first, 0x4211, url, kind));
 	CHECK(url == "https://cdn.example/seg7.ts");
 	CHECK(kind == hls::UriKind::Segment);
 
@@ -636,6 +636,7 @@ struct WebBox
 		carry::setStopBoundMsForTest(0);
 		webtv::setRefusedNetworksForTest(NULL);
 		webtv::setOpenDelayMsForTest(0);
+		webtv::setPartLifetimeMsForTest(0);
 		webtv::forgetParts();
 		forgetApiTokens();
 	}
@@ -1545,4 +1546,453 @@ TEST_CASE("every answer of the routes carries the sandbox, refusals included", "
 	CHECK(head.code() == 200);
 	CHECK(head.headerOf("Content-Type") == "application/octet-stream");
 	CHECK(head.headerOf("Content-Security-Policy") == "sandbox; default-src 'none'");
+}
+
+// ================================================= what a playlist may name
+
+namespace
+{
+
+hls::Rewritten rewritten(const std::string &body, std::string &out, RecordingMinter &m)
+{
+	size_t uris = 0;
+	return hls::rewrite(body, "https://cdn.example/live/x.m3u8", m, out, uris);
+}
+
+} // namespace
+
+TEST_CASE("an attribute given twice refuses the playlist, whichever one a player would take",
+          "[webtv]")
+{
+	const char *const twice[] = {
+		// a player taking the last would fetch the second from the box's own origin
+		"#EXTM3U\n#EXT-X-KEY:METHOD=AES-128,URI=\"k1.bin\",URI=\"/control/volume?mute\"\n",
+		"#EXTM3U\n#EXT-X-MAP:URI=\"init.mp4\",URI=\"/control/x\"\n",
+		"#EXTM3U\n#EXT-X-MEDIA:TYPE=AUDIO,GROUP-ID=\"a\",NAME=\"x\",URI=\"a.m3u8\",URI=\"/control/x\"\n",
+		"#EXTM3U\n#EXT-X-STREAM-INF:BANDWIDTH=1,BANDWIDTH=2\nlow.m3u8\n",
+	};
+	for (size_t i = 0; i < sizeof(twice) / sizeof(twice[0]); ++i)
+	{
+		INFO(twice[i]);
+		RecordingMinter m;
+		std::string out;
+		CHECK(rewritten(twice[i], out, m) == hls::Rewritten::BadReference);
+	}
+}
+
+TEST_CASE("an attribute list that does not read cleanly refuses the playlist", "[webtv]")
+{
+	const char *const broken[] = {
+		"#EXTM3U\n#EXT-X-KEY:METHOD=AES-128,URI=\"k1.bin\n",
+		"#EXTM3U\n#EXT-X-KEY:METHOD=AES-128,URI=\"k1.bin\",\n",
+		"#EXTM3U\n#EXT-X-KEY:METHOD=AES-128,URI=\"k1.bin\"x,IV=0x1\n",
+		"#EXTM3U\n#EXT-X-MAP:URI=\"a,X=\"/control/x\"\n",
+		"#EXTM3U\n#EXT-X-KEY:METHOD=AES-128,=x\n",
+	};
+	for (size_t i = 0; i < sizeof(broken) / sizeof(broken[0]); ++i)
+	{
+		INFO(broken[i]);
+		RecordingMinter m;
+		std::string out;
+		CHECK(rewritten(broken[i], out, m) == hls::Rewritten::BadReference);
+	}
+
+	// a plain value is read as one and written back quoted
+	RecordingMinter m;
+	std::string out;
+	REQUIRE(rewritten("#EXTM3U\n#EXT-X-KEY:METHOD=AES-128,URI=k1.bin,IV=0x01\n", out, m) ==
+	        hls::Rewritten::Ok);
+	CHECK(m.urls.size() == 1);
+	CHECK(m.urls[0] == "https://cdn.example/live/k1.bin");
+	CHECK(out.find("#EXT-X-KEY:METHOD=AES-128,URI=\"/p/1\",IV=0x01\n") != std::string::npos);
+}
+
+TEST_CASE("every attribute naming an address is replaced, left out or refused", "[webtv]")
+{
+	RecordingMinter m;
+	std::string out;
+	const std::string body =
+		"#EXTM3U\n"
+		"#EXT-X-CONTENT-STEERING:SERVER-URI=\"/control/steer\",PATHWAY-ID=\"a\"\n"
+		"#EXT-X-SESSION-DATA:DATA-ID=\"com.example.title\",URI=\"/control/data\"\n"
+		"#EXT-X-SESSION-DATA:DATA-ID=\"com.example.lang\",VALUE=\"en\"\n"
+		"#EXT-X-DATERANGE:ID=\"ad1\",CLASS=\"com.apple.hls.interstitial\",START-DATE=\"2026-10-31T00:00:00Z\","
+		"X-ASSET-LIST=\"/control/assets\"\n"
+		"#EXT-X-DATERANGE:ID=\"ad2\",CLASS=\"com.apple.hls.interstitial\",START-DATE=\"2026-10-31T00:00:00Z\","
+		"X-ASSET-URI=\"/control/asset.m3u8\"\n"
+		"#EXT-X-DATERANGE:ID=\"cue\",START-DATE=\"2026-10-31T00:00:00Z\",DURATION=30\n"
+		"#EXT-X-FOO:URI=\"/control/foo\"\n"
+		"# see http://example.org/x\n"
+		"#EXT-X-CUE-OUT:30\n"
+		"#EXT-X-STREAM-INF:BANDWIDTH=1,PATHWAY-ID=\"a\"\n"
+		"low.m3u8\n";
+	REQUIRE(rewritten(body, out, m) == hls::Rewritten::Ok);
+	CHECK(out.find("/control") == std::string::npos);
+	CHECK(out.find("CONTENT-STEERING") == std::string::npos);
+	CHECK(out.find("X-ASSET") == std::string::npos);
+	CHECK(out.find("http://") == std::string::npos);
+	// what names nothing stays
+	CHECK(out.find("DATA-ID=\"com.example.lang\"") != std::string::npos);
+	CHECK(out.find("ID=\"cue\"") != std::string::npos);
+	CHECK(out.find("#EXT-X-CUE-OUT:30\n") != std::string::npos);
+	REQUIRE(m.urls.size() == 1);
+	CHECK(m.urls[0] == "https://cdn.example/live/low.m3u8");
+
+	// on a tag whose address is replaced, a second address is not taken in
+	const char *const refused[] = {
+		"#EXTM3U\n#EXT-X-MAP:URI=\"init.mp4\",X-OTHER-URI=\"/control/x\"\n",
+		"#EXTM3U\n#EXT-X-KEY:METHOD=AES-128,uri=\"/control/x\"\n",
+		"#EXTM3U\n#EXT-X-STREAM-INF:BANDWIDTH=1,X-LOGO-URL=\"/control/x\"\nlow.m3u8\n",
+		"#EXTM3U\n#EXT-X-START:TIME-OFFSET=0,X-LIST=1,NEXT-LIST=\"/control/x\"\n",
+	};
+	for (size_t i = 0; i < sizeof(refused) / sizeof(refused[0]); ++i)
+	{
+		INFO(refused[i]);
+		RecordingMinter r;
+		CHECK(rewritten(refused[i], out, r) == hls::Rewritten::BadReference);
+	}
+}
+
+TEST_CASE("a tag inside another line, and a variable in an address, refuse the playlist",
+          "[webtv]")
+{
+	const char *const refused[] = {
+		"#EXTM3U\n#EXTINF:4,#EXT-X-KEY:METHOD=AES-128,URI=\"/control/x\"\nseg.ts\n",
+		"#EXTM3U\n# #EXT-X-MEDIA:TYPE=AUDIO,GROUP-ID=\"a\",NAME=\"x\",URI=\"/control/x\"\n",
+		"#EXTM3U\n#EXT-X-DATERANGE:ID=\"x\",X-NOTE=\"#EXT-X-STREAM-INF:BANDWIDTH=1\"\n",
+		"#EXTM3U\n#EXT-X-DEFINE:NAME=\"to\",VALUE=\"/control/x\"\n#EXTINF:4,\n{$to}\n",
+		"#EXTM3U\n#EXT-X-DEFINE:NAME=\"to\",VALUE=\"/control/x\"\n#EXT-X-MAP:URI=\"{$to}\"\n",
+	};
+	for (size_t i = 0; i < sizeof(refused) / sizeof(refused[0]); ++i)
+	{
+		INFO(refused[i]);
+		RecordingMinter m;
+		std::string out;
+		CHECK(rewritten(refused[i], out, m) == hls::Rewritten::BadReference);
+	}
+}
+
+TEST_CASE("a low latency playlist is carried as an ordinary one", "[webtv]")
+{
+	RecordingMinter m;
+	std::string out;
+	const std::string body =
+		"#EXTM3U\n"
+		"#EXT-X-TARGETDURATION:4\n"
+		"#EXT-X-SERVER-CONTROL:CAN-BLOCK-RELOAD=YES,CAN-SKIP-UNTIL=24,PART-HOLD-BACK=3\n"
+		"#EXT-X-PART-INF:PART-TARGET=1\n"
+		"#EXT-X-MEDIA-SEQUENCE:10\n"
+		"#EXT-X-SKIP:SKIPPED-SEGMENTS=3\n"
+		"#EXTINF:4,\n"
+		"seg10.ts\n"
+		"#EXT-X-PART:DURATION=1,URI=\"seg11.0.ts\",INDEPENDENT=YES\n"
+		"#EXT-X-PART:DURATION=1,URI=\"seg11.1.ts\"\n"
+		"#EXT-X-PRELOAD-HINT:TYPE=PART,URI=\"seg11.2.ts\"\n"
+		"#EXT-X-RENDITION-REPORT:URI=\"../audio/x.m3u8\",LAST-MSN=11\n";
+	REQUIRE(rewritten(body, out, m) == hls::Rewritten::Ok);
+	const char *const gone[] = {
+		"SERVER-CONTROL", "PART-INF", "EXT-X-PART", "PRELOAD-HINT", "RENDITION-REPORT", "EXT-X-SKIP",
+	};
+	for (size_t i = 0; i < sizeof(gone) / sizeof(gone[0]); ++i)
+	{
+		INFO(gone[i]);
+		CHECK(out.find(gone[i]) == std::string::npos);
+	}
+	// the segment stays, the parts are not even minted
+	REQUIRE(m.urls.size() == 1);
+	CHECK(m.urls[0] == "https://cdn.example/live/seg10.ts");
+	CHECK(out.find("#EXT-X-MEDIA-SEQUENCE:10\n#EXTINF:4,\n/p/1\n") != std::string::npos);
+}
+
+TEST_CASE("the address table holds what the playlists read at once have handed out", "[webtv]")
+{
+	// a playlist is read on a fetch seat, so this many are read at once at most
+	CHECK(webtv::partCeiling() > carry::seatsOf(carry::Fetch) * webtv::partsPerPlaylist());
+}
+
+TEST_CASE("a playlist that would need more addresses than the box holds is refused",
+          "[webtv][wire]")
+{
+	WebBox box;
+	FarServer far;
+	REQUIRE(far.start());
+	const std::vector<NetPrefix> only_docs = onlyDocumentationRange();
+	webtv::setRefusedNetworksForTest(&only_docs);
+	const std::string id = box.addWebChannel(0x1234, far.url("/long.m3u8"));
+
+	const size_t bound = webtv::partsPerPlaylist();
+	const auto playlist = [](size_t n) {
+		std::string body = "#EXTM3U\n#EXT-X-TARGETDURATION:4\n";
+		char line[64];
+		for (size_t i = 0; i < n; ++i)
+		{
+			std::snprintf(line, sizeof(line), "#EXTINF:4,\nseg%u.ts\n", (unsigned) i);
+			body += line;
+		}
+		// named twice, minted once
+		body += "#EXTINF:4,\nseg0.ts\n";
+		return body;
+	};
+
+	far.first = httpReply("application/vnd.apple.mpegurl", playlist(bound + 1));
+	WireStream over(box.port(), ask("GET", playlistPath(id)).c_str());
+	REQUIRE(over.ok());
+	const std::string refused = over.readToEof(5000);
+	CHECK(over.code() == 415);
+	CHECK(problemCode(refused) == "playlist-unreadable");
+	CHECK(refused.find("more addresses") != std::string::npos);
+
+	// the table full of other channels' addresses, and one playlist at the bound:
+	// every address it is answered with is still there
+	webtv::forgetParts();
+	for (size_t i = 0; i < webtv::partCeiling(); ++i)
+	{
+		char other[64];
+		std::snprintf(other, sizeof(other), "https://cdn.example/other/%u.ts", (unsigned) i);
+		REQUIRE(!webtv::mintPart(0x9999, other, hls::UriKind::Segment).empty());
+	}
+	far.first = httpReply("application/vnd.apple.mpegurl", playlist(bound));
+	WireStream at(box.port(), ask("GET", playlistPath(id)).c_str());
+	REQUIRE(at.ok());
+	const std::string body = at.readToEof(5000);
+	REQUIRE(at.code() == 200);
+	const std::string mark = "/api/v1/webtv/" + id + "/part/";
+	size_t found = 0;
+	size_t held = 0;
+	for (size_t from = body.find(mark); from != std::string::npos; from = body.find(mark, from + 1))
+	{
+		const std::string token = body.substr(from + mark.size(), 32);
+		std::string url;
+		hls::UriKind kind = hls::UriKind::Playlist;
+		++found;
+		if (webtv::findPart(token, 0x1234, url, kind))
+			++held;
+	}
+	CHECK(found == bound + 1);
+	CHECK(held == found);
+	CHECK(webtv::partsHeld() <= webtv::partCeiling());
+}
+
+TEST_CASE("a playlist naming an address twice in one tag is refused over the wire", "[webtv][wire]")
+{
+	WebBox box;
+	FarServer far;
+	REQUIRE(far.start());
+	const std::vector<NetPrefix> only_docs = onlyDocumentationRange();
+	webtv::setRefusedNetworksForTest(&only_docs);
+	const std::string id = box.addWebChannel(0x1234, far.url("/x.m3u8"));
+
+	far.first = httpReply("application/vnd.apple.mpegurl",
+		"#EXTM3U\n#EXT-X-TARGETDURATION:4\n"
+		"#EXT-X-KEY:METHOD=AES-128,URI=\"k1.bin\",URI=\"/control/volume?mute\"\n"
+		"#EXTINF:4,\nseg1.ts\n");
+	WireStream r(box.port(), ask("GET", playlistPath(id)).c_str());
+	REQUIRE(r.ok());
+	const std::string body = r.readToEof(5000);
+	CHECK(r.code() == 415);
+	CHECK(problemCode(body) == "playlist-unreadable");
+	CHECK(body.find("/control") == std::string::npos);
+	CHECK(runningAfter(0, 2000) == 0);
+}
+
+TEST_CASE("a line a reader could split differently refuses the playlist", "[webtv]")
+{
+	const std::string ls = "\xE2\x80\xA8";
+	const std::string ps = "\xE2\x80\xA9";
+	const std::string refused[] = {
+		// (a) a carriage return alone ends a line for a reader of the multivariant list
+		"#EXTM3U\n#EXT-X-STREAM-INF:BANDWIDTH=1\rhttp://evil.example/x.m3u8\nlow.m3u8\n",
+		// (b) and in a segment's title, a comment and an attribute list
+		"#EXTM3U\n#EXTINF:4,\r/control/standby\nseg.ts\n",
+		"#EXTM3U\n#x\r/control/standby\n#EXTINF:4,\nseg.ts\n",
+		"#EXTM3U\n#EXT-X-KEY:METHOD=AES-128\rhttp://evil.example,URI=\"k\"\n#EXTINF:4,\nseg.ts\n",
+		// (c) the Unicode line and paragraph separators a script's . stops at
+		"#EXTM3U\n#EXTINF:4," + ls + "/control/standby\nseg.ts\n",
+		"#EXTM3U\n#EXT-X-STREAM-INF:BANDWIDTH=1" + ps + "/control/x.m3u8\nlow.m3u8\n",
+		"#EXTM3U\n# comment" + ls + "/control/standby\n#EXTINF:4,\nseg.ts\n",
+		// other control characters, in a tag, a comment and an address
+		"#EXTM3U\n#EXTINF:4,\x0b/control/standby\nseg.ts\n",
+		"#EXTM3U\n# x\x0c/control/standby\n#EXTINF:4,\nseg.ts\n",
+		"#EXTM3U\n#EXTINF:4,\nseg\x7f.ts\n",
+		std::string("#EXTM3U\n#EXTINF:4,\nseg.ts\x00/control/x\n", 37),
+	};
+	for (size_t i = 0; i < sizeof(refused) / sizeof(refused[0]); ++i)
+	{
+		INFO(i);
+		RecordingMinter m;
+		std::string out;
+		CHECK(rewritten(refused[i], out, m) == hls::Rewritten::BadReference);
+	}
+
+	// a tab is part of a line, and a line ending in CR LF keeps its ending
+	RecordingMinter m;
+	std::string out;
+	REQUIRE(rewritten("#EXTM3U\r\n#EXT-X-STREAM-INF:BANDWIDTH=1,\tCODECS=\"avc1.4d401f\"\r\nlow.m3u8\r\n",
+	                  out, m) == hls::Rewritten::Ok);
+	CHECK(out.find("CODECS=\"avc1.4d401f\"\r\n/p/1\r\n") != std::string::npos);
+
+	// a carriage return at the very end of the text ends the last line
+	RecordingMinter e;
+	REQUIRE(rewritten("#EXTM3U\r\n#EXTINF:4,\r\nseg1.ts\r\n#EXT-X-ENDLIST\r", out, e) ==
+	        hls::Rewritten::Ok);
+	CHECK(out == "#EXTM3U\r\n#EXTINF:4,\r\n/p/1\r\n#EXT-X-ENDLIST\n");
+	RecordingMinter f;
+	REQUIRE(rewritten("#EXTM3U\n#EXTINF:4,\nseg1.ts\r", out, f) == hls::Rewritten::Ok);
+	CHECK(out == "#EXTM3U\n#EXTINF:4,\n/p/1\n");
+	// and one before it is still one inside that line
+	RecordingMinter d;
+	CHECK(rewritten("#EXTM3U\n#EXTINF:4,\nseg1.ts\n#EXT-X-ENDLIST\r\r", out, d) ==
+	      hls::Rewritten::BadReference);
+}
+
+TEST_CASE("a segment's title is not written, and the last line ends", "[webtv]")
+{
+	RecordingMinter m;
+	std::string out;
+	// (d) a title on the last line, with no line end after it
+	REQUIRE(rewritten("#EXTM3U\n#EXTINF:4.5,Evening news\nseg1.ts\n#EXTINF:4, /control/standby", out, m) ==
+	        hls::Rewritten::Ok);
+	CHECK(out == "#EXTM3U\n#EXTINF:4.5,\n/p/1\n#EXTINF:4,\n");
+	CHECK(out.find("/control") == std::string::npos);
+	CHECK(out.find("Evening") == std::string::npos);
+
+	// a duration without a comma gets one; a duration that is no number refuses
+	REQUIRE(rewritten("#EXTM3U\n#EXTINF:6\nseg1.ts", out, m) == hls::Rewritten::Ok);
+	CHECK(out.find("#EXTINF:6,\n") != std::string::npos);
+	CHECK(out[out.size() - 1] == '\n');
+	RecordingMinter w;
+	REQUIRE(rewritten("#EXTM3U\n#EXTINF: 10.010 ,title\nseg1.ts\n", out, w) == hls::Rewritten::Ok);
+	CHECK(out == "#EXTM3U\n#EXTINF:10.010,\n/p/1\n");
+	const char *const refused[] = {
+		"#EXTM3U\n#EXTINF:,title\nseg.ts\n",
+		"#EXTM3U\n#EXTINF:-1,title\nseg.ts\n",
+		"#EXTM3U\n#EXTINF:4 tvg-logo=\"http://x\",title\nseg.ts\n",
+		"#EXTM3U\n#EXTINF:4.0.1,\nseg.ts\n",
+		// a player would read the duration as 4 and the rest as an address
+		"#EXTM3U\n#EXTINF:4.,\nseg.ts\n",
+		"#EXTM3U\n#EXTINF:.5,\nseg.ts\n",
+		"#EXTM3U\n#EXTINF:.,\nseg.ts\n",
+	};
+	for (size_t i = 0; i < sizeof(refused) / sizeof(refused[0]); ++i)
+	{
+		INFO(refused[i]);
+		RecordingMinter r;
+		CHECK(rewritten(refused[i], out, r) == hls::Rewritten::BadReference);
+	}
+}
+
+TEST_CASE("a playlist after the mark of its encoding is read from the mark on", "[webtv]")
+{
+	RecordingMinter m;
+	std::string out;
+	REQUIRE(rewritten("\xEF\xBB\xBF#EXTM3U\n#EXT-X-TARGETDURATION:4\n#EXTINF:4,\nseg1.ts\n", out, m) ==
+	        hls::Rewritten::Ok);
+	CHECK(out == "#EXTM3U\n#EXT-X-TARGETDURATION:4\n#EXTINF:4,\n/p/1\n");
+	REQUIRE(m.urls.size() == 1);
+	CHECK(m.urls[0] == "https://cdn.example/live/seg1.ts");
+}
+
+TEST_CASE("an address is read without the space around it, and a line of space is none", "[webtv]")
+{
+	RecordingMinter m;
+	std::string out;
+	REQUIRE(rewritten("#EXTM3U\n#EXT-X-STREAM-INF:BANDWIDTH=1\n   \n\t\n  low.m3u8 \t\n#EXTINF:4,\n\tseg1.ts\n", out, m) ==
+	        hls::Rewritten::Ok);
+	REQUIRE(m.urls.size() == 2);
+	CHECK(m.urls[0] == "https://cdn.example/live/low.m3u8");
+	CHECK(m.kinds[0] == hls::UriKind::Playlist);
+	CHECK(m.urls[1] == "https://cdn.example/live/seg1.ts");
+	CHECK(m.kinds[1] == hls::UriKind::Segment);
+	CHECK(out == "#EXTM3U\n#EXT-X-STREAM-INF:BANDWIDTH=1\n/p/1\n#EXTINF:4,\n/p/2\n");
+
+	// an address that turns out to be a tag after its space is no address
+	RecordingMinter r;
+	CHECK(rewritten("#EXTM3U\n  #EXT-X-KEY:METHOD=AES-128,URI=\"/control/x\"\n", out, r) ==
+	      hls::Rewritten::BadReference);
+}
+
+// A shorter lifetime for one case, and the shipped one back however it ends.
+struct ShortPartLifetime
+{
+	explicit ShortPartLifetime(unsigned ms)
+	{
+		webtv::forgetParts();
+		webtv::setPartLifetimeMsForTest(ms);
+	}
+	~ShortPartLifetime()
+	{
+		webtv::setPartLifetimeMsForTest(0);
+		webtv::forgetParts();
+	}
+};
+
+TEST_CASE("an address in use keeps its name; one left alone ages out", "[webtv]")
+{
+	ShortPartLifetime lifetime(1500);
+	const std::string used =
+		webtv::mintPart(0x4211, "https://cdn.example/low.m3u8", hls::UriKind::Playlist);
+	const std::string left =
+		webtv::mintPart(0x4211, "https://cdn.example/high.m3u8", hls::UriKind::Playlist);
+	const std::string crossed =
+		webtv::mintPart(0x4211, "https://cdn.example/mid.m3u8", hls::UriKind::Playlist);
+	REQUIRE(!used.empty());
+	REQUIRE(!left.empty());
+	REQUIRE(!crossed.empty());
+
+	std::string url;
+	hls::UriKind kind = hls::UriKind::Segment;
+	/* asked for every 0.9 s, which is more than its lifetime all told; the
+	   third under another channel each time, which keeps nothing */
+	for (int i = 0; i < 3; ++i)
+	{
+		napMs(900);
+		CHECK(webtv::findPart(used, 0x4211, url, kind));
+		CHECK_FALSE(webtv::findPart(crossed, 0x4212, url, kind));
+	}
+	CHECK(url == "https://cdn.example/low.m3u8");
+	CHECK_FALSE(webtv::findPart(left, 0x4211, url, kind));
+	CHECK_FALSE(webtv::findPart(crossed, 0x4211, url, kind));
+}
+
+TEST_CASE("a nested playlist a player keeps reading stays past the lifetime", "[webtv][wire]")
+{
+	WebBox box;
+	FarServer far;
+	REQUIRE(far.start());
+	const std::vector<NetPrefix> only_docs = onlyDocumentationRange();
+	webtv::setRefusedNetworksForTest(&only_docs);
+	box.addWebChannel(0x1234, far.url("/master.m3u8"));
+	const std::string other = box.addWebChannel(0x5678, far.url("/two.m3u8"));
+	webtv::setPartLifetimeMsForTest(1500);
+	const std::string read = partPath(0x1234, far.url("/low.m3u8"), hls::UriKind::Playlist);
+	const std::string left = partPath(0x1234, far.url("/high.m3u8"), hls::UriKind::Playlist);
+	const std::string crossed = partPath(0x1234, far.url("/mid.m3u8"), hls::UriKind::Playlist);
+	const std::string token = crossed.substr(crossed.rfind('/') + 1);
+
+	far.first = httpReply("application/vnd.apple.mpegurl", "#EXTM3U\n#EXTINF:4,\nseg1.ts\n");
+	for (int i = 0; i < 4; ++i)
+	{
+		INFO("reading " << i);
+		WireStream r(box.port(), ask("GET", read).c_str());
+		REQUIRE(r.ok());
+		r.readToEof(5000);
+		CHECK(r.code() == 200);
+		// asked for under another channel: refused, and not kept for it
+		WireStream x(box.port(), ask("GET", "/api/v1/webtv/" + other + "/part/" + token).c_str());
+		REQUIRE(x.ok());
+		CHECK(x.code() == 404);
+		CHECK(problemCode(x.readToEof(5000)) == "no-such-part");
+		napMs(900);
+	}
+	const std::string aged[] = {left, crossed};
+	for (size_t i = 0; i < 2; ++i)
+	{
+		INFO(aged[i]);
+		WireStream gone(box.port(), ask("GET", aged[i]).c_str());
+		REQUIRE(gone.ok());
+		CHECK(gone.code() == 404);
+		CHECK(problemCode(gone.readToEof(5000)) == "no-such-part");
+	}
+	CHECK(far.timesAsked() == 4);
+	CHECK(runningAfter(0, 2000) == 0);
 }

@@ -100,17 +100,20 @@ enum class Rewritten
    Every address, and that is the point: an address left alone is one the browser
    fetches from the far server itself, which is the request the same origin rule
    turns down. So both forms are read, the line that is nothing but an address and
-   the URI attribute of a tag, and a tag this does not know that carries one still
-   has it rewritten.
+   the URI attribute of the tags the format gives one; a tag that names an address
+   any other way is left out, or refuses the playlist where the playlist cannot do
+   without it (the rules beside the code). What is written is plain lines a reader
+   cannot take apart differently: a playlist with a control character or a Unicode
+   line separator inside a line is refused, a segment's title is not written, the
+   mark of the encoding before #EXTM3U is left off and the last line ends.
 
    uris answers how many were replaced. */
 Rewritten rewrite(const std::string &body, const std::string &base, Minter &m,
                   std::string &out, size_t &uris);
 
-// The most addresses one playlist may carry. A live playlist of a channel
-// holds a handful and a long catch up list a few thousand; past this it is
-// something else, and reading it would be this box minting a token per line
-// for whatever it was handed.
+// The most addresses one playlist may carry, one named twice counted twice; past
+// this it is something else, and reading it would be this box minting a token per
+// line for whatever it was handed. A minter may hold the distinct ones to fewer.
 const size_t kMaxUris = 8192;
 
 } // namespace hls

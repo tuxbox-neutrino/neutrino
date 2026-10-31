@@ -141,8 +141,10 @@ Reached fetchBounded(const std::string &url, size_t cap, Document &out,
    bytes. */
 std::string mintPart(coreapi::ChannelId id, const std::string &url, hls::UriKind kind);
 
-// False for a token nothing minted and for one that has aged out.
-bool findPart(const std::string &token, coreapi::ChannelId &id, std::string &url,
+/* False for a token nothing minted for channel id and for one that has aged out.
+   A token that is found is in use, and its time starts again (partLifetimeMs);
+   one asked for under another channel is neither answered nor kept. */
+bool findPart(const std::string &token, coreapi::ChannelId id, std::string &url,
               hls::UriKind &kind);
 
 // How many are held, and a way to drop them all. The second is for a case, and
@@ -153,10 +155,16 @@ void   forgetParts();
 /* How long a minted address stands, and how many are kept.
 
    A minted address is worth what the far server's own address is worth, which for these
-   lists is a signed address that expires by itself. Kept for a few minutes so a player
-   which read a playlist can still fetch what was in it, and no longer. */
+   lists is a signed address that expires by itself. Kept for a few minutes after it was
+   last minted or asked for, so a player which read a playlist can still fetch what was
+   in it and a playlist a player keeps reading stays, and no longer. */
 unsigned partLifetimeMs();
+// Another lifetime for a case, and 0 for the one above; nothing in the product sets it.
+void     setPartLifetimeMsForTest(unsigned ms);
 size_t   partCeiling();
+
+// The most distinct addresses one playlist may have minted.
+size_t   partsPerPlaylist();
 
 /* What an address handed to a browser is, kept in the answer (Response::relay_kind)
    for the job that carries it. A playlist is read and rewritten before it is

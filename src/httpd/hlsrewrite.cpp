@@ -2,6 +2,7 @@
  * hlsrewrite.cpp - reading an HLS playlist and pointing its addresses back at this box
  *
  * Copyright (C) 2026 NI-Team
+ * Copyright (C) 2026 Tuxbox-Project (attribute lists, tag rules)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -195,24 +196,17 @@ std::string removeDotSegments(const std::string &path)
 	return joined;
 }
 
-// Which of the four kinds an address on a tag is, by the tag it stands on.
+/* Which kind the address of a tag is, by the tag it stands on. Asked only for
+   the tags whose address is replaced (TagRule::Address): a key and a session key
+   lead to a key, a map to the head of a segment, a rendition and an I-frame
+   playlist to a playlist. */
 UriKind kindOfTag(const std::string &line)
 {
 	if (startsWithNoCase(line, "#EXT-X-KEY") || startsWithNoCase(line, "#EXT-X-SESSION-KEY"))
 		return UriKind::Key;
 	if (startsWithNoCase(line, "#EXT-X-MAP"))
 		return UriKind::Map;
-	if (startsWithNoCase(line, "#EXT-X-MEDIA") ||
-	    startsWithNoCase(line, "#EXT-X-I-FRAME-STREAM-INF") ||
-	    startsWithNoCase(line, "#EXT-X-RENDITION-REPORT"))
-		return UriKind::Playlist;
-	/* Everything else that carries an address carries one to bytes: the
-	   partial segment, the hint at the one coming, and whatever a later
-	   version of the format adds. Read as bytes it is passed through
-	   untouched, which is right for a segment and merely useless for anything
-	   else; read as a playlist it would be parsed, and parsing bytes that are
-	   not a playlist is the reading that can go wrong. */
-	return UriKind::Segment;
+	return UriKind::Playlist;
 }
 
 bool lineHasByteRange(const std::string &line)
@@ -221,6 +215,241 @@ bool lineHasByteRange(const std::string &line)
 		return true;
 	return startsWithNoCase(line, "#EXT-X-MAP") &&
 	       line.find("BYTERANGE=") != std::string::npos;
+}
+
+/* What is done with a tag. A player acts on the tags it knows and fetches the
+   addresses they name, so every tag that can name an address is either one
+   whose address is replaced, or left out of the playlist, or refused. */
+enum class TagRule
+{
+	// A tag of the format that names no address, kept as it is.
+	Keep,
+	// The URI attribute, where the tag carries one, is replaced; any other
+	// attribute that names an address refuses the playlist.
+	Address,
+	// An attribute list that names no address; one that does is refused.
+	List,
+	// Left out where one of its attributes names an address: an interstitial
+	// or a piece of session data the channel plays without.
+	Optional,
+	// Left out always: content steering, which would send the player to the
+	// far server's pathways, and the low latency tags, which have the player
+	// ask with directives these routes do not take. The playlist plays on
+	// without them, as an ordinary one.
+	Drop
+};
+
+struct TagSpec
+{
+	const char *name;
+	TagRule     rule;
+};
+
+const TagSpec kTagSpecs[] = {
+	{ "EXTM3U",                       TagRule::Keep },
+	{ "EXTINF",                       TagRule::Keep },
+	{ "EXT-X-VERSION",                TagRule::Keep },
+	{ "EXT-X-TARGETDURATION",         TagRule::Keep },
+	{ "EXT-X-MEDIA-SEQUENCE",         TagRule::Keep },
+	{ "EXT-X-DISCONTINUITY-SEQUENCE", TagRule::Keep },
+	{ "EXT-X-DISCONTINUITY",          TagRule::Keep },
+	{ "EXT-X-PROGRAM-DATE-TIME",      TagRule::Keep },
+	{ "EXT-X-PLAYLIST-TYPE",          TagRule::Keep },
+	{ "EXT-X-ENDLIST",                TagRule::Keep },
+	{ "EXT-X-I-FRAMES-ONLY",          TagRule::Keep },
+	{ "EXT-X-INDEPENDENT-SEGMENTS",   TagRule::Keep },
+	{ "EXT-X-GAP",                    TagRule::Keep },
+	{ "EXT-X-BITRATE",                TagRule::Keep },
+	{ "EXT-X-KEY",                    TagRule::Address },
+	{ "EXT-X-SESSION-KEY",            TagRule::Address },
+	{ "EXT-X-MAP",                    TagRule::Address },
+	{ "EXT-X-MEDIA",                  TagRule::Address },
+	{ "EXT-X-I-FRAME-STREAM-INF",     TagRule::Address },
+	{ "EXT-X-STREAM-INF",             TagRule::List },
+	{ "EXT-X-START",                  TagRule::List },
+	{ "EXT-X-DEFINE",                 TagRule::List },
+	{ "EXT-X-DATERANGE",              TagRule::Optional },
+	{ "EXT-X-SESSION-DATA",           TagRule::Optional },
+	{ "EXT-X-CONTENT-STEERING",       TagRule::Drop },
+	{ "EXT-X-SERVER-CONTROL",         TagRule::Drop },
+	{ "EXT-X-PART-INF",               TagRule::Drop },
+	{ "EXT-X-PART",                   TagRule::Drop },
+	{ "EXT-X-PRELOAD-HINT",           TagRule::Drop },
+	{ "EXT-X-RENDITION-REPORT",       TagRule::Drop },
+	{ "EXT-X-SKIP",                   TagRule::Drop },
+};
+
+// The rule for a tag line by its exact name, false for a tag not listed.
+bool tagRule(const std::string &line, TagRule &rule)
+{
+	const size_t colon = line.find(':');
+	const std::string name = line.substr(1, (colon == std::string::npos) ? std::string::npos : colon - 1);
+	for (size_t i = 0; i < sizeof(kTagSpecs) / sizeof(kTagSpecs[0]); ++i)
+	{
+		if (name == kTagSpecs[i].name)
+		{
+			rule = kTagSpecs[i].rule;
+			return true;
+		}
+	}
+	return false;
+}
+
+// One attribute: its name, and where its value lies in the line, inside the
+// quotes of a quoted one.
+struct Attribute
+{
+	std::string name;
+	size_t      from;
+	size_t      to;
+	bool        quoted;
+};
+
+bool attributeNameChar(char c)
+{
+	return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') ||
+	       c == '-' || c == '_';
+}
+
+/* The attribute list after a tag's colon, as the format writes it: NAME=value
+   separated by commas, the value quoted, with no quote inside, or plain up to
+   the next comma. False for anything else, and for a name given twice: a
+   reader that takes the first of two and one that takes the last read two
+   different playlists out of one line. */
+bool readAttributes(const std::string &line, size_t at, std::vector<Attribute> &out)
+{
+	out.clear();
+	while (at < line.size())
+	{
+		while (at < line.size() && (line[at] == ' ' || line[at] == '\t'))
+			++at;
+		size_t end = at;
+		while (end < line.size() && attributeNameChar(line[end]))
+			++end;
+		if (end == at || end >= line.size() || line[end] != '=')
+			return false;
+
+		Attribute a;
+		a.name = line.substr(at, end - at);
+		for (size_t i = 0; i < out.size(); ++i)
+		{
+			if (out[i].name == a.name)
+				return false;
+		}
+
+		size_t next = 0;
+		if (end + 1 < line.size() && line[end + 1] == '"')
+		{
+			const size_t close = line.find('"', end + 2);
+			if (close == std::string::npos)
+				return false;
+			a.quoted = true;
+			a.from = end + 2;
+			a.to = close;
+			next = close + 1;
+			if (next < line.size() && line[next] != ',')
+				return false;
+		}
+		else
+		{
+			a.quoted = false;
+			a.from = end + 1;
+			next = line.find(',', a.from);
+			if (next == std::string::npos)
+				next = line.size();
+			a.to = next;
+			if (a.to == a.from || line.find('"', a.from) < next)
+				return false;
+		}
+		out.push_back(a);
+
+		if (next >= line.size())
+			break;
+		// a comma that ends the line leaves an attribute without a name
+		at = next + 1;
+		if (at >= line.size())
+			return false;
+	}
+	return !out.empty();
+}
+
+// Whether an attribute names an address, whatever the tag: URI, a name ending
+// in -URI or -LIST, or one that says URL.
+bool namesAddress(const std::string &name)
+{
+	std::string upper(name);
+	for (size_t i = 0; i < upper.size(); ++i)
+	{
+		if (upper[i] >= 'a' && upper[i] <= 'z')
+			upper[i] = (char) (upper[i] - 'a' + 'A');
+	}
+	const size_t n = upper.size();
+	return upper == "URI" || upper.find("URL") != std::string::npos ||
+	       (n > 4 && upper.compare(n - 4, 4, "-URI") == 0) ||
+	       (n > 5 && upper.compare(n - 5, 5, "-LIST") == 0);
+}
+
+/* A reference a player would read otherwise than this box does: one that holds
+   a variable the player fills in. The box resolves the text as it stands, so
+   what it fetched and what the player meant would be two addresses. */
+bool readsOtherwise(const std::string &ref)
+{
+	return ref.find("{$") != std::string::npos;
+}
+
+/* Whether a line, its line feed and a carriage return before it taken off, is
+   one line to every reader. A carriage return or another control character
+   inside it (a tab aside), and the two Unicode separators a script's line
+   matching stops at, would let a reader see a second line this box never read. */
+bool oneLine(const std::string &line)
+{
+	for (size_t i = 0; i < line.size(); ++i)
+	{
+		const unsigned char c = (unsigned char) line[i];
+		if ((c < 0x20 && c != '\t') || c == 0x7F)
+			return false;
+		if (c == 0xE2 && i + 2 < line.size() && (unsigned char) line[i + 1] == 0x80 &&
+		    ((unsigned char) line[i + 2] == 0xA8 || (unsigned char) line[i + 2] == 0xA9))
+			return false;
+	}
+	return true;
+}
+
+// The line without the spaces and tabs around it, as a player reads an address.
+std::string trimmedLine(const std::string &line)
+{
+	size_t from = 0;
+	size_t to = line.size();
+	while (from < to && (line[from] == ' ' || line[from] == '\t'))
+		++from;
+	while (to > from && (line[to - 1] == ' ' || line[to - 1] == '\t'))
+		--to;
+	return line.substr(from, to - from);
+}
+
+/* A segment's duration as the format writes it: digits, and after a point
+   more digits, or no point at all. A player reads a duration as far as it is
+   one of these and the rest of the line as an address, so "4." or ".5" would
+   be a duration and a second line to it. The title after the comma is not
+   read, and nothing reads it. False for anything else. */
+bool segmentDuration(const std::string &line, std::string &out)
+{
+	const size_t from = std::strlen("#EXTINF:");
+	const size_t comma = line.find(',', from);
+	out = trimmedLine(line.substr(from, (comma == std::string::npos) ? std::string::npos : comma - from));
+	size_t i = 0;
+	while (i < out.size() && out[i] >= '0' && out[i] <= '9')
+		++i;
+	if (i == 0)
+		return false;
+	if (i == out.size())
+		return true;
+	if (out[i] != '.')
+		return false;
+	const size_t fraction = ++i;
+	while (i < out.size() && out[i] >= '0' && out[i] <= '9')
+		++i;
+	return i > fraction && i == out.size();
 }
 
 } // namespace
@@ -332,13 +561,16 @@ Rewritten rewrite(const std::string &body, const std::string &base, Minter &m,
 
 	out.reserve(body.size() + body.size() / 4);
 
+	// written without the mark of the encoding, so #EXTM3U is the first line
+	const size_t bom = sizeof(kBom) - 1;
+
 	/* Set by the tag that says the next address is a variant of this stream
 	   and cleared by the address that follows it, which is the format's own
 	   rule for telling a master playlist from a media one: the tag stands on
 	   its own line and the address is the line after it. */
 	bool next_is_variant = false;
 
-	size_t at = 0;
+	size_t at = (body.compare(0, bom, kBom) == 0) ? bom : 0;
 	while (at <= body.size())
 	{
 		size_t nl = body.find('\n', at);
@@ -349,19 +581,18 @@ Rewritten rewrite(const std::string &body, const std::string &base, Minter &m,
 		std::string line = body.substr(at, nl - at);
 		at = nl + 1;
 
-		std::string ending;
-		if (!last)
+		/* A carriage return before the line feed, or before the end of the text,
+		   belongs to the line's end; the last line gets its end after the walk. */
+		std::string ending = last ? "" : "\n";
+		if (!line.empty() && line[line.size() - 1] == '\r')
 		{
-			if (!line.empty() && line[line.size() - 1] == '\r')
-			{
-				line.erase(line.size() - 1);
+			line.erase(line.size() - 1);
+			if (!last)
 				ending = "\r\n";
-			}
-			else
-			{
-				ending = "\n";
-			}
 		}
+
+		if (!oneLine(line))
+			return Rewritten::BadReference;
 
 		if (line.empty())
 		{
@@ -376,29 +607,106 @@ Rewritten rewrite(const std::string &body, const std::string &base, Minter &m,
 			if (lineHasByteRange(line))
 				return Rewritten::HasByteRange;
 
+			/* A player that looks for its tags anywhere in the text, and not only
+			   at the start of a line, would find one inside another line. */
+			if (line.find("#EXT", 1) != std::string::npos)
+				return Rewritten::BadReference;
+
 			if (startsWithNoCase(line, "#EXT-X-STREAM-INF"))
 				next_is_variant = true;
 
-			const size_t key = line.find("URI=\"");
-			if (key != std::string::npos)
+			TagRule rule = TagRule::List;
+			if (!startsWithNoCase(line, "#EXT") || !tagRule(line, rule))
 			{
-				const size_t from = key + 5;
-				const size_t to = line.find('"', from);
-				if (to == std::string::npos)
+				/* A comment, or a tag no player acts on, stays as it is, unless it
+				   looks as though it names an address: then it is left out. */
+				if (line.find("://") == std::string::npos && line.find("URI=") == std::string::npos)
+				{
+					out += line;
+					out += ending;
+				}
+				if (last)
+					break;
+				continue;
+			}
+
+			if (rule == TagRule::Drop)
+			{
+				if (last)
+					break;
+				continue;
+			}
+			if (rule == TagRule::Keep)
+			{
+				std::string duration;
+				if (!startsWithNoCase(line, "#EXTINF:"))
+					out += line;
+				else if (segmentDuration(line, duration))
+					out += "#EXTINF:" + duration + ",";
+				else
 					return Rewritten::BadReference;
+				out += ending;
+				if (last)
+					break;
+				continue;
+			}
+
+			std::vector<Attribute> attrs;
+			const size_t colon = line.find(':');
+			if (colon == std::string::npos)
+			{
+				// a tag without a list names nothing
+				out += line;
+				out += ending;
+				if (last)
+					break;
+				continue;
+			}
+			if (!readAttributes(line, colon + 1, attrs))
+				return Rewritten::BadReference;
+
+			const Attribute *uri = NULL;
+			bool other_address = false;
+			for (size_t i = 0; i < attrs.size(); ++i)
+			{
+				if (!namesAddress(attrs[i].name))
+					continue;
+				if (rule == TagRule::Address && attrs[i].name == "URI")
+					uri = &attrs[i];
+				else
+					other_address = true;
+			}
+
+			if (rule == TagRule::Optional && (other_address || uri != NULL))
+			{
+				if (last)
+					break;
+				continue;
+			}
+			if (other_address)
+				return Rewritten::BadReference;
+
+			if (uri != NULL)
+			{
 				if (uris >= kMaxUris)
 					return Rewritten::TooManyUris;
 
+				const std::string ref = line.substr(uri->from, uri->to - uri->from);
 				std::string absolute;
-				if (!resolveUri(base, line.substr(from, to - from), absolute))
+				if (readsOtherwise(ref) || !resolveUri(base, ref, absolute))
 					return Rewritten::BadReference;
 				std::string minted;
 				if (!m.mint(absolute, kindOfTag(line), minted))
 					return Rewritten::BadReference;
 
-				out += line.substr(0, from);
+				// written quoted whichever way it came
+				const size_t value_from = uri->quoted ? uri->from - 1 : uri->from;
+				const size_t value_to = uri->quoted ? uri->to + 1 : uri->to;
+				out += line.substr(0, value_from);
+				out += '"';
 				out += minted;
-				out += line.substr(to);
+				out += '"';
+				out += line.substr(value_to);
 				out += ending;
 				++uris;
 				if (last)
@@ -413,11 +721,21 @@ Rewritten rewrite(const std::string &body, const std::string &base, Minter &m,
 			continue;
 		}
 
+		/* An address as a player reads it, without the space around it; a line
+		   of nothing but space is no address, and is left out. */
+		const std::string ref = trimmedLine(line);
+		if (ref.empty())
+		{
+			if (last)
+				break;
+			continue;
+		}
+
 		if (uris >= kMaxUris)
 			return Rewritten::TooManyUris;
 
 		std::string absolute;
-		if (!resolveUri(base, line, absolute))
+		if (readsOtherwise(ref) || !resolveUri(base, ref, absolute))
 			return Rewritten::BadReference;
 		std::string minted;
 		if (!m.mint(absolute, next_is_variant ? UriKind::Playlist : UriKind::Segment, minted))
@@ -431,6 +749,9 @@ Rewritten rewrite(const std::string &body, const std::string &base, Minter &m,
 			break;
 	}
 
+	// the last line ends, so nothing after it can be read into it
+	if (!out.empty() && out[out.size() - 1] != '\n')
+		out += '\n';
 	return Rewritten::Ok;
 }
 

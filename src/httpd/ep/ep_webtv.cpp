@@ -34,7 +34,9 @@
 #include "coreapi/base/types.h"
 
 #include <cstdio>
+#include <set>
 #include <string>
+#include <utility>
 
 namespace httpd
 {
@@ -86,7 +88,8 @@ class PartMinter : public hls::Minter
 {
 	public:
 		PartMinter(coreapi::ChannelId id, bool nested)
-			: id_(id), prefix_(partPrefix(id)), nested_(nested), too_deep_(false) {}
+			: id_(id), prefix_(partPrefix(id)), nested_(nested), too_deep_(false),
+			  too_many_(false) {}
 
 		bool mint(const std::string &absolute, hls::UriKind kind, std::string &out)
 		{
@@ -96,20 +99,32 @@ class PartMinter : public hls::Minter
 				too_deep_ = true;
 				return false;
 			}
+			/* Counted before it is minted: an address the playlist names twice
+			   is one token, and one past the bound is not minted at all. */
+			const std::pair<std::string, int> named(absolute, (int) kind);
+			if (seen_.count(named) == 0 && seen_.size() >= webtv::partsPerPlaylist())
+			{
+				too_many_ = true;
+				return false;
+			}
 			const std::string token = webtv::mintPart(id_, absolute, kind);
 			if (token.empty())
 				return false;
+			seen_.insert(named);
 			out = prefix_ + token;
 			return true;
 		}
 
 		bool tooDeep() const { return too_deep_; }
+		bool tooMany() const { return too_many_; }
 
 	private:
 		coreapi::ChannelId id_;
 		std::string        prefix_;
 		bool               nested_;
 		bool               too_deep_;
+		bool               too_many_;
+		std::set<std::pair<std::string, int> > seen_;
 };
 
 Response refusedAddress()
@@ -175,6 +190,9 @@ Response playlistFrom(coreapi::ChannelId id, const std::string &url, bool nested
 	if (minter.tooDeep())
 		return problemResponse(StatusUnsupportedMedia, coreapi::ErrorCode::PlaylistUnreadable,
 		                       "this playlist names further playlists, deeper than a channel's playlists nest");
+	if (minter.tooMany())
+		return problemResponse(StatusUnsupportedMedia, coreapi::ErrorCode::PlaylistUnreadable,
+		                       "this playlist carries more addresses than this box holds");
 
 	switch (read)
 	{
@@ -348,19 +366,16 @@ Response webtvPart(const Request &r)
 	const coreapi::ChannelId id = r.asChannelId("id");
 	const std::string &token = r.asString("token");
 
-	coreapi::ChannelId minted_for = 0;
-	std::string url;
-	hls::UriKind kind = hls::UriKind::Segment;
-	if (!webtv::findPart(token, minted_for, url, kind))
-		return sandboxed(problemResponse(StatusNotFound, coreapi::ErrorCode::NoSuchPart,
-		                                 "nothing was minted under that name, or what was has aged out"));
-
 	/* The channel in the path has to be the channel the token was minted for.
 	   Without it a token is a key to an address rather than to an address of
-	   one channel, and the identifier in the path would be decoration. */
-	if (minted_for != id)
+	   one channel, and the identifier in the path would be decoration. Asked
+	   for under another channel, it is not kept for longer either. */
+	std::string url;
+	hls::UriKind kind = hls::UriKind::Segment;
+	if (!webtv::findPart(token, id, url, kind))
 		return sandboxed(problemResponse(StatusNotFound, coreapi::ErrorCode::NoSuchPart,
-		                                 "that name was not minted for this channel"));
+		                                 "nothing was minted for this channel under that name, "
+		                                 "or what was has aged out"));
 
 	if (kind == hls::UriKind::Playlist)
 		return sandboxed(playlistAnswer(id, url, true));
@@ -414,7 +429,7 @@ const RouteRefusal kWebtvPartRefusals[] = {
 	HTTPD_REFUSES(Denied, AddressRefused,
 		"this channel leads to an address on a network this box does not fetch from"),
 	HTTPD_REFUSES(NotFound, NoSuchPart,
-		"nothing was minted under that name, or what was has aged out"),
+		"nothing was minted for this channel under that name, or what was has aged out"),
 	HTTPD_REFUSES_AS(415, NotAPlaylist,
 		"the address this channel names does not answer with a playlist"),
 	HTTPD_REFUSES_AS(415, PlaylistUnreadable,
@@ -452,7 +467,10 @@ const Endpoint kWebtvEndpoints[] = {
 	  "- `415 not-a-playlist`: the address answered with something other than an "
 	  "HLS playlist; play it with `GET /api/v1/webtv/{id}/stream` instead.\n"
 	  "- `415 playlist-unreadable`: the playlist is longer than this box reads, "
-	  "addresses stretches of files, or carries an address this box cannot resolve.\n"
+	  "addresses stretches of files, carries an address this box cannot resolve, "
+	  "names an attribute twice or an address where a tag takes none, holds a "
+	  "control character or a line separator inside a line, or needs more than 512 "
+	  "addresses.\n"
 	  "- `503 too-many-streams`: the box is already fetching as many playlists and "
 	  "streams as it will; try again after `Retry-After`.\n"
 	  "- `503 upstream-unreachable`: the far server could not be reached or "
@@ -491,7 +509,7 @@ const Endpoint kWebtvEndpoints[] = {
 	  "never an address itself and only ever a name this box handed out, which is "
 	  "the whole of this route's protection against being made to fetch an "
 	  "address of somebody else's choosing. A token is kept for a few minutes "
-	  "after it was minted and then forgotten.\n\n"
+	  "after it was last minted or asked for, and then forgotten.\n\n"
 	  "**Refusals:**\n"
 	  "- `403 address-refused`: the address, or one it redirects to, is on a "
 	  "network this box will not fetch from.\n"
@@ -499,7 +517,8 @@ const Endpoint kWebtvEndpoints[] = {
 	  "minted for this channel, or it has aged out; read the playlist again with "
 	  "`GET /api/v1/webtv/{id}/playlist.m3u8` to mint fresh ones.\n"
 	  "- `415 not-a-playlist`, `415 playlist-unreadable`: a nested playlist that "
-	  "is no playlist, one this box cannot read, or one that names further "
+	  "is no playlist, one this box cannot read for a reason "
+	  "`GET /api/v1/webtv/{id}/playlist.m3u8` lists, or one that names further "
 	  "playlists, deeper than a channel's playlists nest.\n"
 	  "- `503 too-many-streams`: the box is already fetching as many playlists and "
 	  "streams as it will; try again after `Retry-After`.\n"

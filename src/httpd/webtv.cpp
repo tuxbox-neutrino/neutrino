@@ -115,11 +115,20 @@ const size_t kMaxRedirects = 5;
 /* What a channel of these lists is worth as a token, and how many are kept.
 
    The far servers sign their own addresses and expire them in minutes, so an
-   address held longer than this is one that has stopped working anyway. The
-   count is what a box holds while several players each read a playlist of a
-   few dozen addresses every few seconds. */
+   address held longer than this is one that has stopped working anyway. The time
+   runs from the last time an address was minted or asked for: a playlist a player
+   reads again every few seconds, a variant named once by the channel's own one,
+   stays for as long as it is read, and the table gives up the address used least
+   recently first.
+
+   One playlist mints at most kPlaylistParts addresses, and the table holds more
+   than the fetch seats times that: a playlist is only read on a seat, so the
+   playlists being read at any one time cannot push out an address one of them
+   has just handed out. A playlist that would need more is refused rather than
+   answered with addresses already forgotten. */
 const unsigned kPartLifetimeMs = 300u * 1000u;
-const size_t   kPartCeiling    = 2048;
+const size_t   kPlaylistParts  = 512;
+const size_t   kPartCeiling    = 4096;
 
 // Two bytes of text each, and long enough that nothing guesses one.
 const size_t kTokenBytes = 16;
@@ -162,6 +171,7 @@ std::vector<Part> &parts()
 
 const std::vector<NetPrefix> *refused_override_ = NULL;
 std::atomic<unsigned> open_delay_ms_(0);
+std::atomic<unsigned> part_lifetime_ms_(kPartLifetimeMs);
 
 std::vector<NetPrefix> *buildRefused()
 {
@@ -818,7 +828,7 @@ std::string mintPart(coreapi::ChannelId id, const std::string &url, hls::UriKind
 	   which is the order they were added in, so the walk stops at the first
 	   that is still good. */
 	size_t stale = 0;
-	while (stale < list.size() && (now - list[stale].minted) > (int64_t) kPartLifetimeMs)
+	while (stale < list.size() && (now - list[stale].minted) > (int64_t) part_lifetime_ms_.load())
 		++stale;
 	if (stale > 0)
 		list.erase(list.begin(), list.begin() + (std::ptrdiff_t) stale);
@@ -863,27 +873,36 @@ std::string mintPart(coreapi::ChannelId id, const std::string &url, hls::UriKind
 	return p.token;
 }
 
-bool findPart(const std::string &token, coreapi::ChannelId &id, std::string &url,
+bool findPart(const std::string &token, coreapi::ChannelId id, std::string &url,
               hls::UriKind &kind)
 {
 	if (token.empty())
 		return false;
 
 	OpenThreads::ScopedLock<OpenThreads::Mutex> held(lock());
-	const std::vector<Part> &list = parts();
+	std::vector<Part> &list = parts();
 	const int64_t now = monotonicMs();
 
 	for (size_t i = 0; i < list.size(); ++i)
 	{
 		if (list[i].token != token)
 			continue;
+		/* A token stands for an address of one channel. Under another channel it
+		   names nothing, and asking for it so does not keep it either. */
+		if (list[i].id != id)
+			return false;
 		// An address that has aged out is one nothing has, rather than one
 		// that is fetched because it is still written down.
-		if ((now - list[i].minted) > (int64_t) kPartLifetimeMs)
+		if ((now - list[i].minted) > (int64_t) part_lifetime_ms_.load())
 			return false;
-		id = list[i].id;
 		url = list[i].url;
 		kind = list[i].kind;
+		/* Asked for, it is in use: its time starts again, and it moves to the
+		   end the way mintPart moves one, so the list stays oldest first. */
+		Part again = list[i];
+		again.minted = now;
+		list.erase(list.begin() + (std::ptrdiff_t) i);
+		list.push_back(again);
 		return true;
 	}
 	return false;
@@ -903,12 +922,22 @@ void forgetParts()
 
 unsigned partLifetimeMs()
 {
-	return kPartLifetimeMs;
+	return part_lifetime_ms_.load();
+}
+
+void setPartLifetimeMsForTest(unsigned ms)
+{
+	part_lifetime_ms_ = (ms == 0) ? kPartLifetimeMs : ms;
 }
 
 size_t partCeiling()
 {
 	return kPartCeiling;
+}
+
+size_t partsPerPlaylist()
+{
+	return kPlaylistParts;
 }
 
 // ----------------------------------------------------------- the pass through
