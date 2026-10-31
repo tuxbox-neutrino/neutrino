@@ -14,9 +14,15 @@
 #include "support/catch.hpp"
 
 #include <zapit/streamadmission.h>
+#include <zapit/streamholdcmd.h>
 
 #include <algorithm>
+#include <atomic>
+#include <cerrno>
 #include <vector>
+
+#include <pthread.h>
+#include <time.h>
 
 using namespace streamadmission;
 
@@ -248,4 +254,398 @@ TEST_CASE("held: live on 0 and PiP slot 0 on 1 hold both, leaving frontend 2", "
 	REQUIRE(has(h, 1));
 	REQUIRE_FALSE(has(h, 2));
 	REQUIRE(decide(f, kOther) == Idle);
+}
+
+/* The writers of PiP state that run on other threads than zapit's, against
+   the admission zapit runs (streamholdcmd::run, the shipped object), on a
+   model: one lock standing for the frontend manager's, the facts read from
+   the model's state, a demux source table both sides write, and the demux
+   1 reader the PiP is. The admission must never set the source of demux 1
+   while a PiP reads it. check-pip-source-order.sh holds the program's code
+   to the order these writers follow. */
+
+namespace
+{
+
+// A point one thread waits at until the case lets it go.
+struct Hold
+{
+	pthread_mutex_t m;
+	pthread_cond_t c;
+	bool armed, arrived, go;
+
+	Hold() : armed(false), arrived(false), go(false)
+	{
+		pthread_mutex_init(&m, 0);
+		pthread_cond_init(&c, 0);
+	}
+	~Hold()
+	{
+		pthread_cond_destroy(&c);
+		pthread_mutex_destroy(&m);
+	}
+	void pass()
+	{
+		pthread_mutex_lock(&m);
+		if (armed)
+		{
+			armed = false;
+			arrived = true;
+			pthread_cond_broadcast(&c);
+			while (!go)
+				pthread_cond_wait(&c, &m);
+		}
+		pthread_mutex_unlock(&m);
+	}
+	void waitArrived()
+	{
+		struct timespec until;
+		clock_gettime(CLOCK_REALTIME, &until);
+		until.tv_sec += 10;
+		pthread_mutex_lock(&m);
+		while (!arrived)
+			if (pthread_cond_timedwait(&c, &m, &until) == ETIMEDOUT)
+				break;
+		const bool got = arrived;
+		pthread_mutex_unlock(&m);
+		REQUIRE(got);
+	}
+	void letGo()
+	{
+		pthread_mutex_lock(&m);
+		go = true;
+		pthread_cond_broadcast(&c);
+		pthread_mutex_unlock(&m);
+	}
+};
+
+/* The box: live on frontend 0, so a stream of the live channel binds demux 1
+   with source 0; frontends 1 and 2 idle. */
+struct PipModel : public streamholdcmd::Ops
+{
+	pthread_mutex_t fe_lock;     // the frontend manager's lock
+
+	// What the facts are read from, written by the PiP writers under fe_lock.
+	bool avinput_flag;
+	bool slot_active;
+	int  slot_fe;
+
+	// What the hardware does, written without the lock.
+	std::atomic<int>  source1;          // the source demux 1 reads
+	std::atomic<bool> pip_reads_demux1;  // a PiP decodes demux 1 right now
+
+	std::atomic<int> bound_demux1_under_pip;
+	std::atomic<int> bound_demux1;
+	int fe[3];
+
+	Hold in_facts;   // the admission, holding the lock, reading the facts
+
+	PipModel()
+		: avinput_flag(false), slot_active(false), slot_fe(-1), source1(-1),
+		  pip_reads_demux1(false), bound_demux1_under_pip(0), bound_demux1(0)
+	{
+		pthread_mutex_init(&fe_lock, 0);
+		fe[0] = 0;
+		fe[1] = 1;
+		fe[2] = 2;
+	}
+	~PipModel() { pthread_mutex_destroy(&fe_lock); }
+
+	void setSource(int demux, int src)
+	{
+		if (demux != 1)
+			return;
+		bound_demux1++;
+		if (pip_reads_demux1.load())
+			bound_demux1_under_pip++;
+		source1 = src;
+	}
+
+	void collect() {}
+	bool serving() { return true; }
+	int64_t nowMs() { return 1; }
+	streamholdcmd::Kind channel(uint64_t) { return streamholdcmd::Broadcast; }
+	bool roomForHold() { return true; }
+	void lockFrontends() { pthread_mutex_lock(&fe_lock); }
+	void unlockFrontends() { pthread_mutex_unlock(&fe_lock); }
+	void facts(streamadmission::Facts &f)
+	{
+		in_facts.pass();
+		f.live_dvb = true;
+		f.live_tuned = true;
+		f.live_channel = kLive;
+		f.live_fe = 0;
+		f.slots = 1;
+		f.slot[0].active = slot_active;
+		f.slot[0].channel = kPip;
+		f.slot[0].fe = slot_fe;
+		f.avinput_pip = avinput_flag;
+	}
+	void heldByStreams(std::vector<int> &) {}
+	void *holdLive(bool)
+	{
+		setSource(1, 0);
+		return &fe[0];
+	}
+	void openFrontends() {}
+	void *pickIdle(const std::vector<int> &held, bool bind, bool)
+	{
+		for (int i = 0; i < 3; ++i)
+		{
+			if (std::find(held.begin(), held.end(), i) != held.end())
+				continue;
+			if (bind)
+				setSource(i + 1, i);
+			return &fe[i];
+		}
+		return 0;
+	}
+	int number(void *p) { return *static_cast<int *>(p); }
+	bool tune(void *) { return true; }
+	void unlockFrontend(void *) {}
+	uint32_t offer(void *) { return 5; }
+	void drop(uint32_t) {}
+	bool answer(const streamholdcmd::Reply &) { return true; }
+};
+
+struct Admission
+{
+	PipModel &box;
+	uint64_t channel;
+	streamholdcmd::Reply got;
+	pthread_t thread;
+
+	Admission(PipModel &b, uint64_t ch) : box(b), channel(ch)
+	{
+		REQUIRE(pthread_create(&thread, 0, &go, this) == 0);
+	}
+	void join() { pthread_join(thread, 0); }
+	static void *go(void *arg)
+	{
+		Admission *a = static_cast<Admission *>(arg);
+		a->got = streamholdcmd::run(a->box, a->channel, 0, false, false);
+		return 0;
+	}
+};
+
+/* The AV-input PiP as StartAVInputPiP starts it: the flag under the lock,
+   then demux 1 switched to the input (source 2) and read. Stops are the
+   points a case holds it at. */
+struct AvPip
+{
+	PipModel &box;
+	Hold before_lock, in_lock, before_switch;
+	pthread_t thread;
+	bool started;
+
+	explicit AvPip(PipModel &b) : box(b), started(false) {}
+	void start()
+	{
+		started = true;
+		REQUIRE(pthread_create(&thread, 0, &go, this) == 0);
+	}
+	void join()
+	{
+		if (started)
+			pthread_join(thread, 0);
+	}
+	static void *go(void *arg)
+	{
+		AvPip *p = static_cast<AvPip *>(arg);
+		p->before_lock.pass();
+		pthread_mutex_lock(&p->box.fe_lock);
+		p->in_lock.pass();
+		p->box.avinput_flag = true;
+		pthread_mutex_unlock(&p->box.fe_lock);
+		p->before_switch.pass();
+		p->box.source1 = 2;
+		p->box.pip_reads_demux1 = true;
+		return 0;
+	}
+};
+
+} // namespace
+
+TEST_CASE("AV-input PiP: an admission holding the lock first is overwritten by the switch", "[zapit][admission][avpip]")
+{
+	PipModel box;
+	AvPip pip(box);
+	box.in_facts.armed = true;
+	Admission a(box, kLive);
+	box.in_facts.waitArrived();      // the admission holds the lock
+
+	pip.before_lock.armed = true;
+	pip.start();
+	pip.before_lock.waitArrived();   // everything the PiP does before the lock is done
+	pip.before_lock.letGo();         // and it waits for the lock now, or soon
+	box.in_facts.letGo();
+	a.join();
+	pip.join();
+
+	REQUIRE(a.got.verdict == streamholdcmd::Granted);
+	REQUIRE(box.bound_demux1 == 1);
+	REQUIRE(box.bound_demux1_under_pip == 0);
+	REQUIRE(box.source1 == 2);       // the PiP's picture is intact
+}
+
+TEST_CASE("AV-input PiP: an admission after the flag leaves demux 1 alone", "[zapit][admission][avpip]")
+{
+	PipModel box;
+	AvPip pip(box);
+	pip.before_switch.armed = true;
+	pip.start();
+	pip.before_switch.waitArrived(); // the flag is out, demux 1 not yet switched
+
+	Admission live(box, kLive);
+	live.join();
+	Admission other(box, kOther);
+	other.join();
+	pip.before_switch.letGo();
+	pip.join();
+
+	REQUIRE(live.got.verdict == streamholdcmd::Busy);
+	REQUIRE(other.got.verdict == streamholdcmd::Granted);
+	REQUIRE(other.got.fenumber == 1);
+	REQUIRE(box.bound_demux1 == 0);
+	REQUIRE(box.source1 == 2);
+}
+
+TEST_CASE("AV-input PiP: an admission waiting for the lock sees the flag", "[zapit][admission][avpip]")
+{
+	PipModel box;
+	AvPip pip(box);
+	pip.in_lock.armed = true;
+	pip.start();
+	pip.in_lock.waitArrived();       // the PiP holds the lock, the flag not yet set
+
+	Admission a(box, kLive);         // waits for the lock
+	pip.in_lock.letGo();
+	a.join();
+	pip.join();
+
+	REQUIRE(a.got.verdict == streamholdcmd::Busy);
+	REQUIRE(box.bound_demux1 == 0);
+	REQUIRE(box.source1 == 2);
+}
+
+TEST_CASE("AV-input PiP: no order of the two lets an admission switch demux 1 under it", "[zapit][admission][avpip]")
+{
+	for (int i = 0; i < 300; ++i)
+	{
+		PipModel box;
+		AvPip pip(box);
+		pip.start();
+		Admission a(box, (i & 1) ? kLive : kOther);
+		a.join();
+		pip.join();
+		REQUIRE(box.bound_demux1_under_pip == 0);
+		REQUIRE(box.source1 == 2);
+	}
+}
+
+namespace
+{
+
+/* StopPip as it stops slot 0, which reads demux 1 from frontend 1: the CAM
+   told, the demux and decoders stopped, and only then, under the lock, the
+   slot cleared. */
+struct PipStop
+{
+	PipModel &box;
+	Hold between, in_lock;
+	pthread_t thread;
+
+	explicit PipStop(PipModel &b) : box(b) {}
+	void start() { REQUIRE(pthread_create(&thread, 0, &go, this) == 0); }
+	void join() { pthread_join(thread, 0); }
+	static void *go(void *arg)
+	{
+		PipStop *p = static_cast<PipStop *>(arg);
+		p->box.pip_reads_demux1 = false;   // demux and decoders stopped
+		p->between.pass();
+		pthread_mutex_lock(&p->box.fe_lock);
+		p->in_lock.pass();
+		p->box.slot_active = false;
+		p->box.slot_fe = -1;
+		pthread_mutex_unlock(&p->box.fe_lock);
+		return 0;
+	}
+};
+
+// A PiP in slot 0 on frontend 1, reading demux 1.
+void pipRunning(PipModel &box)
+{
+	box.slot_active = true;
+	box.slot_fe = 1;
+	box.source1 = 1;
+	box.pip_reads_demux1 = true;
+}
+
+} // namespace
+
+TEST_CASE("StopPip: an admission while the slot is still said to be busy keeps off it", "[zapit][admission][stoppip]")
+{
+	PipModel box;
+	pipRunning(box);
+	PipStop stop(box);
+	stop.between.armed = true;
+	stop.start();
+	stop.between.waitArrived();        // stopped, the slot not yet cleared
+
+	Admission live(box, kLive);
+	live.join();
+	stop.between.letGo();
+	stop.join();
+
+	// The live channel would set demux 1, which the slot is still said to read.
+	REQUIRE(live.got.verdict == streamholdcmd::Busy);
+	REQUIRE(box.bound_demux1 == 0);
+}
+
+TEST_CASE("StopPip: an admission holding the lock first sees the slot busy", "[zapit][admission][stoppip]")
+{
+	PipModel box;
+	pipRunning(box);
+	box.in_facts.armed = true;
+	Admission live(box, kLive);
+	box.in_facts.waitArrived();
+
+	PipStop stop(box);
+	stop.start();                      // stops the devices, then waits for the lock
+	box.in_facts.letGo();
+	live.join();
+	stop.join();
+
+	REQUIRE(live.got.verdict == streamholdcmd::Busy);
+	REQUIRE(box.bound_demux1_under_pip == 0);
+}
+
+TEST_CASE("StopPip: an admission after the slot was cleared may use demux 1", "[zapit][admission][stoppip]")
+{
+	PipModel box;
+	pipRunning(box);
+	PipStop stop(box);
+	stop.start();
+	stop.join();
+
+	Admission live(box, kLive);
+	live.join();
+	REQUIRE(live.got.verdict == streamholdcmd::Granted);
+	REQUIRE(box.bound_demux1 == 1);
+	REQUIRE(box.bound_demux1_under_pip == 0);
+}
+
+TEST_CASE("StopPip: no order of the two lets an admission bind under the PiP", "[zapit][admission][stoppip]")
+{
+	for (int i = 0; i < 300; ++i)
+	{
+		PipModel box;
+		pipRunning(box);
+		PipStop stop(box);
+		stop.start();
+		Admission live(box, kLive);
+		live.join();
+		stop.join();
+		REQUIRE(box.bound_demux1_under_pip == 0);
+	}
 }

@@ -6435,6 +6435,14 @@ void CNeutrinoApp::StartAVInputPiP()
 	if (!pipVideoDecoder[0])
 		pipVideoDecoder[0] = new cVideo(0, NULL, NULL, 1);
 
+	/* Announced before demux 1 is switched to the input, under the lock
+	   a stream admission reads the flag in: an admission either ran
+	   before, and the switch below comes after its binding, or it sees
+	   the flag and leaves demux 1 alone. */
+	CFEManager::getInstance()->Lock();
+	avinput_pip = true;
+	CFEManager::getInstance()->Unlock();
+
 	if (pipVideoDemux[0] && pipVideoDecoder[0])
 	{
 		pipVideoDemux[0]->SetSource(1, 2);
@@ -6445,7 +6453,6 @@ void CNeutrinoApp::StartAVInputPiP()
 		pipVideoDecoder[0]->Pig(pip_recalc_pos_x(g_settings.pip_x), pip_recalc_pos_y(g_settings.pip_y), g_settings.pip_width, g_settings.pip_height, g_settings.screen_width, g_settings.screen_height);
 		pipVideoDecoder[0]->ShowPig(1);
 	}
-	avinput_pip = true;
 }
 
 void CNeutrinoApp::StopAVInputPiP()
@@ -6468,7 +6475,10 @@ void CNeutrinoApp::StopAVInputPiP()
 		delete pipVideoDecoder[0];
 		pipVideoDecoder[0] = NULL;
 	}
+	/* Withdrawn once demux 1 is no longer read, under the same lock. */
+	CFEManager::getInstance()->Lock();
 	avinput_pip = false;
+	CFEManager::getInstance()->Unlock();
 }
 #endif
 #endif
