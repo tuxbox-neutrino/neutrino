@@ -53,10 +53,8 @@ const char *playlistType()
 	return "application/vnd.apple.mpegurl";
 }
 
-/* What a browser is told a fetched part is, where the far server says nothing.
-   It is a fallback and never an override: what this box hands on is the far
-   server's own document, and the far server's own media type goes with it
-   whenever there is one. */
+/* What a browser is told a fetched part is, where the far server names no type
+   the part may go out with (webtv::safeType). */
 const char *typeFor(hls::UriKind kind)
 {
 	switch (kind)
@@ -227,7 +225,9 @@ void carryPlaylist(carry::Job &job)
 		return;
 	if (out.code != StatusOk)
 	{
-		carry::refuse(job, out);
+		Response no = out;
+		webtv::sandbox(no);
+		carry::refuse(job, no);
 		return;
 	}
 	answer.content_type = out.content_type;
@@ -243,6 +243,7 @@ bool checkFetch(const Response &answer, Response &refusal)
 	if (webtv::urlAcceptable(answer.relay_url))
 		return true;
 	refusal = refusedAddress();
+	webtv::sandbox(refusal);
 	return false;
 }
 
@@ -279,6 +280,13 @@ Response playlistAnswer(coreapi::ChannelId id, const std::string &url, bool nest
 	                            playlistType());
 	r.relay_channel = id;
 	return carried(r);
+}
+
+// Every answer of these routes goes out under the policy, refusals included.
+Response sandboxed(Response r)
+{
+	webtv::sandbox(r);
+	return r;
 }
 
 webtv::RelayKind relayKindOf(hls::UriKind kind)
@@ -319,8 +327,8 @@ Response webtvPlaylist(const Request &r)
 	std::string url;
 	Response refusal;
 	if (!addressOf(id, url, refusal))
-		return refusal;
-	return playlistAnswer(id, url, false);
+		return sandboxed(refusal);
+	return sandboxed(playlistAnswer(id, url, false));
 }
 
 Response webtvStream(const Request &r)
@@ -329,9 +337,9 @@ Response webtvStream(const Request &r)
 	std::string url;
 	Response refusal;
 	if (!addressOf(id, url, refusal))
-		return refusal;
+		return sandboxed(refusal);
 	if (!webtv::urlAcceptable(url))
-		return refusedAddress();
+		return sandboxed(refusedAddress());
 	return carried(webtv::relayOf(url, webtv::RelayStream, "application/octet-stream"));
 }
 
@@ -344,18 +352,18 @@ Response webtvPart(const Request &r)
 	std::string url;
 	hls::UriKind kind = hls::UriKind::Segment;
 	if (!webtv::findPart(token, minted_for, url, kind))
-		return problemResponse(StatusNotFound, coreapi::ErrorCode::NoSuchPart,
-		                       "nothing was minted under that name, or what was has aged out");
+		return sandboxed(problemResponse(StatusNotFound, coreapi::ErrorCode::NoSuchPart,
+		                                 "nothing was minted under that name, or what was has aged out"));
 
 	/* The channel in the path has to be the channel the token was minted for.
 	   Without it a token is a key to an address rather than to an address of
 	   one channel, and the identifier in the path would be decoration. */
 	if (minted_for != id)
-		return problemResponse(StatusNotFound, coreapi::ErrorCode::NoSuchPart,
-		                       "that name was not minted for this channel");
+		return sandboxed(problemResponse(StatusNotFound, coreapi::ErrorCode::NoSuchPart,
+		                                 "that name was not minted for this channel"));
 
 	if (kind == hls::UriKind::Playlist)
-		return playlistAnswer(id, url, true);
+		return sandboxed(playlistAnswer(id, url, true));
 
 	return carried(webtv::relayOf(url, relayKindOf(kind), typeFor(kind)));
 }

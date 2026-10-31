@@ -884,7 +884,7 @@ TEST_CASE("a part is passed on as the far server sent it, with its length", "[we
 	CHECK(seg.readToEof(5000) == payload);
 	CHECK(seg.code() == 200);
 	CHECK(seg.headerOf("Content-Length") == "3000");
-	CHECK(seg.headerOf("Content-Type") == "video/MP2T");
+	CHECK(seg.headerOf("Content-Type") == "video/mp2t");
 	// asked for the bytes as they are held, since they are passed on unread
 	CHECK(far.lastHead().find("Accept-Encoding: identity") != std::string::npos);
 	CHECK(runningAfter(0, 2000) == 0);
@@ -908,7 +908,7 @@ TEST_CASE("of the far server's head only the type and an unencoded length go on"
 	REQUIRE(seg.ok());
 	CHECK(seg.readToEof(5000) == "0123456789");
 	CHECK(seg.code() == 200);
-	CHECK(seg.headerOf("Content-Type") == "video/MP2T");
+	CHECK(seg.headerOf("Content-Type") == "video/mp2t");
 	// the length counts encoded bytes, and the browser is told no encoding
 	CHECK_FALSE(seg.hasHeader("Content-Length"));
 	CHECK_FALSE(seg.hasHeader("Content-Encoding"));
@@ -1431,4 +1431,118 @@ TEST_CASE("a part larger than its kind may be is refused or cut off; a stream is
 	REQUIRE(stream.ok());
 	CHECK(stream.readToEof(5000) == long_stream);
 	CHECK(runningAfter(0, 2000) == 0);
+}
+
+// ======================================================== what goes out as what
+
+TEST_CASE("a far server's media type goes on only where the kind may carry it", "[webtv]")
+{
+	// lower case, parameters and space cut off
+	CHECK(webtv::safeType(webtv::RelaySegment, "video/MP2T") == "video/mp2t");
+	CHECK(webtv::safeType(webtv::RelaySegment, " Video/MP4; codecs=\"avc1.4d401f\"") == "video/mp4");
+	CHECK(webtv::safeType(webtv::RelaySegment, "audio/aac") == "audio/aac");
+	CHECK(webtv::safeType(webtv::RelaySegment, "binary/octet-stream") == "binary/octet-stream");
+
+	// a document, a picture, a script or nothing becomes the kind's own type
+	const char *const documents[] = {
+		"text/html", "TEXT/HTML; charset=utf-8", "image/svg+xml", "application/xhtml+xml",
+		"application/xml", "text/xml", "text/javascript", "application/javascript",
+		"multipart/x-mixed-replace; boundary=x", "text/plain", "image/png", "", ";",
+	};
+	for (size_t i = 0; i < sizeof(documents) / sizeof(documents[0]); ++i)
+	{
+		INFO(documents[i]);
+		CHECK(webtv::safeType(webtv::RelaySegment, documents[i]) == "video/mp2t");
+		CHECK(webtv::safeType(webtv::RelayMap, documents[i]) == "video/mp4");
+		CHECK(webtv::safeType(webtv::RelayStream, documents[i]) == "application/octet-stream");
+		CHECK(webtv::safeType(webtv::RelayKey, documents[i]) == "application/octet-stream");
+	}
+
+	// a type for another kind is not one this kind may go out with
+	CHECK(webtv::safeType(webtv::RelayMap, "audio/mpeg") == "video/mp4");
+	CHECK(webtv::safeType(webtv::RelayMap, "audio/mp4") == "audio/mp4");
+	CHECK(webtv::safeType(webtv::RelayStream, "audio/aacp") == "audio/aacp");
+	CHECK(webtv::safeType(webtv::RelayStream, "audio/ogg") == "audio/ogg");
+	CHECK(webtv::safeType(webtv::RelayStream, "video/iso.segment") == "application/octet-stream");
+	// a key is bytes whatever it is called
+	CHECK(webtv::safeType(webtv::RelayKey, "video/mp2t") == "application/octet-stream");
+}
+
+TEST_CASE("a document a far server sends goes out as media, under the sandbox", "[webtv][wire]")
+{
+	WebBox box;
+	FarServer far;
+	REQUIRE(far.start());
+	const std::vector<NetPrefix> only_docs = onlyDocumentationRange();
+	webtv::setRefusedNetworksForTest(&only_docs);
+	const std::string id = box.addWebChannel(0x1234, far.url("/live"));
+
+	struct Case
+	{
+		const char *type;
+		const char *body;
+		hls::UriKind kind;
+		bool stream;
+		const char *sent;
+	};
+	const Case cases[] = {
+		{ "text/html", "<html><script>window.pwned=1</script></html>", hls::UriKind::Segment, false, "video/mp2t" },
+		{ "image/svg+xml", "<svg xmlns=\"http://www.w3.org/2000/svg\" onload=\"window.pwned=1\"/>", hls::UriKind::Segment, false, "video/mp2t" },
+		{ "application/xhtml+xml", "<html xmlns=\"http://www.w3.org/1999/xhtml\"><script>1</script></html>", hls::UriKind::Map, false, "video/mp4" },
+		{ "Text/HTML; charset=utf-8", "<script>window.pwned=1</script>", hls::UriKind::Key, false, "application/octet-stream" },
+		{ "image/svg+xml", "<svg onload=\"window.pwned=1\"/>", hls::UriKind::Segment, true, "application/octet-stream" },
+		{ "audio/mpeg", "ID3", hls::UriKind::Segment, true, "audio/mpeg" },
+	};
+	for (size_t i = 0; i < sizeof(cases) / sizeof(cases[0]); ++i)
+	{
+		INFO(cases[i].type << (cases[i].stream ? " as the stream" : " as a part"));
+		far.first = httpReply(cases[i].type, cases[i].body);
+		const std::string path = cases[i].stream ? streamPath(id)
+			: partPath(0x1234, far.url("/x"), cases[i].kind);
+		WireStream r(box.port(), ask("GET", path).c_str());
+		REQUIRE(r.ok());
+		CHECK(r.readToEof(5000) == cases[i].body);
+		CHECK(r.code() == 200);
+		CHECK(r.headerOf("Content-Type") == cases[i].sent);
+		CHECK(r.headerOf("Content-Security-Policy") == "sandbox; default-src 'none'");
+		CHECK(r.headerOf("X-Content-Type-Options") == "nosniff");
+	}
+	CHECK(runningAfter(0, 2000) == 0);
+}
+
+TEST_CASE("every answer of the routes carries the sandbox, refusals included", "[webtv][wire]")
+{
+	WebBox box;
+	FarServer far;
+	REQUIRE(far.start());
+	const std::vector<NetPrefix> only_docs = onlyDocumentationRange();
+	webtv::setRefusedNetworksForTest(&only_docs);
+	far.first = httpReply("application/vnd.apple.mpegurl", "#EXTM3U\n#EXTINF:4,\nseg1.ts\n");
+	const std::string id = box.addWebChannel(0x1234, far.url("/master.m3u8"));
+	box.addTunedChannel(0x2222);
+
+	// the rewritten playlist, a refusal of the handler, a refusal of the job
+	WireStream list(box.port(), ask("GET", playlistPath(id)).c_str());
+	REQUIRE(list.ok());
+	CHECK(list.code() == 200);
+	CHECK(list.headerOf("Content-Security-Policy") == "sandbox; default-src 'none'");
+
+	WireStream tuned(box.port(), ask("GET", streamPath("2222")).c_str());
+	REQUIRE(tuned.ok());
+	CHECK(tuned.code() == 404);
+	CHECK(tuned.headerOf("Content-Security-Policy") == "sandbox; default-src 'none'");
+
+	far.first = "HTTP/1.1 500 Oops\r\nContent-Type: text/html\r\nContent-Length: 8\r\n"
+		"Connection: close\r\n\r\n<script>";
+	WireStream failed(box.port(), ask("GET", streamPath(id)).c_str());
+	REQUIRE(failed.ok());
+	CHECK(failed.code() == 503);
+	CHECK(failed.headerOf("Content-Type") == "application/problem+json");
+	CHECK(failed.headerOf("Content-Security-Policy") == "sandbox; default-src 'none'");
+
+	WireStream head(box.port(), ask("HEAD", streamPath(id)).c_str());
+	REQUIRE(head.ok());
+	CHECK(head.code() == 200);
+	CHECK(head.headerOf("Content-Type") == "application/octet-stream");
+	CHECK(head.headerOf("Content-Security-Policy") == "sandbox; default-src 'none'");
 }

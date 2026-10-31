@@ -580,8 +580,7 @@ size_t bodyBlock(char *ptr, size_t size, size_t nmemb, void *cls)
 				return 0;
 			}
 			Response &a = carry::answerOf(*p->job);
-			if (!p->content_type.empty())
-				a.content_type = p->content_type;
+			a.content_type = safeType((RelayKind) a.relay_kind, p->content_type);
 			p->sent = true;
 			if (!carry::sendHead(*p->job, (p->has_length && !p->encoded) ? (int64_t) p->length : -1))
 				return 0;
@@ -605,7 +604,54 @@ size_t bodyBlock(char *ptr, size_t size, size_t nmemb, void *cls)
 
 Response upstreamProblem(const char *why)
 {
-	return problemResponse(StatusServiceUnavailable, coreapi::ErrorCode::UpstreamUnreachable, why);
+	Response r = problemResponse(StatusServiceUnavailable, coreapi::ErrorCode::UpstreamUnreachable, why);
+	sandbox(r);
+	return r;
+}
+
+/* The types each kind may go out with, and the one it goes out with otherwise.
+   A segment is a piece of a transport stream or of a fragmented mp4, alone or
+   sound only; a map is the head of the latter; a stream is what radio and
+   television stations send without a playlist. */
+const char *const kSegmentTypes[] = {
+	"video/mp2t", "video/mp4", "audio/mp4", "audio/aac", "audio/mpeg",
+	"video/iso.segment", "application/octet-stream", "binary/octet-stream", NULL
+};
+const char *const kMapTypes[] = {
+	"video/mp4", "audio/mp4", "application/octet-stream", NULL
+};
+const char *const kStreamTypes[] = {
+	"audio/mpeg", "audio/aac", "audio/aacp", "audio/x-aac", "audio/ogg", "audio/opus",
+	"video/mp2t", "video/mp4", "application/octet-stream", NULL
+};
+
+// The type alone, in lower case: the parameters cut off, the space around it gone.
+std::string bareType(const std::string &named)
+{
+	std::string t = named.substr(0, named.find(';'));
+	size_t from = 0;
+	size_t to = t.size();
+	while (from < to && (t[from] == ' ' || t[from] == '\t'))
+		++from;
+	while (to > from && (t[to - 1] == ' ' || t[to - 1] == '\t'))
+		--to;
+	t = t.substr(from, to - from);
+	for (size_t i = 0; i < t.size(); ++i)
+	{
+		if (t[i] >= 'A' && t[i] <= 'Z')
+			t[i] = (char) (t[i] - 'A' + 'a');
+	}
+	return t;
+}
+
+const char *oneOf(const char *const *list, const std::string &type, const char *otherwise)
+{
+	for (size_t i = 0; list[i] != NULL; ++i)
+	{
+		if (type == list[i])
+			return list[i];
+	}
+	return otherwise;
 }
 
 } // namespace
@@ -873,7 +919,9 @@ Response relayOf(const std::string &url, RelayKind kind, const char *fallback_ty
 	out.code = StatusOk;
 	out.relay_url = url;
 	out.relay_kind = (int) kind;
-	out.content_type = (fallback_type != NULL) ? fallback_type : "application/octet-stream";
+	const std::string fallback = (fallback_type != NULL) ? fallback_type : "";
+	out.content_type = (kind == RelayPlaylist || kind == RelayNestedPlaylist)
+		? fallback : safeType(kind, fallback);
 	/* Both of these are about what sits between this box and the browser. A
 	   cache that stored a live segment would replay it, and a proxy that
 	   buffered a stream would hold it until it ended, which it does not. */
@@ -881,7 +929,38 @@ Response relayOf(const std::string &url, RelayKind kind, const char *fallback_ty
 	                                     std::string("no-store, no-transform")));
 	out.headers.push_back(std::make_pair(std::string("X-Accel-Buffering"),
 	                                     std::string("no")));
+	sandbox(out);
 	return out;
+}
+
+std::string safeType(RelayKind kind, const std::string &named)
+{
+	const std::string type = bareType(named);
+	switch (kind)
+	{
+		case RelaySegment:  return oneOf(kSegmentTypes, type, "video/mp2t");
+		case RelayMap:      return oneOf(kMapTypes, type, "video/mp4");
+		case RelayKey:      return "application/octet-stream";
+		case RelayStream:   return oneOf(kStreamTypes, type, "application/octet-stream");
+		case RelayPlaylist:
+		case RelayNestedPlaylist:
+			break;
+	}
+	return "application/octet-stream";
+}
+
+void sandbox(Response &r)
+{
+	for (size_t i = 0; i < r.headers.size(); ++i)
+	{
+		if (strcasecmp(r.headers[i].first.c_str(), "Content-Security-Policy") == 0)
+		{
+			r.headers[i].second = "sandbox; default-src 'none'";
+			return;
+		}
+	}
+	r.headers.push_back(std::make_pair(std::string("Content-Security-Policy"),
+	                                   std::string("sandbox; default-src 'none'")));
 }
 
 void relay(carry::Job &job)
@@ -929,8 +1008,10 @@ void relay(carry::Job &job)
 	   of these a caller cannot do anything about by asking again. */
 	if (refused)
 	{
-		carry::refuse(job, problemResponse(StatusForbidden, coreapi::ErrorCode::AddressRefused,
-		                                   "this channel leads to an address on a network this box does not fetch from"));
+		Response no = problemResponse(StatusForbidden, coreapi::ErrorCode::AddressRefused,
+		                              "this channel leads to an address on a network this box does not fetch from");
+		sandbox(no);
+		carry::refuse(job, no);
 		return;
 	}
 

@@ -180,10 +180,25 @@ enum RelayKind
    channel for a playlist (Response::relay_channel), whose addresses are minted
    for it.
 
-   The media type is what goes out if the far server names none of its own: what
-   this hands on is the far server's document, and saying it is something else
-   would be this box deciding for a player what it is about to decode. */
+   The media type is what goes out if the far server names none it may pass on
+   (safeType below); for a playlist it is the type of the rewritten playlist. */
 Response relayOf(const std::string &url, RelayKind kind, const char *fallback_type);
+
+/* The media type a passed on answer of a kind goes out with, out of the one the
+   far server named: in lower case and without its parameters, and only where it
+   is one that kind may be. Anything else becomes the kind's own type: a page, a
+   picture or a script, a type for another kind, none at all. A key is always
+   bytes.
+
+   What a browser is handed under this box's address is media to play and never
+   a document to open, because a document opened from here runs with this box's
+   origin, and with it the session of whoever is signed in. */
+std::string safeType(RelayKind kind, const std::string &named);
+
+/* Puts on an answer the policy that keeps a browser from running anything in it,
+   should it be opened as a document after all: no script, no form, no plugin,
+   and no request of its own. Every answer of these routes carries it. */
+void sandbox(Response &r);
 
 /* Carries an answer relayOf() built for anything but a playlist, on its job:
    the far server's head is
