@@ -9,23 +9,29 @@
  * way session_init fills it, Hook_PrepareResponse to claim, Hook_SendResponse
  * to answer. What is checked is the translation on both sides and the cases
  * the router decides on its own (404, 405, 400, 501), the document route with
- * and without gzip, and the refusals the bridge makes itself (413, the
- * answer shapes nhttpd cannot carry yet). Routes that reach a box backend are
- * only checked for reaching the layer, not for what the box says.
+ * and without gzip, the refusals the bridge makes itself (413, a carried
+ * answer of a kind nothing carries), and how a carried answer is handed to
+ * the stream pass and released. Routes that reach a box backend are only
+ * checked for reaching the layer, not for what the box says.
  */
 
 #include "support/catch.hpp"
 
 #include "httpd/nhttpd_bridge.h"
 #include "httpd/auth.h"
+#include "httpd/carry.h"
 #include "httpd/credentials.h"
 #include "httpd/endpoints.h"
 #include "httpd/router.h"
 #include "coreapi/storage.h"
 #include "coreapi/system.h"
 #include "httpd/doc/openapi.h"
+#include "httpd/http.h"
+#include "httpd/status.h"
+#include "coreapi/base/errors.h"
 
 #include "yhook.h"
+#include "ysocket.h"
 #include "ytypes_globals.h"
 #include "ywebserver.h"
 
@@ -35,6 +41,7 @@
 
 #include <fcntl.h>
 #include <strings.h>
+#include <sys/socket.h>
 #include <unistd.h>
 #include <zlib.h>
 
@@ -321,19 +328,226 @@ TEST_CASE("a method nhttpd cannot name is 501 from the router", "[bridge]")
 	CHECK(h.hh.ResponseMimeType == "application/problem+json");
 }
 
-TEST_CASE("an answer shape nhttpd cannot carry yet is refused as 501 by the bridge", "[bridge]")
+namespace
 {
-	Attached a;
+
+// A carrier that writes its header and is done, for the cases that only
+// need a job to start and end.
+void headOnly(httpd::carry::Job &j)
+{
+	httpd::carry::sendHead(j, 0);
+}
+
+bool refuseAll(const httpd::Response &, httpd::Response &refusal)
+{
+	refusal = httpd::problemResponse(httpd::StatusServiceUnavailable,
+	                                 coreapi::ErrorCode::TooManyConversions,
+	                                 "the case's check refuses");
+	return false;
+}
+
+const httpd::carry::Carrier kHeadOnly = { NULL, &headOnly };
+const httpd::carry::Carrier kRefusing = { &refuseAll, &headOnly };
+
+struct Carrying
+{
+	size_t held_before;
+	explicit Carrying(const httpd::carry::Carrier *c = &kHeadOnly)
+		: held_before(httpd::carry::heldAnswersForTest())
+	{
+		httpd::carry::setCarrier(httpd::carry::Fetch, c);
+		httpd::carry::setCarrier(httpd::carry::Program, c);
+	}
+	~Carrying()
+	{
+		httpd::carry::waitIdle(5000);
+		httpd::carry::setCarrier(httpd::carry::Fetch, NULL);
+		httpd::carry::setCarrier(httpd::carry::Program, NULL);
+		httpd::carry::endStop();
+	}
+};
+
+httpd::Response programAnswer()
+{
+	httpd::Response r;
+	r.code = 200;
+	r.content_type = "audio/aac";
+	r.stream_argv.push_back("/bin/cat");
+	return r;
+}
+
+httpd::Response relayAnswer()
+{
 	httpd::Response r;
 	r.code = 200;
 	r.content_type = "video/mp2t";
-	r.stream_argv.push_back("cat");
+	r.relay_url = "http://192.0.2.1/stream.ts";
+	return r;
+}
 
+} // namespace
+
+TEST_CASE("a program or an address with nothing to carry it is refused as 501", "[bridge]")
+{
+	Attached a;
+	const size_t held = httpd::carry::heldAnswersForTest();
+	const httpd::Response answers[] = { programAnswer(), relayAnswer() };
+	for (size_t i = 0; i < 2; ++i)
+	{
+		Handler h(M_GET, "/api/v1/stream/1");
+		CApiBridge::answerWith(&h.hh, answers[i]);
+		CHECK(h.hh.httpStatus == HTTP_NOT_IMPLEMENTED);
+		CHECK(h.hh.status == HANDLED_READY);
+		CHECK(h.hh.Carried == NULL);
+		CHECK(h.hh.yresult.find("\"status\":501") != std::string::npos);
+	}
+	CHECK(httpd::carry::heldAnswersForTest() == held);
+}
+
+TEST_CASE("a program or an address is handed to the stream pass with the answer", "[bridge]")
+{
+	Attached a;
+	Carrying c;
+	const httpd::Response answers[] = { programAnswer(), relayAnswer() };
+	for (size_t i = 0; i < 2; ++i)
+	{
+		Handler h(M_GET, "/api/v1/stream/1");
+		CApiBridge::answerWith(&h.hh, answers[i]);
+		CHECK(h.hh.status == HANDLED_STREAM);
+		CHECK(h.hh.httpStatus == HTTP_OK);
+		CHECK(h.hh.ResponseMimeType == answers[i].content_type);
+		REQUIRE(h.hh.Carried != NULL);
+		CHECK(h.hh.CarriedRelease == &httpd::carry::release);
+		const httpd::Response *held = (const httpd::Response *) h.hh.Carried;
+		CHECK(held->stream_argv == answers[i].stream_argv);
+		CHECK(held->relay_url == answers[i].relay_url);
+		CHECK(httpd::carry::heldAnswersForTest() == c.held_before + 1);
+	}
+	// each handler gave its answer back when it went
+	CHECK(httpd::carry::heldAnswersForTest() == c.held_before);
+	CHECK(httpd::carry::running() == 0);
+}
+
+TEST_CASE("a HEAD for a carried answer is finite and starts nothing", "[bridge]")
+{
+	Attached a;
+	Carrying c;
+	Handler h(M_HEAD, "/api/v1/stream/1");
+	CApiBridge::answerWith(&h.hh, programAnswer());
+	CHECK(h.hh.status == HANDLED_READY);
+	CHECK(h.hh.httpStatus == HTTP_OK);
+	CHECK(h.hh.ResponseMimeType == "audio/aac");
+	CHECK(h.hh.Carried == NULL);
+	CHECK(h.hh.yresult.empty());
+	// no length: the GET it stands for states none
+	CHECK(h.hh.BuildHeader().find("Content-Length:") == std::string::npos);
+	CHECK(httpd::carry::running() == 0);
+	CHECK(httpd::carry::seatsTaken(httpd::carry::Program) == 0);
+	CHECK(httpd::carry::heldAnswersForTest() == c.held_before);
+}
+
+TEST_CASE("a HEAD reports the refusal the GET would meet", "[bridge]")
+{
+	Attached a;
+	SECTION("nothing carries the kind")
+	{
+		Handler h(M_HEAD, "/api/v1/stream/1");
+		CApiBridge::answerWith(&h.hh, relayAnswer());
+		CHECK(h.hh.httpStatus == HTTP_NOT_IMPLEMENTED);
+		CHECK(h.hh.status == HANDLED_READY);
+	}
+	SECTION("the server is stopping")
+	{
+		Carrying c;
+		httpd::carry::beginStop();
+		Handler h(M_HEAD, "/api/v1/stream/1");
+		CApiBridge::answerWith(&h.hh, relayAnswer());
+		CHECK(h.hh.httpStatus == HTTP_SERVICE_UNAVAILABLE);
+		CHECK(h.hh.yresult.find("server-stopping") != std::string::npos);
+	}
+	SECTION("the carrier's own check refuses")
+	{
+		Carrying c(&kRefusing);
+		Handler h(M_HEAD, "/api/v1/stream/1");
+		CApiBridge::answerWith(&h.hh, programAnswer());
+		CHECK(h.hh.httpStatus == HTTP_SERVICE_UNAVAILABLE);
+		CHECK(h.hh.yresult.find("the case's check refuses") != std::string::npos);
+	}
+	CHECK(httpd::carry::running() == 0);
+}
+
+TEST_CASE("a program or an address under another code is an ordinary answer", "[bridge]")
+{
+	Attached a;
+	Carrying c;
+	httpd::Response r = programAnswer();
+	r.code = 404;
+	r.content_type = "application/problem+json";
+	r.body = "{\"status\":404}";
 	Handler h(M_GET, "/api/v1/stream/1");
 	CApiBridge::answerWith(&h.hh, r);
-	CHECK(h.hh.httpStatus == HTTP_NOT_IMPLEMENTED);
-	CHECK(h.hh.yresult.find("\"status\":501") != std::string::npos);
+	CHECK(h.hh.status == HANDLED_READY);
+	CHECK(h.hh.httpStatus == HTTP_NOT_FOUND);
+	CHECK(h.hh.Carried == NULL);
+	CHECK(h.hh.yresult == r.body);
+}
 
+TEST_CASE("a carried answer is given back exactly once on every way", "[bridge]")
+{
+	Attached a;
+	Carrying c;
+	int sp[2];
+	REQUIRE(socketpair(AF_UNIX, SOCK_STREAM, 0, sp) == 0);
+	CySocket sock(sp[0]);
+	sock.isOpened = true;
+	sock.isValid = true;
+
+	SECTION("a new exchange on the same handler")
+	{
+		Handler h(M_GET, "/api/v1/stream/1");
+		CApiBridge::answerWith(&h.hh, programAnswer());
+		REQUIRE(httpd::carry::heldAnswersForTest() == c.held_before + 1);
+		CStringList none, config;
+		h.hh.session_init(none, none, none, config, M_GET, false);
+		CHECK(h.hh.Carried == NULL);
+		CHECK(httpd::carry::heldAnswersForTest() == c.held_before);
+	}
+	SECTION("the handler goes")
+	{
+		{
+			Handler h(M_GET, "/api/v1/stream/1");
+			CApiBridge::answerWith(&h.hh, programAnswer());
+			REQUIRE(httpd::carry::heldAnswersForTest() == c.held_before + 1);
+		}
+		CHECK(httpd::carry::heldAnswersForTest() == c.held_before);
+	}
+	SECTION("the stream pass refuses")
+	{
+		Handler h(M_GET, "/api/v1/stream/1");
+		CApiBridge::answerWith(&h.hh, programAnswer());
+		httpd::carry::beginStop();
+		CHECK(a.bridge.Hook_SendStream(&h.hh, &sock) == HANDLED_READY);
+		CHECK(h.hh.Carried == NULL);
+		CHECK(h.hh.httpStatus == HTTP_SERVICE_UNAVAILABLE);
+		CHECK(h.hh.yresult.find("server-stopping") != std::string::npos);
+		CHECK(httpd::carry::heldAnswersForTest() == c.held_before);
+		httpd::carry::endStop();
+	}
+	SECTION("the stream pass carries it")
+	{
+		Handler h(M_GET, "/api/v1/stream/1");
+		CApiBridge::answerWith(&h.hh, programAnswer());
+		CHECK(a.bridge.Hook_SendStream(&h.hh, &sock) == HANDLED_STREAM);
+		CHECK(h.hh.Carried == NULL);
+		CHECK(httpd::carry::waitIdle(2000));
+		CHECK(httpd::carry::heldAnswersForTest() == c.held_before);
+		char buf[64];
+		const ssize_t n = read(sp[1], buf, sizeof(buf));
+		CHECK(n > 0);
+		CHECK(std::string(buf, n > 0 ? (size_t) n : 0).find(" 200 ") != std::string::npos);
+	}
+	sock.close();
+	close(sp[1]);
 }
 
 TEST_CASE("an event-stream answer is handed to the stream pass", "[bridge]")
@@ -800,12 +1014,15 @@ TEST_CASE("the gate: the query token counts only where the route reads one, and 
 	httpd::forgetApiTokens();
 }
 
-TEST_CASE("without connection threads a stream is refused, not carried", "[bridge]")
+TEST_CASE("without connection threads an event stream is refused and a carried answer is not", "[bridge]")
 {
 	/* webserver.threading=false runs WebThread on the accept thread itself;
-	   one healthy stream would then be the last request the box ever takes.
-	   Refused before a seat is taken, as an ordinary finite answer. */
+	   one healthy event stream would then be the last request the box ever
+	   takes. Refused before a seat is taken, as an ordinary finite answer. A
+	   carried answer runs on a thread of its own, so it is handed on all the
+	   same. */
 	Attached a;
+	Carrying c;
 	httpd::Response sse;
 	sse.code = 200;
 	sse.content_type = "text/event-stream";
@@ -813,9 +1030,14 @@ TEST_CASE("without connection threads a stream is refused, not carried", "[bridg
 	CWebserver::is_threading = false;
 	Handler e(M_GET, "/api/v1/events");
 	CApiBridge::answerWith(&e.hh, sse);
+	Handler p(M_GET, "/api/v1/stream/1");
+	CApiBridge::answerWith(&p.hh, programAnswer());
 	CWebserver::is_threading = true;
 
 	CHECK(e.hh.httpStatus == HTTP_NOT_IMPLEMENTED);
 	CHECK(e.hh.status == HANDLED_READY);
 	CHECK(e.hh.yresult.find("\"status\":501") != std::string::npos);
+
+	CHECK(p.hh.status == HANDLED_STREAM);
+	CHECK(p.hh.Carried != NULL);
 }

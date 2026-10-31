@@ -63,6 +63,8 @@ public:
 	virtual THandleStatus Hook_SendResponse(CyhookHandler *hh);
 	// The stream pass: registers the stream (or refuses it as an ordinary
 	// answer), writes the header, and pumps the connection until it ends.
+	// A carried answer goes to its own thread instead (carry.h), and the
+	// pass returns as soon as it runs there.
 	virtual THandleStatus Hook_SendStream(CyhookHandler *hh, CySocket *sock);
 
 	// Whether the tables are ones this server can answer from. Asked once
@@ -77,8 +79,10 @@ public:
 	static void stopEvents();
 	// Whether this request is one of ours, on the decoded url.
 	static bool claims(const CyhookHandler *hh);
-	// Response into the hook handler: status, headers, body; a file read
-	// whole; the shapes nhttpd cannot carry yet refused with 501.
+	// Response into the hook handler: status, headers, body; a file as its
+	// descriptor; an event stream or a carried answer (a program to run, an
+	// address to relay) handed to the stream pass, or refused with 501 where
+	// nothing carries its kind.
 	static void answerWith(CyhookHandler *hh, const httpd::Response &r);
 };
 

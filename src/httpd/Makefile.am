@@ -64,6 +64,7 @@ libhttpd_a_SOURCES = \
 	ep/ep_webserver.cpp \
 	ep/ep_webui.cpp \
 	byterange.cpp \
+	carry.cpp \
 	credentials.cpp \
 	http.cpp \
 	json.cpp \
@@ -85,6 +86,7 @@ libhttpd_a_SOURCES = \
 noinst_HEADERS = \
 	auth.h \
 	byterange.h \
+	carry.h \
 	compat/mount.h \
 	credentials.h \
 	endpoint.h \

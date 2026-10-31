@@ -10,6 +10,7 @@
 
 #include "httpd/auth.h"
 #include "httpd/byterange.h"
+#include "httpd/carry.h"
 #include "httpd/endpoint.h"
 #include "httpd/events.h"
 #include "httpd/http.h"
@@ -405,6 +406,56 @@ private:
 	HeldStream &operator=(const HeldStream &);
 };
 
+/* The stream pass of a carried answer: the answer comes off the handler
+   and goes to its job, which runs on a thread of its own on a copy of this
+   socket, so this connection thread - the accept thread itself without
+   connection threads - is free again at once. A refusal comes back while
+   nothing has been written and becomes an ordinary answer out of the
+   handler. */
+THandleStatus carryAnswer(CyhookHandler *hh, CySocket *sock)
+{
+	const httpd::Method m = methodOf(hh->Method);
+	try
+	{
+		// Read while the handler still owns the answer: a throw here leaves
+		// it to the handler's own release.
+		const std::string target = hh->UrlData["target"];
+		const std::string path = target.substr(0, target.find('?'));
+
+		// Taken exactly once. From here start() owns it on every path,
+		// a throw out of it included.
+		void *held = hh->Carried;
+		hh->Carried = NULL;
+		hh->CarriedRelease = NULL;
+
+		httpd::Response refusal;
+		if (httpd::carry::start(held, (int) sock->get_socket(), m, path, refusal)
+				== httpd::carry::Carrying)
+			return HANDLED_STREAM;
+
+		httpd::addApiHeaders(refusal);
+		hh->api_mode = true;
+		hh->httpStatus = (HttpResponseType) refusal.code;
+		hh->ResponseMimeType = refusal.content_type;
+		hh->ResponseHeaders = refusal.headers;
+		hh->yresult = refusal.body;
+		hh->LengthUnknown = false;
+		hh->status = HANDLED_READY;
+		noteSent(hh, m, path);
+		return HANDLED_READY;
+	}
+	catch (const std::exception &e)
+	{
+		log_level_printf(1, "api bridge: %s\n", e.what());
+	}
+	catch (...)
+	{
+	}
+	// nothing was written: the fixed document still fits, where it can be had
+	takeFixedFailure(hh);
+	return (hh->status == HANDLED_READY) ? HANDLED_READY : HANDLED_STREAM;
+}
+
 } // namespace
 
 THandleStatus CApiBridge::Hook_SendStream(CyhookHandler *hh, CySocket *sock)
@@ -414,6 +465,9 @@ THandleStatus CApiBridge::Hook_SendStream(CyhookHandler *hh, CySocket *sock)
 
 	try
 	{
+		if (hh->Carried != NULL)
+			return carryAnswer(hh, sock);
+
 		/* Registered before the header goes out: the seat is counted and the
 		   opening frames are seeded first, so an event published while the
 		   header travels is waiting in the stream, not lost - and a refusal
@@ -481,11 +535,56 @@ void CApiBridge::answerWith(CyhookHandler *hh, const httpd::Response &r)
 	HeldDescriptor held(r.fd);
 	const int fd = held.fd;
 
-	const bool is_relay = !r.stream_argv.empty() || !r.relay_url.empty();
-	if (r.code == 200 && is_relay)
+	httpd::carry::Kind kind = httpd::carry::Fetch;
+	if (httpd::carry::carried(r, &kind))
 	{
-		takeProblem(hh, 501, coreapi::ErrorCode::NoSuchMethod,
-		            "this server does not carry a relayed stream yet");
+		/* A program's output or a relayed address: an answer that runs as
+		   long as somebody listens, carried on a thread of its own whatever
+		   the threading setting says (carry.h). A HEAD reports what the GET
+		   would meet - a missing carrier, a server that is stopping, seats
+		   that are taken, the carrier's own check - and starts nothing. The
+		   head it answers with states no length: the GET's states none
+		   unless its carrier learns one on the way. */
+		if (hh->Method == M_HEAD)
+		{
+			httpd::Response refusal;
+			if (!httpd::carry::admissible(r, refusal))
+			{
+				httpd::addApiHeaders(refusal);
+				hh->api_mode = true;
+				hh->httpStatus = (HttpResponseType) refusal.code;
+				hh->ResponseMimeType = refusal.content_type;
+				hh->ResponseHeaders = refusal.headers;
+				hh->yresult = refusal.body;
+				hh->status = HANDLED_READY;
+				return;
+			}
+			hh->api_mode = true;
+			hh->httpStatus = (HttpResponseType) r.code;
+			hh->ResponseMimeType = r.content_type;
+			hh->ResponseHeaders = r.headers;
+			hh->yresult.clear();
+			hh->LengthUnknown = true;
+			hh->status = HANDLED_READY;
+			return;
+		}
+		if (!httpd::carry::hasCarrier(kind))
+		{
+			takeProblem(hh, 501, coreapi::ErrorCode::NoSuchMethod,
+			            "this server does not carry an answer of this kind");
+			return;
+		}
+		/* Parked on the handler for the stream pass, which hands it to its
+		   job; the handler releases it if the exchange ends first. */
+		hh->api_mode = true;
+		hh->httpStatus = (HttpResponseType) r.code;
+		hh->ResponseMimeType = r.content_type;
+		hh->ResponseHeaders = r.headers;
+		hh->yresult.clear();
+		hh->dropCarried();
+		hh->Carried = httpd::carry::hold(r);
+		hh->CarriedRelease = &httpd::carry::release;
+		hh->status = HANDLED_STREAM;
 		return;
 	}
 
@@ -493,7 +592,9 @@ void CApiBridge::answerWith(CyhookHandler *hh, const httpd::Response &r)
 	{
 		/* Without connection threads, WebThread runs on the accept thread
 		   itself, and one healthy stream would be the last request the box
-		   ever takes. Refused before a seat exists, as a finite answer. */
+		   ever takes. Refused before a seat exists, as a finite answer. An
+		   event stream runs on its connection's thread; only a carried
+		   answer has a thread of its own. */
 		if (hh->Method != M_HEAD && !CWebserver::is_threading)
 		{
 			takeProblem(hh, 501, coreapi::ErrorCode::NoSuchMethod,

@@ -207,6 +207,11 @@ enum class ErrorCode
 	   box a running program per listener, and it will run far fewer of those
 	   than it will carry event streams. */
 	TooManyConversions,
+	/* The server is stopping, to start again on a new configuration or for
+	   good, and starts nothing that would outlive it. Nothing was wrong with
+	   the request: a caller that asks again once the server is back is
+	   answered. */
+	ServerStopping,
 	/* Nothing this box can do makes this channel playable in a browser. Not a
 	   plain refusal, because a caller answers it by offering the raw stream to
 	   a player outside the browser. */
@@ -573,6 +578,7 @@ inline const char *codeString(ErrorCode c)
 		case ErrorCode::PlaylistUnreadable: return "playlist-unreadable";
 		case ErrorCode::TooManyStreams: return "too-many-streams";
 		case ErrorCode::TooManyConversions: return "too-many-conversions";
+		case ErrorCode::ServerStopping: return "server-stopping";
 		case ErrorCode::NotPlayableInBrowser: return "not-playable-in-browser";
 		case ErrorCode::TooManyAttempts: return "too-many-attempts";
 		case ErrorCode::TimerExists: return "timer-exists";

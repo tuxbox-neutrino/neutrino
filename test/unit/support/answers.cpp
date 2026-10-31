@@ -33,6 +33,7 @@
 
 #include <cstdio>
 #include <map>
+#include <pthread.h>
 #include <set>
 #include <string>
 #include <utility>
@@ -42,6 +43,16 @@ using namespace httpd;
 
 namespace
 {
+
+/* Answers are noted from the threads that carry them as well as from the
+   cases' own, so the record is written and read under one lock. */
+pthread_mutex_t watch_lock = PTHREAD_MUTEX_INITIALIZER;
+
+struct WatchLocked
+{
+	WatchLocked() { pthread_mutex_lock(&watch_lock); }
+	~WatchLocked() { pthread_mutex_unlock(&watch_lock); }
+};
 
 typedef std::pair<int, std::string> Outcome;
 typedef std::map<Outcome, std::string> Outcomes;
@@ -125,6 +136,7 @@ std::string routeName(const Endpoint &ep)
 
 void watch(const Endpoint &ep, const Response &r)
 {
+	WatchLocked held;
 	std::string code;
 	std::string detail;
 	if (r.content_type == problemContentType())
@@ -207,6 +219,7 @@ bool states(const std::vector<openapi::StatedRefusal> &stated, int http, const s
 
 void watchAnswers()
 {
+	WatchLocked held;
 	size_t count = 0;
 	const RouteTable *const *tables = allRoutes(&count);
 	for (size_t t = 0; t < count; ++t)
@@ -220,6 +233,7 @@ void watchAnswers()
 bool answersAgree(const char *actual_path)
 {
 	setAnswerWatchForTest(NULL);
+	WatchLocked held;
 
 	bool agree = true;
 	size_t own = 0;

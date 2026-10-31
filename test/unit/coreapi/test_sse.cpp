@@ -25,6 +25,7 @@
  */
 
 #include "support/catch.hpp"
+#include "support/wireserver.h"
 
 #include "httpd/endpoint.h"
 #include "httpd/events.h"
@@ -57,17 +58,6 @@
 #include <unistd.h>
 
 using namespace httpd;
-
-namespace
-{
-
-// What the header beside the code says these are, so that a case restoring
-// them puts back what ships and a case reading them fails when the shipped
-// value moves without anybody saying so.
-const unsigned kShippedHeartbeatMs = 20000;
-const size_t   kShippedCeiling     = 256u * 1024u;
-
-} // namespace
 
 TEST_CASE("every event type has a name and no two share one", "[sse]")
 {
@@ -109,14 +99,8 @@ TEST_CASE("the route is a read and answers with a request for a stream", "[sse]"
 	REQUIRE(allowed.body.empty());
 }
 
-/* ==== The wire, on nhttpd (drift: replaces the source's MHD fixture) ====
-
-   The fixture below is the production path minus the accept loop of
-   CWebserver::run(): a real listening socket, CySocket::accept() (which is
-   what puts the cork on), one thread per connection running the same wiring
-   WebThread does - CWebserverConnection::HandleConnection() end to end -
-   with the bridge attached. What it proves is the whole new chain: request
-   reader, stream pass, header without a length, uncork, pump. */
+/* ==== The wire, on nhttpd (support/wireserver.h): request reader, stream
+   pass, header without a length, uncork, pump. ==== */
 
 namespace
 {
@@ -128,22 +112,6 @@ void publish(coreapi::EventType t, uint64_t channel_id, int value)
 	e.channel_id = channel_id;
 	e.value = value;
 	coreapi::EventBus::instance().publish(e);
-}
-
-int64_t wireNowMs()
-{
-	struct timespec t;
-	if (clock_gettime(CLOCK_MONOTONIC, &t) != 0)
-		return 0;
-	return (int64_t) t.tv_sec * 1000 + t.tv_nsec / 1000000;
-}
-
-void napMs(int ms)
-{
-	struct timespec t;
-	t.tv_sec = ms / 1000;
-	t.tv_nsec = (long) (ms % 1000) * 1000 * 1000;
-	nanosleep(&t, NULL);
 }
 
 /* Waits until the count of open streams is the wanted one, or the budget is
@@ -158,300 +126,6 @@ size_t waitForStreams(size_t want, int budget_ms)
 	}
 	return events::openStreams();
 }
-
-struct ServeArgs
-{
-	CWebserver *ws;
-	CySocket   *c;
-};
-
-void *serveOne(void *arg)
-{
-	ServeArgs *a = (ServeArgs *) arg;
-	CWebserverConnection *con = new CWebserverConnection(a->ws);
-	con->Request.UrlData["clientaddr"] = a->c->get_client_ip();
-	con->sock = a->c;
-	a->c->handling = true;
-	con->HandleConnection();
-	if (!con->keep_alive)
-		con->sock->isValid = false;
-	a->c->handling = false;
-	delete a->c;
-	delete con;
-	delete a;
-	return NULL;
-}
-
-struct WireServer
-{
-	CApiBridge  bridge;
-	CWebserver  ws;
-	CySocket   *listener;
-	int         port;
-	pthread_t   acceptor;
-	pthread_mutex_t          workers_lock;
-	std::vector<pthread_t>   workers;
-
-	explicit WireServer(unsigned max_streams = 4, unsigned beat_ms = 100)
-	{
-		WebConfig c = defaultWebConfig();
-		c.sse_max_streams = max_streams;
-		setConfigForTest(c);
-
-		CyhookHandler::clearApiPrefixes();
-		CApiBridge::registerPrefixes();
-		CyhookHandler::attach(&bridge);
-		events::start();
-		events::setHeartbeatMs(beat_ms);
-
-		int lfd = socket(AF_INET, SOCK_STREAM, 0);
-		REQUIRE(lfd >= 0);
-		int one = 1;
-		setsockopt(lfd, SOL_SOCKET, SO_REUSEADDR, &one, sizeof(one));
-		struct sockaddr_in a;
-		std::memset(&a, 0, sizeof(a));
-		a.sin_family = AF_INET;
-		a.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
-		REQUIRE(bind(lfd, (struct sockaddr *) &a, sizeof(a)) == 0);
-		socklen_t alen = sizeof(a);
-		REQUIRE(getsockname(lfd, (struct sockaddr *) &a, &alen) == 0);
-		port = (int) ntohs(a.sin_port);
-		REQUIRE(listen(lfd, 8) == 0);
-
-		listener = new CySocket(lfd);
-		listener->isOpened = true;
-		listener->isValid = true;
-
-		pthread_mutex_init(&workers_lock, NULL);
-		REQUIRE(pthread_create(&acceptor, NULL, &WireServer::acceptLoop, this) == 0);
-	}
-
-	static void *acceptLoop(void *arg)
-	{
-		WireServer *self = (WireServer *) arg;
-		for (;;)
-		{
-			CySocket *c = self->listener->accept();
-			if (c == NULL)
-				return NULL;
-			ServeArgs *sa = new ServeArgs;
-			sa->ws = &self->ws;
-			sa->c = c;
-			pthread_t t;
-			if (pthread_create(&t, NULL, &serveOne, sa) != 0)
-			{
-				delete sa->c;
-				delete sa;
-				continue;
-			}
-			pthread_mutex_lock(&self->workers_lock);
-			self->workers.push_back(t);
-			pthread_mutex_unlock(&self->workers_lock);
-		}
-	}
-
-	~WireServer()
-	{
-		/* The order the shutdown contract states: close and wait out every
-		   stream first, so no connection thread is inside the bridge or the
-		   events module when they go; then the acceptor; then every worker
-		   is joined, because the hooks and the config below must outlive
-		   the last HandleConnection. */
-		events::stop();
-		// registerPrefixes installed the first-login gate, which the other cases do not expect
-		httpd::setPasswordOwed(NULL);
-		::shutdown(listener->get_socket(), SHUT_RDWR);
-		pthread_join(acceptor, NULL);
-		for (;;)
-		{
-			pthread_t t;
-			{
-				pthread_mutex_lock(&workers_lock);
-				if (workers.empty())
-				{
-					pthread_mutex_unlock(&workers_lock);
-					break;
-				}
-				t = workers.back();
-				workers.pop_back();
-				pthread_mutex_unlock(&workers_lock);
-			}
-			pthread_join(t, NULL);
-		}
-		pthread_mutex_destroy(&workers_lock);
-		listener->close();
-		delete listener;
-		CyhookHandler::detach(&bridge);
-		CyhookHandler::clearApiPrefixes();
-		setConfigForTest(defaultWebConfig());
-		events::setHeartbeatMs(kShippedHeartbeatMs);
-		events::setPendingCeiling(kShippedCeiling);
-	}
-
-private:
-	WireServer(const WireServer &);
-	WireServer &operator=(const WireServer &);
-};
-
-/* One client of the stream. HTTP/1.0 and close-delimited, so there is no
-   framing to decode (the source's reader undoes MHD's chunking here): the header
-   runs to the blank line and the body is bytes until the connection closes. */
-struct WireStream
-{
-	int         fd;
-	bool        opened;
-	int         status;
-	std::string header;
-	std::string body;
-	size_t      taken;
-
-	explicit WireStream(int port, const char *request =
-			"GET /api/v1/events HTTP/1.0\r\nHost: box\r\n\r\n",
-			int rcvbuf = 0)
-		: fd(-1), opened(false), status(0), taken(0)
-	{
-		fd = socket(AF_INET, SOCK_STREAM, 0);
-		if (fd < 0)
-			return;
-		// a small window, where a case wants the far end to ask for little
-		if (rcvbuf > 0)
-			setsockopt(fd, SOL_SOCKET, SO_RCVBUF, &rcvbuf, sizeof(rcvbuf));
-		struct sockaddr_in a;
-		std::memset(&a, 0, sizeof(a));
-		a.sin_family = AF_INET;
-		a.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
-		a.sin_port = htons((uint16_t) port);
-		if (connect(fd, (struct sockaddr *) &a, sizeof(a)) != 0)
-			return;
-		const size_t n = std::strlen(request);
-		if (send(fd, request, n, MSG_NOSIGNAL) != (ssize_t) n)
-			return;
-
-		// the header, up to the blank line
-		std::string got;
-		const int64_t deadline = wireNowMs() + 5000;
-		for (;;)
-		{
-			const size_t at = got.find("\r\n\r\n");
-			if (at != std::string::npos)
-			{
-				header = got.substr(0, at + 4);
-				body = got.substr(at + 4);
-				break;
-			}
-			if (!readSome(got, deadline))
-				return;
-		}
-		status = (int) std::strtol(header.c_str() + 9, NULL, 10);
-		opened = true;
-	}
-
-	~WireStream()
-	{
-		if (fd >= 0)
-			close(fd);
-	}
-
-	bool ok() const { return opened; }
-	int code() const { return status; }
-
-	// case-insensitive, value up to the line's end
-	std::string headerOf(const char *name) const
-	{
-		std::string want(name);
-		want += ":";
-		for (size_t at = 0; at < header.size();)
-		{
-			size_t end = header.find("\r\n", at);
-			if (end == std::string::npos)
-				break;
-			if (header.size() - at > want.size()
-					&& strncasecmp(header.c_str() + at, want.c_str(), want.size()) == 0)
-			{
-				std::string v = header.substr(at + want.size(), end - at - want.size());
-				while (!v.empty() && v[0] == ' ')
-					v.erase(0, 1);
-				return v;
-			}
-			at = end + 2;
-		}
-		return "";
-	}
-
-	bool hasHeader(const char *name) const
-	{
-		return !headerOf(name).empty();
-	}
-
-	/* The next frame, terminator included, or "" at the deadline. A frame
-	   ends at the blank line, which in this format is two newlines. */
-	std::string readFrame(int wait_ms)
-	{
-		const int64_t deadline = wireNowMs() + wait_ms;
-		for (;;)
-		{
-			const size_t at = body.find("\n\n", taken);
-			if (at != std::string::npos)
-			{
-				std::string out = body.substr(taken, at + 2 - taken);
-				taken = at + 2;
-				return out;
-			}
-			if (!readSome(body, deadline))
-				return "";
-		}
-	}
-
-	// Frames until every wanted piece was seen, or the deadline; answers
-	// everything read.
-	std::string readUntilAll(const std::vector<std::string> &wanted, int wait_ms)
-	{
-		const int64_t deadline = wireNowMs() + wait_ms;
-		for (;;)
-		{
-			bool all = true;
-			for (size_t i = 0; all && i < wanted.size(); ++i)
-				all = body.find(wanted[i]) != std::string::npos;
-			if (all)
-				return body;
-			if (!readSome(body, deadline))
-				return body;
-		}
-	}
-
-	// Everything until the peer closes, within the deadline.
-	std::string readToEof(int wait_ms)
-	{
-		const int64_t deadline = wireNowMs() + wait_ms;
-		while (readSome(body, deadline))
-		{
-		}
-		return body.substr(taken);
-	}
-
-private:
-	bool readSome(std::string &into, int64_t deadline)
-	{
-		const int64_t left = deadline - wireNowMs();
-		if (left <= 0)
-			return false;
-		struct pollfd p;
-		p.fd = fd;
-		p.events = POLLIN;
-		p.revents = 0;
-		if (poll(&p, 1, (int) left) <= 0)
-			return false;
-		char buf[4096];
-		const ssize_t n = read(fd, buf, sizeof(buf));
-		if (n <= 0)
-			return false;
-		into.append(buf, (size_t) n);
-		return true;
-	}
-
-	WireStream(const WireStream &);
-	WireStream &operator=(const WireStream &);
-};
 
 } // namespace
 

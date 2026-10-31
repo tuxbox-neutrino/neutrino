@@ -129,6 +129,7 @@ const Walked kWalked[] = {
 	CODE(PlaylistUnreadable),
 	CODE(TooManyStreams),
 	CODE(TooManyConversions),
+	CODE(ServerStopping),
 	CODE(NotPlayableInBrowser),
 	CODE(TooManyAttempts),
 	CODE(TimerExists),

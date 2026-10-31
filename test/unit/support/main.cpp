@@ -25,6 +25,7 @@
 #include "counts.h"
 
 #include "coreapi/settings/choicesources.h"
+#include "httpd/carry.h"
 
 #include <cstdio>
 #include <stdlib.h>
@@ -56,6 +57,10 @@ int main(int argc, char *argv[])
 	watchAnswers();
 	const int failed = session.run();
 	rmdir(empty);
+	/* A carried answer runs on a thread of its own and notes what it answers
+	   from there; every one has ended before the notes are read, and before
+	   the process tears down what they use. */
+	httpd::carry::drainForTest();
 
 	// A run given a name or a tag to pick out is not the whole suite, so the
 	// counts of it are not the suite's counts and nothing is compared.

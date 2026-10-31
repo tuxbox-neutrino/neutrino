@@ -104,6 +104,7 @@ coreapi_tests_SOURCES = \
 	system/test_mysystem_local.cpp \
 	nhttpd/test_yhttpd_api.cpp \
 	nhttpd/test_bridge.cpp \
+	nhttpd/test_carry.cpp \
 	nhttpd/test_yhttpd_config.cpp \
 	nhttpd/test_yhttpd_static.cpp \
 	httpd/test_openapi.cpp \
@@ -120,6 +121,7 @@ coreapi_tests_SOURCES = \
 	nhttpd/yhttpd_stubs.cpp \
 	support/counts.cpp \
 	support/answers.cpp \
+	support/wireserver.cpp \
 	support/helperstubs.cpp
 
 # The channel object is linked rather than reimplemented, so a change to its copy
@@ -222,7 +224,7 @@ TESTS = coreapi_tests
 # needs, one line each with what brings the case back.
 LOG_COMPILER = $(SHELL) $(srcdir)/support/run-tests.sh
 
-EXTRA_DIST = interop/peer/README support/catch.hpp support/run-tests.sh support/fakes.h support/rcfixture.h support/conditions.h support/boundedrows.h support/settle.h support/counts.h support/answers.h support/counts.txt \
+EXTRA_DIST = interop/peer/README support/catch.hpp support/run-tests.sh support/fakes.h support/rcfixture.h support/conditions.h support/boundedrows.h support/settle.h support/counts.h support/answers.h support/wireserver.h support/counts.txt \
 	scan/extract-enum.sh support/merge-counts.sh \
 	scan/check-hook.sh scan/check-fieldtypes.sh \
 	scan/check-hardware.sh scan/check-appliers.sh scan/check-denominator.sh \
