@@ -23,4 +23,5 @@ libneutrino_gui_terminal_a_SOURCES = \
 	ctrlseq/csi.cpp \
 	ctrlseq/osc.cpp \
 	yaft_priv.cpp \
-	yaft_class.cpp
+	yaft_class.cpp \
+	reap.cpp

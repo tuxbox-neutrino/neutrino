@@ -26,41 +26,14 @@
 
 #include "yaft_class.h"
 #include "yaft_priv.h"
+#include "reap.h"
 #include <driver/framebuffer.h>
 #include <driver/abstime.h>
 
 const char *term_name = "linux";
 
 /* this will not fly with more than one instance */
-static pid_t childpid;
 static int exitcode;
-static volatile sig_atomic_t child_alive;
-
-static void sig_handler(int signo)
-{
-	/* global */
-	extern volatile sig_atomic_t child_alive;
-
-	logging(INFO, "caught signal! no:%d\n", signo);
-
-	if (signo != SIGCHLD)
-		return;
-
-	int wstatus;
-	int ret = waitpid(childpid, &wstatus, 0);
-	if (ret < 0) {
-		int e = errno;
-		logging(NORMAL, "wait for child %d returned %m\n", childpid);
-		if (e == ECHILD)
-			return; /* don_t reset child_alive */
-	}
-	if (WIFEXITED(wstatus))
-		exitcode = WEXITSTATUS(wstatus);
-	else if (WIFSIGNALED(wstatus))
-		exitcode = 128 + WTERMSIG(wstatus); /* simulate shell behaviour */
-	logging(NORMAL, "child %d exited with %d\n", childpid, exitcode);
-	child_alive = false;
-}
 
 static const char * const *yaft_argv;
 static pid_t fork_and_exec(int *master, int lines, int cols)
@@ -108,14 +81,48 @@ YaFT::~YaFT(void)
 {
 }
 
+/* Hands what the pty holds right now to the parser. Answers false once the
+   other side is closed: read() then reports the end of the file, or EIO,
+   which is what Linux answers on the master of a pty whose slave side nobody
+   holds open any more. */
+static bool read_pty(YaFT_p *term, uint8_t *buf, bool paint, int *res,
+		     sigc::signal<void, std::string*, int*, bool*> &out, bool &ok, bool &need_redraw)
+{
+	ssize_t size;
+	while ((size = read(term->fd, buf, BUFSIZE)) > 0) {
+		term->parse(buf, size);
+		while (term->txt.size() > 1) {
+			std::string s = term->txt.front();
+			out(&s, res, &ok);
+			term->txt.pop();
+		}
+		if (!paint)
+			continue;
+		need_redraw = true;
+		if (size == (ssize_t) BUFSIZE)
+			continue; /* maybe more data arrives soon */
+		time_t now = time_monotonic_ms();
+		if (now - term->last_paint < 100)
+			continue;
+		term->refresh();
+		need_redraw = false;
+	}
+	if (size == 0)
+		return false;
+	return errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR;
+}
+
 int YaFT::run(void)
 {
 	uint8_t buf[BUFSIZE];
-	ssize_t size;
 	fd_set fds;
 	struct timeval tv;
 	bool ok = true;
 	bool need_redraw = false;
+	bool pty_open = true;
+	bool child_alive = true;
+	bool wait_failed = false;
+	pid_t childpid;
 	exitcode = EXIT_FAILURE;
 	YaFT_p *term = new YaFT_p(paint);
 	int flags;
@@ -125,56 +132,58 @@ int YaFT::run(void)
 	if (!term->init())
 		goto init_failed;
 
-	struct sigaction sigact, oldact;
-	memset(&sigact, 0, sizeof(struct sigaction));
-	memset(&oldact, 0, sizeof(struct sigaction));
-	sigact.sa_handler = sig_handler;
-	sigact.sa_flags   = SA_RESTART;
-	sigaction(SIGCHLD, &sigact, &oldact);
-
 	if ((childpid = fork_and_exec(&term->fd, term->lines, term->cols)) < 0) {
 		logging(NORMAL, "forkpty failed\n");
-		goto exec_failed;
+		goto init_failed;
 	}
 	exitcode = 0;
-	child_alive = true;
 	flags = fcntl(term->fd, F_GETFL);
 	fcntl(term->fd, F_SETFL, flags | O_NONBLOCK);
 
+	/* The child is asked after once per turn, by its number and without
+	   waiting, so the end of another child of this process is never taken
+	   for its end, nor collected here. A turn lasts at most the 100 ms the
+	   select waits. */
 	while (child_alive) {
 		if (need_redraw) {
 			need_redraw = false;
 			term->refresh();
 		}
-		if (check_fds(&fds, &tv, STDIN_FILENO, term->fd) == -1)
-			continue;
-#if 0
-		if (FD_ISSET(STDIN_FILENO, &fds)) {
-			if ((size = read(STDIN_FILENO, buf, BUFSIZE)) > 0)
-				ewrite(term.fd, buf, size);
-		}
-#endif
-		if (FD_ISSET(term->fd, &fds)) {
-			while ((size = read(term->fd, buf, BUFSIZE)) > 0) {
-				term->parse(buf, size);
-				while (term->txt.size() > 1) {
-					std::string s = term->txt.front();
-					OnShellOutputLoop(&s, res, &ok);
-					term->txt.pop();
-				}
-				if (!paint)
-					continue;
-				need_redraw = true;
-				if (size == (ssize_t) BUFSIZE)
-					continue; /* maybe more data arrives soon */
-				time_t now = time_monotonic_ms();
-				if (now - term->last_paint < 100)
-					continue;
-				term->refresh();
-				need_redraw = false;
+		if (pty_open) {
+			if (check_fds(&fds, &tv, STDIN_FILENO, term->fd) > 0 && FD_ISSET(term->fd, &fds))
+				pty_open = read_pty(term, buf, paint, res, OnShellOutputLoop, ok, need_redraw);
+		} else
+			usleep(100000); /* a closed pty reads ready at once; do not spin on it */
+
+		int code = 0;
+		int err = 0;
+		const yaft::Reaped reaped = yaft::reapOwnChild(childpid, &code, &err);
+		switch (reaped) {
+		case yaft::ChildRunning:
+			break;
+		case yaft::ChildExited:
+			exitcode = code;
+			logging(NORMAL, "child %d exited with %d\n", childpid, exitcode);
+			break;
+		case yaft::ChildGone:
+			/* The kernel collected it while SIGCHLD was ignored: it has
+			   ended, and its status is gone, so the run counts as failed. */
+			exitcode = EXIT_FAILURE;
+			logging(NORMAL, "child %d was collected elsewhere, its status is lost\n", childpid);
+			break;
+		case yaft::ReapFailed:
+			if (!wait_failed) {
+				logging(NORMAL, "wait for child %d: %s, reading until the terminal closes\n", childpid, strerror(err));
+				wait_failed = true;
 			}
+			exitcode = EXIT_FAILURE;
+			break;
 		}
+		child_alive = !yaft::endsTerminal(reaped, pty_open);
 	}
+	/* What the child wrote last can still sit in the pty after it ended. */
+	if (pty_open)
+		read_pty(term, buf, paint, res, OnShellOutputLoop, ok, need_redraw);
 	term->refresh();
 
 	/*
@@ -186,8 +195,6 @@ int YaFT::run(void)
 		OnShellOutputLoop(&s, res, &ok);
 		term->txt.pop();
 	}
-exec_failed:
-	sigaction(SIGCHLD, &oldact, NULL);
 init_failed:
 	delete term;
 	term = NULL;

@@ -103,6 +103,7 @@ coreapi_tests_SOURCES = \
 	coreapi/test_endpoints_read.cpp \
 	coreapi/test_endpoints_write.cpp \
 	system/test_mysystem_local.cpp \
+	gui/test_yaftreap.cpp \
 	nhttpd/test_yhttpd_api.cpp \
 	nhttpd/test_bridge.cpp \
 	nhttpd/test_carry.cpp \
@@ -140,6 +141,8 @@ coreapi_tests_SOURCES = \
 # The timer daemon's client is linked for the same reason as the channel object:
 # what a list read does with an answer that stops early is its own logic.
 # timerwake.o is the one object of the timer daemon that links on its own.
+# reap.o is how the terminal collects its own child, linked so the cases
+# drive the object the program runs; it needs nothing but the C library.
 # helpers.o carries the spawn helper the shipped program uses, so the case that
 # pins what it does with an ampersand drives that object and not a copy. debug.o,
 # the json archive and the network library are what it needs besides;
@@ -164,6 +167,7 @@ coreapi_tests_LDADD = \
 	$(top_builddir)/src/nhttpd/yhttpd_core/libyhttpd.a \
 	$(top_builddir)/lib/xmltree/libxmltree.a \
 	$(top_builddir)/src/system/helpers.o \
+	$(top_builddir)/src/gui/widget/yaft/reap.o \
 	$(top_builddir)/src/timerd/timerwake.o \
 	$(top_builddir)/src/system/debug.o \
 	$(top_builddir)/lib/jsoncpp/libjsoncpp.a \
