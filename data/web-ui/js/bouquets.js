@@ -11,6 +11,7 @@ let recordedIds = new Set();	// the channels the box records now
 
 const SVG_INFO = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg>';
 const SVG_REC = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="12" cy="12" r="6"/></svg>';
+const SVG_PLAY = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="4" width="20" height="14" rx="2"/><path d="M10 8.5v5l4.5-2.5z"/><path d="M8 21h8"/></svg>';
 const SVG_STREAM = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M7 5v14l11-7z"/></svg>';
 
 const clock = webuiClock;
@@ -20,7 +21,7 @@ let channelsShown = Object.create(null);
 
 // A channel's programme in the shared dialog: the one that runs now
 function showInfo(ch) {
-	webuiShowEpgModal(ch.id, ch.name, {event: epgNow[ch.id], number: ch.number});
+	webuiShowEpgModal(ch.id, ch.name, {event: epgNow[ch.id], number: ch.number, kind: ch.kind || ''});
 }
 
 function rowOf(channelId) {
@@ -111,11 +112,13 @@ function channelRow(ch) {
 		title: webuiL('tip.zap_to', 'Switch the box to %s').replace('%s', ch.name),
 		attrs: {'aria-label': webuiL('bq.zap_title', 'Switch channel') + ': ' + ch.name}, on: {click: () => zapTo(ch.id)}},
 		webuiL('bq.zap_title', 'Switch channel'));
+	const web = ch.kind === 'webtv' || ch.kind === 'webradio';
 	const menu = webuiMenuButton(webuiL('bq.more', 'More for %s').replace('%s', ch.name), () => [
 		{label: webuiL('dash.epg_info', 'Programme info'), icon: SVG_INFO, onClick: () => showInfo(ch)},
 		{label: webuiL('bq.rec_title', 'Record programme'), icon: SVG_REC, onClick: () => webuiRecordEvent(ch.id, ch.name, epgNow[ch.id])},
 		{label: webuiL('bq.stream_title', 'Start stream'), icon: SVG_STREAM, onClick: () => webuiStreamChannel(ch.id, ch.name)}
-	]);
+	].concat(web ? [{label: webuiL('play.in_browser', 'Play in browser'), icon: SVG_PLAY,
+		onClick: () => webuiPlayInBrowser(ch.id, ch.name, ch.kind)}] : []));
 	channelsShown[ch.id] = ch;
 	return webuiEl('li', {className: 'webui-channel-row', data: {id: ch.id}},
 		webuiEl('span', {className: 'webui-channel-num'}, ch.number > 0 ? String(ch.number) : ''),

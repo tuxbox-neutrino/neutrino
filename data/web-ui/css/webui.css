@@ -1803,6 +1803,81 @@ body ul.webui-side-list > li {
 	margin-bottom: 1rem;
 }
 
+/* ============================================
+   Player: a web channel played in the page
+   ============================================ */
+.webui-epg-modal.webui-player {
+	width: 94%;
+	max-width: 960px;
+}
+
+/* visible at once when it opens, so the focus can move into it (an element
+   that is still hidden takes none); it still fades when it closes. Its close
+   button, which takes the focus, eases its colours only: easing every
+   property would ease its visibility as well, and keep it hidden for the
+   moment the focus is moved there when the player opens again. */
+.webui-epg-modal-backdrop.webui-player-backdrop.open {
+	transition: opacity 0.2s ease, visibility 0s;
+}
+
+.webui-player .webui-modal-close {
+	transition-property: background-color, color;
+}
+
+.webui-player-body {
+	padding: 0;
+	display: flex;
+	flex-direction: column;
+}
+
+/* the picture keeps its shape while it loads; sound needs a line */
+.webui-player-stage {
+	background: #000;
+	aspect-ratio: 16 / 9;
+	max-height: 60vh;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.webui-player-stage.radio {
+	background: none;
+	aspect-ratio: auto;
+	padding: 1rem 1.25rem 0;
+}
+
+video.webui-player-media {
+	display: block;
+	width: 100%;
+	height: 100%;
+	background: #000;
+}
+
+audio.webui-player-media {
+	display: block;
+	width: 100%;
+}
+
+.webui-player-foot {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0.5rem 0.75rem;
+	padding: 0.75rem 1.25rem;
+	min-height: 3.25rem;
+}
+
+.webui-player-state {
+	flex: 1 1 12rem;
+	margin: 0;
+	color: var(--pico-muted-color);
+	font-size: var(--webui-font-sm);
+}
+
+.webui-player-state.error {
+	color: var(--webui-danger);
+}
+
 .webui-epg-title {
 	font-size: 1.1rem;
 	font-weight: 600;

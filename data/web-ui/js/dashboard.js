@@ -4,7 +4,7 @@
 // Show EPG info for current channel
 function showCurrentEpgInfo() {
 	if (dash.channel)
-		webuiShowEpgModal(dash.channel.id, dash.channel.name, {number: dash.channel.number});
+		webuiShowEpgModal(dash.channel.id, dash.channel.name, {number: dash.channel.number, kind: dash.channel.kind});
 }
 
 // Format helpers — use shared versions from webui-header.js

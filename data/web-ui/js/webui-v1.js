@@ -608,6 +608,10 @@ function _webuiEpgModalHTML() {
 				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
 				<span>${webuiLH('epg.timer_zap', 'Zap timer')}</span>
 			</button>
+			<button type="button" class="webui-btn" id="webuiEpgPlayBtn" onclick="webuiPlayInBrowser()" hidden>
+				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="4" width="20" height="14" rx="2"/><path d="M10 8.5v5l4.5-2.5z"/><path d="M8 21h8"/></svg>
+				<span>${webuiLH('play.in_browser', 'Play in browser')}</span>
+			</button>
 			<button type="button" class="webui-epg-round" onclick="webuiStreamChannel()" title="${webuiLH('bq.stream_title', 'Start stream')}" aria-label="${webuiLH('msg.stream', 'Stream')}">
 				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 17H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-1"/><polygon points="12 15 17 21 7 21"/></svg>
 			</button>
@@ -640,6 +644,7 @@ function _webuiEpgWhen(ev) {
 // The channel and the guide event the dialog shows, for its buttons
 let webuiEpgModalChannelId = null;
 let webuiEpgModalChannelName = null;
+let _webuiEpgModalKind = '';
 let webuiEpgModalEvent = null;
 let webuiEpgModalIsRecording = false;
 let _webuiEpgModalOnTimer = null;
@@ -683,7 +688,9 @@ function _webuiEpgRuns(ev) {
 /* A programme of a channel: the event given (opts.event, a programme of the
    guide), else what runs now on the channel; its long text, what follows
    it, and the channel's logo and number (opts.number). opts.onTimer is
-   called once a timer was set from the dialog. */
+   called once a timer was set from the dialog. opts.kind, the channel's kind,
+   offers playing a web channel in the page; where a caller does not say, the
+   box is asked. */
 async function webuiShowEpgModal(channelId, channelName, opts) {
 	opts = opts || {};
 	if (!document.getElementById('webuiEpgModal'))
@@ -730,6 +737,16 @@ async function webuiShowEpgModal(channelId, channelName, opts) {
 	nextList.replaceChildren();
 	document.getElementById('webuiEpgZapTimerBtn').hidden = true;
 	recBtn.hidden = false;
+	const playBtn = document.getElementById('webuiEpgPlayBtn');
+	const offerPlay = function(kind) {
+		_webuiEpgModalKind = kind || '';
+		playBtn.hidden = _webuiEpgModalKind !== 'webtv' && _webuiEpgModalKind !== 'webradio';
+	};
+	offerPlay(opts.kind);
+	if (opts.kind === undefined)
+		_webuiV1Read('/channels/' + encodeURIComponent(channelId)).then(function(ch) {
+			if (token === _webuiEpgModalToken) offerPlay(ch && ch.kind);
+		}, function() {});
 
 	modal.classList.add('open');
 	document.body.style.overflow = 'hidden';
@@ -895,6 +912,31 @@ function webuiStreamChannel(channelId, channelName) {
 	a.download = "livestream.m3u";
 	a.click();
 	URL.revokeObjectURL(a.href);
+}
+
+/* A web channel played in this page (js/webui-player.js, loaded on the first
+   use): the box fetches it for the browser, so it plays here although the
+   server it comes from does not let a page read it. Without arguments, the
+   channel of the guide dialog, which makes way for the player. */
+var _webuiPlayerLoad = null;
+function webuiPlayInBrowser(channelId, channelName, kind) {
+	if (!channelId) {
+		channelId = webuiEpgModalChannelId;
+		channelName = webuiEpgModalChannelName;
+		kind = _webuiEpgModalKind;
+	}
+	if (!channelId) return;
+	if (!_webuiPlayerLoad)
+		_webuiPlayerLoad = webuiLoadScript('/js/webui-player.js?v=1');
+	_webuiPlayerLoad.then(function() {
+		const epg = document.getElementById('webuiEpgModal');
+		if (epg && epg.classList.contains('open'))
+			webuiCloseEpgModal();
+		webuiPlayerOpen({id: channelId, name: channelName, kind: kind});
+	}, function(e) {
+		_webuiPlayerLoad = null;
+		webuiToastError(webuiL('play.in_browser', 'Play in browser'), e);
+	});
 }
 
 // Records a guide event through POST /api/v1/timers: the one given, the one

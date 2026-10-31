@@ -310,7 +310,7 @@ async function zapped() {
 // A programme in the shared dialog, the marks of the grid following a
 // timer set from it
 function showProgramDetail(channel, ev) {
-	webuiShowEpgModal(channel.id, channel.name, {event: ev, number: channel.number,
+	webuiShowEpgModal(channel.id, channel.name, {event: ev, number: channel.number, kind: channel.kind || '',
 		onTimer: () => { if (!webuiV1EventsLive()) timersChanged(); }});
 }
 
