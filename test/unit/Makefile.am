@@ -64,6 +64,8 @@ coreapi_tests_SOURCES = \
 	zapit/test_zapitclient_getpids.cpp \
 	zapit/test_zapitclient_bouquetwrite.cpp \
 	zapit/test_fesearch.cpp \
+	zapit/test_streamhold.cpp \
+	zapit/test_streamadmission.cpp \
 	system/test_atomicfile.cpp \
 	system/test_atomicfile_link.cpp \
 	system/test_getpidof.cpp \
@@ -159,7 +161,10 @@ coreapi_tests_SOURCES = \
 # The xml library is named because the compatibility layer escapes a value with
 # the tree's own converter, and that converter shares an object with the parser.
 # fesearch.o is the frontend search a stream gets, plain code without a tuner,
-# linked so the cases drive the object the program runs.
+# linked so the cases drive the object the program runs; streamadmission.o,
+# the rule a stream is admitted by, likewise. The register of stream holds is
+# not linked: test_streamhold.cpp compiles its source with the test points the
+# program's build leaves out.
 # The zapit client archive is what getPIDS lives in, so the case that pins what it
 # does with a daemon that answers short drives that code and not a copy; it needs
 # the connection library after it.
@@ -176,6 +181,7 @@ coreapi_tests_LDADD = \
 	$(top_builddir)/lib/jsoncpp/libjsoncpp.a \
 	$(top_builddir)/src/zapit/channel.o \
 	$(top_builddir)/src/zapit/fesearch.o \
+	$(top_builddir)/src/zapit/streamadmission.o \
 	$(top_builddir)/src/zapit/client/libzapitclient.a \
 	$(top_builddir)/src/driver/rcinput.o \
 	$(top_builddir)/src/driver/abstime.o \

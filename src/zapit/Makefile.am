@@ -34,6 +34,8 @@ libzapit_a_SOURCES = \
 	scannit.cpp \
 	scanpmt.cpp \
 	scansdt.cpp \
+	streamadmission.cpp \
+	streamhold.cpp \
 	transponder.cpp \
 	zapit.cpp
 
