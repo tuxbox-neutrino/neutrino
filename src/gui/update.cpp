@@ -632,6 +632,7 @@ int CFlashUpdate::exec(CMenuTarget *parent, const std::string &actionKey)
 #if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
 	else if (fileType == 'Z') // flashing image with ofgwrite
 	{
+		showLocalStatus(0);
 		bool flashing = false;
 
 		// create settings package
@@ -650,6 +651,7 @@ int CFlashUpdate::exec(CMenuTarget *parent, const std::string &actionKey)
 			hintBox.hide();
 		}
 
+		showLocalStatus(33);
 		// get active partition
 		char c[2] = {0};
 		sprintf(c, "%d", getActivePartition());
@@ -684,6 +686,7 @@ int CFlashUpdate::exec(CMenuTarget *parent, const std::string &actionKey)
 
 		dprintf(DEBUG_NORMAL, "[update] Flash into partition %d\n", selected);
 
+		showLocalStatus(66);
 		int restart = CMsgBox::mbNo;
 
 		std::string ofgwrite_options("");
@@ -721,6 +724,7 @@ int CFlashUpdate::exec(CMenuTarget *parent, const std::string &actionKey)
 		// partition is still being asked for, and not if none was chosen.
 		if (flashing)
 		{
+			showLocalStatus(100);
 			showGlobalStatus(UPDATE_PROGRESS_DONE);
 			ShowHint(LOCALE_MESSAGEBOX_INFO, LOCALE_FLASHUPDATE_START_OFGWRITE);
 		}
@@ -754,6 +758,8 @@ int CFlashUpdate::exec(CMenuTarget *parent, const std::string &actionKey)
 #endif
 	else if (fileType == 'T') // not image, display file contents
 	{
+		showGlobalStatus(UPDATE_PROGRESS_DONE);
+
 		FILE *fd = fopen(filename.c_str(), "r");
 		if (fd)
 		{
