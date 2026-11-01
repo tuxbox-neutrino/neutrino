@@ -32,12 +32,15 @@ tmp=`mktemp -d`
 trap 'rm -rf "$tmp"' EXIT
 fail=0
 
+# CutBackNeutrino and the steps it chooses the frontend through.
 awk -v keepstrings=0 -f "$HERE/strip-comments.awk" "$SRC/$f" | awk '
+	/^class CRecordTunerOps/ { inside = 1 }
 	/^bool CRecordManager::CutBackNeutrino\(/ { inside = 1 }
 	inside { print }
-	inside && /^}/ { inside = 0 }
+	inside && /^};?$/ { inside = 0 }
 ' > "$tmp/cutback"
-[ -s "$tmp/cutback" ] || { echo "check-record-tuner.sh: no CutBackNeutrino in $f" >&2; exit 1; }
+grep -q '^bool CRecordManager::CutBackNeutrino(' "$tmp/cutback" || { echo "check-record-tuner.sh: no CutBackNeutrino in $f" >&2; exit 1; }
+grep -q '^class CRecordTunerOps' "$tmp/cutback" || { echo "check-record-tuner.sh: no CRecordTunerOps in $f" >&2; exit 1; }
 
 # 1. No decision by the two channel ids' transponder bits.
 if grep -n -E 'SAME_TRANSPONDER[ \t]*\([ \t]*live_channel_id' "$tmp/cutback" > "$tmp/hits"; then
@@ -52,14 +55,46 @@ grep -q -F 'recordtuner::liveServes(' "$tmp/cutback" || {
 	echo "$f: CutBackNeutrino does not ask recordtuner::liveServes whether the live frontend carries the channel" >&2
 	fail=1
 }
-grep -q -E 'if[ \t]*\([ \t]*live_channel_id[ \t]*!=[ \t]*channel_id[ \t]*\|\|[ \t]*!live_serves[ \t]*\)' "$tmp/cutback" || {
+grep -q -E 'return[ \t]+live_channel_id[ \t]*==[ \t]*channel->getChannelID\(\)[ \t]*&&[ \t]*live_serves[ \t]*;' "$tmp/cutback" || {
 	echo "$f: CutBackNeutrino takes the live frontend for the live channel without asking whether it serves" >&2
+	fail=1
+}
+grep -q -F 'recordtuner::choose(' "$tmp/cutback" || {
+	echo "$f: CutBackNeutrino does not choose the frontend through recordtuner::choose" >&2
+	fail=1
+}
+# A zap while streams ended may have moved the picture: the live frontend
+# the zap is decided by, and unlocked after it, is the one the choice read.
+grep -q -E 'live_fe[ \t]*=[ \t]*static_cast<CFrontend \*>\(choice\.live\)' "$tmp/cutback" || {
+	echo "$f: CutBackNeutrino does not take the live frontend the choice last read" >&2
 	fail=1
 }
 grep -q -E 'found[ \t]*=[ \t]*!recordtuner::fullZap\(' "$tmp/cutback" || {
 	echo "$f: CutBackNeutrino decides the full zap without recordtuner::fullZap" >&2
 	fail=1
 }
+# Whether the live channel is recorded off the live frontend is asked of the
+# frontend the choice read under the frontend manager's lock, not of the one
+# zapit names when the question comes.
+awk '
+	/bool liveRecords\(void \*fe\)/ { f = 1 }
+	f { print }
+	f && /^\t\t}$/ { exit }
+' "$tmp/cutback" > "$tmp/liverecords"
+if [ ! -s "$tmp/liverecords" ]; then
+	echo "$f: CRecordTunerOps has no liveRecords(void *fe)" >&2
+	fail=1
+else
+	grep -q -E 'static_cast<CFrontend \*>\(fe\)' "$tmp/liverecords" || {
+		echo "$f: CRecordTunerOps::liveRecords does not read the frontend it is given" >&2
+		fail=1
+	}
+	if grep -n -E 'GetLiveFrontend|getLiveFE' "$tmp/liverecords" > "$tmp/hits"; then
+		echo "$f: CRecordTunerOps::liveRecords reads the live frontend again instead of the one it is given:" >&2
+		sed 's/^/  /' "$tmp/hits" >&2
+		fail=1
+	fi
+fi
 
 # 3. Record counts itself as starting around the frontend search and its start.
 awk -v keepstrings=0 -f "$HERE/strip-comments.awk" "$SRC/$f" | awk '

@@ -290,6 +290,7 @@ EXTRA_DIST = interop/peer/README support/catch.hpp support/run-tests.sh support/
 	scan/check-pip-source-order.sh \
 	scan/check-stream-keeps-picture.sh \
 	scan/check-record-tuner.sh \
+	scan/check-epgscan-resume.sh \
 	scan/strip-comments.awk scan/blank-if0.awk scan/bounds.awk scan/pairs.awk scan/fields.awk \
 	scan/keyvals.awk scan/choices.awk scan/enums.awk scan/labels.awk scan/branches.awk \
 	scan/settingstext.awk scan/channel-holds.awk \
@@ -450,4 +451,5 @@ check-local: check-TESTS
 	@$(SHELL) $(srcdir)/scan/check-pip-source-order.sh $(top_srcdir)
 	@$(SHELL) $(srcdir)/scan/check-stream-keeps-picture.sh $(top_srcdir)
 	@$(SHELL) $(srcdir)/scan/check-record-tuner.sh $(top_srcdir)
+	@$(SHELL) $(srcdir)/scan/check-epgscan-resume.sh $(top_srcdir)
 	@$(MAKE) $(AM_MAKEFLAGS) check-api-types

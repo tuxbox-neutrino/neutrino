@@ -1319,6 +1319,11 @@ bool CRecordManager::Record(const CTimerd::RecordingInfo * const eventinfo, cons
 	   and the other finds no tuner for it. */
 	int started_id = 0;
 	bool started = false;
+	/* Streams were stopped for this recording. Announced here only when
+	   nothing was started for them: the EPG scan and zapit's standby go on
+	   from the announcement, and with a recording started they go on from
+	   its record mode instead, which comes after this returns. */
+	bool streams_ended = false;
 	/* for now, empty eventinfo.recordingDir means this is direct record, FIXME better way ?
 	 * neutrino check if this channel_id already recording, may be not needed */
 	bool direct_record = timeshift || strlen(eventinfo->recordingDir) == 0;
@@ -1361,7 +1366,7 @@ bool CRecordManager::Record(const CTimerd::RecordingInfo * const eventinfo, cons
 	} else if(recmap.size() < RECORD_MAX_COUNT) {
 		CFrontend * frontend = NULL;
 		CRecordStartGuard starting;
-		if(CutBackNeutrino(eventinfo->channel_id, frontend)) {
+		if(CutBackNeutrino(eventinfo->channel_id, frontend, streams_ended)) {
 
 			inst = new CRecordInstance(eventinfo, newdir, timeshift, StreamVTxtPid, StreamPmtPid, StreamSubtitlePids);
 
@@ -1395,6 +1400,9 @@ bool CRecordManager::Record(const CTimerd::RecordingInfo * const eventinfo, cons
 		error_msg = RECORD_BUSY;
 
 	mutex.unlock();
+
+	if (!started && streams_ended)
+		g_RCInput->postMsg(NeutrinoMessages::EVT_STREAM_STOP, 0);
 
 	if (error_msg == RECORD_OK) {
 		if (check_timer == 0)
@@ -1994,6 +2002,80 @@ bool CRecordManager::RunStopScript(void)
 	return exec_controlscript(NEUTRINO_RECORDING_ENDED_SCRIPT);
 }
 
+/* The steps recordtuner::choose takes, over zapit, the frontend manager and
+   the stream server, on the neutrino thread. */
+class CRecordTunerOps : public recordtuner::Ops
+{
+	public:
+		explicit CRecordTunerOps(CZapitChannel *c) : channel(c), frontend(NULL) {}
+
+		void wake()
+		{
+			g_Zapit->setStandby(false); // this zap to live_channel_id
+			/* wait for zapit wakeup */
+			g_Zapit->getMode();
+		}
+
+		/* The live channel is recorded off the live frontend only while that
+		   one carries its transponder: a wake whose zap found no frontend, and
+		   an EPG scan in standby, leave the live channel id where the frontend
+		   is not. fe is the live frontend the choice read under the frontend
+		   manager's lock; the reads here take no lock. */
+		bool liveRecords(void *fe)
+		{
+			const t_channel_id live_channel_id = CZapit::getInstance()->GetCurrentChannelID();
+			CFrontend *live_fe = static_cast<CFrontend *>(fe);
+			const bool live_serves = recordtuner::liveServes(live_fe != NULL, live_fe && live_fe->tuned,
+									 live_fe ? live_fe->getTsidOnid() : 0,
+									 channel->getTransponderId());
+			return live_channel_id == channel->getChannelID() && live_serves;
+		}
+
+		/* executed in neutrino thread - possible race with zap NOWAIT and epg scan zap */
+		void lockFrontends() { CFEManager::getInstance()->Lock(); }
+		void unlockFrontends() { CFEManager::getInstance()->Unlock(); }
+		void *liveFrontend() { return CZapit::getInstance()->GetLiveFrontend(); }
+		void lockFrontend(void *fe)
+		{
+			if (fe)
+				CFEManager::getInstance()->lockFrontend(static_cast<CFrontend *>(fe));
+		}
+		void unlockFrontend(void *fe)
+		{
+			if (fe)
+				CFEManager::getInstance()->unlockFrontend(static_cast<CFrontend *>(fe));
+		}
+
+		bool allocate()
+		{
+			frontend = CFEManager::getInstance()->allocateFE(channel, true);
+			return frontend != NULL;
+		}
+
+		bool yield(int &stage, uint32_t &mask)
+		{
+			/* Bounds the exchange; zapit acts only with a second of it left. */
+			CBasicClient::Deadline until(kYieldBudgetMs);
+			CZapitClient::responseStreamYield reply;
+			const bool ok = g_Zapit->yieldStreams(channel->getChannelID(), kYieldBudgetMs, reply);
+			printf("[recordmanager] stream yield %" PRIx64 ": %s, stage %d mask 0x%x\n",
+			       channel->getChannelID(), ok ? "answered" : "no answer", reply.stage, reply.fe_mask);
+			stage = reply.stage;
+			mask = reply.fe_mask;
+			return ok;
+		}
+
+		void stopStreamsOn(uint32_t mask) { CStreamManager::getInstance()->StopStreamsOn(mask); }
+
+		CZapitChannel *channel;
+		CFrontend *frontend;
+
+	private:
+		/* As long as a hold zapit may be tuning for when the recording asks
+		   can take, and the neutrino thread waits that long at most. */
+		static const unsigned kYieldBudgetMs = 12000;
+};
+
 /* 
  * if we not recording and standby mode -> wakeup zapit
  * check if we can record channel without zap
@@ -2005,9 +2087,10 @@ bool CRecordManager::RunStopScript(void)
  * if zap ok
  * 	set record mode
  */
-bool CRecordManager::CutBackNeutrino(const t_channel_id channel_id, CFrontend * &frontend)
+bool CRecordManager::CutBackNeutrino(const t_channel_id channel_id, CFrontend * &frontend, bool &streams_ended)
 {
 	bool ret = true;
+	streams_ended = false;
 	CZapitChannel * channel = CServiceManager::getInstance()->FindChannel(channel_id);
 	if (!channel)
 		return false;
@@ -2022,40 +2105,25 @@ bool CRecordManager::CutBackNeutrino(const t_channel_id channel_id, CFrontend * 
 		return false;
 
 	last_mode = CNeutrinoApp::getInstance()->getMode();
-	if(last_mode == NeutrinoModes::mode_standby && recmap.empty()) {
-		g_Zapit->setStandby(false); // this zap to live_channel_id
-		/* wait for zapit wakeup */
-		g_Zapit->getMode();
-	}
+	const bool standby = last_mode == NeutrinoModes::mode_standby;
+	CRecordTunerOps ops(channel);
+	const recordtuner::Choice choice = recordtuner::choose(ops, standby, standby && recmap.empty());
+	streams_ended = choice.streams_ended;
 
+	/* The live frontend the choice last read, which a zap while streams
+	   were ended may have moved, and the live channel with it. */
+	CFrontend *live_fe = static_cast<CFrontend *>(choice.live);
 	t_channel_id live_channel_id = CZapit::getInstance()->GetCurrentChannelID();
-
-	bool mode_changed = false;
-	CFrontend *live_fe = CZapit::getInstance()->GetLiveFrontend();
-	frontend = live_fe;
-	/* The live channel is recorded off the live frontend only while that one
-	   carries its transponder: a wake whose zap found no frontend, and an EPG
-	   scan in standby, leave the live channel id where the frontend is not. */
 	const bool live_serves = recordtuner::liveServes(live_fe != NULL, live_fe && live_fe->tuned,
 							  live_fe ? live_fe->getTsidOnid() : 0,
 							  channel->getTransponderId());
-	if(live_channel_id != channel_id || !live_serves) {
-		/* first try to get frontend for record with locked live */
-		bool unlock = true;
-		/* executed in neutrino thread - possible race with zap NOWAIT and epg scan zap */
-		CFEManager::getInstance()->Lock();
-		CFEManager::getInstance()->lockFrontend(live_fe);
-		frontend = CFEManager::getInstance()->allocateFE(channel, true);
-		if (frontend == NULL) {
-			/* no frontend, try again with unlocked live */
-			unlock = false;
-			CFEManager::getInstance()->unlockFrontend(live_fe);
-			frontend = CFEManager::getInstance()->allocateFE(channel, true);
-		}
-		CFEManager::getInstance()->Unlock();
 
-		if (frontend == NULL)
-			return false;
+	bool mode_changed = false;
+	frontend = live_fe;
+	if (choice.way == recordtuner::NoFrontend)
+		return false;
+	if (choice.way == recordtuner::Allocated) {
+		frontend = ops.frontend;
 
 		/* if allocateFE was successful, full zapTo_serviceID
 		 * needed, if record frontend same as live, and it does not carry the TP */
@@ -2080,7 +2148,7 @@ bool CRecordManager::CutBackNeutrino(const t_channel_id channel_id, CFrontend * 
 			ret = g_Zapit->zapTo_serviceID(channel_id) > 0;
 			printf("%s zapTo_serviceID channel_id %" PRIx64 " result %d\n", __func__, channel_id, ret);
 		}
-		if (unlock)
+		if (choice.live_locked)
 			CFEManager::getInstance()->unlockFrontend(live_fe);
 	}
 #ifdef DYNAMIC_DEMUX
