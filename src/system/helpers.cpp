@@ -402,7 +402,9 @@ int my_system(int argc, const char *arg, ...)
 	// Per call, and never shared: the ampersand belongs to the one command that
 	// carried it, and a value that outlived the call would detach commands that
 	// did not ask.
-	bool background = false;
+	// volatile only to keep gcc's -Wclobbered quiet: the flag is live across
+	// vfork(), and the child reads it to pick what it execs.
+	volatile bool background = false;
 	int i = 0, ret, childExit = 0;
 #define ARGV_MAX 64
 	/* static right now but could be made dynamic if necessary */
