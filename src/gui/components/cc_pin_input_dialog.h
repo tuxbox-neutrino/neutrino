@@ -40,6 +40,7 @@ class CCPinInputDialog : public CCTextInputDialog
 	protected:
 		int onDialogMsg(neutrino_msg_t msg, neutrino_msg_data_t data);
 		int onAfterInsert();
+		void onBeforeExec();
 
 	public:
 		CCPinInputDialog(const neutrino_locale_t title,

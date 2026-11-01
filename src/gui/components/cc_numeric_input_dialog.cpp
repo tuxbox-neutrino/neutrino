@@ -329,6 +329,11 @@ void CCNumericInputDialog::onBeforeExec()
 
 std::string CCNumericInputDialog::prepareInitialText(const std::string &raw)
 {
+	/* Here and not at setTextMode(): the field is built at the first
+	 * open, after the mode may already have been chosen. */
+	if (getField())
+		getField()->enableCapCentering(!cnd_text_mode);
+
 	if (cnd_text_mode)
 	{
 		setMarked(false);

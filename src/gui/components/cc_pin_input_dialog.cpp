@@ -114,3 +114,12 @@ int CCPinInputDialog::onAfterInsert()
 
 	return HOOK_PASS;
 }
+
+void CCPinInputDialog::onBeforeExec()
+{
+	CCTextInputDialog::onBeforeExec();
+
+	/* Digits or their stars only. The field exists from here on. */
+	if (getField())
+		getField()->enableCapCentering(true);
+}

@@ -508,6 +508,9 @@ void CCStructuredInputDialog::buildItems()
 		segment->field = new CCInputField(0, 0, 0, 0, NULL, NULL, CC_SHADOW_OFF,
 			text_col, frame_col, body_col, focus_col, COL_SHADOW_PLUS_0);
 		segment->field->setBuffer(&segment->buffer);
+		/* Typing replaces the cell under the cursor. */
+		segment->field->enableCellCaret(true);
+		segment->field->enableCapCentering(true);
 		segment->field->setPlaceholderColor(getInputFieldPlaceholderColor());
 		segment->field->setPadding(getInputFieldPaddingX(), getInputFieldPaddingY());
 		addWindowItem(segment->field);

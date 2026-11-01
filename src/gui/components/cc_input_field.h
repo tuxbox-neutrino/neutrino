@@ -33,6 +33,8 @@ class CCInputField : public CComponentsItem
 		bool if_password_mode;
 		bool if_focused;
 		bool if_caret_unfocused;
+		bool if_cell_caret;
+		bool if_cap_centering;
 		bool if_error_state;
 		fb_pixel_t if_col_text;
 		fb_pixel_t if_col_placeholder;
@@ -41,11 +43,13 @@ class CCInputField : public CComponentsItem
 		fb_pixel_t if_col_body;
 		fb_pixel_t if_col_body_focus;
 
-		void initCaret(const int &x_pos, const int &caret_h);
+		void initCaret(const int &x_pos, const int &caret_h,
+			const std::string &cell_glyph, const int &cell_w,
+			const int &text_y);
 		void syncFieldColors();
 		int getContentWidth() const;
 		int getContentX() const;
-		int getTextY() const;
+		int getTextY(bool cap_band) const;
 		int getCaretY(const int &caret_h) const;
 		std::string getDisplayGlyph(size_t index) const;
 		std::string getDisplayRange(size_t first, size_t last) const;
@@ -122,6 +126,33 @@ class CCInputField : public CComponentsItem
 		 * once.
 		 */
 		void enableUnfocusedCaret(bool enable = true);
+
+		/**
+		 * Marks the glyph under the cursor instead of the gap before it.
+		 *
+		 * For fields of fixed cells, where a typed glyph replaces the
+		 * one under the cursor: a bar at the cell's left edge reads as
+		 * "inserts here", and the next digit then lands one place
+		 * further right than the user expects. The cell blinks as a
+		 * block in the text colour with its glyph cut out of it. At the
+		 * end of the buffer, with no cell under the cursor, the bar
+		 * stays. Off by default - text fields insert.
+		 *
+		 * The inverted glyph is drawn within the cell only as far as
+		 * its ink stays inside it: what reaches out to the left or
+		 * below is not restored when the block blinks off. Fine for
+		 * digits, hex and the like; not for text.
+		 */
+		void enableCellCaret(bool enable = true);
+
+		/**
+		 * Centres the cap height in the field instead of the band from
+		 * the ascender down to the descender. For content that never
+		 * reaches below the baseline - digits and hex: centred with
+		 * room for a descender they would sit high. The placeholder
+		 * stays centred as text.
+		 */
+		void enableCapCentering(bool enable = true);
 		void setPadding(const int &x_pad, const int &y_pad);
 		void ensureCursorVisible();
 

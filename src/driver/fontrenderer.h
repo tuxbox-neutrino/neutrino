@@ -92,6 +92,8 @@ class Font
 	int setSize(int isize);
 	int getAscender(){return ascender;}
 	int getDescender(){return descender * -1;}
+	///distance from the baseline down to the y RenderString() takes without a boxheight
+	int getLower(){return lower;}
 
 	Font(FBFontRenderClass *render, FTC_FaceID faceid, const int isize, const fontmodifier _stylemodifier);
 	~Font(){}

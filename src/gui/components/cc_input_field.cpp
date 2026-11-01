@@ -31,6 +31,41 @@ int getFontGlyphHeight(Font *font)
 
 	return std::max(0, font->getAscender() + font->getDescender());
 }
+
+/* The block of a cell caret: the cell in the text colour, its glyph in
+ * the body colour on top. The blink timer calls paint() and hide() in
+ * turn, and hide() puts back what paint() saved first - the field's own
+ * rendering of the same glyph - so the cell flips between plain and
+ * inverted. */
+class CCInputCellCaret : public CComponentsShapeSquare
+{
+	private:
+		Font *icc_font;
+		std::string icc_glyph;
+		int icc_text_y;
+		fb_pixel_t icc_col_glyph;
+
+	public:
+		CCInputCellCaret(const int &x_pos, const int &y_pos, const int &w, const int &h,
+			Font *font, const std::string &glyph, const int &text_y,
+			const fb_pixel_t &color_block, const fb_pixel_t &color_glyph)
+			: CComponentsShapeSquare(x_pos, y_pos, w, h, NULL, CC_SHADOW_OFF,
+				color_block, color_block)
+		{
+			icc_font = font;
+			icc_glyph = glyph;
+			icc_text_y = text_y;
+			icc_col_glyph = color_glyph;
+		}
+
+		void paint(const bool &do_save_bg = CC_SAVE_SCREEN_YES)
+		{
+			CComponentsShapeSquare::paint(do_save_bg);
+			if (icc_font)
+				icc_font->RenderString(x, icc_text_y, width, icc_glyph,
+					icc_col_glyph);
+		}
+};
 }
 
 CCInputField::CCInputField(const int &x_pos,
@@ -66,6 +101,8 @@ CCInputField::CCInputField(const int &x_pos,
 	if_password_mode = false;
 	if_focused = false;
 	if_caret_unfocused = false;
+	if_cell_caret = false;
+	if_cap_centering = false;
 	if_error_state = false;
 	if_col_text = color_text;
 	if_col_placeholder = COL_MENUCONTENTINACTIVE_TEXT;
@@ -101,12 +138,37 @@ void CCInputField::enableUnfocusedCaret(bool enable)
 	if_caret_unfocused = enable;
 }
 
-void CCInputField::initCaret(const int &x_pos, const int &caret_h)
+void CCInputField::enableCellCaret(bool enable)
+{
+	if_cell_caret = enable;
+}
+
+void CCInputField::enableCapCentering(bool enable)
+{
+	if_cap_centering = enable;
+}
+
+void CCInputField::initCaret(const int &x_pos, const int &caret_h,
+	const std::string &cell_glyph, const int &cell_w, const int &text_y)
 {
 	cancelCaretBlink(false);
 
 	if ((!if_focused && !if_caret_unfocused) || caret_h <= 0)
 		return;
+
+	if (if_cell_caret && !cell_glyph.empty() && cell_w > 0)
+	{
+		if_caret = new CCInputCellCaret(x_pos,
+			getCaretY(caret_h),
+			cell_w,
+			caret_h,
+			if_font,
+			cell_glyph,
+			text_y,
+			if_col_text,
+			if_focused ? if_col_body_focus : if_col_body);
+		return;
+	}
 
 	if_caret = new CComponentsShapeSquare(x_pos,
 		getCaretY(caret_h),
@@ -137,14 +199,26 @@ int CCInputField::getContentX() const
 	return getRealXPos() + getFrameThickness() + if_padding_x;
 }
 
-int CCInputField::getTextY() const
+int CCInputField::getTextY(bool cap_band) const
 {
+	const int inner_y = getRealYPos() + getFrameThickness();
 	const int inner_h = std::max(0, height - 2 * getFrameThickness());
-	const int glyph_h = getFontGlyphHeight(if_font);
-	const int text_box_h = glyph_h > 0 ? std::min(inner_h, glyph_h) : inner_h;
-	const int box_top = std::max(0, (inner_h - text_box_h) / 2);
 
-	return getRealYPos() + getFrameThickness() + box_top + text_box_h;
+	if (!if_font)
+		return inner_y + inner_h;
+
+	/* The baseline is placed here, not by RenderString(): it puts the
+	 * baseline above the y it gets by the lower part of its line box,
+	 * which reserves half a line gap below the descender and so lifts
+	 * the glyphs off the middle - by half a descender more for digits,
+	 * which have none. Centred is the band the glyphs fill: down to the
+	 * descender for text, the cap height alone for digits and hex. */
+	const int ascender = if_font->getAscender();
+	const int band = cap_band ? ascender : ascender + if_font->getDescender();
+	const int baseline = inner_y + (inner_h - band) / 2 + ascender;
+
+	/* RenderString() without a boxheight draws on y minus this. */
+	return baseline + if_font->getLower();
 }
 
 int CCInputField::getCaretY(const int &caret_h) const
@@ -292,27 +366,28 @@ void CCInputField::paint(const bool &do_save_bg)
 
 	const int content_x = getContentX();
 	const int content_w = getContentWidth();
-	const int text_y = getTextY();
+	const int text_y = getTextY(if_cap_centering);
 	const int inner_h = std::max(0, height - 2 * getFrameThickness());
 	const int glyph_h = getFontGlyphHeight(if_font);
-	const int text_box_h = glyph_h > 0 ? std::min(inner_h, glyph_h) : inner_h;
 	const int caret_target_h = glyph_h > 0 ?
-		glyph_h + CFrameBuffer::getInstance()->scale2Res(1) : text_box_h;
+		glyph_h + CFrameBuffer::getInstance()->scale2Res(1) : inner_h;
 	const int caret_h = std::min(inner_h, std::max(0, caret_target_h));
 	int draw_x = content_x;
 	int caret_x = content_x;
 	bool caret_set = false;
+	std::string cell_glyph;
+	int cell_w = 0;
 
 	if (!if_buffer || if_buffer->empty())
 	{
 		if (!if_placeholder.empty())
 		{
+			/* The placeholder is a name, text of its own. */
 			if_font->RenderString(content_x,
-				text_y,
+				getTextY(false),
 				content_w,
 				if_placeholder,
-				if_col_placeholder,
-				text_box_h);
+				if_col_placeholder);
 		}
 	}
 	else
@@ -334,12 +409,17 @@ void CCInputField::paint(const bool &do_save_bg)
 			if (draw_x + glyph_w > content_end)
 				break;
 
+			if (cursor == i)
+			{
+				cell_glyph = glyph;
+				cell_w = glyph_w;
+			}
+
 			if_font->RenderString(draw_x,
 				text_y,
 				content_end - draw_x,
 				glyph,
-				if_col_text,
-				text_box_h);
+				if_col_text);
 			draw_x += glyph_w;
 
 			if (!caret_set && cursor == (i + 1))
@@ -356,7 +436,7 @@ void CCInputField::paint(const bool &do_save_bg)
 
 	if (if_focused || if_caret_unfocused)
 	{
-		initCaret(caret_x, caret_h);
+		initCaret(caret_x, caret_h, cell_glyph, cell_w, text_y);
 		if (if_caret)
 		{
 			if (if_focused)
