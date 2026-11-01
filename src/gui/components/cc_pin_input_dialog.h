@@ -34,8 +34,10 @@ class CCPinInputDialog : public CCTextInputDialog
 		bool cpd_leave_on_updown;
 		bool cpd_watch_lock;
 		int cpd_lock_fsk;
+		const std::string *cpd_expected;
 
 		void initPin(size_t length);
+		bool checkExpected(const std::string &text, std::string &reason);
 
 	protected:
 		int onDialogMsg(neutrino_msg_t msg, neutrino_msg_data_t data);
@@ -63,6 +65,13 @@ class CCPinInputDialog : public CCTextInputDialog
 		 * protection that opened the prompt learns the new age from it.
 		 */
 		void watchLockStatus(int fsk);
+		/**
+		 * Saves only this PIN, or an empty entry. A wrong one is
+		 * refused in place: the field turns red, says so and empties
+		 * for the next try. Closing on every wrong PIN and opening the
+		 * same prompt again reads as a loop that never lets the user in.
+		 */
+		void setExpectedPin(const std::string *pin);
 };
 
 #endif

@@ -2477,6 +2477,7 @@ pinprotection.head PIN-Abfrage
 pinprotection.mismatch Die beiden Eingaben stimmen nicht überein. Bitte die neue PIN noch einmal eingeben.
 pinprotection.repeat Neue PIN zur Bestätigung noch einmal eingeben.
 pinprotection.repeat_head Neue PIN wiederholen
+pinprotection.wrong Falsche PIN. Bitte noch einmal eingeben.
 pinprotection.wrongcode Geben Sie den Code nocheinmal ein!
 plugins.hdd_dir Externes Plugin-Verzeichnis
 plugins.no_plugin Kein Plugin

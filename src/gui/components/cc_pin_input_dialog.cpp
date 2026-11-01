@@ -46,6 +46,7 @@ void CCPinInputDialog::initPin(size_t length)
 	cpd_leave_on_updown = true;
 	cpd_watch_lock = false;
 	cpd_lock_fsk = 0;
+	cpd_expected = NULL;
 
 	setFilterMode(CCInputBuffer::FILTER_NUMERIC);
 	/* No length means no limit and no closing on a last digit - the CI
@@ -73,6 +74,27 @@ void CCPinInputDialog::watchLockStatus(int fsk)
 {
 	cpd_watch_lock = true;
 	cpd_lock_fsk = fsk;
+}
+
+void CCPinInputDialog::setExpectedPin(const std::string *pin)
+{
+	cpd_expected = pin;
+	setValidator(sigc::mem_fun(*this, &CCPinInputDialog::checkExpected));
+}
+
+bool CCPinInputDialog::checkExpected(const std::string &text, std::string &reason)
+{
+	/* Empty saves: the callers read it as giving up, as they always
+	 * did. */
+	if (!cpd_expected || text.empty() || text == *cpd_expected)
+		return true;
+
+	reason = g_Locale->getText(LOCALE_PINPROTECTION_WRONG);
+	/* Emptied here, as the save that asked is refused: the field it
+	 * paints next is ready for the next try, and the last digit of a
+	 * wrong PIN does not block the first of the new one. */
+	getBuffer().clear();
+	return false;
 }
 
 int CCPinInputDialog::onDialogMsg(neutrino_msg_t msg, neutrino_msg_data_t data)

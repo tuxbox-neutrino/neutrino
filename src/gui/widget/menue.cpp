@@ -2720,6 +2720,7 @@ bool CPINProtection::check()
 	{
 		cPIN = "";
 		CPINInput* PINInput = new CPINInput(title, &cPIN, 4, hint);
+		PINInput->setExpectedPin(validPIN);
 		PINInput->exec( getParent(), "");
 		delete PINInput; PINInput = NULL;
 		hint = LOCALE_PINPROTECTION_WRONGCODE;
@@ -2739,6 +2740,7 @@ bool CZapProtection::check()
 		cPIN = "";
 
 		CPLPINInput* PINInput = new CPLPINInput(title, &cPIN, 4, hint, fsk);
+		PINInput->setExpectedPin(validPIN);
 
 		res = PINInput->exec(getParent(), "");
 		delete PINInput; PINInput = NULL;
