@@ -198,6 +198,25 @@ async function webuiV1Blob(path, query, opts) {
 	return resp.blob();
 }
 
+/* The name a Content-Disposition gives a file, '' where it gives none: the
+   encoded form (filename*=UTF-8''...), which the box writes for a playlist
+   and a file of its folders, before the plain one, which it writes for a
+   backup. A folder in the name is taken out. */
+function _webuiV1FileName(disposition) {
+	var name = '';
+	var m = /filename\*=UTF-8''([^;\s]+)/i.exec(disposition);
+	if (m) {
+		try {
+			name = decodeURIComponent(m[1]);
+		} catch (e) { /* not encoded as it says */ }
+	}
+	if (!name) {
+		m = /filename="([^"]+)"/.exec(disposition);
+		name = m ? m[1] : '';
+	}
+	return name.replace(/[\/\\]/g, '_');
+}
+
 // A file the box answers as a download, saved under the name the box gives it
 // (Content-Disposition), else under fallback; the same sign-in on 403 as
 // webuiV1. Resolves to the name it was saved under.
@@ -214,8 +233,7 @@ async function webuiV1Download(path, fallback) {
 			declined = true;
 	}
 	if (!resp.ok) throw _webuiV1Declined(await _webuiV1Error(resp, 'GET', path), declined);
-	var m = /filename="([^"\/\\]+)"/.exec(resp.headers.get('Content-Disposition') || '');
-	var name = m ? m[1] : fallback;
+	var name = _webuiV1FileName(resp.headers.get('Content-Disposition') || '') || fallback;
 	var blob = await resp.blob();
 	var a = document.createElement('a');
 	a.href = URL.createObjectURL(blob);
@@ -608,11 +626,11 @@ function _webuiEpgModalHTML() {
 				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
 				<span>${webuiLH('epg.timer_zap', 'Zap timer')}</span>
 			</button>
-			<button type="button" class="webui-btn" id="webuiEpgPlayBtn" onclick="webuiPlayInBrowser()" hidden>
+			<button type="button" class="webui-btn" id="webuiEpgPlayBtn" onclick="webuiPlayInBrowser()">
 				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="4" width="20" height="14" rx="2"/><path d="M10 8.5v5l4.5-2.5z"/><path d="M8 21h8"/></svg>
 				<span>${webuiLH('play.in_browser', 'Play in browser')}</span>
 			</button>
-			<button type="button" class="webui-epg-round" onclick="webuiStreamChannel()" title="${webuiLH('bq.stream_title', 'Start stream')}" aria-label="${webuiLH('msg.stream', 'Stream')}">
+			<button type="button" class="webui-epg-round" onclick="webuiOpenInPlayer()" title="${webuiLH('play.external', 'Open in a player (M3U)')}" aria-label="${webuiLH('play.external', 'Open in a player (M3U)')}">
 				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 17H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-1"/><polygon points="12 15 17 21 7 21"/></svg>
 			</button>
 		</footer>
@@ -737,16 +755,8 @@ async function webuiShowEpgModal(channelId, channelName, opts) {
 	nextList.replaceChildren();
 	document.getElementById('webuiEpgZapTimerBtn').hidden = true;
 	recBtn.hidden = false;
-	const playBtn = document.getElementById('webuiEpgPlayBtn');
-	const offerPlay = function(kind) {
-		_webuiEpgModalKind = kind || '';
-		playBtn.hidden = _webuiEpgModalKind !== 'webtv' && _webuiEpgModalKind !== 'webradio';
-	};
-	offerPlay(opts.kind);
-	if (opts.kind === undefined)
-		_webuiV1Read('/channels/' + encodeURIComponent(channelId)).then(function(ch) {
-			if (token === _webuiEpgModalToken) offerPlay(ch && ch.kind);
-		}, function() {});
+	// handed to the player, which reads the channel where it is not known
+	_webuiEpgModalKind = opts.kind || '';
 
 	modal.classList.add('open');
 	document.body.style.overflow = 'hidden';
@@ -899,25 +909,24 @@ async function webuiEpgModalZapTimer() {
 	}
 }
 
-// A playlist for a player on this computer: the box's stream server with the
-// channel, which wants the id with all 16 digits
-function webuiStreamChannel(channelId, channelName) {
+/* A playlist with the channel for a player on this computer, saved as a
+   file: the box writes it (GET /api/v1/stream/playlist/{id}), with the
+   address it was asked under, the port its stream server listens on and the
+   channel's name. Without an argument, the channel of the guide dialog. */
+function webuiOpenInPlayer(channelId) {
 	channelId = channelId || webuiEpgModalChannelId;
-	channelName = channelName || webuiEpgModalChannelName;
 	if (!channelId) return;
-	const plist = "#EXTM3U\n#EXTINF:-1," + channelName + "\nhttp://" + window.location.hostname + ":31339/id=" + webuiLegacyChannelId(channelId) + "\n";
-	const blob = new Blob([plist], { type: "application/octet-stream" });
-	const a = document.createElement('a');
-	a.href = URL.createObjectURL(blob);
-	a.download = "livestream.m3u";
-	a.click();
-	URL.revokeObjectURL(a.href);
+	webuiV1Download('/stream/playlist/' + encodeURIComponent(channelId), 'channel.m3u').catch(function(e) {
+		webuiToastError(webuiL('play.external', 'Open in a player (M3U)'), e);
+	});
 }
 
-/* A web channel played in this page (js/webui-player.js, loaded on the first
-   use): the box fetches it for the browser, so it plays here although the
-   server it comes from does not let a page read it. Without arguments, the
-   channel of the guide dialog, which makes way for the player. */
+/* A channel played in this page (js/webui-player.js, loaded on the first
+   use): the box fetches a web channel for the browser, so it plays here
+   although the server it comes from does not let a page read it, and
+   converts one from its tuners where the browser cannot decode its sound.
+   Without arguments, the channel of the guide dialog, which makes way for
+   the player. */
 var _webuiPlayerLoad = null;
 function webuiPlayInBrowser(channelId, channelName, kind) {
 	if (!channelId) {

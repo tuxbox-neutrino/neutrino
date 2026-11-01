@@ -112,13 +112,13 @@ function channelRow(ch) {
 		title: webuiL('tip.zap_to', 'Switch the box to %s').replace('%s', ch.name),
 		attrs: {'aria-label': webuiL('bq.zap_title', 'Switch channel') + ': ' + ch.name}, on: {click: () => zapTo(ch.id)}},
 		webuiL('bq.zap_title', 'Switch channel'));
-	const web = ch.kind === 'webtv' || ch.kind === 'webradio';
 	const menu = webuiMenuButton(webuiL('bq.more', 'More for %s').replace('%s', ch.name), () => [
 		{label: webuiL('dash.epg_info', 'Programme info'), icon: SVG_INFO, onClick: () => showInfo(ch)},
 		{label: webuiL('bq.rec_title', 'Record programme'), icon: SVG_REC, onClick: () => webuiRecordEvent(ch.id, ch.name, epgNow[ch.id])},
-		{label: webuiL('bq.stream_title', 'Start stream'), icon: SVG_STREAM, onClick: () => webuiStreamChannel(ch.id, ch.name)}
-	].concat(web ? [{label: webuiL('play.in_browser', 'Play in browser'), icon: SVG_PLAY,
-		onClick: () => webuiPlayInBrowser(ch.id, ch.name, ch.kind)}] : []));
+		{label: webuiL('play.in_browser', 'Play in browser'), icon: SVG_PLAY,
+			onClick: () => webuiPlayInBrowser(ch.id, ch.name, ch.kind)},
+		{label: webuiL('play.external', 'Open in a player (M3U)'), icon: SVG_STREAM, onClick: () => webuiOpenInPlayer(ch.id)}
+	]);
 	channelsShown[ch.id] = ch;
 	return webuiEl('li', {className: 'webui-channel-row', data: {id: ch.id}},
 		webuiEl('span', {className: 'webui-channel-num'}, ch.number > 0 ? String(ch.number) : ''),
