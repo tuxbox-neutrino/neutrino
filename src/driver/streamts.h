@@ -156,6 +156,10 @@ class CStreamManager : public OpenThreads::Thread
 		bool Stop();
 		bool StopStream(t_channel_id channel_id = 0);
 		bool StopStream(CFrontend * fe);
+		/* Stops the streams on every frontend whose number has its bit set
+		   in fe_mask, and keeps a stream being set up on one of them from
+		   being published. */
+		bool StopStreamsOn(uint32_t fe_mask);
 		bool StreamStatus(t_channel_id channel_id = 0);
 		bool SetPort(int newport);
 		int GetPort() { return port; }

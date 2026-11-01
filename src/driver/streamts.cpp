@@ -495,16 +495,21 @@ class CStreamManager::SetupOps : public streamsetup::Ops
 			return true;
 		}
 
-		uint32_t hold(uint64_t channel)
+		Hold hold(uint64_t channel)
 		{
 			/* Bounds the exchange; zapit has the same time to tune. */
 			CBasicClient::Deadline until(kHoldBudgetMs);
 			CZapitClient::responseStreamHold reply;
+			Hold h;
+			h.id = 0;
+			h.fenumber = -1;
 			if (!sm.zapit.holdForStream(channel, kHoldBudgetMs, reply) || reply.verdict != 0) {
 				printf("CStreamManager::AddClient: no frontend for %" PRIx64 " (verdict %d)\n", channel, reply.verdict);
-				return 0;
+				return h;
 			}
-			return reply.hold_id;
+			h.id = reply.hold_id;
+			h.fenumber = reply.fenumber;
+			return h;
 		}
 
 		void *adopt(uint32_t id) { return streamhold::adopt(id, streamhold::nowMs()); }
@@ -697,6 +702,7 @@ bool CStreamManager::StopStream(t_channel_id channel_id)
 	CStreamInstance *stream_to_stop = NULL;
 	{
 		OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
+		gate.cancelChannelLocked(channel_id);
 		streammap_iterator_t it = streams.find(channel_id);
 		if (it != streams.end()) {
 			stream_to_stop = it->second;
@@ -716,8 +722,38 @@ bool CStreamManager::StopStream(CFrontend * fe)
 	std::vector<CStreamInstance*> to_stop;
 	{
 		OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
+		if (fe)
+			gate.cancelFrontendLocked(fe->getNumber());
 		for (streammap_iterator_t it = streams.begin(); it != streams.end(); ) {
 			if (it->second->frontend == fe) {
+				to_stop.push_back(it->second);
+				streams.erase(it++);
+			} else {
+				++it;
+			}
+		}
+	}
+	for (size_t i = 0; i < to_stop.size(); ++i) {
+		to_stop[i]->Stop();
+		delete to_stop[i];
+	}
+	return !to_stop.empty();
+}
+
+/* Bit n of fe_mask names frontend number n. Like StopStream, it announces
+   nothing: the caller knows what it stopped the streams for. */
+bool CStreamManager::StopStreamsOn(uint32_t fe_mask)
+{
+	std::vector<CStreamInstance*> to_stop;
+	{
+		OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
+		for (int n = 0; n < 32; n++)
+			if (fe_mask & (1u << n))
+				gate.cancelFrontendLocked(n);
+		for (streammap_iterator_t it = streams.begin(); it != streams.end(); ) {
+			CFrontend *fe = it->second->frontend;
+			const int n = fe ? fe->getNumber() : -1;
+			if (n >= 0 && n < 32 && (fe_mask & (1u << n))) {
 				to_stop.push_back(it->second);
 				streams.erase(it++);
 			} else {

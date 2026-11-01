@@ -38,12 +38,21 @@
  * mutex, and so does the check that the server still runs: a stop that
  * comes first is seen and the stream not published; a stop that comes after
  * finds the stream among those it stops.
+ *
+ * Stopping the streams on a frontend, or of a channel, works the same way
+ * for a setup under way: the stop marks the frontend or the channel as
+ * taken back in the hold of the mutex in which it takes the streams out. A
+ * setup let in before that mark is not published and answered 503, as when
+ * no frontend was free; one let in after it is not affected, and a stream
+ * published before it is among those stopped. A stop does not wait for a
+ * setup: one may be waiting for the recording that stops it.
  */
 
 #ifndef __streamsetup_h__
 #define __streamsetup_h__
 
 #include <atomic>
+#include <map>
 #include <stdint.h>
 #include <string>
 
@@ -57,12 +66,25 @@ class StartGate
 public:
 	StartGate(OpenThreads::Mutex &m, std::atomic<bool> &running);
 
+	enum Publish
+	{
+		Ok,
+		Stopping,    // the server stops: closed without an answer
+		Cancelled    // its frontend or its channel was taken back since
+	};
+
 	// Takes the mutex. Refuses once the server stops; otherwise one more
-	// setup is under way.
-	bool enter();
+	// setup is under way, and since is the moment it was let in.
+	bool enter(uint64_t &since);
 	// The caller holds the mutex.
 	void leaveLocked();
-	bool mayPublishLocked() const;
+	/* Whether a setup let in at since may publish its stream of channel on
+	   frontend number fe (-1 for none). */
+	Publish mayPublishLocked(uint64_t since, int fe, uint64_t channel) const;
+	/* Takes back frontend number fe, or channel, for every setup let in
+	   before this. */
+	void cancelFrontendLocked(int fe);
+	void cancelChannelLocked(uint64_t channel);
 	int pendingLocked() const;
 
 	OpenThreads::Mutex &mutex() { return m; }
@@ -74,6 +96,12 @@ private:
 	OpenThreads::Mutex &m;
 	std::atomic<bool> &running;
 	int pending;
+	/* Counts the take-backs; each key remembers the last that named it.
+	   A setup let in at since is affected by a later one only, so the
+	   keys are forgotten whenever no setup is under way. */
+	uint64_t epoch;
+	std::map<int, uint64_t> fe_cancelled;
+	std::map<uint64_t, uint64_t> channel_cancelled;
 };
 
 enum Kind
@@ -161,8 +189,14 @@ public:
 	virtual void joinLocked(uint64_t channel, int fd) = 0;
 
 	virtual bool recording(uint64_t channel) = 0;
-	// zapit's hold, asked with no lock held; 0 when refused.
-	virtual uint32_t hold(uint64_t channel) = 0;
+	/* zapit's hold, asked with no lock held: its number, 0 when refused,
+	   and the frontend's number. */
+	struct Hold
+	{
+		uint32_t id;
+		int      fenumber;
+	};
+	virtual Hold hold(uint64_t channel) = 0;
 	virtual void *adopt(uint32_t id) = 0;
 	virtual void drop(uint32_t id) = 0;
 	// The pids to stream; false when there is nothing to stream.

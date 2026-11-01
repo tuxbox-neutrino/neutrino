@@ -9,7 +9,7 @@
  * These cases drive the shipped object over a model of the server: real
  * descriptors whose closes are counted, a register of holds whose drops are
  * counted, a list of published streams, and stops in the middle of a setup
- * where a case can stop the server.
+ * where a case can stop the server or take a frontend back.
  */
 
 #include "support/catch.hpp"
@@ -20,6 +20,7 @@
 #include <cerrno>
 #include <map>
 #include <set>
+#include <string>
 #include <vector>
 
 #include <fcntl.h>
@@ -110,6 +111,7 @@ struct Stream
 	int fd;
 	uint64_t channel;
 	uint32_t hold;
+	int fe;
 };
 
 /* The server: the mutex and the running flag the gate sits on, the streams it
@@ -128,13 +130,15 @@ struct Server : public Ops
 	Read read;
 	bool ok_written;
 	std::vector<int> refusals;   // the statuses refused with, in order
+	std::vector<std::string> reasons;
+	bool refused_under_mutex;
 	std::map<uint32_t, int> drops_at_refusal;
 	bool recorded;
 	uint32_t hold_answer;
 	bool adopt_ok;
 	bool pids_ok;
 	bool start_ok;
-	int fe;
+	int fe;          // the frontend adopt hands out; its number is its value
 
 	Point at_hold, at_pids, at_start;
 	bool busy_at_hold, busy_at_pids, busy_at_start;
@@ -144,7 +148,8 @@ struct Server : public Ops
 	std::atomic<int> phase;
 
 	Server()
-		: running(true), gate(mutex, running), read(ReadOk), ok_written(true), recorded(false),
+		: running(true), gate(mutex, running), read(ReadOk), ok_written(true),
+		  refused_under_mutex(false), recorded(false),
 		  hold_answer(41), adopt_ok(true), pids_ok(true), start_ok(true), fe(1),
 		  busy_at_hold(false), busy_at_pids(false), busy_at_start(false), phase(0)
 	{
@@ -204,9 +209,15 @@ struct Server : public Ops
 		return read;
 	}
 	bool writeOk(int) { return ok_written; }
-	void refuse(int, int status, const char *)
+	void refuse(int, int status, const char *reason)
 	{
 		refusals.push_back(status);
+		reasons.push_back(reason ? reason : "");
+		// The mutex is not recursive: a refusal written under it fails here.
+		if (mutex.trylock() == 0)
+			mutex.unlock();
+		else
+			refused_under_mutex = true;
 		drops_at_refusal = drops;
 	}
 	bool runningLocked(uint64_t channel)
@@ -220,11 +231,14 @@ struct Server : public Ops
 		closeFd(fd);
 	}
 	bool recording(uint64_t) { return recorded; }
-	uint32_t hold(uint64_t)
+	Hold hold(uint64_t)
 	{
 		busy_at_hold = busy();
 		at_hold.pass();
-		return hold_answer;
+		Hold h;
+		h.id = hold_answer;
+		h.fenumber = hold_answer ? fe : -1;
+		return h;
 	}
 	void *adopt(uint32_t) { return adopt_ok ? &fe : 0; }
 	void drop(uint32_t id) { drops[id]++; }
@@ -234,12 +248,13 @@ struct Server : public Ops
 		at_pids.pass();
 		return pids_ok;
 	}
-	void *buildLocked(int fd, const Target &t, void *, uint32_t hold_id)
+	void *buildLocked(int fd, const Target &t, void *frontend, uint32_t hold_id)
 	{
 		Stream *s = new Stream;
 		s->fd = fd;
 		s->channel = t.channel;
 		s->hold = hold_id;
+		s->fe = frontend ? *static_cast<int *>(frontend) : -1;
 		return s;
 	}
 	bool startLocked(void *)
@@ -272,6 +287,48 @@ struct Server : public Ops
 	{
 		OpenThreads::ScopedLock<OpenThreads::Mutex> l(mutex);
 		return gate.pendingLocked();
+	}
+
+	/* What the stream manager does to stop the streams on a frontend or of
+	   a channel: in one hold of the mutex it takes the frontend or channel
+	   back and the streams out; it tears them down after. */
+	size_t stopOn(int number)
+	{
+		std::vector<Stream *> taken;
+		{
+			OpenThreads::ScopedLock<OpenThreads::Mutex> l(mutex);
+			gate.cancelFrontendLocked(number);
+			for (std::map<uint64_t, Stream *>::iterator it = streams.begin(); it != streams.end(); )
+			{
+				if (it->second->fe == number)
+				{
+					taken.push_back(it->second);
+					streams.erase(it++);
+				}
+				else
+					++it;
+			}
+		}
+		for (size_t i = 0; i < taken.size(); ++i)
+			destroy(taken[i]);
+		return taken.size();
+	}
+	size_t stopChannel(uint64_t channel)
+	{
+		Stream *taken = 0;
+		{
+			OpenThreads::ScopedLock<OpenThreads::Mutex> l(mutex);
+			gate.cancelChannelLocked(channel);
+			std::map<uint64_t, Stream *>::iterator it = streams.find(channel);
+			if (it != streams.end())
+			{
+				taken = it->second;
+				streams.erase(it);
+			}
+		}
+		if (taken)
+			destroy(taken);
+		return taken ? 1 : 0;
 	}
 };
 
@@ -662,6 +719,115 @@ TEST_CASE("P3: the count is never seen at zero between the setup and its stream"
 	pthread_join(t, 0);
 	REQUIRE(seen_idle.load() == 0);
 	REQUIRE(looked.load() > 0);
+}
+
+TEST_CASE("G1: a frontend taken back while the stream is set up refuses it with 503", "[driver][streamsetup]")
+{
+	Server s;
+	s.at_pids.armed = true;       // after the hold was adopted
+	const int fd = newFd();
+	Setup setup(s, fd);
+	s.at_pids.waitArrived();
+
+	REQUIRE(s.stopOn(1) == 0);    // nothing published yet: only the mark
+	s.at_pids.letGo();
+	setup.join();
+
+	REQUIRE(setup.got.result == Refused);
+	REQUIRE(s.streams.empty());
+	REQUIRE(s.refusals == std::vector<int>(1, 503));
+	// The same bytes as when no frontend was free.
+	REQUIRE(statusBytes(503, s.reasons[0].c_str()) == statusBytes(503, "no tuner is free for this channel"));
+	REQUIRE_FALSE(s.refused_under_mutex);
+	REQUIRE(s.drops_at_refusal[41] == 1);
+	checkOneWayOut(s, fd, 41);
+}
+
+TEST_CASE("G2: another frontend taken back leaves the stream to be published", "[driver][streamsetup]")
+{
+	Server s;
+	s.at_pids.armed = true;
+	const int fd = newFd();
+	Setup setup(s, fd);
+	s.at_pids.waitArrived();
+
+	s.stopOn(2);
+	s.at_pids.letGo();
+	setup.join();
+
+	REQUIRE(setup.got.result == Consumed);
+	REQUIRE(setup.got.published);
+	REQUIRE(s.refusals.empty());
+	checkOneWayOut(s, fd, 41);
+}
+
+TEST_CASE("G3: its channel stopped while the stream is set up refuses it with 503", "[driver][streamsetup]")
+{
+	Server s;
+	s.at_pids.armed = true;
+	const int fd = newFd();
+	Setup setup(s, fd);
+	s.at_pids.waitArrived();
+
+	s.stopChannel(kTv);
+	s.at_pids.letGo();
+	setup.join();
+
+	REQUIRE(setup.got.result == Refused);
+	REQUIRE(s.refusals == std::vector<int>(1, 503));
+	REQUIRE_FALSE(s.refused_under_mutex);
+	checkOneWayOut(s, fd, 41);
+}
+
+TEST_CASE("G4: a frontend taken back before the setup came in does not touch it", "[driver][streamsetup]")
+{
+	Server s;
+	SECTION("its frontend")
+	{
+		REQUIRE(s.stopOn(1) == 0);
+	}
+	SECTION("its channel")
+	{
+		REQUIRE(s.stopChannel(kTv) == 0);
+	}
+	const int fd = newFd();
+	const Outcome o = s.accept(fd);
+	REQUIRE(o.result == Consumed);
+	REQUIRE(o.published);
+	REQUIRE(s.refusals.empty());
+	checkOneWayOut(s, fd, 41);
+}
+
+TEST_CASE("G5: a stream published before its frontend is taken back is stopped with it", "[driver][streamsetup]")
+{
+	Server s;
+	const int fd = newFd();
+	REQUIRE(s.accept(fd).published);
+
+	REQUIRE(s.stopOn(1) == 1);
+	REQUIRE(s.streams.empty());
+	REQUIRE(s.closes[fd] == 1);
+	REQUIRE(s.drops[41] == 1);
+	REQUIRE(s.pending() == 0);
+}
+
+TEST_CASE("G6: a server that stops closes the setup without an answer, taken back or not", "[driver][streamsetup]")
+{
+	Server s;
+	s.at_pids.armed = true;
+	const int fd = newFd();
+	Setup setup(s, fd);
+	s.at_pids.waitArrived();
+
+	s.stopOn(1);
+	s.stop();
+	s.at_pids.letGo();
+	setup.join();
+
+	REQUIRE(setup.got.result == Refused);
+	REQUIRE(s.refusals.empty());
+	REQUIRE(s.streams.empty());
+	checkOneWayOut(s, fd, 41);
 }
 
 /* The request and the answer on the raw port, over socket pairs: what a

@@ -234,27 +234,53 @@ void refuse(int fd, int status, const char *reason)
 }
 
 StartGate::StartGate(OpenThreads::Mutex &mx, std::atomic<bool> &r)
-	: m(mx), running(r), pending(0)
+	: m(mx), running(r), pending(0), epoch(0)
 {
 }
 
-bool StartGate::enter()
+bool StartGate::enter(uint64_t &since)
 {
 	OpenThreads::ScopedLock<OpenThreads::Mutex> l(m);
 	if (!running.load())
 		return false;
 	pending++;
+	since = epoch;
 	return true;
 }
 
 void StartGate::leaveLocked()
 {
 	pending--;
+	/* A setup let in from now on is let in after every take-back so far:
+	   none of them can affect it. */
+	if (pending == 0)
+	{
+		fe_cancelled.clear();
+		channel_cancelled.clear();
+	}
 }
 
-bool StartGate::mayPublishLocked() const
+StartGate::Publish StartGate::mayPublishLocked(uint64_t since, int fe, uint64_t channel) const
 {
-	return running.load();
+	if (!running.load())
+		return Stopping;
+	std::map<int, uint64_t>::const_iterator f = fe_cancelled.find(fe);
+	if (fe >= 0 && f != fe_cancelled.end() && f->second > since)
+		return Cancelled;
+	std::map<uint64_t, uint64_t>::const_iterator c = channel_cancelled.find(channel);
+	if (c != channel_cancelled.end() && c->second > since)
+		return Cancelled;
+	return Ok;
+}
+
+void StartGate::cancelFrontendLocked(int fe)
+{
+	fe_cancelled[fe] = ++epoch;
+}
+
+void StartGate::cancelChannelLocked(uint64_t channel)
+{
+	channel_cancelled[channel] = ++epoch;
 }
 
 int StartGate::pendingLocked() const
@@ -362,7 +388,8 @@ const char kNoTuner[] = "no tuner is free for this channel";
 
 Outcome run(int fd, StartGate &gate, Ops &ops)
 {
-	if (!gate.enter())
+	uint64_t since;
+	if (!gate.enter(since))
 		return outcome(Refused, false);
 	Pending pending(gate);
 
@@ -396,7 +423,7 @@ Outcome run(int fd, StartGate &gate, Ops &ops)
 	if (t.kind == Web)
 	{
 		OpenThreads::ScopedLock<OpenThreads::Mutex> l(gate.mutex());
-		if (!gate.mayPublishLocked() || !ops.writeOk(fd))
+		if (gate.mayPublishLocked(since, -1, t.channel) != StartGate::Ok || !ops.writeOk(fd))
 			return outcome(Refused, false);
 		return publish(ops, pending, fd, t, 0, 0);
 	}
@@ -406,7 +433,8 @@ Outcome run(int fd, StartGate &gate, Ops &ops)
 	if (ops.recording(t.channel))
 		return refusal(ops, fd, 503, kNoTuner);
 
-	HoldRef hold(ops, ops.hold(t.channel));
+	const Ops::Hold held = ops.hold(t.channel);
+	HoldRef hold(ops, held.id);
 	if (!hold.id())
 		return refusal(ops, fd, 503, kNoTuner);
 	void *fe = ops.adopt(hold.id());
@@ -416,10 +444,25 @@ Outcome run(int fd, StartGate &gate, Ops &ops)
 		return refusal(ops, fd, 503, kNoTuner);
 	}
 
-	OpenThreads::ScopedLock<OpenThreads::Mutex> l(gate.mutex());
-	if (!gate.mayPublishLocked() || !ops.writeOk(fd))
-		return outcome(Refused, false);
-	return publish(ops, pending, fd, t, fe, hold.release());
+	{
+		OpenThreads::ScopedLock<OpenThreads::Mutex> l(gate.mutex());
+		switch (gate.mayPublishLocked(since, held.fenumber, t.channel))
+		{
+		case StartGate::Ok:
+			if (!ops.writeOk(fd))
+				return outcome(Refused, false);
+			return publish(ops, pending, fd, t, fe, hold.release());
+		case StartGate::Stopping:
+			return outcome(Refused, false);
+		case StartGate::Cancelled:
+			break;
+		}
+	}
+	/* Its frontend went to a recording, or its channel was stopped, while
+	   it was set up: answered as if no frontend had been free, with the
+	   mutex given back. */
+	hold.dropNow();
+	return refusal(ops, fd, 503, kNoTuner);
 }
 
 } // namespace streamsetup
