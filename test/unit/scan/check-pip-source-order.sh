@@ -153,14 +153,18 @@ for call in 'ops.tune(' 'ops.offer(' 'ops.answer('; do
 	fi
 done
 
-# ... and zapit's facts are where the flag is read, under that lock.
-awk -v keepstrings=1 -f "$HERE/strip-comments.awk" "$SRC/src/zapit/zapit.cpp" | awk '
+# ... and zapit's facts are where the flag is read, under that lock: the
+# hold's facts are zapit's StreamFacts, and that reads it.
+awk -v keepstrings=1 -f "$HERE/strip-comments.awk" "$SRC/src/zapit/zapit.cpp" > "$tmp/zapit"
+awk '
 	/^class CZapit::StreamHoldOps/ { inside = 1 }
 	inside && /^};/ { inside = 0 }
 	inside { print }
-' > "$tmp/ops"
-awk '/void facts\(/ { f = 1 } f { print } f && /^\t\t}/ { exit }' "$tmp/ops" > "$tmp/facts"
-grep -q -F 'avinput_pip' "$tmp/facts" || { echo "zapit.cpp: StreamHoldOps::facts does not read avinput_pip" >&2; fail=1; }
+' "$tmp/zapit" > "$tmp/ops"
+awk '/void facts\(/ { f = 1 } f { print } f && (/^\t\t}/ || /}[ \t]*$/) { exit }' "$tmp/ops" > "$tmp/facts"
+grep -q -F 'StreamFacts(' "$tmp/facts" || { echo "zapit.cpp: StreamHoldOps::facts does not read CZapit::StreamFacts" >&2; fail=1; }
+awk '/^void CZapit::StreamFacts\(/ { f = 1 } f { print } f && /^}/ { exit }' "$tmp/zapit" > "$tmp/facts"
+grep -q -F 'avinput_pip' "$tmp/facts" || { echo "zapit.cpp: CZapit::StreamFacts does not read avinput_pip" >&2; fail=1; }
 grep -F 'void lockFrontends()' "$tmp/ops" | grep -q -F "$LOCK" || { echo "zapit.cpp: StreamHoldOps::lockFrontends does not take the frontend manager's lock" >&2; fail=1; }
 
 exit $fail

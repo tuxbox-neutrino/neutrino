@@ -5,9 +5,9 @@
  *
  * License: GPL-2.0-or-later
  *
- * CZapitClient::holdForStream and probeStream over a real socket, against a
- * peer that stands in for zapit: one that answers, one that answers late,
- * one that answers short, and none at all. The client is the one the program
+ * CZapitClient::holdForStream, probeStream and yieldStreams over a real
+ * socket, against a peer that stands in for zapit: one that answers, one
+ * that answers late, one that answers short, and none at all. The client is the one the program
  * ships with its address replaced.
  */
 
@@ -58,12 +58,18 @@ int64_t monotonicMs()
 	return (int64_t) ts.tv_sec * 1000 + ts.tv_nsec / 1000000;
 }
 
+template <typename T>
+std::string bytesOf(const T &r)
+{
+	return std::string(reinterpret_cast<const char *>(&r), sizeof(r));
+}
+
 /* One exchange: reads the header and the body the client sends, waits as long
    as it is told to, sends as many bytes of the reply as it is told to. */
 class Peer
 {
 public:
-	Peer(const CZapitClient::responseStreamHold &r, size_t bytes, unsigned delay_ms)
+	Peer(const std::string &r, size_t bytes, unsigned delay_ms)
 		: got_header(false), got_body(false), reply(r), reply_len(bytes), delay(delay_ms),
 		  listen_fd(-1), joined(false)
 	{
@@ -134,7 +140,7 @@ private:
 		if (delay)
 			usleep(delay * 1000);
 		size_t sent = 0;
-		const char *p = reinterpret_cast<const char *>(&reply);
+		const char *p = reply.data();
 		while (sent < reply_len)
 		{
 			const ssize_t one = send(fd, p + sent, reply_len - sent, MSG_NOSIGNAL);
@@ -145,7 +151,7 @@ private:
 		close(fd);
 	}
 
-	CZapitClient::responseStreamHold reply;
+	std::string reply;
 	size_t reply_len;
 	unsigned delay;
 	int listen_fd;
@@ -166,7 +172,7 @@ CZapitClient::responseStreamHold granted(uint32_t id, int fe)
 
 TEST_CASE("a hold sends its channel and deadline and reads the whole answer", "[zapit][client][streamhold]")
 {
-	Peer peer(granted(0x1234, 2), sizeof(CZapitClient::responseStreamHold), 0);
+	Peer peer(bytesOf(granted(0x1234, 2)), sizeof(CZapitClient::responseStreamHold), 0);
 	ZapitClientHere client;
 	CZapitClient::responseStreamHold r;
 
@@ -195,7 +201,7 @@ TEST_CASE("a probe sends the probe command and reads a refusal as it came", "[za
 	busy.verdict = 1;
 	busy.hold_id = 0;
 	busy.fenumber = -1;
-	Peer peer(busy, sizeof(busy), 0);
+	Peer peer(bytesOf(busy), sizeof(busy), 0);
 	ZapitClientHere client;
 	CZapitClient::responseStreamHold r = granted(7, 7);
 
@@ -210,7 +216,7 @@ TEST_CASE("a probe sends the probe command and reads a refusal as it came", "[za
 
 TEST_CASE("an answer that comes too late is given up at the thread's deadline", "[zapit][client][streamhold]")
 {
-	Peer peer(granted(0x99, 1), sizeof(CZapitClient::responseStreamHold), 1500);
+	Peer peer(bytesOf(granted(0x99, 1)), sizeof(CZapitClient::responseStreamHold), 1500);
 	ZapitClientHere client;
 	CZapitClient::responseStreamHold r = granted(5, 5);
 
@@ -231,7 +237,7 @@ TEST_CASE("an answer that comes too late is given up at the thread's deadline", 
 
 TEST_CASE("an answer cut short is not taken in part", "[zapit][client][streamhold]")
 {
-	Peer peer(granted(0xabcd, 1), sizeof(int32_t) + 2, 0);
+	Peer peer(bytesOf(granted(0xabcd, 1)), sizeof(int32_t) + 2, 0);
 	ZapitClientHere client;
 	CZapitClient::responseStreamHold r = granted(5, 5);
 
@@ -253,4 +259,77 @@ TEST_CASE("no zapit to ask is a failure without a hold", "[zapit][client][stream
 	REQUIRE(r.hold_id == 0);
 	REQUIRE_FALSE(client.probeStream(0x1001, r));
 	REQUIRE(r.verdict == 3);
+}
+
+namespace
+{
+
+CZapitClient::responseStreamYield yielded(int32_t stage, uint32_t mask)
+{
+	CZapitClient::responseStreamYield r;
+	r.stage = stage;
+	r.fe_mask = mask;
+	return r;
+}
+
+} // namespace
+
+TEST_CASE("a yield sends its channel and deadline and reads the whole answer", "[zapit][client][streamhold][streamyield]")
+{
+	Peer peer(bytesOf(yielded(2, 0x2)), sizeof(CZapitClient::responseStreamYield), 0);
+	ZapitClientHere client;
+	CZapitClient::responseStreamYield r;
+
+	const int64_t before = monotonicMs();
+	REQUIRE(client.yieldStreams(0xb544000800850088ULL, 12000, r));
+	peer.finish();
+
+	REQUIRE(r.stage == 2);
+	REQUIRE(r.fe_mask == 0x2u);
+	REQUIRE(peer.got_body);
+	REQUIRE(peer.header.cmd == CZapitMessages::CMD_STREAM_YIELD);
+	REQUIRE(peer.body.channel_id == 0xb544000800850088ULL);
+	REQUIRE(peer.body.deadline_ms >= before + 12000);
+	REQUIRE(peer.body.deadline_ms <= monotonicMs() + 12000);
+}
+
+TEST_CASE("a yield answer that comes too late is given up and ended nothing", "[zapit][client][streamhold][streamyield]")
+{
+	Peer peer(bytesOf(yielded(2, 0x1)), sizeof(CZapitClient::responseStreamYield), 1500);
+	ZapitClientHere client;
+	CZapitClient::responseStreamYield r = yielded(3, 0xf);
+
+	const int64_t start = monotonicMs();
+	bool ok;
+	{
+		CBasicClient::Deadline d(300);
+		ok = client.yieldStreams(0x1001, 12000, r);
+	}
+	REQUIRE_FALSE(ok);
+	REQUIRE(monotonicMs() - start < 1200);
+	REQUIRE(r.stage == -1);
+	REQUIRE(r.fe_mask == 0);
+}
+
+TEST_CASE("a yield answer cut short is not taken in part", "[zapit][client][streamhold][streamyield]")
+{
+	Peer peer(bytesOf(yielded(2, 0x1)), sizeof(int32_t) + 2, 0);
+	ZapitClientHere client;
+	CZapitClient::responseStreamYield r = yielded(3, 0xf);
+
+	REQUIRE_FALSE(client.yieldStreams(0x1001, 12000, r));
+	peer.finish();
+	REQUIRE(r.stage == -1);
+	REQUIRE(r.fe_mask == 0);
+}
+
+TEST_CASE("no zapit to ask for a yield ended nothing", "[zapit][client][streamhold][streamyield]")
+{
+	unlink(privateSocketName());
+	ZapitClientHere client;
+	CZapitClient::responseStreamYield r = yielded(3, 0xf);
+
+	REQUIRE_FALSE(client.yieldStreams(0x1001, 12000, r));
+	REQUIRE(r.stage == -1);
+	REQUIRE(r.fe_mask == 0);
 }

@@ -253,6 +253,35 @@ void shutdown(void (*release)(void *fe))
 	}
 }
 
+size_t revoke(void *fe, void (*release)(void *fe))
+{
+	size_t n = 0;
+	for (unsigned i = 0; i < kPlaces; ++i)
+	{
+		Place &p = places[i];
+		for (;;)
+		{
+			uint32_t w = p.word.load(std::memory_order_acquire);
+			/* Only this thread sets a place's frontend, and only while the
+			   place is FREE, so the frontend read here is the one of the
+			   generation in w. */
+			if (stateOf(w) == Free || p.fe.load(std::memory_order_relaxed) != fe)
+				break;
+			if (p.word.compare_exchange_strong(w, wordOf(generationOf(w), Free),
+							   std::memory_order_acq_rel,
+							   std::memory_order_acquire))
+			{
+				if (release)
+					release(fe);
+				n++;
+				break;
+			}
+			// An owner adopted or dropped it in between: look again.
+		}
+	}
+	return n;
+}
+
 size_t held(void **out, size_t max)
 {
 	size_t n = 0;

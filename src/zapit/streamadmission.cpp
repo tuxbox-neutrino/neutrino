@@ -53,13 +53,12 @@ bool anyPip(const Facts &f)
 	return false;
 }
 
-// The picture runs from a broadcast channel on a tuned frontend.
+} // namespace
+
 bool liveRuns(const Facts &f)
 {
 	return f.live_dvb && !f.standby && f.live_tuned && f.live_fe >= 0;
 }
-
-} // namespace
 
 Way decide(const Facts &f, uint64_t channel)
 {

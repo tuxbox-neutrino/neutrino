@@ -571,3 +571,83 @@ TEST_CASE("under load every offered frontend is given back exactly once", "[zapi
 	REQUIRE(wrong == 0);
 	REQUIRE(shared.adopted.load() > 0);
 }
+
+TEST_CASE("R1: revoke ends every hold on its frontend, whatever its state, once each", "[zapit][streamhold]")
+{
+	Fresh fresh;
+	const HoldId offered = offer(A, T0);
+	const HoldId adopted = offer(A, T0);
+	const HoldId dropped = offer(A, T0);
+	const HoldId other = offer(B, T0);
+	REQUIRE(adopt(adopted, InTime) == A);
+	REQUIRE(adopt(dropped, InTime) == A);
+	drop(dropped);
+
+	REQUIRE(revoke(A, &release) == 3);
+	REQUIRE(givenBack(A) == 3);
+	REQUIRE(givenBack(B) == 0);
+	REQUIRE(adopt(offered, InTime) == 0);
+
+	// Done with: nothing more comes back for A, and B's hold is as it was.
+	REQUIRE(revoke(A, &release) == 0);
+	collect(TooLate, &release);
+	REQUIRE(givenBack(A) == 3);
+	REQUIRE(givenBack(B) == 1);    // the offered hold on B, past its time
+	REQUIRE(adopt(other, InTime) == 0);
+}
+
+TEST_CASE("R2: an owner that comes after the revoke adopts nothing and drops nothing", "[zapit][streamhold]")
+{
+	Fresh fresh;
+	const HoldId offered = offer(A, T0);
+	const HoldId adopted = offer(A, T0);
+	REQUIRE(adopt(adopted, InTime) == A);
+
+	REQUIRE(revoke(A, &release) == 2);
+	REQUIRE(adopt(offered, InTime) == 0);
+	drop(offered);
+	drop(adopted);
+	collect(TooLate, &release);
+	REQUIRE(givenBack(A) == 2);
+
+	void *in_use[8];
+	REQUIRE(held(in_use, 8) == 0);
+}
+
+TEST_CASE("R3: a drop that read an adopted hold ends after a revoke gave it back", "[zapit][streamhold]")
+{
+	Fresh fresh;
+	const HoldId id = offer(A, T0);
+	REQUIRE(adopt(id, InTime) == A);
+
+	fresh.stop.arm(AfterDropLoad);
+	Call dropper(Call::Drop, id, 0);
+	fresh.stop.waitArrived();     // it read ADOPTED
+
+	REQUIRE(revoke(A, &release) == 1);
+	fresh.stop.letGo();           // its swap fails, it finds the place FREE
+	dropper.join();
+
+	collect(TooLate, &release);
+	REQUIRE(givenBack(A) == 1);
+	REQUIRE(canOffer());
+}
+
+TEST_CASE("R4: the old number of a revoked place misses the hold offered there next", "[zapit][streamhold]")
+{
+	Fresh fresh;
+	const HoldId old_id = offer(A, T0);
+	REQUIRE(revoke(A, &release) == 1);
+
+	const HoldId new_id = offer(B, T0);
+	REQUIRE(new_id != 0);
+	REQUIRE(new_id != old_id);
+	REQUIRE((new_id & 7u) == (old_id & 7u));   // the same place
+
+	REQUIRE(adopt(old_id, InTime) == 0);
+	drop(old_id);
+	collect(InTime, &release);
+	REQUIRE(givenBack(B) == 0);
+	REQUIRE(adopt(new_id, InTime) == B);
+	REQUIRE(givenBack(A) == 1);
+}

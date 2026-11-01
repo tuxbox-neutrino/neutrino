@@ -155,7 +155,8 @@ class CZapitMessages
 			CMD_ZAPTO_EPG			   = 115,
 			CMD_LOCKRC				   = 116,
 			CMD_STREAM_HOLD			   = 117,
-			CMD_STREAM_PROBE		   = 118
+			CMD_STREAM_PROBE		   = 118,
+			CMD_STREAM_YIELD		   = 119
 		};
 
 	struct commandBoolean
@@ -359,7 +360,9 @@ class CZapitMessages
 		return (int64_t) ts.tv_sec * 1000 + ts.tv_nsec / 1000000;
 	}
 
-	/* A stream asks for a frontend until deadline_ms on that clock. */
+	/* A stream asks for a frontend until deadline_ms on that clock; a
+	   recording asks for the streams in its way to end with the same
+	   request (CMD_STREAM_YIELD). */
 	struct commandStreamHold
 	{
 		t_channel_id channel_id;

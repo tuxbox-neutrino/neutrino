@@ -198,6 +198,24 @@ bool CZapitClient::probeStream(const t_channel_id channel_id, responseStreamHold
 	return ok;
 }
 
+/* As a hold, the answer is taken only whole. */
+bool CZapitClient::yieldStreams(const t_channel_id channel_id, unsigned budget_ms, responseStreamYield &reply)
+{
+	CZapitMessages::commandStreamHold msg;
+	msg.channel_id = channel_id;
+	msg.deadline_ms = CZapitMessages::streamHoldClockMs() + budget_ms;
+
+	reply = responseStreamYield();
+	responseStreamYield got;
+	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex);
+	const bool ok = send(CZapitMessages::CMD_STREAM_YIELD, (const char *) &msg, sizeof(msg)) &&
+			CBasicClient::receive_data((char *) &got, sizeof(got));
+	close_connection();
+	if (ok)
+		reply = got;
+	return ok;
+}
+
 /* zaps to onid_sid, returns the "zap-status" */
 unsigned int CZapitClient::zapTo_serviceID(const t_channel_id channel_id)
 {

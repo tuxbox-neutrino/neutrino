@@ -303,6 +303,27 @@ class CZapitClient:public CBasicClient
 	/* Whether a stream of channel_id would get a frontend now, without
 	   holding one. */
 	bool probeStream(const t_channel_id channel_id, responseStreamHold &reply);
+
+	/* What zapit answers a recording that asks it to end the streams in
+	   its way. stage is 1 when a frontend is to be had as the frontends
+	   are, 2 when it is once the streams in fe_mask end, 3 when it is once
+	   the picture's frontend is given up as well, 0 when none is, and -1
+	   when zapit did nothing: it stops, or too little time was left. Bit n
+	   of fe_mask: zapit took back the stream holds on frontend number n;
+	   the streams on it are still the caller's to stop. */
+	struct responseStreamYield
+	{
+		int32_t  stage;
+		uint32_t fe_mask;
+		responseStreamYield() : stage(-1), fe_mask(0) {}
+	};
+
+	/* Has zapit end the stream holds a recording of channel_id needs,
+	   giving it budget_ms from now; channel_id 0 only has it give back
+	   the holds dropped so far. False when no whole answer came; reply is
+	   then one that ended nothing. A Deadline on the calling thread bounds
+	   the exchange itself. */
+	bool yieldStreams(const t_channel_id channel_id, unsigned budget_ms, responseStreamYield &reply);
  private:
 	bool streamHoldAnswer(bool sent, responseStreamHold &reply);
  public:

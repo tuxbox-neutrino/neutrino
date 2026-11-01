@@ -30,6 +30,7 @@
  *                      +------drop--------+--> DROPPED --collect--> FREE
  *   OFFERED past its time --collect--> FREE
  *   anything but FREE --shutdown--> FREE
+ *   anything but FREE on a frontend --revoke--> FREE
  *
  * A number is the generation and the place together. Every operation on a
  * number checks the generation, so a number that is done with matches
@@ -39,9 +40,13 @@
  * with a new generation: so each generation reaches FREE once, and its
  * frontend is given back once.
  *
- * offer, collect, shutdown and held run on zapit's thread only. adopt and
- * drop run on any thread; drop also in a signal handler, so neither takes a
- * lock nor reads a clock. Each of their loops ends after at most three
+ * A recording that needs a frontend only streams hold takes the holds back
+ * with revoke. The owner of such a number finds it done with: adopt answers
+ * NULL, drop does nothing.
+ *
+ * offer, collect, shutdown, revoke and held run on zapit's thread only.
+ * adopt and drop run on any thread; drop also in a signal handler, so
+ * neither takes a lock nor reads a clock. Each of their loops ends after at most three
  * rounds, because a failed compare and swap means the place moved on within
  * the same generation, and a generation moves at most through OFFERED,
  * ADOPTED, DROPPED and FREE.
@@ -81,6 +86,11 @@ void collect(uint32_t now_ms, void (*release)(void *fe));
 /* Closes the register and gives back every frontend still held. Afterwards
    offer answers 0, adopt answers NULL and drop does nothing. */
 void shutdown(void (*release)(void *fe));
+
+/* Ends every hold on fe that is not FREE, whatever its owner did with it,
+   and gives the frontend back through release once per hold; answers how
+   many. Holds on other frontends are left as they are. */
+size_t revoke(void *fe, void (*release)(void *fe));
 
 /* Writes the frontend of every place in use to out, at most max of them, and
    answers how many. A dropped hold counts until it is collected. */

@@ -60,6 +60,7 @@
 #include "streamadmission.h"
 #include "streamhold.h"
 #include "streamholdcmd.h"
+#include "streamyield.h"
 
 #if HAVE_CST_HARDWARE
 #include <record_cs.h>
@@ -1186,6 +1187,48 @@ static void collectStreamHolds()
 	streamhold::collect(streamhold::nowMs(), &releaseStreamFrontend);
 }
 
+/* The frontend of every stream hold in the register, once per hold. */
+static void streamHoldFrontends(std::vector<CFrontend *> &out)
+{
+	void *fes[16];
+	const size_t n = streamhold::held(fes, sizeof(fes) / sizeof(fes[0]));
+	for (size_t i = 0; i < n; ++i)
+		if (fes[i])
+			out.push_back(static_cast<CFrontend *>(fes[i]));
+}
+
+void CZapit::StreamFacts(streamadmission::Facts &f)
+{
+#if ENABLE_QUADPIP
+	f.variant = streamadmission::QuadPip;
+#elif defined(DYNAMIC_DEMUX)
+	f.variant = streamadmission::DynamicDemux;
+#elif HAVE_CST_HARDWARE
+	f.variant = streamadmission::Cst;
+#else
+	f.variant = streamadmission::Plain;
+#endif
+	f.standby = standby;
+	f.live_channel = live_channel_id;
+	f.live_dvb = live_channel_id != 0 && !IS_WEBCHAN(live_channel_id);
+	f.live_tuned = live_fe != NULL && live_fe->tuned;
+	f.live_fe = live_fe ? live_fe->getNumber() : -1;
+#if ENABLE_PIP
+	int slots = g_info.hw_caps->pip_devs;
+	if (slots > streamadmission::kMaxSlots)
+		slots = streamadmission::kMaxSlots;
+	f.slots = slots < 0 ? 0 : slots;
+	for (int i = 0; i < f.slots; ++i) {
+		f.slot[i].active = pip_fe[i] != NULL;
+		f.slot[i].channel = pip_channel_id[i];
+		f.slot[i].fe = pip_fe[i] ? pip_fe[i]->getNumber() : -1;
+	}
+#if !HAVE_CST_HARDWARE && !HAVE_GENERIC_HARDWARE
+	f.avinput_pip = CNeutrinoApp::getInstance()->avinput_pip;
+#endif
+#endif
+}
+
 class CZapit::StreamHoldOps : public streamholdcmd::Ops
 {
 	public:
@@ -1210,45 +1253,14 @@ class CZapit::StreamHoldOps : public streamholdcmd::Ops
 		void lockFrontends() { CFEManager::getInstance()->Lock(); }
 		void unlockFrontends() { CFEManager::getInstance()->Unlock(); }
 
-		void facts(streamadmission::Facts &f)
-		{
-#if ENABLE_QUADPIP
-			f.variant = streamadmission::QuadPip;
-#elif defined(DYNAMIC_DEMUX)
-			f.variant = streamadmission::DynamicDemux;
-#elif HAVE_CST_HARDWARE
-			f.variant = streamadmission::Cst;
-#else
-			f.variant = streamadmission::Plain;
-#endif
-			f.standby = zapit.standby;
-			f.live_channel = zapit.live_channel_id;
-			f.live_dvb = zapit.live_channel_id != 0 && !IS_WEBCHAN(zapit.live_channel_id);
-			f.live_tuned = zapit.live_fe != NULL && zapit.live_fe->tuned;
-			f.live_fe = zapit.live_fe ? zapit.live_fe->getNumber() : -1;
-#if ENABLE_PIP
-			int slots = g_info.hw_caps->pip_devs;
-			if (slots > streamadmission::kMaxSlots)
-				slots = streamadmission::kMaxSlots;
-			f.slots = slots < 0 ? 0 : slots;
-			for (int i = 0; i < f.slots; ++i) {
-				f.slot[i].active = zapit.pip_fe[i] != NULL;
-				f.slot[i].channel = zapit.pip_channel_id[i];
-				f.slot[i].fe = zapit.pip_fe[i] ? zapit.pip_fe[i]->getNumber() : -1;
-			}
-#if !HAVE_CST_HARDWARE && !HAVE_GENERIC_HARDWARE
-			f.avinput_pip = CNeutrinoApp::getInstance()->avinput_pip;
-#endif
-#endif
-		}
+		void facts(streamadmission::Facts &f) { zapit.StreamFacts(f); }
 
 		void heldByStreams(std::vector<int> &out)
 		{
-			void *fes[16];
-			const size_t n = streamhold::held(fes, sizeof(fes) / sizeof(fes[0]));
-			for (size_t i = 0; i < n; ++i)
-				if (fes[i])
-					out.push_back(static_cast<CFrontend *>(fes[i])->getNumber());
+			std::vector<CFrontend *> fes;
+			streamHoldFrontends(fes);
+			for (size_t i = 0; i < fes.size(); ++i)
+				out.push_back(fes[i]->getNumber());
 		}
 
 		void *holdLive(bool lock)
@@ -1330,6 +1342,83 @@ void CZapit::HoldForStream(int connfd, bool probe)
 							  probe, kHoldLocksFrontend);
 	INFO("stream %s %" PRIx64 ": verdict %d hold %u fe %d", probe ? "probe" : "hold",
 	     msg.channel_id, r.verdict, r.hold_id, r.fenumber);
+}
+
+/* A frontend number is a bit of the answer's mask. */
+static_assert(MAX_FE <= 32, "a frontend number must fit the yield's mask");
+
+class CZapit::StreamYieldOps : public streamyield::Ops
+{
+	public:
+		StreamYieldOps(CZapit &z, int fd) : zapit(z), connfd(fd) {}
+
+		void collect() { collectStreamHolds(); }
+		bool serving() { return zapit.started; }
+		int64_t nowMs() { return CZapitMessages::streamHoldClockMs(); }
+
+		void lockFrontends() { CFEManager::getInstance()->Lock(); }
+		void unlockFrontends() { CFEManager::getInstance()->Unlock(); }
+
+		/* The facts as a stream's admission reads them, with the stream
+		   holds and the PiPs' frontends beside them; the picture is kept
+		   only while it runs. */
+		int search(uint64_t id, std::vector<int> &end)
+		{
+			CZapitChannel *channel = CServiceManager::getInstance()->FindChannel(id);
+			if (channel == NULL || IS_WEBCHAN(id))
+				return 0;
+			streamadmission::Facts f;
+			zapit.StreamFacts(f);
+			std::vector<CFrontend *> streams;
+			streamHoldFrontends(streams);
+			std::vector<CFrontend *> pips;
+#if ENABLE_PIP
+			for (int i = 0; i < f.slots; ++i)
+				if (f.slot[i].active)
+					pips.push_back(zapit.pip_fe[i]);
+#endif
+			CFrontend *live = streamadmission::liveRuns(f) ? zapit.live_fe : NULL;
+			const fesearch::StreamsToEnd r = CFEManager::getInstance()->streamsToEndFor(channel, streams,
+									live, pips, kHoldLocksFrontend, zapit.config.noSameFE);
+			end = r.end;
+			return r.stage;
+		}
+
+		void revoke(int fenumber)
+		{
+			std::vector<CFrontend *> fes;
+			streamHoldFrontends(fes);
+			for (size_t i = 0; i < fes.size(); ++i) {
+				if (fes[i]->getNumber() == fenumber) {
+					streamhold::revoke(fes[i], &releaseStreamFrontend);
+					return;
+				}
+			}
+		}
+
+		bool answer(const streamyield::Reply &r)
+		{
+			CZapitClient::responseStreamYield msg;
+			msg.stage = r.stage;
+			msg.fe_mask = r.fe_mask;
+			return CBasicServer::send_data(connfd, &msg, sizeof(msg));
+		}
+
+	private:
+		CZapit &zapit;
+		int connfd;
+};
+
+/* As a hold, the body is read before any lock is taken. */
+void CZapit::YieldStreams(int connfd)
+{
+	CZapitMessages::commandStreamHold msg;
+	if (!CBasicServer::receive_data(connfd, &msg, sizeof(msg)))
+		return;
+
+	StreamYieldOps ops(*this, connfd);
+	const streamyield::Reply r = streamyield::run(ops, msg.channel_id, msg.deadline_ms, kHoldLocksFrontend);
+	INFO("stream yield %" PRIx64 ": stage %d mask 0x%x", msg.channel_id, r.stage, r.fe_mask);
 }
 
 bool CZapit::ZapForEpg(const t_channel_id channel_id, bool instandby)
@@ -1837,6 +1926,9 @@ bool CZapit::ParseCommand(CBasicMessage::Header &rmsg, int connfd)
 	case CZapitMessages::CMD_STREAM_HOLD:
 	case CZapitMessages::CMD_STREAM_PROBE:
 		HoldForStream(connfd, rmsg.cmd == CZapitMessages::CMD_STREAM_PROBE);
+		break;
+	case CZapitMessages::CMD_STREAM_YIELD:
+		YieldStreams(connfd);
 		break;
 
 	case CZapitMessages::CMD_ZAPTO_SERVICEID_NOWAIT:

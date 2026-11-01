@@ -82,6 +82,9 @@ enum Way
 
 Way decide(const Facts &f, uint64_t channel);
 
+// The picture runs from a broadcast channel on a tuned frontend.
+bool liveRuns(const Facts &f);
+
 /* The frontends an idle frontend must not be: the picture's while it runs,
    every PiP slot's frontend, frontend number i for every active slot i, and
    frontend 0 while the AV-input PiP reads demux 1. Frontends that streams
