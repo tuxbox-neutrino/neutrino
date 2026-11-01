@@ -5,6 +5,8 @@
 #ifndef __zapit_h__
 #define __zapit_h__
 
+#include <atomic>
+
 #include <OpenThreads/Thread>
 #include <OpenThreads/ReentrantMutex>
 #include <configfile.h>
@@ -175,6 +177,10 @@ class CZapit : public OpenThreads::Thread
 		t_channel_id  lastChannelRadio;
 		t_channel_id  lastChannelTV;
 		int abort_zapit;
+		/* The box is in standby, set by the program whether zapit sleeps
+		   or not: nothing is shown, and a stream's admission keeps no
+		   frontend for the picture. */
+		std::atomic<bool> box_standby;
 		int pmt_update_fd;
 #if ENABLE_AITSCAN
 		CAit *ait;
@@ -282,6 +288,7 @@ class CZapit : public OpenThreads::Thread
 
 		/* inlines */
 		void Abort() { abort_zapit = 1; };
+		void SetBoxStandby(bool on) { box_standby = on; }
 		bool Recording() { return currentMode & RECORD_MODE; };
 		int GetScanSDT() { return config.scanSDT; };
 		void SetScanSDT(int _scanSDT) { config.scanSDT = _scanSDT; };

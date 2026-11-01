@@ -142,6 +142,40 @@ TEST_CASE("the live channel is not live in standby, untuned or from the web", "[
 	REQUIRE(decide(f, kLive) == Idle);
 }
 
+TEST_CASE("B1: in the box's standby with zapit awake the live channel takes an idle frontend", "[zapit][admission]")
+{
+	/* zapit stays awake for the EPG scan: not in its own standby, the scan's
+	   channel tuned on frontend 0. Nothing is shown. */
+	Facts f = liveOn(0);
+	f.box_standby = true;
+	REQUIRE_FALSE(liveRuns(f));
+	REQUIRE(decide(f, kLive) == Idle);
+	std::vector<int> h;
+	held(f, h);
+	REQUIRE_FALSE(has(h, 0));
+}
+
+TEST_CASE("B2: without the box's standby the live channel is the picture's, as before", "[zapit][admission]")
+{
+	Facts f = liveOn(0);
+	REQUIRE(liveRuns(f));
+	REQUIRE(decide(f, kLive) == Live);
+	std::vector<int> h;
+	held(f, h);
+	REQUIRE(has(h, 0));
+}
+
+TEST_CASE("B3: zapit's own standby alone still frees the live frontend, as before", "[zapit][admission]")
+{
+	Facts f = liveOn(0);
+	f.standby = true;
+	REQUIRE_FALSE(liveRuns(f));
+	REQUIRE(decide(f, kLive) == Idle);
+	std::vector<int> h;
+	held(f, h);
+	REQUIRE_FALSE(has(h, 0));
+}
+
 TEST_CASE("a refused live channel is not offered an idle frontend instead", "[zapit][admission]")
 {
 	Facts f = liveOn(0);

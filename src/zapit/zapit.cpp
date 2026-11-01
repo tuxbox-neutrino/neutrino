@@ -134,6 +134,7 @@ CZapit::CZapit()
 	: configfile(',', false)
 {
 	started = false;
+	box_standby = false;
 	pmt_update_fd = -1;
 	audio_mode = 0;
 	mosd = 0;
@@ -1209,6 +1210,7 @@ void CZapit::StreamFacts(streamadmission::Facts &f)
 	f.variant = streamadmission::Plain;
 #endif
 	f.standby = standby;
+	f.box_standby = box_standby;
 	f.live_channel = live_channel_id;
 	f.live_dvb = live_channel_id != 0 && !IS_WEBCHAN(live_channel_id);
 	f.live_tuned = live_fe != NULL && live_fe->tuned;

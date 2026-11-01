@@ -23,7 +23,8 @@ namespace streamadmission
 
 Facts::Facts()
 	: variant(Plain), standby(false), live_dvb(false), live_tuned(false),
-	  live_channel(0), live_fe(-1), slots(0), avinput_pip(false), recording_starting(false)
+	  live_channel(0), live_fe(-1), slots(0), avinput_pip(false), recording_starting(false),
+	  box_standby(false)
 {
 	for (int i = 0; i < kMaxSlots; ++i)
 	{
@@ -57,7 +58,7 @@ bool anyPip(const Facts &f)
 
 bool liveRuns(const Facts &f)
 {
-	return f.live_dvb && !f.standby && f.live_tuned && f.live_fe >= 0;
+	return f.live_dvb && !(f.standby || f.box_standby) && f.live_tuned && f.live_fe >= 0;
 }
 
 Way decide(const Facts &f, uint64_t channel)
@@ -97,7 +98,7 @@ Way decide(const Facts &f, uint64_t channel)
 
 void held(const Facts &f, std::vector<int> &out)
 {
-	if (f.live_dvb && !f.standby && f.live_fe >= 0)
+	if (f.live_dvb && !(f.standby || f.box_standby) && f.live_fe >= 0)
 		out.push_back(f.live_fe);
 	for (int i = 0; i < slotsOf(f); ++i)
 	{

@@ -73,6 +73,11 @@ struct Facts
 	Slot     slot[kMaxSlots];
 	bool     avinput_pip;
 	bool     recording_starting;
+	/* The box is in standby, while zapit may still be awake: for the EPG
+	   scan, for a stream or a recording that ran when the box went into
+	   standby, or woken again by the scan. Nothing is shown then, so no
+	   frontend is the picture's. */
+	bool     box_standby;
 
 	Facts();
 };
@@ -86,7 +91,8 @@ enum Way
 
 Way decide(const Facts &f, uint64_t channel);
 
-// The picture runs from a broadcast channel on a tuned frontend.
+// The picture runs from a broadcast channel on a tuned frontend, and the box
+// is not in standby.
 bool liveRuns(const Facts &f);
 
 /* The frontends an idle frontend must not be: the picture's while it runs,
