@@ -55,6 +55,7 @@
 #include <driver/record.h>
 #include <driver/radiotext.h>
 #include <driver/streamts.h>
+#include <driver/recordtuner.h>
 #include <driver/abstime.h>
 #include <zapit/capmt.h>
 #include <zapit/channel.h>
@@ -2009,7 +2010,13 @@ bool CRecordManager::CutBackNeutrino(const t_channel_id channel_id, CFrontend * 
 	bool mode_changed = false;
 	CFrontend *live_fe = CZapit::getInstance()->GetLiveFrontend();
 	frontend = live_fe;
-	if(live_channel_id != channel_id) {
+	/* The live channel is recorded off the live frontend only while that one
+	   carries its transponder: a wake whose zap found no frontend, and an EPG
+	   scan in standby, leave the live channel id where the frontend is not. */
+	const bool live_serves = recordtuner::liveServes(live_fe != NULL, live_fe && live_fe->tuned,
+							  live_fe ? live_fe->getTsidOnid() : 0,
+							  channel->getTransponderId());
+	if(live_channel_id != channel_id || !live_serves) {
 		/* first try to get frontend for record with locked live */
 		bool unlock = true;
 		/* executed in neutrino thread - possible race with zap NOWAIT and epg scan zap */
@@ -2027,9 +2034,9 @@ bool CRecordManager::CutBackNeutrino(const t_channel_id channel_id, CFrontend * 
 		if (frontend == NULL)
 			return false;
 
-		/* if allocateFE was successful, full zapTo_serviceID 
-		 * needed, if record frontend same as live, and its on different TP */
-		bool found = (live_fe != frontend) || IS_WEBCHAN(live_channel_id) || SAME_TRANSPONDER(live_channel_id, channel_id);
+		/* if allocateFE was successful, full zapTo_serviceID
+		 * needed, if record frontend same as live, and it does not carry the TP */
+		bool found = !recordtuner::fullZap(live_fe == frontend, IS_WEBCHAN(live_channel_id), live_serves);
 
 		/* stop all streams on that fe, if we going to change transponder */
 		if (!frontend->sameTsidOnid(channel->getTransponderId()))

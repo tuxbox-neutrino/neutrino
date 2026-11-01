@@ -74,6 +74,7 @@ coreapi_tests_SOURCES = \
 	driver/test_postmsg.cpp \
 	driver/test_eventframe.cpp \
 	driver/test_streamsetup.cpp \
+	driver/test_recordtuner.cpp \
 	coreapi/test_eventbus.cpp \
 	coreapi/test_messagebridge.cpp \
 	coreapi/test_channels.cpp \
@@ -143,6 +144,8 @@ coreapi_tests_SOURCES = \
 # settings struct and a table, both of which a case builds.
 # streamsetup.o is the stream server's setup of a client, plain code over the
 # server's own steps, linked so the cases drive the object the program runs.
+# recordtuner.o is what a recording decides about the live frontend, plain code
+# over values read off the box, linked for the same reason.
 # rcinput.o carries the message queue under test; abstime.o is the only object it
 # needs besides the stubs in test_postmsg.cpp. commandsink_real.o comes out of the
 # archive with it, which is why that adapter lives in a file of its own.
@@ -193,6 +196,7 @@ coreapi_tests_LDADD = \
 	$(top_builddir)/src/driver/rcinput.o \
 	$(top_builddir)/src/driver/abstime.o \
 	$(top_builddir)/src/driver/streamsetup.o \
+	$(top_builddir)/src/driver/recordtuner.o \
 	$(top_builddir)/lib/libmd5sum/libmd5sum.a \
 	$(top_builddir)/lib/libconfigfile/libconfigfile.a \
 	$(top_builddir)/lib/timerdclient/libtimerdclient.a \
@@ -282,6 +286,7 @@ EXTRA_DIST = interop/peer/README support/catch.hpp support/run-tests.sh support/
 	scan/check-channel-lock-reentry.sh \
 	scan/check-pip-source-order.sh \
 	scan/check-stream-keeps-picture.sh \
+	scan/check-record-tuner.sh \
 	scan/strip-comments.awk scan/blank-if0.awk scan/bounds.awk scan/pairs.awk scan/fields.awk \
 	scan/keyvals.awk scan/choices.awk scan/enums.awk scan/labels.awk scan/branches.awk \
 	scan/settingstext.awk scan/channel-holds.awk \
@@ -441,4 +446,5 @@ check-local: check-TESTS
 	@$(SHELL) $(srcdir)/scan/check-channel-lock-reentry.sh $(top_srcdir)
 	@$(SHELL) $(srcdir)/scan/check-pip-source-order.sh $(top_srcdir)
 	@$(SHELL) $(srcdir)/scan/check-stream-keeps-picture.sh $(top_srcdir)
+	@$(SHELL) $(srcdir)/scan/check-record-tuner.sh $(top_srcdir)
 	@$(MAKE) $(AM_MAKEFLAGS) check-api-types
