@@ -27,6 +27,7 @@
 #include "settings.h"
 #include "getservices.h"
 #include "frontend_c.h"
+#include "fesearch.h"
 #include <map>
 
 #include <OpenThreads/ReentrantMutex>
@@ -116,6 +117,8 @@ class CFEManager
 		bool		getSatelliteConfig(CFrontend * fe, sat_config_t &satconfig);
 
 		bool		loopCanTune(CFrontend * fe, CZapitChannel * channel);
+		void		streamViews(CZapitChannel * channel, std::vector<CFrontend *> &fes,
+					    std::vector<fesearch::FeView> &views);
 		void		copySettings(CFrontend * from, CFrontend * to);
 		/* A unicable setup gives each tuner an address of its own on the one
 		 * cable, so a link does not share its root's input: each of them
@@ -161,6 +164,17 @@ class CFEManager
 		   channel's stream demux reads from it again - a PiP that ended
 		   leaves its source as it was - and with lock it is locked. */
 		void		holdLiveForStream(CFrontend * live, CZapitChannel * channel, bool lock);
+		/* For a recording of channel that found no frontend: the stage at
+		   which the walk getFrontend makes finds one, and the frontends
+		   whose streams have to end for it (fesearch::streamsToEnd).
+		   stream_fes holds the frontend of every stream hold, once per
+		   hold; live is the picture's frontend while the picture runs,
+		   else NULL; pip_fes are the frontends active PiPs show from. With
+		   holds_lock a stream hold is one of its frontend's use count. */
+		fesearch::StreamsToEnd streamsToEndFor(CZapitChannel * channel,
+						       const std::vector<CFrontend *> &stream_fes,
+						       CFrontend * live, const std::vector<CFrontend *> &pip_fes,
+						       bool holds_lock, bool no_same_fe);
 
 		fe_mode_t	getMode() { return mode; };
 

@@ -1048,8 +1048,9 @@ bool CFEManager::loopCanTune(CFrontend * fe, CZapitChannel * channel)
 	return false;
 }
 
-/* pickIdleForStream walks the frontends the same way, through
-   fesearch::pickIdle; a change to this walk has to be made there too. */
+/* pickIdleForStream and streamsToEndFor walk the frontends the same way,
+   through fesearch::pickIdle and fesearch::streamsToEnd; a change to this
+   walk has to be made in both too. */
 CFrontend * CFEManager::getFrontend(CZapitChannel * channel)
 {
 	CFrontend * retfe = NULL;
@@ -1276,14 +1277,13 @@ CFrontend * CFEManager::allocateFE(CZapitChannel * channel, bool forrecord)
 	return frontend;
 }
 
-CFrontend * CFEManager::pickIdleForStream(CZapitChannel * channel, const std::vector<int> &held,
-					  bool bind, bool lock, bool no_same_fe)
+/* One view per frontend, in the order of the map, so the walk visits them as
+   getFrontend does; a master lists the views of its links. A view is locked
+   when the frontend's use count is above zero. */
+void CFEManager::streamViews(CZapitChannel * channel, std::vector<CFrontend *> &fes,
+			     std::vector<fesearch::FeView> &views)
 {
-	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
-
-	/* One view per frontend, in the order of the map, so the walk visits
-	   them as getFrontend does; a master lists the views of its links. */
-	std::vector<CFrontend *> fes;
+	fes.clear();
 	std::map<CFrontend *, int> index;
 	for (fe_map_iterator_t it = femap.begin(); it != femap.end(); it++) {
 		index[it->second] = (int) fes.size();
@@ -1291,7 +1291,7 @@ CFrontend * CFEManager::pickIdleForStream(CZapitChannel * channel, const std::ve
 	}
 
 	const t_satellite_position pos = channel->getSatellitePosition();
-	std::vector<fesearch::FeView> views(fes.size());
+	views.assign(fes.size(), fesearch::FeView());
 	for (size_t i = 0; i < fes.size(); i++) {
 		CFrontend * fe = fes[i];
 		fesearch::FeView &v = views[i];
@@ -1314,7 +1314,7 @@ CFrontend * CFEManager::pickIdleForStream(CZapitChannel * channel, const std::ve
 			v.usable = (sit != satmap.end()) && sit->second.configured;
 		}
 
-		v.locked = fe->Locked() || std::find(held.begin(), held.end(), fe->fenumber) != held.end();
+		v.locked = fe->Locked();
 		v.same_pos = fe->getCurrentSatellitePosition() == pos;
 		v.loop_can_tune = loopCanTune(fe, channel);
 		v.is_twin = femode == CFrontend::FE_MODE_LINK_TWIN;
@@ -1328,6 +1328,19 @@ CFrontend * CFEManager::pickIdleForStream(CZapitChannel * channel, const std::ve
 			}
 		}
 	}
+}
+
+CFrontend * CFEManager::pickIdleForStream(CZapitChannel * channel, const std::vector<int> &held,
+					  bool bind, bool lock, bool no_same_fe)
+{
+	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
+
+	std::vector<CFrontend *> fes;
+	std::vector<fesearch::FeView> views;
+	streamViews(channel, fes, views);
+	for (size_t i = 0; i < fes.size(); i++)
+		if (std::find(held.begin(), held.end(), fes[i]->fenumber) != held.end())
+			views[i].locked = true;
 
 	const int got = fesearch::pickIdle(views);
 	if (got < 0)
@@ -1348,6 +1361,31 @@ CFrontend * CFEManager::pickIdleForStream(CZapitChannel * channel, const std::ve
 	if (lock)
 		lockFrontend(frontend);
 	return frontend;
+}
+
+fesearch::StreamsToEnd CFEManager::streamsToEndFor(CZapitChannel * channel,
+						 const std::vector<CFrontend *> &stream_fes,
+						 CFrontend * live, const std::vector<CFrontend *> &pip_fes,
+						 bool holds_lock, bool no_same_fe)
+{
+	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
+
+	std::vector<CFrontend *> fes;
+	std::vector<fesearch::FeView> views;
+	streamViews(channel, fes, views);
+
+	std::vector<fesearch::Use> use(fes.size());
+	for (size_t i = 0; i < fes.size(); i++) {
+		CFrontend * fe = fes[i];
+		fesearch::Use &u = use[i];
+		u.streams = (int) std::count(stream_fes.begin(), stream_fes.end(), fe);
+		u.kept = std::find(pip_fes.begin(), pip_fes.end(), fe) != pip_fes.end() ||
+			 fesearch::keptBy(fe->usecount, u.streams, holds_lock);
+		u.live = fe == live;
+		u.on_tp = fe->tuned && fe->getTsidOnid() == channel->getTransponderId();
+		u.same_service = fe->getChannelID() == channel->getChannelID();
+	}
+	return fesearch::streamsToEnd(views, use, live != NULL, no_same_fe);
 }
 
 void CFEManager::holdLiveForStream(CFrontend * live, CZapitChannel * channel, bool lock)

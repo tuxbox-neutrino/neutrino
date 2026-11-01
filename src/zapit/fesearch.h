@@ -27,7 +27,9 @@
  * channel's transponder, and the live frontend when it does; a stream given
  * such a frontend shares it, and the next zap of whoever holds it retunes the
  * stream away. A change to the walk in getFrontend has to be checked against
- * this one.
+ * this one, and against streamsToEnd, which walks the same way for a
+ * recording that found no frontend and names the streams whose frontends it
+ * may have instead.
  */
 
 #ifndef __zapit_fesearch_h__
@@ -95,6 +97,64 @@ struct Binding
 };
 
 Binding binding(int fenumber);
+
+/* What uses one frontend, beside its view, as a recording of a channel
+   sees it. The adapter in CFEManager fills one per view, in the same
+   order. */
+struct Use
+{
+	int  streams;       // stream holds the register has on it
+	/* Used for more than its streams: by a recording, a zap that locked
+	   it, or a PiP that shows from it. */
+	bool kept;
+	bool live;          // the picture runs from it
+	bool on_tp;         // tuned to the channel's transponder
+	bool same_service;  // carrying the channel itself
+
+	Use() : streams(0), kept(false), live(false), on_tp(false), same_service(false)
+	{
+	}
+};
+
+/* Whether a frontend with this use count is used for more than its stream
+   holds. Where a hold locks its frontend each hold is one of the count;
+   where it does not, every use is something else. */
+bool keptBy(int usecount, int streams, bool holds_lock);
+
+struct StreamsToEnd
+{
+	/* 1: getFrontend finds a frontend as it is: a free one, or a busy one
+	      on the channel's transponder it may share;
+	   2: it finds one once the streams on the frontends in end are ended,
+	      the picture's frontend kept;
+	   3: it finds one once the picture's frontend is given up as well,
+	      with the streams on it;
+	   0: none, whatever streams end. */
+	int stage;
+	std::vector<int> end;   // frontend numbers, ascending
+
+	StreamsToEnd() : stage(0)
+	{
+	}
+};
+
+/* The streams a recording of the channel has to end to get a frontend.
+   With live_kept the picture runs: its frontend counts as locked, as the
+   recording locks it for its first try, its streams are not ended at stage
+   2, and stage 3 gives it up. Without, no frontend is the picture's.
+
+   Only a frontend used by nothing but streams counts as one whose streams
+   may end. A candidate is a frontend the walk could take once some streams
+   end: besides itself, every busy member its master's rotor would have to
+   turn away from, and on a loop-through master every busy member, no twin,
+   whose band or polarisation the channel would change - unless the
+   candidate is a twin itself.
+   A candidate that such a member blocks and whose streams may not end is
+   out. Of the candidates, the one that ends streams on the fewest
+   frontends wins, and of those the first the walk meets. With no_same_fe a
+   busy frontend is shared only with its own service. */
+StreamsToEnd streamsToEnd(const std::vector<FeView> &fes, const std::vector<Use> &use,
+			  bool live_kept, bool no_same_fe);
 
 } // namespace fesearch
 
