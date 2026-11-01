@@ -367,6 +367,10 @@ struct Carrying
 	}
 };
 
+/* A path no route answers: these cases hand the bridge answers of their own,
+   and what it does with them is noted against no route the box serves. */
+const char kNoRoute[] = "/api/v1/carried/1";
+
 httpd::Response programAnswer()
 {
 	httpd::Response r;
@@ -394,7 +398,7 @@ TEST_CASE("a program or an address with nothing to carry it is refused as 501", 
 	const httpd::Response answers[] = { programAnswer(), relayAnswer() };
 	for (size_t i = 0; i < 2; ++i)
 	{
-		Handler h(M_GET, "/api/v1/stream/1");
+		Handler h(M_GET, kNoRoute);
 		CApiBridge::answerWith(&h.hh, answers[i]);
 		CHECK(h.hh.httpStatus == HTTP_NOT_IMPLEMENTED);
 		CHECK(h.hh.status == HANDLED_READY);
@@ -411,7 +415,7 @@ TEST_CASE("a program or an address is handed to the stream pass with the answer"
 	const httpd::Response answers[] = { programAnswer(), relayAnswer() };
 	for (size_t i = 0; i < 2; ++i)
 	{
-		Handler h(M_GET, "/api/v1/stream/1");
+		Handler h(M_GET, kNoRoute);
 		CApiBridge::answerWith(&h.hh, answers[i]);
 		CHECK(h.hh.status == HANDLED_STREAM);
 		CHECK(h.hh.httpStatus == HTTP_OK);
@@ -432,7 +436,7 @@ TEST_CASE("a HEAD for a carried answer is finite and starts nothing", "[bridge]"
 {
 	Attached a;
 	Carrying c;
-	Handler h(M_HEAD, "/api/v1/stream/1");
+	Handler h(M_HEAD, kNoRoute);
 	CApiBridge::answerWith(&h.hh, programAnswer());
 	CHECK(h.hh.status == HANDLED_READY);
 	CHECK(h.hh.httpStatus == HTTP_OK);
@@ -451,7 +455,7 @@ TEST_CASE("a HEAD reports the refusal the GET would meet", "[bridge]")
 	Attached a;
 	SECTION("nothing carries the kind")
 	{
-		Handler h(M_HEAD, "/api/v1/stream/1");
+		Handler h(M_HEAD, kNoRoute);
 		CApiBridge::answerWith(&h.hh, relayAnswer());
 		CHECK(h.hh.httpStatus == HTTP_NOT_IMPLEMENTED);
 		CHECK(h.hh.status == HANDLED_READY);
@@ -460,7 +464,7 @@ TEST_CASE("a HEAD reports the refusal the GET would meet", "[bridge]")
 	{
 		Carrying c;
 		httpd::carry::beginStop();
-		Handler h(M_HEAD, "/api/v1/stream/1");
+		Handler h(M_HEAD, kNoRoute);
 		CApiBridge::answerWith(&h.hh, relayAnswer());
 		CHECK(h.hh.httpStatus == HTTP_SERVICE_UNAVAILABLE);
 		CHECK(h.hh.yresult.find("server-stopping") != std::string::npos);
@@ -468,7 +472,7 @@ TEST_CASE("a HEAD reports the refusal the GET would meet", "[bridge]")
 	SECTION("the carrier's own check refuses")
 	{
 		Carrying c(&kRefusing);
-		Handler h(M_HEAD, "/api/v1/stream/1");
+		Handler h(M_HEAD, kNoRoute);
 		CApiBridge::answerWith(&h.hh, programAnswer());
 		CHECK(h.hh.httpStatus == HTTP_SERVICE_UNAVAILABLE);
 		CHECK(h.hh.yresult.find("the case's check refuses") != std::string::npos);
@@ -484,7 +488,7 @@ TEST_CASE("a program or an address under another code is an ordinary answer", "[
 	r.code = 404;
 	r.content_type = "application/problem+json";
 	r.body = "{\"status\":404}";
-	Handler h(M_GET, "/api/v1/stream/1");
+	Handler h(M_GET, kNoRoute);
 	CApiBridge::answerWith(&h.hh, r);
 	CHECK(h.hh.status == HANDLED_READY);
 	CHECK(h.hh.httpStatus == HTTP_NOT_FOUND);
@@ -504,7 +508,7 @@ TEST_CASE("a carried answer is given back exactly once on every way", "[bridge]"
 
 	SECTION("a new exchange on the same handler")
 	{
-		Handler h(M_GET, "/api/v1/stream/1");
+		Handler h(M_GET, kNoRoute);
 		CApiBridge::answerWith(&h.hh, programAnswer());
 		REQUIRE(httpd::carry::heldAnswersForTest() == c.held_before + 1);
 		CStringList none, config;
@@ -515,7 +519,7 @@ TEST_CASE("a carried answer is given back exactly once on every way", "[bridge]"
 	SECTION("the handler goes")
 	{
 		{
-			Handler h(M_GET, "/api/v1/stream/1");
+			Handler h(M_GET, kNoRoute);
 			CApiBridge::answerWith(&h.hh, programAnswer());
 			REQUIRE(httpd::carry::heldAnswersForTest() == c.held_before + 1);
 		}
@@ -523,7 +527,7 @@ TEST_CASE("a carried answer is given back exactly once on every way", "[bridge]"
 	}
 	SECTION("the stream pass refuses")
 	{
-		Handler h(M_GET, "/api/v1/stream/1");
+		Handler h(M_GET, kNoRoute);
 		CApiBridge::answerWith(&h.hh, programAnswer());
 		httpd::carry::beginStop();
 		CHECK(a.bridge.Hook_SendStream(&h.hh, &sock) == HANDLED_READY);
@@ -535,7 +539,7 @@ TEST_CASE("a carried answer is given back exactly once on every way", "[bridge]"
 	}
 	SECTION("the stream pass carries it")
 	{
-		Handler h(M_GET, "/api/v1/stream/1");
+		Handler h(M_GET, kNoRoute);
 		CApiBridge::answerWith(&h.hh, programAnswer());
 		CHECK(a.bridge.Hook_SendStream(&h.hh, &sock) == HANDLED_STREAM);
 		CHECK(h.hh.Carried == NULL);
@@ -1030,7 +1034,7 @@ TEST_CASE("without connection threads an event stream is refused and a carried a
 	CWebserver::is_threading = false;
 	Handler e(M_GET, "/api/v1/events");
 	CApiBridge::answerWith(&e.hh, sse);
-	Handler p(M_GET, "/api/v1/stream/1");
+	Handler p(M_GET, kNoRoute);
 	CApiBridge::answerWith(&p.hh, programAnswer());
 	CWebserver::is_threading = true;
 

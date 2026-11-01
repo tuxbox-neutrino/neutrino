@@ -53,11 +53,11 @@ TEST_CASE("the groups of this slice are declared in the order somebody meets thi
 {
 	/* The order the generator states (doc/openapi.cpp, the list above the
 	   tags: sign in, see what is on, change what the box does, the document
-	   last), for the groups this tree serves: stream has no table here. */
+	   last), for the groups this tree serves. */
 	static const char *const meant[] = {
 		"auth", "channels", "epg", "timers", "recordings", "playback", "osd",
 		"settings", "system", "webserver", "webui", "network", "daemons", "storage", "netfs",
-		"tuner", "plugins", "webtv", "config", "events", "openapi",
+		"tuner", "plugins", "stream", "webtv", "config", "events", "openapi",
 	};
 	const size_t count = sizeof(meant) / sizeof(meant[0]);
 

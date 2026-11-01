@@ -26,6 +26,7 @@
 
 #include "coreapi/settings/choicesources.h"
 #include "httpd/carry.h"
+#include "httpd/livestream.h"
 
 #include <cstdio>
 #include <stdlib.h>
@@ -53,6 +54,14 @@ int main(int argc, char *argv[])
 		return 1;
 	}
 	coreapi::internal::setChoicePlaceForTest(empty);
+
+	/* A browser stream runs the box's converter against the box's own
+	   streaming port on this machine, and the machine running the suite may
+	   be running a box of its own there, with a tuner. Every case runs a
+	   program that is not there, so nothing a case asks for can reach that
+	   port; a case that wants a program to run names its own and puts this
+	   back. */
+	httpd::livestream::setConverterForTest("/nonexistent/converter-not-run-by-the-suite");
 
 	watchAnswers();
 	const int failed = session.run();

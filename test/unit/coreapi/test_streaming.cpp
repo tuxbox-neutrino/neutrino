@@ -24,10 +24,12 @@
 #include "support/wireserver.h"
 
 #include "httpd/auth.h"
+#include "httpd/carry.h"
 #include "httpd/credentials.h"
 #include "httpd/endpoint.h"
 #include "httpd/endpoints.h"
 #include "httpd/events.h"
+#include "httpd/livestream.h"
 #include "httpd/netmatch.h"
 #include "httpd/webconfig.h"
 #include "httpd/http.h"
@@ -41,7 +43,11 @@
 #include "coreapi/streaming.h"
 #include "coreapi/base/types.h"
 
+#include <atomic>
+#include <cerrno>
+#include <csignal>
 #include <cstdio>
+#include <cstdlib>
 #include <cstring>
 #include <string>
 #include <utility>
@@ -52,6 +58,7 @@
 #include <neutrinoMessages.h>
 
 #include <arpa/inet.h>
+#include <signal.h>
 #include <dirent.h>
 #include <fcntl.h>
 #include <netinet/in.h>
@@ -660,28 +667,75 @@ namespace
 
 const char kWriteToken[] = "3333333333333333cccccccccccccccc";
 
-/* The stream routes in front of nhttpd and the bridge, on a port the kernel
-   picks, over the channels and the port of the fixture above. */
+/* The shipped routes in front of nhttpd and the bridge, on a port the kernel
+   picks, over the channels and the port of the fixture above.
+
+   A program a case names runs in place of the converter; one the case does
+   not name is the suite's own, which is not there. The streaming port of the
+   fixture is one nothing listens on, so not even a program that ran as
+   named could reach a box on this machine. */
 struct StreamBox
 {
-	Fixture    fx;
-	WireServer server;
+	Fixture     fx;
+	WireServer  server;
+	const char *converter_before;
+	std::vector<std::string> files;
 
-	StreamBox() : server(4, 100, WireServer::Threaded)
+	StreamBox()
+		: server(4, 100, WireServer::Threaded),
+		  converter_before(livestream::converterForTest())
 	{
-		setRoutesForTest(&streamTable);
+		fx.settings.ints["streaming_port"] = 9;
 		addApiToken(tokenLookupPrefix(kWriteToken), hashSecret(kWriteToken), AuthLevel::Write, "", 0);
 	}
 
 	~StreamBox()
 	{
-		setRoutesForTest(NULL);
+		carry::waitIdle(5000);
+		livestream::setConverterForTest(converter_before);
+		livestream::setFirstByteMsForTest(0);
+		carry::setCarrier(carry::Program, NULL);
 		setSessionClockForTest(0);
 		setConfigForTest(defaultWebConfig());
 		forgetApiTokens();
+		for (size_t i = 0; i < files.size(); ++i)
+			::unlink(files[i].c_str());
 	}
 
 	int port() const { return server.port; }
+
+	// A file of this case's own in /tmp, removed with the box.
+	std::string tempFile(const char *what)
+	{
+		char path[96];
+		std::snprintf(path, sizeof(path), "/tmp/coreapi-stream.%d.%u.%s", (int) ::getpid(),
+		              (unsigned) files.size(), what);
+		files.push_back(path);
+		::unlink(path);
+		return path;
+	}
+
+	/* A shell script run in place of the converter. PIDFILE in it is
+	   replaced by a file the script can write its process id to. */
+	void useConverter(const std::string &script, std::string *pidfile = NULL)
+	{
+		const std::string pf = tempFile("pid");
+		std::string body = script;
+		for (size_t at = body.find("PIDFILE"); at != std::string::npos; at = body.find("PIDFILE"))
+			body.replace(at, 7, pf);
+		const std::string path = tempFile("sh");
+		FILE *f = std::fopen(path.c_str(), "w");
+		REQUIRE(f != NULL);
+		std::fputs(("#!/bin/sh\n" + body).c_str(), f);
+		std::fclose(f);
+		REQUIRE(::chmod(path.c_str(), 0755) == 0);
+		scripts.push_back(path);
+		livestream::setConverterForTest(scripts.back().c_str());
+		if (pidfile != NULL)
+			*pidfile = pf;
+	}
+
+	std::vector<std::string> scripts;
 
 	private:
 		StreamBox(const StreamBox &);
@@ -707,6 +761,63 @@ std::string problemCodeOf(const std::string &body)
 	const size_t from = at + mark.size();
 	return body.substr(from, body.find('"', from) - from);
 }
+
+const char kBrowser[] = "/api/v1/stream/browser/1001?video=h264&audio=mp2";
+
+std::string asWriter(const char *method, const std::string &path)
+{
+	return askAs(method, path, bearer(kWriteToken));
+}
+
+// The process id a script wrote, waiting up to ms for it; 0 for none.
+pid_t pidFrom(const std::string &file, int ms)
+{
+	for (int waited = 0; waited <= ms; waited += 20)
+	{
+		FILE *f = std::fopen(file.c_str(), "r");
+		if (f != NULL)
+		{
+			long v = 0;
+			const bool got = std::fscanf(f, "%ld", &v) == 1;
+			std::fclose(f);
+			if (got && v > 0)
+				return (pid_t) v;
+		}
+		napMs(20);
+	}
+	return 0;
+}
+
+// Whether the process is gone and collected within ms: a zombie still answers.
+bool goneWithin(pid_t pid, int ms)
+{
+	for (int waited = 0; waited <= ms; waited += 20)
+	{
+		if (::kill(pid, 0) != 0 && errno == ESRCH)
+			return true;
+		napMs(20);
+	}
+	return false;
+}
+
+size_t runningAfter(int ms)
+{
+	for (int waited = 0; waited < ms && carry::running() != 0; waited += 20)
+		napMs(20);
+	return carry::running();
+}
+
+// A channel source that counts what the routes and the jobs ask of it.
+struct CountingChannels : public FakeChannelSource
+{
+	mutable std::atomic<int> finds;
+	CountingChannels() : finds(0) {}
+	coreapi::Status findChannel(coreapi::ChannelId id, coreapi::ChannelInfo &out) const
+	{
+		++finds;
+		return FakeChannelSource::findChannel(id, out);
+	}
+};
 
 } // namespace
 
@@ -800,5 +911,353 @@ TEST_CASE("a browser stream answers a session or a token that may write, and no 
 		REQUIRE(r.ok());
 		r.readToEof(5000);
 		CHECK(r.code() == 403);
+	}
+}
+
+// ================================================================ the program
+
+TEST_CASE("a program's output is the body, and the program ends with its reader",
+          "[streaming][wire][program]")
+{
+	StreamBox box;
+	CountingChannels channels;
+	channels.channels = box.fx.deps.channels.channels;
+	InstalledChannelSource counted(&channels);
+	std::string pidfile;
+	box.useConverter("echo $$ > PIDFILE\nwhile :; do printf 'G0123456789abcdef'; sleep 0.02; done\n",
+	                 &pidfile);
+
+	pid_t pid = 0;
+	{
+		WireStream r(box.port(), asWriter("GET", kBrowser).c_str());
+		REQUIRE(r.ok());
+		CHECK(r.code() == 200);
+		CHECK(r.headerOf("Content-Type").find("video/mp2t") != std::string::npos);
+		CHECK(r.headerOf("Cache-Control").find("no-store") != std::string::npos);
+		CHECK_FALSE(r.hasHeader("Content-Length"));
+		pid = pidFrom(pidfile, 3000);
+		REQUIRE(pid > 0);
+
+		// What the job asks of the box once the program runs: nothing.
+		const int asked = channels.finds.load();
+		CHECK_FALSE(r.closedWithin(600));
+		CHECK(r.body.compare(0, 6, "G01234") == 0);
+		CHECK(r.body.size() > 100u);
+		CHECK(channels.finds.load() == asked);
+		CHECK(carry::seatsTaken(carry::Program) == 1u);
+	}
+
+	// The reader went: the program and its seat are gone within a second.
+	CHECK(goneWithin(pid, 1000));
+	CHECK(runningAfter(1000) == 0);
+	CHECK(carry::seatsTaken(carry::Program) == 0u);
+}
+
+TEST_CASE("a reader that leaves a quiet program frees its seat within a second",
+          "[streaming][wire][program]")
+{
+	/* The program wrote once and says nothing more: no write fails that
+	   could tell the job its reader went, so the job has to ask. */
+	StreamBox box;
+	std::string pidfile;
+	box.useConverter("echo $$ > PIDFILE\nprintf G\nexec sleep 30\n", &pidfile);
+
+	pid_t pid = 0;
+	{
+		WireStream r(box.port(), asWriter("GET", kBrowser).c_str());
+		REQUIRE(r.ok());
+		CHECK(r.code() == 200);
+		pid = pidFrom(pidfile, 3000);
+		REQUIRE(pid > 0);
+		CHECK_FALSE(r.closedWithin(300));
+		CHECK(r.body == "G");
+	}
+	CHECK(goneWithin(pid, 1000));
+	CHECK(runningAfter(1000) == 0);
+}
+
+TEST_CASE("a HEAD of a browser stream says what the GET would meet and starts nothing",
+          "[streaming][wire][program]")
+{
+	StreamBox box;
+	std::string pidfile;
+	box.useConverter("echo $$ > PIDFILE\nexec sleep 30\n", &pidfile);
+
+	WireStream r(box.port(), asWriter("HEAD", kBrowser).c_str());
+	REQUIRE(r.ok());
+	CHECK(r.code() == 200);
+	CHECK(r.headerOf("Content-Type").find("video/mp2t") != std::string::npos);
+	CHECK(r.closedWithin(2000));
+	CHECK(r.body.empty());
+	CHECK(pidFrom(pidfile, 300) == 0);
+	CHECK(carry::running() == 0u);
+}
+
+TEST_CASE("a third program is refused while two run", "[streaming][wire][program]")
+{
+	StreamBox box;
+	std::string first_pid;
+	box.useConverter("echo $$ >> PIDFILE\nwhile :; do printf 'G'; sleep 0.05; done\n", &first_pid);
+
+	WireStream a(box.port(), asWriter("GET", kBrowser).c_str());
+	WireStream b(box.port(), asWriter("GET", kBrowser).c_str());
+	REQUIRE(a.ok());
+	REQUIRE(b.ok());
+	CHECK(a.code() == 200);
+	CHECK(b.code() == 200);
+	CHECK(carry::seatsTaken(carry::Program) == 2u);
+
+	for (int m = 0; m < 2; ++m)
+	{
+		const char *method = m == 0 ? "GET" : "HEAD";
+		INFO(method);
+		WireStream c(box.port(), asWriter(method, kBrowser).c_str());
+		REQUIRE(c.ok());
+		const std::string body = c.readToEof(3000);
+		CHECK(c.code() == 503);
+		CHECK(c.headerOf("Retry-After").find("15") != std::string::npos);
+		if (m == 0)
+			CHECK(problemCodeOf(body) == "too-many-conversions");
+	}
+}
+
+TEST_CASE("a box without the program refuses a browser stream with 501", "[streaming][wire][program]")
+{
+	StreamBox box;
+	livestream::setConverterForTest("/nonexistent/converter");
+
+	for (int m = 0; m < 2; ++m)
+	{
+		const char *method = m == 0 ? "GET" : "HEAD";
+		INFO(method);
+		WireStream r(box.port(), asWriter(method, kBrowser).c_str());
+		REQUIRE(r.ok());
+		const std::string body = r.readToEof(3000);
+		CHECK(r.code() == 501);
+		if (m == 0)
+			CHECK(problemCodeOf(body) == "not-playable-in-browser");
+	}
+	CHECK(carry::running() == 0u);
+}
+
+TEST_CASE("a program that ends before its first byte is refused, and collected",
+          "[streaming][wire][program]")
+{
+	StreamBox box;
+	std::string pidfile;
+	box.useConverter("echo $$ > PIDFILE\nexit 3\n", &pidfile);
+
+	WireStream r(box.port(), asWriter("GET", kBrowser).c_str());
+	REQUIRE(r.ok());
+	const std::string body = r.readToEof(5000);
+	CHECK(r.code() == 503);
+	CHECK(problemCodeOf(body) == "upstream-unreachable");
+	const pid_t pid = pidFrom(pidfile, 1000);
+	REQUIRE(pid > 0);
+	CHECK(goneWithin(pid, 1000));
+	CHECK(runningAfter(1000) == 0);
+}
+
+TEST_CASE("a program that stays silent is refused when its time is up, and ended",
+          "[streaming][wire][program]")
+{
+	StreamBox box;
+	livestream::setFirstByteMsForTest(400);
+	std::string pidfile;
+	box.useConverter("echo $$ > PIDFILE\nexec sleep 30\n", &pidfile);
+
+	const int64_t t0 = wireNowMs();
+	WireStream r(box.port(), asWriter("GET", kBrowser).c_str());
+	REQUIRE(r.ok());
+	const std::string body = r.readToEof(5000);
+	CHECK(r.code() == 503);
+	CHECK(problemCodeOf(body) == "upstream-unreachable");
+	CHECK(wireNowMs() - t0 < 3000);
+	const pid_t pid = pidFrom(pidfile, 1000);
+	REQUIRE(pid > 0);
+	CHECK(goneWithin(pid, 1000));
+}
+
+namespace
+{
+
+// Whether bit n (signal n) is set in a mask as /proc writes it.
+bool maskHas(const std::string &hex, int sig)
+{
+	const unsigned long long v = std::strtoull(hex.c_str(), NULL, 16);
+	return (v >> (sig - 1)) & 1ull;
+}
+
+std::string lineValue(const std::string &text, const char *key)
+{
+	const size_t at = text.find(key);
+	if (at == std::string::npos)
+		return std::string();
+	size_t from = at + std::strlen(key);
+	while (from < text.size() && (text[from] == ' ' || text[from] == '\t'))
+		++from;
+	return text.substr(from, text.find('\n', from) - from);
+}
+
+} // namespace
+
+TEST_CASE("the program starts with every signal at its default and nothing of the box's open",
+          "[streaming][wire][program]")
+{
+	/* This program ignores SIGPIPE and SIGHUP, and a thread may block what it
+	   likes; the server's threads, and the job's, are made by a thread that
+	   blocks SIGTERM here. None of it may reach the converter. */
+	struct sigaction ign, old_pipe, old_hup;
+	std::memset(&ign, 0, sizeof(ign));
+	ign.sa_handler = SIG_IGN;
+	sigemptyset(&ign.sa_mask);
+	REQUIRE(sigaction(SIGPIPE, &ign, &old_pipe) == 0);
+	REQUIRE(sigaction(SIGHUP, &ign, &old_hup) == 0);
+	sigset_t term, old_mask;
+	sigemptyset(&term);
+	sigaddset(&term, SIGTERM);
+	REQUIRE(pthread_sigmask(SIG_BLOCK, &term, &old_mask) == 0);
+
+	std::string body;
+	std::string script;
+	{
+		StreamBox box;
+		/* ls lists the shell's descriptors from a process of its own, so the
+		   listing adds none to them. */
+		box.useConverter("grep -E '^Sig(Blk|Ign):' /proc/$$/status\n"
+		                 "ls -l /proc/$$/fd\n"
+		                 "echo end\nexec sleep 30\n");
+		script = box.scripts.back();
+		WireStream r(box.port(), asWriter("GET", kBrowser).c_str());
+		REQUIRE(r.ok());
+		CHECK(r.code() == 200);
+		for (int i = 0; i < 50 && r.body.find("end\n") == std::string::npos; ++i)
+			r.closedWithin(100);
+		body = r.body;
+	}
+	pthread_sigmask(SIG_SETMASK, &old_mask, NULL);
+	sigaction(SIGPIPE, &old_pipe, NULL);
+	sigaction(SIGHUP, &old_hup, NULL);
+
+	INFO(body);
+	REQUIRE(body.find("end\n") != std::string::npos);
+	CHECK(lineValue(body, "SigBlk:") == "0000000000000000");
+	const std::string ignored = lineValue(body, "SigIgn:");
+	REQUIRE(!ignored.empty());
+	CHECK_FALSE(maskHas(ignored, SIGPIPE));
+	CHECK_FALSE(maskHas(ignored, SIGHUP));
+	CHECK_FALSE(maskHas(ignored, SIGTERM));
+	CHECK_FALSE(maskHas(ignored, SIGCHLD));
+
+	// Beyond the three standard ones, only the script the shell reads.
+	size_t at = 0;
+	int listed = 0;
+	int others = 0;
+	while ((at = body.find(" -> ", at)) != std::string::npos)
+	{
+		const size_t start = body.rfind(' ', at - 1) + 1;
+		const size_t end = body.find('\n', at);
+		const int n = std::atoi(body.substr(start, at - start).c_str());
+		const std::string target = body.substr(at + 4, end - at - 4);
+		at = end;
+		++listed;
+		if (n <= 2)
+			continue;
+		CHECK(target == script);
+		++others;
+	}
+	CHECK(listed >= 3);
+	CHECK(others <= 1);
+}
+
+TEST_CASE("a process that does not supervise its children starts no program",
+          "[streaming][wire][program]")
+{
+	StreamBox box;
+	std::string pidfile;
+	box.useConverter("echo $$ > PIDFILE\nwhile :; do printf 'G'; sleep 0.05; done\n", &pidfile);
+
+	struct sigaction old, ign, nowait;
+	std::memset(&ign, 0, sizeof(ign));
+	ign.sa_handler = SIG_IGN;
+	sigemptyset(&ign.sa_mask);
+	std::memset(&nowait, 0, sizeof(nowait));
+	nowait.sa_handler = SIG_DFL;
+	nowait.sa_flags = SA_NOCLDWAIT;
+	sigemptyset(&nowait.sa_mask);
+	REQUIRE(sigaction(SIGCHLD, NULL, &old) == 0);
+
+	const struct sigaction *ways[] = { &ign, &nowait };
+	for (int w = 0; w < 2; ++w)
+	{
+		REQUIRE(sigaction(SIGCHLD, ways[w], NULL) == 0);
+		for (int m = 0; m < 2; ++m)
+		{
+			const char *method = m == 0 ? "GET" : "HEAD";
+			INFO((w == 0 ? "ignored " : "no child wait ") << method);
+			WireStream r(box.port(), asWriter(method, kBrowser).c_str());
+			REQUIRE(r.ok());
+			const std::string body = r.readToEof(3000);
+			CHECK(r.code() == 500);
+			if (m == 0)
+				CHECK(problemCodeOf(body) == "no-supervision");
+		}
+	}
+	REQUIRE(sigaction(SIGCHLD, &old, NULL) == 0);
+	CHECK(pidFrom(pidfile, 300) == 0);
+
+	// Supervised again, the same request runs.
+	WireStream r(box.port(), asWriter("GET", kBrowser).c_str());
+	REQUIRE(r.ok());
+	CHECK(r.code() == 200);
+}
+
+TEST_CASE("a server that stops ends a running program", "[streaming][wire][program]")
+{
+	StreamBox box;
+	std::string pidfile;
+	box.useConverter("echo $$ > PIDFILE\nwhile :; do printf 'G'; sleep 0.05; done\n", &pidfile);
+
+	WireStream r(box.port(), asWriter("GET", kBrowser).c_str());
+	REQUIRE(r.ok());
+	CHECK(r.code() == 200);
+	const pid_t pid = pidFrom(pidfile, 3000);
+	REQUIRE(pid > 0);
+
+	carry::beginStop();
+	CHECK(carry::waitIdle(3000));
+	CHECK(goneWithin(pid, 1000));
+	CHECK(r.closedWithin(2000));
+	carry::endStop();
+}
+
+TEST_CASE("the stream routes answer their refusals", "[streaming][wire]")
+{
+	StreamBox box;
+	struct Case
+	{
+		const char *request;
+		int code;
+		const char *problem;
+	};
+	const Case cases[] = {
+		{ "GET /api/v1/stream/browser/9999?video=h264&audio=mp2 HTTP/1.0\r\nHost: box\r\n", 404, "no-such-channel" },
+		{ "GET /api/v1/stream/browser/1001?video=mpeg2&audio=mp2 HTTP/1.0\r\nHost: box\r\n", 501, "not-playable-in-browser" },
+		{ "GET /api/v1/stream/9999 HTTP/1.0\r\nHost: box\r\n", 404, "no-such-channel" },
+		{ "GET /api/v1/stream/1001 HTTP/1.0\r\n", 400, "no-authority" },
+		{ "GET /api/v1/stream/playlist HTTP/1.0\r\n", 400, "no-authority" },
+		{ "GET /api/v1/stream/playlist.m3u HTTP/1.0\r\n", 400, "no-authority" },
+		{ "GET /api/v1/stream/playlist/1001 HTTP/1.0\r\n", 400, "no-authority" },
+		{ "GET /api/v1/stream/playlist/9999 HTTP/1.0\r\nHost: box\r\n", 404, "no-such-channel" },
+	};
+	for (size_t i = 0; i < sizeof(cases) / sizeof(cases[0]); ++i)
+	{
+		INFO(cases[i].request);
+		const std::string req = std::string(cases[i].request) + bearer(kWriteToken) + "\r\n";
+		WireStream r(box.port(), req.c_str());
+		REQUIRE(r.ok());
+		const std::string body = r.readToEof(3000);
+		CHECK(r.code() == cases[i].code);
+		CHECK(problemCodeOf(body) == cases[i].problem);
 	}
 }

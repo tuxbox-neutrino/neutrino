@@ -23,6 +23,7 @@
 #include "endpoint.h"
 #include "endpoints.h"
 #include "events.h"
+#include "livestream.h"
 #include "webtv.h"
 #include "doc/openapi.h"
 
@@ -60,8 +61,7 @@ const RouteTable *installed = NULL;
    The same reasoning rules out a list sized from a count another unit hands over,
    which is why a module states a whole table and not an array and a count. */
 const RouteTable *const kTables[] = {
-	/* In the order the document groups them. There is no stream table: nothing
-	   here converts a channel for a browser. */
+	// In the order the document groups them.
 	&channelsTable,
 	&epgTable,
 	&settingsTable,
@@ -79,6 +79,7 @@ const RouteTable *const kTables[] = {
 	&tunerTable,
 	&pluginsTable,
 	&configTable,
+	&streamTable,
 	&webtvTable,
 	&recordingsTable,
 	&playbackTable,

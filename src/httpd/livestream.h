@@ -2,6 +2,7 @@
  * livestream.h - an answer whose body is a running program's output
  *
  * Copyright (C) 2026 NI-Team
+ * Copyright (C) 2026 Tuxbox-Project (carrier, child setup, supervision)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,14 +22,10 @@
 #ifndef __httpd_livestream_h__
 #define __httpd_livestream_h__
 
+#include "carry.h"
 #include "endpoint.h"
 
 #include <cstddef>
-
-/* Declared rather than included, for the reason the event stream beside this
-   declares it: the only thing wanted here is a connection to hand back to the
-   transport, and the file that hands it back includes the library anyway. */
-struct MHD_Connection;
 
 namespace httpd
 {
@@ -36,49 +33,43 @@ namespace httpd
 namespace livestream
 {
 
-/* Starts the thread that watches the pipes of the programs this is running, and stops
-   it again. Called where the daemon is started and stopped, because a session is a
-   connection of that daemon.
+/* What carries a program's output (carry::Program): an answer that names a
+   command in Response::stream_argv runs it on a job of its own and passes
+   what it writes on as the body.
 
-   Idempotent, both of them. stop waits until every session is gone, for the same
-   reason the event stream does: this library says that stopping a daemon while a
-   connection of it is suspended leaks the connection or worse. */
-void start();
-void stop();
+   check, which a HEAD is answered by too, refuses what the job would refuse
+   before it starts anything: a process that cannot supervise a child (500
+   no-supervision) and a box without the program (501). The seats and a
+   server that is stopping are the transport's.
 
-// How many programs are running for browsers right now. The number the ceiling
-// is spent against, and the one thing that says a session whose reader walked
-// away was let go.
-size_t openSessions();
+   run starts the program with a clean signal state and nothing open but
+   its output, waits up to 15 seconds for its first bytes, and refuses with
+   503 upstream-unreachable when it ends or stays silent before them. From
+   the first byte on it passes on what the program writes, in blocks of up
+   to 32 KiB, until the program ends, the reader leaves or the server stops;
+   then the program and everything it started are ended and collected. */
+const carry::Carrier *carrier();
 
-// The most that may run at once, so that a refusal can say what the limit was.
-size_t maxSessions();
-void   setMaxSessionsForTest(size_t n);
+/* Whether ep is the route whose answers this carries. Those can meet the
+   refusals the transport gives itself, and the document states them for it
+   by this. */
+bool carriedRoute(const Endpoint &ep);
 
-/* Whether this answer is one of these rather than a document. The handler puts
-   the command in the answer and returns, and this is what the transport asks
-   before it sends what a handler usually returns. */
-bool isStream(const Response &r);
+/* Whether this process can supervise a child now: one that ignores SIGCHLD
+   or has the kernel discard what its children exit with is never told when
+   one ends, and the number of an ended child is free for the system to hand
+   to somebody else at once. False fills refusal. */
+bool supervisable(Response &refusal);
 
-enum Opened
-{
-	StreamOpened,
-	// The box is already running as many as it will. refusal carries the
-	// document that says so.
-	StreamRefused,
-	// Something this server needed did not work. Nothing was started and the
-	// connection is still the caller's to answer on.
-	StreamFailed
-};
+// ---- seams for the suite; nothing in the product sets them
 
-/* Runs the command the answer carries and makes its output the body.
+/* Runs path in place of the program an answer names, with the arguments it
+   names. NULL runs what the answer names. */
+void setConverterForTest(const char *path);
+const char *converterForTest();
 
-   The connection is taken over on StreamOpened and on nothing else, which is the same
-   bargain the event stream makes: nothing else may queue an answer on it afterwards.
-
-   The program is stopped and reaped when the answer ends, however it ends. A browser
-   that closes the tab is the ordinary case and not an error. */
-Opened open(struct MHD_Connection *connection, const Response &r, Response &refusal);
+// How long the first byte may take; 0 puts the shipped 15 seconds back.
+void setFirstByteMsForTest(unsigned ms);
 
 } // namespace livestream
 } // namespace httpd

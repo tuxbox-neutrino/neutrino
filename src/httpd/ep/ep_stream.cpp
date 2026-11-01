@@ -2,6 +2,7 @@
  * ep_stream.cpp - routes for streams and playlists
  *
  * Copyright (C) 2026 NI-Team
+ * Copyright (C) 2026 Tuxbox-Project (carried program, refusals)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,6 +24,7 @@
 #include "httpd/endpoint.h"
 #include "httpd/http.h"
 #include "httpd/json.h"
+#include "httpd/carry.h"
 #include "httpd/livestream.h"
 #include "httpd/schema.h"
 #include "httpd/status.h"
@@ -269,6 +271,11 @@ Response streamForBrowser(const Request &r)
 	// keeps a minute of it and hands it to the next caller.
 	out.headers.push_back(std::make_pair(std::string("Cache-Control"),
 					     std::string("no-store")));
+	/* The program runs on a job of its own, with one of the transport's two
+	   seats for programs. The carrier is put in place on the way to the
+	   first such answer, which is the one moment that is sure to come before
+	   the transport asks for it. */
+	carry::setCarrier(carry::Program, livestream::carrier());
 	return out;
 }
 
@@ -318,6 +325,20 @@ const Param kPlaylistParams[] = {
 const RouteRefusal kStreamAddressRefusals[] = {
 	HTTPD_REFUSES(InvalidArgument, NoAuthority,
 		"the request named no authority to build an address under"),
+	HTTPD_REFUSES(NotFound, NoSuchChannel,
+		"no channel with that id"),
+};
+
+const RouteRefusal kStreamPlaylistRefusals[] = {
+	HTTPD_REFUSES(InvalidArgument, NoAuthority,
+		"the request named no authority to build an address under"),
+};
+
+const RouteRefusal kStreamPlaylistForRefusals[] = {
+	HTTPD_REFUSES(InvalidArgument, NoAuthority,
+		"the request named no authority to build an address under"),
+	HTTPD_REFUSES(NotFound, NoSuchChannel,
+		"no channel with that id"),
 };
 
 const RouteRefusal kStreamForBrowserRefusals[] = {
@@ -327,6 +348,10 @@ const RouteRefusal kStreamForBrowserRefusals[] = {
 		"no browser plays what this channel carries, and this box will not re-encode a picture"),
 	HTTPD_REFUSES_AS(503, TooManyConversions,
 		"this box is already converting as many streams as it will"),
+	HTTPD_REFUSES_AS(503, UpstreamUnreachable,
+		"the converter ended or stayed silent before it sent anything: the channel could not be read"),
+	HTTPD_REFUSES_AS(500, NoSupervision,
+		"this process discards what its children exit with, so a converter cannot be supervised"),
 };
 
 /* The playlists and the address of a channel are read: they hand out where
@@ -348,7 +373,7 @@ const Endpoint kStreamEndpoints[] = {
 	  "address, not by fetching this playlist.\n\n"
 	  "**Related:** `GET /api/v1/stream/{id}`, `GET /api/v1/stream/playlist/{id}`.",
 	  HTTPD_PARAMS(kPlaylistParams), NULL, &streamPlaylist, false,
-	  Answers200 | Answers206, HTTPD_NO_REFUSALS },
+	  Answers200 | Answers206, HTTPD_REFUSALS(kStreamPlaylistRefusals) },
 	/* THE SAME LIST UNDER THE NAME ITS FILE HAS. A box reading a playlist back
 	   in as a channel list decides what it was handed by the extension of the
 	   address it was given and reads nothing it cannot name that way
@@ -365,7 +390,7 @@ const Endpoint kStreamEndpoints[] = {
 	  "this route exists for readers of that kind.\n\n"
 	  "**Related:** `GET /api/v1/stream/playlist`.",
 	  HTTPD_PARAMS(kPlaylistParams), NULL, &streamPlaylist, false,
-	  Answers200 | Answers206, HTTPD_NO_REFUSALS },
+	  Answers200 | Answers206, HTTPD_REFUSALS(kStreamPlaylistRefusals) },
 	{ Method::Get, "/api/v1/stream/playlist/{id}", AuthLevel::Read,
 	  "one channel as a playlist a player opens",
 	  "Builds and returns an M3U playlist (`audio/x-mpegurl`) naming the single "
@@ -375,7 +400,7 @@ const Endpoint kStreamEndpoints[] = {
 	  "opening it gets a sensible name.\n\n"
 	  "**Related:** `GET /api/v1/stream/{id}`.",
 	  HTTPD_PARAMS(kChannelParams), NULL, &streamPlaylistFor, false,
-	  Answers200 | Answers206, HTTPD_NO_REFUSALS },
+	  Answers200 | Answers206, HTTPD_REFUSALS(kStreamPlaylistForRefusals) },
 	{ Method::Get, "/api/v1/stream/{id}", AuthLevel::Read,
 	  "where a player fetches one channel",
 	  "Returns the address a player can open to receive the raw stream of channel "
@@ -384,7 +409,8 @@ const Endpoint kStreamEndpoints[] = {
 	  "Nothing is started by this call: the tuner is taken only once a player "
 	  "actually opens the address.\n\n"
 	  "**Refusals:**\n"
-	  "- `400 no-authority`: the request named no host to build the address under.\n\n"
+	  "- `400 no-authority`: the request named no host to build the address under.\n"
+	  "- `404 no-such-channel`: no channel has that id.\n\n"
 	  "**Related:** `GET /api/v1/stream/playlist/{id}`, `GET /api/v1/stream/browser/{id}`.",
 	  HTTPD_PARAMS(kChannelParams), &kAddressSchema, &streamAddress, false,
 	  Answers200, HTTPD_REFUSALS(kStreamAddressRefusals) },
@@ -412,7 +438,12 @@ const Endpoint kStreamEndpoints[] = {
 	  "/api/v1/stream/{id}` for the raw address instead.\n"
 	  "- `503 too-many-conversions`: the box is already converting as many "
 	  "streams as it will, at most 2 at once; retry after the time named in the "
-	  "`Retry-After` header.\n\n"
+	  "`Retry-After` header.\n"
+	  "- `503 upstream-unreachable`: the converter ended or stayed silent for 15 "
+	  "seconds before it sent anything, so the channel could not be read; a HEAD "
+	  "asked afterwards says what is in the way now.\n"
+	  "- `500 no-supervision`: the box's program discards what its children exit "
+	  "with at the moment, so it cannot run a converter it could stop again.\n\n"
 	  "**Related:** `GET /api/v1/stream/{id}`.",
 	  HTTPD_PARAMS(kBrowserParams), NULL, &streamForBrowser, false,
 	  Answers200, HTTPD_REFUSALS(kStreamForBrowserRefusals) },

@@ -37,6 +37,7 @@
 #include "httpd/events.h"
 #include "httpd/http.h"
 #include "httpd/json.h"
+#include "httpd/livestream.h"
 #include "httpd/router.h"
 #include "httpd/schema.h"
 #include "httpd/server.h"
@@ -1619,8 +1620,9 @@ const TagDoc kTags[] = {
 	{ "plugins",
 	  "The plugins installed on this box and starting one of them." },
 	{ "stream",
-	  "Where a client fetches live television and radio: an address this box hands over so the "
-	  "picture travels from the source to the browser and not through here." },
+	  "Live television and radio off this box's tuners: the address and the playlists a player "
+	  "opens on the box's own streaming port, and a channel as a browser plays it, the picture "
+	  "copied and the sound converted where a browser cannot decode it." },
 	{ "webtv",
 	  "The channels this box plays from an address somewhere else rather than off an aerial, "
 	  "fetched here and handed on under this box's own name, so that a browser talks to one "
@@ -1772,7 +1774,7 @@ void statedRefusals(const Endpoint &ep, std::vector<StatedRefusal> &out)
 		      events::streamsFullDetail(), "seats");
 	// A carried answer meets a server that stops or restarts between the
 	// route's answer and the job that would carry it.
-	if (webtv::carriedRoute(ep))
+	if (webtv::carriedRoute(ep) || livestream::carriedRoute(ep))
 		state(out, StatusServiceUnavailable, coreapi::ErrorCode::ServerStopping,
 		      carry::stoppingDetail(), "stopping");
 }
