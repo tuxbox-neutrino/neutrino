@@ -30,7 +30,9 @@
 #include <gui/widget/stringinput.h>
 
 #include <driver/rcinput.h>
+#include <gui/widget/hintbox.h>
 #include <gui/widget/icons.h>
+#include <gui/widget/msgbox.h>
 #include <system/debug.h>
 
 #include <global.h>
@@ -172,20 +174,22 @@ int CPINChangeWidget::exec(CMenuTarget* parent, const std::string &)
 	if (parent)
 		parent->hide();
 
-	neutrino_locale_t first_hint = hint;
 	while (true)
 	{
 		std::string entered;
 		CCPinInputDialog enter(name, &entered, size);
-		enter.setHintText(localeText(first_hint));
+		enter.setHintText(localeText(hint));
 		/* Nothing below to hand them to: this is a menu of its own. */
 		enter.setLeaveOnUpDown(false);
 		int res = enter.exec(NULL, "");
 		if (!enter.wasSaved())
 			return res == menu_return::RETURN_EXIT_ALL ? res : menu_return::RETURN_REPAINT;
 
+		/* A title of its own: the last digit closes the first prompt at
+		   once, and a second prompt that looks the same reads as the
+		   first one starting over. */
 		std::string repeated;
-		CCPinInputDialog repeat(name, &repeated, size);
+		CCPinInputDialog repeat(LOCALE_PINPROTECTION_REPEAT_HEAD, &repeated, size);
 		repeat.setHintText(localeText(LOCALE_PINPROTECTION_REPEAT));
 		repeat.setLeaveOnUpDown(false);
 		res = repeat.exec(NULL, "");
@@ -200,10 +204,13 @@ int CPINChangeWidget::exec(CMenuTarget* parent, const std::string &)
 				if (observ)
 					observ->changeNotify(name, (void *) value->c_str());
 			}
+			ShowHint(LOCALE_MESSAGEBOX_INFO, LOCALE_PINPROTECTION_CHANGED);
 			return menu_return::RETURN_REPAINT;
 		}
 
-		first_hint = LOCALE_PINPROTECTION_MISMATCH;
+		ShowMsg(LOCALE_MESSAGEBOX_ERROR, LOCALE_PINPROTECTION_MISMATCH,
+			CMsgBox::mbrOk, CMsgBox::mbOk, NEUTRINO_ICON_ERROR,
+			MSGBOX_MIN_WIDTH, DEFAULT_TIMEOUT);
 	}
 }
 

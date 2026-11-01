@@ -114,8 +114,9 @@ class CPLPINInput : public CPINInput
 
 /* Sets a new PIN: asks for it twice, as stars both times, and stores it
    only when both entries match - a PIN typed blind once is a PIN nobody
-   knows. getValue() gives the menu row stars as well; a row that is to
-   show them must not get the PIN as its option text. */
+   knows. Says that the PIN is set, or that the entries differed before
+   asking again. getValue() gives the menu row stars as well; a row that
+   is to show them must not get the PIN as its option text. */
 class CPINChangeWidget : public CMenuTarget
 {
 	private:
