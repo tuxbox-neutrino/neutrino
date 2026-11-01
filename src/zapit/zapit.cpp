@@ -1213,6 +1213,7 @@ void CZapit::StreamFacts(streamadmission::Facts &f)
 	f.live_dvb = live_channel_id != 0 && !IS_WEBCHAN(live_channel_id);
 	f.live_tuned = live_fe != NULL && live_fe->tuned;
 	f.live_fe = live_fe ? live_fe->getNumber() : -1;
+	f.recording_starting = CFEManager::getInstance()->recordingStarting();
 #if ENABLE_PIP
 	int slots = g_info.hw_caps->pip_devs;
 	if (slots > streamadmission::kMaxSlots)

@@ -21,7 +21,10 @@
  *  - Idle: a frontend nobody uses, whose demux (its number + 1) no PiP
  *    reads.
  * Anything else is refused, and a refusal touches neither the picture, nor
- * a PiP, nor a recording.
+ * a PiP, nor a recording. While a recording starts, from before it looks for
+ * a frontend until its start has locked one, every stream is refused: the
+ * recording may have ended streams for that frontend, and a stream let in
+ * meanwhile could take it again.
  *
  * Without dynamic demux, PiP slot i reads demux i + 1 from frontend
  * pip_fe[i], and a stream on frontend f reads demux f + 1 with its source
@@ -69,6 +72,7 @@ struct Facts
 	int      slots;          // PiP slots this box has, at most kMaxSlots
 	Slot     slot[kMaxSlots];
 	bool     avinput_pip;
+	bool     recording_starting;
 
 	Facts();
 };

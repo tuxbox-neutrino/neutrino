@@ -6,9 +6,14 @@
 # frontend stands, so CutBackNeutrino must not decide either by comparing
 # it with the recorded channel's id.
 #
+# While a recording starts - from before it looks for its frontend until its
+# start has locked that frontend - no stream is admitted, so none can take
+# the frontend in between. Record counts itself as starting through a guard
+# that is set up before CutBackNeutrino and ended right after the start.
+#
 # The unit cases drive the decisions as plain functions; this holds the
-# recording's code to using them. CutBackNeutrino cannot be linked into the
-# test binary, so it is checked as text.
+# recording's code to using them. The recording manager cannot be linked
+# into the test binary, so it is checked as text.
 set -e
 LC_ALL=C
 export LC_ALL
@@ -53,6 +58,26 @@ grep -q -E 'if[ \t]*\([ \t]*live_channel_id[ \t]*!=[ \t]*channel_id[ \t]*\|\|[ \
 }
 grep -q -E 'found[ \t]*=[ \t]*!recordtuner::fullZap\(' "$tmp/cutback" || {
 	echo "$f: CutBackNeutrino decides the full zap without recordtuner::fullZap" >&2
+	fail=1
+}
+
+# 3. Record counts itself as starting around the frontend search and its start.
+awk -v keepstrings=0 -f "$HERE/strip-comments.awk" "$SRC/$f" | awk '
+	index($0, "bool CRecordManager::Record(const CTimerd::RecordingInfo") == 1 { inside = 1 }
+	inside { print }
+	inside && /^}/ { inside = 0 }
+' > "$tmp/record"
+[ -s "$tmp/record" ] || { echo "check-record-tuner.sh: no CRecordManager::Record in $f" >&2; exit 1; }
+g=`grep -n -E 'CRecordStartGuard[ \t]+starting;' "$tmp/record" | head -1 | cut -d: -f1`
+c=`grep -n -F 'CutBackNeutrino(' "$tmp/record" | head -1 | cut -d: -f1`
+r=`awk -v c="${c:-0}" 'NR > c && index($0, "inst->Record()") { print NR; exit }' "$tmp/record"`
+e=`grep -n -F 'starting.end()' "$tmp/record" | head -1 | cut -d: -f1`
+if [ -z "$g" ] || [ -z "$c" ] || [ -z "$r" ] || [ -z "$e" ] || [ "$g" -gt "$c" ] || [ "$e" -lt "$r" ]; then
+	echo "$f: Record has to count itself as starting before CutBackNeutrino and stop after the recording's start (guard ${g:-none}, search ${c:-none}, start ${r:-none}, end ${e:-none})" >&2
+	fail=1
+fi
+grep -q -F 'beginRecordingStart()' "$SRC/$f" && grep -q -F 'endRecordingStart()' "$SRC/$f" || {
+	echo "$f: the guard does not count with the frontend manager" >&2
 	fail=1
 }
 

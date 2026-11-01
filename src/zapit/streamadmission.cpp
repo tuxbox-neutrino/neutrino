@@ -23,7 +23,7 @@ namespace streamadmission
 
 Facts::Facts()
 	: variant(Plain), standby(false), live_dvb(false), live_tuned(false),
-	  live_channel(0), live_fe(-1), slots(0), avinput_pip(false)
+	  live_channel(0), live_fe(-1), slots(0), avinput_pip(false), recording_starting(false)
 {
 	for (int i = 0; i < kMaxSlots; ++i)
 	{
@@ -62,7 +62,7 @@ bool liveRuns(const Facts &f)
 
 Way decide(const Facts &f, uint64_t channel)
 {
-	if (f.variant == QuadPip)
+	if (f.variant == QuadPip || f.recording_starting)
 		return Refuse;
 
 	// The PiP shows it: a stream on its frontend could only share or retune.

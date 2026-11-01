@@ -267,6 +267,23 @@ TEST_CASE("a probe answers a refusal the way a hold would", "[zapit][streamholdc
 	REQUIRE(box.lock_depth == 0);
 }
 
+TEST_CASE("while a recording starts a hold and a probe are refused and bind nothing", "[zapit][streamholdcmd]")
+{
+	Box box;
+	box.f.recording_starting = true;
+	REQUIRE(run(box, kOther, 5000, false, true).verdict == Busy);
+	REQUIRE(run(box, kLive, 5000, false, true).verdict == Busy);
+	REQUIRE(run(box, kOther, 0, true, true).verdict == Busy);
+	REQUIRE(run(box, kLive, 0, true, true).verdict == Busy);
+	REQUIRE(box.binds == 0);
+	REQUIRE(box.live_holds == 0);
+	REQUIRE(box.uses() == 0);
+	REQUIRE(box.tunes == 0);
+	REQUIRE(box.offers == 0);
+	REQUIRE(box.sent.hold_id == 0);
+	REQUIRE(box.lock_depth == 0);
+}
+
 TEST_CASE("frontends the PiP and other streams hold are passed over", "[zapit][streamholdcmd]")
 {
 	Box box;

@@ -150,6 +150,22 @@ TEST_CASE("a refused live channel is not offered an idle frontend instead", "[za
 	REQUIRE(decide(f, kOther) == Idle);
 }
 
+TEST_CASE("A1: while a recording starts no stream is admitted, live or idle", "[zapit][admission]")
+{
+	Facts f = liveOn(0);
+	REQUIRE(decide(f, kLive) == Live);
+	REQUIRE(decide(f, kOther) == Idle);
+
+	f.recording_starting = true;
+	REQUIRE(decide(f, kLive) == Refuse);
+	REQUIRE(decide(f, kOther) == Refuse);
+
+	// In standby, where every stream would be an idle one.
+	f.standby = true;
+	REQUIRE(decide(f, kLive) == Refuse);
+	REQUIRE(decide(f, kOther) == Refuse);
+}
+
 TEST_CASE("a build whose GUI starts PiPs itself refuses every stream", "[zapit][admission]")
 {
 	Facts f = liveOn(0);

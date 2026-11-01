@@ -110,6 +110,7 @@ class CFEManager
 		std::vector<CFeDmx>	dmap;
 
 		CFrontend *		livefe;
+		int			recording_starts;
 
 		uint32_t	getConfigValue(CFrontend * fe, const char * name, uint32_t defval);
 		void		setConfigValue(CFrontend * fe, const char * name, uint32_t val);
@@ -196,6 +197,13 @@ class CFEManager
 		bool		configExist() { return config_exist; };
 		bool		loadSettings();
 		void		saveSettings(bool write = true);
+
+		/* A recording counts here from before it looks for its frontend
+		   until its start has locked that frontend; no stream is admitted
+		   meanwhile, so none can take the frontend in between. */
+		void		beginRecordingStart();
+		void		endRecordingStart();
+		bool		recordingStarting();
 
 		bool		lockFrontend(CFrontend * fe, CZapitChannel * channel = NULL);
 		bool		unlockFrontend(CFrontend * fe, bool unlock_demux = false);

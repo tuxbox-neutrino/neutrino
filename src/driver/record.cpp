@@ -1286,6 +1286,27 @@ bool CRecordManager::Record(const t_channel_id channel_id, const char * dir, boo
 	return Record(&eventinfo, dir, timeshift, silent);
 }
 
+/* A recording from before it looks for its frontend until its start has
+   locked that frontend (CRecordInstance::Start). Streams are refused
+   meanwhile: the recording may have ended streams to get the frontend, and
+   one admitted in between could take it again. */
+class CRecordStartGuard
+{
+	public:
+		CRecordStartGuard() : counted(true) { CFEManager::getInstance()->beginRecordingStart(); }
+		~CRecordStartGuard() { end(); }
+		void end()
+		{
+			if (counted)
+				CFEManager::getInstance()->endRecordingStart();
+			counted = false;
+		}
+	private:
+		CRecordStartGuard(const CRecordStartGuard &);
+		CRecordStartGuard &operator=(const CRecordStartGuard &);
+		bool counted;
+};
+
 bool CRecordManager::Record(const CTimerd::RecordingInfo * const eventinfo, const char * dir, bool timeshift, bool silent)
 {
 	CRecordInstance * inst = NULL;
@@ -1339,12 +1360,14 @@ bool CRecordManager::Record(const CTimerd::RecordingInfo * const eventinfo, cons
 		}
 	} else if(recmap.size() < RECORD_MAX_COUNT) {
 		CFrontend * frontend = NULL;
+		CRecordStartGuard starting;
 		if(CutBackNeutrino(eventinfo->channel_id, frontend)) {
 
 			inst = new CRecordInstance(eventinfo, newdir, timeshift, StreamVTxtPid, StreamPmtPid, StreamSubtitlePids);
 
 			inst->frontend = frontend;
 			error_msg = inst->Record();
+			starting.end();
 			if(error_msg == RECORD_OK) {
 				recmap.insert(recmap_pair_t(inst->GetRecordingId(), inst));
 				started = true;
