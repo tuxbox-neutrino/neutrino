@@ -23,8 +23,10 @@
 #include <vector>
 
 #include <fcntl.h>
+#include <poll.h>
 #include <pthread.h>
 #include <sched.h>
+#include <sys/socket.h>
 #include <time.h>
 #include <unistd.h>
 
@@ -123,7 +125,10 @@ struct Server : public Ops
 	std::map<uint32_t, int> drops; // hold -> how often dropped
 
 	Target target;
-	bool read_ok;
+	Read read;
+	bool ok_written;
+	std::vector<int> refusals;   // the statuses refused with, in order
+	std::map<uint32_t, int> drops_at_refusal;
 	bool recorded;
 	uint32_t hold_answer;
 	bool adopt_ok;
@@ -139,7 +144,7 @@ struct Server : public Ops
 	std::atomic<int> phase;
 
 	Server()
-		: running(true), gate(mutex, running), read_ok(true), recorded(false),
+		: running(true), gate(mutex, running), read(ReadOk), ok_written(true), recorded(false),
 		  hold_answer(41), adopt_ok(true), pids_ok(true), start_ok(true), fe(1),
 		  busy_at_hold(false), busy_at_pids(false), busy_at_start(false), phase(0)
 	{
@@ -192,11 +197,17 @@ struct Server : public Ops
 		delete s;
 	}
 
-	bool readTarget(int, Target &t)
+	Read readTarget(int, Target &t)
 	{
 		phase++;
 		t = target;
-		return read_ok;
+		return read;
+	}
+	bool writeOk(int) { return ok_written; }
+	void refuse(int, int status, const char *)
+	{
+		refusals.push_back(status);
+		drops_at_refusal = drops;
 	}
 	bool runningLocked(uint64_t channel)
 	{
@@ -306,55 +317,83 @@ void checkOneWayOut(Server &server, int fd, uint32_t hold)
 
 TEST_CASE("a refused setup leaves the client to the accept loop and its hold dropped", "[driver][streamsetup]")
 {
-	SECTION("the request cannot be read")
+	SECTION("the request is garbage or did not come in time: no answer")
 	{
 		Server s;
-		s.read_ok = false;
+		s.read = Ops::ReadGarbage;
 		const int fd = newFd();
 		REQUIRE(s.accept(fd).result == Refused);
+		REQUIRE(s.refusals.empty());
 		checkOneWayOut(s, fd, 0);
 		REQUIRE(s.drops.empty());
 	}
-	SECTION("it names no channel")
+	SECTION("it names a channel the box does not have: 404, and live is not tried")
 	{
 		Server s;
-		s.target.kind = Unknown;
+		s.read = Ops::ReadUnknown;
 		const int fd = newFd();
 		REQUIRE(s.accept(fd).result == Refused);
+		REQUIRE(s.refusals == std::vector<int>(1, 404));
+		checkOneWayOut(s, fd, 0);
+		REQUIRE(s.drops.empty());
+	}
+	SECTION("it names none and no channel is shown: 404")
+	{
+		Server s;
+		s.read = Ops::ReadNoLive;
+		const int fd = newFd();
+		REQUIRE(s.accept(fd).result == Refused);
+		REQUIRE(s.refusals == std::vector<int>(1, 404));
 		checkOneWayOut(s, fd, 0);
 	}
-	SECTION("the channel is being recorded")
+	SECTION("the channel is being recorded: 503 without asking zapit")
 	{
 		Server s;
 		s.recorded = true;
 		const int fd = newFd();
 		REQUIRE(s.accept(fd).result == Refused);
+		REQUIRE(s.refusals == std::vector<int>(1, 503));
 		checkOneWayOut(s, fd, 0);
 		REQUIRE(s.drops.empty());
 	}
-	SECTION("zapit holds no frontend for it")
+	SECTION("zapit holds no frontend for it: 503")
 	{
 		Server s;
 		s.hold_answer = 0;
 		const int fd = newFd();
 		REQUIRE(s.accept(fd).result == Refused);
+		REQUIRE(s.refusals == std::vector<int>(1, 503));
 		checkOneWayOut(s, fd, 0);
 		REQUIRE(s.drops.empty());
 	}
-	SECTION("the hold cannot be adopted")
+	SECTION("the hold cannot be adopted: dropped before the 503 goes out")
 	{
 		Server s;
 		s.adopt_ok = false;
 		const int fd = newFd();
 		REQUIRE(s.accept(fd).result == Refused);
+		REQUIRE(s.refusals == std::vector<int>(1, 503));
+		REQUIRE(s.drops_at_refusal[41] == 1);
 		checkOneWayOut(s, fd, 41);
 	}
-	SECTION("there is nothing to stream")
+	SECTION("there is nothing to stream: 503")
 	{
 		Server s;
 		s.pids_ok = false;
 		const int fd = newFd();
 		REQUIRE(s.accept(fd).result == Refused);
+		REQUIRE(s.refusals == std::vector<int>(1, 503));
+		REQUIRE(s.drops_at_refusal[41] == 1);
+		checkOneWayOut(s, fd, 41);
+	}
+	SECTION("the 200 does not go out: nothing is published")
+	{
+		Server s;
+		s.ok_written = false;
+		const int fd = newFd();
+		REQUIRE(s.accept(fd).result == Refused);
+		REQUIRE(s.refusals.empty());
+		REQUIRE(s.streams.empty());
 		checkOneWayOut(s, fd, 41);
 	}
 	SECTION("the server stopped before the setup came in")
@@ -399,6 +438,14 @@ TEST_CASE("a client of a running stream joins it and is not published again", "[
 	const int first = newFd();
 	REQUIRE(s.accept(first).published);
 
+	// A client whose 200 does not go out is not joined.
+	s.ok_written = false;
+	const int lost = newFd();
+	REQUIRE(s.accept(lost).result == Refused);
+	REQUIRE(s.closes[lost] == 1);
+	s.ok_written = true;
+	s.closes.erase(lost);   // its number is free for the next client
+
 	s.hold_answer = 77;
 	const int second = newFd();
 	const Outcome o = s.accept(second);
@@ -440,10 +487,20 @@ TEST_CASE("a web channel needs no hold", "[driver][streamsetup]")
 		Server s;
 		s.target.channel = kWebTv;
 		s.target.kind = Web;
-		s.at_start.armed = false;
 		const int fd = newFd();
 		s.running = false;
 		REQUIRE(s.accept(fd).result == Refused);
+		checkOneWayOut(s, fd, 0);
+	}
+	SECTION("its 200 does not go out")
+	{
+		Server s;
+		s.target.channel = kWebTv;
+		s.target.kind = Web;
+		s.ok_written = false;
+		const int fd = newFd();
+		REQUIRE(s.accept(fd).result == Refused);
+		REQUIRE(s.streams.empty());
 		checkOneWayOut(s, fd, 0);
 	}
 }
@@ -605,4 +662,281 @@ TEST_CASE("P3: the count is never seen at zero between the setup and its stream"
 	pthread_join(t, 0);
 	REQUIRE(seen_idle.load() == 0);
 	REQUIRE(looked.load() > 0);
+}
+
+/* The request and the answer on the raw port, over socket pairs: what a
+   player sends, what it gets back, and how long either side waits. */
+
+namespace
+{
+
+struct Pair
+{
+	int box;      // the end the stream server holds
+	int client;   // the player's end
+
+	Pair()
+	{
+		int sv[2];
+		REQUIRE(socketpair(AF_UNIX, SOCK_STREAM, 0, sv) == 0);
+		box = sv[0];
+		client = sv[1];
+	}
+	~Pair()
+	{
+		if (box >= 0)
+			close(box);
+		if (client >= 0)
+			close(client);
+	}
+	void say(const std::string &s)
+	{
+		REQUIRE(send(client, s.data(), s.size(), MSG_NOSIGNAL) == (ssize_t) s.size());
+	}
+	std::string heard()
+	{
+		std::string all;
+		char buf[512];
+		for (;;)
+		{
+			struct pollfd p;
+			p.fd = client;
+			p.events = POLLIN;
+			p.revents = 0;
+			if (poll(&p, 1, 2000) <= 0)
+				break;
+			const ssize_t n = recv(client, buf, sizeof(buf), 0);
+			if (n <= 0)
+				break;
+			all.append(buf, (size_t) n);
+		}
+		return all;
+	}
+};
+
+int64_t msNow()
+{
+	struct timespec ts;
+	clock_gettime(CLOCK_MONOTONIC, &ts);
+	return (int64_t) ts.tv_sec * 1000 + ts.tv_nsec / 1000000;
+}
+
+// Sends one byte at a time with a pause between them, from a thread of its own.
+struct Trickle
+{
+	int fd;
+	std::string text;
+	unsigned gap_ms;
+	pthread_t thread;
+
+	Trickle(int f, const std::string &t, unsigned gap) : fd(f), text(t), gap_ms(gap)
+	{
+		REQUIRE(pthread_create(&thread, 0, &go, this) == 0);
+	}
+	~Trickle() { pthread_join(thread, 0); }
+	static void *go(void *arg)
+	{
+		Trickle *t = static_cast<Trickle *>(arg);
+		for (size_t i = 0; i < t->text.size(); ++i)
+		{
+			if (send(t->fd, &t->text[i], 1, MSG_NOSIGNAL) != 1)
+				break;
+			usleep(t->gap_ms * 1000);
+		}
+		return 0;
+	}
+};
+
+} // namespace
+
+TEST_CASE("a client that sends the request line alone is answered at once", "[driver][streamsetup][request]")
+{
+	Pair p;
+	p.say("GET /id=1001 HTTP/1.1\r\n");
+	std::string line;
+	const int64_t start = msNow();
+	REQUIRE(readRequest(p.box, 2000, line));
+	REQUIRE(msNow() - start < 1000);
+	REQUIRE(line == "GET /id=1001 HTTP/1.1\r\n");
+}
+
+TEST_CASE("the header behind the request line is taken and let go, up to 8 KiB", "[driver][streamsetup][request]")
+{
+	Pair p;
+	std::string request = "GET /id=1001 HTTP/1.1\r\nHost: box\r\nUser-Agent: player\r\n";
+	request += std::string(6000, 'x') + "\r\n\r\n";
+	p.say(request);
+	std::string line;
+	REQUIRE(readRequest(p.box, 2000, line));
+	REQUIRE(line == "GET /id=1001 HTTP/1.1\r\n");
+	// Nothing of it is left to be read.
+	char c;
+	REQUIRE(recv(p.box, &c, 1, MSG_DONTWAIT) == -1);
+}
+
+TEST_CASE("more than 8 KiB behind the line is left, and does not hold the reader up", "[driver][streamsetup][request]")
+{
+	Pair p;
+	p.say("GET / HTTP/1.1\r\n" + std::string(9000, 'h'));
+	std::string line;
+	const int64_t start = msNow();
+	REQUIRE(readRequest(p.box, 2000, line));
+	REQUIRE(msNow() - start < 1000);
+	char buf[2048];
+	REQUIRE(recv(p.box, buf, sizeof(buf), MSG_DONTWAIT) == 9000 - 8192);
+}
+
+TEST_CASE("a request line that trickles in within the time is read whole", "[driver][streamsetup][request]")
+{
+	Pair p;
+	std::string line;
+	{
+		Trickle t(p.client, "GET /id=2a\r\n", 40);
+		REQUIRE(readRequest(p.box, 2000, line));
+	}
+	REQUIRE(line == "GET /id=2a\r\n");
+}
+
+TEST_CASE("a client that sends nothing is given up when the time is over", "[driver][streamsetup][request]")
+{
+	Pair p;
+	std::string line;
+	const int64_t start = msNow();
+	REQUIRE_FALSE(readRequest(p.box, 300, line));
+	const int64_t took = msNow() - start;
+	REQUIRE(took >= 280);
+	REQUIRE(took < 1000);
+}
+
+TEST_CASE("a request line still incomplete when the time is over is given up", "[driver][streamsetup][request]")
+{
+	Pair p;
+	std::string line;
+	Trickle t(p.client, "GET /id=1001 HTTP/1.1\r\n", 60);
+	REQUIRE_FALSE(readRequest(p.box, 300, line));
+}
+
+TEST_CASE("a client that closes before the line end leaves what it sent", "[driver][streamsetup][request]")
+{
+	Pair p;
+	p.say("GET /id=1001");
+	shutdown(p.client, SHUT_WR);
+	std::string line;
+	REQUIRE(readRequest(p.box, 2000, line));
+	REQUIRE(line == "GET /id=1001");
+
+	Pair q;
+	shutdown(q.client, SHUT_WR);
+	REQUIRE_FALSE(readRequest(q.box, 2000, line));
+}
+
+TEST_CASE("a request line ends at 511 bytes", "[driver][streamsetup][request]")
+{
+	Pair p;
+	p.say("GET /" + std::string(600, 'a') + "\r\n");
+	std::string line;
+	REQUIRE(readRequest(p.box, 2000, line));
+	REQUIRE(line.size() == 511);
+}
+
+TEST_CASE("the two forms of a request name a channel", "[driver][streamsetup][request]")
+{
+	Request r = parseRequestLine("GET /id=b544000800850088 HTTP/1.1\r\n");
+	REQUIRE(r.form == ById);
+	REQUIRE(r.id == 0xb544000800850088ULL);
+
+	r = parseRequestLine("GET /?id=1001&x=1 HTTP/1.0\r\n");
+	REQUIRE(r.form == ById);
+	REQUIRE(r.id == 0x1001);
+
+	r = parseRequestLine("GET /1:0:19:2B66:3F3:1:C00000:0:0:0: HTTP/1.1\r\n");
+	REQUIRE(r.form == E2);
+	REQUIRE(r.id == ((0x3F3ULL << 32) | (0x1ULL << 16) | 0x2B66ULL));
+	REQUIRE(r.satpos == 0xC0);
+}
+
+TEST_CASE("a request without a target asks for the live channel", "[driver][streamsetup][request]")
+{
+	REQUIRE(parseRequestLine("GET / HTTP/1.1\r\n").form == NoTarget);
+	REQUIRE(parseRequestLine("GET /?foo=bar HTTP/1.1\r\n").form == NoTarget);
+	REQUIRE(parseRequestLine("GET /").form == NoTarget);
+}
+
+TEST_CASE("an id that is not one, and a path that names nothing, are not found", "[driver][streamsetup][request]")
+{
+	REQUIRE(parseRequestLine("GET /id= HTTP/1.1\r\n").form == BadTarget);
+	REQUIRE(parseRequestLine("GET /id=xyz HTTP/1.1\r\n").form == BadTarget);
+	REQUIRE(parseRequestLine("GET /id=1001x HTTP/1.1\r\n").form == BadTarget);
+	REQUIRE(parseRequestLine("GET /id=11112222333344445 HTTP/1.1\r\n").form == BadTarget);
+	REQUIRE(parseRequestLine("GET /favicon.ico HTTP/1.1\r\n").form == BadTarget);
+	REQUIRE(parseRequestLine("GET /1:0:19 HTTP/1.1\r\n").form == BadTarget);
+}
+
+TEST_CASE("anything but a GET of a path is garbage", "[driver][streamsetup][request]")
+{
+	REQUIRE(parseRequestLine("").form == Garbage);
+	REQUIRE(parseRequestLine("POST /id=1001 HTTP/1.1\r\n").form == Garbage);
+	REQUIRE(parseRequestLine("GET id=1001\r\n").form == Garbage);
+	REQUIRE(parseRequestLine("\x16\x03\x01\x02").form == Garbage);
+}
+
+TEST_CASE("the status heads are these bytes", "[driver][streamsetup][request]")
+{
+	REQUIRE(statusBytes(200, 0) == "HTTP/1.1 200 OK\r\nServer: streamts (ts)\r\n\r\n");
+	REQUIRE(statusBytes(404, "no such channel") ==
+		"HTTP/1.1 404 Not Found\r\n"
+		"Server: streamts (ts)\r\n"
+		"Content-Type: text/plain\r\n"
+		"Content-Length: 16\r\n"
+		"Connection: close\r\n"
+		"\r\n"
+		"no such channel\n");
+	REQUIRE(statusBytes(503, "no tuner is free for this channel") ==
+		"HTTP/1.1 503 Service Unavailable\r\n"
+		"Server: streamts (ts)\r\n"
+		"Content-Type: text/plain\r\n"
+		"Content-Length: 34\r\n"
+		"Retry-After: 30\r\n"
+		"Connection: close\r\n"
+		"\r\n"
+		"no tuner is free for this channel\n");
+}
+
+TEST_CASE("a refusal reaches the client whole and then the end of the stream", "[driver][streamsetup][request]")
+{
+	Pair p;
+	p.say("GET /id=1001 HTTP/1.1\r\n");
+	refuse(p.box, 503, "no tuner is free for this channel");
+	// The end comes with the refusal, not with the close that follows later.
+	const int64_t start = msNow();
+	REQUIRE(p.heard() == statusBytes(503, "no tuner is free for this channel"));
+	REQUIRE(msNow() - start < 500);
+}
+
+TEST_CASE("a refusal reads what the client still sends for half a second at most", "[driver][streamsetup][request]")
+{
+	Pair p;
+	Trickle t(p.client, std::string(200, 'z'), 10);   // two seconds of bytes
+	const int64_t start = msNow();
+	refuse(p.box, 404, "no such channel");
+	const int64_t took = msNow() - start;
+	REQUIRE(took >= 400);
+	REQUIRE(took < 1200);
+}
+
+TEST_CASE("a 200 goes out whole", "[driver][streamsetup][request]")
+{
+	Pair p;
+	REQUIRE(writeOk(p.box));
+	close(p.box);
+	p.box = -1;
+	REQUIRE(p.heard() == statusBytes(200, 0));
+}
+
+TEST_CASE("a 200 to a client that is gone fails without a signal", "[driver][streamsetup][request]")
+{
+	Pair p;
+	close(p.client);
+	p.client = -1;
+	REQUIRE_FALSE(writeOk(p.box));
 }

@@ -142,7 +142,7 @@ class CStreamManager : public OpenThreads::Thread
 
 		class SetupOps;
 		bool	Listen();
-		bool	Parse(int fd, streamsetup::Target &target);
+		streamsetup::Ops::Read Parse(int fd, streamsetup::Target &target);
 		void	PreparePids(CZapitChannel * channel, stream_pids_t &pids, bool is_e2);
 		void	CheckStandby(bool enter);
 		bool	StopAll();

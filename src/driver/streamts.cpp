@@ -351,97 +351,57 @@ bool CStreamManager::SetPort(int newport)
 	return ret;
 }
 
-bool CStreamManager::Parse(int fd, streamsetup::Target &target)
+/* The request line names the channel: by id, in the service reference form,
+   or not at all, which means the channel the box shows. A channel the box
+   does not have is not found; it never falls back to the live channel. */
+streamsetup::Ops::Read CStreamManager::Parse(int fd, streamsetup::Target &target)
 {
-	char cbuf[512];
-	char *bp;
+	std::string line;
+	if (!streamsetup::readRequest(fd, 2000, line)) {
+		printf("CStreamManager::Parse: no request line in time\n");
+		return streamsetup::Ops::ReadGarbage;
+	}
+	printf("CStreamManager::Parse: got %d bytes '%s'", (int) line.size(), line.c_str());
+
+	const streamsetup::Request request = streamsetup::parseRequestLine(line);
+	CZapitChannel * channel = NULL;
 	bool is_e2 = false;
 
-	cbuf[0] = 0;
-	bp = &cbuf[0];
-
-	/* read one line */
-	while (bp - &cbuf[0] < (int) sizeof(cbuf) - 1) {
-		unsigned char c;
-		int res = read(fd, &c, 1);
-		if (res == 0)
-			break;
-		if (res < 0) {
-			perror("read");
-			return false;
-		}
-		if ((*bp++ = c) == '\n')
-			break;
-	}
-	*bp = 0;
-
-	printf("CStreamManager::Parse: got %d bytes '%s'", (int)(bp-&cbuf[0]), cbuf);
-	bp = &cbuf[0];
-
-	/* send response to http client */
-	if (!strncmp(cbuf, "GET /", 5)) {
-		static const char response[] = "HTTP/1.1 200 OK\r\nServer: streamts (ts)\r\n\r\n";
-		if (write(fd, response, sizeof(response) - 1) < 0) {
-			perror("CStreamManager::Parse: write response");
-			return false;
-		}
-		bp += 5;
-	} else {
+	switch (request.form) {
+	case streamsetup::Garbage:
 		printf("Received garbage\n");
-		return false;
-	}
-
-	CZapitChannel * channel = NULL;
-	t_channel_id chid = 0;
-
-	if (CNeutrinoApp::getInstance()->getMode() != NeutrinoModes::mode_standby) {
-		chid = CZapit::getInstance()->GetCurrentChannelID();
+		return streamsetup::Ops::ReadGarbage;
+	case streamsetup::BadTarget:
+		return streamsetup::Ops::ReadUnknown;
+	case streamsetup::NoTarget:
+		if (CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_standby)
+			return streamsetup::Ops::ReadNoLive;
 		channel = CZapit::getInstance()->GetCurrentChannel();
+		if (channel == NULL)
+			return streamsetup::Ops::ReadNoLive;
+		break;
+	case streamsetup::ById:
+		channel = CServiceManager::getInstance()->FindChannel(request.id);
+		if (channel == NULL)
+			return streamsetup::Ops::ReadUnknown;
+		printf("CStreamManager::Parse:N: channel_id %" PRIx64 " [%s] \n", channel->getChannelID(), channel->getName().c_str());
+		break;
+	case streamsetup::E2:
+		channel = CServiceManager::getInstance()->FindChannel48Pos(request.id, request.satpos);
+		if (channel == NULL)
+			channel = CServiceManager::getInstance()->FindChannel48(request.id);
+		if (channel == NULL)
+			return streamsetup::Ops::ReadUnknown;
+		printf("CStreamManager::Parse:E: channel_id %" PRIx64 " [%s] \n", channel->getChannelID(), channel->getName().c_str());
+		is_e2 = true;
+		break;
 	}
 
-	t_channel_id tmpid = 0;
-	CZapitChannel *tmp_channel = NULL;
-	bp = &cbuf[5];
-
-	if (strstr(bp,"id="))
-	{
-		if (sscanf(bp, "id=%" SCNx64, &tmpid) == 1) {
-			tmp_channel = CServiceManager::getInstance()->FindChannel(tmpid);
-			if (tmp_channel)
-			{
-				printf("CStreamManager::Parse:N: channel_id %" PRIx64 " [%s] \n", tmp_channel->getChannelID(), tmp_channel->getName().c_str());
-				channel = tmp_channel;
-				chid = tmp_channel->getChannelID();
-			}
-		}
-	}
-	else
-	{
-		u_int service;
-		u_int i1, i2, i3, i4, satpos;
-
-		if (sscanf(bp, "%X:0:%X:%X:%X:%X:%X:0:0:0:", &service, &i1, &i2, &i3, &i4, &satpos) == 6)
-		{
-			tmpid = (((t_channel_id)i3) << 32) | (((t_channel_id)i4) << 16) | (t_channel_id)i2;
-			tmp_channel = CServiceManager::getInstance()->FindChannel48Pos(tmpid, satpos >> 16);
-			if (tmp_channel == NULL)
-				tmp_channel = CServiceManager::getInstance()->FindChannel48(tmpid);
-			if (tmp_channel)
-			{
-				printf("CStreamManager::Parse:E: channel_id %" PRIx64 " [%s] \n", tmp_channel->getChannelID(), tmp_channel->getName().c_str());
-				channel = tmp_channel;
-				chid = tmp_channel->getChannelID();
-				is_e2 = true;
-			}
-		}
-	}
-	if (!channel)
-		return false;
-
+	const t_channel_id chid = channel->getChannelID();
 	target.channel = chid;
 	target.kind = IS_WEBCHAN(chid) ? streamsetup::Web : streamsetup::Broadcast;
 	target.e2 = is_e2;
-	return true;
+	return streamsetup::Ops::ReadOk;
 }
 
 void CStreamManager::PreparePids(CZapitChannel *channel, stream_pids_t &pids, bool is_e2)
@@ -508,7 +468,13 @@ class CStreamManager::SetupOps : public streamsetup::Ops
 	public:
 		explicit SetupOps(CStreamManager &m) : sm(m) {}
 
-		bool readTarget(int fd, streamsetup::Target &t) { return sm.Parse(fd, t); }
+		Read readTarget(int fd, streamsetup::Target &t) { return sm.Parse(fd, t); }
+		bool writeOk(int fd) { return streamsetup::writeOk(fd); }
+		void refuse(int fd, int status, const char *reason)
+		{
+			printf("CStreamManager::AddClient: %d %s, fd %d\n", status, reason, fd);
+			streamsetup::refuse(fd, status, reason);
+		}
 
 		bool runningLocked(uint64_t channel)
 		{

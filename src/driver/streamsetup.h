@@ -20,6 +20,11 @@
  * (zapit/streamhold.h) or nothing; the picture, a PiP and a recording are
  * never changed for it.
  *
+ * A client is answered with its status before any picture byte: 200 when
+ * the stream is about to start, 404 for a channel the box does not have, 503
+ * when no frontend may be had for it. A request that is not one - not a GET
+ * of a path, or not complete in time - is closed without an answer.
+ *
  * Who owns what, on every way out:
  *  - Refused: the descriptor is still the caller's, which closes it; a hold
  *    taken on the way is dropped here.
@@ -40,6 +45,7 @@
 
 #include <atomic>
 #include <stdint.h>
+#include <string>
 
 #include <OpenThreads/Mutex>
 
@@ -77,6 +83,50 @@ enum Kind
 	Broadcast
 };
 
+/* Reading the request.
+
+   The request line, at most 511 bytes up to and including its line end, all
+   of it within budget_ms. A peer that closes before the line end leaves what
+   came. Then whatever else is already there - the header a player sends - is
+   taken without waiting, at most 8 KiB, and let go; a client that sends the
+   line alone is not waited for. False when nothing came, or the time ran out
+   before the line end. */
+bool readRequest(int fd, unsigned budget_ms, std::string &line);
+
+enum Form
+{
+	Garbage,    // not a GET of a path: closed without an answer
+	NoTarget,   // "/" or "/?...": the channel the box shows
+	ById,       // ".../id=<hex>..."
+	E2,         // the service reference form another kind of receiver uses
+	BadTarget   // a path that names no channel: 404
+};
+
+struct Request
+{
+	Form     form;
+	uint64_t id;       // ById: the channel; E2: the 48 bits of it the form carries
+	uint32_t satpos;   // E2: the position the form carries
+
+	Request() : form(Garbage), id(0), satpos(0) {}
+};
+
+Request parseRequestLine(const std::string &line);
+
+/* Answering it. */
+
+// The whole head, and for a refusal its one-line reason, as it goes out.
+std::string statusBytes(int status, const char *reason);
+
+/* Writes the head of a stream about to start, within 2 seconds. False when
+   it did not go out whole; the client then gets nothing more. */
+bool writeOk(int fd);
+
+/* Writes a refusal within 2 seconds, says nothing more, and reads what the
+   client still sends for at most half a second, so the refusal is not lost
+   to a reset. The caller closes fd. */
+void refuse(int fd, int status, const char *reason);
+
 struct Target
 {
 	uint64_t channel;
@@ -94,8 +144,17 @@ class Ops
 public:
 	virtual ~Ops() {}
 
+	enum Read
+	{
+		ReadOk,
+		ReadGarbage,   // no answer
+		ReadUnknown,   // 404 no such channel
+		ReadNoLive     // 404 no live channel: none asked for, and none shown
+	};
 	// Reads the request and names the channel it asks for.
-	virtual bool readTarget(int fd, Target &t) = 0;
+	virtual Read readTarget(int fd, Target &t) = 0;
+	virtual bool writeOk(int fd) = 0;
+	virtual void refuse(int fd, int status, const char *reason) = 0;
 	// Under the mutex: whether a stream of the channel runs, and handing fd
 	// to it.
 	virtual bool runningLocked(uint64_t channel) = 0;
