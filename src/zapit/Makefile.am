@@ -39,6 +39,7 @@ libzapit_a_SOURCES = \
 	streamholdcmd.cpp \
 	streamyield.cpp \
 	transponder.cpp \
+	waitslice.cpp \
 	zapit.cpp
 
 if ENABLE_FASTSCAN

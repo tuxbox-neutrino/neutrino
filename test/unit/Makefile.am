@@ -69,6 +69,7 @@ coreapi_tests_SOURCES = \
 	zapit/test_streamholdcmd.cpp \
 	zapit/test_zapitclient_streamhold.cpp \
 	zapit/test_streamyield.cpp \
+	zapit/test_waitslice.cpp \
 	system/test_atomicfile.cpp \
 	system/test_atomicfile_link.cpp \
 	system/test_getpidof.cpp \
@@ -175,7 +176,8 @@ coreapi_tests_SOURCES = \
 # linked so the cases drive the object the program runs; streamadmission.o,
 # the rule a stream is admitted by, and streamholdcmd.o, the order zapit holds
 # a frontend for a stream in, and streamyield.o, the order zapit takes stream
-# holds back for a recording in, likewise. The register of stream holds is
+# holds back for a recording in, and waitslice.o, the slices zapit waits in,
+# likewise. The register of stream holds is
 # not linked: test_streamhold.cpp compiles its source with the test points the
 # program's build leaves out.
 # The zapit client archive is what getPIDS lives in, so the case that pins what it
@@ -197,6 +199,7 @@ coreapi_tests_LDADD = \
 	$(top_builddir)/src/zapit/streamadmission.o \
 	$(top_builddir)/src/zapit/streamholdcmd.o \
 	$(top_builddir)/src/zapit/streamyield.o \
+	$(top_builddir)/src/zapit/waitslice.o \
 	$(top_builddir)/src/zapit/client/libzapitclient.a \
 	$(top_builddir)/src/driver/rcinput.o \
 	$(top_builddir)/src/driver/abstime.o \
@@ -294,6 +297,7 @@ EXTRA_DIST = interop/peer/README support/catch.hpp support/run-tests.sh support/
 	scan/check-stream-keeps-picture.sh \
 	scan/check-record-tuner.sh \
 	scan/check-epgscan-resume.sh \
+	scan/check-zapit-stop.sh \
 	scan/check-standby-flag.sh \
 	scan/strip-comments.awk scan/blank-if0.awk scan/bounds.awk scan/pairs.awk scan/fields.awk \
 	scan/keyvals.awk scan/choices.awk scan/enums.awk scan/labels.awk scan/branches.awk \
@@ -456,5 +460,6 @@ check-local: check-TESTS
 	@$(SHELL) $(srcdir)/scan/check-stream-keeps-picture.sh $(top_srcdir)
 	@$(SHELL) $(srcdir)/scan/check-record-tuner.sh $(top_srcdir)
 	@$(SHELL) $(srcdir)/scan/check-epgscan-resume.sh $(top_srcdir)
+	@$(SHELL) $(srcdir)/scan/check-zapit-stop.sh $(top_srcdir)
 	@$(SHELL) $(srcdir)/scan/check-standby-flag.sh $(top_srcdir)
 	@$(MAKE) $(AM_MAKEFLAGS) check-api-types

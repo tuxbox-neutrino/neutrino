@@ -110,7 +110,9 @@ Reply run(Ops &ops, uint64_t channel, int64_t deadline_ms, bool probe, bool lock
 	if (!fe)
 		return send(ops, refusal(Busy));
 
-	if (way == streamadmission::Idle && (!ops.tune(fe) || late(ops, deadline_ms)))
+	/* zapit may have begun to stop while the frontend tuned: no hold for a
+	   stream nobody will serve. */
+	if (way == streamadmission::Idle && (!ops.tune(fe) || late(ops, deadline_ms) || !ops.serving()))
 	{
 		if (lock)
 			ops.unlockFrontend(fe);

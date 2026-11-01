@@ -181,6 +181,8 @@ class CZapit : public OpenThreads::Thread
 		   or not: nothing is shown, and a stream's admission keeps no
 		   frontend for the picture. */
 		std::atomic<bool> box_standby;
+		// The program stops: see RequestStop.
+		std::atomic<bool> stopping;
 		int pmt_update_fd;
 #if ENABLE_AITSCAN
 		CAit *ait;
@@ -194,7 +196,8 @@ class CZapit : public OpenThreads::Thread
 		//void ConfigFrontend();
 
 		bool TuneChannel(CFrontend *frontend, CZapitChannel * channel, bool &transponder_change, bool send_event = true);
-		bool ParsePatPmt(CZapitChannel * channel);
+		/* With stop, reading the PMT is not begun once it is set. */
+		bool ParsePatPmt(CZapitChannel * channel, const std::atomic<bool> *stop = NULL);
 
 		bool send_data_count(int connfd, int data_count);
 		void sendAPIDs(int connfd);
@@ -289,6 +292,10 @@ class CZapit : public OpenThreads::Thread
 		/* inlines */
 		void Abort() { abort_zapit = 1; };
 		void SetBoxStandby(bool on) { box_standby = on; }
+		/* The program stops: a stream hold that is tuning ends without a
+		   hold, a motor wait and a wait for a tuner end within a slice. Safe
+		   to call more than once and from any thread. */
+		void RequestStop();
 		bool Recording() { return currentMode & RECORD_MODE; };
 		int GetScanSDT() { return config.scanSDT; };
 		void SetScanSDT(int _scanSDT) { config.scanSDT = _scanSDT; };

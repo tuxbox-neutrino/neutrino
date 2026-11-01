@@ -61,6 +61,7 @@
 #include "streamhold.h"
 #include "streamholdcmd.h"
 #include "streamyield.h"
+#include "waitslice.h"
 
 #if HAVE_CST_HARDWARE
 #include <record_cs.h>
@@ -135,6 +136,7 @@ CZapit::CZapit()
 {
 	started = false;
 	box_standby = false;
+	stopping = false;
 	pmt_update_fd = -1;
 	audio_mode = 0;
 	mosd = 0;
@@ -674,7 +676,7 @@ bool CZapit::TuneChannel(CFrontend * frontend, CZapitChannel * channel, bool &tr
 				SendEvent(CZapitClient::EVT_ZAP_MOTOR, &waitForMotor, sizeof(waitForMotor));
 			for(int i = 0; i < waitForMotor; i++) {
 				sleep(1);
-				if(abort_zapit) {
+				if(abort_zapit || stopping) {
 					abort_zapit = 0;
 					return false;
 				}
@@ -691,7 +693,7 @@ bool CZapit::TuneChannel(CFrontend * frontend, CZapitChannel * channel, bool &tr
 	return true;
 }
 
-bool CZapit::ParsePatPmt(CZapitChannel * channel)
+bool CZapit::ParsePatPmt(CZapitChannel * channel, const std::atomic<bool> *stop)
 {
 	if(channel == NULL)
 		return false;
@@ -704,6 +706,8 @@ bool CZapit::ParsePatPmt(CZapitChannel * channel)
 		printf("[zapit] pat parsing failed\n");
 		return false;
 	}
+	if (stop && *stop)
+		return false;
 	if (!pmt.Parse(channel)) {
 		printf("[zapit] pmt parsing failed\n");
 		return false;
@@ -1238,7 +1242,7 @@ class CZapit::StreamHoldOps : public streamholdcmd::Ops
 		StreamHoldOps(CZapit &z, int fd) : zapit(z), connfd(fd), channel_obj(NULL) {}
 
 		void collect() { collectStreamHolds(); }
-		bool serving() { return zapit.started; }
+		bool serving() { return zapit.started && !zapit.stopping; }
 		int64_t nowMs() { return CZapitMessages::streamHoldClockMs(); }
 
 		streamholdcmd::Kind channel(uint64_t id)
@@ -1290,16 +1294,27 @@ class CZapit::StreamHoldOps : public streamholdcmd::Ops
 			CFrontend *fe = static_cast<CFrontend *>(p);
 #ifdef ENABLE_TESTING
 			/* Widens the window between the binding and the tuning, so a
-			   test on a box can start a recording or a zap in it. */
+			   test on a box can start a recording or a zap in it; in
+			   slices, so a stop ends it. */
 			const char *delay = getenv("STREAMHOLD_TEST_TUNE_DELAY_MS");
-			if (delay && *delay)
-				usleep((useconds_t) strtoul(delay, NULL, 10) * 1000);
+			if (delay && *delay) {
+				const int64_t total = (int64_t) strtoul(delay, NULL, 10);
+				const int64_t start = nowMs();
+				for (;;) {
+					const int slice = waitslice::nextSliceMs(total, nowMs() - start, waitslice::kSliceMs);
+					if (slice <= 0 || !serving())
+						break;
+					usleep((useconds_t) slice * 1000);
+				}
+			}
 #endif
 			int retry = std::max(zapit.config.feRetries, (fe->getDiseqcType() == DISEQC_UNICABLE) * 2);
 			bool transponder_change;
 			for (;;) {
+				if (!serving())
+					return false;
 				if (zapit.TuneChannel(fe, channel_obj, transponder_change, false) &&
-				    zapit.ParsePatPmt(channel_obj))
+				    zapit.ParsePatPmt(channel_obj, &zapit.stopping))
 					return true;
 				if (retry < 1)
 					return false;
@@ -1356,7 +1371,7 @@ class CZapit::StreamYieldOps : public streamyield::Ops
 		StreamYieldOps(CZapit &z, int fd) : zapit(z), connfd(fd) {}
 
 		void collect() { collectStreamHolds(); }
-		bool serving() { return zapit.started; }
+		bool serving() { return zapit.started && !zapit.stopping; }
 		int64_t nowMs() { return CZapitMessages::streamHoldClockMs(); }
 
 		void lockFrontends() { CFEManager::getInstance()->Lock(); }
@@ -3414,10 +3429,17 @@ bool CZapit::Start(Z_start_arg *ZapStart_arg)
 	return (ret == 0);
 }
 
+void CZapit::RequestStop()
+{
+	stopping = true;
+	CFrontend::abortWaits = true;
+}
+
 bool CZapit::Stop()
 {
 	if(!started)
 		return false;
+	RequestStop();
 	pmt_stop_update_filter(&pmt_update_fd);
 	started = false;
 	int ret = join();

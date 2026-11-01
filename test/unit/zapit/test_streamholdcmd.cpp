@@ -44,6 +44,7 @@ struct Box : public Ops
 	std::map<int, int> source;   // demux -> the frontend it reads
 
 	bool serving_now;
+	bool stop_while_tuning;   // zapit begins to stop during the tune
 	int64_t clock;
 	int64_t clock_after_tune;
 	bool room;
@@ -57,7 +58,7 @@ struct Box : public Ops
 	Reply sent;
 
 	Box()
-		: serving_now(true), clock(1000), clock_after_tune(-1), room(true), tune_ok(true),
+		: serving_now(true), stop_while_tuning(false), clock(1000), clock_after_tune(-1), room(true), tune_ok(true),
 		  answer_ok(true), next_id(9), lock_depth(0), collects(0), opens(0), binds(0),
 		  live_holds(0), picks(0), tunes(0), unlocks(0), offers(0), drops(0), answers(0),
 		  facts_locked(true), bind_locked(true), tune_unlocked(true)
@@ -141,6 +142,8 @@ struct Box : public Ops
 	{
 		tunes++;
 		tune_unlocked = tune_unlocked && lock_depth == 0;
+		if (stop_while_tuning)
+			serving_now = false;
 		if (clock_after_tune >= 0)
 			clock = clock_after_tune;
 		return tune_ok;
@@ -339,6 +342,20 @@ TEST_CASE("a frontend that does not tune is given back and the hold failed", "[z
 	REQUIRE(box.unlocks == 1);
 	REQUIRE(box.uses() == 0);
 	REQUIRE(box.offers == 0);
+}
+
+TEST_CASE("H1: zapit that begins to stop while the frontend tunes enters no hold", "[zapit][streamholdcmd]")
+{
+	Box box;
+	box.stop_while_tuning = true;
+	const Reply r = run(box, kOther, 5000, false, true);
+	REQUIRE(r.verdict == Failed);
+	REQUIRE(r.hold_id == 0);
+	REQUIRE(box.tunes == 1);
+	REQUIRE(box.unlocks == 1);
+	REQUIRE(box.uses() == 0);
+	REQUIRE(box.offers == 0);
+	REQUIRE(box.answers == 1);
 }
 
 TEST_CASE("a deadline that passes while tuning fails the hold and gives the frontend back", "[zapit][streamholdcmd]")

@@ -26,6 +26,7 @@
 #define __zapit_frontend_h__
 
 #include <inttypes.h>
+#include <atomic>
 #include <OpenThreads/Thread>
 
 #include "types.h"
@@ -260,6 +261,9 @@ class CFrontend
 		int driveToSatellitePosition(t_satellite_position satellitePosition, bool from_scan = false);
 		void setLnbOffsets(int32_t _lnbOffsetLow, int32_t _lnbOffsetHigh, int32_t _lnbSwitch);
 		struct dvb_frontend_event getEvent(void);
+		/* Set when the program stops: a wait for a tuner's event ends
+		   within a slice instead of running to its timeout. */
+		static std::atomic<bool>	abortWaits;
 		bool				Locked() { return usecount; };
 		satellite_map_t &		getSatellites() { return satellites; }
 		void				setSatellites(satellite_map_t satmap) { satellites = satmap; }

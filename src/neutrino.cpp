@@ -6764,6 +6764,9 @@ void CNeutrinoApp::stopDaemonsForFlash()
 void stop_daemons(bool stopall, bool for_flash)
 {
 	shutdown_in_progress = 1;
+	/* First, so that whatever zapit is tuning ends while the rest stops,
+	   rather than holding up the join of zapit's thread below. */
+	CZapit::getInstance()->RequestStop();
 	CMoviePlayerGui::getInstance().stopPlayBack();
 	if (for_flash)
 	{

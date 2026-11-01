@@ -38,6 +38,7 @@
 #include "getservices.h"
 #include "frontend_c.h"
 #include "satconfig.h"
+#include "waitslice.h"
 #include <connection/basicserver.h>
 #include <zapit/client/msgtypes.h>
 #include <driver/abstime.h>
@@ -863,6 +864,8 @@ uint16_t CFrontend::getSignalNoiseRatio(void) const
 	return snr;
 }
 
+std::atomic<bool> CFrontend::abortWaits(false);
+
 struct dvb_frontend_event CFrontend::getEvent(void)
 {
 	struct dvb_frontend_event event;
@@ -879,20 +882,28 @@ struct dvb_frontend_event CFrontend::getEvent(void)
 
 	FE_TIMER_START();
 
+	/* In slices, so that a stop is seen within one; the time is read after
+	   every poll, whatever it answered. The whole wait is TIMEOUT_MAX_MS. */
 	while ((int) timer_msec < TIMEOUT_MAX_MS) {
-		int ret = poll(&pfd, 1, TIMEOUT_MAX_MS - timer_msec);
+		if (abortWaits) {
+			INFO("[fe%d/%d] wait given up: stopping", adapter, fenumber);
+			break;
+		}
+		int ret = poll(&pfd, 1, waitslice::nextSliceMs(TIMEOUT_MAX_MS, timer_msec, waitslice::kSliceMs));
+		timer_msec = (uint32_t)(time_monotonic_ms() - timer_start);
 		if (ret < 0) {
 			ERROR("poll");
 			continue;
 		}
 		if (ret == 0) {
-			FE_TIMER_STOP("############################## poll timeout, time");
+			if ((int) timer_msec >= TIMEOUT_MAX_MS) {
+				FE_TIMER_STOP("############################## poll timeout, time");
+			}
 			continue;
 		}
 
 		if (pfd.revents & (POLLIN | POLLPRI)) {
 			//FE_TIMER_STOP("poll has event after");
-			timer_msec = (uint32_t)(time_monotonic_ms() - timer_start); /* FE_TIMER_STOP does this :( */
 			memset(&event, 0, sizeof(struct dvb_frontend_event));
 
 			ret = ioctl(fd, FE_GET_EVENT, &event);
