@@ -329,6 +329,13 @@ const RouteRefusal kStreamForBrowserRefusals[] = {
 		"this box is already converting as many streams as it will"),
 };
 
+/* The playlists and the address of a channel are read: they hand out where
+   the box's own streaming port is, and a box on a network where a read costs
+   nothing is a box whose channel list is already readable. A browser stream
+   is written for: it has the box run a converter, on one of its two seats
+   and in its own CPU time, for whoever asks, so it answers a session or a
+   token of the owner's that may write, and never a reader who presents
+   nothing. */
 const Endpoint kStreamEndpoints[] = {
 	{ Method::Get, "/api/v1/stream/playlist", AuthLevel::Read,
 	  "every visible user bouquet as one playlist a player opens",
@@ -381,7 +388,7 @@ const Endpoint kStreamEndpoints[] = {
 	  "**Related:** `GET /api/v1/stream/playlist/{id}`, `GET /api/v1/stream/browser/{id}`.",
 	  HTTPD_PARAMS(kChannelParams), &kAddressSchema, &streamAddress, false,
 	  Answers200, HTTPD_REFUSALS(kStreamAddressRefusals) },
-	{ Method::Get, "/api/v1/stream/browser/{id}", AuthLevel::Read,
+	{ Method::Get, "/api/v1/stream/browser/{id}", AuthLevel::Write,
 	  "one channel as a browser can play it, with the sound converted where it has to be",
 	  "Opens channel `id` and streams it straight into the response: an MPEG "
 	  "transport stream for a channel with a picture, or a raw ADTS stream for "

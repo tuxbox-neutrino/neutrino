@@ -2,6 +2,7 @@
  * test_streaming.cpp - tests for streams and playlists
  *
  * Copyright (C) 2026 NI-Team
+ * Copyright (C) 2026 Tuxbox-Project (tests)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,9 +21,15 @@
 
 #include "support/catch.hpp"
 #include "support/fakes.h"
+#include "support/wireserver.h"
 
+#include "httpd/auth.h"
+#include "httpd/credentials.h"
 #include "httpd/endpoint.h"
+#include "httpd/endpoints.h"
 #include "httpd/events.h"
+#include "httpd/netmatch.h"
+#include "httpd/webconfig.h"
 #include "httpd/http.h"
 #include "httpd/doc/openapi.h"
 #include "httpd/router.h"
@@ -644,4 +651,154 @@ TEST_CASE("the playlist is written as it is built and not held in one piece", "[
 	REQUIRE(st.st_size > 4000000);
 	// And most of it was on disc while the source was still being asked
 	REQUIRE(channels.most_seen > st.st_size / 2);
+}
+
+// ================================================================ who may ask
+
+namespace
+{
+
+const char kWriteToken[] = "3333333333333333cccccccccccccccc";
+
+/* The stream routes in front of nhttpd and the bridge, on a port the kernel
+   picks, over the channels and the port of the fixture above. */
+struct StreamBox
+{
+	Fixture    fx;
+	WireServer server;
+
+	StreamBox() : server(4, 100, WireServer::Threaded)
+	{
+		setRoutesForTest(&streamTable);
+		addApiToken(tokenLookupPrefix(kWriteToken), hashSecret(kWriteToken), AuthLevel::Write, "", 0);
+	}
+
+	~StreamBox()
+	{
+		setRoutesForTest(NULL);
+		setSessionClockForTest(0);
+		setConfigForTest(defaultWebConfig());
+		forgetApiTokens();
+	}
+
+	int port() const { return server.port; }
+
+	private:
+		StreamBox(const StreamBox &);
+		StreamBox &operator=(const StreamBox &);
+};
+
+std::string askAs(const char *method, const std::string &path, const std::string &headers)
+{
+	return std::string(method) + " " + path + " HTTP/1.0\r\nHost: box\r\n" + headers + "\r\n";
+}
+
+std::string bearer(const std::string &token)
+{
+	return "Authorization: Bearer " + token + "\r\n";
+}
+
+std::string problemCodeOf(const std::string &body)
+{
+	const std::string mark = "\"type\":\"/errors/";
+	const size_t at = body.find(mark);
+	if (at == std::string::npos)
+		return std::string();
+	const size_t from = at + mark.size();
+	return body.substr(from, body.find('"', from) - from);
+}
+
+} // namespace
+
+TEST_CASE("a browser stream answers a session or a token that may write, and no reader",
+          "[streaming][wire][auth]")
+{
+	StreamBox box;
+
+	// this machine reads as the home network does, without presenting anything
+	WebConfig c = defaultWebConfig();
+	NetPrefix here;
+	REQUIRE(parsePrefix("127.0.0.0/8", &here));
+	c.lan_read.push_back(here);
+	setConfigForTest(c);
+
+	const std::string reader = "1111111111111111aaaaaaaaaaaaaaaa";
+	const std::string owner = "2222222222222222bbbbbbbbbbbbbbbb";
+	addApiToken(tokenLookupPrefix(reader), hashSecret(reader), AuthLevel::Read, "", 0);
+	addApiToken(tokenLookupPrefix(owner), hashSecret(owner), AuthLevel::System, "", 0);
+	const std::string media = openScopedToken(mediaScopeName(), AuthLevel::System);
+	REQUIRE(!media.empty());
+
+	const time_t t0 = 1800000000;
+	setSessionClockForTest(t0);
+	const std::string session = openSession("root");
+	REQUIRE(!session.empty());
+	const std::string cookie = "Cookie: " + std::string(sessionCookieName()) + "=" + session + "\r\n";
+
+	struct Who
+	{
+		const char *name;
+		std::string headers;
+		std::string query;
+		bool through;
+	};
+	const Who who[] = {
+		{ "the home network alone", "", "", false },
+		{ "a token that may read", bearer(reader), "", false },
+		{ "a token that may write", bearer(kWriteToken), "", true },
+		{ "a token of the system", bearer(owner), "", true },
+		{ "a token scoped to media", bearer(media), "", false },
+		{ "a session", cookie, "", true },
+		{ "a scoped token in the address", "", "&token=" + media, false },
+		{ "a standing token in the address", "", "&token=" + std::string(kWriteToken), false },
+	};
+	const std::string browser = "/api/v1/stream/browser/1001?video=h264&audio=mp2";
+	const char *const methods[] = { "GET", "HEAD" };
+	for (size_t w = 0; w < sizeof(who) / sizeof(who[0]); ++w)
+	{
+		for (size_t m = 0; m < 2; ++m)
+		{
+			INFO(who[w].name << ": " << methods[m]);
+			WireStream r(box.port(), askAs(methods[m], browser + who[w].query, who[w].headers).c_str());
+			REQUIRE(r.ok());
+			const std::string body = r.readToEof(5000);
+			if (who[w].through)
+			{
+				CHECK(r.code() != 403);
+				CHECK(r.code() != 0);
+			}
+			else
+			{
+				CHECK(r.code() == 403);
+				if (methods[m][0] == 'G')
+					CHECK(problemCodeOf(body) == "not-permitted");
+			}
+		}
+	}
+
+	// The playlists and a channel's address stay a read: the home network
+	// alone gets them.
+	const char *const reads[] = {
+		"/api/v1/stream/playlist", "/api/v1/stream/playlist.m3u",
+		"/api/v1/stream/playlist/1001", "/api/v1/stream/1001"
+	};
+	for (size_t i = 0; i < sizeof(reads) / sizeof(reads[0]); ++i)
+	{
+		INFO("read " << reads[i]);
+		WireStream r(box.port(), askAs("GET", reads[i], "").c_str());
+		REQUIRE(r.ok());
+		r.readToEof(5000);
+		CHECK(r.code() == 200);
+	}
+
+	// a session that has run out is nothing
+	setSessionClockForTest(t0 + (time_t) c.session_lifetime_s + 60);
+	for (size_t m = 0; m < 2; ++m)
+	{
+		INFO("a session that ran out: " << methods[m]);
+		WireStream r(box.port(), askAs(methods[m], browser, cookie).c_str());
+		REQUIRE(r.ok());
+		r.readToEof(5000);
+		CHECK(r.code() == 403);
+	}
 }
