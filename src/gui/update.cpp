@@ -91,6 +91,17 @@ extern cVideo *videoDecoder;
 
 #define LIST_OF_UPDATES_LOCAL_FILENAME "update.list"
 
+/* Where each step of an update ends on the global bar. Each step gets about as
+   much of the bar as it takes on the box: writing the flash takes longest and
+   used to get a fifth, while the list of updates is read in a moment and got
+   as much. The md5 check of the image is quick and has no share of its own.
+   Between the check and the erase CFlashTool::program() copies the image to
+   /tmp, which takes the first 5 of the erase's share. */
+#define UPDATE_PROGRESS_LIST	3	// list of updates read
+#define UPDATE_PROGRESS_IMAGE	40	// image downloaded
+#define UPDATE_PROGRESS_ERASE	60	// image copied and flash erased
+#define UPDATE_PROGRESS_DONE	100	// flash written
+
 // TODO: move this mess below to libstb-hal
 #if HAVE_ARM_HARDWARE || HAVE_MIPS_HARDWARE
 #define FILEBROWSER_UPDATE_FILTER	"tgz"
@@ -212,7 +223,7 @@ bool CFlashUpdate::checkOnlineVersion() {
 		pthread_setcancelstate(cancel_state, NULL);
 		if (reachable != 1)
 			return false;
-		if (httpTool.downloadFile(url, gTmpPath LIST_OF_UPDATES_LOCAL_FILENAME, 20))
+		if (httpTool.downloadFile(url, gTmpPath LIST_OF_UPDATES_LOCAL_FILENAME, UPDATE_PROGRESS_LIST))
 		{
 			std::ifstream in(gTmpPath LIST_OF_UPDATES_LOCAL_FILENAME);
 			while (in >> url >> version >> md5 >> std::ws)
@@ -300,7 +311,7 @@ bool CFlashUpdate::selectHttpImage(void)
 
 		bool separator = false;
 
-		if (httpTool.downloadFile(url, gTmpPath LIST_OF_UPDATES_LOCAL_FILENAME, 20))
+		if (httpTool.downloadFile(url, gTmpPath LIST_OF_UPDATES_LOCAL_FILENAME, UPDATE_PROGRESS_LIST))
 		{
 			std::ifstream in(gTmpPath LIST_OF_UPDATES_LOCAL_FILENAME);
 			CMenuForwarder *mf;
@@ -413,7 +424,7 @@ bool CFlashUpdate::getUpdateImage(const std::string &version)
 	showStatusMessageUTF(std::string(g_Locale->getText(LOCALE_FLASHUPDATE_GETUPDATEFILE)) + ' ' + version);
 
 	dprintf(DEBUG_NORMAL, "[update] get update (url): %s - %s\n", filename.c_str(), dest_name);
-	return httpTool.downloadFile(filename, dest_name, 40);
+	return httpTool.downloadFile(filename, dest_name, UPDATE_PROGRESS_IMAGE);
 }
 
 bool CFlashUpdate::checkVersion4Update()
@@ -426,7 +437,7 @@ bool CFlashUpdate::checkVersion4Update()
 			return false;
 
 		showLocalStatus(100);
-		showGlobalStatus(20);
+		showGlobalStatus(UPDATE_PROGRESS_LIST);
 		showStatusMessageUTF(g_Locale->getText(LOCALE_FLASHUPDATE_VERSIONCHECK));
 
 		dprintf(DEBUG_NORMAL, "[update] internet version: %s\n", newVersion.c_str());
@@ -542,7 +553,7 @@ int CFlashUpdate::exec(CMenuTarget *parent, const std::string &actionKey)
 #endif // VFD_UPDATE
 
 	paint();
-	showGlobalStatus(20);
+	showGlobalStatus(UPDATE_PROGRESS_LIST);
 
 	if (softupdate_mode == 1) // internet-update
 	{
@@ -559,7 +570,7 @@ int CFlashUpdate::exec(CMenuTarget *parent, const std::string &actionKey)
 		filename = std::string(fullname);
 	}
 
-	showGlobalStatus(40);
+	showGlobalStatus(UPDATE_PROGRESS_IMAGE);
 
 	CFlashTool ft;
 	ft.setMTDDevice(sysfs);
@@ -580,8 +591,6 @@ int CFlashUpdate::exec(CMenuTarget *parent, const std::string &actionKey)
 			return menu_return::RETURN_REPAINT;
 		}
 	}
-
-	showGlobalStatus(60);
 
 	dprintf(DEBUG_NORMAL, "[update] flash/install filename %s type %c\n", filename.c_str(), fileType);
 
@@ -604,7 +613,7 @@ int CFlashUpdate::exec(CMenuTarget *parent, const std::string &actionKey)
 #ifdef DRYRUN
 		if (1)
 #else
-		if (!ft.program(filename, 80, 100))
+		if (!ft.program(filename, UPDATE_PROGRESS_ERASE, UPDATE_PROGRESS_DONE))
 #endif
 		{
 			hide();
@@ -613,7 +622,7 @@ int CFlashUpdate::exec(CMenuTarget *parent, const std::string &actionKey)
 		}
 
 		// status anzeigen
-		showGlobalStatus(100);
+		showGlobalStatus(UPDATE_PROGRESS_DONE);
 		showStatusMessageUTF(g_Locale->getText(LOCALE_FLASHUPDATE_READY));
 		hide();
 		ShowHint(LOCALE_MESSAGEBOX_INFO, LOCALE_FLASHUPDATE_FLASHREADYREBOOT);
@@ -624,7 +633,6 @@ int CFlashUpdate::exec(CMenuTarget *parent, const std::string &actionKey)
 	else if (fileType == 'Z') // flashing image with ofgwrite
 	{
 		bool flashing = false;
-		showGlobalStatus(100);
 
 		// create settings package
 		int copy_settings = ShowMsg(LOCALE_MESSAGEBOX_INFO, LOCALE_FLASHUPDATE_COPY_SETTINGS, CMsgBox::mbrYes, CMsgBox::mbYes | CMsgBox::mbNo, NEUTRINO_ICON_UPDATE);
@@ -709,8 +717,13 @@ int CFlashUpdate::exec(CMenuTarget *parent, const std::string &actionKey)
 			flashing = true;
 			ofgwrite_options = "-m" + to_string(selected);
 		}
+		// The bar is full once ofgwrite takes over, not while the
+		// partition is still being asked for, and not if none was chosen.
 		if (flashing)
+		{
+			showGlobalStatus(UPDATE_PROGRESS_DONE);
 			ShowHint(LOCALE_MESSAGEBOX_INFO, LOCALE_FLASHUPDATE_START_OFGWRITE);
+		}
 		hide();
 
 		std::string ofgwrite_caller = find_executable("ofgwrite_caller");
@@ -762,7 +775,7 @@ int CFlashUpdate::exec(CMenuTarget *parent, const std::string &actionKey)
 #ifndef DRYRUN
 		my_system(3, install_sh.c_str(), g_settings.update_dir.c_str(), filename.c_str());
 #endif
-		showGlobalStatus(100);
+		showGlobalStatus(UPDATE_PROGRESS_DONE);
 		ShowHint(LOCALE_MESSAGEBOX_INFO, LOCALE_FLASHUPDATE_READY);
 	}
 	hide();

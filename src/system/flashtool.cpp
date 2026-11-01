@@ -28,15 +28,18 @@
 #include <system/fsmounter.h>
 #include <system/helpers.h>
 #include <eitd/sectionsd.h>
+#include <system/progressscale.h>
 
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
 #include <stdlib.h>
 #include <libgen.h>
+#include <errno.h>
 #include <fcntl.h>
 #include <sys/ioctl.h>
 #include <sys/mount.h>
+#include <sys/stat.h>
 #include <sys/reboot.h>
 
 #include <linux/version.h>
@@ -98,7 +101,7 @@ bool CFlashTool::readFromMTD( const std::string & filename, int globalProgressEn
 {
 	int fd1;
 	long filesize;
-	int globalProgressBegin = 0;
+	unsigned int globalProgressBegin = 0;
 
 	if(statusViewer)
 		statusViewer->showLocalStatus(0);
@@ -158,13 +161,12 @@ bool CFlashTool::readFromMTD( const std::string & filename, int globalProgressEn
 		write(fd1, buf, block);
 		fsize -= block;
 		mtdoffset += meminfo.writesize;
-		char prog = char(100-(100./filesize*fsize));
-		if(statusViewer) {
+		unsigned int prog = progressPercent(filesize - fsize, filesize);
+		if (statusViewer)
+		{
 			statusViewer->showLocalStatus(prog);
-			if(globalProgressEnd!=-1) {
-				int globalProg = globalProgressBegin + int((globalProgressEnd-globalProgressBegin) * prog/100. );
-				statusViewer->showGlobalStatus(globalProg);
-			}
+			if (globalProgressEnd != -1)
+				statusViewer->showGlobalStatus(progressBetween(globalProgressBegin, globalProgressEnd, prog));
 		}
 	}
 
@@ -176,11 +178,100 @@ bool CFlashTool::readFromMTD( const std::string & filename, int globalProgressEn
 	return true;
 }
 
+/* Copies the image to where it is flashed from, and moves the bars while it does.
+   A copy that comes up short is a failure rather than something to flash: the
+   copy used to be taken as done whatever it wrote, and /tmp running full on the
+   way would have left a truncated image to be written to the flash. */
+bool CFlashTool::copyImage(const std::string &from, const std::string &to, int globalProgressEnd)
+{
+	unsigned int globalProgressBegin = 0;
+
+	if (statusViewer)
+	{
+		statusViewer->showLocalStatus(0);
+		globalProgressBegin = statusViewer->getGlobalStatus();
+	}
+
+	int in = open(from.c_str(), O_RDONLY);
+	if (in < 0)
+	{
+		ErrorMessage = g_Locale->getText(LOCALE_FLASHUPDATE_CANTOPENFILE);
+		return false;
+	}
+
+	struct stat st;
+	int64_t total = (fstat(in, &st) == 0) ? (int64_t) st.st_size : 0;
+
+	unlink(to.c_str());
+	int out = open(to.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0644);
+	if (out < 0)
+	{
+		ErrorMessage = g_Locale->getText(LOCALE_FLASHUPDATE_CANTOPENFILE);
+		close(in);
+		return false;
+	}
+
+	std::vector<char> buf(64 * 1024);
+	int64_t done = 0;
+	bool ok = true;
+	while (ok)
+	{
+		ssize_t n = read(in, &buf[0], buf.size());
+		if (n == 0)
+			break;
+		if (n < 0)
+		{
+			ok = (errno == EINTR);
+			continue;
+		}
+
+		ssize_t written = 0;
+		while (ok && written < n)
+		{
+			ssize_t w = write(out, &buf[written], n - written);
+			if (w < 0 && errno == EINTR)
+				continue;
+			ok = (w > 0);
+			if (ok)
+				written += w;
+		}
+		done += written;
+
+		if (statusViewer)
+		{
+			unsigned int prog = progressPercent(done, total);
+			statusViewer->showLocalStatus(prog);
+			if (globalProgressEnd != -1)
+				statusViewer->showGlobalStatus(progressBetween(globalProgressBegin, globalProgressEnd, prog));
+		}
+	}
+
+	close(in);
+	if (close(out) != 0)
+		ok = false;
+
+	if (!ok)
+	{
+		printf("CFlashTool::copyImage: copy of %s to %s failed after %lld bytes: %s\n", from.c_str(), to.c_str(), (long long) done, strerror(errno));
+		unlink(to.c_str());
+		ErrorMessage = g_Locale->getText(LOCALE_FLASHUPDATE_CANTOPENFILE);
+		return false;
+	}
+
+	if (statusViewer)
+	{
+		statusViewer->showLocalStatus(100);
+		if (globalProgressEnd != -1)
+			statusViewer->showGlobalStatus(progressBetween(globalProgressBegin, globalProgressEnd, 100));
+	}
+	return true;
+}
+
 bool CFlashTool::program( const std::string & filename, int globalProgressEndErase, int globalProgressEndFlash )
 {
 	int fd1;
 	ssize_t filesize;
-	int globalProgressBegin = 0;
+	unsigned int globalProgressBegin = 0;
 
 	if(g_settings.epg_save)
 		CNeutrinoApp::getInstance()->saveEpg(NeutrinoModes::mode_off);
@@ -221,14 +312,17 @@ bool CFlashTool::program( const std::string & filename, int globalProgressEndEra
 		memset(buf1, 0, sizeof(buf1));
 		strncpy(buf1, filename.c_str(), sizeof(buf1)-1);
 		flashfile = (std::string)"/tmp/" + basename(buf1);
-		CFileHelpers fh;
 		printf("##### [CFlashTool::program] copy flashfile to %s\n", flashfile.c_str());
 		if(statusViewer)
 			statusViewer->showStatusMessageUTF(g_Locale->getText(LOCALE_FLASHUPDATE_COPY_IMAGE));
-		fh.copyFile(filename.c_str(), flashfile.c_str(), 0644);
+		// The copy gets a fixed share of the bar ahead of whatever the caller
+		// left for the erase, as it always has, but now moves through it.
+		int globalProgressEndCopy = -1;
+		if (statusViewer && globalProgressEndErase != -1)
+			globalProgressEndCopy = (int) statusViewer->getGlobalStatus() + 5;
+		if (!copyImage(filename, flashfile, globalProgressEndCopy))
+			return false;
 		sync();
-		if(statusViewer)
-			statusViewer->showGlobalStatus(statusViewer->getGlobalStatus()+5);
 	}
 	else
 		flashfile = filename;
@@ -328,13 +422,12 @@ bool CFlashTool::program( const std::string & filename, int globalProgressEndEra
 		write(fd, buf, meminfo.writesize);
 		fsize -= block;
 		mtdoffset += meminfo.writesize;
-		if(statusViewer) {
-			char prog = char(100-(100./filesize*fsize));
+		if (statusViewer)
+		{
+			unsigned int prog = progressPercent((int64_t) filesize - fsize, filesize);
 			statusViewer->showLocalStatus(prog);
-			if(globalProgressEndFlash!=-1) {
-				int globalProg = globalProgressBegin + int((globalProgressEndFlash-globalProgressBegin) * prog/100. );
-				statusViewer->showGlobalStatus(globalProg);
-			}
+			if (globalProgressEndFlash != -1)
+				statusViewer->showGlobalStatus(progressBetween(globalProgressBegin, globalProgressEndFlash, prog));
 		}
 	}
 
@@ -379,7 +472,7 @@ void CFlashTool::stopDaemons()
 bool CFlashTool::erase(int globalProgressEnd)
 {
 	erase_info_t lerase;
-	int globalProgressBegin = 0;
+	unsigned int globalProgressBegin = 0;
 
 	if( (fd = open( mtdDevice.c_str(), O_RDWR )) < 0 )
 	{
@@ -411,15 +504,12 @@ bool CFlashTool::erase(int globalProgressEnd)
 		/* printf( "Erasing %s erase size %x start %x size %x\n",
 		                 mtdDevice.c_str(), meminfo.erasesize, lerase.start,
 		                 meminfo.size ); */
-		int prog = int(lerase.start*100./meminfo.size);
-		if(statusViewer)
+		unsigned int prog = progressPercent(lerase.start, meminfo.size);
+		if (statusViewer)
 		{
 			statusViewer->showLocalStatus(prog);
-			if(globalProgressEnd!=-1)
-			{
-				int globalProg = globalProgressBegin + int((globalProgressEnd-globalProgressBegin) * prog/100. );
-				statusViewer->showGlobalStatus(globalProg);
-			}
+			if (globalProgressEnd != -1)
+				statusViewer->showGlobalStatus(progressBetween(globalProgressBegin, globalProgressEnd, prog));
 		}
 		if (isnand) {
 			loff_t offset = lerase.start;
