@@ -3662,6 +3662,16 @@ void CMoviePlayerGui::PlayFileEnd(bool restore)
 		cGLCD::lockEnd("00:00");
 	}
 #endif
+
+#if HAVE_CST_HARDWARE
+	/* the older AC3 audio type is meant for the recording just played;
+	 * the next one starts with the type stored in it */
+	if (this == instance_mp && g_settings.movieplayer_select_ac3_atype0) {
+		g_settings.movieplayer_select_ac3_atype0 = false;
+		printf("%s: AC3 audio type reset to default\n", __func__);
+	}
+#endif
+
 	if (iso_file) {
 		iso_file = false;
 		if (umount2(ISO_MOUNT_POINT, MNT_FORCE))
