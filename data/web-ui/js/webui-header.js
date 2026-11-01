@@ -105,6 +105,7 @@ function webuiAboutHTML() {
 						<li><strong>${WEBUI_CONFIG.title}</strong>: <a href="https://www.gnu.org/licenses/old-licenses/gpl-2.0.html" target="_blank" rel="noopener">GNU GPL v2</a></li>
 						<li><strong>Pico CSS</strong>: <a href="https://picocss.com" target="_blank" rel="noopener">${webuiLH('about.mit', 'MIT License')}</a></li>
 						<li><strong>hls.js</strong>: <a href="/js/LICENSE-Apache-2.0.txt" target="_blank" rel="noopener">${webuiLH('about.apache', 'Apache License 2.0')}</a></li>
+						<li><strong>mpegts.js</strong>: <a href="/js/LICENSE-mpegts.txt" target="_blank" rel="noopener">${webuiLH('about.apache', 'Apache License 2.0')}</a></li>
 					</ul>
 				</div>
 			</section>

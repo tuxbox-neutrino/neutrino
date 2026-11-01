@@ -2,12 +2,14 @@ installdir = $(PRIVATE_HTTPDDIR)/js
 
 install_DATA = \
 	LICENSE-Apache-2.0.txt \
+	LICENSE-mpegts.txt \
 	bouquets.js \
 	dashboard.js \
 	epg.js \
 	hls.min.js \
 	index.js \
 	login.js \
+	mpegts.js \
 	password.js \
 	recordings.js \
 	remote.js \
