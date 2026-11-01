@@ -256,6 +256,19 @@ Response streamForBrowser(const Request &r)
 	if (!port.ok())
 		return problemFor(port.error());
 
+	/* A channel from the tuners streams only from a tuner that is free beside
+	   the picture; the same question for a HEAD, which is how a page learns
+	   why a stream ended before it started. */
+	coreapi::Result<coreapi::StreamTuner> tuner = coreapi::streaming::tunerFor(id);
+	if (!tuner.ok())
+		return problemFor(tuner.error());
+	if (tuner.value() == coreapi::StreamTuner::NoneFree)
+		return problemResponse(StatusConflict, coreapi::ErrorCode::NoFreeTuner,
+		                       "no tuner is free for this channel without changing what the box shows");
+	if (tuner.value() == coreapi::StreamTuner::NoAnswer)
+		return problemResponse(StatusServiceUnavailable, coreapi::ErrorCode::UpstreamUnreachable,
+		                       "the box could not say whether a tuner is free for this channel");
+
 	const bool radio = channel.value().kind == coreapi::ServiceKind::Radio ||
 			   channel.value().kind == coreapi::ServiceKind::WebRadio;
 	unsigned pid = 0;
@@ -346,10 +359,12 @@ const RouteRefusal kStreamForBrowserRefusals[] = {
 		"no channel with that id"),
 	HTTPD_REFUSES(NotSupported, NotPlayableInBrowser,
 		"no browser plays what this channel carries, and this box will not re-encode a picture"),
+	HTTPD_REFUSES_AS(409, NoFreeTuner,
+		"no tuner is free for this channel without changing what the box shows"),
 	HTTPD_REFUSES_AS(503, TooManyConversions,
 		"this box is already converting as many streams as it will"),
 	HTTPD_REFUSES_AS(503, UpstreamUnreachable,
-		"the converter ended or stayed silent before it sent anything: the channel could not be read"),
+		"the box could not say whether a tuner is free, or the converter ended or stayed silent before it sent anything"),
 	HTTPD_REFUSES_AS(500, NoSupervision,
 		"this process discards what its children exit with, so a converter cannot be supervised"),
 };
@@ -436,10 +451,17 @@ const Endpoint kStreamEndpoints[] = {
 	  "- `501 not-playable-in-browser`: no browser plays what this channel "
 	  "carries, and this box will not re-encode a picture; use `GET "
 	  "/api/v1/stream/{id}` for the raw address instead.\n"
+	  "- `409 no-free-tuner`: no tuner is free for this channel without "
+	  "changing what the box shows - the picture, a picture in picture, a "
+	  "recording and other streams keep theirs; a channel the box shows can "
+	  "be streamed from the picture's own tuner, a channel streamed already "
+	  "is shared, and a channel being recorded is refused, as on the "
+	  "streaming port.\n"
 	  "- `503 too-many-conversions`: the box is already converting as many "
 	  "streams as it will, at most 2 at once; retry after the time named in the "
 	  "`Retry-After` header.\n"
-	  "- `503 upstream-unreachable`: the converter ended or stayed silent for 15 "
+	  "- `503 upstream-unreachable`: the box could not say within two seconds "
+	  "whether a tuner is free, or the converter ended or stayed silent for 15 "
 	  "seconds before it sent anything, so the channel could not be read; a HEAD "
 	  "asked afterwards says what is in the way now.\n"
 	  "- `500 no-supervision`: the box's program discards what its children exit "

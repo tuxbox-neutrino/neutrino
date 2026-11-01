@@ -82,6 +82,15 @@ struct ChannelSource
 	// Whether a zap to that channel would go through while a recording holds
 	// a tuner.
 	virtual Status canZap(ChannelId id, bool &out) const = 0;
+	/* Whether a stream of that channel would get a tuner now. Asks and
+	   holds nothing: the tuner is taken by the stream itself. */
+	virtual Status streamTuner(ChannelId id, StreamTuner &out) const = 0;
+	/* Whether the stream server carries that channel already, so that its
+	   port hands it to another reader from the stream it has. */
+	virtual Status streamCarried(ChannelId id, bool &out) const = 0;
+	/* Whether that channel is being recorded, which the stream server
+	   refuses a new stream of before it asks for a tuner. */
+	virtual Status streamRecorded(ChannelId id, bool &out) const = 0;
 
 	/* Which conditional access systems the running channel is scrambled under,
 	   as the identifiers the stream carries. An empty list is a channel nothing
@@ -181,6 +190,15 @@ int applicationMode();
 
 // The same, for canZap.
 bool applicationCanZap(ChannelId id);
+
+// The same, for whether the stream server carries a channel: the header of the
+// class that holds its streams brings the decoder library's headers, which
+// this layer is not built against.
+bool applicationStreamCarried(ChannelId id);
+
+// The same, for whether a channel is being recorded: what holds the
+// recordings is a menu, whose header reaches the GUI.
+bool applicationChannelRecorded(ChannelId id);
 
 /* The same, for the flag that says the box still owes its user the question
    whether a channel list it noticed a change in should be reread. Rereading

@@ -2,6 +2,7 @@
  * streaming.cpp - live and recorded streams, and the playlists naming them
  *
  * Copyright (C) 2026 NI-Team
+ * Copyright (C) 2026 Tuxbox-Project (tuner admission)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -355,6 +356,40 @@ Result<std::string> playlist(const std::string &authority, Scope s)
 	}
 
 	return finish(f, path, written);
+}
+
+Result<StreamTuner> tunerFor(ChannelId id)
+{
+	ChannelInfo channel;
+	Status s = channelSource().findChannel(id, channel);
+	if (s == Status::NotFound)
+		return fail(s, ErrorCode::NoSuchChannel, "no channel with that id");
+	if (s != Status::Ok)
+		return fail(s, ErrorCode::ChannelListUnavailable, "the channel list could not be read");
+	if (channel.kind == ServiceKind::WebTv || channel.kind == ServiceKind::WebRadio)
+		return ok(StreamTuner::Free);
+
+	/* A channel the stream server carries already is handed to another
+	   reader from the stream it has, without a tuner of its own; zapit knows
+	   nothing of the server's streams and would answer for a tuner this
+	   stream does not need. */
+	bool carried = false;
+	if (channelSource().streamCarried(id, carried) == Status::Ok && carried)
+		return ok(StreamTuner::Free);
+
+	/* A channel being recorded the stream server refuses before it asks
+	   zapit, which would grant it the live channel's tuner or another one,
+	   and the stream would be refused at the server's port after it started:
+	   refused here the same way. */
+	bool recorded = false;
+	if (channelSource().streamRecorded(id, recorded) == Status::Ok && recorded)
+		return ok(StreamTuner::NoneFree);
+
+	StreamTuner t = StreamTuner::NoAnswer;
+	s = channelSource().streamTuner(id, t);
+	if (s != Status::Ok)
+		return ok(StreamTuner::NoAnswer);
+	return ok(t);
 }
 
 Result<std::string> playlistFor(const std::string &authority, ChannelId id)

@@ -1261,3 +1261,177 @@ TEST_CASE("the stream routes answer their refusals", "[streaming][wire]")
 		CHECK(problemCodeOf(body) == cases[i].problem);
 	}
 }
+
+// ================================================================ a tuner first
+
+TEST_CASE("whether a stream gets a tuner is asked of the box for a tuner channel only",
+          "[streaming][tuner]")
+{
+	Fixture fx;
+	fx.deps.channels.channels.push_back(makeChannel(0x7001, "Web", coreapi::ServiceKind::WebTv));
+
+	REQUIRE(coreapi::streaming::tunerFor(0x1001).value() == coreapi::StreamTuner::Free);
+	REQUIRE(fx.deps.channels.tuner_asked.size() == 1);
+	REQUIRE(fx.deps.channels.tuner_asked[0] == 0x1001u);
+
+	fx.deps.channels.stream_tuner = coreapi::StreamTuner::NoneFree;
+	REQUIRE(coreapi::streaming::tunerFor(0x2001).value() == coreapi::StreamTuner::NoneFree);
+	fx.deps.channels.stream_tuner = coreapi::StreamTuner::NoAnswer;
+	REQUIRE(coreapi::streaming::tunerFor(0x1001).value() == coreapi::StreamTuner::NoAnswer);
+
+	// A web channel needs no tuner and is not asked about.
+	fx.deps.channels.tuner_asked.clear();
+	fx.deps.channels.carried_asked.clear();
+	fx.deps.channels.recorded_asked.clear();
+	REQUIRE(coreapi::streaming::tunerFor(0x7001).value() == coreapi::StreamTuner::Free);
+	REQUIRE(fx.deps.channels.tuner_asked.empty());
+	REQUIRE(fx.deps.channels.carried_asked.empty());
+	REQUIRE(fx.deps.channels.recorded_asked.empty());
+
+	/* A channel the stream server carries already is handed to another reader
+	   without a tuner of its own: admitted, and zapit is not asked, whatever
+	   it would say. */
+	fx.deps.channels.stream_tuner = coreapi::StreamTuner::NoneFree;
+	fx.deps.channels.stream_carried = true;
+	REQUIRE(coreapi::streaming::tunerFor(0x1001).value() == coreapi::StreamTuner::Free);
+	REQUIRE(fx.deps.channels.carried_asked.size() == 1);
+	REQUIRE(fx.deps.channels.carried_asked[0] == 0x1001u);
+	REQUIRE(fx.deps.channels.tuner_asked.empty());
+	// Not carried: zapit decides, as for any other channel.
+	fx.deps.channels.stream_carried = false;
+	REQUIRE(coreapi::streaming::tunerFor(0x1001).value() == coreapi::StreamTuner::NoneFree);
+	REQUIRE(fx.deps.channels.tuner_asked.size() == 1);
+	fx.deps.channels.tuner_asked.clear();
+
+	/* A channel being recorded gets no tuner, as at the stream server's port,
+	   and zapit is not asked, whatever it would grant; carried as well, it is
+	   shared like any carried channel. */
+	fx.deps.channels.stream_tuner = coreapi::StreamTuner::Free;
+	fx.deps.channels.stream_recorded = true;
+	fx.deps.channels.recorded_asked.clear();
+	REQUIRE(coreapi::streaming::tunerFor(0x1001).value() == coreapi::StreamTuner::NoneFree);
+	REQUIRE(fx.deps.channels.recorded_asked.size() == 1);
+	REQUIRE(fx.deps.channels.recorded_asked[0] == 0x1001u);
+	REQUIRE(fx.deps.channels.tuner_asked.empty());
+	fx.deps.channels.stream_carried = true;
+	REQUIRE(coreapi::streaming::tunerFor(0x1001).value() == coreapi::StreamTuner::Free);
+	REQUIRE(fx.deps.channels.tuner_asked.empty());
+	fx.deps.channels.stream_carried = false;
+	fx.deps.channels.stream_recorded = false;
+	fx.deps.channels.stream_tuner = coreapi::StreamTuner::NoneFree;
+
+	const coreapi::Result<coreapi::StreamTuner> nobody = coreapi::streaming::tunerFor(0xdeadbeefULL);
+	REQUIRE_FALSE(nobody.ok());
+	REQUIRE(nobody.error().code == coreapi::ErrorCode::NoSuchChannel);
+	REQUIRE(fx.deps.channels.tuner_asked.empty());
+
+	fx.deps.channels.channels_status = coreapi::Status::Internal;
+	const coreapi::Result<coreapi::StreamTuner> unread = coreapi::streaming::tunerFor(0x1001);
+	REQUIRE_FALSE(unread.ok());
+	REQUIRE(unread.error().code == coreapi::ErrorCode::ChannelListUnavailable);
+}
+
+TEST_CASE("a browser stream with no tuner free beside the picture is refused before anything starts",
+          "[streaming][wire][tuner]")
+{
+	StreamBox box;
+	box.fx.deps.channels.channels.push_back(makeChannel(0x7001, "Web", coreapi::ServiceKind::WebTv));
+	std::string pidfile;
+	box.useConverter("echo $$ >> PIDFILE\nwhile :; do printf 'G'; sleep 0.05; done\n", &pidfile);
+
+	struct Case
+	{
+		coreapi::StreamTuner tuner;
+		int code;
+		const char *problem;
+	};
+	const Case cases[] = {
+		{ coreapi::StreamTuner::NoneFree, 409, "no-free-tuner" },
+		{ coreapi::StreamTuner::NoAnswer, 503, "upstream-unreachable" },
+	};
+	for (size_t c = 0; c < 2; ++c)
+	{
+		box.fx.deps.channels.stream_tuner = cases[c].tuner;
+		for (int m = 0; m < 2; ++m)
+		{
+			const char *method = m == 0 ? "GET" : "HEAD";
+			INFO(cases[c].problem << ": " << method);
+			box.fx.deps.channels.tuner_asked.clear();
+			WireStream r(box.port(), asWriter(method, kBrowser).c_str());
+			REQUIRE(r.ok());
+			const std::string body = r.readToEof(3000);
+			CHECK(r.code() == cases[c].code);
+			if (m == 0)
+				CHECK(problemCodeOf(body) == cases[c].problem);
+			CHECK(box.fx.deps.channels.tuner_asked.size() == 1);
+		}
+	}
+	CHECK(pidFrom(pidfile, 300) == 0);
+	CHECK(carry::running() == 0u);
+
+	// A tuner free: the same request starts the program, for HEAD the check only.
+	box.fx.deps.channels.stream_tuner = coreapi::StreamTuner::Free;
+	{
+		WireStream head(box.port(), asWriter("HEAD", kBrowser).c_str());
+		REQUIRE(head.ok());
+		CHECK(head.code() == 200);
+	}
+	{
+		WireStream get(box.port(), asWriter("GET", kBrowser).c_str());
+		REQUIRE(get.ok());
+		CHECK(get.code() == 200);
+		CHECK(pidFrom(pidfile, 3000) > 0);
+	}
+	CHECK(runningAfter(2000) == 0);
+
+	// A web channel is not asked about, whatever the tuners say.
+	box.fx.deps.channels.stream_tuner = coreapi::StreamTuner::NoneFree;
+	box.fx.deps.channels.tuner_asked.clear();
+	{
+		WireStream web(box.port(), asWriter("GET", "/api/v1/stream/browser/7001?video=unknown&audio=unknown").c_str());
+		REQUIRE(web.ok());
+		CHECK(web.code() == 200);
+	}
+	CHECK(box.fx.deps.channels.tuner_asked.empty());
+	CHECK(runningAfter(2000) == 0);
+
+	/* Nor is a channel the stream server carries already, which its port hands
+	   to the converter as another reader: HEAD and GET are answered as for a
+	   free tuner, with no tuner none would be free. */
+	box.fx.deps.channels.stream_carried = true;
+	box.fx.deps.channels.tuner_asked.clear();
+	{
+		WireStream head(box.port(), asWriter("HEAD", kBrowser).c_str());
+		REQUIRE(head.ok());
+		CHECK(head.code() == 200);
+	}
+	{
+		WireStream get(box.port(), asWriter("GET", kBrowser).c_str());
+		REQUIRE(get.ok());
+		CHECK(get.code() == 200);
+	}
+	CHECK(box.fx.deps.channels.tuner_asked.empty());
+	CHECK(box.fx.deps.channels.carried_asked.size() >= 2);
+	CHECK(runningAfter(2000) == 0);
+
+	/* A channel being recorded and not carried is refused before anything
+	   starts, for GET and HEAD, with zapit not asked though it would grant a
+	   tuner: the stream server's port would refuse the converter. */
+	box.fx.deps.channels.stream_carried = false;
+	box.fx.deps.channels.stream_recorded = true;
+	box.fx.deps.channels.stream_tuner = coreapi::StreamTuner::Free;
+	box.fx.deps.channels.tuner_asked.clear();
+	for (int m = 0; m < 2; ++m)
+	{
+		const char *method = m == 0 ? "GET" : "HEAD";
+		INFO("recorded: " << method);
+		WireStream r(box.port(), asWriter(method, kBrowser).c_str());
+		REQUIRE(r.ok());
+		const std::string body = r.readToEof(3000);
+		CHECK(r.code() == 409);
+		if (m == 0)
+			CHECK(problemCodeOf(body) == "no-free-tuner");
+	}
+	CHECK(box.fx.deps.channels.tuner_asked.empty());
+	CHECK(carry::running() == 0u);
+}

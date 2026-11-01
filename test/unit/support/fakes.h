@@ -102,6 +102,21 @@ struct FakeChannelSource : public coreapi::ChannelSource
 	bool zap_possible;
 	mutable std::vector<coreapi::ChannelId> zap_asked;
 
+	// A tuner free for every stream by default; tuner_asked keeps each
+	// channel asked about.
+	coreapi::StreamTuner stream_tuner;
+	mutable std::vector<coreapi::ChannelId> tuner_asked;
+
+	// No channel carried by the stream server by default; carried_asked keeps
+	// each channel asked about.
+	bool stream_carried;
+	mutable std::vector<coreapi::ChannelId> carried_asked;
+
+	// No channel recorded by default; recorded_asked keeps each channel asked
+	// about.
+	bool stream_recorded;
+	mutable std::vector<coreapi::ChannelId> recorded_asked;
+
 	// Where the last read left its payload. A caller that hands the same
 	// address back has moved it out rather than copied it.
 	mutable const void *last_buffer;
@@ -114,6 +129,9 @@ struct FakeChannelSource : public coreapi::ChannelSource
 		  mode(0),
 		  zap_status(coreapi::Status::Ok),
 		  zap_possible(true),
+		  stream_tuner(coreapi::StreamTuner::Free),
+		  stream_carried(false),
+		  stream_recorded(false),
 		  last_buffer(0),
 		  services_saved(0),
 		  reinits(0),
@@ -261,6 +279,27 @@ struct FakeChannelSource : public coreapi::ChannelSource
 		if (zap_status != coreapi::Status::Ok)
 			return zap_status;
 		out = zap_possible;
+		return coreapi::Status::Ok;
+	}
+
+	coreapi::Status streamTuner(coreapi::ChannelId id, coreapi::StreamTuner &out) const
+	{
+		tuner_asked.push_back(id);
+		out = stream_tuner;
+		return coreapi::Status::Ok;
+	}
+
+	coreapi::Status streamCarried(coreapi::ChannelId id, bool &out) const
+	{
+		carried_asked.push_back(id);
+		out = stream_carried;
+		return coreapi::Status::Ok;
+	}
+
+	coreapi::Status streamRecorded(coreapi::ChannelId id, bool &out) const
+	{
+		recorded_asked.push_back(id);
+		out = stream_recorded;
 		return coreapi::Status::Ok;
 	}
 

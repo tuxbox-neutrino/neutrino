@@ -298,6 +298,10 @@ enum class ErrorCode
 	// Asked again with wake set, the box is switched on.
 	BoxInStandby,
 	RecordingHoldsTuner,
+	/* No tuner is free for a stream of this channel without changing what
+	   the box shows: a picture in picture, a recording or another stream
+	   holds every one it could take. */
+	NoFreeTuner,
 	// Asked again with stop_playback set, the file playing is ended first.
 	PlaybackRunning,
 	/* A plugin the box started has not returned yet. The box starts no second
@@ -605,6 +609,7 @@ inline const char *codeString(ErrorCode c)
 		case ErrorCode::RecordingPlaying: return "recording-playing";
 		case ErrorCode::BoxInStandby: return "box-in-standby";
 		case ErrorCode::RecordingHoldsTuner: return "recording-holds-tuner";
+		case ErrorCode::NoFreeTuner: return "no-free-tuner";
 		case ErrorCode::PlaybackRunning: return "playback-running";
 		case ErrorCode::PluginRunning: return "plugin-running";
 		case ErrorCode::MediumReadOnly: return "medium-read-only";

@@ -156,6 +156,7 @@ const Walked kWalked[] = {
 	CODE(RecordingPlaying),
 	CODE(BoxInStandby),
 	CODE(RecordingHoldsTuner),
+	CODE(NoFreeTuner),
 	CODE(PlaybackRunning),
 	CODE(PluginRunning),
 	CODE(MediumReadOnly),

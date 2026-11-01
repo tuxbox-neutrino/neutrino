@@ -43,6 +43,19 @@ typedef uint64_t ChannelId;
    they do the guide holds one schedule for both. */
 const ChannelId GUIDE_KEY_MASK = 0xFFFFFFFFFFFFULL;
 
+/* Whether a stream of a channel would get a tuner now without changing what
+   the box shows: the live channel on the picture's own tuner, or a tuner
+   nobody uses and no picture in picture reads; a channel the stream server
+   carries already needs none of its own, and a channel being recorded gets
+   none. NoAnswer when the part of the box that decides did not answer in
+   time. */
+enum class StreamTuner
+{
+	Free,
+	NoneFree,
+	NoAnswer
+};
+
 enum class ServiceKind
 {
 	Unknown,

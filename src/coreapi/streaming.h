@@ -68,6 +68,15 @@ Result<std::string> playlist(const std::string &authority, Scope s);
 // it. NotFound for a channel the box does not have.
 Result<std::string> playlistFor(const std::string &authority, ChannelId id);
 
+/* Whether a browser stream of a channel from the tuners would get a tuner
+   now; a web channel needs none and is not asked about, and neither is a
+   channel the stream server carries already, which it hands to another
+   reader. A channel being recorded gets none, as at the stream server's
+   port. Asks and holds nothing, so the answer may be out of date by the
+   time the stream asks for its tuner itself. NotFound for a channel the box
+   does not have. */
+Result<StreamTuner> tunerFor(ChannelId id);
+
 } // namespace streaming
 } // namespace coreapi
 

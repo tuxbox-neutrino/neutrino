@@ -3414,6 +3414,11 @@ TIMER_START();
 	// so the old pages' texts follow a language a route wrote
 	httpd::installNhttpdConfigReload(&yhttpd_reload_config);
 
+	/* The stream server is made on first use and without a lock, and the
+	   web server asks it whether a channel is streamed already: made here,
+	   before that server's thread can ask. */
+	CStreamManager::getInstance();
+
 	pthread_t nhttpd_thread;
 	if (!pthread_create (&nhttpd_thread, NULL, nhttpd_main_thread, (void *) NULL))
 		pthread_detach (nhttpd_thread);
@@ -4458,6 +4463,18 @@ int coreapi::applicationMode()
 bool coreapi::applicationCanZap(coreapi::ChannelId id)
 {
 	return CNeutrinoApp::getInstance()->zapPossible((t_channel_id) id);
+}
+
+// The same, for whether the stream server carries a channel already.
+bool coreapi::applicationStreamCarried(coreapi::ChannelId id)
+{
+	return CStreamManager::getInstance()->StreamStatus((t_channel_id) id);
+}
+
+// The same, for whether a channel is being recorded.
+bool coreapi::applicationChannelRecorded(coreapi::ChannelId id)
+{
+	return CRecordManager::getInstance()->RecordingStatus((t_channel_id) id);
 }
 
 // The same, for the flag that says the box is ignoring its remote control.

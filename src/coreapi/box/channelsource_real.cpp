@@ -356,6 +356,41 @@ class RealChannelSource : public ChannelSource
 			return Status::Ok;
 		}
 
+		/* zapit decides, on its own thread, by the rule the stream itself is
+		   held to when it asks for its tuner. Asked through a client of this
+		   call's own, because the one the program shares is gone while it
+		   restarts, and for two seconds at most: what did not answer by
+		   then counts as no answer. */
+		Status streamTuner(ChannelId id, StreamTuner &out) const
+		{
+			CZapitClient zapit;
+			CBasicClient::Deadline until(2000);
+			CZapitClient::responseStreamHold reply;
+			if (!zapit.probeStream((t_channel_id) id, reply))
+				out = StreamTuner::NoAnswer;
+			else if (reply.verdict == 0)
+				out = StreamTuner::Free;
+			else if (reply.verdict == 1)
+				out = StreamTuner::NoneFree;
+			else
+				out = StreamTuner::NoAnswer;
+			return Status::Ok;
+		}
+
+		// Never asked for 0, which the stream server reads as any channel.
+		Status streamCarried(ChannelId id, bool &out) const
+		{
+			out = id != 0 && applicationStreamCarried(id);
+			return Status::Ok;
+		}
+
+		// Nor here, where 0 is any recording.
+		Status streamRecorded(ChannelId id, bool &out) const
+		{
+			out = id != 0 && applicationChannelRecorded(id);
+			return Status::Ok;
+		}
+
 		/* Both of the names a bouquet carries. Name is what it is written to file
 		   under and what the channel stack compares a new name against; bName is the
 		   caption every list on screen prints, and the two differ for the bouquets
