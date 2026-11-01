@@ -15,7 +15,7 @@ define(ver_date, m4_esyscmd([
 	printf "$BUILTDATE"
 ]))
 
-AC_INIT(Tuxbox-Neutrino,ver_major.ver_minor.ver_micro)
+AC_INIT(Tuxbox-Neutrino,ver_major.ver_minor.ver_micro,,,[https://github.com/tuxbox-neutrino/neutrino])
 AM_INIT_AUTOMAKE([nostdinc foreign])
 m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES])
 
