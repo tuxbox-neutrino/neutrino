@@ -830,6 +830,135 @@ TEST_CASE("G6: a server that stops closes the setup without an answer, taken bac
 	checkOneWayOut(s, fd, 41);
 }
 
+TEST_CASE("I1: a refused setup with nothing else about announces that no stream runs", "[driver][streamsetup]")
+{
+	Server s;
+	s.hold_answer = 0;
+	const int fd = newFd();
+	const Outcome o = s.accept(fd);
+	REQUIRE(o.result == Refused);
+	REQUIRE(idleAfter(o, s.streams.empty(), s.pending()));
+
+	// A stream that did not start is announced the same way.
+	Server t;
+	t.start_ok = false;
+	const Outcome p = t.accept(newFd());
+	REQUIRE(p.result == Consumed);
+	REQUIRE(idleAfter(p, t.streams.empty(), t.pending()));
+}
+
+TEST_CASE("I2: a published stream is not announced as gone", "[driver][streamsetup]")
+{
+	Server s;
+	const int fd = newFd();
+	const Outcome o = s.accept(fd);
+	REQUIRE(o.published);
+	REQUIRE_FALSE(idleAfter(o, s.streams.empty(), s.pending()));
+	checkOneWayOut(s, fd, 41);
+}
+
+TEST_CASE("I3: another stream running or another setup under way announces nothing", "[driver][streamsetup]")
+{
+	Server s;
+	const int first = newFd();
+	REQUIRE(s.accept(first).published);
+
+	s.target.channel = kTv + 1;
+	s.hold_answer = 0;
+	const Outcome o = s.accept(newFd());
+	REQUIRE(o.result == Refused);
+	REQUIRE_FALSE(idleAfter(o, s.streams.empty(), s.pending()));
+
+	// The rule alone: a setup still under way.
+	REQUIRE_FALSE(idleAfter(o, true, 1));
+	checkOneWayOut(s, first, 41);
+}
+
+TEST_CASE("I4: a setup that asked zapit for a frontend says so, also when it started nothing", "[driver][streamsetup]")
+{
+	/* zapit may have tuned the frontend before the hold failed or the
+	   setup after it did: the end announced carries that. */
+	SECTION("zapit refused the hold")
+	{
+		Server s;
+		s.hold_answer = 0;
+		const Outcome o = s.accept(newFd());
+		REQUIRE(o.result == Refused);
+		REQUIRE(o.asked_hold);
+		REQUIRE(idleAfter(o, s.streams.empty(), s.pending()));
+	}
+	SECTION("no pids after the hold")
+	{
+		Server s;
+		s.pids_ok = false;
+		const Outcome o = s.accept(newFd());
+		REQUIRE(o.result == Refused);
+		REQUIRE(o.asked_hold);
+	}
+	SECTION("the stream did not start")
+	{
+		Server s;
+		s.start_ok = false;
+		const Outcome o = s.accept(newFd());
+		REQUIRE(o.result == Consumed);
+		REQUIRE_FALSE(o.published);
+		REQUIRE(o.asked_hold);
+	}
+	SECTION("the 200 did not go out")
+	{
+		Server s;
+		s.ok_written = false;
+		const Outcome o = s.accept(newFd());
+		REQUIRE(o.result == Refused);
+		REQUIRE(o.asked_hold);
+	}
+	SECTION("published")
+	{
+		Server s;
+		const Outcome o = s.accept(newFd());
+		REQUIRE(o.published);
+		REQUIRE(o.asked_hold);
+	}
+}
+
+TEST_CASE("I5: a setup that never asked zapit for a frontend says it did not", "[driver][streamsetup]")
+{
+	Server s;
+	SECTION("garbage")
+	{
+		s.read = Ops::ReadGarbage;
+		REQUIRE_FALSE(s.accept(newFd()).asked_hold);
+	}
+	SECTION("no such channel")
+	{
+		s.read = Ops::ReadUnknown;
+		REQUIRE_FALSE(s.accept(newFd()).asked_hold);
+	}
+	SECTION("the channel is recorded")
+	{
+		s.recorded = true;
+		REQUIRE_FALSE(s.accept(newFd()).asked_hold);
+	}
+	SECTION("a web channel")
+	{
+		s.target.kind = Web;
+		REQUIRE_FALSE(s.accept(newFd()).asked_hold);
+	}
+	SECTION("the server stops")
+	{
+		s.running = false;
+		REQUIRE_FALSE(s.accept(newFd()).asked_hold);
+	}
+	SECTION("a client joins a running stream")
+	{
+		REQUIRE(s.accept(newFd()).published);
+		const Outcome o = s.accept(newFd());
+		REQUIRE(o.result == Consumed);
+		REQUIRE_FALSE(o.published);
+		REQUIRE_FALSE(o.asked_hold);
+	}
+}
+
 /* The request and the answer on the raw port, over socket pairs: what a
    player sends, what it gets back, and how long either side waits. */
 

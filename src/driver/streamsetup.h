@@ -220,9 +220,22 @@ struct Outcome
 {
 	Result result;
 	bool   published;   // a new stream runs, not a client added to one
+	/* zapit was asked to hold a frontend, and may have tuned it, whether
+	   or not the hold was granted. */
+	bool   asked_hold;
+
+	Outcome() : result(Refused), published(false), asked_hold(false) {}
 };
 
 Outcome run(int fd, StartGate &gate, Ops &ops);
+
+/* Whether the server announces that no stream runs any more after a setup:
+   it published nothing, and no stream runs and no other setup is under
+   way. A stream refused or not started is announced like one that ended,
+   so the EPG scan that paused for its setup goes on. The announcement
+   carries asked_hold: a frontend the setup had tuned may be the one the
+   scan reads from, and no stream start was announced for it. */
+bool idleAfter(const Outcome &o, bool streams_empty, int pending);
 
 } // namespace streamsetup
 

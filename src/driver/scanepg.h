@@ -54,6 +54,22 @@ class CEpgScan
 		std::set<transponder_id_t> scanned;
 		uint32_t rescan_timer;
 		bool scan_in_progress;
+		/* Next() stopped for a recording or a stream, a stream kept a
+		   transponder from being read, or a stream came into a read: the
+		   end of the stream goes on. */
+		bool paused;
+		/* The transponder handed to sectionsd for reading, 0 for none, and
+		   whether a stream started since, or a setup that started none
+		   asked zapit for a frontend, either of which may have retuned the
+		   frontend under the read. Both last until sectionsd's report for
+		   it counts or another transponder is handed over, also across a
+		   pause: sectionsd stays on that service until then. */
+		transponder_id_t reading_tp;
+		bool reading_disturbed;
+		/* How often reading_tp was handed over again in a row after a read
+		   of it was disturbed; cleared with reading_tp and when another
+		   transponder is handed over. */
+		int rereads;
 
 		void AddBouquet(CChannelList * clist);
 		bool AddFavorites();
@@ -70,6 +86,10 @@ class CEpgScan
 
 		int handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data);
 		void Next();
+		/* After the last stream ended, or a read a stream came into was
+		   reported with none left: a paused scan goes on, one that is
+		   reading a transponder is left to it. */
+		void Resume();
 		void Clear();
 		void Start(bool instandby = false);
 		void Stop();

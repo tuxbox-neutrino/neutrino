@@ -39,6 +39,7 @@
 #include <driver/scanepg.h>
 #include <driver/record.h>
 #include <driver/streamts.h>
+#include <driver/scanpause.h>
 
 //#define EPG_RESCAN_TIME (24*60*60)
 
@@ -53,6 +54,10 @@ CEpgScan::CEpgScan()
 	standby = false;
 	rescan_timer = 0;
 	scan_in_progress = false;
+	paused = false;
+	reading_tp = 0;
+	reading_disturbed = false;
+	rereads = 0;
 	Clear();
 }
 
@@ -114,6 +119,10 @@ void CEpgScan::Clear()
 	next_chid = 0;
 	allfav_done = false;
 	selected_done = false;
+	paused = false;
+	reading_tp = 0;
+	reading_disturbed = false;
+	rereads = 0;
 }
 
 bool CEpgScan::Running()
@@ -277,6 +286,10 @@ void CEpgScan::Stop()
 		return;
 
 	INFO("stopping %s scan...", standby ? "standby" : "live");
+	paused = false;
+	reading_tp = 0;
+	reading_disturbed = false;
+	rereads = 0;
 	if (standby) {
 		standby = false;
 		CZapit::getInstance()->SetCurrentChannelID(live_channel_id);
@@ -310,6 +323,23 @@ int CEpgScan::handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data)
 		return ret;
 	}
 
+	if (msg == NeutrinoMessages::EVT_STREAM_START) {
+		/* The stream may have retuned the frontend sectionsd reads the
+		   transponder from. The program's own handler still has to see
+		   the message. */
+		if (reading_tp)
+			reading_disturbed = true;
+		return messages_return::unhandled;
+	}
+	if (msg == NeutrinoMessages::EVT_STREAM_STOP) {
+		/* data 1: a setup that started no stream asked zapit to hold a
+		   frontend, which zapit may have retuned under the read. The
+		   program's own handler still has to see the message. */
+		if (reading_tp && data == 1)
+			reading_disturbed = true;
+		return messages_return::unhandled;
+	}
+
 	CZapitChannel * newchan;
 	if (msg == NeutrinoMessages::EVT_ZAP_COMPLETE) {
 		/* live channel changed, block scan channel change by timer */
@@ -326,6 +356,11 @@ int CEpgScan::handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data)
 	else if (msg == NeutrinoMessages::EVT_EIT_COMPLETE) {
 		scan_in_progress = false;
 		t_channel_id chid = *(t_channel_id *)data;
+		// Before the channel lock: the stream server takes a lock of its own.
+		const bool busy = CStreamManager::getInstance()->StreamStatus();
+		bool again = false;
+		int disturbed_reads = 0;
+		std::string chan_name;
 		{
 			/* The channel this names is a pointer into the map the service
 			   manager owns, so reading anything off it belongs under that
@@ -334,10 +369,38 @@ int CEpgScan::handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data)
 			CServiceManager::ChannelGuard guard;
 			newchan = CServiceManager::getInstance()->FindChannel(chid);
 			if (newchan) {
-				scanned.insert(newchan->getTransponderId());
-				scanmap.erase(newchan->getTransponderId());
+				const transponder_id_t tpid = newchan->getTransponderId();
+				const scanpause::EitComplete done =
+					scanpause::onEitComplete(reading_tp != 0 && tpid == reading_tp,
+								 reading_disturbed, busy, rereads);
+				again = done == scanpause::ReadAgain;
+				if (done == scanpause::CountDisturbed)
+					disturbed_reads = rereads + 1;
+				chan_name = newchan->getName();
+				if (!again) {
+					scanned.insert(tpid);
+					scanmap.erase(tpid);
+					if (tpid == reading_tp) {
+						reading_tp = 0;
+						reading_disturbed = false;
+						rereads = 0;
+					}
+				}
 			}
 		}
+		if (again) {
+			/* The mark stays until the transponder is handed over again,
+			   so that a later pass reported meanwhile does not count
+			   either; the end of the stream resumes the scan. */
+			reading_disturbed = true;
+			paused = true;
+			INFO("read again after a stream [%s], scan map size: %zd", chan_name.c_str(), scanmap.size());
+			if (!busy)
+				Resume();
+			return messages_return::handled;
+		}
+		if (disturbed_reads)
+			INFO("counted [%s] after %d disturbed reads", chan_name.c_str(), disturbed_reads);
 		INFO("EIT read complete [" PRINTF_CHANNEL_ID_TYPE "], scan map size: %zd", chid, scanmap.size());
 
 		Next();
@@ -370,23 +433,56 @@ int CEpgScan::handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data)
 				}
 			}
 			if (found) {
-				if(chid) {
+				/* A stream that came in since Next() looked, or one whose
+				   hold took the frontend before this zap, keeps the
+				   transponder from being read now, not for good. */
+				switch (scanpause::onBackZap(chid != 0, CStreamManager::getInstance()->StreamStatus())) {
+				case scanpause::Read:
 					if (!CRecordManager::getInstance()->RecordingStatus()) {
 						INFO("try to scan [%s]", chan_name.c_str());
 						if (standby && !g_Sectionsd->getIsScanningActive())
 							g_Sectionsd->setPauseScanning(false);
 						g_Sectionsd->setServiceChanged(chan_id, false, chan_demux);
+						rereads = scanpause::rereadsAtHandOver(chan_tpid == reading_tp,
+										     reading_disturbed, rereads);
+						reading_tp = chan_tpid;
+						reading_disturbed = false;
 					}
-				} else {
+					break;
+				case scanpause::Pause:
+					INFO("paused for a stream [%s]", chan_name.c_str());
+					paused = true;
+					break;
+				case scanpause::Skip:
 					INFO("tune failed [%s]", chan_name.c_str());
 					scanmap.erase(chan_tpid);
 					Next();
+					break;
 				}
 			}
 		}
 		return messages_return::handled;
 	}
 	return messages_return::unhandled;
+}
+
+/* How long the scan waits for zapit to give back the holds of ended streams. */
+static const unsigned kCollectBudgetMs = 2000;
+
+void CEpgScan::Resume()
+{
+	if (!scanpause::resumeNow(paused, CheckMode()))
+		return;
+	/* The holds of the streams that ended are given back first, or the
+	   scan's zap could find their frontends still held. The deadline is
+	   the thread's for every zapit call while it lives, so it ends before
+	   Next(), which can enter standby and run a message loop. */
+	{
+		CBasicClient::Deadline until(kCollectBudgetMs);
+		CZapitClient::responseStreamYield reply;
+		g_Zapit->yieldStreams(0, kCollectBudgetMs, reply);
+	}
+	Next();
 }
 
 void CEpgScan::AddTimer()
@@ -416,11 +512,14 @@ void CEpgScan::Next()
 	bool plocked = false;
 #endif
 	next_chid = 0;
+	paused = false;
 
 	if (!standby && CNeutrinoApp::getInstance()->getMode() == NeutrinoModes::mode_standby)
 		return;
-	if (CRecordManager::getInstance()->RecordingStatus() || CStreamManager::getInstance()->StreamStatus())
+	if (CRecordManager::getInstance()->RecordingStatus() || CStreamManager::getInstance()->StreamStatus()) {
+		paused = true;
 		return;
+	}
 
 	{
 		/* The same lock and the same reason as in AddTransponders, in a scope

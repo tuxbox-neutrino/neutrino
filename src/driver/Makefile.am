@@ -48,6 +48,7 @@ libneutrino_driver_a_SOURCES = \
 	record.cpp \
 	recordtuner.cpp \
 	scanepg.cpp \
+	scanpause.cpp \
 	screen_max.cpp \
 	screenshot.cpp \
 	shutdown_count.cpp \

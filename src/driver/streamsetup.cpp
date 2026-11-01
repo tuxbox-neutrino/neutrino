@@ -384,6 +384,41 @@ Outcome refusal(Ops &ops, int fd, int status, const char *reason)
 
 const char kNoTuner[] = "no tuner is free for this channel";
 
+/* The rest of a broadcast channel's setup, once zapit answered its hold. */
+Outcome withHold(Ops &ops, StartGate &gate, Pending &pending, int fd, uint64_t since,
+		 const Target &t, const Ops::Hold &held)
+{
+	HoldRef hold(ops, held.id);
+	if (!hold.id())
+		return refusal(ops, fd, 503, kNoTuner);
+	void *fe = ops.adopt(hold.id());
+	if (!fe || !ops.preparePids(t))
+	{
+		hold.dropNow();
+		return refusal(ops, fd, 503, kNoTuner);
+	}
+
+	{
+		OpenThreads::ScopedLock<OpenThreads::Mutex> l(gate.mutex());
+		switch (gate.mayPublishLocked(since, held.fenumber, t.channel))
+		{
+		case StartGate::Ok:
+			if (!ops.writeOk(fd))
+				return outcome(Refused, false);
+			return publish(ops, pending, fd, t, fe, hold.release());
+		case StartGate::Stopping:
+			return outcome(Refused, false);
+		case StartGate::Cancelled:
+			break;
+		}
+	}
+	/* Its frontend went to a recording, or its channel was stopped, while
+	   it was set up: answered as if no frontend had been free, with the
+	   mutex given back. */
+	hold.dropNow();
+	return refusal(ops, fd, 503, kNoTuner);
+}
+
 } // namespace
 
 Outcome run(int fd, StartGate &gate, Ops &ops)
@@ -434,35 +469,14 @@ Outcome run(int fd, StartGate &gate, Ops &ops)
 		return refusal(ops, fd, 503, kNoTuner);
 
 	const Ops::Hold held = ops.hold(t.channel);
-	HoldRef hold(ops, held.id);
-	if (!hold.id())
-		return refusal(ops, fd, 503, kNoTuner);
-	void *fe = ops.adopt(hold.id());
-	if (!fe || !ops.preparePids(t))
-	{
-		hold.dropNow();
-		return refusal(ops, fd, 503, kNoTuner);
-	}
+	Outcome o = withHold(ops, gate, pending, fd, since, t, held);
+	o.asked_hold = true;
+	return o;
+}
 
-	{
-		OpenThreads::ScopedLock<OpenThreads::Mutex> l(gate.mutex());
-		switch (gate.mayPublishLocked(since, held.fenumber, t.channel))
-		{
-		case StartGate::Ok:
-			if (!ops.writeOk(fd))
-				return outcome(Refused, false);
-			return publish(ops, pending, fd, t, fe, hold.release());
-		case StartGate::Stopping:
-			return outcome(Refused, false);
-		case StartGate::Cancelled:
-			break;
-		}
-	}
-	/* Its frontend went to a recording, or its channel was stopped, while
-	   it was set up: answered as if no frontend had been free, with the
-	   mutex given back. */
-	hold.dropNow();
-	return refusal(ops, fd, 503, kNoTuner);
+bool idleAfter(const Outcome &o, bool streams_empty, int pending)
+{
+	return !o.published && streams_empty && pending == 0;
 }
 
 } // namespace streamsetup

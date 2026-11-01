@@ -658,6 +658,14 @@ void CStreamManager::run()
 						if (first_stream)
 							g_RCInput->postMsg(NeutrinoMessages::EVT_STREAM_START, 0);
 					}
+					mutex.lock();
+					const bool idle = streamsetup::idleAfter(added, streams.empty(), gate.pendingLocked());
+					mutex.unlock();
+					/* zapit may have tuned a frontend for a setup that
+					   started nothing, and no start was announced for
+					   it: the EPG scan learns of it here. */
+					if (idle)
+						g_RCInput->postMsg(NeutrinoMessages::EVT_STREAM_STOP, added.asked_hold ? 1 : 0);
 					poll_timeout = 1000;
 				} else {
 					if (pfd[i].revents & (POLLHUP | POLLRDHUP)) {

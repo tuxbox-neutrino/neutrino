@@ -4334,8 +4334,11 @@ void CNeutrinoApp::tryDeferredDeepStandby(void)
 {
 	if (!deferred_deepstandby || mode != NeutrinoModes::mode_standby)
 		return;
+	/* recordingstatus follows the record mode, which a starting recording
+	   announces only after an end of streams may have come in. */
 	bool alive = recordingstatus || CEpgScan::getInstance()->Running() ||
-		CStreamManager::getInstance()->StreamStatus();
+		CStreamManager::getInstance()->StreamStatus() ||
+		CRecordManager::getInstance()->RecordingStatus();
 	if (alive || hasPendingRecording())
 		return;
 	deferred_deepstandby = false;
@@ -4385,8 +4388,11 @@ bool CNeutrinoApp::wakeOnto(const t_channel_id channel_id, bool tv)
 
 void CNeutrinoApp::standbyToStandby(void)
 {
+	/* As in tryDeferredDeepStandby: a recording that has started but not
+	   yet announced its record mode keeps zapit awake. */
 	bool alive = recordingstatus || CEpgScan::getInstance()->Running() ||
-		CStreamManager::getInstance()->StreamStatus();
+		CStreamManager::getInstance()->StreamStatus() ||
+		CRecordManager::getInstance()->RecordingStatus();
 
 	if ((mode == NeutrinoModes::mode_standby) && !alive) {
 		// zap back to pre-recording channel if necessary
@@ -5124,7 +5130,7 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 	}
 	else if (msg == NeutrinoMessages::EVT_STREAM_STOP) {
 		printf("NeutrinoMessages::EVT_STREAM_STOP\n");
-		CEpgScan::getInstance()->Next();
+		CEpgScan::getInstance()->Resume();
 		standbyToStandby();
 		return messages_return::handled;
 	}
