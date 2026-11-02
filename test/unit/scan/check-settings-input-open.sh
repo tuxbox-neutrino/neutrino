@@ -1,10 +1,9 @@
 #!/bin/sh
-# A string input edits the setting it was handed in place: it pads the value
-# once to its width and indexes it up to that width, and the address inputs
-# keep pointers into the string. A value put into such a setting from
-# elsewhere while the input is open ends neutrino at the next key. The keyboard
-# input and the text input dialog edit a copy, but put it back into the setting
-# when they close, on cancel too, over any value put there meanwhile. Two
+# Every input runs on one of two dialogs: the text input dialog (the string,
+# keyboard, numeric and PIN inputs) and the structured input dialog (the
+# address, time and date inputs). Both edit a copy of the setting they were
+# handed, but put it back into the setting when they close, on cancel too,
+# over any value put there meanwhile. Two
 # messages put values into the settings from elsewhere, and either can arrive
 # inside an open input, which passes on what it does not handle: a write of
 # the settings over the wire (APPLY_SETTINGS) and a reload of the settings
@@ -37,11 +36,15 @@ SRC="$1"
 HERE=`dirname "$0"`
 APP="$SRC/src/neutrino.cpp"
 INPUT="$SRC/src/gui/widget/stringinput.cpp"
-EXT="$SRC/src/gui/widget/stringinput_ext.cpp"
-KEYBOARD="$SRC/src/gui/widget/keyboard_input.cpp"
 DIALOG="$SRC/src/gui/components/cc_input_dialog.cpp"
-for f in "$APP" "$INPUT" "$EXT" "$KEYBOARD" "$DIALOG" "$HERE/strip-comments.awk" "$HERE/blank-if0.awk"; do
+STRUCTURED="$SRC/src/gui/components/cc_structured_input_dialog.cpp"
+# where an input class may define an exec of its own
+INPUTS="src/gui/widget/stringinput.cpp src/gui/widget/stringinput_ext.cpp src/gui/widget/keyboard_input.cpp src/gui/components/cc_input_dialog.cpp src/gui/components/cc_numeric_input_dialog.cpp src/gui/components/cc_pin_input_dialog.cpp src/gui/components/cc_structured_input_dialog.cpp"
+for f in "$APP" "$HERE/strip-comments.awk" "$HERE/blank-if0.awk"; do
 	[ -r "$f" ] || { echo "check-settings-input-open.sh: cannot read $f" >&2; exit 1; }
+done
+for f in $INPUTS; do
+	[ -r "$SRC/$f" ] || { echo "check-settings-input-open.sh: cannot read $SRC/$f" >&2; exit 1; }
 done
 
 tmp=`mktemp -d`
@@ -51,9 +54,8 @@ prepare() {
 }
 prepare "$APP" > "$tmp/app"
 prepare "$INPUT" > "$tmp/input"
-prepare "$EXT" > "$tmp/ext"
-prepare "$KEYBOARD" > "$tmp/keyboard"
 prepare "$DIALOG" > "$tmp/dialog"
+prepare "$STRUCTURED" > "$tmp/structured"
 
 # The block that opens on the first line naming $2 in $1, braces counted,
 # without white space.
@@ -80,11 +82,10 @@ fail() {
 	bad=1
 }
 
-# The five inputs count themselves first, for as long as their exec runs, and
+# The two dialogs count themselves first, for as long as their exec runs, and
 # the last to close posts the message when asked to.
-for spec in "$tmp/input|int CStringInput::exec(" "$tmp/input|int CPINInput::exec(" \
-		"$tmp/ext|int CExtendedInput::exec(" "$tmp/keyboard|int CKeyboardInput::exec(" \
-		"$tmp/dialog|int CCTextInputDialog::exec("; do
+for spec in "$tmp/dialog|int CCTextInputDialog::exec(" \
+		"$tmp/structured|int CCStructuredInputDialog::exec("; do
 	file=`echo "$spec" | cut -d'|' -f1`
 	want=`echo "$spec" | cut -d'|' -f2`
 	b=`block "$file" "$want"`
@@ -93,6 +94,24 @@ for spec in "$tmp/input|int CStringInput::exec(" "$tmp/input|int CPINInput::exec
 		*"&){CStringInputOpencounted;"*) ;;
 		*) fail "$want does not count itself as an open input before anything else" ;;
 	esac
+done
+# An input class with an exec of its own counts itself the same way, or hands
+# over to the exec of one of the two dialogs. The PIN change is the one
+# exception: it only opens two PIN dialogs, which count, and writes the
+# setting after both have closed.
+for f in $INPUTS; do
+	prepare "$SRC/$f" > "$tmp/one"
+	for want in `grep -oE '^int C[A-Za-z_]+::exec\(' "$tmp/one" | tr -d ' '`; do
+		want=`echo "$want" | sed 's/^int/int /'`
+		case "$want" in
+			"int CPINChangeWidget::exec(") continue ;;
+		esac
+		case "`block "$tmp/one" "$want"`" in
+			*"&){CStringInputOpencounted;"*) ;;
+			*"CCTextInputDialog::exec("*|*"CCStructuredInputDialog::exec("*) ;;
+			*) fail "$want in $f does not count itself as an open input before anything else" ;;
+		esac
+	done
 done
 closed=`block "$tmp/input" 'CStringInputOpen::~CStringInputOpen('`
 case "$closed" in
