@@ -63,11 +63,12 @@ for f in "$STRIP" "$BLANK" "$HEADER" "$FIELD"; do
 done
 
 # Below these the scan is not measuring the tree any more. The header held 78
-# text field names and the tree 874 mentions of one when this was written, and
-# the widgets published 21 of them.
+# text field names and the tree 874 mentions of one when this was written. The
+# widgets published 21 of them then, and 11 once the input dialogs kept a buffer
+# of their own.
 FLOOR_NAMES=70
 FLOOR_REFS=700
-FLOOR_PUBLISHED=15
+FLOOR_PUBLISHED=8
 # The weather's two were mentioned 15 times.
 FLOOR_THREADWRITTEN=12
 
@@ -220,14 +221,15 @@ fi
 # ------------------------------------------------------------- the widgets
 #
 # What a screen hands a pointer to. The widget edits the caller's string as the
-# user types, so the write is here and not at the screen. Every change is made
-# under the lock its readers take: one that can move the buffer through the
-# accessors, a single character through the widget's own guarded helper
-# (setCharAt in the string input, setCharLocked in the extended input). A bare
-# write through the extended input's data pointer is refused; the string input's
-# value->at(pos) is not a pattern this reads.
-WIDGETS='src/gui/widget/stringinput.cpp src/gui/widget/stringinput_ext.cpp src/gui/widget/keyboard_input.cpp src/gui/widget/menue.cpp src/gui/components/cc_input_dialog.cpp src/gui/filebrowser.cpp src/gui/opkg_manager.cpp'
-RAW='\*(valueString|optionValuePtr|local_dir|cid_value)[ ]*=[^=]|(valueString|optionValuePtr|local_dir|cid_value)->(append|assign|insert|erase|resize|swap|push_back|clear)[ ]*\(|(^|[^A-Za-z_.>])setting_dir[ ]*=[^=]|setting_dir\.(append|assign|insert|erase|resize|swap|push_back|clear)[ ]*\(|\*data[ ]*=[^=]'
+# user types, so the write is here and not at the screen. The input dialogs
+# edit a buffer of their own and put it into the caller's string through the
+# accessors, on save and when they write back the value they started with; the
+# other widgets change it through the accessors as well, under the lock its
+# readers take. A bare write through one of the pointers below is refused. The
+# structured input reads its target through getTarget() and writes only through
+# csd_value; the PIN change writes through value.
+WIDGETS='src/gui/widget/stringinput.cpp src/gui/widget/stringinput_ext.cpp src/gui/widget/keyboard_input.cpp src/gui/widget/menue.cpp src/gui/components/cc_input_dialog.cpp src/gui/components/cc_numeric_input_dialog.cpp src/gui/components/cc_structured_input_dialog.cpp src/gui/filebrowser.cpp src/gui/opkg_manager.cpp'
+RAW='\*(valueString|optionValuePtr|local_dir|cid_value|csd_value|value)[ ]*=[^=]|(valueString|optionValuePtr|local_dir|cid_value|csd_value|value)->(append|assign|insert|erase|resize|swap|push_back|clear)[ ]*\(|(^|[^A-Za-z_.>])setting_dir[ ]*=[^=]|setting_dir\.(append|assign|insert|erase|resize|swap|push_back|clear)[ ]*\(|\*data[ ]*=[^=]'
 published=0
 for f in $WIDGETS; do
 	[ -r "$SRC/$f" ] || {
