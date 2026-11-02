@@ -1251,7 +1251,16 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 		strcpy(m_Duration, Duration);
 	}
 
-	if (g_settings.weather_enabled && CWeather::getInstance()->checkUpdate(firstRun))
+	/* checkUpdate fetches for whichever caller comes first once the cycle is up
+	   and answers false to every other one, the front display among them, so
+	   its answer says nothing about whether the files here are behind. It only
+	   starts the fetch; what is written is what the weather holds, and the
+	   comparisons below keep a file that has not changed from being written. */
+	if (g_settings.weather_enabled)
+		CWeather::getInstance()->checkUpdate(firstRun);
+
+	// Nothing before the first fetch that came back, or every value would read 0.
+	if (g_settings.weather_enabled && CWeather::getInstance()->getCurrentTimestamp() > 0)
 	{
 		std::string wcity = CWeather::getInstance()->getCity();
 		if (m_wcity.compare(wcity))

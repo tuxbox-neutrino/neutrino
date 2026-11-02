@@ -32,18 +32,6 @@ static bool fonts_initialized = false;
 GLCD::cFont font_temperature;
 GLCD::cFont font_temperature_standby;
 
-static std::string st_current_wcity = "";
-static std::string st_current_wtimestamp = "";
-static std::string st_current_wtemp = "";
-static std::string st_current_wwind = "";
-static std::string st_current_wicon = "";
-
-static std::string st_next_wcity = "";
-static std::string st_next_wtimestamp = "";
-static std::string st_next_wtemp = "";
-static std::string st_next_wwind = "";
-static std::string st_next_wicon = "";
-
 int  weather_percent;
 int  weather_fontsize;
 
@@ -111,52 +99,36 @@ void RenderWeather(bool standby)
 
 	int forecast = _t->tm_hour < 16 ? 0 : 1; // 0 is current day; after 4pm use next day
 
-	std::string current_wcity = "";
-	std::string current_wtimestamp = "";
-	std::string current_wtemp = "";
-	std::string current_wwind = "";
-	std::string current_wicon = "";
-
-	std::string next_wcity = "";
-	std::string next_wtimestamp = "";
-	std::string next_wtemp = "";
-	std::string next_wwind = "";
-	std::string next_wicon = "";
-
 	cGLCD *cglcd = cGLCD::getInstance();
 
 	if (g_settings.weather_enabled)
 	{
-		if (CWeather::getInstance()->checkUpdate(ForceUpdate))
-		{
-			current_wcity = st_current_wcity = CWeather::getInstance()->getCity();
-			current_wtimestamp = st_current_wtimestamp = to_string((int)CWeather::getInstance()->getCurrentTimestamp());
-			current_wtemp = st_current_wtemp = CWeather::getInstance()->getCurrentTemperature();
-			current_wwind = st_current_wwind = CWeather::getInstance()->getCurrentWindSpeed();
-			current_wicon = st_current_wicon = CWeather::getInstance()->getCurrentIcon();
+		CWeather *weather = CWeather::getInstance();
 
-			next_wcity = st_next_wcity = CWeather::getInstance()->getCity();
-			next_wtimestamp = st_next_wtimestamp = to_string((int)CWeather::getInstance()->getForecastWeekday(forecast));
-			//next_wtemp = st_next_wtemp = CWeather::getInstance()->getForecastTemperatureMin(forecast);
-			//next_wtemp = st_next_wtemp += "|" + CWeather::getInstance()->getForecastTemperatureMax(forecast);
-			next_wtemp = st_next_wtemp = CWeather::getInstance()->getForecastTemperatureMax(forecast);
-			next_wwind = st_next_wwind = CWeather::getInstance()->getForecastWindBearing(forecast);
-			next_wicon = st_next_wicon = CWeather::getInstance()->getForecastIcon(forecast);
-		}
-		else
-		{
-			current_wcity = st_current_wcity;
-			current_wtimestamp = st_current_wtimestamp;
-			current_wtemp = st_current_wtemp;
-			current_wwind = st_current_wwind;
-			current_wicon = st_current_wicon;
+		/* checkUpdate fetches for whichever caller comes first once the cycle is up
+		   and answers false to every other one, lcd4l among them. A copy taken only
+		   on true stayed at the old values for up to a cycle while the weather and
+		   the other display had the new ones, so it only starts the fetch, and the
+		   values are read from the weather every time. */
+		weather->checkUpdate(ForceUpdate);
 
-			next_wcity = st_next_wcity;
-			next_wtimestamp = st_next_wtimestamp;
-			next_wtemp = st_next_wtemp;
-			next_wwind = st_next_wwind;
-			next_wicon = st_next_wicon;
-		}
+		// Nothing before the first fetch that came back, or every value would read 0.
+		if (weather->getCurrentTimestamp() <= 0)
+			return;
+
+		std::string current_wcity = weather->getCity();
+		std::string current_wtimestamp = to_string((int)weather->getCurrentTimestamp());
+		std::string current_wtemp = weather->getCurrentTemperature();
+		std::string current_wwind = weather->getCurrentWindSpeed();
+		std::string current_wicon = weather->getCurrentIcon();
+
+		std::string next_wcity = weather->getCity();
+		std::string next_wtimestamp = to_string((int)weather->getForecastWeekday(forecast));
+		//std::string next_wtemp = weather->getForecastTemperatureMin(forecast);
+		//next_wtemp += "|" + weather->getForecastTemperatureMax(forecast);
+		std::string next_wtemp = weather->getForecastTemperatureMax(forecast);
+		std::string next_wwind = weather->getForecastWindBearing(forecast);
+		std::string next_wicon = weather->getForecastIcon(forecast);
 
 		if ((current_wicon != "") && cix)
 		{
