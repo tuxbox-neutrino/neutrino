@@ -32,7 +32,7 @@ defaults compared against the program	236
 error codes the header declares	146
 fields the bound scan read	45
 fields the chooser scan read	195
-fields with a stated label	92
+fields with a stated label	91
 flags compared against a screen	113
 # The one carried line: its recorder is the runner-excluded ordering case
 # (slice 3 brings the four missing tables and the case back). Every other
@@ -45,11 +45,11 @@ keys read anywhere in the tree	723
 keys whose default the scan can compare	282
 labels compared against a chooser	179
 labels compared against a number chooser	29
-labels compared against a stated field	82
+labels compared against a stated field	81
 labels compared against the locale names	328
-labels stated beside a field	100
+labels stated beside a field	98
 listed keys compared against the table	25
-locale names the program has	3063
+locale names the program has	3072
 options an applier or its notifier branches on	49
 parameters the document describes	134
 refusals the document states against a route	774
