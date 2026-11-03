@@ -96,6 +96,7 @@ coreapi_tests_SOURCES = \
 	coreapi/test_shellcontract.cpp \
 	system/test_mysystem.cpp \
 	timerd/test_timerwake.cpp \
+	timerd/test_timerepg.cpp \
 	lib/timerdclient/test_timerdannounce.cpp \
 	coreapi/test_storage.cpp \
 	coreapi/test_storage_move.cpp \
@@ -160,7 +161,8 @@ coreapi_tests_SOURCES = \
 # archive with it, which is why that adapter lives in a file of its own.
 # The timer daemon's client is linked for the same reason as the channel object:
 # what a list read does with an answer that stops early is its own logic.
-# timerwake.o is the one object of the timer daemon that links on its own.
+# timerwake.o is one object of the timer daemon that links on its own;
+# timerepg.o, the moment a recording's guide event is looked up at, is the other.
 # reap.o is how the terminal collects its own child, linked so the cases
 # drive the object the program runs; it needs nothing but the C library.
 # helpers.o carries the spawn helper the shipped program uses, so the case that
@@ -198,6 +200,7 @@ coreapi_tests_LDADD = \
 	$(top_builddir)/src/system/helpers.o \
 	$(top_builddir)/src/gui/widget/yaft/reap.o \
 	$(top_builddir)/src/timerd/timerwake.o \
+	$(top_builddir)/src/timerd/timerepg.o \
 	$(top_builddir)/src/system/debug.o \
 	$(top_builddir)/lib/jsoncpp/libjsoncpp.a \
 	$(top_builddir)/src/zapit/channel.o \
@@ -309,6 +312,7 @@ EXTRA_DIST = interop/peer/README support/catch.hpp support/run-tests.sh support/
 	scan/check-standby-flag.sh \
 	scan/check-stream-send.sh \
 	scan/check-live-displaced.sh \
+	scan/check-timer-epgid.sh \
 	scan/strip-comments.awk scan/blank-if0.awk scan/bounds.awk scan/pairs.awk scan/fields.awk \
 	scan/keyvals.awk scan/choices.awk scan/enums.awk scan/labels.awk scan/branches.awk \
 	scan/settingstext.awk scan/channel-holds.awk \
@@ -474,4 +478,5 @@ check-local: check-TESTS
 	@$(SHELL) $(srcdir)/scan/check-standby-flag.sh $(top_srcdir)
 	@$(SHELL) $(srcdir)/scan/check-stream-send.sh $(top_srcdir)
 	@$(SHELL) $(srcdir)/scan/check-live-displaced.sh $(top_srcdir)
+	@$(SHELL) $(srcdir)/scan/check-timer-epgid.sh $(top_srcdir)
 	@$(MAKE) $(AM_MAKEFLAGS) check-api-types

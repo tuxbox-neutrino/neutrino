@@ -43,6 +43,7 @@
 #include "debug.h"
 #include "timermanager.h"
 #include "timerwake.h"
+#include "timerepg.h"
 #include <system/set_threadname.h>
 
 #include <driver/display.h>
@@ -1403,8 +1404,10 @@ void CTimerEvent_Record::getEpgId()
 	//TODO: Record/Zapto getEpgId code almost identical !
 	CChannelEventList evtlist;
 	CEitManager::getInstance()->getEventsServiceKey(eventInfo.channel_id, evtlist);
-	// we check for a time in the middle of the recording
-	time_t check_time=alarmTime/2 + stopTime/2;
+	int pre = 0, post = 0;
+	CTimerManager::getInstance()->getRecordingSafety(pre, post);
+	// the middle of the time asked for, the margins left out
+	time_t check_time = timerepg::checkTime(alarmTime, stopTime, recordingSafety, pre, post);
 	for ( CChannelEventList::iterator e= evtlist.begin(); e != evtlist.end(); ++e )
 	{
 		if ( e->startTime <= check_time && (e->startTime + (int)e->duration) >= check_time)
@@ -1457,7 +1460,7 @@ bool CTimerEvent_Record::adjustToCurrentEPG()
 	}
 
 	// we check for a time in the middle of the recording without considering pre and post
-	time_t check_time=_alarmTime/2 + _stopTime/2;
+	time_t check_time = timerepg::checkTime(alarmTime, stopTime, recordingSafety, pre, post);
 	for ( CChannelEventList::iterator e= evtlist.begin(); e != evtlist.end(); ++e )
 	{
 		if ( e->startTime <= check_time && (e->startTime + (int)e->duration) >= check_time)

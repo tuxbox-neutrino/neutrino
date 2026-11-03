@@ -16,4 +16,4 @@ AM_CPPFLAGS += \
 
 noinst_LIBRARIES = libtimerd.a
 
-libtimerd_a_SOURCES = timerd.cpp timermanager.cpp timerwake.cpp
+libtimerd_a_SOURCES = timerd.cpp timermanager.cpp timerepg.cpp timerwake.cpp
