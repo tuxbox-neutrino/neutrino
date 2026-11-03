@@ -155,6 +155,12 @@ bool writeOk(int fd);
    to a reset. The caller closes fd. */
 void refuse(int fd, int status, const char *reason);
 
+/* Asks for a send buffer of bytes on fd. Every client of a stream gets it,
+   the one that starts the stream and each one that joins it: the reader
+   does not wait for a client, and what does not fit in the buffer is not
+   sent to that client. */
+void setSendBuffer(int fd, int bytes);
+
 struct Target
 {
 	uint64_t channel;

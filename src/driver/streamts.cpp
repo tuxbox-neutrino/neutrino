@@ -75,6 +75,8 @@
 #define TS_SIZE 188
 #define DMX_BUFFER_SIZE (2048*TS_SIZE)
 #define IN_SIZE (250*TS_SIZE)
+/* Room for ten reads in each client's socket. */
+#define SEND_BUFFER_SIZE (10*IN_SIZE)
 
 CStreamInstance::CStreamInstance(int clientfd, t_channel_id chid, stream_pids_t &_pids)
 {
@@ -484,6 +486,7 @@ class CStreamManager::SetupOps : public streamsetup::Ops
 		void joinLocked(uint64_t channel, int fd)
 		{
 			printf("CStreamManager::AddClient: channel_id %" PRIx64 " already streaming, just add client %d\n", channel, fd);
+			streamsetup::setSendBuffer(fd, SEND_BUFFER_SIZE);
 			sm.streams[channel]->AddClient(fd);
 		}
 
@@ -539,9 +542,7 @@ class CStreamManager::SetupOps : public streamsetup::Ops
 				stream->is_e2_stream = t.e2;
 				stream->hold_id = hold_id;
 			}
-			int sendsize = 10*IN_SIZE;
-			unsigned int m = sizeof(sendsize);
-			setsockopt(fd, SOL_SOCKET, SO_SNDBUF, (void *)&sendsize, m);
+			streamsetup::setSendBuffer(fd, SEND_BUFFER_SIZE);
 			return stream;
 		}
 

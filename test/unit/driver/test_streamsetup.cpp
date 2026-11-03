@@ -16,8 +16,10 @@
 
 #include <driver/streamsetup.h>
 
+#include <algorithm>
 #include <atomic>
 #include <cerrno>
+#include <cstdio>
 #include <map>
 #include <set>
 #include <string>
@@ -1234,4 +1236,39 @@ TEST_CASE("a 200 to a client that is gone fails without a signal", "[driver][str
 	close(p.client);
 	p.client = -1;
 	REQUIRE_FALSE(writeOk(p.box));
+}
+
+namespace
+{
+
+int sendBufferOf(int fd)
+{
+	int size = 0;
+	socklen_t len = sizeof(size);
+	REQUIRE(getsockopt(fd, SOL_SOCKET, SO_SNDBUF, &size, &len) == 0);
+	return size;
+}
+
+} // namespace
+
+TEST_CASE("a client's socket gets the send buffer asked for", "[driver][streamsetup][sndbuf]")
+{
+	Pair p;
+	const int asked = 10 * 250 * 188;   // what the stream server asks for
+	const int before = sendBufferOf(p.box);
+	setSendBuffer(p.box, asked);
+	const int after = sendBufferOf(p.box);
+	REQUIRE(after > before);
+	// The kernel caps the request at net.core.wmem_max and doubles it for
+	// its own bookkeeping; where the cap can be read, the figure is exact.
+	FILE *f = fopen("/proc/sys/net/core/wmem_max", "r");
+	int wmem_max = 0;
+	if (f)
+	{
+		if (fscanf(f, "%d", &wmem_max) != 1)
+			wmem_max = 0;
+		fclose(f);
+	}
+	if (wmem_max > 0)
+		REQUIRE(after == 2 * std::min(asked, wmem_max));
 }

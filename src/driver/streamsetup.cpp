@@ -233,6 +233,11 @@ void refuse(int fd, int status, const char *reason)
 	}
 }
 
+void setSendBuffer(int fd, int bytes)
+{
+	setsockopt(fd, SOL_SOCKET, SO_SNDBUF, &bytes, sizeof(bytes));
+}
+
 StartGate::StartGate(OpenThreads::Mutex &mx, std::atomic<bool> &r)
 	: m(mx), running(r), pending(0), epoch(0)
 {

@@ -299,6 +299,7 @@ EXTRA_DIST = interop/peer/README support/catch.hpp support/run-tests.sh support/
 	scan/check-epgscan-resume.sh \
 	scan/check-zapit-stop.sh \
 	scan/check-standby-flag.sh \
+	scan/check-stream-send.sh \
 	scan/strip-comments.awk scan/blank-if0.awk scan/bounds.awk scan/pairs.awk scan/fields.awk \
 	scan/keyvals.awk scan/choices.awk scan/enums.awk scan/labels.awk scan/branches.awk \
 	scan/settingstext.awk scan/channel-holds.awk \
@@ -462,4 +463,5 @@ check-local: check-TESTS
 	@$(SHELL) $(srcdir)/scan/check-epgscan-resume.sh $(top_srcdir)
 	@$(SHELL) $(srcdir)/scan/check-zapit-stop.sh $(top_srcdir)
 	@$(SHELL) $(srcdir)/scan/check-standby-flag.sh $(top_srcdir)
+	@$(SHELL) $(srcdir)/scan/check-stream-send.sh $(top_srcdir)
 	@$(MAKE) $(AM_MAKEFLAGS) check-api-types
