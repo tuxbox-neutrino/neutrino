@@ -783,6 +783,12 @@ void CRemoteControl::zapTo_ChannelID(const t_channel_id channel_id, const std::s
 	current_channel_num = channum;
 }
 
+bool CRemoteControl::zapPending() const
+{
+	const uint64_t now = time_monotonic_ms();
+	return zap_completion_timeout >= now;
+}
+
 void CRemoteControl::startvideo()
 {
 	if (!is_video_started)

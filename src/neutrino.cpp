@@ -165,6 +165,7 @@ static bool saveNeutrinoSettings();
 
 #include <zapit/debug.h>
 #include <zapit/zapit.h>
+#include <zapit/livetp.h>
 #include <OpenThreads/ScopedLock>
 #include <zapit/getservices.h>
 #include <zapit/satconfig.h>
@@ -212,6 +213,9 @@ static bool timerd_thread_started = false;
    so a SIGTERM/SIGINT arriving during shutdown cannot run the teardown twice
    and double-delete the singletons */
 static volatile sig_atomic_t shutdown_in_progress = 0;
+/* The zap back to the live channel once the stream that took its tuner
+   ended, tried once per displacement. */
+static livetp::Rezap live_rezap;
 extern void *timerd_main_thread(void *data);
 extern void *nhttpd_main_thread(void *data);
 // the two hands of the API layer's server seam (yhttpd.cpp)
@@ -4592,6 +4596,61 @@ coreapi::Status coreapi::boxRecordings(coreapi::RecordingList &out)
 	}
 	return coreapi::Status::Ok;
 }
+/* How long the program waits for zapit to give back the holds of ended
+   streams. */
+static const unsigned kRezapCollectMs = 2000;
+/* When a zap of the program is still pending, the check is made again after
+   this long: past the remote control's guard of 2 s, which a zap starts
+   and its answer ends. */
+static const uint64_t kRezapLaterUs = 2500 * 1000;
+static uint32_t rezap_timer = 0;
+
+/* At the end of the streams: a stream may have held the live frontend on
+   another transponder while a zap to the live channel, at a wake or by the
+   user, found no frontend, and the box shows nothing. Once zapit gave the
+   ended streams' holds back, the box zaps again, the way a wake does, with
+   its PIN check and infobar, to the channel it was last asked to show. */
+static void rezapAfterStreams(int mode, CChannelList *list)
+{
+	const bool awake = mode != NeutrinoModes::mode_standby;
+	const bool broadcast = mode == NeutrinoModes::mode_tv || mode == NeutrinoModes::mode_radio;
+	if (!livetp::rezapWanted(awake, broadcast, CZapit::getInstance()->LiveDisplaced()))
+		return;
+	/* The holds are given back only between two zapit commands otherwise.
+	   The deadline bounds the exchanges of this thread's zapit calls while
+	   it lives, so it ends before the zap. It does not bound the wait for
+	   the zapit client's own lock while another thread is in a long call. */
+	{
+		CBasicClient::Deadline until(kRezapCollectMs);
+		CZapitClient::responseStreamYield reply;
+		g_Zapit->yieldStreams(0, kRezapCollectMs, reply);
+	}
+	/* A zap that found no frontend leaves zapit's live channel at the one
+	   before; the remote control keeps the one asked for. */
+	const t_channel_id asked = g_RemoteControl->current_channel_id;
+	const t_channel_id target = livetp::rezapTarget(asked, IS_WEBCHAN(asked), list && list->hasChannelID(asked) >= 0,
+							CZapit::getInstance()->GetCurrentChannelID());
+	CFrontend *fe = CZapit::getInstance()->GetLiveFrontend();
+	switch (live_rezap.next(awake, broadcast, CZapit::getInstance()->LiveDisplaced(),
+				CStreamManager::getInstance()->StreamStatus(), g_RemoteControl->zapPending(),
+				target, fe ? fe->getTsidOnid() : 0)) {
+	case livetp::Rezap::Nothing:
+		return;
+	case livetp::Rezap::Later:
+		/* The remote control would drop this zap; asked again once the
+		   pending one is over, by a timer that cannot be missed the way
+		   that zap's answer could. */
+		g_RCInput->killTimer(rezap_timer);
+		rezap_timer = g_RCInput->addTimer(kRezapLaterUs, true);
+		return;
+	case livetp::Rezap::Zap:
+		break;
+	}
+	printf("[neutrino] streams ended, live tuner off its transponder: zap again to %" PRIx64 "\n", target);
+	if (list)
+		list->zapTo_ChannelID(target, true);
+}
+
 int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 {
 	/* Whether this came straight from the main loop, taken first and cleared,
@@ -4698,6 +4757,9 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 		return messages_return::handled;
 	}
 	if(msg == NeutrinoMessages::EVT_ZAP_COMPLETE) {
+		// the live channel has its frontend again
+		if (data && *(t_channel_id *) data == CZapit::getInstance()->GetCurrentChannelID())
+			live_rezap.reset();
 		CZapit::getInstance()->GetAudioMode(g_settings.audio_AnalogMode);
 		if(g_settings.audio_AnalogMode < 0 || g_settings.audio_AnalogMode > 2)
 			g_settings.audio_AnalogMode = 0;
@@ -4723,6 +4785,11 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 		}
 	}
 	if ((msg == NeutrinoMessages::EVT_TIMER)) {
+		if (rezap_timer && data == rezap_timer) {
+			rezap_timer = 0;
+			rezapAfterStreams(mode, channelList);
+			return messages_return::handled;
+		}
 		if(data == scrambled_timer) {
 			scrambled_timer = 0;
 			if(g_settings.scrambled_message && videoDecoder->getBlank() && videoDecoder->getPlayState()) {
@@ -5119,6 +5186,7 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 	}
 	else if (msg == NeutrinoMessages::EVT_STREAM_START) {
 		printf("NeutrinoMessages::EVT_STREAM_START\n");
+		live_rezap.reset();
 		wakeupFromStandby();
 		if (g_Radiotext)
 			g_Radiotext->setPid(0);
@@ -5134,6 +5202,7 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 		printf("NeutrinoMessages::EVT_STREAM_STOP\n");
 		CEpgScan::getInstance()->Resume();
 		standbyToStandby();
+		rezapAfterStreams(mode, channelList);
 		return messages_return::handled;
 	}
 	else if( msg == NeutrinoMessages::EVT_PMT_CHANGED) {
@@ -6081,6 +6150,8 @@ void CNeutrinoApp::standbyMode(bool bOnOff, bool fromDeepStandby)
 		return;
 
 	lockStandbyCall = true;
+	// a displacement met after this, either way, is tried anew
+	live_rezap.reset();
 
 	if( bOnOff ) {
 		// set standby flag

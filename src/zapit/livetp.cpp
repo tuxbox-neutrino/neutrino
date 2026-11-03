@@ -30,4 +30,29 @@ bool displaced(bool web, bool present, bool tuned, uint64_t fe_tp, uint64_t chan
 	return fe_tp != channel_tp;
 }
 
+bool rezapWanted(bool awake, bool broadcast_mode, bool displaced)
+{
+	return awake && broadcast_mode && displaced;
+}
+
+uint64_t rezapTarget(uint64_t asked, bool asked_web, bool asked_listed, uint64_t live)
+{
+	return asked && !asked_web && asked_listed ? asked : live;
+}
+
+Rezap::Step Rezap::next(bool awake, bool broadcast_mode, bool displaced, bool streaming,
+			bool zap_pending, uint64_t channel, uint64_t fe_tp)
+{
+	if (!rezapWanted(awake, broadcast_mode, displaced) || streaming)
+		return Nothing;
+	if (marked && mark_channel == channel && mark_tp == fe_tp)
+		return Nothing;
+	if (zap_pending)
+		return Later;
+	marked = true;
+	mark_channel = channel;
+	mark_tp = fe_tp;
+	return Zap;
+}
+
 } // namespace livetp

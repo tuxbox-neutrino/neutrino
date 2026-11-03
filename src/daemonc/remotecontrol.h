@@ -102,6 +102,10 @@ class CRemoteControl
 
 		CRemoteControl();
 		void zapTo_ChannelID(const t_channel_id channel_id, const std::string &channame, int channum, const bool start_video = true);
+		/* Whether the zap sent last is still pending: until its answer
+		   comes, or for 2 s at most, zapTo_ChannelID only notes the channel
+		   asked for and sends nothing. */
+		bool zapPending() const;
 		void startvideo();
 		void stopvideo();
 		void queryAPIDs();
