@@ -728,6 +728,7 @@ flashupdate.getinfofileerror Can't get update versioninfo!
 flashupdate.getupdatefile getting update
 flashupdate.getupdatefileerror Can't get update!
 flashupdate.head Software update
+flashupdate.install Installing update
 flashupdate.install_image Flash downloaded image?
 flashupdate.install_package Install downloadad pack?
 flashupdate.md5check checking image

@@ -728,6 +728,7 @@ flashupdate.getinfofileerror Kann Aktualisierungs-Info nicht laden!
 flashupdate.getupdatefile lade Update
 flashupdate.getupdatefileerror Kann Aktualisierung nicht laden!
 flashupdate.head Aktualisierung
+flashupdate.install Installiere Update
 flashupdate.install_image Heruntergeladenes Image installieren?
 flashupdate.install_package Heruntergeladenes Paket installieren?
 flashupdate.md5check Imageprüfung

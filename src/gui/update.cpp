@@ -100,6 +100,7 @@ extern cVideo *videoDecoder;
 #define UPDATE_PROGRESS_LIST	3	// list of updates read
 #define UPDATE_PROGRESS_IMAGE	40	// image downloaded
 #define UPDATE_PROGRESS_ERASE	60	// image copied and flash erased
+#define UPDATE_PROGRESS_INSTALL	80	// update downloaded and ready to install
 #define UPDATE_PROGRESS_DONE	100	// flash written
 
 // TODO: move this mess below to libstb-hal
@@ -776,6 +777,9 @@ int CFlashUpdate::exec(CMenuTarget *parent, const std::string &actionKey)
 	}
 	else // not image, install
 	{
+		showGlobalStatus(UPDATE_PROGRESS_INSTALL);
+		showStatusMessageUTF(g_Locale->getText(LOCALE_FLASHUPDATE_INSTALL));
+
 		std::string install_sh = find_executable("install.sh");
 		dprintf(DEBUG_NORMAL, "[update] calling %s %s %s\n", install_sh.c_str(), g_settings.update_dir.c_str(), filename.c_str());
 #ifndef DRYRUN
