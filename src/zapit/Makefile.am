@@ -28,6 +28,7 @@ libzapit_a_SOURCES = \
 	fesearch.cpp \
 	frontend.cpp \
 	getservices.cpp \
+	livetp.cpp \
 	pat.cpp \
 	scanbat.cpp \
 	scan.cpp \

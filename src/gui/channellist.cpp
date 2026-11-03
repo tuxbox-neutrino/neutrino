@@ -1303,7 +1303,12 @@ void CChannelList::zapToChannel(CZapitChannel *channel, bool force)
 	if(tuned < (*chanlist).size())
 		selected_chid = (*chanlist)[tuned]->getChannelID();
 
-	if(force || (selected_chid != channel->getChannelID())) {
+	/* A zap to the channel shown changes nothing, unless a stream holds the
+	   live frontend on another transponder: then it is the way back to a
+	   picture. Asked last, because it takes the channel lock: a forced zap
+	   can come while a recording holds its own lock, and a web thread takes
+	   the two the other way round. */
+	if(force || (selected_chid != channel->getChannelID()) || CZapit::getInstance()->LiveDisplaced()) {
 		if ((g_settings.radiotext_enable) && ((CNeutrinoApp::getInstance()->getMode()) == NeutrinoModes::mode_radio) && (g_Radiotext))
 		{
 			// stop radiotext PES decoding before zapping

@@ -5155,7 +5155,9 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 			// Before the current channel test, which means nothing in standby.
 			bool woken = (mode == NeutrinoModes::mode_standby) && wakeOnto(channel_id, isTVMode);
 
-			if (!woken && channel_id != CZapit::getInstance()->GetCurrentChannelID()) {
+			/* The live channel is zapped to again while a stream holds its
+			   frontend on another transponder. */
+			if (!woken && (channel_id != CZapit::getInstance()->GetCurrentChannelID() || CZapit::getInstance()->LiveDisplaced())) {
 				dvbsub_stop();
 
 				if ((!isTVMode) && (mode != NeutrinoModes::mode_radio) && (mode != NeutrinoModes::mode_webradio)) {

@@ -208,7 +208,9 @@ void CNeutrinoAPI::ZapTo(const char * const target)
 void CNeutrinoAPI::ZapToChannelId(t_channel_id channel_id)
 {
 	OpenThreads::ScopedPointerLock<OpenThreads::Mutex> lock(pmutex);
-	if (channel_id == Zapit->getCurrentServiceID())
+	// the live channel is zapped to again while a stream holds its frontend
+	// on another transponder
+	if (channel_id == Zapit->getCurrentServiceID() && !CZapit::getInstance()->LiveDisplaced())
 	{
 		//printf("Kanal ist aktuell\n");
 		return;

@@ -46,6 +46,7 @@
 #include "client/msgtypes.h"
 #include "debug.h"
 #include "getservices.h"
+#include "livetp.h"
 #include "pat.h"
 #include "scanpmt.h"
 #include "scan.h"
@@ -1459,6 +1460,31 @@ void CZapit::YieldStreams(int connfd)
 	StreamYieldOps ops(*this, connfd);
 	const streamyield::Reply r = streamyield::run(ops, msg.channel_id, msg.deadline_ms, kHoldLocksFrontend);
 	INFO("stream yield %" PRIx64 ": stage %d mask 0x%x", msg.channel_id, r.stage, r.fe_mask);
+}
+
+/* A zap to the live channel that found no frontend leaves the live channel
+   and live_fe as they were, while a stream holds that frontend on its own
+   transponder. Both are set on zapit's thread and read here without a lock:
+   a reader that meets a zap in the middle sees the channel already set and
+   the frontend not yet tuned to it, and takes the zap for displaced. The
+   channel itself is read under the channel lock, since a reload frees the
+   channels under it. */
+bool CZapit::LiveDisplaced()
+{
+	const t_channel_id chid = live_channel_id;
+	CFrontend *fe = live_fe;
+	if (!chid)
+		return false;
+	transponder_id_t channel_tp;
+	{
+		CServiceManager::ChannelGuard guard;
+		CZapitChannel *channel = CServiceManager::getInstance()->FindChannel(chid);
+		if (!channel)
+			return false;
+		channel_tp = channel->getTransponderId();
+	}
+	return livetp::displaced(IS_WEBCHAN(chid), fe != NULL, fe && fe->tuned,
+				 fe ? fe->getTsidOnid() : 0, channel_tp, current_is_nvod);
 }
 
 bool CZapit::ZapForEpg(const t_channel_id channel_id, bool instandby)

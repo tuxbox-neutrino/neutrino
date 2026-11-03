@@ -314,6 +314,12 @@ class CZapit : public OpenThreads::Thread
 		void SetCurrentChannelID(const t_channel_id channel_id) { live_channel_id = channel_id; };
 		void SetLiveFrontend(CFrontend * fe) { if(fe) live_fe = fe; }
 		CFrontend * GetLiveFrontend() { return live_fe; };
+		/* Whether a stream holds the live frontend on another transponder
+		   than the live channel's, so that a zap to the live channel is
+		   not the no-op it looks like. zapit's state is read without a
+		   lock, as a hint; the channel is read under the channel lock,
+		   which is not recursive: a caller must not hold it. */
+		bool LiveDisplaced();
 #ifdef ENABLE_PIP
 		CFrontend * GetPipFrontend(int pip = 0) { return pip_fe[pip]; };
 #endif
