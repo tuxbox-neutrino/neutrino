@@ -66,6 +66,12 @@ class CEpgScan
 		   pause: sectionsd stays on that service until then. */
 		transponder_id_t reading_tp;
 		bool reading_disturbed;
+		/* The frontend zapit tuned for the scan's zap of reading_tp and its
+		   tune count right after that tune, NULL when zapit had no such
+		   record for the channel handed over. A tune of it since, by a
+		   recording, a stream or anything else, disturbs the read. */
+		CFrontend *reading_fe;
+		unsigned reading_tunes;
 		/* How often reading_tp was handed over again in a row after a read
 		   of it was disturbed; cleared with reading_tp and when another
 		   transponder is handed over. */

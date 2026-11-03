@@ -57,6 +57,8 @@ CEpgScan::CEpgScan()
 	paused = false;
 	reading_tp = 0;
 	reading_disturbed = false;
+	reading_fe = NULL;
+	reading_tunes = 0;
 	rereads = 0;
 	Clear();
 }
@@ -122,6 +124,8 @@ void CEpgScan::Clear()
 	paused = false;
 	reading_tp = 0;
 	reading_disturbed = false;
+	reading_fe = NULL;
+	reading_tunes = 0;
 	rereads = 0;
 }
 
@@ -289,6 +293,8 @@ void CEpgScan::Stop()
 	paused = false;
 	reading_tp = 0;
 	reading_disturbed = false;
+	reading_fe = NULL;
+	reading_tunes = 0;
 	rereads = 0;
 	if (standby) {
 		standby = false;
@@ -358,6 +364,10 @@ int CEpgScan::handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data)
 		t_channel_id chid = *(t_channel_id *)data;
 		// Before the channel lock: the stream server takes a lock of its own.
 		const bool busy = CStreamManager::getInstance()->StreamStatus();
+		/* A stream's mark, or a tune of the frontend read since the scan's
+		   own zap tuned it, which nothing else may have announced. */
+		const bool disturbed = scanpause::readDisturbed(reading_disturbed, reading_fe != NULL, reading_tunes,
+								reading_fe ? reading_fe->getTuneCount() : 0);
 		bool again = false;
 		int disturbed_reads = 0;
 		std::string chan_name;
@@ -372,7 +382,7 @@ int CEpgScan::handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data)
 				const transponder_id_t tpid = newchan->getTransponderId();
 				const scanpause::EitComplete done =
 					scanpause::onEitComplete(reading_tp != 0 && tpid == reading_tp,
-								 reading_disturbed, busy, rereads);
+								 disturbed, busy, rereads);
 				again = done == scanpause::ReadAgain;
 				if (done == scanpause::CountDisturbed)
 					disturbed_reads = rereads + 1;
@@ -383,6 +393,7 @@ int CEpgScan::handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data)
 					if (tpid == reading_tp) {
 						reading_tp = 0;
 						reading_disturbed = false;
+						reading_fe = NULL;
 						rereads = 0;
 					}
 				}
@@ -447,6 +458,12 @@ int CEpgScan::handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data)
 										     reading_disturbed, rereads);
 						reading_tp = chan_tpid;
 						reading_disturbed = false;
+						/* zapit's record of the scan's zap, taken for the
+						   channel handed over only: with a second scan zap
+						   under way it names another channel or none, and
+						   the read counts as disturbed. */
+						if (!CZapit::getInstance()->GetEpgScanTune(next_chid, reading_fe, reading_tunes))
+							reading_fe = NULL;
 					}
 					break;
 				case scanpause::Pause:

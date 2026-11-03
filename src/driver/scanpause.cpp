@@ -40,6 +40,11 @@ EitComplete onEitComplete(bool own, bool disturbed, bool busy, int rereads)
 	return rereads < kMaxReReads ? ReadAgain : CountDisturbed;
 }
 
+bool readDisturbed(bool marked, bool own_tune, unsigned tunes_then, unsigned tunes_now)
+{
+	return marked || !own_tune || tunes_then != tunes_now;
+}
+
 int rereadsAtHandOver(bool same, bool disturbed, int rereads)
 {
 	if (!same)

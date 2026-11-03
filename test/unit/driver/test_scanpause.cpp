@@ -122,3 +122,38 @@ TEST_CASE("P13: hourly repeats of a disturbed report during one long stream do n
 	}
 	REQUIRE(scanpause::onEitComplete(true, true, false, rereads) == scanpause::CountDisturbed);
 }
+
+TEST_CASE("P14: a frontend not tuned since the scan's zap leaves the read to the stream marks", "[driver][scanpause]")
+{
+	REQUIRE_FALSE(scanpause::readDisturbed(false, true, 7, 7));
+	REQUIRE(scanpause::onEitComplete(true, scanpause::readDisturbed(false, true, 7, 7), false, 0) == scanpause::Count);
+	// A stream's mark still counts.
+	REQUIRE(scanpause::readDisturbed(true, true, 7, 7));
+}
+
+TEST_CASE("P15: a frontend tuned since the scan's zap disturbs the read without any mark", "[driver][scanpause]")
+{
+	// A recording, a stream hold or a scan of another transponder tuned it
+	// and said nothing to the scan.
+	REQUIRE(scanpause::readDisturbed(false, true, 7, 8));
+	REQUIRE(scanpause::onEitComplete(true, scanpause::readDisturbed(false, true, 7, 8), false, 0) == scanpause::ReadAgain);
+	// A count that went round still differs.
+	REQUIRE(scanpause::readDisturbed(false, true, 0xffffffffu, 0));
+}
+
+TEST_CASE("P16: without zapit's record of the scan's zap for the channel handed over the read is disturbed", "[driver][scanpause]")
+{
+	// Two scan zaps in flight: the record names the other channel.
+	REQUIRE(scanpause::readDisturbed(false, false, 7, 7));
+	REQUIRE(scanpause::onEitComplete(true, scanpause::readDisturbed(false, false, 0, 0), false, 0) == scanpause::ReadAgain);
+}
+
+TEST_CASE("P17: retunes still count the transponder after a few re-reads", "[driver][scanpause]")
+{
+	int rereads = 0;
+	for (int n = 0; n < scanpause::kMaxReReads; n++) {
+		REQUIRE(scanpause::onEitComplete(true, scanpause::readDisturbed(false, true, 1, 2), false, rereads) == scanpause::ReadAgain);
+		rereads = scanpause::rereadsAtHandOver(true, true, rereads);
+	}
+	REQUIRE(scanpause::onEitComplete(true, scanpause::readDisturbed(false, true, 1, 2), false, rereads) == scanpause::CountDisturbed);
+}

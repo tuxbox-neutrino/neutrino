@@ -136,6 +136,9 @@ CZapit::CZapit()
 	: configfile(',', false)
 {
 	started = false;
+	epg_tune_channel = 0;
+	epg_tune_fe = NULL;
+	epg_tune_count = 0;
 	box_standby = false;
 	stopping = false;
 	pmt_update_fd = -1;
@@ -1487,10 +1490,28 @@ bool CZapit::LiveDisplaced()
 				 fe ? fe->getTsidOnid() : 0, channel_tp, current_is_nvod);
 }
 
+bool CZapit::GetEpgScanTune(t_channel_id channel_id, CFrontend * &fe, unsigned &count)
+{
+	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(epg_tune_mutex);
+	if (!epg_tune_fe || epg_tune_channel != channel_id)
+		return false;
+	fe = epg_tune_fe;
+	count = epg_tune_count;
+	return true;
+}
+
 bool CZapit::ZapForEpg(const t_channel_id channel_id, bool instandby)
 {
 	CZapitChannel* newchannel;
 	bool transponder_change;
+
+	/* Taken back first: a zap that fails leaves nothing for the scan to
+	   compare its read with. */
+	{
+		OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(epg_tune_mutex);
+		epg_tune_channel = 0;
+		epg_tune_fe = NULL;
+	}
 
 	if((newchannel = CServiceManager::getInstance()->FindChannel(channel_id)) == NULL) {
 		INFO("channel_id " PRINTF_CHANNEL_ID_TYPE " not found", channel_id);
@@ -1534,6 +1555,15 @@ bool CZapit::ZapForEpg(const t_channel_id channel_id, bool instandby)
 
 	if(!TuneChannel(frontend, newchannel, transponder_change, false))
 		return false;
+	/* Recorded here, on zapit's thread before the scan hears of the zap:
+	   any later tune of this frontend, before sectionsd reports the read,
+	   moves the count past this one. */
+	{
+		OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(epg_tune_mutex);
+		epg_tune_channel = channel_id;
+		epg_tune_fe = frontend;
+		epg_tune_count = frontend->getTuneCount();
+	}
 #if 0
 	if(!ParsePatPmt(newchannel))
 		return false;

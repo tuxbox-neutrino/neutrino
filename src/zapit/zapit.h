@@ -167,6 +167,13 @@ class CZapit : public OpenThreads::Thread
 		CFrontend * pip_fe[3];
 #endif
 
+		/* The EPG scan's last zap: the channel, the frontend it tuned and
+		   that frontend's tune count right after, under epg_tune_mutex. */
+		t_channel_id epg_tune_channel;
+		CFrontend * epg_tune_fe;
+		unsigned epg_tune_count;
+		OpenThreads::Mutex epg_tune_mutex;
+
 		audio_map_t audio_map;
 		volume_map_t vol_map;
 		OpenThreads::Mutex vol_map_mutex;
@@ -320,6 +327,10 @@ class CZapit : public OpenThreads::Thread
 		   lock, as a hint; the channel is read under the channel lock,
 		   which is not recursive: a caller must not hold it. */
 		bool LiveDisplaced();
+		/* The frontend the EPG scan's last zap of channel_id tuned and its
+		   tune count right after that tune. False when the last zap was of
+		   another channel or failed. */
+		bool GetEpgScanTune(t_channel_id channel_id, CFrontend * &fe, unsigned &count);
 #ifdef ENABLE_PIP
 		CFrontend * GetPipFrontend(int pip = 0) { return pip_fe[pip]; };
 #endif

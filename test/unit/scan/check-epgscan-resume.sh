@@ -12,7 +12,11 @@
 # count and is repeated, a few times in a row at most; a setup that
 # published nothing is announced like an ended stream, saying whether it
 # asked zapit for a frontend; and whether zapit may sleep reads the
-# recordings themselves.
+# recordings themselves. A read whose frontend was tuned since the scan's own
+# zap does not count either: every frontend counts its tunes and its
+# DiSEqC or voltage switches, zapit records the frontend and its count right
+# after the scan's zap tuned it, the scan takes that record for the channel
+# it hands over only, and compares the count when sectionsd reports.
 #
 # The unit cases drive the decisions as plain functions; this holds the
 # program's code to them. Neither the program, the stream server nor the
@@ -28,7 +32,7 @@ SRC="$1"
 	exit 2
 }
 HERE=`dirname "$0"`
-for f in src/driver/streamts.cpp src/driver/record.cpp src/driver/scanepg.cpp src/neutrino.cpp; do
+for f in src/driver/streamts.cpp src/driver/record.cpp src/driver/scanepg.cpp src/neutrino.cpp src/zapit/zapit.cpp src/zapit/frontend.cpp; do
 	[ -r "$SRC/$f" ] || { echo "check-epgscan-resume.sh: cannot read $SRC/$f" >&2; exit 1; }
 done
 [ -r "$HERE/strip-comments.awk" ] || { echo "check-epgscan-resume.sh: cannot read $HERE/strip-comments.awk" >&2; exit 1; }
@@ -245,6 +249,70 @@ for f in 'void CNeutrinoApp::standbyToStandby(' 'void CNeutrinoApp::tryDeferredD
 		echo "$f...): alive does not read CRecordManager::RecordingStatus()" >&2
 		fail=1
 	}
+done
+
+# 8. A retune of the frontend the scan reads makes the read not count.
+#    Every tune and every switch of DiSEqC or voltage is counted.
+strip "$SRC/src/zapit/frontend.cpp" > "$tmp/frontend"
+body 'int CFrontend::setFrontend(' < "$tmp/frontend" | grep -q -E 'tune_count[[:space:]]*\+\+' || {
+	echo "src/zapit/frontend.cpp: CFrontend::setFrontend does not count the tune" >&2
+	fail=1
+}
+body 'void CFrontend::setInput(t_satellite_position' < "$tmp/frontend" > "$tmp/setinput"
+u=`grep -n -F 'DISEQC_UNICABLE2' "$tmp/setinput" | head -1 | cut -d: -f1`
+c=`grep -n -E 'tune_count[[:space:]]*\+\+' "$tmp/setinput" | head -1 | cut -d: -f1`
+q=`grep -n -F 'setDiseqc' "$tmp/setinput" | head -1 | cut -d: -f1`
+if [ -z "$u" ] || [ -z "$c" ] || [ -z "$q" ] || [ "$c" -lt "$u" ] || [ "$c" -gt "$q" ]; then
+	echo "src/zapit/frontend.cpp: CFrontend::setInput has to count a switch of DiSEqC or voltage before it sends one (unicable ${u:-none}, count ${c:-none}, switch ${q:-none})" >&2
+	fail=1
+fi
+#    zapit records the scan's own frontend, not the live one, right after
+#    the scan's zap tuned it, and takes the record back when a zap starts.
+strip "$SRC/src/zapit/zapit.cpp" | body 'bool CZapit::ZapForEpg(' > "$tmp/zapforepg"
+[ -s "$tmp/zapforepg" ] || { echo "check-epgscan-resume.sh: no CZapit::ZapForEpg in src/zapit/zapit.cpp" >&2; exit 1; }
+k=`grep -n -E 'epg_tune_fe[[:space:]]*=[[:space:]]*NULL' "$tmp/zapforepg" | head -1 | cut -d: -f1`
+t=`grep -n -F 'TuneChannel(frontend' "$tmp/zapforepg" | head -1 | cut -d: -f1`
+r=`grep -n -E 'epg_tune_fe[[:space:]]*=[[:space:]]*frontend[[:space:]]*;' "$tmp/zapforepg" | head -1 | cut -d: -f1`
+n=`grep -n -E 'epg_tune_count[[:space:]]*=[[:space:]]*frontend->getTuneCount\(\)' "$tmp/zapforepg" | head -1 | cut -d: -f1`
+if [ -z "$k" ] || [ -z "$t" ] || [ -z "$r" ] || [ -z "$n" ] || [ "$k" -gt "$t" ] || [ "$t" -gt "$r" ] || [ "$t" -gt "$n" ]; then
+	echo "src/zapit/zapit.cpp: CZapit::ZapForEpg has to take its record back, tune, then record its own frontend and that one's count (back ${k:-none}, tune ${t:-none}, frontend ${r:-none}, count ${n:-none})" >&2
+	fail=1
+fi
+if grep -n -F 'live_fe->getTuneCount' "$tmp/zapforepg" > "$tmp/hits"; then
+	echo "src/zapit/zapit.cpp: CZapit::ZapForEpg records the live frontend's count:" >&2
+	sed 's/^/  /' "$tmp/hits" >&2
+	fail=1
+fi
+#    The scan takes the record for the channel it hands over, after the
+#    transponder, and never the live frontend.
+grep -q -E 'GetEpgScanTune\([[:space:]]*next_chid[[:space:]]*,[[:space:]]*reading_fe[[:space:]]*,[[:space:]]*reading_tunes[[:space:]]*\)' "$tmp/backzap" || {
+	echo "src/driver/scanepg.cpp: handing a transponder over does not take zapit's record of the scan's zap for that channel (GetEpgScanTune(next_chid, ...))" >&2
+	fail=1
+}
+if grep -n -E 'GetLiveFrontend\(\)|getTuneCount' "$tmp/backzap" > "$tmp/hits"; then
+	echo "src/driver/scanepg.cpp: the hand-over reads a frontend's count itself instead of zapit's record of the scan's zap:" >&2
+	sed 's/^/  /' "$tmp/hits" >&2
+	fail=1
+fi
+#    The report compares the count before onEitComplete and hands it the
+#    result.
+x=`grep -n -F 'scanpause::readDisturbed(' "$tmp/eitcomplete" | head -1 | cut -d: -f1`
+a=`grep -n -F 'scanpause::onEitComplete(' "$tmp/eitcomplete" | head -1 | cut -d: -f1`
+if [ -z "$x" ] || [ -z "$a" ] || [ "$x" -gt "$a" ]; then
+	echo "src/driver/scanepg.cpp: EVT_EIT_COMPLETE has to ask scanpause::readDisturbed before scanpause::onEitComplete (disturbed ${x:-none}, ask ${a:-none})" >&2
+	fail=1
+fi
+awk '/scanpause::readDisturbed\(/ { f = 1 } f { print } f && /\)[ \t]*;/ { exit }' "$tmp/eitcomplete" | tr '\n' ' ' |
+	grep -q -E 'readDisturbed\([[:space:]]*reading_disturbed[[:space:]]*,[[:space:]]*reading_fe[[:space:]]*!=[[:space:]]*NULL[[:space:]]*,[[:space:]]*reading_tunes[[:space:]]*,.*reading_fe->getTuneCount\(\)' || {
+	echo "src/driver/scanepg.cpp: EVT_EIT_COMPLETE does not compare the scan frontend's count now with zapit's record" >&2
+	fail=1
+}
+awk '/scanpause::onEitComplete\(/ { f = 1 } f { print } f && /\)[ \t]*;/ { exit }' "$tmp/eitcomplete" | tr '\n' ' ' | grep -q -E '[(,][[:space:]]*disturbed[[:space:]]*,[[:space:]]*busy' || {
+	echo "src/driver/scanepg.cpp: EVT_EIT_COMPLETE does not hand scanpause::onEitComplete the comparison" >&2
+	fail=1
+}
+for f in 'void CEpgScan::Clear(' 'void CEpgScan::Stop('; do
+	body "$f" < "$tmp/scanepg" | grep -q -E 'reading_fe[[:space:]]*=[[:space:]]*NULL' || { echo "src/driver/scanepg.cpp: $f...) does not forget the frontend read" >&2; fail=1; }
 done
 
 exit $fail

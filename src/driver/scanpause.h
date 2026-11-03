@@ -22,9 +22,11 @@
  * is read again once no stream runs, a few times in a row at most: when a
  * stream's hold took the frontend before the scan's own zap was done, and
  * when a stream started, or a setup that asked zapit for a frontend
- * started none, while sectionsd read the transponder. sectionsd reports a
- * pass over its filters complete for its current service whatever the
- * frontend stood on meanwhile, so that report does not count.
+ * started none, while sectionsd read the transponder; and when the
+ * frontend the scan reads on was tuned since the scan's own zap tuned it,
+ * whoever tuned it. sectionsd reports a pass over its filters complete for
+ * its current service whatever the frontend stood on meanwhile, so that
+ * report does not count.
  */
 
 #ifndef __scanpause_h__
@@ -73,6 +75,16 @@ const int kMaxReReads = 3;
    set up, so one that runs at the report came after the hand-over, also
    when its start is not seen yet. */
 EitComplete onEitComplete(bool own, bool disturbed, bool busy, int rereads);
+
+/* Whether the read of the transponder handed over was disturbed: a stream
+   came into it (marked), or the frontend it is read on was tuned since the
+   scan's own zap tuned it. own_tune: zapit's record of the scan's zap names
+   the channel handed over; tunes_then: that frontend's tune count right
+   after the zap's tune; tunes_now: its count at sectionsd's report. A tune
+   between the zap and the hand-over counts as well. Without the record
+   nothing says the frontend stayed on the transponder, so the read counts
+   as disturbed. */
+bool readDisturbed(bool marked, bool own_tune, unsigned tunes_then, unsigned tunes_now);
 
 /* The re-reads in a row when the scan hands a transponder over. same: it
    is the transponder handed over last; disturbed: a stream came into that

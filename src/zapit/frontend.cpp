@@ -165,6 +165,7 @@ CFrontend::CFrontend(int Number, int Adapter)
 	masterkey		= 0;
 
 	tuned			= false;
+	tune_count		= 0;
 	uncommitedInput		= 255;
 
 	currentDiseqc		= 255;
@@ -1462,6 +1463,7 @@ uint32_t CFrontend::getFEBandwidth(fe_bandwidth_t bandwidth)
 int CFrontend::setFrontend(const FrontendParameters *feparams, bool nowait)
 {
 	tuned = false;
+	tune_count++;
 
 	struct dvb_frontend_event ev;
 	{
@@ -1940,6 +1942,10 @@ void CFrontend::setInput(t_satellite_position satellitePosition, uint32_t freque
 	if (config.diseqcType == DISEQC_UNICABLE || config.diseqcType == DISEQC_UNICABLE2)
 		return;
 
+	/* The switch below moves the frontend off its transponder even when
+	   the tune that follows does not come, as when a motor wait is
+	   aborted. */
+	tune_count++;
 	if ((config.diseqcType != DISEQC_1_1) && (config.diseqcType != DISEQC_ADVANCED)) {
 		setDiseqc(sit->second.diseqc, polarization, frequency);
 		return;

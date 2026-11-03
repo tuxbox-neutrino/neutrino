@@ -140,6 +140,10 @@ class CFrontend
 		fe_linkmap_t linkmap;
 		int fenumber;
 		bool standby;
+		/* Counts the tunes of this frontend and its switches of DiSEqC or
+		   voltage, so a reader of a transponder can tell whether the
+		   frontend moved under it. */
+		std::atomic<unsigned>		tune_count;
 
 		uint32_t			deliverySystemMask;
 		uint32_t			forcedSystemMask;
@@ -237,6 +241,7 @@ class CFrontend
 
 		fe_code_rate_t 			getCFEC ();
 		transponder_id_t		getTsidOnid() { return currentTransponder.getTransponderId(); }
+		unsigned			getTuneCount() const { return tune_count.load(); }
 		bool				sameTsidOnid(transponder_id_t tpid)
 		{
 			return (currentTransponder.getTransponderId() == 0)
