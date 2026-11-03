@@ -71,7 +71,9 @@ const dash = {
 	channelRead: 0,			// counts channel reads, so an older answer arriving last is dropped
 	systemShown: false,		// the gauges showed values once
 	tunerShown: false,		// and the reception tile
-	recentShown: false		// and the latest recordings
+	recentShown: false,		// and the latest recordings
+	standbyRead: 0,			// counts standby reads, so an older answer arriving last is dropped
+	standby: null			// the box is in standby: it has no mode to show; null until read
 };
 
 // A read that fails is no answer: the tile keeps what it shows or says
@@ -466,8 +468,19 @@ function sendStandby() {
 	return webuiPowerKey();
 }
 
-// TV/Radio Mode: read off the current channel and the mode event
+// TV/Radio Mode: read off the current channel and the mode event. A box in
+// standby has none (it names no current channel), so the switch shows
+// neither as pressed and either one asks to switch the box on.
 var currentMode = 'tv';
+
+async function refreshStandby() {
+	const read = ++dash.standbyRead;
+	const got = await dashRead('/system/standby');
+	if (read !== dash.standbyRead || got.error || !got.data)
+		return;	// a later read, or the wake below, has the state
+	dash.standby = !!got.data.on;
+	updateModeUI();
+}
 
 function setMode(mode) {
 	if (mode === currentMode) return;
@@ -475,24 +488,47 @@ function setMode(mode) {
 	updateModeUI();
 }
 
+// The switch stays focusable while a change is under way (aria-disabled,
+// not disabled), so the keyboard focus is still on it when the change or
+// its question is done.
+var modeBusy = false;
+
 async function switchMode(target) {
 	const newMode = target || (currentMode === 'tv' ? 'radio' : 'tv');
-	if (newMode === currentMode) return;
+	// only a box known to be awake has nothing to do for the mode it shows;
+	// unread, the click goes out and finds sign-in or standby on its way
+	if (modeBusy || (newMode === currentMode && dash.standby === false)) return;
 	const btns = ['mode-tv', 'mode-radio'].map(function(id) { return document.getElementById(id); }).filter(Boolean);
-	btns.forEach(function(b) { b.disabled = true; });
+	modeBusy = true;
+	btns.forEach(function(b) { b.setAttribute('aria-disabled', 'true'); });
 	try {
-		await webuiV1('POST', '/mode', {body: {mode: newMode}});
-		setMode(newMode);
+		// a box in standby is asked about, as the other ways to put something
+		// on the television are
+		const done = await webuiV1Lifting('/mode', {mode: newMode}, {
+			title: webuiL('dash.mode_title', 'Switch mode'),
+			ok: webuiL('dash.mode_ok', 'Switch'),
+			wake: newMode === 'radio'
+				? webuiL('dash.mode_wake_radio', 'The box is in standby. Switch it on and change to radio?')
+				: webuiL('dash.mode_wake_tv', 'The box is in standby. Switch it on and change to television?')
+		});
+		if (done) {
+			// the box was switched on by it, if it was off
+			dash.standby = false;
+			dash.standbyRead++;	// a read begun before this is out of date
+			currentMode = newMode;
+			updateModeUI();
+		}
 	} catch (e) {
 		webuiToastError('', e);
 	}
-	btns.forEach(function(b) { b.disabled = false; });
+	modeBusy = false;
+	btns.forEach(function(b) { b.removeAttribute('aria-disabled'); });
 }
 
 function updateModeUI() {
 	const isRadio = currentMode === 'radio';
-	withEl('mode-tv', function(el) { el.setAttribute('aria-pressed', String(!isRadio)); });
-	withEl('mode-radio', function(el) { el.setAttribute('aria-pressed', String(isRadio)); });
+	withEl('mode-tv', function(el) { el.setAttribute('aria-pressed', String(!dash.standby && !isRadio)); });
+	withEl('mode-radio', function(el) { el.setAttribute('aria-pressed', String(!dash.standby && isRadio)); });
 
 	// In radio mode: clear video-specific fields
 	if (isRadio) {
@@ -583,6 +619,7 @@ function showTimers() {
 // (events may have been missed), on pull-to-refresh, and on a timer while
 // the stream is not open.
 function refreshEvented() {
+	refreshStandby();
 	refreshChannel(true);
 	refreshPlayback();
 	refreshRecordings();
@@ -602,7 +639,7 @@ function followTheBox() {
 			refreshChannel(false);
 			loadStreamInfo();
 		},
-		standby: function() { refreshChannel(false); refreshPlayback(); webuiPowerRead(); },
+		standby: function() { refreshStandby(); refreshChannel(false); refreshPlayback(); webuiPowerRead(); },
 		'record-start': function() { refreshTimers().then(refreshRecordings); },
 		'record-stop': function() { refreshTimers().then(refreshRecordings); refreshRecent(); },
 		'timer-changed': refreshTimers,
