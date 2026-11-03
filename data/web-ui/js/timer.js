@@ -4,6 +4,10 @@
 // timer and record events; made with POST, changed with PATCH (times
 // and repetition only), removed with DELETE. Titles, channel names and
 // folders go in as text.
+
+// The head's number of set timers comes from this page's reads.
+webuiTimersFollowed();
+
 let allTimers = [];
 let timersShown = false;	// the list was drawn once, so a failed read later keeps it
 let currentFilter = 'all';
@@ -104,10 +108,12 @@ async function loadTimers() {
 		if (read !== timersRead) return;
 		allTimers = items;
 		timersShown = true;
+		webuiTimersSeen(items);
 		updateFilterCounts();
 		renderTimerList();
 	} catch (e) {
 		if (read !== timersRead) return;	// a newer read has the list
+		webuiTimersSeen(null);
 		if (timersShown) {
 			console.warn('timers not read again:', e.message);
 			return;
@@ -325,7 +331,11 @@ webuiAfterTexts(function() {
 	renderFilters();
 	document.getElementById('timerList').replaceChildren(webuiEl('li', {}, webuiState('loading', webuiL('tm.loading', 'Loading timers...'), '')));
 	loadTimers();
+	let opened = 0;
 	webuiV1Events({
+		// the first open is the page loading, every later one a reconnect
+		// after a gap, which may have missed a change
+		open: function() { if (opened++) loadTimers(); },
 		'timer-changed': loadTimers,
 		'record-start': loadTimers,
 		'record-stop': loadTimers

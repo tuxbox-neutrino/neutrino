@@ -11,6 +11,9 @@ const MINUTES_PER_SLOT = 30;
 const DISPLAY_HOURS = 4;
 const TOTAL_MINUTES = DISPLAY_HOURS * 60;
 
+// The head's number of set timers comes from this page's reads.
+webuiTimersFollowed();
+
 let currentBouquet = '';
 let currentMode = 'tv';
 let currentStartTime = null;
@@ -65,12 +68,18 @@ async function loadBouquets() {
 	}
 }
 
+let timersRead = 0;	// an older answer arriving after a newer one is dropped
 async function loadTimers() {
+	const read = ++timersRead;
 	try {
 		const r = await webuiV1('GET', '/timers');
+		if (read !== timersRead) return;
 		timers = (r && r.items) || [];
+		webuiTimersSeen(timers);
 	} catch (e) {
+		if (read !== timersRead) return;
 		timers = [];
+		webuiTimersSeen(null);
 	}
 }
 
@@ -98,12 +107,15 @@ async function loadEpg() {
 	currentStartTime = parseInt(document.getElementById('timeSelect').value);
 	const startTime = currentStartTime;
 	const stopTime = startTime + DISPLAY_HOURS * 3600;
+	// without bouquets the timers are not read here: the head reads them
 	if (bouquetError) {
 		grid.replaceChildren(webuiStateFor(bouquetError, {retry: () => loadBouquets().then(loadEpg)}));
+		webuiTimersSeen(null);
 		return;
 	}
 	if (!currentBouquet) {
 		grid.replaceChildren(webuiState('empty', webuiL('bq.no_channels', 'No channels found'), ''));
+		webuiTimersSeen(null);
 		return;
 	}
 
@@ -341,7 +353,11 @@ document.getElementById('timeSelect').addEventListener('change', loadEpg);
 // once the texts are in, which the grid is drawn with
 webuiAfterTexts(function() {
 	initTimeSelect();
+	let opened = 0;
 	webuiV1Events({
+		// the first open is the page loading, every later one a reconnect
+		// after a gap, which may have missed a timer set or taken away
+		open: function() { if (opened++) timersChanged(); },
 		'epg-updated': epgUpdated,
 		'timer-changed': timersChanged,
 		zap: zapped

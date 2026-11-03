@@ -1,6 +1,9 @@
 // The script of dashboard.html: the overview, variant A of Phase 4 (what
 // runs now as a band, the tiles below it).
 
+// The head's number of set timers comes from this page's reads.
+webuiTimersFollowed();
+
 // Show EPG info for current channel
 function showCurrentEpgInfo() {
 	if (dash.channel)
@@ -66,6 +69,7 @@ const dash = {
 	recordings: [],		// what the box records, its timeshift left out
 	timers: [],
 	timersRead: false,	// whether the timers were read once, so a failure later keeps them
+	timersAsked: 0,		// counts timer reads, so an older answer arriving last is dropped
 	playback: null,
 	playbackAt: 0,		// when the playback state was read, to count its position on
 	channelRead: 0,			// counts channel reads, so an older answer arriving last is dropped
@@ -555,17 +559,23 @@ function isRunningRecording(t) {
 // A read that fails keeps the timers shown; before the first answer the
 // tile says why it holds none.
 async function refreshTimers() {
+	const read = ++dash.timersAsked;
 	const got = await dashRead('/timers');
+	if (read !== dash.timersAsked) return;	// a newer read has the list
 	if (got.error) {
+		webuiTimersSeen(null);
 		if (!dash.timersRead)
 			withEl('timer-list', function(el) {
 				el.replaceChildren(webuiStateFor(got.error, {title: webuiL('timer.unavail', 'Timers not available'), retry: refreshTimers}));
 			});
 		return;
 	}
+	const items = (got.data && got.data.items) || [];
+	await webuiEnsureNames(items.map(function(t) { return t.channel_id; }));
+	if (read !== dash.timersAsked) return;
 	dash.timersRead = true;
-	dash.timers = (got.data && got.data.items) || [];
-	await webuiEnsureNames(dash.timers.map(function(t) { return t.channel_id; }));
+	dash.timers = items;
+	webuiTimersSeen(items);
 	showTimers();
 	showRecording();
 }

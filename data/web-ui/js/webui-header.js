@@ -278,6 +278,8 @@ function _webuiSideLink(p, area, page) {
 var _webuiTimerCount = null;
 var _webuiTimerCountStarted = false;
 var _webuiTimerCountRead = 0;
+var _webuiTimerCountOver = false;	// a read of the head came back, with or without a number
+var _webuiTimerCountEarly = false;	// the stream opened while the first read was under way
 var _webuiTimerCountLater = null;
 
 function _webuiTimerBadge(link, label) {
@@ -305,6 +307,23 @@ function _webuiTimerCountPaint() {
 	});
 }
 
+// One read soon, once the events of the moment are in.
+function _webuiTimerCountSoon() {
+	clearTimeout(_webuiTimerCountLater);
+	_webuiTimerCountLater = setTimeout(_webuiTimerCountLoad, 300);
+}
+
+// The first read of the head came back, n its number or null. When the
+// stream opened while it was under way, perhaps after a sign-in the read
+// went out before, a first read without a number is made once more.
+function _webuiTimerCountFirstBack(n) {
+	if (_webuiTimerCountOver)
+		return;
+	_webuiTimerCountOver = true;
+	if (n === null && _webuiTimerCountEarly)
+		_webuiTimerCountSoon();
+}
+
 async function _webuiTimerCountLoad() {
 	var read = ++_webuiTimerCountRead;
 	var n = null;
@@ -313,30 +332,57 @@ async function _webuiTimerCountLoad() {
 		if (r && Array.isArray(r.items))
 			n = r.items.filter(function(t) { return t.state < 3; }).length;
 	} catch (e) {
+		_webuiTimerCountFirstBack(null);
 		return;	// the box did not answer: the number shown stays
 	}
+	_webuiTimerCountFirstBack(n);
 	if (read !== _webuiTimerCountRead)
 		return;
 	_webuiTimerCount = n;
 	_webuiTimerCountPaint();
 }
 
+/* A page that reads the timer list itself says so with
+   webuiTimersFollowed() at the top of its script, before the head is drawn,
+   and hands every list its newest read brought to webuiTimersSeen(items),
+   or null when that read failed. The head then reads the list only after a
+   failure, without a sign-in, so that one change is not read twice. */
+var _webuiTimersFollowed = false;
+
+function webuiTimersFollowed() {
+	_webuiTimersFollowed = true;
+}
+
+function webuiTimersSeen(items) {
+	if (!Array.isArray(items)) {
+		_webuiTimerCountLoad();
+		return;
+	}
+	++_webuiTimerCountRead;		// a read of the head still under way is older
+	_webuiTimerCount = items.filter(function(t) { return t.state < 3; }).length;
+	_webuiTimerCountPaint();
+}
+
 // Reads the number on the first call and follows the timer events from then
-// on; every call draws the number last read.
+// on, unless the page hands its own reads over; every call draws the number
+// last read.
 function _webuiTimerCountStart() {
-	if (!_webuiTimerCountStarted) {
+	if (!_webuiTimerCountStarted && !_webuiTimersFollowed) {
 		_webuiTimerCountStarted = true;
 		_webuiTimerCountLoad();
 		if (typeof webuiV1Watch === 'function') {
-			var again = function() {
-				clearTimeout(_webuiTimerCountLater);
-				_webuiTimerCountLater = setTimeout(_webuiTimerCountLoad, 300);
-			};
 			var opened = 0;
-			webuiV1Watch('timer-changed', again);
+			webuiV1Watch('timer-changed', _webuiTimerCountSoon);
 			// a reconnect after a gap, or the first connection when the first
-			// read got no number (refused until a sign-in opened the stream)
-			webuiV1Watch('open', function() { if (opened++ || _webuiTimerCount === null) again(); });
+			// read got no number (refused until a sign-in opened the stream);
+			// while the first read is under way, it is made once more if it
+			// comes back without a number
+			webuiV1Watch('open', function() {
+				if (opened++ || (_webuiTimerCountOver && _webuiTimerCount === null))
+					_webuiTimerCountSoon();
+				else if (!_webuiTimerCountOver)
+					_webuiTimerCountEarly = true;
+			});
 		}
 	}
 	_webuiTimerCountPaint();
