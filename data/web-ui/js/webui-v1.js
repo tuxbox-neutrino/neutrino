@@ -951,7 +951,10 @@ function webuiPlayInBrowser(channelId, channelName, kind) {
 // Records a guide event through POST /api/v1/timers: the one given, the one
 // the dialog shows for its channel, else what runs now on the channel. An
 // event already running starts recording this minute, a timer being refused
-// a start before it. Resolves true once the timer is set.
+// a start before it. The recording margin is asked for as the timer form
+// asks for it; the box takes it for a running event too (the start moves
+// before now and the timer fires at its next tick, the end moves later).
+// Resolves true once the timer is set.
 async function webuiRecordEvent(channelId, channelName, ev) {
 	channelId = channelId || webuiEpgModalChannelId;
 	channelName = channelName || webuiEpgModalChannelName;
@@ -965,7 +968,7 @@ async function webuiRecordEvent(channelId, channelName, ev) {
 		}
 		const minute = Math.floor(webuiBoxNow() / 60000) * 60;
 		const body = {kind: 'record', channel_id: channelId, start: Math.max(ev.start, minute),
-			stop: ev.start + ev.duration, title: ev.title || ''};
+			stop: ev.start + ev.duration, title: ev.title || '', recording_safety: true};
 		if (ev.id) {
 			body.epg_id = ev.id;
 			body.epg_start = ev.start;
