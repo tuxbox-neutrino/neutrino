@@ -33,6 +33,7 @@
 #include <atomic>
 
 #include <driver/streamsetup.h>
+#include <driver/tsgrid.h>
 
 extern "C" {
 #include <libavformat/avformat.h>
@@ -60,11 +61,12 @@ class CStreamInstance : public OpenThreads::Thread
 		uint32_t hold_id;
 		stream_pids_t pids;
 		stream_fds_t fds;
-#if LIBAVFORMAT_VERSION_INT >= AV_VERSION_INT(61, 1, 100)
+		/* What each client in fds is still owed, under mutex. */
+		tsgrid::Clients clients;
+		/* The part of a packet the last read of buf ended in. */
+		tsgrid::Collector grid;
+		/* r bytes of whole packets, at _buf or else at buf. */
 		virtual bool Send(ssize_t r, const unsigned char * _buf = NULL);
-#else
-		virtual bool Send(ssize_t r,  unsigned char * _buf = NULL);
-#endif
 		virtual void Close();
 		virtual void run();
 		friend class CStreamManager;
@@ -84,9 +86,12 @@ class CStreamInstance : public OpenThreads::Thread
 		bool is_e2_stream;
 };
 
-class CStreamStream : public CStreamInstance
+class CStreamStream : public CStreamInstance, private tsgrid::Out
 {
 	private:
+		/* ffmpeg's muxer writes into buf, its own buffer: the part of a
+		   packet left over is kept here and not in front of buf. */
+		tsgrid::CopyCollector collector;
 		AVFormatContext *ifcx;
 		AVFormatContext *ofcx;
 #if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(57, 48, 100)
@@ -100,6 +105,7 @@ class CStreamStream : public CStreamInstance
 		bool interrupt;
 		void run();
 		void Close();
+		void whole(const unsigned char *p, size_t n);
 
 	public:
 		CStreamStream(int clientfd, t_channel_id chid, stream_pids_t &pids);

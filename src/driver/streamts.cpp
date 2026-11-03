@@ -48,6 +48,8 @@
 #include <ctype.h>
 
 #include <string.h>
+#include <string>
+#include <vector>
 
 #include <hardware/dmx.h>
 #include <zapit/capmt.h>
@@ -55,6 +57,7 @@
 #include <zapit/pat.h>
 #include <zapit/streamhold.h>
 #include <driver/streamts.h>
+#include <driver/abstime.h>
 #include <driver/record.h>
 #include <driver/genpsi.h>
 #include <system/set_threadname.h>
@@ -132,46 +135,25 @@ bool CStreamInstance::Stop()
 	return (OpenThreads::Thread::join() == 0);
 }
 
-#if LIBAVFORMAT_VERSION_INT >= AV_VERSION_INT(61, 1, 100)
 bool CStreamInstance::Send(ssize_t r, const unsigned char *_buf)
-#else
-bool CStreamInstance::Send(ssize_t r, unsigned char *_buf)
-#endif
 {
-	// lock fds for thread-safety
-	stream_fds_t cfds;
-	mutex.lock();
-	cfds = fds;
-	mutex.unlock();
+	if (r <= 0)
+		return true;
+	const unsigned char *b = _buf ? _buf : buf;
 
-	/* Always non-blocking: a single slow VLC consumer blocking send() stalls
-	 * the demux reader, the kernel ring buffer overflows, VLC disconnects on
-	 * its own inactivity timeout. The retry loop below tolerates transient
-	 * EAGAIN; sustained back-pressure will lose bytes, not wedge the reader. */
-	int flags = MSG_DONTWAIT;
-#ifdef MSG_NOSIGNAL
-	flags |= MSG_NOSIGNAL;
-#endif
-
-	for (stream_fds_t::iterator it = cfds.begin(); it != cfds.end(); ++it)
+	/* Each send returns at once: a client that does not keep up must not
+	   stall the demux reader, or the kernel's buffer overflows and every
+	   client loses the stream. The lock is held over all clients, so a
+	   client removed meanwhile is closed only once the loop is done and
+	   its descriptor cannot reach a new client in the middle of it. */
+	tsgrid::SocketSink sink;
+	std::vector<std::string> report;
 	{
-		int i = 10;
-		const unsigned char *b = _buf ? _buf : buf;
-		ssize_t count = r;
-
-		do
-		{
-			int ret = send(*it, b, count, flags);
-			if (ret > 0)
-			{
-				b += ret;
-				count -= ret;
-			}
-		} while ((count > 0) && (i-- > 0));
-
-		if (count)
-			printf("CStreamInstance::%s: send error, fd %d: (%zd from %zd)\n", __FUNCTION__, *it, r - count, r);
+		OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
+		clients.send(fds, b, (size_t) r, sink, time_monotonic_ms(), report);
 	}
+	for (size_t i = 0; i < report.size(); ++i)
+		printf("CStreamInstance::%s: %s\n", __FUNCTION__, report[i].c_str());
 
 	return true;
 }
@@ -183,6 +165,7 @@ void CStreamInstance::Close()
 		OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
 		cfds = fds;
 		fds.clear();
+		clients.clear();
 	}
 	for (stream_fds_t::iterator fit = cfds.begin(); fit != cfds.end(); ++fit)
 		close(*fit);
@@ -198,8 +181,10 @@ void CStreamInstance::AddClient(int clientfd)
 void CStreamInstance::RemoveClient(int clientfd)
 {
 	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
-	if (fds.erase(clientfd) > 0)
+	if (fds.erase(clientfd) > 0) {
+		clients.forget(clientfd);
 		close(clientfd);
+	}
 	printf("CStreamInstance::RemoveClient: %d (count %d)\n", clientfd, (int)fds.size());
 }
 
@@ -256,9 +241,13 @@ void CStreamInstance::run()
 		CCamManager::getInstance()->Start(channel_id, CCamManager::STREAM);
 
 	while (running) {
-		ssize_t r = dmx->Read(buf, IN_SIZE, 100);
-		if (r > 0)
-			Send(r);
+		/* A read need not end on a packet: the part of one it ends in
+		   waits at the front of buf, and the next read goes behind it. */
+		ssize_t r = dmx->Read(buf + grid.carry(), IN_SIZE - grid.carry(), 100);
+		const size_t whole = grid.add(r);
+		if (whole)
+			Send(whole);
+		grid.next(buf);
 	}
 
 	if (is_e2_stream)
@@ -834,7 +823,7 @@ _error:
 }
 
 CStreamStream::CStreamStream(int clientfd, t_channel_id chid, stream_pids_t &_pids)
-	: CStreamInstance(clientfd, chid, _pids)
+	: CStreamInstance(clientfd, chid, _pids), collector(IN_SIZE)
 {
 	ifcx = NULL;
 	ofcx = NULL;
@@ -857,8 +846,14 @@ int CStreamStream::write_packet(void *opaque, uint8_t *buffer, int buf_size)
 #endif
 {
 	CStreamStream * st = (CStreamStream *) opaque;
-	st->Send(buf_size, buffer);
+	if (buf_size > 0)
+		st->collector.feed(buffer, buf_size, *st);
 	return buf_size;
+}
+
+void CStreamStream::whole(const unsigned char *p, size_t n)
+{
+	Send(n, p);
 }
 
 int CStreamStream::Interrupt(void * data)

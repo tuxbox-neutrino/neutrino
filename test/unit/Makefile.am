@@ -78,6 +78,7 @@ coreapi_tests_SOURCES = \
 	driver/test_streamsetup.cpp \
 	driver/test_recordtuner.cpp \
 	driver/test_scanpause.cpp \
+	driver/test_tsgrid.cpp \
 	coreapi/test_eventbus.cpp \
 	coreapi/test_messagebridge.cpp \
 	coreapi/test_channels.cpp \
@@ -150,6 +151,9 @@ coreapi_tests_SOURCES = \
 # recordtuner.o is what a recording decides about the live frontend, plain code
 # over values read off the box, linked for the same reason; scanpause.o, when
 # the EPG scan pauses for a stream, likewise.
+# tsgrid.o is how the stream server keeps every client on the packet grid,
+# plain code over a send seam, linked so the cases drive the object the
+# program runs.
 # rcinput.o carries the message queue under test; abstime.o is the only object it
 # needs besides the stubs in test_postmsg.cpp. commandsink_real.o comes out of the
 # archive with it, which is why that adapter lives in a file of its own.
@@ -206,6 +210,7 @@ coreapi_tests_LDADD = \
 	$(top_builddir)/src/driver/streamsetup.o \
 	$(top_builddir)/src/driver/recordtuner.o \
 	$(top_builddir)/src/driver/scanpause.o \
+	$(top_builddir)/src/driver/tsgrid.o \
 	$(top_builddir)/lib/libmd5sum/libmd5sum.a \
 	$(top_builddir)/lib/libconfigfile/libconfigfile.a \
 	$(top_builddir)/lib/timerdclient/libtimerdclient.a \

@@ -54,6 +54,7 @@ libneutrino_driver_a_SOURCES = \
 	shutdown_count.cpp \
 	streamts.cpp \
 	streamsetup.cpp \
+	tsgrid.cpp \
 	volume.cpp
 
 if ENABLE_LCD
