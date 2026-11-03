@@ -262,9 +262,84 @@ function _webuiSideLink(p, area, page) {
 	label.className = 'webui-side-label';
 	label.textContent = p.label;
 	a.appendChild(label);
+	if (p.page === 'timer')
+		_webuiTimerBadge(a, p.label);
 	var li = document.createElement('li');
 	li.appendChild(a);
 	return li;
+}
+
+/* The number of timers set (planned, announced or running: state below
+   3) as a badge beside "Timer" in the side bar and the tab bar. It is read
+   once per page, silently (nothing is asked when the box refuses to
+   show the timers, and nothing is drawn then), and again when the box says
+   its timers changed on a stream the page opened. Zero or not known: no
+   badge. The link's name carries the number, the badge itself is for the eye. */
+var _webuiTimerCount = null;
+var _webuiTimerCountStarted = false;
+var _webuiTimerCountRead = 0;
+var _webuiTimerCountLater = null;
+
+function _webuiTimerBadge(link, label) {
+	var badge = document.createElement('span');
+	badge.className = 'webui-nav-count';
+	badge.hidden = true;
+	badge.setAttribute('aria-hidden', 'true');
+	link.appendChild(badge);
+	link.setAttribute('data-timer-label', label);
+}
+
+function _webuiTimerCountPaint() {
+	var n = _webuiTimerCount;
+	Array.prototype.forEach.call(document.querySelectorAll('[data-timer-label]'), function(link) {
+		var badge = link.querySelector('.webui-nav-count');
+		if (!badge)
+			return;
+		badge.hidden = !n;
+		badge.textContent = n ? (n > 99 ? '99+' : String(n)) : '';
+		if (n)
+			link.setAttribute('aria-label', webuiL('nav.timers_set', '%s, %d set')
+				.replace('%s', link.getAttribute('data-timer-label')).replace('%d', String(n)));
+		else
+			link.removeAttribute('aria-label');
+	});
+}
+
+async function _webuiTimerCountLoad() {
+	var read = ++_webuiTimerCountRead;
+	var n = null;
+	try {
+		var r = await _webuiV1Read('/timers');
+		if (r && Array.isArray(r.items))
+			n = r.items.filter(function(t) { return t.state < 3; }).length;
+	} catch (e) {
+		return;	// the box did not answer: the number shown stays
+	}
+	if (read !== _webuiTimerCountRead)
+		return;
+	_webuiTimerCount = n;
+	_webuiTimerCountPaint();
+}
+
+// Reads the number on the first call and follows the timer events from then
+// on; every call draws the number last read.
+function _webuiTimerCountStart() {
+	if (!_webuiTimerCountStarted) {
+		_webuiTimerCountStarted = true;
+		_webuiTimerCountLoad();
+		if (typeof webuiV1Watch === 'function') {
+			var again = function() {
+				clearTimeout(_webuiTimerCountLater);
+				_webuiTimerCountLater = setTimeout(_webuiTimerCountLoad, 300);
+			};
+			var opened = 0;
+			webuiV1Watch('timer-changed', again);
+			// a reconnect after a gap, or the first connection when the first
+			// read got no number (refused until a sign-in opened the stream)
+			webuiV1Watch('open', function() { if (opened++ || _webuiTimerCount === null) again(); });
+		}
+	}
+	_webuiTimerCountPaint();
 }
 
 // The side bar's groups with their pages, and Settings at its foot
@@ -366,8 +441,11 @@ function webuiRenderNav(pageName) {
 		areas.filter(function(a) { return a.tab; }).forEach(function(a) {
 			var on = current === a;
 			inTabs = inTabs || on;
-			tabs.appendChild(link(a.pages[0].href, {'data-area': a.id, 'aria-current': on ? 'page' : null, 'class': on ? 'active' : null},
-				_webuiNavIcon(a) + '<span>' + escapeHtml(a.label) + '</span>'));
+			var tab = link(a.pages[0].href, {'data-area': a.id, 'aria-current': on ? 'page' : null, 'class': on ? 'active' : null},
+				_webuiNavIcon(a) + '<span>' + escapeHtml(a.label) + '</span>');
+			if (a.id === 'timers')
+				_webuiTimerBadge(tab, a.label);
+			tabs.appendChild(tab);
 		});
 		var more = document.createElement('button');
 		more.type = 'button';
@@ -381,6 +459,7 @@ function webuiRenderNav(pageName) {
 		tabs.appendChild(more);
 		webuiArrowKeys(tabs, 'a, button');
 	}
+	_webuiTimerCountStart();
 	// the row of pages changes the head's height
 	if (typeof webuiUpdateHeaderSpacer === 'function')
 		webuiUpdateHeaderSpacer();

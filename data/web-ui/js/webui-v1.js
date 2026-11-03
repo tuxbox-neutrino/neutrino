@@ -42,11 +42,13 @@
 // again once the sign-in went through. A handler named `open` is called with
 // null each time the stream (re)connects, which is when a page rereads what
 // it may have missed. webuiV1EventsLive() says whether the stream is open
-// right now; a page polls what it follows while it is not.
+// right now; a page polls what it follows while it is not. The head, which
+// is not a page, listens to the same stream through webuiV1Watch(name, fn).
 
 var _webuiV1Csrf = null;	// {header, token} of the open session, if any
 var _webuiV1SignInPending = null;	// the one sign-in dialog of the page, while open
 var _webuiV1Stream = null;	// {handlers, es, closed} of webuiV1Events
+var _webuiV1Watchers = [];	// [name, fn] pairs of webuiV1Watch
 
 function _webuiV1Url(path, query) {
 	var url = '/api/v1' + path;
@@ -514,18 +516,32 @@ function webuiV1EventsLive() {
 		_webuiV1Stream.es.readyState === EventSource.OPEN);
 }
 
+function _webuiV1Listen(es, name, fn) {
+	es.addEventListener(name, function(e) {
+		var data = null;
+		try { data = JSON.parse(e.data); } catch (ignore) { /* keep null */ }
+		fn(data);
+	});
+}
+
+// webuiV1Watch(name, fn): fn also gets the event `name` on whatever stream
+// a page opens, beside the page's own handler of it (the head follows the
+// timers this way). Called at once on a stream that is open already.
+function webuiV1Watch(name, fn) {
+	_webuiV1Watchers.push([name, fn]);
+	if (_webuiV1Stream && _webuiV1Stream.es)
+		_webuiV1Listen(_webuiV1Stream.es, name, fn);
+}
+
 function _webuiV1Open() {
 	var stream = _webuiV1Stream;
 	var es = new EventSource('/api/v1/events');
 	stream.es = es;
 	stream.closed = false;
 	Object.keys(stream.handlers).forEach(function(name) {
-		es.addEventListener(name, function(e) {
-			var data = null;
-			try { data = JSON.parse(e.data); } catch (ignore) { /* keep null */ }
-			stream.handlers[name](data);
-		});
+		_webuiV1Listen(es, name, stream.handlers[name]);
 	});
+	_webuiV1Watchers.forEach(function(w) { _webuiV1Listen(es, w[0], w[1]); });
 	// a refused stream is not retried by the browser; a sign-in reopens it
 	es.addEventListener('error', function() {
 		if (es.readyState === EventSource.CLOSED) stream.closed = true;

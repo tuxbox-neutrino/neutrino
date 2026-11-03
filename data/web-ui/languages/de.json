@@ -12,6 +12,7 @@
 	"nav.sub_channels": "Sender",
 	"nav.sub_guide": "EPG",
 	"nav.sub_timers": "Timer",
+	"nav.timers_set": "%s, %d gesetzt",
 	"nav.sub_archive": "Aufnahmen",
 	"nav.sub_boxcontrol": "Boxsteuerung",
 	"nav.sub_plugins": "Plugins",
