@@ -718,3 +718,209 @@ TEST_CASE("a box with no timers is an answer and not a failure", "[ipc]")
 	REQUIRE(client.getTimerList(out));
 	REQUIRE(out.empty());
 }
+
+namespace
+{
+
+/* The timer daemon with one stored recording, for the check that a timer is
+   not added twice: it answers the list and the safety margin and serves as
+   many requests as the case makes, one connection each. */
+class StoredRecordingPeer
+{
+	public:
+		StoredRecordingPeer(const std::string & p, const CTimerd::responseGetTimer & stored,
+				    int pre_margin, int post_margin, int requests)
+			: path(p), timer(stored), pre(pre_margin), post(post_margin),
+			  left(requests), listen_fd(-1)
+		{
+			unlink(path.c_str());
+
+			listen_fd = socket(AF_UNIX, SOCK_STREAM, 0);
+			sockaddr_un addr;
+			memset(&addr, 0, sizeof(addr));
+			addr.sun_family = AF_UNIX;
+			strncpy(addr.sun_path, path.c_str(), sizeof(addr.sun_path) - 1);
+			bind(listen_fd, (sockaddr *) &addr, sizeof(addr));
+			listen(listen_fd, 4);
+
+			pthread_create(&thread, 0, serve, this);
+		}
+
+		~StoredRecordingPeer()
+		{
+			/* a case that asked for fewer requests than it said would wait
+			   here for ever, so the leftovers are connected to and let go */
+			for (int i = 0; i < left; i++)
+			{
+				int fd = socket(AF_UNIX, SOCK_STREAM, 0);
+				sockaddr_un addr;
+				memset(&addr, 0, sizeof(addr));
+				addr.sun_family = AF_UNIX;
+				strncpy(addr.sun_path, path.c_str(), sizeof(addr.sun_path) - 1);
+				connect(fd, (sockaddr *) &addr, sizeof(addr));
+				close(fd);
+			}
+			pthread_join(thread, 0);
+			if (listen_fd != -1)
+				close(listen_fd);
+			unlink(path.c_str());
+		}
+
+		int asked() const { return served; }
+
+	private:
+		static void * serve(void * arg)
+		{
+			static_cast<StoredRecordingPeer *>(arg)->loop();
+			return 0;
+		}
+
+		void loop()
+		{
+			while (left > 0)
+			{
+				int fd = accept(listen_fd, 0, 0);
+				if (fd < 0)
+					return;
+				left--;
+
+				CBasicMessage::Header head;
+				if (recv(fd, &head, sizeof(head), MSG_WAITALL) == (ssize_t) sizeof(head))
+				{
+					served++;
+					if (head.cmd == CTimerdMsg::CMD_GETTIMERLIST)
+					{
+						CTimerdMsg::generalInteger count;
+						count.number = 1;
+						send(fd, &count, sizeof(count), MSG_NOSIGNAL);
+						send(fd, &timer, sizeof(timer), MSG_NOSIGNAL);
+					}
+					else if (head.cmd == CTimerdMsg::CMD_GETRECSAFETY)
+					{
+						CTimerdMsg::commandRecordingSafety margin;
+						margin.pre = pre;
+						margin.post = post;
+						send(fd, &margin, sizeof(margin), MSG_NOSIGNAL);
+					}
+				}
+				close(fd);
+			}
+		}
+
+		std::string                path;
+		CTimerd::responseGetTimer  timer;
+		int                        pre;
+		int                        post;
+		int                        left;
+		int                        served = 0;
+		int                        listen_fd;
+		pthread_t                  thread;
+};
+
+const time_t kRecAnnounce = 1790954100;
+const time_t kRecAlarm    = 1790954280;
+const time_t kRecStop     = 1790956080;
+const t_channel_id kRecChannel = 0x283d000103f2ULL;
+
+CTimerd::responseGetTimer storedRecording(time_t announce, time_t alarm, time_t stop)
+{
+	CTimerd::responseGetTimer t;
+	memset(&t, 0, sizeof(t));
+	t.eventID = 1;
+	t.eventType = CTimerd::TIMER_RECORD;
+	t.eventRepeat = CTimerd::TIMERREPEAT_ONCE;
+	t.announceTime = announce;
+	t.alarmTime = alarm;
+	t.stopTime = stop;
+	t.channel_id = kRecChannel;
+	return t;
+}
+
+CTimerd::RecordingInfo recordingOf(bool margin)
+{
+	CTimerd::RecordingInfo r;
+	r.apids = 0;
+	r.channel_id = kRecChannel;
+	r.epg_id = 0;
+	r.epg_starttime = 0;
+	r.recordingSafety = margin;
+	r.autoAdjustToEPG = false;
+	return r;
+}
+
+bool isDouble(ProbeTimerd & client, CTimerd::RecordingInfo & r, time_t announce, time_t alarm, time_t stop)
+{
+	return client.checkDouble(CTimerd::TIMER_RECORD, &r, announce, alarm, stop, CTimerd::TIMERREPEAT_ONCE, 0);
+}
+
+} // namespace
+
+/* timerd takes the margin off the announce time and the alarm and puts it on
+   the stop only after it received the timer, and the list it answers holds the
+   timer that way. The request has to be held against those times, or the same
+   recording sent twice is never found a second time. */
+TEST_CASE("a recording with a margin is found again in the list that holds its margin", "[ipc]")
+{
+	std::string path = socketPath("timerd-dup-margin");
+	StoredRecordingPeer peer(path, storedRecording(kRecAnnounce - 120, kRecAlarm - 120, kRecStop + 300), 120, 300, 2);
+	ProbeTimerd client(path);
+	CTimerd::RecordingInfo r = recordingOf(true);
+
+	REQUIRE(isDouble(client, r, kRecAnnounce, kRecAlarm, kRecStop));
+	REQUIRE(peer.asked() == 2);
+}
+
+TEST_CASE("a recording with a margin and no announce time keeps none", "[ipc]")
+{
+	std::string path = socketPath("timerd-dup-noannounce");
+	StoredRecordingPeer peer(path, storedRecording(0, kRecAlarm - 120, kRecStop + 300), 120, 300, 2);
+	ProbeTimerd client(path);
+	CTimerd::RecordingInfo r = recordingOf(true);
+
+	REQUIRE(isDouble(client, r, 0, kRecAlarm, kRecStop));
+}
+
+TEST_CASE("a recording with a margin differs from one on another channel", "[ipc]")
+{
+	std::string path = socketPath("timerd-dup-channel");
+	CTimerd::responseGetTimer other = storedRecording(kRecAnnounce - 120, kRecAlarm - 120, kRecStop + 300);
+	other.channel_id = kRecChannel + 1;
+	StoredRecordingPeer peer(path, other, 120, 300, 2);
+	ProbeTimerd client(path);
+	CTimerd::RecordingInfo r = recordingOf(true);
+
+	REQUIRE_FALSE(isDouble(client, r, kRecAnnounce, kRecAlarm, kRecStop));
+}
+
+/* The request without a margin is held against the stored times as they are,
+   and asks timerd for nothing. */
+TEST_CASE("a recording without a margin is held against the stored times as they are", "[ipc]")
+{
+	{
+		std::string path = socketPath("timerd-dup-plain");
+		StoredRecordingPeer peer(path, storedRecording(kRecAnnounce, kRecAlarm, kRecStop), 120, 300, 1);
+		ProbeTimerd client(path);
+		CTimerd::RecordingInfo r = recordingOf(false);
+
+		REQUIRE(isDouble(client, r, kRecAnnounce, kRecAlarm, kRecStop));
+		REQUIRE(peer.asked() == 1);
+	}
+	{
+		std::string path = socketPath("timerd-dup-plain2");
+		StoredRecordingPeer peer(path, storedRecording(kRecAnnounce - 120, kRecAlarm - 120, kRecStop + 300), 120, 300, 1);
+		ProbeTimerd client(path);
+		CTimerd::RecordingInfo r = recordingOf(false);
+
+		REQUIRE_FALSE(isDouble(client, r, kRecAnnounce, kRecAlarm, kRecStop));
+	}
+}
+
+TEST_CASE("a margin of none leaves the stored times as they are", "[ipc]")
+{
+	std::string path = socketPath("timerd-dup-zero");
+	StoredRecordingPeer peer(path, storedRecording(kRecAnnounce, kRecAlarm, kRecStop), 0, 0, 2);
+	ProbeTimerd client(path);
+	CTimerd::RecordingInfo r = recordingOf(true);
+
+	REQUIRE(isDouble(client, r, kRecAnnounce, kRecAlarm, kRecStop));
+}

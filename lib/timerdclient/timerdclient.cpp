@@ -296,6 +296,22 @@ bool CTimerdClient::checkDoubleUnlocked(CTimerd::CTimerEventTypes evType, void* 
 	if (evType != CTimerd::TIMER_RECORD && evType != CTimerd::TIMER_ZAPTO)
 		return false;//skip check not zap and record timer
 
+	/* A recording asked for with the safety margin is filed by timerd with
+	   the margin already taken off its announce time and alarm and put on
+	   its stop (timerd.cpp, where the timer is added), and the list holds it
+	   that way. The request is held against those times, or the same
+	   recording sent twice would never match itself. The announce time is
+	   moved only when there is one, as timerd does. */
+	if (evType == CTimerd::TIMER_RECORD && data && static_cast<CTimerd::RecordingInfo*>(data)->recordingSafety)
+	{
+		int pre = 0, post = 0;
+		getRecordingSafetyUnlocked(pre, post);
+		if (announcetime > 0)
+			announcetime -= pre;
+		alarmtime -= pre;
+		stoptime += post;
+	}
+
 	CTimerd::TimerList timerlist;
 	getTimerListUnlocked(timerlist);
 	for (CTimerd::TimerList::iterator it = timerlist.begin(); it != timerlist.end();++it)
