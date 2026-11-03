@@ -29,6 +29,10 @@ const uint64_t kLive = 0x1001;
 const uint64_t kOther = 0x2002;
 const uint64_t kPip = 0x3003;
 const uint64_t kWeb = 0x4004;
+const uint64_t kShared = 0x5005;   // another channel on the live transponder
+
+const uint64_t kLiveTp = 0x2cec00c0044d0001ULL;
+const uint64_t kOtherTp = 0x2ed400c0043e0001ULL;
 
 struct Fe
 {
@@ -49,19 +53,23 @@ struct Box : public Ops
 	int64_t clock_after_tune;
 	bool room;
 	bool tune_ok;
+	bool pids_ok;
+	bool stop_while_reading;   // zapit begins to stop while PAT and PMT are read
 	bool answer_ok;
 	uint32_t next_id;
 
 	int lock_depth;
-	int collects, opens, binds, live_holds, picks, tunes, unlocks, offers, drops, answers;
-	bool facts_locked, bind_locked, tune_unlocked;
+	int collects, opens, binds, live_holds, picks, tunes, pid_reads, unlocks, offers, drops, answers;
+	bool facts_locked, bind_locked, tune_unlocked, read_unlocked;
+	uint64_t asked;
 	Reply sent;
 
 	Box()
 		: serving_now(true), stop_while_tuning(false), clock(1000), clock_after_tune(-1), room(true), tune_ok(true),
-		  answer_ok(true), next_id(9), lock_depth(0), collects(0), opens(0), binds(0),
-		  live_holds(0), picks(0), tunes(0), unlocks(0), offers(0), drops(0), answers(0),
-		  facts_locked(true), bind_locked(true), tune_unlocked(true)
+		  pids_ok(true), stop_while_reading(false), answer_ok(true), next_id(9), lock_depth(0), collects(0),
+		  opens(0), binds(0), live_holds(0), picks(0), tunes(0), pid_reads(0), unlocks(0), offers(0),
+		  drops(0), answers(0), facts_locked(true), bind_locked(true), tune_unlocked(true),
+		  read_unlocked(true), asked(0)
 	{
 		for (int i = 0; i < 3; ++i)
 		{
@@ -73,6 +81,7 @@ struct Box : public Ops
 		f.live_tuned = true;
 		f.live_channel = kLive;
 		f.live_fe = 0;
+		f.live_tp = kLiveTp;
 		f.slots = 1;
 		source[0] = 0;
 	}
@@ -87,9 +96,10 @@ struct Box : public Ops
 	int64_t nowMs() { return clock; }
 	Kind channel(uint64_t id)
 	{
+		asked = id;
 		if (id == kWeb)
 			return WebChannel;
-		return (id == kLive || id == kOther || id == kPip) ? Broadcast : NoChannel;
+		return (id == kLive || id == kOther || id == kPip || id == kShared) ? Broadcast : NoChannel;
 	}
 	bool roomForHold() { return room; }
 	void lockFrontends() { lock_depth++; }
@@ -99,6 +109,8 @@ struct Box : public Ops
 	{
 		facts_locked = facts_locked && lock_depth > 0;
 		out = f;
+		// As zapit sets it: the transponder of the channel asked for.
+		out.channel_tp = (asked == kLive || asked == kShared) ? kLiveTp : kOtherTp;
 	}
 	void heldByStreams(std::vector<int> &out)
 	{
@@ -148,6 +160,16 @@ struct Box : public Ops
 			clock = clock_after_tune;
 		return tune_ok;
 	}
+	bool readPids(void *)
+	{
+		pid_reads++;
+		read_unlocked = read_unlocked && lock_depth == 0;
+		if (stop_while_reading)
+			serving_now = false;
+		if (clock_after_tune >= 0)
+			clock = clock_after_tune;
+		return pids_ok;
+	}
 	void unlockFrontend(void *p)
 	{
 		unlocks++;
@@ -184,6 +206,130 @@ TEST_CASE("a hold of the live channel binds the picture's frontend and enters a 
 	REQUIRE(box.facts_locked);
 	REQUIRE(box.bind_locked);
 	REQUIRE(box.lock_depth == 0);
+}
+
+TEST_CASE("a hold of another channel on the live transponder shares the picture's frontend untuned", "[zapit][streamholdcmd][shared]")
+{
+	Box box;
+	const Reply r = run(box, kShared, 5000, false, true);
+	REQUIRE(r.verdict == Granted);
+	REQUIRE(r.hold_id == 9);
+	REQUIRE(r.fenumber == 0);
+	REQUIRE(box.live_holds == 1);
+	REQUIRE(box.picks == 0);
+	REQUIRE(box.fe[0].use == 1);      // locked once, released by the register
+	REQUIRE(box.uses() == 1);
+	REQUIRE(box.source[1] == 0);
+	REQUIRE(box.tunes == 0);          // the picture's frontend is not retuned
+	REQUIRE(box.pid_reads == 1);      // but the channel's PAT and PMT are read
+	REQUIRE(box.read_unlocked);
+	REQUIRE(box.bind_locked);
+	REQUIRE(box.facts_locked);
+	REQUIRE(box.offers == 1);
+	REQUIRE(box.unlocks == 0);
+	REQUIRE(box.lock_depth == 0);
+}
+
+TEST_CASE("the live channel itself still reads no PAT and PMT", "[zapit][streamholdcmd][shared]")
+{
+	Box box;
+	REQUIRE(run(box, kLive, 5000, false, true).verdict == Granted);
+	REQUIRE(box.pid_reads == 0);
+	REQUIRE(box.tunes == 0);
+}
+
+TEST_CASE("a channel on another transponder still takes an idle frontend", "[zapit][streamholdcmd][shared]")
+{
+	Box box;
+	const Reply r = run(box, kOther, 5000, false, true);
+	REQUIRE(r.verdict == Granted);
+	REQUIRE(r.fenumber == 1);
+	REQUIRE(box.live_holds == 0);
+	REQUIRE(box.pid_reads == 0);
+	REQUIRE(box.tunes == 1);
+}
+
+TEST_CASE("a shared hold whose PAT and PMT cannot be read gives the frontend back once", "[zapit][streamholdcmd][shared]")
+{
+	Box box;
+	box.pids_ok = false;
+	const Reply r = run(box, kShared, 5000, false, true);
+	REQUIRE(r.verdict == Failed);
+	REQUIRE(r.hold_id == 0);
+	REQUIRE(r.fenumber == -1);
+	REQUIRE(box.pid_reads == 1);
+	REQUIRE(box.unlocks == 1);
+	REQUIRE(box.uses() == 0);
+	REQUIRE(box.offers == 0);
+	REQUIRE(box.tunes == 0);
+}
+
+TEST_CASE("a shared hold fails when zapit stops or the time runs out while reading", "[zapit][streamholdcmd][shared]")
+{
+	Box box;
+	box.stop_while_reading = true;
+	REQUIRE(run(box, kShared, 5000, false, true).verdict == Failed);
+	REQUIRE(box.unlocks == 1);
+	REQUIRE(box.uses() == 0);
+	REQUIRE(box.offers == 0);
+
+	Box late;
+	late.clock_after_tune = 7000;
+	REQUIRE(run(late, kShared, 5000, false, true).verdict == Failed);
+	REQUIRE(late.unlocks == 1);
+	REQUIRE(late.uses() == 0);
+	REQUIRE(late.offers == 0);
+}
+
+TEST_CASE("without locking the frontend a shared hold leaves its use count alone", "[zapit][streamholdcmd][shared]")
+{
+	Box box;
+	REQUIRE(run(box, kShared, 5000, false, false).verdict == Granted);
+	REQUIRE(box.uses() == 0);
+	REQUIRE(box.live_holds == 1);
+
+	Box failing;
+	failing.pids_ok = false;
+	REQUIRE(run(failing, kShared, 5000, false, false).verdict == Failed);
+	REQUIRE(failing.unlocks == 0);
+	REQUIRE(failing.uses() == 0);
+}
+
+TEST_CASE("while a channel scan runs a channel on the live transponder takes an idle frontend", "[zapit][streamholdcmd][shared]")
+{
+	Box box;
+	box.f.scanning = true;
+	const Reply r = run(box, kShared, 5000, false, true);
+	REQUIRE(r.verdict == Granted);
+	REQUIRE(r.fenumber == 1);
+	REQUIRE(box.live_holds == 0);
+	REQUIRE(box.pid_reads == 0);
+	REQUIRE(box.tunes == 1);
+	REQUIRE(box.fe[0].use == 0);
+}
+
+TEST_CASE("a probe of a shared channel binds, locks and reads nothing", "[zapit][streamholdcmd][shared]")
+{
+	Box box;
+	const std::map<int, int> sources_before = box.source;
+	const Reply r = run(box, kShared, 0, true, true);
+	REQUIRE(r.verdict == Granted);
+	REQUIRE(r.fenumber == 0);
+	REQUIRE(r.hold_id == 0);
+	REQUIRE(box.binds == 0);
+	REQUIRE(box.live_holds == 0);
+	REQUIRE(box.pid_reads == 0);
+	REQUIRE(box.uses() == 0);
+	REQUIRE(box.source == sources_before);
+}
+
+TEST_CASE("a register that cannot take a shared hold gives the frontend back", "[zapit][streamholdcmd][shared]")
+{
+	Box box;
+	box.next_id = 0;
+	REQUIRE(run(box, kShared, 5000, false, true).verdict == Busy);
+	REQUIRE(box.unlocks == 1);
+	REQUIRE(box.uses() == 0);
 }
 
 TEST_CASE("a hold of another channel binds an idle frontend and tunes it after the lock", "[zapit][streamholdcmd]")

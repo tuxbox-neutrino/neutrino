@@ -24,7 +24,7 @@ SRC="$1"
 	exit 2
 }
 HERE=`dirname "$0"`
-for f in src/driver/streamts.cpp src/zapit/zapit.cpp src/zapit/streamholdcmd.cpp src/zapit/streamyield.cpp; do
+for f in src/driver/streamts.cpp src/zapit/zapit.cpp src/zapit/streamholdcmd.cpp src/zapit/streamyield.cpp src/zapit/femanager.cpp; do
 	[ -r "$SRC/$f" ] || { echo "check-stream-keeps-picture.sh: cannot read $SRC/$f" >&2; exit 1; }
 done
 [ -r "$HERE/strip-comments.awk" ] || { echo "check-stream-keeps-picture.sh: cannot read $HERE/strip-comments.awk" >&2; exit 1; }
@@ -68,6 +68,46 @@ for word in 'allocateFE' 'StopPip' 'ZapIt(' 'setLiveFE' 'SendEvent'; do
 		fail=1
 	fi
 done
+
+# ... and the hold of another channel on the live transponder reads PAT and
+# PMT off the live frontend as it stands: nothing in it tunes.
+awk '
+	/^class CZapit::StreamHoldOps/ { inside = 1 }
+	inside && /^};/ { inside = 0 }
+	inside && /bool readPids\(/ { f = 1 }
+	inside && f { print }
+	f && /^\t\t}/ { exit }
+' "$tmp/hold" > "$tmp/readpids"
+grep -q -F 'ParsePatPmt(' "$tmp/readpids" || { echo "check-stream-keeps-picture.sh: no StreamHoldOps::readPids reading PAT and PMT in src/zapit/zapit.cpp" >&2; exit 1; }
+for word in 'TuneChannel' 'tuneChannel' 'setInput' 'driveToSatellitePosition' 'tune('; do
+	if grep -n -F -- "$word" "$tmp/readpids" > "$tmp/hits"; then
+		echo "zapit's StreamHoldOps::readPids uses $word; the live frontend is not retuned for a stream:" >&2
+		sed 's/^/  /' "$tmp/hits" >&2
+		fail=1
+	fi
+done
+
+# ... through the demux the hold bound: holdLiveForStream gives the channel
+# the binding of the live frontend as its record demux, which ParsePatPmt
+# reads, and as its stream demux, which the stream server reads.
+strip "$SRC/src/zapit/femanager.cpp" | awk '
+	/^void CFEManager::holdLiveForStream\(/ { f = 1 }
+	f && /^#else/ { exit }
+	f { print }
+	f && /^}/ { exit }
+' > "$tmp/holdlive"
+grep -q -F 'void CFEManager::holdLiveForStream(' "$tmp/holdlive" || { echo "check-stream-keeps-picture.sh: no CFEManager::holdLiveForStream in src/zapit/femanager.cpp" >&2; exit 1; }
+for what in 'b = fesearch::binding(live->fenumber)' 'channel->setRecordDemux(b.demux)' 'channel->setStreamDemux(b.demux)' 'cDemux::SetSource(b.demux, b.source)'; do
+	if ! grep -q -F -- "$what" "$tmp/holdlive"; then
+		echo "src/zapit/femanager.cpp: holdLiveForStream does not do $what; the stream's PAT, PMT and packets are read through the live frontend's binding" >&2
+		fail=1
+	fi
+done
+strip "$SRC/src/zapit/zapit.cpp" | awk '
+	/^bool CZapit::ParsePatPmt\(/ { f = 1 }
+	f { print }
+	f && /^}/ { exit }
+' | grep -q -F 'getRecordDemux()' || { echo "src/zapit/zapit.cpp: CZapit::ParsePatPmt no longer reads through the channel's record demux, which holdLiveForStream binds for a shared stream" >&2; fail=1; }
 
 # 3. Only zapit's thread writes the register's places.
 ( cd "$SRC" && grep -r -l -E 'streamhold::(offer|collect|shutdown|revoke)[ \t]*\(' src --include='*.cpp' --include='*.h' ) | sort > "$tmp/writers" || true

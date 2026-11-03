@@ -15,9 +15,12 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * A stream never changes what the box shows. It gets one of two things:
+ * A stream never changes what the box shows. It gets one of three things:
  *  - Live: the channel the picture shows, on the picture's frontend, which
  *    is not retuned;
+ *  - Shared: another channel on the transponder the picture's frontend is
+ *    tuned to, on that frontend, which is not retuned either; its PAT and
+ *    PMT are read from the transponder as it is;
  *  - Idle: a frontend nobody uses, whose demux (its number + 1) no PiP
  *    reads.
  * Anything else is refused, and a refusal touches neither the picture, nor
@@ -78,6 +81,23 @@ struct Facts
 	   standby, or woken again by the scan. Nothing is shown then, so no
 	   frontend is the picture's. */
 	bool     box_standby;
+	/* The transponder the live frontend is tuned to (0 when there is none or
+	   it was never tuned), and the one the channel asked for lies on. */
+	uint64_t live_tp;
+	uint64_t channel_tp;
+	/* A busy frontend is shared only with the service it carries. */
+	bool     no_same_fe;
+	/* A channel scan may tune the live frontend, which keeps its transponder
+	   id meanwhile: from the scan's start, which clears zapit's current
+	   channel, until a zap sets one again. A reload of the channels clears
+	   it as well. */
+	bool     scanning;
+	/* Marked for the CI module: the channel the picture shows, and the one
+	   asked for. With ci_one_service the module serves one of them only,
+	   and the picture keeps it. */
+	bool     live_ci;
+	bool     channel_ci;
+	bool     ci_one_service;
 
 	Facts();
 };
@@ -86,6 +106,7 @@ enum Way
 {
 	Refuse,
 	Live,
+	Shared,
 	Idle
 };
 

@@ -126,6 +126,7 @@ const AppliedSetting kMiscRows[] =
 const AppliedSetting kCamRows[] =
 {
 	{ "ci_tuner", LOCALE_CI_TUNER },
+	{ "ci_mode", LOCALE_CI_MODE },
 #if HAVE_LIBSTB_HAL
 	{ "ci_check_live", LOCALE_CI_CHECK_LIVE_SLOT },
 #endif

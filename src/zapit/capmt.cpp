@@ -180,6 +180,7 @@ CCamManager::CCamManager()
 {
 	channel_map.clear();
 	tunerno = -1;
+	ci_mode = 0;
 	filter_channels = false;
 	useCI = false;
 	rmode = false;

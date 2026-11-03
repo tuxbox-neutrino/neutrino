@@ -14,7 +14,7 @@
 # build that will not fit fails there whatever this says. Raised to the
 # measured figure rather than defended.
 # web bytes the pages may cost gzipped	786432
-acted options matched to a declared row	26
+acted options matched to a declared row	27
 acted options whose row writes another member	5
 answer members narrower than free text	54
 applier sections registered	8
@@ -40,7 +40,7 @@ flags compared against a screen	113
 # figure is measured from this tree's own whole run.
 groups the document declares	22
 key to field pairs read out of the program	419
-keys an applier lists	35
+keys an applier lists	36
 keys compared against what the program reads	356
 keys read anywhere in the tree	723
 keys whose default the scan can compare	282
@@ -49,16 +49,16 @@ labels compared against a number chooser	29
 labels compared against a stated field	81
 labels compared against the locale names	328
 labels stated beside a field	98
-listed keys compared against the table	25
+listed keys compared against the table	26
 locale names the program has	3089
 memory backed folders tried	1
-options an applier or its notifier branches on	49
+options an applier or its notifier branches on	50
 parameters the document describes	198
 refusals the document states against a route	1320
 refusals the routes declare of their own	262
 refusals the shipped routes were seen to give	357
 routes the document describes	139
-rows an applier acts on	25
+rows an applier acts on	26
 rows compared against the load and save pass	353
 rows in a section with an applier	222
 rows this build links	361

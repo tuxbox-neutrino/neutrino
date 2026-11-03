@@ -76,7 +76,7 @@ Reply run(Ops &ops, uint64_t channel, int64_t deadline_ms, bool probe, bool lock
 		ops.facts(f);
 		way = streamadmission::decide(f, channel);
 
-		if (way == streamadmission::Live)
+		if (way == streamadmission::Live || way == streamadmission::Shared)
 		{
 			fenumber = f.live_fe;
 			if (bind)
@@ -110,9 +110,15 @@ Reply run(Ops &ops, uint64_t channel, int64_t deadline_ms, bool probe, bool lock
 	if (!fe)
 		return send(ops, refusal(Busy));
 
-	/* zapit may have begun to stop while the frontend tuned: no hold for a
-	   stream nobody will serve. */
-	if (way == streamadmission::Idle && (!ops.tune(fe) || late(ops, deadline_ms) || !ops.serving()))
+	/* An idle frontend is tuned; on a shared one only PAT and PMT are read.
+	   zapit may have begun to stop meanwhile: no hold for a stream nobody
+	   will serve. */
+	bool ready = true;
+	if (way == streamadmission::Idle)
+		ready = ops.tune(fe);
+	else if (way == streamadmission::Shared)
+		ready = ops.readPids(fe);
+	if (way != streamadmission::Live && (!ready || late(ops, deadline_ms) || !ops.serving()))
 	{
 		if (lock)
 			ops.unlockFrontend(fe);

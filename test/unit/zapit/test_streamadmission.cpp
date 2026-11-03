@@ -33,6 +33,10 @@ const uint64_t kLive = 0x1001;
 const uint64_t kOther = 0x2002;
 const uint64_t kPip = 0x3003;
 
+// Transponder ids as zapit builds them: frequency, position, tsid, onid.
+const uint64_t kLiveTp = 0x2cec00c0044d0001ULL;
+const uint64_t kOtherTp = 0x2ed400c0043e0001ULL;
+
 // The picture on frontend fe, tuned, one PiP slot, nothing in it.
 Facts liveOn(int fe)
 {
@@ -42,6 +46,16 @@ Facts liveOn(int fe)
 	f.live_channel = kLive;
 	f.live_fe = fe;
 	f.slots = 1;
+	return f;
+}
+
+/* As liveOn, the live frontend tuned to kLiveTp, and a request for a
+   channel on transponder tp. */
+Facts sharingOn(int fe, uint64_t tp)
+{
+	Facts f = liveOn(fe);
+	f.live_tp = kLiveTp;
+	f.channel_tp = tp;
 	return f;
 }
 
@@ -306,6 +320,182 @@ TEST_CASE("held: live on 0 and PiP slot 0 on 1 hold both, leaving frontend 2", "
 	REQUIRE(decide(f, kOther) == Idle);
 }
 
+TEST_CASE("another channel on the live transponder shares the picture's frontend", "[zapit][admission][shared]")
+{
+	Facts f = sharingOn(0, kLiveTp);
+	REQUIRE(decide(f, kOther) == Shared);
+	// The live channel itself stays the live way.
+	REQUIRE(decide(f, kLive) == Live);
+}
+
+TEST_CASE("a channel on another transponder still needs an idle frontend", "[zapit][admission][shared]")
+{
+	Facts f = sharingOn(0, kOtherTp);
+	REQUIRE(decide(f, kOther) == Idle);
+
+	// Only the whole id counts: the same tsid and onid at another frequency
+	// is another transponder.
+	f = sharingOn(0, (kLiveTp & 0x0000ffffffffffffULL) | (0x2ee8ULL << 48));
+	REQUIRE(decide(f, kOther) == Idle);
+	// as is the same frequency at another position.
+	f = sharingOn(0, (kLiveTp & 0xffff0000ffffffffULL) | (0x0082ULL << 32));
+	REQUIRE(decide(f, kOther) == Idle);
+}
+
+TEST_CASE("a live frontend that never had a transponder is shared with nobody", "[zapit][admission][shared]")
+{
+	Facts f = sharingOn(0, 0);
+	f.live_tp = 0;
+	REQUIRE(decide(f, kOther) == Idle);
+}
+
+TEST_CASE("the live transponder is not shared in standby, untuned or from the web", "[zapit][admission][shared]")
+{
+	Facts f = sharingOn(0, kLiveTp);
+	f.standby = true;
+	REQUIRE(decide(f, kOther) == Idle);
+
+	// The EPG scan in the box's standby tunes frontend 0 with nothing shown.
+	f = sharingOn(0, kLiveTp);
+	f.box_standby = true;
+	REQUIRE(decide(f, kOther) == Idle);
+
+	f = sharingOn(0, kLiveTp);
+	f.live_tuned = false;
+	REQUIRE(decide(f, kOther) == Idle);
+
+	f = sharingOn(0, kLiveTp);
+	f.live_dvb = false;
+	REQUIRE(decide(f, kOther) == Idle);
+
+	f = sharingOn(-1, kLiveTp);
+	REQUIRE(decide(f, kOther) == Idle);
+}
+
+TEST_CASE("the live transponder is not shared when a PiP reads the live demux from elsewhere", "[zapit][admission][shared]")
+{
+	Facts f = sharingOn(0, kLiveTp);
+	pipOn(f, 0, 1, kPip);
+	REQUIRE(decide(f, kOther) == Idle);   // as any other channel
+
+	// The PiP on the live demux with the same source does not stand in the way.
+	f = sharingOn(0, kLiveTp);
+	pipOn(f, 0, 0, kPip);
+	REQUIRE(decide(f, kOther) == Shared);
+
+	// Nor one that reads another demux.
+	f = sharingOn(1, kLiveTp);
+	pipOn(f, 0, 0, kPip);
+	REQUIRE(decide(f, kOther) == Shared);
+}
+
+TEST_CASE("the live transponder on frontend 0 is not shared while the AV-input PiP reads demux 1", "[zapit][admission][shared]")
+{
+	Facts f = sharingOn(0, kLiveTp);
+	f.avinput_pip = true;
+	REQUIRE(decide(f, kOther) == Idle);
+
+	f = sharingOn(1, kLiveTp);
+	f.avinput_pip = true;
+	REQUIRE(decide(f, kOther) == Shared);
+}
+
+TEST_CASE("a channel the PiP shows is refused on the live transponder too", "[zapit][admission][shared]")
+{
+	Facts f = sharingOn(0, kLiveTp);
+	pipOn(f, 0, 0, kOther);
+	REQUIRE(decide(f, kOther) == Refuse);
+}
+
+TEST_CASE("while a channel scan may tune the live frontend its transponder is not shared", "[zapit][admission][shared]")
+{
+	/* The scan tunes the live frontend without moving its transponder id,
+	   so the id still names the transponder of the live channel. */
+	Facts f = sharingOn(0, kLiveTp);
+	f.scanning = true;
+	REQUIRE(decide(f, kOther) == Idle);   // as any other channel
+	REQUIRE(decide(f, kLive) == Live);    // the live channel is not looked at here
+
+	f = sharingOn(0, kLiveTp);
+	f.scanning = true;
+	f.variant = DynamicDemux;
+	REQUIRE(decide(f, kOther) == Refuse);
+}
+
+TEST_CASE("where the CI module serves one channel only, a second CI channel does not share", "[zapit][admission][shared]")
+{
+	// Both marked for the module and no other CI channel allowed: as any other channel.
+	Facts f = sharingOn(0, kLiveTp);
+	f.live_ci = true;
+	f.channel_ci = true;
+	f.ci_one_service = true;
+	REQUIRE(decide(f, kOther) == Idle);
+	REQUIRE(decide(f, kLive) == Live);   // the live channel is its own service
+
+	f.variant = DynamicDemux;
+	REQUIRE(decide(f, kOther) == Refuse);
+}
+
+TEST_CASE("CI channels share the live transponder where the module may serve more", "[zapit][admission][shared]")
+{
+	// All channels (0) and the same transponder (1) are the one setting: false.
+	Facts f = sharingOn(0, kLiveTp);
+	f.live_ci = true;
+	f.channel_ci = true;
+	f.ci_one_service = false;
+	REQUIRE(decide(f, kOther) == Shared);
+}
+
+TEST_CASE("a channel shares with one CI channel when only one of the two is marked", "[zapit][admission][shared]")
+{
+	Facts f = sharingOn(0, kLiveTp);
+	f.ci_one_service = true;
+	f.live_ci = true;
+	REQUIRE(decide(f, kOther) == Shared);
+
+	f = sharingOn(0, kLiveTp);
+	f.ci_one_service = true;
+	f.channel_ci = true;
+	REQUIRE(decide(f, kOther) == Shared);
+
+	f = sharingOn(0, kLiveTp);
+	f.ci_one_service = true;
+	REQUIRE(decide(f, kOther) == Shared);
+}
+
+TEST_CASE("with no_same_fe the live frontend carries only its own service", "[zapit][admission][shared]")
+{
+	Facts f = sharingOn(0, kLiveTp);
+	f.no_same_fe = true;
+	REQUIRE(decide(f, kOther) == Idle);
+	REQUIRE(decide(f, kLive) == Live);
+}
+
+TEST_CASE("the variants: no sharing with dynamic demux or quad PiP, on the PiP demux variant only without PiP", "[zapit][admission][shared]")
+{
+	Facts f = sharingOn(0, kLiveTp);
+	f.variant = DynamicDemux;
+	REQUIRE(decide(f, kOther) == Refuse);
+	REQUIRE(decide(f, kLive) == Live);
+
+	f = sharingOn(0, kLiveTp);
+	f.variant = QuadPip;
+	REQUIRE(decide(f, kOther) == Refuse);
+
+	f = sharingOn(0, kLiveTp);
+	f.variant = Cst;
+	REQUIRE(decide(f, kOther) == Shared);
+	pipOn(f, 0, 0, kPip);
+	REQUIRE(decide(f, kOther) == Refuse);
+}
+
+TEST_CASE("while a recording starts the live transponder is not shared either", "[zapit][admission][shared]")
+{
+	Facts f = sharingOn(0, kLiveTp);
+	f.recording_starting = true;
+	REQUIRE(decide(f, kOther) == Refuse);
+}
+
 /* The writers of PiP state that run on other threads than zapit's, against
    the admission zapit runs (streamholdcmd::run, the shipped object), on a
    model: one lock standing for the frontend manager's, the facts read from
@@ -452,6 +642,7 @@ struct PipModel : public streamholdcmd::Ops
 	}
 	int number(void *p) { return *static_cast<int *>(p); }
 	bool tune(void *) { return true; }
+	bool readPids(void *) { return true; }
 	void unlockFrontend(void *) {}
 	uint32_t offer(void *) { return 5; }
 	void drop(uint32_t) {}

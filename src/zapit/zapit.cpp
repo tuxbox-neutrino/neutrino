@@ -1219,6 +1219,12 @@ void CZapit::StreamFacts(streamadmission::Facts &f)
 	f.live_dvb = live_channel_id != 0 && !IS_WEBCHAN(live_channel_id);
 	f.live_tuned = live_fe != NULL && live_fe->tuned;
 	f.live_fe = live_fe ? live_fe->getNumber() : -1;
+	f.live_tp = live_fe ? live_fe->getTsidOnid() : 0;
+	f.no_same_fe = config.noSameFE;
+	f.scanning = current_channel == NULL || CServiceScan::getInstance()->Scanning();
+	f.live_ci = current_channel != NULL && current_channel->getChannelID() == live_channel_id &&
+		    current_channel->bUseCI;
+	f.ci_one_service = CCamManager::getInstance()->GetCIMode() == 2;
 	f.recording_starting = CFEManager::getInstance()->recordingStarting();
 #if ENABLE_PIP
 	int slots = g_info.hw_caps->pip_devs;
@@ -1260,7 +1266,12 @@ class CZapit::StreamHoldOps : public streamholdcmd::Ops
 		void lockFrontends() { CFEManager::getInstance()->Lock(); }
 		void unlockFrontends() { CFEManager::getInstance()->Unlock(); }
 
-		void facts(streamadmission::Facts &f) { zapit.StreamFacts(f); }
+		void facts(streamadmission::Facts &f)
+		{
+			zapit.StreamFacts(f);
+			f.channel_tp = channel_obj ? channel_obj->getTransponderId() : 0;
+			f.channel_ci = channel_obj != NULL && channel_obj->bUseCI;
+		}
 
 		void heldByStreams(std::vector<int> &out)
 		{
@@ -1322,6 +1333,17 @@ class CZapit::StreamHoldOps : public streamholdcmd::Ops
 				fe->tuned = false;
 				retry--;
 			}
+		}
+
+		/* The live frontend keeps its transponder: the channel's PAT and PMT
+		   are read through the demux the hold bound, and nothing is tuned.
+		   A frontend on another transponder than the channel's is not read. */
+		bool readPids(void *p)
+		{
+			CFrontend *fe = static_cast<CFrontend *>(p);
+			if (!serving() || !fe->tuned || fe->getTsidOnid() != channel_obj->getTransponderId())
+				return false;
+			return zapit.ParsePatPmt(channel_obj, &zapit.stopping);
 		}
 
 		void unlockFrontend(void *fe)

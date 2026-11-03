@@ -607,6 +607,8 @@ int CNeutrinoApp::loadSetup(const char *fname)
 	g_settings.ci_tuner = configfile.getInt32("ci_tuner", -1);
 	g_settings.ci_rec_zapto = configfile.getInt32("ci_rec_zapto", 0);
 	g_settings.ci_mode = configfile.getInt32("ci_mode", 0);
+	// zapit reads the mode from the CAM manager; every read of the file hands it over
+	CCamManager::getInstance()->SetCIMode(g_settings.ci_mode);
 #if BOXMODEL_VUPLUS_ALL
 	g_settings.ci_delay = configfile.getInt32("ci_delay", 128);
 #endif

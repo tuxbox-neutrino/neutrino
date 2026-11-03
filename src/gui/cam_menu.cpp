@@ -168,7 +168,7 @@ int CCAMMenuHandler::doMainMenu()
 #endif
 #if 1
 	cammenu->addItem(new CMenuOptionChooser(LOCALE_CI_REC_ZAPTO, &g_settings.ci_rec_zapto, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, this));
-	CMenuOptionChooser *ci_mode = new CMenuOptionChooser(LOCALE_CI_MODE, &g_settings.ci_mode, OPTIONS_CI_MODE_OPTIONS, OPTIONS_CI_MODE_OPTION_COUNT, true, NULL);
+	CMenuOptionChooser *ci_mode = new CMenuOptionChooser(LOCALE_CI_MODE, &g_settings.ci_mode, OPTIONS_CI_MODE_OPTIONS, OPTIONS_CI_MODE_OPTION_COUNT, true, this);
 //	ci_mode->setHint(NEUTRINO_ICON_HINT_IMAGELOGO, LOCALE_MENU_HINT_CI_MODE);
 	cammenu->addItem(ci_mode);
 #endif
@@ -666,6 +666,10 @@ bool CCAMMenuHandler::changeNotify(const neutrino_locale_t OptionName, void * Da
 		ca->setCheckLiveSlot(g_settings.ci_check_live);
 	}
 #endif
+	else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_CI_MODE)) {
+		printf("CCAMMenuHandler::changeNotify: ci_mode %d\n", g_settings.ci_mode);
+		CCamManager::getInstance()->SetCIMode(g_settings.ci_mode);
+	}
 	else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_CI_TUNER)) {
 		printf("CCAMMenuHandler::changeNotify: bind CI to tuner %d\n", g_settings.ci_tuner);
 		CCamManager::getInstance()->SetCITuner(g_settings.ci_tuner);

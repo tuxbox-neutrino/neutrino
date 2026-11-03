@@ -89,6 +89,9 @@ public:
 
 	virtual int number(void *fe) = 0;
 	virtual bool tune(void *fe) = 0;     // on the bound frontend, PAT and PMT read
+	/* PAT and PMT read on the live frontend as it stands, for another
+	   channel on its transponder; never tunes. */
+	virtual bool readPids(void *fe) = 0;
 	virtual void unlockFrontend(void *fe) = 0;
 	virtual uint32_t offer(void *fe) = 0;
 	virtual void drop(uint32_t id) = 0;

@@ -24,7 +24,8 @@ namespace streamadmission
 Facts::Facts()
 	: variant(Plain), standby(false), live_dvb(false), live_tuned(false),
 	  live_channel(0), live_fe(-1), slots(0), avinput_pip(false), recording_starting(false),
-	  box_standby(false)
+	  box_standby(false), live_tp(0), channel_tp(0), no_same_fe(false), scanning(false),
+	  live_ci(false), channel_ci(false), ci_one_service(false)
 {
 	for (int i = 0; i < kMaxSlots; ++i)
 	{
@@ -54,6 +55,17 @@ bool anyPip(const Facts &f)
 	return false;
 }
 
+/* The stream reads demux live + 1 and sets its source to the live frontend.
+   A PiP slot reading that demux from another frontend, or the AV-input PiP
+   on demux 1, would lose its picture. */
+bool liveDemuxFree(const Facts &f)
+{
+	for (int i = 0; i < slotsOf(f); ++i)
+		if (f.slot[i].active && i == f.live_fe && f.slot[i].fe != f.live_fe)
+			return false;
+	return !(f.avinput_pip && f.live_fe == 0);
+}
+
 } // namespace
 
 bool liveRuns(const Facts &f)
@@ -78,18 +90,31 @@ Way decide(const Facts &f, uint64_t channel)
 	{
 		if (f.variant == DynamicDemux && anyPip(f))
 			return Refuse;
-		/* The stream reads demux live + 1 and sets its source to the live
-		   frontend. A PiP slot reading that demux from another frontend, or
-		   the AV-input PiP on demux 1, would lose its picture. Refused
-		   outright: an idle frontend for the live channel would be a second
-		   tuner on the transponder the picture already has. */
-		for (int i = 0; i < slotsOf(f); ++i)
-			if (f.slot[i].active && i == f.live_fe && f.slot[i].fe != f.live_fe)
-				return Refuse;
-		if (f.avinput_pip && f.live_fe == 0)
+		/* Refused outright when the live demux is not free: an idle
+		   frontend for the live channel would be a second tuner on the
+		   transponder the picture already has, and binding it would move
+		   the live channel's own demuxes to that frontend. */
+		if (!liveDemuxFree(f))
 			return Refuse;
 		return Live;
 	}
+
+	/* Another channel on the live frontend's transponder. With dynamic
+	   demux the live channel reads the demux its zap was given, and
+	   nothing binds one for another channel; with no_same_fe the live
+	   frontend carries only its own service; while a scan runs, the
+	   transponder id need not be the one it is tuned to (a tune outside
+	   a zap, as the signal test and motor control send, does not wait
+	   for the lock and leaves the frontend untuned, which liveRuns
+	   refuses until the next zap); and where the CI
+	   module may serve one channel marked for it only, a second such channel
+	   would take it from the picture. Where it may not share, the channel is
+	   any other channel and goes on below, as it binds only its own
+	   demuxes. */
+	if (liveRuns(f) && f.live_tp != 0 && f.channel_tp == f.live_tp && !f.scanning &&
+	    f.variant != DynamicDemux && !f.no_same_fe && liveDemuxFree(f) &&
+	    !(f.ci_one_service && f.live_ci && f.channel_ci))
+		return Shared;
 
 	if (f.variant == DynamicDemux)
 		return Refuse;

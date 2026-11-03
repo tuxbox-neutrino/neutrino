@@ -25,6 +25,7 @@
 
 #include <basicclient.h>
 #include <OpenThreads/Mutex>
+#include <atomic>
 #include "channel.h"
 #include "types.h"
 #include <dvbsi++/ca_program_map_section.h>
@@ -95,6 +96,7 @@ class CCamManager
 		cammap_t		channel_map;
 		OpenThreads::Mutex	mutex;
 		int			tunerno;
+		std::atomic<int>	ci_mode;
 		bool			filter_channels;
 		static CCamManager *	manager;
 		bool SetMode(t_channel_id id, enum runmode mode, bool enable, bool force_update = false);
@@ -112,6 +114,11 @@ class CCamManager
 		bool Stop(t_channel_id id, enum runmode mode) { return SetMode(id, mode, false); };
 		void SetCITuner(int tuner);
 		int  GetCITuner(void) { return tunerno; };
+		/* Which channels marked for the CI module may run beside the one
+		   that has it: 0 all, 1 those on its transponder, 2 none. Set by
+		   the program's settings, read on zapit's thread. */
+		void SetCIMode(int mode) { ci_mode = mode; };
+		int  GetCIMode(void) { return ci_mode; };
 		void EnableChannelFilter(bool enable) { filter_channels = enable; };
 		bool getUseCI() { return useCI; };
 		bool getChannelFilter() { return filter_channels; };

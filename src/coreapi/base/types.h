@@ -44,8 +44,9 @@ typedef uint64_t ChannelId;
 const ChannelId GUIDE_KEY_MASK = 0xFFFFFFFFFFFFULL;
 
 /* Whether a stream of a channel would get a tuner now without changing what
-   the box shows: the live channel on the picture's own tuner, or a tuner
-   nobody uses and no picture in picture reads; a channel the stream server
+   the box shows: the live channel, or another channel on the transponder the
+   picture's tuner is tuned to, on that tuner as it stands, or a tuner nobody
+   uses and no picture in picture reads; a channel the stream server
    carries already needs none of its own, and a channel being recorded gets
    none. NoAnswer when the part of the box that decides did not answer in
    time. */

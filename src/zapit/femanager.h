@@ -161,9 +161,12 @@ class CFEManager
 		   channel, and with lock it is locked. For fixed demux numbers only. */
 		CFrontend *	pickIdleForStream(CZapitChannel * channel, const std::vector<int> &held,
 					  bool bind, bool lock, bool no_same_fe);
-		/* The picture's frontend for a stream of the live channel: the
-		   channel's stream demux reads from it again - a PiP that ended
-		   leaves its source as it was - and with lock it is locked. */
+		/* The picture's frontend for a stream of the live channel or of
+		   another channel on its transponder: the channel's record and
+		   stream demux become the frontend's and the demux reads from it
+		   again - a PiP that ended leaves its source as it was - and with
+		   lock it is locked. The frontend is not tuned. For fixed demux
+		   numbers only; with dynamic demux the channel is left as it is. */
 		void		holdLiveForStream(CFrontend * live, CZapitChannel * channel, bool lock);
 		/* For a recording of channel that found no frontend: the stage at
 		   which the walk getFrontend makes finds one, and the frontends
