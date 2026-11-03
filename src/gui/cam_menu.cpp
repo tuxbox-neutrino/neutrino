@@ -146,7 +146,7 @@ int CCAMMenuHandler::doMainMenu()
 	char name1[255]={0};
 	char str1[255]={0};
 
-	CMenuWidget* cammenu = new CMenuWidget(LOCALE_CI_SETTINGS, NEUTRINO_ICON_SETTINGS);
+	CMenuWidget* cammenu = new CMenuWidget(LOCALE_CI_SETTINGS, NEUTRINO_ICON_SETTINGS, 40);
 	cammenu->addIntroItems();
 
 	// CA init CI|CARD|BOTH
@@ -169,7 +169,7 @@ int CCAMMenuHandler::doMainMenu()
 #if 1
 	cammenu->addItem(new CMenuOptionChooser(LOCALE_CI_REC_ZAPTO, &g_settings.ci_rec_zapto, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, this));
 	CMenuOptionChooser *ci_mode = new CMenuOptionChooser(LOCALE_CI_MODE, &g_settings.ci_mode, OPTIONS_CI_MODE_OPTIONS, OPTIONS_CI_MODE_OPTION_COUNT, true, this);
-//	ci_mode->setHint(NEUTRINO_ICON_HINT_IMAGELOGO, LOCALE_MENU_HINT_CI_MODE);
+	ci_mode->setHint(NEUTRINO_ICON_HINT_DEFAULT, LOCALE_MENU_HINT_CI_MODE);
 	cammenu->addItem(ci_mode);
 #endif
 #ifdef BOXMODEL_CST_HD2

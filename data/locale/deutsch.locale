@@ -329,10 +329,10 @@ ci.ignore_msg CA Meldungen ignorieren
 ci.init_failed CAM-Init fehlgeschlagen
 ci.init_ok CAM-Init beendet
 ci.inserted CAM im Slot
-ci.mode CI Kanäle während einer Aufnahme
-ci.mode_0 alle Kanäle
-ci.mode_1 gleicher Transponder
-ci.mode_2 keine CI Kanäle
+ci.mode Weiterer CI-Kanal
+ci.mode_0 erlaubt
+ci.mode_1 nur gleicher Transponder
+ci.mode_2 nicht erlaubt
 ci.op Operator-Profile
 ci.rec_zapto Umschalten bei Aufnahmen mit CAM
 ci.removed CAM entfernt -> Slot
@@ -1340,7 +1340,7 @@ menu.hint_channellist_show_res_icon Zeigt oder versteckt das Icon zur Signalisie
 menu.hint_channellogos_setup Wählen Sie die globalen Optionen für die Senderlogos aus
 menu.hint_channels Kanalliste öffnen
 menu.hint_ci Conditional-Access-Menü zum Einrichten Ihres CI-Moduls oder der eingebetteten Conax-Karte
-menu.hint_ci_mode Zu diesen Kanälen kann bei einer laufenden CI-Aufnahme gewechselt werden.
+menu.hint_ci_mode Ein CI-Modul entschlüsselt oft nur einen Kanal. Gilt für Kanäle mit 'Erlaube CI': Umschalten während einer CI-Aufnahme, Stream neben dem gezeigten CI-Kanal
 menu.hint_clock_background Lassen Sie die Uhr mit Hintergrund anzeigen
 menu.hint_clock_mode Schalten Sie die Uhr ein oder aus
 menu.hint_clock_seconds Legen Sie fest, ob die Sekunden angezeigt werden sollen
