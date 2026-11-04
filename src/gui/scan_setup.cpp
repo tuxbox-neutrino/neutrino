@@ -1003,7 +1003,7 @@ int CScanSetup::showFrontendSetup(int number)
 	dmode = fe_config.diseqcType;
 
 	char name[255];
-	snprintf(name, sizeof(name), "%s %02d: [%s] %s", g_Locale->getText(LOCALE_SATSETUP_FE_TUNER), number+1, getFrontendLetter(number), fe->getName());
+	snprintf(name, sizeof(name), "%s %02d: [%s] %s%s", g_Locale->getText(LOCALE_SATSETUP_FE_TUNER), number+1, getFrontendLetter(number), fe->getName(), getFrontendFbcText(fe).c_str());
 
 	CMenuWidget * setupMenu = new CMenuWidget(name, NEUTRINO_ICON_SETTINGS, width);
 	setupMenu->setSelected(feselected);

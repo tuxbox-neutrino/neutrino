@@ -2626,6 +2626,8 @@ const char * locale_real_names[] =
 	"satsetup.fastscan_update",
 	"satsetup.fe_busy",
 	"satsetup.fe_busy_hint",
+	"satsetup.fe_fbc_input",
+	"satsetup.fe_fbc_virtual",
 	"satsetup.fe_mode",
 	"satsetup.fe_mode_independent",
 	"satsetup.fe_mode_link_loop",

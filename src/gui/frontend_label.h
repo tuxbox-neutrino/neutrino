@@ -11,6 +11,8 @@
 
 #include <string>
 
+class CFrontend;
+
 /* The label the tuner list shows for a frontend, e.g.
    "Tuner 02: [B] Satellit TBS 5580 CI USB2.0 DVB-S/S2/S2X".
 
@@ -38,5 +40,11 @@ std::string getBusyFrontendName(int adapter, int number);
    (by frontend number, not by the manager's index), which is why they cannot
    simply call getFrontendLabel(). */
 const char *getFrontendLetter(int index);
+
+/* What an FBC tuner is within its module, e.g. " (FBC input 2)" or
+   " (FBC virtual 3)", to go behind a tuner's name; "" for any other tuner.
+   An FBC module shows one frontend per demodulator, and only two of them
+   have a cable of their own, which nothing else in the label tells. */
+std::string getFrontendFbcText(const CFrontend *fe);
 
 #endif

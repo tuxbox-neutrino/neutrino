@@ -18,6 +18,7 @@
 
 #include <zapit/femanager.h>
 #include <zapit/frontend_c.h>
+#include <zapit/fbc.h>
 
 /* The letter is decoration, but it is decoration the user reads off the list
    entry, so it has to come from one place. 24 covers every configuration this
@@ -50,11 +51,31 @@ std::string getFrontendLabel(int index)
 		: g_Locale->getText(LOCALE_SCANTS_ACTCABLE);
 
 	char name[255];
-	snprintf(name, sizeof(name), "%s %02d: [%s] %s %s",
+	snprintf(name, sizeof(name), "%s %02d: [%s] %s %s%s",
 		g_Locale->getText(LOCALE_SATSETUP_FE_TUNER), index + 1,
-		desc, kind, fe->getName());
+		desc, kind, fe->getName(), getFrontendFbcText(fe).c_str());
 
 	return name;
+}
+
+std::string getFrontendFbcText(const CFrontend *fe)
+{
+	if (fe == NULL)
+		return "";
+
+	CFBCTunerManager *fbc = CFBCTunerManager::getInstance();
+	const int slot = fe->getNumber();
+	const int number = fbc->GetNumberInKind(slot);
+	if (number < 0)
+		return "";
+
+	char text[64];
+	snprintf(text, sizeof(text), " (%s %d)",
+		g_Locale->getText(fbc->IsRoot(slot) ? LOCALE_SATSETUP_FE_FBC_INPUT
+						    : LOCALE_SATSETUP_FE_FBC_VIRTUAL),
+		number);
+
+	return text;
 }
 
 std::string getFrontendLabelForDevice(int adapter, int number)

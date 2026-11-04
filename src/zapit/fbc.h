@@ -107,6 +107,11 @@ class CFBCTunerManager
 		int  GetPosition(int slot) const;
 		int  GetConnectedTo(int slot) const;
 
+		/* What the setup calls the slot, counted from 1 within its set:
+		 * the number of its input for a root, the number among the links
+		 * of its set for a link. -1 where it is no FBC tuner. */
+		int  GetNumberInKind(int slot) const;
+
 		/* Whether the slot is a link tied to root_slot and marked as linked,
 		 * which is what a link tuning from that root's input is. */
 		bool IsLinkedTo(int slot, int root_slot) const;
