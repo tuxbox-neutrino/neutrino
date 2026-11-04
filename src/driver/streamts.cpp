@@ -517,6 +517,10 @@ class CStreamManager::SetupOps : public streamsetup::Ops
 
 		bool preparePids(const streamsetup::Target &t)
 		{
+			// zapit deletes a channel's audio tracks under the channel lock
+			// when it zaps away from it: the lookup and the copy of the pids
+			// hold that lock, and take no other inside it
+			CServiceManager::ChannelGuard guard;
 			CZapitChannel *channel = CServiceManager::getInstance()->FindChannel(t.channel);
 			if (!channel)
 				return false;
