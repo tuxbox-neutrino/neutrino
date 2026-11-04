@@ -1079,12 +1079,19 @@ bool CZapit::StartPip(const t_channel_id channel_id, int pip)
 }
 #endif
 
+/* Have the next TuneChannel() tune the recording's tuner again. Not where a
+ * running recording holds it: that one is on this transponder already, and
+ * tuning it again would cut a gap into it. */
+static void retuneForRecord(CFrontend * frontend)
+{
+	if (!frontend->Locked())
+		frontend->tuned = false;
+}
+
 bool CZapit::ZapForRecord(const t_channel_id channel_id)
 {
 	CZapitChannel* newchannel;
 	bool transponder_change;
-	/* retry tuning, at least twice when using unicable */
-	int retry = std::max(config.feRetries, (live_fe->getDiseqcType() == DISEQC_UNICABLE) * 2);
 
 	if((newchannel = CServiceManager::getInstance()->FindChannel(channel_id)) == NULL) {
 		INFO("channel_id " PRINTF_CHANNEL_ID_TYPE " not found", channel_id);
@@ -1097,13 +1104,19 @@ bool CZapit::ZapForRecord(const t_channel_id channel_id)
 		ERROR("Cannot get frontend\n");
 		return false;
 	}
+	/* Retry on the tuner the recording gets, at least twice when that one
+	 * is on unicable. The live tuner is another one as soon as a second
+	 * recording runs: marking that one untuned took the transponder away
+	 * from the recording on it, and left this one tuned, so the retry tuned
+	 * nothing. */
+	int retry = std::max(config.feRetries, (frontend->getDiseqcType() == DISEQC_UNICABLE) * 2);
  again:
 	if(!TuneChannel(frontend, newchannel, transponder_change))
 	{
 		if (retry < 1)
 			return false;
 		printf("[zapit] %s:1 unicable retry tuning %d\n", __func__, retry);
-		live_fe->tuned = false;
+		retuneForRecord(frontend);
 		retry--;
 		goto again;
 	}
@@ -1117,7 +1130,7 @@ bool CZapit::ZapForRecord(const t_channel_id channel_id)
 		if (retry < 1)
 			return false;
 		printf("[zapit] %s:2 unicable retry tuning %d\n", __func__, retry);
-		live_fe->tuned = false;
+		retuneForRecord(frontend);
 		retry--;
 		goto again;
 	}
