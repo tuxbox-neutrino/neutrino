@@ -196,7 +196,7 @@
 			flex: 1;
 			position: relative;
 			overflow: hidden;
-			height: 48px;
+			height: 56px;
 			min-width: 0;
 		}
 
@@ -301,12 +301,35 @@
 			box-shadow: inset 3px 0 0 var(--webui-accent);
 		}
 
-		.webui-epg-program.timer-rec {
-			border-left: 3px solid var(--webui-danger);
+		.webui-epg-program.timer-marked {
+			border: 2px solid var(--webui-warning);
 		}
 
-		.webui-epg-program.timer-zap {
-			border-left: 3px solid var(--webui-success);
+		@media (hover: hover) {
+			.webui-epg-program.timer-marked:not(.current):hover {
+				background: var(--epg-prog-bg);
+				color: var(--webui-text-primary);
+			}
+		}
+
+		.webui-epg-program-status {
+			display: flex;
+			gap: 0.25rem;
+			min-height: 0;
+		}
+
+		.webui-epg-program .webui-pill::before { flex: none; }
+
+		.webui-epg-program-status svg {
+			width: 12px;
+			height: 12px;
+			flex: none;
+		}
+
+		.webui-epg-program .webui-pill {
+			font-size: 0.65rem;
+			max-width: 100%;
+			overflow: hidden;
 		}
 
 		.webui-epg-program-title {

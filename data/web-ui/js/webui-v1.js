@@ -660,6 +660,7 @@ function _webuiEpgModalHTML() {
 			</div>
 		</header>
 		<div class="webui-epg-modal-body">
+			<div id="webuiEpgTimerMarks"></div>
 			<div class="webui-epg-description" id="webuiEpgCurrentDesc"></div>
 			<section class="webui-epg-next" id="webuiEpgNextSection" hidden>
 				<h3 class="webui-epg-next-label" id="webuiEpgNextLabel">${webuiLH('epg.after', 'Next')}</h3>
@@ -750,6 +751,59 @@ function _webuiV1Maybe(path, query) {
 	});
 }
 
+// An EPG identity excludes safety margins from neighbouring programmes.
+// Manual timers and events without an identity use their overlapping times.
+function webuiTimersForEvent(items, channelId, ev) {
+	if (!ev) return [];
+	return items.filter(function(t) {
+		if (t.channel_id !== channelId || t.state >= 3 ||
+			!['record', 'immediate-record', 'zapto'].includes(t.kind)) return false;
+		if (t.epg_id && t.epg_id !== '0' && t.epg_start && ev.id && ev.id !== '0')
+			return String(t.epg_id) === String(ev.id) && Number(t.epg_start) === Number(ev.start);
+		return t.start < ev.start + ev.duration && (t.stop > t.start ? t.stop > ev.start : t.start >= ev.start);
+	});
+}
+
+function webuiEventTimerMark(items, compact) {
+	if (!items.length) return null;
+	const running = items.some(function(t) { return t.state === 2; });
+	const label = items.map(function(t) {
+		return t.kind === 'zapto' ? webuiL('epg.timer_zap_planned', 'Channel switch scheduled') :
+			webuiL('epg.timer_record_planned', 'Recording scheduled');
+	}).filter(function(s, i, all) { return all.indexOf(s) === i; });
+	if (running) label.push(webuiL('epg.timer_running', 'Timer running'));
+	return webuiEl('span', {className: 'webui-pill webui-timer-mark' + (running ? ' running' : '')},
+		compact ? webuiMarkup('<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 6v6l4 2"/></svg>') : '',
+		webuiEl('span', {className: compact ? 'webui-visually-hidden' : ''}, label.join(' · ')));
+}
+
+var _webuiEpgRecordingRead = 0;
+
+function webuiEpgRecordingsSeen(items) {
+	document.dispatchEvent(new CustomEvent('webui-recordings-seen', {detail: items}));
+	const modal = document.getElementById('webuiEpgModal');
+	if (!modal || !modal.classList.contains('open')) return;
+	++_webuiEpgRecordingRead;
+	if (!webuiEpgModalEvent || _webuiEpgRuns(webuiEpgModalEvent))
+		webuiEpgModalUpdateRecBtn(items.some(function(it) {
+			return !it.timeshift && it.channel_id === webuiEpgModalChannelId;
+		}));
+}
+
+function webuiEpgTimerMarks() {
+	const host = document.getElementById('webuiEpgTimerMarks');
+	if (!host) return;
+	const mark = webuiEventTimerMark(webuiTimersForEvent(webuiTimerItems, webuiEpgModalChannelId, webuiEpgModalEvent));
+	host.replaceChildren.apply(host, mark ? [mark] : []);
+	document.querySelectorAll('#webuiEpgNextList li').forEach(function(li) {
+		const old = li.querySelector('.webui-timer-mark');
+		if (old) old.remove();
+		const next = webuiEventTimerMark(webuiTimersForEvent(webuiTimerItems, webuiEpgModalChannelId, li._webuiEvent));
+		if (next) li.querySelector('span').appendChild(next);
+	});
+}
+document.addEventListener('webui-timers-seen', webuiEpgTimerMarks);
+
 // whether an event runs now
 function _webuiEpgRuns(ev) {
 	const now = webuiBoxNow() / 1000;
@@ -784,6 +838,7 @@ async function webuiShowEpgModal(channelId, channelName, opts) {
 	webuiEpgModalChannelId = channelId;
 	webuiEpgModalChannelName = channelName || webuiL('epg.programme', 'Programme');
 	webuiEpgModalEvent = null;
+	webuiEpgTimerMarks();
 	_webuiEpgModalOnTimer = opts.onTimer || null;
 
 	channelEl.textContent = webuiEpgModalChannelName;
@@ -824,8 +879,11 @@ async function webuiShowEpgModal(channelId, channelName, opts) {
 	// Stop recording while the box records the channel: for the programme
 	// running now, and where the box has no guide for the channel
 	const recorded = function() {
-		webuiCheckRecordingForChannel(channelId).then(function(rec) {
-			if (token === _webuiEpgModalToken) webuiEpgModalUpdateRecBtn(!!rec);
+		const read = ++_webuiEpgRecordingRead;
+		webuiCheckRecordingForChannel(channelId, function(items) {
+			if (token === _webuiEpgModalToken && read === _webuiEpgRecordingRead) webuiEpgRecordingsSeen(items);
+		}).then(function(rec) {
+			if (token === _webuiEpgModalToken && read === _webuiEpgRecordingRead) webuiEpgModalUpdateRecBtn(!!rec);
 		});
 	};
 
@@ -839,6 +897,7 @@ async function webuiShowEpgModal(channelId, channelName, opts) {
 			return;
 		}
 		webuiEpgModalEvent = ev;
+		webuiEpgTimerMarks();
 		const end = ev.start + ev.duration;
 		const now = webuiBoxNow() / 1000;
 		titleEl.textContent = ev.title || '--';
@@ -881,6 +940,7 @@ async function webuiShowEpgModal(channelId, channelName, opts) {
 			nextList.replaceChildren.apply(nextList, next.map(function(e) {
 				const t = e.title || '--';
 				const li = document.createElement('li');
+				li._webuiEvent = e;
 				const b = document.createElement('b');
 				b.textContent = webuiClock(e.start);
 				const what = document.createElement('span');
@@ -904,6 +964,7 @@ async function webuiShowEpgModal(channelId, channelName, opts) {
 				return li;
 			}));
 			nextSection.hidden = false;
+			webuiEpgTimerMarks();
 		}
 	} catch (e) {
 		if (token !== _webuiEpgModalToken) return;
@@ -1089,13 +1150,14 @@ function webuiEpgModalUpdateRecBtn(isRecording) {
 	const label = btn.querySelector('span');
 	if (label) label.textContent = isRecording ? webuiL('rec.stop', 'Stop recording') :
 		later ? webuiL('rec.plan', 'Plan recording') : webuiL('rec.start', 'Record');
-	btn.style.animation = isRecording ? 'webui-pulse 1.5s infinite' : '';
+	btn.classList.toggle('recording', isRecording);
 }
 
 // The recording the box is making of a channel, its timeshift left out, or null
-async function webuiCheckRecordingForChannel(channelId) {
+async function webuiCheckRecordingForChannel(channelId, onSeen) {
 	try {
 		const r = await webuiV1('GET', '/recordings');
+		if (onSeen) onSeen((r && r.items) || []);
 		return ((r && r.items) || []).find(function(it) {
 			return !it.timeshift && it.channel_id === channelId;
 		}) || null;

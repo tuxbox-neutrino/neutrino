@@ -1029,5 +1029,8 @@
 	"tip.zap_to": "Box auf %s umschalten",
 	"tip.retry": "Die Box erneut fragen",
 	"tip.drift_only": "Nur die Einstellungen dieses Abschnitts zeigen, die vom Auslieferungszustand abweichen",
-	"tip.numpad": "Die Zifferntasten und die übrigen Tasten der Fernbedienung"
+	"tip.numpad": "Die Zifferntasten und die übrigen Tasten der Fernbedienung",
+	"epg.timer_record_planned": "Aufnahme geplant",
+	"epg.timer_zap_planned": "Umschalten geplant",
+	"epg.timer_running": "Timer wird ausgeführt"
 }

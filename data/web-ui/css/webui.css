@@ -32,7 +32,7 @@ html.webui-i18n-pending body {
 	--webui-warning: #f1c40f;
 	--webui-danger: #e74c3c;
 	--webui-danger-hover: #c0392b;
-	--webui-recording: #e74c3c;
+	--webui-recording: #ff756b;
 	/* a red to fill a button with white text on: the red above is for
 	   text on the dark ground and too light under white (3.8:1) */
 	--webui-danger-fill: #c0392b;
@@ -2163,7 +2163,7 @@ audio.webui-player-media {
 }
 
 .webui-epg-show .webui-epg-modal-footer .webui-btn.webui-epg-rec-btn {
-	border-color: color-mix(in srgb, var(--webui-danger) 55%, transparent);
+	border-color: var(--webui-recording);
 }
 
 .webui-epg-show .webui-epg-modal-footer .webui-epg-round {
@@ -2376,12 +2376,11 @@ audio.webui-player-media {
 	border-radius: 1rem;
 	font-size: var(--webui-font-xs);
 	font-weight: 600;
-	animation: webui-pulse 1.5s infinite;
 }
 
 @keyframes webui-pulse {
 	0%, 100% { opacity: 1; }
-	50% { opacity: 0.6; }
+	50% { opacity: 0.75; }
 }
 
 /* ============================================
@@ -3899,7 +3898,7 @@ html:not([data-theme="dark"]) .webui-rc-sheet-handle { background-color: #aaa; }
 
 /* Record in the red of the colour key, readable on both themes' keys */
 .webui-remote .webui-rc-rec svg {
-	color: #e53935;
+	color: var(--webui-recording);
 }
 
 /* ── Remote row helper ── */
@@ -4926,4 +4925,30 @@ body.webui-signin {
 	padding: 9px 18px;
 	font-size: 0.95rem;
 	margin-top: 4px;
+}
+
+/* Recording actions keep their frame and label steady. */
+.webui-btn.webui-record-btn,
+.webui-epg-show .webui-epg-modal-footer .webui-btn.webui-epg-rec-btn,
+.webui-remote .webui-rc-btn.webui-rc-rec {
+	border: 2px solid var(--webui-recording);
+	background: var(--pico-card-background-color);
+	color: var(--webui-recording);
+	box-shadow: inset 0 0 0 3px var(--pico-card-background-color);
+}
+
+.webui-pill.rec,
+.webui-pill.webui-timer-mark {
+	background: var(--pico-card-background-color);
+}
+
+.webui-pill.webui-timer-mark { color: var(--webui-warning); }
+
+@media (prefers-reduced-motion: no-preference) {
+	.webui-pill.rec::before,
+	.webui-pill.webui-timer-mark.running::before,
+	.webui-record-btn.recording > svg,
+	.webui-epg-rec-btn.recording > svg {
+		animation: webui-pulse 1.5s infinite;
+	}
 }

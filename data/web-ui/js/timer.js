@@ -225,7 +225,7 @@ function timerRow(timer) {
 
 	const badges = [];
 	if (timer.repeat) badges.push(webuiEl('span', {className: 'webui-pill'}, rep));
-	if (state === 2) badges.push(webuiEl('span', {className: 'webui-pill ' + (isRecording ? 'rec' : 'ok')}, stateLabel));
+	if (state === 2) badges.push(webuiEl('span', {className: 'webui-pill ' + (isRecording || timer.kind === 'zapto' ? 'webui-timer-mark running' : 'ok')}, stateLabel));
 	else if (state >= 3) badges.push(webuiEl('span', {className: 'webui-pill'}, stateLabel));
 
 	// one main action, the others in the menu

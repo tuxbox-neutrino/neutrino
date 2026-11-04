@@ -1029,5 +1029,8 @@
 	"tip.zap_to": "Switch the box to %s",
 	"tip.retry": "Ask the box again",
 	"tip.drift_only": "Show only the settings of this section that differ from how the box was delivered",
-	"tip.numpad": "The number keys and the other keys of the remote"
+	"tip.numpad": "The number keys and the other keys of the remote",
+	"epg.timer_record_planned": "Recording scheduled",
+	"epg.timer_zap_planned": "Channel switch scheduled",
+	"epg.timer_running": "Timer running"
 }

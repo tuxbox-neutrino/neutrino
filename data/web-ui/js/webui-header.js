@@ -276,6 +276,12 @@ function _webuiSideLink(p, area, page) {
    its timers changed on a stream the page opened. Zero or not known: no
    badge. The link's name carries the number, the badge itself is for the eye. */
 var _webuiTimerCount = null;
+var webuiTimerItems = [];
+
+function webuiAcceptTimerItems(items) {
+	webuiTimerItems = items;
+	document.dispatchEvent(new Event('webui-timers-seen'));
+}
 var _webuiTimerCountStarted = false;
 var _webuiTimerCountRead = 0;
 var _webuiTimerCountOver = false;	// a read of the head came back, with or without a number
@@ -338,6 +344,7 @@ async function _webuiTimerCountLoad() {
 	_webuiTimerCountFirstBack(n);
 	if (read !== _webuiTimerCountRead)
 		return;
+	if (r && Array.isArray(r.items)) webuiAcceptTimerItems(r.items);
 	_webuiTimerCount = n;
 	_webuiTimerCountPaint();
 }
@@ -358,6 +365,7 @@ function webuiTimersSeen(items) {
 		_webuiTimerCountLoad();
 		return;
 	}
+	webuiAcceptTimerItems(items);
 	++_webuiTimerCountRead;		// a read of the head still under way is older
 	_webuiTimerCount = items.filter(function(t) { return t.state < 3; }).length;
 	_webuiTimerCountPaint();

@@ -38,6 +38,7 @@ async function loadCurrentChannel() {
 // What the box records now, for the rows' state
 async function loadRecorded() {
 	const r = await webuiV1('GET', '/recordings').catch(() => null);
+	if (r) webuiEpgRecordingsSeen(r.items || []);
 	recordedIds = new Set(((r && r.items) || []).filter(it => !it.timeshift).map(it => it.channel_id));
 	markCurrent();
 }

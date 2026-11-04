@@ -445,6 +445,7 @@ async function refreshRecordings() {
 	dash.recordings = ((r && r.items) || []).filter(function(it) { return !it.timeshift; });
 	await webuiEnsureNames(dash.recordings.map(function(it) { return it.channel_id; }));
 	showRecording();
+	showTimers();
 }
 
 function showRecording() {
@@ -452,12 +453,12 @@ function showRecording() {
 	const isRecording = !!rec;
 	withEl('rec-info', function(el) { el.hidden = !isRecording; });
 	showState();
+	webuiEpgRecordingsSeen(dash.recordings);
 
 	const recBtn = document.getElementById('rec-btn');
 	if (recBtn) {
 		recBtn.classList.toggle('recording', isRecording);
-		recBtn.classList.toggle('primary', !isRecording);
-		recBtn.classList.toggle('danger', isRecording);
+		recBtn.classList.add('webui-record-btn');
 		recBtn.querySelector('span').textContent = isRecording ? webuiL('dash.record_stop', 'Stop recording') : webuiL('dash.record', 'Record');
 	}
 	if (!rec) return;
@@ -821,7 +822,8 @@ function timerTypeNumber(t) {
 }
 
 function isRunningRecording(t) {
-	return t.state === 2 && timerTypeNumber(t) === 5;
+	return t.state === 2 && timerTypeNumber(t) === 5 &&
+		dash.recordings.some(function(rec) { return rec.id === t.id; });
 }
 
 // A read that fails keeps the timers shown; before the first answer the

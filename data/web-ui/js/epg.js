@@ -20,6 +20,7 @@ let currentStartTime = null;
 let currentChannelId = null;
 let bouquetError = null;	// why the bouquets could not be read, null once they were
 let timers = [];
+let knownRecordings = [];	// accepted guide reads, without timeshift
 let gridToken = 0;
 let gridRows = Object.create(null);	// channel id -> {channel, el, events}, for the grid shown
 let gridWindow = null;		// {start, stop} of the grid shown
@@ -75,21 +76,17 @@ async function loadTimers() {
 		const r = await webuiV1('GET', '/timers');
 		if (read !== timersRead) return;
 		timers = (r && r.items) || [];
+		knownRecordings = knownRecordings.filter(rec => timers.some(t => t.id === rec.id && t.state === 2));
 		webuiTimersSeen(timers);
 	} catch (e) {
 		if (read !== timersRead) return;
-		timers = [];
 		webuiTimersSeen(null);
 	}
 }
 
-// The timer that covers an event: a recording from before its start to
-// after its end, or a zap timer while it runs (one set on a running
-// event starts at the minute it was set)
+// The active timers belonging to this programme, including manual timers.
 function timerFor(channelId, ev) {
-	return timers.find(t => t.channel_id === channelId &&
-		((t.kind === 'record' && t.start <= ev.start && t.stop >= ev.start + ev.duration) ||
-		 (t.kind === 'zapto' && t.start >= ev.start && t.start < ev.start + ev.duration)));
+	return webuiTimersForEvent(timers, channelId, ev);
 }
 
 function nowPercentOf(start, now) {
@@ -220,16 +217,21 @@ function fillRow(target) {
 		const leftPercent = ((displayStart - win.start) / 60) / TOTAL_MINUTES * 100;
 		const widthPercent = ((displayStop - displayStart) / 60) / TOTAL_MINUTES * 100;
 		const timer = timerFor(channel.id, ev);
-		const mark = timer ? (timer.kind === 'record' ? webuiL('epg.timer_rec_mark', 'recording timer set') : webuiL('epg.timer_zap_mark', 'zap timer set')) : '';
+		const status = webuiEventTimerMark(timer, true);
+		const recording = _webuiEpgRuns(ev) && knownRecordings.some(rec => rec.channel_id === channel.id);
+		const mark = [status ? status.textContent : '', recording ? webuiL('bc.recording', 'Recording') : ''].filter(Boolean).join(' · ');
 		const name = [ev.title || '', clock(ev.start) + ' – ' + clock(evStop), channel.name, mark].filter(Boolean).join(', ');
 		// under ten minutes of the four hours shown: too narrow for its text
 		const tiny = widthPercent < 10 / TOTAL_MINUTES * 100 ? ' tiny' : '';
-		boxes.push(webuiEl('div', {className: 'webui-epg-program' + tiny + (timer ? (timer.kind === 'record' ? ' timer-rec' : ' timer-zap') : ''),
+		boxes.push(webuiEl('div', {className: 'webui-epg-program' + tiny + (timer.length ? ' timer-marked' : ''),
 			tabIndex: 0, attrs: {role: 'button', 'aria-label': name}, data: {start: String(ev.start), stop: String(evStop)},
 			style: {left: leftPercent + '%', width: 'calc(' + widthPercent + '% - 2px)'},
 			on: {click: () => showProgramDetail(channel, ev), keydown: k => pressed(k, () => showProgramDetail(channel, ev))}},
 			webuiEl('div', {className: 'webui-epg-program-title'}, ev.title || ''),
-			webuiEl('div', {className: 'webui-epg-program-time'}, clock(ev.start))));
+			webuiEl('div', {className: 'webui-epg-program-time'}, clock(ev.start)),
+			webuiEl('div', {className: 'webui-epg-program-status'}, status || '',
+				recording ? webuiEl('span', {className: 'webui-pill rec'},
+					webuiEl('span', {className: 'webui-visually-hidden'}, webuiL('bc.recording', 'Recording'))) : '')));
 	});
 	if (!boxes.length)
 		boxes.push(webuiEl('div', {className: 'webui-epg-none'}, webuiL('epg.none', 'No programme data')));
@@ -305,6 +307,11 @@ async function refreshRows() {
 		});
 	}
 }
+
+document.addEventListener('webui-recordings-seen', function(e) {
+	knownRecordings = e.detail.filter(rec => !rec.timeshift);
+	Object.keys(gridRows).forEach(id => { if (gridRows[id].events) fillRow(gridRows[id]); });
+});
 
 // A timer set or taken away anywhere moves the marks
 async function timersChanged() {
