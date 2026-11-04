@@ -88,6 +88,16 @@ class CWeather
 
 	public:
 		static CWeather *getInstance();
+		/* The day the displays show beside the current weather: today until 4pm,
+		   then tomorrow. One answer for the front display and lcd4l alike, so the
+		   two turn over at the same moment and in the box's time zone. */
+		static int getLaterForecastIndex()
+		{
+			time_t now = time(NULL);
+			struct tm t;
+			localtime_r(&now, &t);
+			return t.tm_hour < 16 ? 0 : 1;
+		};
 		CWeather();
 		~CWeather();
 		void updateApi();

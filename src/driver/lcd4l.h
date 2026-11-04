@@ -171,6 +171,7 @@ class CLCD4l
 		std::string	m_wtemp;
 		std::string	m_wwind;
 		std::string	m_wicon;
+		std::string	m_wlater;
 };
 
 #endif

@@ -118,6 +118,7 @@ extern CPictureViewer *g_PicViewer;
 #define WEATHER_TEMP		LCD_DATADIR "weather_temp"
 #define WEATHER_WIND		LCD_DATADIR "weather_wind"
 #define WEATHER_ICON		LCD_DATADIR "weather_icon"
+#define WEATHER_LATER		LCD_DATADIR "weather_later"
 
 #define FLAG_LCD4LINUX		"/tmp/.lcd4linux"
 #define PIDFILE			"/var/run/lcd4linux.pid"
@@ -338,6 +339,7 @@ void CLCD4l::Init()
 	m_wtemp		= "";
 	m_wwind		= "";
 	m_wicon		= "";
+	m_wlater	= "";
 
 	if (!access(LCD_DATADIR, F_OK) == 0)
 		mkdir(LCD_DATADIR, 0755);
@@ -1316,6 +1318,17 @@ void CLCD4l::ParseInfo(uint64_t parseID, bool newID, bool firstRun)
 		{
 			WriteFile(WEATHER_ICON, wicon);
 			m_wicon = wicon;
+		}
+
+		/* The line of the files above that lcd4linux shows as later: line 1 is
+		   now, line 2 today, line 3 tomorrow. Decided here rather than by
+		   lcd4linux's own clock, which keeps the time zone it was started with
+		   and turns over at another moment than the front display. */
+		std::string wlater = to_string(CWeather::getLaterForecastIndex() + 2);
+		if (m_wlater.compare(wlater))
+		{
+			WriteFile(WEATHER_LATER, wlater);
+			m_wlater = wlater;
 		}
 	}
 }

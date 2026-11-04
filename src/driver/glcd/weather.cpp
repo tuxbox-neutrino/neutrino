@@ -93,11 +93,7 @@ void RenderWeather(bool standby)
 		y = t.glcd_standby_weather_y_position;
 	}
 
-	time_t _n = time(NULL);
-	struct tm *_t;
-	_t = localtime(&_n);
-
-	int forecast = _t->tm_hour < 16 ? 0 : 1; // 0 is current day; after 4pm use next day
+	int forecast = CWeather::getLaterForecastIndex();
 
 	cGLCD *cglcd = cGLCD::getInstance();
 
