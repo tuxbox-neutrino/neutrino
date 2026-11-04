@@ -96,6 +96,13 @@ class CFBCTunerManager
 		bool IsFBCLink(int slot) const;
 		bool IsSameSet(int slot_a, int slot_b) const;
 
+		/* Whether the frontend setup may offer master_slot as the master
+		 * of slot. A link sees only the inputs of its own set, so it is
+		 * offered only the roots of that set; a link has no input to share,
+		 * so it is offered to nothing. Slots that are no FBC tuners may be
+		 * linked as before. */
+		bool CanLinkTo(int slot, int master_slot) const;
+
 		int  GetSetID(int slot) const;
 		int  GetPosition(int slot) const;
 		int  GetConnectedTo(int slot) const;

@@ -62,6 +62,7 @@
 #include <zapit/getservices.h>
 #include <zapit/scan.h>
 #include <zapit/zapit.h>
+#include <zapit/fbc.h>
 #include <zapit/debug.h>
 #include <zapit/bouquets.h>
 #include <set>
@@ -1028,7 +1029,9 @@ int CScanSetup::showFrontendSetup(int number)
 		mode_count = 3;
 		for (int i = 0; i < fecount; i++) {
 			CFrontend * testfe = CFEManager::getInstance()->getFE(i);
-			if (i != fenumber && (fe->getSupportedDeliverySystems() == testfe->getSupportedDeliverySystems()) && (testfe->getMode() == CFrontend::FE_MODE_MASTER)) {
+			/* an FBC link sees only the inputs of its own set */
+			if (i != fenumber && (fe->getSupportedDeliverySystems() == testfe->getSupportedDeliverySystems()) && (testfe->getMode() == CFrontend::FE_MODE_MASTER)
+					&& CFBCTunerManager::getInstance()->CanLinkTo(fe->getNumber(), testfe->getNumber())) {
 				int num = testfe->getNumber();
 				snprintf(fename[select_count], sizeof(fename[select_count]), "%d: %s", num+1, testfe->getName());
 				feselect[select_count].key = num;

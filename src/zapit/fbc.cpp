@@ -170,6 +170,17 @@ bool CFBCTunerManager::IsFBCLink(int slot) const
 	return IsFBCTuner(slot) && !IsRoot(slot);
 }
 
+bool CFBCTunerManager::CanLinkTo(int slot, int master_slot) const
+{
+	if (slot == master_slot)
+		return false;
+	if (IsFBCLink(master_slot))
+		return false;
+	if (IsFBCLink(slot))
+		return IsRoot(master_slot) && IsSameSet(slot, master_slot);
+	return true;
+}
+
 bool CFBCTunerManager::IsSameSet(int slot_a, int slot_b) const
 {
 	fbc_tuner_map_const_iterator_t a = tuners.find(slot_a);
