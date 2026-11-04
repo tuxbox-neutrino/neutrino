@@ -719,7 +719,9 @@ void *insertEventsfromXMLTV(void * data)
 		reader_ready = true;
 		pthread_exit(NULL);
 	}
-	std::string url = (std::string)(char *) data;
+	// The caller's own copy (commandReadSIfromXMLTV), so it is freed here.
+	std::string url = (char *) data;
+	free(data);
 	std::string tmp_name = randomFile(getFileExt(url), "/tmp", 8);
 
 	int64_t now = time_monotonic_ms();
@@ -728,17 +730,41 @@ void *insertEventsfromXMLTV(void * data)
 	{
 		readEventsFromXMLTV(url, ev_count);
 	}
-	else if (::downloadUrl(url, tmp_name))
+	else
 	{
+		/* A guide for many channels is tens of megabytes, and downloadUrl's
+		   minute for the whole transfer ended it half way on a slow line. And
+		   the first read comes at boot, when the network may not be up yet:
+		   a source that failed then was never asked for again. So the
+		   transfer gets a quarter of an hour, and a failed one is tried again
+		   after half a minute, a minute and two minutes. */
+		static const unsigned int kWaits[] = { 30, 60, 120 };
+		const size_t tries = sizeof(kWaits) / sizeof(kWaits[0]) + 1;
+		bool got = false;
+		for (size_t i = 0; i < tries; i++)
+		{
+			if (i > 0)
+			{
+				debug(DEBUG_NORMAL, "Download of %s failed, trying again in %u s",
+				       url.c_str(), kWaits[i - 1]);
+				sleep(kWaits[i - 1]);
+			}
+			if (::downloadUrl(url, tmp_name, AGENT, 15 * 60))
+			{
+				got = true;
+				break;
+			}
+		}
+		if (!got)
+		{
+			debug(DEBUG_ERROR, "Giving up on %s after %u tries", url.c_str(), (unsigned)tries);
+			reader_ready = true;
+			pthread_exit(NULL);
+		}
 		if (!access(tmp_name.c_str(), R_OK))
 		{
 			readEventsFromXMLTV(tmp_name, ev_count, true);
 		}
-	}
-	else
-	{
-		reader_ready = true;
-		pthread_exit(NULL);
 	}
 
 	debug(DEBUG_NORMAL, "Reading data finished after %" PRId64 " ms (%d events) from %s",

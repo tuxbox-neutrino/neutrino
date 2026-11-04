@@ -361,10 +361,11 @@ class CSettingsTextGuard
 /* Every writer of a text setting in the tree is to go through one of these
    three. Not yet: the strings of the GLCD theme, which the GLCD thread writes
    as well, and the members of the containers among the settings - the
-   std::list members, of which nhttpd's xmltv list request rewrites three and
-   every load of the bouquets, on the box's loop as well as on the channel
-   daemon's thread and the scan's, empties and refills xmltv_xml_auto, and the
-   usermenu entries, whose elements the loop replaces whole.
+   std::list members, of which nhttpd's xmltv list request rewrites three, and
+   the usermenu entries, whose elements the loop replaces whole. Every load of
+   the bouquets, on the box's loop as well as on the channel daemon's thread
+   and the scan's, empties and refills xmltv_xml_auto, and does so under the
+   guard (CNeutrinoApp::g_settings_xmltv_xml_auto_clear and _pushback).
 
    Where one assignment of a string is not the unit, the writer holds
    CSettingsTextGuard itself: the string input and the extended input for each

@@ -265,12 +265,16 @@ public:
 
 	void g_settings_video_Mode(int value) { g_settings.video_Mode = value; }
 
+	/* Both under the lock settingsCopy takes: they run on the channel
+	   daemon's thread while the box's loop may be copying the list. */
 	void g_settings_xmltv_xml_auto_clear()
 	{
+		CSettingsTextGuard lock;
 		g_settings.xmltv_xml_auto.clear();
 	}
 	void g_settings_xmltv_xml_auto_pushback(std::string _xmltv_url)
 	{
+		CSettingsTextGuard lock;
 		if (find(g_settings.xmltv_xml_auto.begin(), g_settings.xmltv_xml_auto.end(), _xmltv_url) == g_settings.xmltv_xml_auto.end())
 			g_settings.xmltv_xml_auto.push_back(_xmltv_url);
 	}
@@ -281,7 +285,10 @@ public:
 	}
 	void xmltv_xml_auto_readepg()
 	{
-		for (std::list<std::string>::iterator it = g_settings.xmltv_xml_auto.begin(); it != g_settings.xmltv_xml_auto.end(); it++)
+		/* A copy, as above: a channel reload empties and fills this list from
+		   the channel daemon's thread. */
+		std::list<std::string> xmltv = settingsCopy(g_settings.xmltv_xml_auto);
+		for (std::list<std::string>::iterator it = xmltv.begin(); it != xmltv.end(); it++)
 			g_Sectionsd->readSIfromXMLTV((*it).c_str());
 	}
 };

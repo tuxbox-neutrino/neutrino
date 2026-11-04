@@ -1029,7 +1029,12 @@ int CNeutrinoApp::loadSetup(const char *fname)
 		}
 	}
 
-	g_settings.xmltv_xml_auto.clear();
+	/* xmltv_xml_auto is not touched here. It is no setting of the file but
+	   what the web channel lists name, and only a channel reload fills it
+	   (CBouquetManager::loadBouquets). Emptied by a reload of the settings,
+	   as it was, the hourly reread of the guide found none of those sources
+	   until the channels were reloaded, and the web channels ran out of
+	   guide. */
 
 	g_settings.livestreamResolution = configfile.getInt32("livestreamResolution", 1920);
 	setSettingsText(g_settings.livestreamScriptPath, configfile.getString("livestreamScriptPath", WEBTVDIR));
@@ -4328,6 +4333,13 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 			if (g_bouquetManager && g_bouquetManager->getWebchannelsFailedDownloads() > 0) {
 				g_bouquetManager->setWebchannelsReloadReason("boot_retry");
 				g_Zapit->reinitChannels();
+				/* The guide too, as the reload from the settings does: the
+				   lists that failed at boot are where the XMLTV sources of
+				   their channels are named (tvg-url, xmltv=), so the read at
+				   boot had none of them, and a network that was not up then
+				   failed the sources named by hand as well. */
+				xmltv_xml_readepg();
+				xmltv_xml_auto_readepg();
 			}
 			return messages_return::handled;
 		}
@@ -5033,6 +5045,12 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 		return messages_return::handled;
 	}
 	else if (msg == NeutrinoMessages::EVT_RELOAD_XMLTV) {
+		/* Hourly from sectionsd's housekeeping. Always while the box is on:
+		   a source with a few hours of guide is empty otherwise. In standby
+		   only where the EPG background scan scans in standby; waking reads
+		   it in any case (standbyMode). */
+		if (mode == NeutrinoModes::mode_standby && !(g_settings.epg_scan_mode & CEpgScan::MODE_STANDBY))
+			return messages_return::handled;
 		printf("CNeutrinoApp::handleMsg: reload xmltv epg\n");
 		xmltv_xml_readepg();
 		xmltv_xml_auto_readepg();
@@ -5676,6 +5694,12 @@ void CNeutrinoApp::standbyMode(bool bOnOff, bool fromDeepStandby)
 		channelList->zapTo_ChannelID(live_channel_id, true); /* force re-zap */
 
 		g_Sectionsd->setPauseScanning(false);
+
+		/* The XMLTV guide at once, and not at the next hour: where it was not
+		   read in standby, a source with a few hours of guide is empty by
+		   now. */
+		xmltv_xml_readepg();
+		xmltv_xml_auto_readepg();
 
 		InfoClock->enableInfoClock(true);
 

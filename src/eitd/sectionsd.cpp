@@ -1248,21 +1248,30 @@ static void commandReadSIfromXMLTV(int connfd, char *data, const unsigned dataLe
 
 	sendEmptyResponse(connfd, NULL, 0);
 
-	if (dataLength > 100)
+	/* An address of a provider with a user and a token in it is longer than
+	   the hundred bytes this once allowed, and such a source was dropped
+	   without a word. The buffer holds dataLength + 1 bytes either way. */
+	if (dataLength == 0 || dataLength > 4096)
 		return ;
-	static std::string url_tmp = "";
-	writeLockMessaging();
 	data[dataLength] = '\0';
-	url_tmp = (std::string)data;
-	unlockMessaging();
+
+	/* Each thread gets its own copy and frees it. One static string for all of
+	   them was overwritten by the next source while the thread for the one
+	   before had not copied it yet: the box asks for all its sources in one go,
+	   so one source was read twice and another never, or the thread read
+	   memory already given back. */
+	char *url = strdup(data);
+	if (!url)
+		return ;
 
 	pthread_attr_t attr;
 	pthread_attr_init(&attr);
 	pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
 
-	if (pthread_create (&thrInsertXMLTV, &attr, insertEventsfromXMLTV, (void *)url_tmp.c_str() ))
+	if (pthread_create (&thrInsertXMLTV, &attr, insertEventsfromXMLTV, (void *)url ))
 	{
 		perror("sectionsd: pthread_create()");
+		free(url);
 	}
 
 	pthread_attr_destroy(&attr);
@@ -2270,7 +2279,7 @@ static void print_meminfo(void)
 //---------------------------------------------------------------------
 static void *houseKeepingThread(void *)
 {
-	int count = 0, scount = 0, ecount = 0;
+	int count = 0, scount = 0, ecount = 0, xcount = 0;
 	set_threadname("sd:housekeeping");
 
 	debug(DEBUG_INFO, "housekeeping-thread started.");
@@ -2333,10 +2342,23 @@ static void *houseKeepingThread(void *)
 					perror("sectionsd: pthread_create()");
 					}
 				pthread_attr_destroy(&attr);
-
-				eventServer->sendEvent(CSectionsdClient::EVT_RELOAD_XMLTV, CEventServer::INITID_SECTIONSD);
 			}
 			ecount = 0;
+		}
+
+		/* The XMLTV guide, asked for again every hour, and no longer only
+		   where the guide saved to disk is read again: a box that saves none
+		   and has that switched off read XMLTV at boot only. Some sources
+		   reach no further than a few hours ahead (Samsung TV Plus: four to
+		   six), so a guide not read again for that long is empty. Every hour
+		   in standby too, where this loop comes by once an hour and the
+		   count above makes twelve of them. Whether it is read is neutrino's
+		   to decide (EVT_RELOAD_XMLTV). */
+		xcount++;
+		if (xcount >= (scanning ? EPG_SERVICE_FREQUENTLY_COUNT : 1))
+		{
+			eventServer->sendEvent(CSectionsdClient::EVT_RELOAD_XMLTV, CEventServer::INITID_SECTIONSD);
+			xcount = 0;
 		}
 
 		readLockEvents();
