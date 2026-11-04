@@ -50,7 +50,7 @@ labels compared against a stated field	81
 labels compared against the locale names	328
 labels stated beside a field	98
 listed keys compared against the table	26
-locale names the program has	3089
+locale names the program has	3092
 memory backed folders tried	1
 options an applier or its notifier branches on	50
 parameters the document describes	198
