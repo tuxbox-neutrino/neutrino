@@ -24,12 +24,19 @@
 
 #include "debug.h"
 
-#define FBC_PROC_PATH "/proc/stb/frontend/%d/%s"
+#define FBC_PROC_PATH "%s/%d/%s"
 
 CFBCTunerManager *CFBCTunerManager::manager = NULL;
 
 CFBCTunerManager::CFBCTunerManager()
 {
+	have_fbc = false;
+	procdir = "/proc/stb/frontend";
+}
+
+void CFBCTunerManager::Clear()
+{
+	tuners.clear();
 	have_fbc = false;
 }
 
@@ -50,11 +57,11 @@ CFBCTunerManager *CFBCTunerManager::getInstance()
  * slot of a box without FBC tuners. */
 int CFBCTunerManager::ReadProcInt(int slot, const char *entry) const
 {
-	char path[128];
+	char path[256];
 	FILE *f;
 	int value = -1;
 
-	snprintf(path, sizeof(path), FBC_PROC_PATH, slot, entry);
+	snprintf(path, sizeof(path), FBC_PROC_PATH, procdir.c_str(), slot, entry);
 	f = fopen(path, "r");
 	if (f == NULL)
 		return -1;
@@ -66,10 +73,10 @@ int CFBCTunerManager::ReadProcInt(int slot, const char *entry) const
 
 bool CFBCTunerManager::WriteProcInt(int slot, const char *entry, int value) const
 {
-	char path[128];
+	char path[256];
 	FILE *f;
 
-	snprintf(path, sizeof(path), FBC_PROC_PATH, slot, entry);
+	snprintf(path, sizeof(path), FBC_PROC_PATH, procdir.c_str(), slot, entry);
 	f = fopen(path, "w");
 	if (f == NULL)
 		return false;
@@ -82,12 +89,12 @@ bool CFBCTunerManager::WriteProcInt(int slot, const char *entry, int value) cons
  * The box writes them together, as "12" or "1 2". */
 int CFBCTunerManager::LoadConnectChoices(int slot) const
 {
-	char path[128];
+	char path[256];
 	char line[128];
 	FILE *f;
 	int choices = 0;
 
-	snprintf(path, sizeof(path), FBC_PROC_PATH, slot, "fbc_connect_choices");
+	snprintf(path, sizeof(path), FBC_PROC_PATH, procdir.c_str(), slot, "fbc_connect_choices");
 	f = fopen(path, "r");
 	if (f == NULL)
 		return 0;
@@ -134,6 +141,7 @@ bool CFBCTunerManager::Init(int slot, bool dvbs)
 	/* a link starts tied to the first position of its set, which is what the
 	 * box is told before anything is recording */
 	tuner.connected_to = tuner.is_root ? position : 0;
+	tuner.linked = false;
 	tuners[slot] = tuner;
 	have_fbc = true;
 
@@ -190,6 +198,18 @@ int CFBCTunerManager::GetConnectedTo(int slot) const
 	return (it == tuners.end()) ? -1 : it->second.connected_to;
 }
 
+bool CFBCTunerManager::IsLinkedTo(int slot, int root_slot) const
+{
+	fbc_tuner_map_const_iterator_t it = tuners.find(slot);
+	fbc_tuner_map_const_iterator_t root = tuners.find(root_slot);
+
+	if (it == tuners.end() || root == tuners.end())
+		return false;
+	return !it->second.is_root && it->second.linked && root->second.is_root &&
+		it->second.set_id == root->second.set_id &&
+		it->second.connected_to == root->second.position;
+}
+
 /* The root of the set a slot is in, which is the slot its links are tied to.
  * Where a set has more than one root the first one is taken: the map is
  * ordered by slot and the positions follow that order, so the first root met
@@ -213,7 +233,7 @@ int CFBCTunerManager::GetRootOfSet(int slot) const
 /* Ties a link tuner to a root of its own set, so that it tunes from the input
  * that root has. A root is tied to itself, and a slot that is not an FBC
  * tuner is left alone. */
-bool CFBCTunerManager::Connect(int slot, int root_slot)
+bool CFBCTunerManager::Connect(int slot, int root_slot, bool link)
 {
 	fbc_tuner_map_iterator_t it = tuners.find(slot);
 	fbc_tuner_map_const_iterator_t root;
@@ -230,11 +250,12 @@ bool CFBCTunerManager::Connect(int slot, int root_slot)
 		return false;
 
 	it->second.connected_to = root->second.position;
+	it->second.linked = link;
 	WriteProcInt(slot, "fbc_connect", it->second.connected_to);
-	WriteProcInt(slot, "fbc_link", 1);
+	WriteProcInt(slot, "fbc_link", link ? 1 : 0);
 
-	INFO("FBC: slot %d tied to root slot %d, position %d", slot, root_slot,
-			root->second.position);
+	INFO("FBC: slot %d tied to root slot %d, position %d, link %d", slot,
+			root_slot, root->second.position, link);
 	return true;
 }
 
@@ -251,6 +272,7 @@ bool CFBCTunerManager::Disconnect(int slot)
 	root = GetRootOfSet(slot);
 	if (root >= 0)
 		it->second.connected_to = tuners.find(root)->second.position;
+	it->second.linked = false;
 
 	WriteProcInt(slot, "fbc_connect", it->second.connected_to);
 	WriteProcInt(slot, "fbc_link", 0);
@@ -301,9 +323,10 @@ void CFBCTunerManager::PrintLinks() const
 	fbc_tuner_map_const_iterator_t it;
 
 	for (it = tuners.begin(); it != tuners.end(); ++it)
-		INFO("FBC: slot %d set %d position %d root %s connected to %d",
+		INFO("FBC: slot %d set %d position %d root %s connected to %d%s",
 				it->first, it->second.set_id, it->second.position,
 				it->second.is_root ? "yes" : "no",
-				it->second.connected_to);
+				it->second.connected_to,
+				it->second.linked ? " (linked)" : "");
 }
 

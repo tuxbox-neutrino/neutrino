@@ -50,6 +50,7 @@ typedef struct fbc_tuner {
 	int		position;	/* where the slot sits within its set */
 	bool		is_root;	/* whether it may carry an input of its own */
 	int		connected_to;	/* the position it is tied to, -1 if none */
+	bool		linked;		/* whether fbc_link says it is tied to it */
 } fbc_tuner_t;
 
 typedef std::map<int, fbc_tuner_t> fbc_tuner_map_t;
@@ -63,6 +64,7 @@ class CFBCTunerManager
 
 		fbc_tuner_map_t	tuners;
 		bool		have_fbc;
+		std::string	procdir;
 
 		CFBCTunerManager();
 		~CFBCTunerManager();
@@ -73,6 +75,15 @@ class CFBCTunerManager
 
 	public:
 		static CFBCTunerManager *getInstance();
+
+		/* Where the box keeps what it says about its slots; only a test
+		 * points this anywhere but /proc/stb/frontend. */
+		void SetProcDir(const std::string &dir) { procdir = dir; }
+
+		/* Forgets every slot. The positions of a set are counted by the
+		 * slots already known, so a second round of Init() without this
+		 * would count every slot twice and find no root at all. */
+		void Clear();
 
 		/* Reads what the box says about a slot, in the order the slots of a
 		 * set are met, and answers whether the slot is an FBC tuner. A slot
@@ -89,6 +100,10 @@ class CFBCTunerManager
 		int  GetPosition(int slot) const;
 		int  GetConnectedTo(int slot) const;
 
+		/* Whether the slot is a link tied to root_slot and marked as linked,
+		 * which is what a link tuning from that root's input is. */
+		bool IsLinkedTo(int slot, int root_slot) const;
+
 		/* The root of the set the slot is in, which is the slot a link
 		 * tuner of that set is tied to. Answers -1 where there is none. */
 		int  GetRootOfSet(int slot) const;
@@ -101,8 +116,11 @@ class CFBCTunerManager
 
 		/* Ties a link tuner to a root of its own set, so that the input the
 		 * root has is the one the link tunes from, and unties it again.
-		 * A slot that is not an FBC link is left as it is. */
-		bool Connect(int slot, int root_slot);
+		 * With link, the link leaves the LNB to the root (loop); without,
+		 * it only listens to that input and keeps its own control, which is
+		 * what a unicable twin does. A slot that is not an FBC link is left
+		 * as it is. */
+		bool Connect(int slot, int root_slot, bool link = true);
 		bool Disconnect(int slot);
 
 		/* Ties every link tuner to the root of its set, and every root to

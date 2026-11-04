@@ -121,6 +121,13 @@ class CFEManager
 		 * cable, so a link does not share its root's input: each of them
 		 * tunes for itself, and nothing is tied to anything. */
 		bool		feIsUnicable(CFrontend * fe);
+		bool		isFBCAuto(CFrontend * fe);
+		bool		fbcInUse(CFrontend * fe);
+		CFrontend *	fbcRootOf(CFrontend * link);
+		bool		fbcLinksCanTune(CFrontend * root, CZapitChannel * channel);
+		void		routeFBC();
+		void		fbcTie(CFrontend * fe, CZapitChannel * channel);
+		void		fbcUntie(CFrontend * fe);
 
 		static CFEManager * manager;
 		CFEManager();
