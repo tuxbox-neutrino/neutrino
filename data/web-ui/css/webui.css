@@ -4046,7 +4046,7 @@ body.webui-remote-open {
 
 /* The full-screen view (webuiRemoteFull): the window fills the browser's,
    at every width, its edges clear of a phone's notch and rounded corners;
-   the keys keep their sizes, and a screen lower than the remote scrolls
+   a screen lower than the remote scrolls
    it below the head that holds the way back. 100vh where dvh is not
    known. */
 #webui-remote-modal.webui-remote-full .webui-remote-dialog {
@@ -4951,4 +4951,61 @@ body.webui-signin {
 	.webui-epg-rec-btn.recording > svg {
 		animation: webui-pulse 1.5s infinite;
 	}
+}
+
+/* Full-view keys share one unit so the pad, rockers and rows grow together.
+   Short screens keep a scrollable pad; narrow screens retain 44px targets. */
+.webui-remote-full .webui-remote {
+	--webui-rc-unit: clamp(1px, min(0.2vw, calc(0.23vh + 0.4px)), 1.8px);
+	width: 100%;
+	max-width: calc(320 * var(--webui-rc-unit));
+	gap: calc(8.8 * var(--webui-rc-unit));
+	padding: calc(8 * var(--webui-rc-unit)) 0;
+}
+
+.webui-remote-full .webui-remote .webui-rc-btn {
+	min-height: 44px;
+	font-size: clamp(0.85rem, 1.8vw, 1.2rem);
+}
+
+.webui-remote-full .webui-remote .webui-rc-row.webui-rc-top,
+.webui-remote-full .webui-remote .webui-rc-core {
+	grid-template-columns: calc(56 * var(--webui-rc-unit)) minmax(0, 1fr) calc(56 * var(--webui-rc-unit));
+}
+
+.webui-remote-full .webui-remote .webui-rc-top > .webui-rc-btn,
+.webui-remote-full .webui-remote .webui-rc-rocker > .webui-rc-btn {
+	width: calc(56 * var(--webui-rc-unit));
+	height: max(44px, calc(40 * var(--webui-rc-unit)));
+}
+
+.webui-remote-full .webui-remote .webui-rc-dpad {
+	grid-template-columns: calc(44 * var(--webui-rc-unit)) calc(56 * var(--webui-rc-unit)) calc(44 * var(--webui-rc-unit));
+	grid-template-rows: calc(44 * var(--webui-rc-unit)) calc(56 * var(--webui-rc-unit)) calc(44 * var(--webui-rc-unit));
+	gap: calc(3 * var(--webui-rc-unit));
+	padding: calc(6 * var(--webui-rc-unit));
+}
+
+.webui-remote-full .webui-remote .webui-rc-ok {
+	width: calc(56 * var(--webui-rc-unit));
+	height: calc(56 * var(--webui-rc-unit));
+}
+
+.webui-remote-full .webui-remote .webui-rc-btn svg {
+	width: calc(20 * var(--webui-rc-unit));
+	height: calc(20 * var(--webui-rc-unit));
+}
+
+.webui-remote-full .webui-remote .webui-rc-func,
+.webui-remote-full .webui-remote .webui-rc-media .webui-rc-btn,
+.webui-remote-full .webui-remote .webui-rc-sheet-trigger,
+.webui-remote-full .webui-remote .webui-rc-sheet .webui-rc-numpad .webui-rc-btn {
+	height: max(44px, calc(36 * var(--webui-rc-unit)));
+}
+
+.webui-remote-full .webui-remote .webui-rc-color {
+	min-height: 44px;
+	height: calc(32 * var(--webui-rc-unit));
+	padding-block: calc(10 * var(--webui-rc-unit));
+	background-clip: content-box;
 }
