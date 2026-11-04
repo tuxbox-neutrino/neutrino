@@ -52,11 +52,12 @@ function getCpuLevel(load) {
 }
 
 // ---- Following the box over /api/v1 ----------------------------------
-// Channel, guide, recordings, timers, mode, standby and playback follow
-// the event stream (/api/v1/events) instead of asking on a timer: each
-// event rereads the one tile it concerns, and a tile only touches what
-// changed. What v1 has no event for (system, network, tuner signal, stream
-// details) is still asked on a timer, and only while the page is visible.
+// Channel, guide, recordings, timers, mode, standby, playback and the
+// sound follow the event stream (/api/v1/events) instead of asking on a
+// timer: each event rereads the one tile it concerns, and a tile only
+// touches what changed. What v1 has no event for (system, network, tuner
+// signal, stream details) is still asked on a timer, and only while the
+// page is visible.
 
 // set once the texts are in (Init below)
 let NO_CHANNEL, NO_EPG, NO_TUNER, RECORDING;
@@ -77,7 +78,25 @@ const dash = {
 	tunerShown: false,		// and the reception tile
 	recentShown: false,		// and the latest recordings
 	standbyRead: 0,			// counts standby reads, so an older answer arriving last is dropped
-	standby: null			// the box is in standby: it has no mode to show; null until read
+	standby: null,			// the box is in standby: it has no mode to show; null until read
+	volume: {			// the sound tile, see refreshVolume
+		percent: null,		// the level the box said, 0 to 100; null until it said one
+		muted: null,		// whether its sound is off; null until it said
+		said: {percent: 0, muted: 0},	// counts the events of each, so a read begun before one is dropped for it
+		read: 0,		// counts reads, so an older answer arriving last is dropped
+		held: false,		// the slider is being moved: what the box says waits until it is let go
+		chosen: null,		// the level chosen on the slider until the box says it has one
+		next: null,		// a level chosen while another was on its way, sent after it
+		sending: false,		// a level is on its way to the box
+		sent: false,		// the box took the chosen level; its next volume event settles it
+		settle: null,		// the read after a level the box did not announce
+		chose: 0,		// counts levels chosen, so the read after an older one leaves a newer one alone
+		muteBusy: false,	// a mute is on its way or not yet announced
+		muteSettle: null,	// the read after a mute the box did not announce
+		muteAsked: 0,		// counts mutes asked for, the same for the read after one
+		completing: false,	// a read for the half an event left unknown is under way
+		shown: false		// the tile showed values once
+	}
 };
 
 // A read that fails is no answer: the tile keeps what it shows or says
@@ -542,6 +561,255 @@ function updateModeUI() {
 	}
 }
 
+// ---- Volume and mute -------------------------------------------------
+// How loud the box is and whether its sound is off, from GET /osd/volume
+// and the volume and mute events; the slider and Mute change them over
+// PUT /osd/volume and PUT /osd/mute. The box answers a change with 202,
+// which says it took the wish, not that it acted on it: the tile shows
+// what the box says, from its event or, where none comes, from a read a
+// moment later. The box announces every level it is given, also the one
+// it has, but a mute only when the sound changes. A level above 0 also
+// turns a mute off; the box's mute event says so.
+
+// how long a change waits for its event before the level is read
+const VOLUME_SETTLE_MS = 2000;
+
+function volumeLevel(v) {
+	return Math.max(0, Math.min(100, Math.round(Number(v) || 0)));
+}
+
+// Read on load, after a reconnect, when the page is visible again and a
+// moment after a change the box did not announce. A read of its own asks
+// for no sign-in (a refusal leaves the tile as it is); the tile's Reload
+// (signIn) asks for one where the box wants it.
+async function refreshVolume(signIn) {
+	const v = dash.volume;
+	const read = ++v.read;
+	const said = {percent: v.said.percent, muted: v.said.muted};
+	let got = null;
+	try {
+		got = signIn === true ? await webuiV1('GET', '/osd/volume') : await _webuiV1Read('/osd/volume');
+	} catch (e) {
+		got = null;
+	}
+	if (read !== v.read) return;	// a later read was started: its answer counts
+	if (!got || typeof got.percent !== 'number') {
+		if (!v.shown) volumeState('error');
+		return;
+	}
+	// what an event said while the read was under way is newer than the answer
+	if (said.percent === v.said.percent)
+		v.percent = volumeLevel(got.percent);
+	if (said.muted === v.said.muted)
+		v.muted = !!got.muted;
+	v.shown = true;
+	showVolume();
+}
+
+// The volume and mute events: what the box has now, whoever changed it
+function volumeEvent(field, d) {
+	const v = dash.volume;
+	if (!d || typeof d.value !== 'number') return;
+	v.said[field]++;
+	if (field === 'percent') {
+		v.percent = volumeLevel(d.value);
+		// the level chosen is in, or the box has acted on it in its own way
+		if (v.chosen !== null && v.next === null && (v.percent === v.chosen || v.sent))
+			volumeSettled();
+	} else {
+		v.muted = d.value !== 0;
+		volumeMuteDone();
+	}
+	if (v.percent !== null && v.muted !== null)
+		v.shown = true;
+	// an event before the first answer tells one half: both are read once,
+	// the tile keeps its Reload until they are in
+	else if (!v.completing) {
+		v.completing = true;
+		refreshVolume().then(function() { v.completing = false; });
+	}
+	showVolume();
+}
+
+function volumeSettled() {
+	const v = dash.volume;
+	v.chosen = null;
+	v.sent = false;
+	clearTimeout(v.settle);
+	v.settle = null;
+}
+
+// A tile that never showed values says it is loading or could not read
+// them, in place of the slider; null takes the block away
+function volumeState(kind) {
+	withEl('volume-body', function(body) {
+		const st = body.querySelector(':scope > .webui-state');
+		if (st && kind && st.classList.contains(kind)) return;
+		const focused = !!st && st.contains(document.activeElement);
+		if (st) st.remove();
+		if (kind === 'loading')
+			body.prepend(webuiState('loading', webuiL('msg.loading', 'Loading...'), ''));
+		else if (kind === 'error')
+			body.prepend(webuiState('error', webuiL('dash.volume_failed', 'Volume could not be read'), '',
+				{retry: function() { refreshVolume(true); }}));
+		// Reload had the focus: it goes to the slider that took its place
+		else if (focused)
+			withEl('volume-range', function(el) { el.focus(); });
+	});
+}
+
+// The slider shows the level chosen until the box has it, else the box's;
+// while it is being moved it stays where the hand has it. Shown once both
+// the level and the mute are known.
+function showVolume() {
+	const v = dash.volume;
+	const box = document.getElementById('volume-controls');
+	const range = document.getElementById('volume-range');
+	if (!box || !range || v.percent === null || v.muted === null) return;
+	box.hidden = false;
+	volumeState(null);
+	if (!v.held)
+		range.value = String(v.chosen !== null ? v.chosen : v.percent);
+	showVolumeLevel(Number(range.value));
+	box.classList.toggle('muted', !!v.muted);
+	withEl('volume-mute', function(b) {
+		b.setAttribute('aria-pressed', String(!!v.muted));
+		if (v.muteBusy)
+			b.setAttribute('aria-disabled', 'true');
+		else
+			b.removeAttribute('aria-disabled');
+	});
+	setText('volume-state', v.chosen !== null ? webuiL('dash.volume_pending', 'Applying volume')
+		: v.muted ? webuiL('dash.volume_muted', 'Sound is muted') : '');
+}
+
+// The level on the slider's track and in the tile's head, also while the
+// slider moves
+function showVolumeLevel(level) {
+	withEl('volume-range', function(el) {
+		el.style.setProperty('--webui-volume-level', level + '%');
+		el.setAttribute('aria-valuetext', level + ' %');
+	});
+	setText('volume-percent', level + ' %');
+}
+
+// A level chosen on the slider, sent once it is let go (change), never
+// while it moves. One level is on its way at a time; of those chosen
+// meanwhile only the newest follows it.
+function setDashboardVolume(level) {
+	const v = dash.volume;
+	v.chose++;
+	v.chosen = volumeLevel(level);
+	v.sent = false;
+	clearTimeout(v.settle);
+	v.settle = null;
+	showVolume();
+	if (v.sending) {
+		v.next = v.chosen;
+		return;
+	}
+	sendVolume(v.chosen);
+}
+
+async function sendVolume(level) {
+	const v = dash.volume;
+	v.sending = true;
+	for (;;) {
+		try {
+			await webuiV1('PUT', '/osd/volume', {body: {percent: level}});
+		} catch (e) {
+			// refused, or the sign-in cancelled: the tile shows what the box said
+			v.sending = false;
+			v.next = null;
+			volumeSettled();
+			showVolume();
+			webuiToastError(webuiL('dash.volume_title', 'Volume'), e);
+			return;
+		}
+		if (v.next === null) break;
+		level = v.next;
+		v.next = null;
+	}
+	v.sending = false;
+	if (v.chosen === null) return;	// its event came before the answer
+	v.sent = true;
+	const chose = v.chose;
+	v.settle = setTimeout(function() {
+		v.settle = null;
+		refreshVolume().then(function() {
+			// a level chosen meanwhile is settled by its own event or read
+			if (v.chose !== chose || v.sending || v.next !== null) return;
+			volumeSettled();
+			showVolume();
+		});
+	}, VOLUME_SETTLE_MS);
+}
+
+// Mute as a toggle, pressed while the sound is off. It changes when the box
+// says the sound did; until then it takes no second press (aria-disabled,
+// so it keeps the focus).
+async function setDashboardMute() {
+	const v = dash.volume;
+	if (v.muteBusy || v.muted === null) return;
+	v.muteBusy = true;
+	showVolume();
+	const said = v.said.muted;
+	const asked = ++v.muteAsked;
+	try {
+		await webuiV1('PUT', '/osd/mute', {body: {on: !v.muted}});
+	} catch (e) {
+		volumeMuteDone();
+		showVolume();
+		webuiToastError(webuiL('dash.volume_mute', 'Mute'), e);
+		return;
+	}
+	if (v.said.muted !== said) return;	// its event came before the answer
+	// a box whose sound was so already says nothing: read once instead
+	v.muteSettle = setTimeout(function() {
+		v.muteSettle = null;
+		refreshVolume().then(function() {
+			// a mute asked for meanwhile waits for its own event or read
+			if (v.muteAsked !== asked) return;
+			volumeMuteDone();
+			showVolume();
+		});
+	}, VOLUME_SETTLE_MS);
+}
+
+function volumeMuteDone() {
+	const v = dash.volume;
+	v.muteBusy = false;
+	clearTimeout(v.muteSettle);
+	v.muteSettle = null;
+}
+
+// The slider: held from the press or the first move until it is let go;
+// let go without a change (moved and brought back) it shows the box again
+function initVolume() {
+	const v = dash.volume;
+	const range = document.getElementById('volume-range');
+	if (!range) return;
+	volumeState('loading');
+	const letGo = function() {
+		if (!v.held) return;
+		v.held = false;
+		// after the change a release brings, if one comes
+		setTimeout(showVolume, 0);
+	};
+	range.addEventListener('pointerdown', function() { v.held = true; });
+	range.addEventListener('input', function() {
+		v.held = true;
+		showVolumeLevel(Number(range.value));
+	});
+	range.addEventListener('change', function() {
+		v.held = false;
+		setDashboardVolume(Number(range.value));
+	});
+	range.addEventListener('pointercancel', letGo);
+	range.addEventListener('blur', letGo);
+	window.addEventListener('pointerup', letGo);
+}
+
 // The timer kinds v1 names, as the numbers the shared labels and icons know
 const TIMER_KIND_TYPES = {
 	'shutdown': 1, 'zapto': 3, 'standby': 4, 'record': 5, 'remind': 6,
@@ -634,6 +902,7 @@ function refreshEvented() {
 	refreshPlayback();
 	refreshRecordings();
 	refreshTimers();
+	refreshVolume();
 }
 
 function followTheBox() {
@@ -657,7 +926,9 @@ function followTheBox() {
 			if (d && dash.channel && sameLow48(d.channel_id, dash.channel.id))
 				refreshGuideSoon();
 		},
-		playback: refreshPlayback
+		playback: refreshPlayback,
+		volume: function(d) { volumeEvent('percent', d); },
+		mute: function(d) { volumeEvent('muted', d); }
 	});
 }
 
@@ -877,6 +1148,7 @@ webuiAfterTexts(function() {
 	withEl('timer-list', function(el) { el.replaceChildren(webuiState('loading', webuiL('msg.loading', 'Loading...'), '')); });
 	withEl('tuner-list', function(el) { el.replaceChildren(webuiState('loading', webuiL('msg.loading', 'Loading...'), '')); });
 	withEl('recent-list', function(el) { el.replaceChildren(webuiEl('li', {}, webuiState('loading', webuiL('msg.loading', 'Loading...'), ''))); });
+	initVolume();
 
 	refreshEvented();
 	followTheBox();
@@ -896,8 +1168,10 @@ webuiAfterTexts(function() {
 	setInterval(function() { showTimers(); showRecording(); }, 30000);
 	setInterval(function() { if (playing()) showPlayback(); }, 1000);
 	document.addEventListener('visibilitychange', function() {
-		if (document.visibilityState === 'visible')
-			dashPolls.forEach(function(fn) { fn(); });
+		if (document.visibilityState !== 'visible') return;
+		dashPolls.forEach(function(fn) { fn(); });
+		// the sound once more as well; without the stream the poll above has read it
+		if (webuiV1EventsLive()) refreshVolume();
 	});
 
 	// Register pull-to-refresh callback

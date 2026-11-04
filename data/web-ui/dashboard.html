@@ -669,6 +669,95 @@
 		display: none;
 	}
 
+	/* the sound: its name, the slider with Mute beside it, and a line that
+	   says the sound is off or a level is on its way. The slider's part up
+	   to the level is drawn in the accent, the rest in the muted border
+	   colour; muted, the whole track is the rest colour, the level kept. */
+	.webui-volume {
+		display: grid;
+		gap: 0.4rem;
+	}
+
+	.webui-volume[hidden] {
+		display: none;
+	}
+
+	.webui-volume label {
+		margin: 0;
+		color: var(--pico-muted-color);
+		font-size: var(--webui-font-sm);
+	}
+
+	.webui-volume-row {
+		display: flex;
+		gap: 0.75rem;
+		align-items: center;
+	}
+
+	.webui-volume-row input[type="range"] {
+		--webui-volume-fill: var(--webui-accent);
+		--webui-volume-rest: var(--pico-muted-border-color);
+		flex: 1 1 auto;
+		min-width: 0;
+		height: 2.75rem;
+		margin: 0;
+		--pico-range-thumb-color: var(--webui-accent);
+		--pico-range-thumb-active-color: var(--webui-accent);
+		--pico-range-thumb-border-color: var(--pico-card-background-color);
+	}
+
+	.webui-volume-row input[type="range"]::-webkit-slider-runnable-track {
+		background: linear-gradient(to right, var(--webui-volume-fill) var(--webui-volume-level, 0%), var(--webui-volume-rest) var(--webui-volume-level, 0%));
+	}
+
+	.webui-volume-row input[type="range"]::-moz-range-track {
+		background: linear-gradient(to right, var(--webui-volume-fill) var(--webui-volume-level, 0%), var(--webui-volume-rest) var(--webui-volume-level, 0%));
+	}
+
+	.webui-volume.muted input[type="range"] {
+		--webui-volume-fill: var(--pico-muted-color);
+	}
+
+	.webui-volume-row input[type="range"]:focus-visible {
+		outline: 2px solid var(--webui-focus-color);
+		outline-offset: 2px;
+		box-shadow: none;
+		--pico-box-shadow: none;
+	}
+
+	.webui-volume-mute {
+		flex: none;
+		min-height: 2.75rem;
+		padding-inline: 0.75rem;
+		font-size: var(--webui-font-sm);
+	}
+
+	.webui-volume-mute svg {
+		width: 1rem;
+		height: 1rem;
+	}
+
+	.webui-volume-mute[aria-pressed="true"],
+	.webui-volume-mute[aria-pressed="true"]:is(:hover, :focus, :active) {
+		background: var(--webui-accent);
+		border-color: var(--webui-accent);
+		color: var(--webui-on-accent);
+	}
+
+	.webui-volume-mute[aria-disabled="true"] {
+		cursor: not-allowed;
+	}
+
+	.webui-volume-state {
+		margin: 0;
+		color: var(--pico-muted-color);
+		font-size: var(--webui-font-sm);
+	}
+
+	.webui-volume-state:empty {
+		display: none;
+	}
+
 	/* the latest recordings: when, what, and Play on TV */
 	#recent-list {
 		--webui-dash-cols: minmax(7ch, auto) minmax(0, 1fr) auto;
@@ -842,6 +931,30 @@
 						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 3v9M6.3 6.3a8 8 0 1 0 11.4 0"/></svg>
 						<span data-l="dash.standby">Standby</span>
 					</button>
+				</div>
+			</section>
+
+			<!-- the sound: how loud the box is, and mute -->
+			<section class="webui-card" id="card-volume" aria-labelledby="volume-title">
+				<header class="webui-card-header">
+					<h2 class="webui-card-title" id="volume-title">
+						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14"/></svg>
+						<span data-l="dash.volume_title">Volume</span>
+					</h2>
+					<span class="webui-card-value" id="volume-percent" aria-hidden="true"></span>
+				</header>
+				<div class="webui-card-body" id="volume-body">
+					<div class="webui-volume" id="volume-controls" hidden>
+						<label for="volume-range" data-l="dash.volume_level">Volume of the box</label>
+						<div class="webui-volume-row">
+							<input type="range" id="volume-range" min="0" max="100" step="1" value="0" aria-describedby="volume-state">
+							<button type="button" class="webui-btn webui-volume-mute" id="volume-mute" aria-pressed="false" onclick="setDashboardMute()">
+								<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>
+								<span data-l="dash.volume_mute">Mute</span>
+							</button>
+						</div>
+						<p class="webui-volume-state" id="volume-state"></p>
+					</div>
 				</div>
 			</section>
 
