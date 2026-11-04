@@ -40,6 +40,7 @@
 #include "zapit.h"
 #include "client/zapittools.h"
 #include "femanager.h"
+#include "fbc.h"
 #include "capmt.h"
 #include <hardware/dmx.h>
 #include <OpenThreads/ScopedLock>
@@ -700,6 +701,20 @@ void CFEManager::linkFrontends(bool init)
 	for(unsigned i = 0; i < MAX_DMX_UNITS; i++)
 		demuxes[i] = 0;
 	demuxes[0] = 1;
+	/* What the box says about its FBC tuners, before anything is tied to
+	 * anything. A slot the box names a set for is one of them, and a box
+	 * without them answers nothing here, so nothing below is done. */
+	CFBCTunerManager *fbc = CFBCTunerManager::getInstance();
+	if (init) {
+		for(fe_map_iterator_t it = femap.begin(); it != femap.end(); it++) {
+			CFrontend * fe = it->second;
+			if (fe->getMode() != CFrontend::FE_MODE_UNUSED)
+				fbc->Init(fe->fenumber, fe->hasSat());
+		}
+		/* every link is tied back to the root of its set to begin with */
+		fbc->ConnectAll();
+		fbc->PrintLinks();
+	}
 	for(fe_map_iterator_t it = femap.begin(); it != femap.end(); it++) {
 		CFrontend * fe = it->second;
 		int femode = fe->getMode();
@@ -718,6 +733,10 @@ void CFEManager::linkFrontends(bool init)
 					continue;
 
 				fe->linkmap.push_back(fe2);
+				/* an FBC link has no input of its own: it tunes from the
+				 * one its master has, which is what the box is told */
+				if (fbc->IsFBCLink(fe2->fenumber))
+					fbc->Connect(fe2->fenumber, fe->fenumber);
 				if (fe2->getMode() == CFrontend::FE_MODE_LINK_LOOP) {
 					INFO("Frontend #%d: link to master %d as LOOP", fe2->fenumber, fe->fenumber);
 					fe->have_loop = true;
@@ -834,6 +853,56 @@ CFrontend::fe_open_result_t CFEManager::getFrontendOpenState(int adapter,
 }
 
 /* compare polarization and band with fe values */
+bool CFEManager::feIsUnicable(CFrontend * fe)
+{
+	frontend_config_t & fe_config = fe->getConfig();
+	return (fe_config.uni_freq != 0) || (fe_config.uni_scr != 0);
+}
+
+/* The root an FBC link tunes from for a channel. Only a root that is already
+ * tuning is worth tying a link to: a root that is free will be tuned for
+ * itself, and a link on it would take the input away from it rather than
+ * share it. What the root is tuned to has to be something the link can
+ * share, which is the same transponder, or a transponder the same input
+ * carries - the same satellite, polarisation and band. */
+CFrontend * CFEManager::findFBCRoot(CFrontend * link, CZapitChannel * channel)
+{
+	CFBCTunerManager *fbc = CFBCTunerManager::getInstance();
+	CFrontend * best = NULL;
+
+	if (channel == NULL || !fbc->IsFBCLink(link->fenumber))
+		return NULL;
+
+	for(fe_map_iterator_t it = femap.begin(); it != femap.end(); it++) {
+		CFrontend * root = it->second;
+
+		if (!fbc->IsRoot(root->fenumber))
+			continue;
+		if (!fbc->IsSameSet(root->fenumber, link->fenumber))
+			continue;
+		/* a root with its input to itself has nothing to share yet */
+		if (!root->tuned)
+			continue;
+		/* a unicable root serves each tuner at an address of its own, and
+		 * has nothing to share either */
+		if (feIsUnicable(root))
+			continue;
+		if (root->sameTsidOnid(channel->getTransponderId())) {
+			FEDEBUG("FBC: slot %d can share the transponder of root %d",
+					link->fenumber, root->fenumber);
+			return root;
+		}
+		/* the input carries this transponder as well as its own */
+		if (loopCanTune(root, channel)) {
+			FEDEBUG("FBC: root %d carries the transponder for slot %d",
+					root->fenumber, link->fenumber);
+			if (!best)
+				best = root;
+		}
+	}
+	return best;
+}
+
 bool CFEManager::loopCanTune(CFrontend * fe, CZapitChannel * channel)
 {
 	if(!fe->hasSat())
@@ -855,6 +924,7 @@ bool CFEManager::loopCanTune(CFrontend * fe, CZapitChannel * channel)
 CFrontend * CFEManager::getFrontend(CZapitChannel * channel)
 {
 	CFrontend * retfe = NULL;
+	CFBCTunerManager *fbc = CFBCTunerManager::getInstance();
 
 	if (livefe && livefe->tuned && livefe->sameTsidOnid(channel->getTransponderId())) {
 		if (!noSameFE) {
@@ -960,8 +1030,17 @@ CFrontend * CFEManager::getFrontend(CZapitChannel * channel)
 						return mfe;
 					}
 				}
-			} else if(!retfe)
+			} else if(!retfe) {
+				/* an FBC link is only worth taking where a root of its set
+				 * can carry this transponder: without one its input is a
+				 * root busy with something else, and tying it there would
+				 * take that input away from what is already on it */
+				if (fbc->IsFBCLink(mfe->fenumber) && !findFBCRoot(mfe, channel)) {
+					FEDEBUG("frontend %d: no FBC root to share, skipping...", mfe->fenumber);
+					continue;
+				}
 				retfe = mfe;
+			}
 		}
 	}
 	FEDEBUG("Selected fe: %d", retfe ? retfe->fenumber : -1);
@@ -1085,6 +1164,7 @@ CFrontend * CFEManager::getScanFrontend(t_satellite_position satellitePosition)
 	if (SAT_POSITION_TERR(satellitePosition))
 		delsys = ALL_TERR;
 	CFrontend * frontend = NULL;
+	CFBCTunerManager *fbc = CFBCTunerManager::getInstance();
 	for(fe_map_iterator_t it = femap.begin(); it != femap.end(); it++) {
 		CFrontend * mfe = it->second;
 		if (mfe->hasCable() && SAT_POSITION_CABLE(satellitePosition) && !mfe->forcedDelivery(delsys)) {
@@ -1100,6 +1180,12 @@ CFrontend * CFEManager::getScanFrontend(t_satellite_position satellitePosition)
 		} else if (mfe->hasSat()) {
 			if (mfe->getMode() == CFrontend::FE_MODE_UNUSED || CFrontend::linked(mfe->getMode()))
 				continue;
+			/* a scan tunes for itself, and nothing is tuned to share from
+			 * yet: only a root has an input of its own to scan with */
+			if (fbc->IsFBCTuner(mfe->fenumber) && !fbc->IsRoot(mfe->fenumber)) {
+				INFO("frontend %d: FBC link, no input of its own to scan with", mfe->fenumber);
+				continue;
+			}
 			satellite_map_t & satmap = mfe->getSatellites();
 			sat_iterator_t sit = satmap.find(satellitePosition);
 			if ((sit != satmap.end()) && sit->second.configured) {
@@ -1118,6 +1204,17 @@ bool CFEManager::lockFrontend(CFrontend * frontend, CZapitChannel * channel)
 	frontend->Lock();
 	have_locked = true;
 
+	/* An FBC link has no input of its own. It tunes from a root of its set:
+	 * one already tuning something it can share where there is one, and the
+	 * root of its set - which then tunes for the link - where there is not.
+	 * A box without FBC tuners has nothing to tell, and says so. */
+	CFBCTunerManager *fbc = CFBCTunerManager::getInstance();
+	if (fbc->IsFBCLink(frontend->fenumber) && !feIsUnicable(frontend)) {
+		CFrontend * root = findFBCRoot(frontend, channel);
+		fbc->ConnectToMaster(frontend->fenumber,
+				root ? root->fenumber : frontend->getMaster());
+	}
+
 	if (channel) {
 #ifdef DYNAMIC_DEMUX
 		int di = channel->getRecordDemux();
@@ -1133,6 +1230,10 @@ bool CFEManager::unlockFrontend(CFrontend * frontend, bool unlock_demux)
 	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
 	have_locked = false;
 	frontend->Unlock();
+	/* the one that lets go of an FBC link last leaves it tied back to the
+	 * root of its set: still listening to that input, not using it */
+	if (!frontend->Locked())
+		CFBCTunerManager::getInstance()->Disconnect(frontend->fenumber);
 	if (unlock_demux) {
 #ifdef DYNAMIC_DEMUX
 		for (unsigned int i = 1; i < dmap.size(); i++) {

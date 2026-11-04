@@ -117,6 +117,10 @@ class CFEManager
 
 		bool		loopCanTune(CFrontend * fe, CZapitChannel * channel);
 		void		copySettings(CFrontend * from, CFrontend * to);
+		/* A unicable setup gives each tuner an address of its own on the one
+		 * cable, so a link does not share its root's input: each of them
+		 * tunes for itself, and nothing is tied to anything. */
+		bool		feIsUnicable(CFrontend * fe);
 
 		static CFEManager * manager;
 		CFEManager();
@@ -143,6 +147,14 @@ class CFEManager
 		CFrontend *	getFrontend(CZapitChannel * channel);
 		int		getFrontendCount() { return femap.size(); };
 		int		getEnabledCount();
+
+		/* The root an FBC link should tune from for a channel: a root of the
+		 * link's own set that is already tuning something the link can share
+		 * - the same transponder, or a transponder the same input carries.
+		 * That is what lets one input serve several demodulators. Answers
+		 * NULL where there is none, and the link is tied to the root of its
+		 * set then, which tunes for the link itself. */
+		CFrontend *	findFBCRoot(CFrontend * link, CZapitChannel * channel);
 
 		CFrontend *	getScanFrontend(t_satellite_position satellitePosition);
 		bool		canTune(CZapitChannel * channel);
