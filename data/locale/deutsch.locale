@@ -2885,11 +2885,14 @@ tunersetup.power 5V-Versorgung bei DVB-T/T2 Kanälen
 tunersetup.sat Satellit (DVB-S/S2)
 tunersetup.terr Terrestrisch (DVB-T/T2)
 tunersetup.tunersetup Tunereinstellungen
+unicable.clash_freq Tuner %d nutzt am selben Kabel bereits die Frequenz %d MHz.\nJeder Tuner braucht ein eigenes Userband, sonst stören sich die beiden.
+unicable.clash_scr Tuner %d nutzt am selben Kabel bereits SCR %d.\nJeder Tuner braucht ein eigenes Userband, sonst stören sich die beiden.
 unicable.freq Unicable Frequenz
 unicable.lnb Unicable Eingang
 unicable.pin Unicable PIN
 unicable.pin_hint PIN (1 - 255) für Benutzerfrequenz\n0 bedeutet inaktiv / aus
 unicable.scr Unicable SCR
+unicable.scr_hint Gezählt ab 0 (wie CH00 im LNB-Datenblatt)\nAndere Geräte zählen oft ab 1
 unit.decimal ,
 unit.long.years Jahre
 unit.short.hour h

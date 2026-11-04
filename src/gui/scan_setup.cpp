@@ -63,6 +63,7 @@
 #include <zapit/scan.h>
 #include <zapit/zapit.h>
 #include <zapit/fbc.h>
+#include <zapit/unicable_check.h>
 #include <zapit/debug.h>
 #include <zapit/bouquets.h>
 #include <set>
@@ -1201,6 +1202,86 @@ int CScanSetup::showFrontendSetup(int number)
 	return res;
 }
 
+/* Which cable a tuner sends its unicable commands down. A twin shares its
+ * master's cable. An FBC tuner sees the input its setup ties it to: a root its
+ * own, a link the one of the root it is linked to, any other link the first
+ * input of its set, which is where routeFBC() puts it. */
+static int unicableCable(CFrontend *fe)
+{
+	CFBCTunerManager *fbc = CFBCTunerManager::getInstance();
+	const int slot = fe->getNumber();
+
+	if (fbc->IsFBCTuner(slot)) {
+		int root = slot;
+		if (!fbc->IsRoot(slot)) {
+			const int master = fe->getMaster();
+			if (CFrontend::linked(fe->getMode()) && fbc->IsRoot(master) && fbc->IsSameSet(slot, master))
+				root = master;
+			else
+				root = fbc->GetRootOfSet(slot);
+		}
+		return 1000 + fbc->GetSetID(slot) * 8 + fbc->GetPosition(root);
+	}
+	if (CFrontend::linked(fe->getMode()))
+		return fe->getMaster();
+	return slot;
+}
+
+/* Whether a tuner sends unicable commands of its own: set to unicable, and in
+ * use other than as a loop, which leaves the cable to its master. */
+static bool unicableSender(CFrontend *fe)
+{
+	const int mode = fe->getMode();
+	const int type = fe->getConfig().diseqcType;
+	return fe->hasSat() && (type == DISEQC_UNICABLE || type == DISEQC_UNICABLE2) &&
+		mode != CFrontend::FE_MODE_UNUSED && mode != CFrontend::FE_MODE_LINK_LOOP;
+}
+
+/* Say so when the tuner being set up takes a user band another tuner on the
+ * same cable already has. The setting is kept: the other tuner may be the one
+ * that is wrong, and is only put right in its own setup. */
+static void warnUnicableClash(int index, int scr, int freq)
+{
+	CFEManager *fem = CFEManager::getInstance();
+	CFrontend *me_fe = fem->getFE(index);
+	std::vector<unicable_use_t> uses;
+	std::vector<int> indices;
+
+	for (int i = 0; i < fem->getFrontendCount(); i++) {
+		CFrontend *fe = fem->getFE(i);
+		if (fe == NULL || i == index || !unicableSender(fe))
+			continue;
+		unicable_use_t use;
+		use.tuner = i;
+		use.cable = unicableCable(fe);
+		use.scr = fe->getConfig().uni_scr;
+		use.freq = fe->getConfig().uni_freq;
+		uses.push_back(use);
+		indices.push_back(i);
+	}
+
+	unicable_use_t me;
+	me.tuner = index;
+	me.cable = unicableCable(me_fe);
+	me.scr = scr;
+	me.freq = freq;
+
+	int other = -1;
+	unicable_clash_t clash = unicableClash(uses, me, other);
+	if (clash == UNICABLE_CLASH_NONE)
+		return;
+
+	char text[512];
+	if (clash == UNICABLE_CLASH_SCR)
+		snprintf(text, sizeof(text), g_Locale->getText(LOCALE_UNICABLE_CLASH_SCR),
+			 indices[other] + 1, scr);
+	else
+		snprintf(text, sizeof(text), g_Locale->getText(LOCALE_UNICABLE_CLASH_FREQ),
+			 indices[other] + 1, freq);
+	printf("[neutrino] CScanSetup: tuner %d: %s\n", index + 1, text);
+	ShowMsg(LOCALE_MESSAGEBOX_INFO, text, CMsgBox::mbrBack, CMsgBox::mbBack);
+}
+
 int CScanSetup::showUnicableSetup()
 {
 	printf("[neutrino] CScanSetup call %s fe %d\n", __func__, fenumber);
@@ -1213,6 +1294,7 @@ int CScanSetup::showUnicableSetup()
 	int unicable_pin = fe_config.uni_pin;
 
 	CMenuOptionNumberChooser *uniscr = new CMenuOptionNumberChooser(LOCALE_UNICABLE_SCR, &unicable_scr, true, 0, dmode == DISEQC_UNICABLE ? 7 : 31);
+	uniscr->setHint("", LOCALE_UNICABLE_SCR_HINT);
 	CIntInput		 *unifreq = new CIntInput(LOCALE_UNICABLE_FREQ, &unicable_freq, 4, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE);
 	CMenuOptionNumberChooser *unipin = new CMenuOptionNumberChooser(LOCALE_UNICABLE_PIN, &unicable_pin, true, 0, 255, NULL, CRCInput::RC_nokey, NULL, 0, 0, LOCALE_OPTIONS_OFF);
 	unipin->setNumericInput(true);
@@ -1232,6 +1314,8 @@ int CScanSetup::showUnicableSetup()
 		fe_config.uni_freq = unicable_freq;
 		fe_config.uni_pin = unicable_pin;
 		printf("%s: scr: %d freq: %d pin: %d\n", __func__, unicable_scr, unicable_freq, unicable_pin);
+		if (unicableSender(fe))
+			warnUnicableClash(fenumber, unicable_scr, unicable_freq);
 	}
 	return res;
 }
