@@ -1540,6 +1540,16 @@ function webuiGetRemoteHTML(opts) {
 	var svgMute = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>';
 	var svgPrev = '<svg viewBox="0 0 24 24" fill="currentColor"><polygon points="19 20 9 12 19 4"/><rect x="5" y="4" width="2.5" height="16"/></svg>';
 	var svgNext = '<svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 4 15 12 5 20"/><rect x="16.5" y="4" width="2.5" height="16"/></svg>';
+	var svgPrevTrack = '<svg viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="5" width="2.5" height="14"/><polygon points="13 5 6 12 13 19"/><polygon points="21 5 14 12 21 19"/></svg>';
+	var svgNextTrack = '<svg viewBox="0 0 24 24" fill="currentColor"><polygon points="3 5 10 12 3 19"/><polygon points="11 5 18 12 11 19"/><rect x="18.5" y="5" width="2.5" height="14"/></svg>';
+
+	/* Keys of the box's remote controls beyond the ones above, hidden until
+	   _webuiRcExtraKeys finds them among the names the box takes */
+	function extraBtn(key, label, svg) {
+		var t = escapeHtml(label);
+		return '<button type="button" class="webui-rc-btn webui-rc-func" data-rc-extra="' + key + '" hidden onclick="' + onKey + "('" + key + "')\" title=\"" + t + '"' +
+			(svg ? ' aria-label="' + t + '">' + svg.replace('<svg ', '<svg aria-hidden="true" focusable="false" ') : '>' + t) + '</button>';
+	}
 
 	/* The letters a number key gives where the box asks for text by
 	   pressing it again and again (src/gui/widget/stringinput.cpp, its
@@ -1642,6 +1652,21 @@ function webuiGetRemoteHTML(opts) {
 					iconBtn('webui-rc-func', 'KEY_PREVIOUS', webuiL('rc.prev', 'Previous'), svgPrev) +
 					iconBtn('webui-rc-func', 'KEY_NEXT', webuiL('rc.next', 'Next'), svgNext) +
 				'</div>' +
+				'<div class="webui-rc-extra" hidden>' +
+					'<p class="webui-rc-extra-title">' + webuiLH('rc.extra_keys', 'Additional keys') + '</p>' +
+					'<div class="webui-rc-extra-keys">' +
+						extraBtn('KEY_TV', webuiL('rc.tv', 'TV')) +
+						extraBtn('KEY_RADIO', webuiL('rc.radio', 'Radio')) +
+						extraBtn('KEY_PVR', webuiL('rc.pvr', 'Recordings')) +
+						extraBtn('KEY_AUDIO', webuiL('rc.audio', 'Audio')) +
+						extraBtn('KEY_SUBTITLE', webuiL('rc.subtitle', 'Subtitles')) +
+						extraBtn('KEY_VIDEO', webuiL('rc.video', 'Video')) +
+						extraBtn('KEY_SAT', webuiL('rc.sat', 'Satellite')) +
+						extraBtn('KEY_WWW', webuiL('rc.www', 'Web')) +
+						extraBtn('KEY_PREVIOUSSONG', webuiL('rc.previous_track', 'Previous track'), svgPrevTrack) +
+						extraBtn('KEY_NEXTSONG', webuiL('rc.next_track', 'Next track'), svgNextTrack) +
+					'</div>' +
+				'</div>' +
 				'<p class="webui-rc-hint">' + webuiLH('rc.text_hint', 'Typing on the box: press a number key again and again for the letters under it; Red switches a letter between small and capital. On the box\'s on-screen keyboard, Menu switches the character set and Blue the capitals.') + '</p>' +
 			'</div>' +
 		'</div>' +
@@ -1707,6 +1732,22 @@ function webuiToggleRcSheet(id) {
 	}
 }
 
+/* The stop() of every key held down for its repeat. A key whose release
+   never reaches it would go on sending: the window losing the focus, the
+   page hidden, the view of the remote changed or its keys drawn anew end
+   every repeat. */
+var _webuiRcHeld = [];
+
+function webuiRemoteRelease() {
+	_webuiRcHeld.slice().forEach(function(stop) { stop(); });
+}
+
+window.addEventListener('blur', webuiRemoteRelease);
+document.addEventListener('visibilitychange', function() {
+	if (document.visibilityState !== 'visible')
+		webuiRemoteRelease();
+});
+
 /* Long-press auto-repeat for VOL/CH buttons + visual press feedback */
 function webuiInitRemoteRepeat(containerId) {
 	var container = document.getElementById(containerId);
@@ -1756,11 +1797,16 @@ function webuiInitRemoteRepeat(containerId) {
 			clearInterval(interval);
 			timer = null;
 			interval = null;
+			var held = _webuiRcHeld.indexOf(stop);
+			if (held >= 0)
+				_webuiRcHeld.splice(held, 1);
 		}
 
 		btn.addEventListener('pointerdown', function(e) {
 			e.preventDefault();
+			stop();
 			fn(key);
+			_webuiRcHeld.push(stop);
 			timer = setTimeout(function() {
 				interval = setInterval(function() { fn(key); }, 120);
 			}, 350);
@@ -1790,12 +1836,48 @@ function webuiRenderRemote(hostId, opts) {
 		return;
 	}
 	opts = opts || {};
+	webuiRemoteRelease();
 	host.innerHTML = webuiGetRemoteHTML(opts);
 	webuiInitRemoteRepeat(opts.id || 'webui-remote');
 	// a skin has the keys of its own remote control
-	if (!WEBUI_CONFIG.remoteRenderer)
+	if (!WEBUI_CONFIG.remoteRenderer) {
 		_webuiRcPlayerKeys(opts.id || 'webui-remote');
+		_webuiRcExtraKeys(opts.id || 'webui-remote');
+	}
 	_webuiRemoteInstances[hostId] = opts;
+}
+
+/* The additional keys of the numpad sheet the box knows: each one shown
+   where GET /osd/remote/keys names it, the group only with one of them.
+   Asked once per page; a box that does not answer leaves them hidden and
+   is asked again with the next remote drawn. */
+var _webuiRcKeyNamesAsked = null;
+
+function _webuiRcKeyNames() {
+	if (!_webuiRcKeyNamesAsked)
+		_webuiRcKeyNamesAsked = _webuiV1Read('/osd/remote/keys').then(function(d) {
+			return (d && Array.isArray(d.items)) ? d.items : null;
+		}).catch(function() { return null; }).then(function(names) {
+			if (!names)
+				_webuiRcKeyNamesAsked = null;
+			return names;
+		});
+	return _webuiRcKeyNamesAsked;
+}
+
+function _webuiRcExtraKeys(id) {
+	_webuiRcKeyNames().then(function(names) {
+		var root = document.getElementById(id);
+		var group = root ? root.querySelector('.webui-rc-extra') : null;
+		if (!group || !names)
+			return;
+		var any = false;
+		group.querySelectorAll('[data-rc-extra]').forEach(function(b) {
+			b.hidden = names.indexOf(b.getAttribute('data-rc-extra')) < 0;
+			any = any || !b.hidden;
+		});
+		group.hidden = !any;
+	});
 }
 
 /* The movie player's play and pause keys as the box has them set: each of
@@ -1906,10 +1988,11 @@ function webuiShowRemote(opts) {
 
 	if (!modal) {
 		_webuiRemoteModalOnKey = onKey;
-		var html = '<div class="webui-remote-backdrop" id="webui-remote-modal" onclick="webuiCloseRemote(event)">' +
+		var html = '<div class="webui-remote-backdrop webui-remote-full-root" id="webui-remote-modal" onclick="webuiCloseRemote(event)">' +
 			'<div class="webui-remote-dialog" role="dialog" aria-modal="true" aria-labelledby="webui-remote-modal-title" onclick="event.stopPropagation()">' +
 				'<div class="webui-remote-modal-header">' +
 					'<span id="webui-remote-modal-title">' + WEBUI_ICONS.remote + ' ' + webuiLH('tools.remote_sub', 'Remote control') + '</span>' +
+					webuiRemoteFullToggle() +
 					_webuiCloseBtn('webuiCloseRemote()') +
 				'</div>' +
 				'<div id="webui-remote-modal-host"></div>' +
@@ -1930,6 +2013,9 @@ function webuiShowRemote(opts) {
 	   the sheet's own handler. */
 	if (!modal._keyHandler) {
 		modal._keyHandler = function(e) {
+			// a dialog opened over the remote (power, sign-in) has its own keys
+			if (_webuiRcDialogAbove(e))
+				return;
 			if (e.key === 'Escape') {
 				var sheet = document.getElementById('webui-remote-modal-panel-sheet');
 				if (sheet && sheet.style.display === 'flex') {
@@ -1974,7 +2060,10 @@ function webuiShowRemote(opts) {
 function webuiCloseRemote(event) {
 	if (event && event.target !== event.currentTarget) return;
 	var modal = document.getElementById('webui-remote-modal');
+	webuiRemoteRelease();
 	if (modal) {
+		// the next opening starts in the normal view
+		webuiRemoteFull(modal, false);
 		modal.style.display = 'none';
 		var sheet = modal.querySelector('.webui-rc-sheet-backdrop');
 		if (sheet) {
@@ -1998,6 +2087,212 @@ function webuiCloseRemote(event) {
 	}
 	document.body.classList.remove('webui-remote-open');
 }
+
+/* The remote control in a full-screen view: the window the dashboard opens
+   (#webui-remote-modal) and the remote page (.webui-remote-page), each
+   marked .webui-remote-full-root, carry a toggle in their top right corner.
+   The view itself is the class webui-remote-full on that root, which fills
+   the browser's window and works in every browser. Within the click the
+   browser's own full screen is asked for besides, for the whole document,
+   so that a dialog opened from the remote (power, sign-in) stays in sight;
+   a browser without it or one that refuses keeps the filled window. The
+   browser leaving its full screen (its own Escape, a change of tab) takes
+   the view back to normal, and so does Escape here, once the numpad sheet
+   and any dialog over the remote are closed. While the view is shown the
+   page it covers is inert and Tab stays in the view. */
+var WEBUI_RC_FULL_ICONS = {
+	off: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 9V4h5M15 4h5v5M20 15v5h-5M9 20H4v-5"/></svg>',
+	on: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M9 4v5H4M20 9h-5V4M15 20v-5h5M4 15h5v5"/></svg>'
+};
+var _webuiRcFull = null;	// the root shown in the full-screen view, null for none
+var _webuiRcFsWaiting = 0;	// a request answered by event only: 0 none, 1 the view's, 2 the view was left
+var _webuiRcFsOwn = false;	// the document is in the full screen the view asked for
+var _webuiRcCovered = [];	// what the view made inert, given back when it ends
+
+/* The toggle: one name in either view, the view in aria-pressed, its icon
+   the way it goes; beside it the line that says which view is shown, there
+   before the first change so that a screen reader reads what goes into it */
+function webuiRemoteFullToggle() {
+	var name = escapeHtml(webuiL('rc.fullscreen', 'Full-screen view'));
+	return '<button type="button" class="webui-remote-full-toggle" aria-pressed="false" aria-label="' + name + '" title="' + name +
+		'" onclick="webuiToggleRemoteFull(this)">' + WEBUI_RC_FULL_ICONS.off + '</button>' +
+		'<span class="webui-visually-hidden webui-remote-full-state" role="status"></span>';
+}
+
+function webuiToggleRemoteFull(btn) {
+	var root = btn && btn.closest('.webui-remote-full-root');
+	if (root)
+		webuiRemoteFull(root, !root.classList.contains('webui-remote-full'));
+}
+
+function webuiRemoteFull(root, on) {
+	if (!root || root.classList.contains('webui-remote-full') === on)
+		return;
+	// a key held for its repeat would not see its release in the other view
+	webuiRemoteRelease();
+	if (on && _webuiRcFull && _webuiRcFull !== root)
+		webuiRemoteFull(_webuiRcFull, false);
+	root.classList.toggle('webui-remote-full', on);
+	_webuiRcFull = on ? root : null;
+	var toggle = root.querySelector('.webui-remote-full-toggle');
+	if (toggle) {
+		toggle.setAttribute('aria-pressed', String(on));
+		toggle.innerHTML = on ? WEBUI_RC_FULL_ICONS.on : WEBUI_RC_FULL_ICONS.off;
+	}
+	var state = root.querySelector('.webui-remote-full-state');
+	if (state)
+		state.textContent = on ? webuiL('rc.fullscreen_on', 'Full-screen view active') : webuiL('rc.fullscreen_off', 'Normal view active');
+	if (on) {
+		_webuiRcCovered = _webuiRcCover(root);
+		_webuiRcAskFullscreen();
+		return;
+	}
+	_webuiRcCovered.splice(0).forEach(function(el) { el.removeAttribute('inert'); });
+	// a full screen still on its way by promise is given back when it comes;
+	// one answered by event only is let go, as its answer could not be told
+	// from a full screen asked for elsewhere
+	if (_webuiRcFsWaiting)
+		_webuiRcFsWaiting = 2;
+	if (_webuiRcFsOwn) {
+		_webuiRcFsOwn = false;
+		_webuiRcExitFullscreen();
+	}
+}
+
+// Asked only within the user's action, and not over a full screen the user
+// has already. A browser that gives a promise answers each request through
+// it, so entering, leaving and entering again may leave two on their way.
+// One that answers by event only (fullscreenchange or fullscreenerror) has
+// at most one: while it waits no other is asked for, and entering again
+// makes it the view's once more; the filled window works meanwhile.
+function _webuiRcAskFullscreen() {
+	var page = document.documentElement;
+	if (_webuiRcFsWaiting) {
+		_webuiRcFsWaiting = 1;
+		return;
+	}
+	if (document.fullscreenElement || typeof page.requestFullscreen !== 'function')
+		return;
+	try {
+		var asked = page.requestFullscreen();
+		if (asked && typeof asked.then === 'function')
+			asked.then(_webuiRcFsCame, function() {});
+		else
+			_webuiRcFsWaiting = 1;
+	} catch (e) {
+		_webuiRcFsWaiting = 0;
+	}
+}
+
+// A request of the view was granted. Decided by what the view wants at that
+// moment, not by which request it answers: the full screen is the view's
+// while the view is shown, and given back at once when it is not.
+function _webuiRcFsCame() {
+	if (document.fullscreenElement !== document.documentElement)
+		return;
+	if (_webuiRcFull)
+		_webuiRcFsOwn = true;
+	else
+		_webuiRcExitFullscreen();
+}
+
+/* Everything of the page beside the view's root, inert while the view
+   covers it, so that neither the keyboard nor a screen reader reaches what
+   is out of sight. A dialog opened over the view comes later and is not
+   touched; the message host and the wait bar stay as they are, so that
+   what they say is still read out. */
+function _webuiRcCover(root) {
+	var covered = [];
+	for (var el = root; el.parentElement && el !== document.body; el = el.parentElement) {
+		Array.prototype.forEach.call(el.parentElement.children, function(sib) {
+			if (sib === el || sib.hasAttribute('inert') || /^(SCRIPT|STYLE|LINK|TEMPLATE)$/.test(sib.tagName) ||
+			    sib.matches('.webui-toast-host, .webui-wait, .webui-confirm-backdrop'))
+				return;
+			sib.setAttribute('inert', '');
+			covered.push(sib);
+		});
+	}
+	return covered;
+}
+
+function _webuiRcExitFullscreen() {
+	if (!document.fullscreenElement || typeof document.exitFullscreen !== 'function')
+		return;
+	var left = document.exitFullscreen();
+	if (left && typeof left.catch === 'function')
+		left.catch(function() {});
+}
+
+document.addEventListener('fullscreenchange', function() {
+	// any change answers a request answered by event only, also one whose
+	// full screen has ended again before this ran; it is acted on only
+	// while the full screen is there and the request is the view's
+	var waited = _webuiRcFsWaiting;
+	_webuiRcFsWaiting = 0;
+	if (document.fullscreenElement) {
+		if (waited === 1)
+			_webuiRcFsCame();
+		return;
+	}
+	// the browser left the view's full screen: the view goes with it
+	if (_webuiRcFsOwn) {
+		_webuiRcFsOwn = false;
+		if (_webuiRcFull)
+			webuiRemoteFull(_webuiRcFull, false);
+	}
+});
+
+// a refusal of a request answered by event only
+document.addEventListener('fullscreenerror', function() {
+	_webuiRcFsWaiting = 0;
+});
+
+/* Whether a key belongs to a dialog over the remote (the power question,
+   the sign-in): its target lies in one, or one is open. The sign-in takes
+   itself away on Escape before the key reaches the document. */
+function _webuiRcDialogAbove(e) {
+	var t = e.target;
+	return !!((t && t.closest && t.closest('.webui-confirm-backdrop')) ||
+		document.querySelector('.webui-confirm-backdrop'));
+}
+
+// Escape leaves the full-screen view before anything else that listens on
+// the document hears it, as long as the numpad sheet is closed
+document.addEventListener('keydown', function(e) {
+	if (e.key !== 'Escape' || !_webuiRcFull || _webuiRcDialogAbove(e))
+		return;
+	var sheet = _webuiRcFull.querySelector('.webui-rc-sheet-backdrop');
+	if (sheet && sheet.style.display === 'flex')
+		return;
+	e.preventDefault();
+	e.stopPropagation();
+	webuiRemoteFull(_webuiRcFull, false);
+}, true);
+
+// Tab and Shift+Tab stay in a view that brings no dialog of its own (the
+// remote page; the window has its own trap), from its last control to its
+// first and back, unless a dialog over it has the keys. The focus moved here
+// is marked as a keyboard's: a programmatic focus() shows no focus ring.
+document.addEventListener('keydown', function(e) {
+	var root = _webuiRcFull;
+	if (e.key !== 'Tab' || !root || root.querySelector('[role="dialog"]') || _webuiRcDialogAbove(e))
+		return;
+	var items = Array.prototype.filter.call(
+		root.querySelectorAll('button, a[href], input, select, textarea, [tabindex]:not([tabindex="-1"])'),
+		function(el) { return !el.disabled && el.getClientRects().length > 0; });
+	if (!items.length)
+		return;
+	var at = document.activeElement;
+	var out = !root.contains(at);
+	var to = e.shiftKey ? ((out || at === items[0]) ? items[items.length - 1] : null)
+		: ((out || at === items[items.length - 1]) ? items[0] : null);
+	if (!to)
+		return;
+	e.preventDefault();
+	to.focus();
+	to.classList.add('webui-rc-kbd-focus');
+	to.addEventListener('blur', function() { to.classList.remove('webui-rc-kbd-focus'); }, {once: true});
+});
 
 // Also escapes quotes so the result is safe in attribute values.
 // Loads a script and answers once it has run, or fails where it cannot be

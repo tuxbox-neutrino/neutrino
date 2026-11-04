@@ -15,11 +15,42 @@
 	<style>
 	/* The remote control as a page of its own, to open the interface with
 	   on a phone: the panel the dashboard opens in a window, here in the
-	   middle of the page. */
+	   middle of the page, the toggle of its full-screen view above its
+	   right corner. */
 	.webui-remote-page {
 		max-width: 360px;
 		margin: 0 auto;
 		padding: 0.75rem 1rem 1.5rem;
+	}
+
+	.webui-remote-page-bar {
+		display: flex;
+		justify-content: flex-end;
+	}
+
+	/* the full-screen view: over the head and the side bar, the toggle in
+	   the top right corner, the remote in the middle of what is left and
+	   scrolled where the screen is lower than it */
+	.webui-remote-page.webui-remote-full {
+		position: fixed;
+		inset: 0;
+		z-index: 1100;
+		display: flex;
+		flex-direction: column;
+		max-width: none;
+		margin: 0;
+		padding: max(0.5rem, env(safe-area-inset-top)) max(0.75rem, env(safe-area-inset-right)) max(1rem, env(safe-area-inset-bottom)) max(0.75rem, env(safe-area-inset-left));
+		overflow-y: auto;
+		overscroll-behavior: contain;
+		background: var(--pico-background-color);
+	}
+
+	.webui-remote-page.webui-remote-full #remoteHost {
+		display: flex;
+		flex: 1 0 auto;
+		flex-direction: column;
+		justify-content: center;
+		justify-content: safe center;
 	}
 	</style>
 </head>
@@ -28,7 +59,10 @@
 	<div class="webui-header-spacer"></div>
 
 	<main>
-		<div class="webui-remote-page" id="remoteHost"></div>
+		<div class="webui-remote-page webui-remote-full-root" id="remotePage">
+			<div class="webui-remote-page-bar" id="remoteBar"></div>
+			<div id="remoteHost"></div>
+		</div>
 	</main>
 
 	<script src="/js/webui-i18n.js?v=1"></script>

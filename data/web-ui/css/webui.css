@@ -2525,6 +2525,7 @@ audio.webui-player-media {
 .webui-theme-toggle:focus-visible,
 .webui-popover-close:focus-visible,
 .webui-modal-close:focus-visible,
+.webui-remote-full-toggle:focus-visible,
 .webui-remote .webui-rc-btn:focus-visible,
 .webui-rc-color:focus-visible,
 .webui-rc-kbd-focus,
@@ -3835,6 +3836,41 @@ html:not([data-theme="dark"]) .webui-rc-sheet-handle { background-color: #aaa; }
 	height: 16px;
 }
 
+/* the keys only some of the boxes' remote controls have, each shown where
+   the box names it; a key's display would show it hidden as well */
+.webui-remote .webui-rc-btn[hidden],
+.webui-remote .webui-rc-extra[hidden] {
+	display: none;
+}
+
+.webui-remote .webui-rc-extra {
+	display: grid;
+	gap: 0.35rem;
+}
+
+.webui-remote .webui-rc-extra-title {
+	margin: 0;
+	font-size: 0.72rem;
+	font-weight: 600;
+	color: var(--pico-muted-color);
+}
+
+.webui-remote .webui-rc-extra-keys {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(5.5rem, 1fr));
+	gap: 5px;
+}
+
+.webui-remote .webui-rc-extra-keys .webui-rc-btn {
+	min-width: 0;
+	padding: 0 0.3rem;
+}
+
+.webui-remote .webui-rc-extra-keys .webui-rc-btn svg {
+	width: 18px;
+	height: 18px;
+}
+
 .webui-remote .webui-rc-hint {
 	margin: 0;
 	font-size: 0.72rem;
@@ -3926,6 +3962,48 @@ body.webui-remote-open {
 	gap: 0.4rem;
 }
 
+/* the title takes the room, the full-screen toggle stands beside Close */
+.webui-remote-modal-header {
+	gap: 0.25rem;
+}
+
+.webui-remote-modal-header #webui-remote-modal-title {
+	margin-inline-end: auto;
+}
+
+/* Close and the toggle as two boxes of one size, their icons in the
+   middle: Close's icon otherwise sits on the line's base, above the
+   toggle's */
+.webui-remote-modal-header .webui-modal-close {
+	display: inline-flex;
+	margin: 0;
+}
+
+/* the toggle of the full-screen view, drawn as Close is */
+.webui-remote-full-toggle {
+	display: inline-flex;
+	margin: 0;
+	padding: 0.25rem;
+	border: none;
+	border-radius: 50%;
+	background: none;
+	color: var(--pico-muted-color);
+	cursor: pointer;
+	transition: var(--webui-transition);
+}
+
+@media (hover: hover) {
+	.webui-remote-full-toggle:hover {
+		background: var(--webui-accent-light);
+		color: var(--pico-color);
+	}
+}
+
+.webui-remote-full-toggle svg {
+	width: 20px;
+	height: 20px;
+}
+
 .webui-remote-modal-header svg {
 	width: 18px;
 	height: 18px;
@@ -3965,6 +4043,31 @@ body.webui-remote-open {
 		padding: 0.5rem 1rem 1rem;
 		overflow: visible;
 	}
+}
+
+/* The full-screen view (webuiRemoteFull): the window fills the browser's,
+   at every width, its edges clear of a phone's notch and rounded corners;
+   the keys keep their sizes, and a screen lower than the remote scrolls
+   it below the head that holds the way back. 100vh where dvh is not
+   known. */
+#webui-remote-modal.webui-remote-full .webui-remote-dialog {
+	width: 100%;
+	max-width: none;
+	height: 100vh;
+	height: 100dvh;
+	max-height: none;
+	border-radius: 0;
+	box-shadow: none;
+	animation: none;
+	padding: env(safe-area-inset-top, 0) env(safe-area-inset-right, 0) env(safe-area-inset-bottom, 0) env(safe-area-inset-left, 0);
+}
+
+#webui-remote-modal.webui-remote-full .webui-remote-dialog .webui-remote {
+	width: 100%;
+	justify-content: center;
+	justify-content: safe center;
+	overflow-y: auto;
+	overscroll-behavior: contain;
 }
 
 /* ============================================
