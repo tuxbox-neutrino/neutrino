@@ -792,9 +792,15 @@
 	<div class="webui-header-spacer"></div>
 
 	<main>
-		<div class="webui-dashboard">
+		<div class="webui-dash-arrange-bar">
+			<button type="button" class="webui-btn" id="dash-arrange" aria-pressed="false" aria-controls="dashboard-cards" data-l="dash.arrange">Arrange cards</button>
+			<button type="button" class="webui-btn" id="dash-arrange-reset" data-l="dash.arrange_reset" hidden>Reset order</button>
+			<small id="dash-arrange-hint" data-l="dash.arrange_hint" hidden>Drag a handle or use the arrow keys</small>
+			<span id="dash-arrange-status" class="webui-visually-hidden" role="status"></span>
+		</div>
+		<div class="webui-dashboard" id="dashboard-cards">
 			<!-- what runs now -->
-			<section class="webui-card webui-dash-now" id="card-now" aria-labelledby="now-channel">
+			<section class="webui-card webui-dash-now" id="card-now" data-dashboard-key="card-now" aria-labelledby="now-channel">
 				<div class="webui-now">
 					<div class="webui-now-logo" id="now-logo" aria-hidden="true">
 						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
@@ -843,7 +849,7 @@
 			</section>
 
 			<!-- the box's load -->
-			<section class="webui-dash-gauges" id="card-gauges" aria-label="Load of the box" data-l-aria-label="dash.load_title">
+			<section class="webui-dash-gauges" id="card-gauges" data-dashboard-key="card-gauges" aria-label="Load of the box" data-l-aria-label="dash.load_title">
 				<div class="webui-gauges" id="gauges">
 				<div class="webui-gauge" id="gauge-cpu" data-ext-open="sysinfo" title="Show system details" data-l-title="dash.sys_details">
 					<div class="webui-gauge-ring" role="img"><svg viewBox="0 0 84 84" aria-hidden="true"><circle class="track" cx="42" cy="42" r="36"/><circle class="fill" cx="42" cy="42" r="36"/></svg><b>--</b></div>
@@ -865,7 +871,7 @@
 			</section>
 
 			<!-- the next timers -->
-			<section class="webui-card" id="card-timer" aria-labelledby="timer-title">
+			<section class="webui-card" id="card-timer" data-dashboard-key="card-timer" aria-labelledby="timer-title">
 				<header class="webui-card-header">
 					<h2 class="webui-card-title" id="timer-title">
 						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
@@ -880,7 +886,7 @@
 			</section>
 
 			<!-- reception: the tuners, the picture, the sound -->
-			<section class="webui-card" id="card-tuner" aria-labelledby="tuner-title">
+			<section class="webui-card" id="card-tuner" data-dashboard-key="card-tuner" aria-labelledby="tuner-title">
 				<header class="webui-card-header">
 					<h2 class="webui-card-title" id="tuner-title">
 						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 20v-3M9 20v-7M14 20v-11M19 20V5"/></svg>
@@ -903,7 +909,7 @@
 			</section>
 
 			<!-- quick actions -->
-			<section class="webui-card" id="card-actions" aria-labelledby="actions-title">
+			<section class="webui-card" id="card-actions" data-dashboard-key="card-actions" aria-labelledby="actions-title">
 				<header class="webui-card-header">
 					<h2 class="webui-card-title" id="actions-title">
 						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 3 4 14h7l-1 7 9-11h-7z"/></svg>
@@ -935,7 +941,7 @@
 			</section>
 
 			<!-- the sound: how loud the box is, and mute -->
-			<section class="webui-card" id="card-volume" aria-labelledby="volume-title">
+			<section class="webui-card" id="card-volume" data-dashboard-key="card-volume" aria-labelledby="volume-title">
 				<header class="webui-card-header">
 					<h2 class="webui-card-title" id="volume-title">
 						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14"/></svg>
@@ -959,7 +965,7 @@
 			</section>
 
 			<!-- the network -->
-			<section class="webui-card" id="card-network" aria-labelledby="network-title">
+			<section class="webui-card" id="card-network" data-dashboard-key="card-network" aria-labelledby="network-title">
 				<header class="webui-card-header">
 					<h2 class="webui-card-title" id="network-title">
 						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg>
@@ -975,7 +981,7 @@
 			</section>
 
 			<!-- the latest recordings -->
-			<section class="webui-card" id="card-recent" aria-labelledby="recent-title">
+			<section class="webui-card" id="card-recent" data-dashboard-key="card-recent" aria-labelledby="recent-title">
 				<header class="webui-card-header">
 					<h2 class="webui-card-title" id="recent-title">
 						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M7 4v16M17 4v16M2 9h5M2 15h5M17 9h5M17 15h5"/></svg>

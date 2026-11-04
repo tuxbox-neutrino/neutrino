@@ -3670,6 +3670,7 @@ async function webuiInjectExtensions(pageName) {
 				// a tile like the overview's own, its name and its link as text
 				var card = document.createElement('section');
 				card.className = 'webui-card';
+				card.dataset.dashboardKey = 'ext:' + m.dir;
 				card.innerHTML = '<header class="webui-card-header"><h2 class="webui-card-title">' + escapeHtml(m.name) + '</h2></header>' +
 					'<div class="webui-card-body"><a class="webui-btn" href="' + escapeHtml(m.url) + '">' +
 					escapeHtml(m.description || webuiL('ext.open', 'Open extension')) + '</a></div>';
@@ -3963,7 +3964,8 @@ function webuiInit() {
  * @param {number} [opts.maxPer=6] - at most this many cards to a row
  * @param {number} [opts.breakpoint=1100] - at or below this window width, no spans
  * @param {string} [opts.skip] - cards that keep their own place (a band
- *        across the page), matched as a selector
+ *        across the page), matched as a selector; each band starts a new
+ *        group of rows
  * @param {string} [opts.wideClass] - a class for cards half the width or more
  * @param {boolean} [opts.watch] - again whenever cards come or go (extensions
  *        add theirs later) and when the window changes its size
@@ -4009,14 +4011,26 @@ function webuiBalanceGrid(selector, opts) {
 	if (!cards.length) return;
 	var tracks = opts.tracks || 12;
 	var most = Math.max(1, Math.min(opts.maxPer || 6, Math.floor(grid.clientWidth / (opts.cardMin || 300))));
-	// as few rows as the widest row allows, the cards shared out evenly over them
-	var rows = Math.ceil(cards.length / most);
-	var per = Math.ceil(cards.length / rows);
-	var last = cards.length - per * (rows - 1);
-	cards.forEach(function(c, i) {
-		var s = Math.floor(tracks / (i >= per * (rows - 1) ? last : per));
-		c.style.setProperty('--dash-span', s);
-		if (opts.wideClass) c.classList.toggle(opts.wideClass, s * 2 >= tracks);
+	// Full-width bands break rows. Balance each run between them on its
+	// own so moving a band cannot leave a short row with unused space.
+	var groups = [], group = [];
+	Array.prototype.forEach.call(grid.children, function(c) {
+		if (c.offsetParent === null) return;
+		if (opts.skip && c.matches(opts.skip)) {
+			if (group.length) groups.push(group);
+			group = [];
+		} else group.push(c);
+	});
+	if (group.length) groups.push(group);
+	groups.forEach(function(run) {
+		var rows = Math.ceil(run.length / most);
+		var per = Math.ceil(run.length / rows);
+		var last = run.length - per * (rows - 1);
+		run.forEach(function(c, i) {
+			var s = Math.floor(tracks / (i >= per * (rows - 1) ? last : per));
+			c.style.setProperty('--dash-span', s);
+			if (opts.wideClass) c.classList.toggle(opts.wideClass, s * 2 >= tracks);
+		});
 	});
 }
 

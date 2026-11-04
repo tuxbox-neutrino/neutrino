@@ -1138,10 +1138,7 @@ function updateStreamInfoUI(resolution, height, aspect, fps, audio) {
 
 // Init, once the texts are in
 webuiAfterTexts(function() {
-	// the tiles share their rows out evenly, the extensions' as they come,
-	// down to a phone's width, where they stand one to a row
-	webuiBalanceGrid('.webui-dashboard', {tracks: 60, cardMin: 380, maxPer: 4, breakpoint: 760,
-		skip: '.webui-dash-now, .webui-dash-gauges', watch: true});
+	initDashboardOrder();
 	NO_CHANNEL = webuiL('dash.no_channel', 'No channel');
 	NO_EPG = webuiL('dash.no_epg', 'No EPG data');
 	NO_TUNER = webuiL('dash.no_tuner', 'No tuner');
@@ -1188,3 +1185,225 @@ webuiAfterTexts(function() {
 		});
 	}
 });
+
+// A single DOM order serves every screen width and the reading/tab order.
+// Missing extension keys stay in the saved list so a returning card keeps
+// its place. Only the reserved extension namespace may name absent cards.
+function initDashboardOrder() {
+	const grid = document.querySelector('.webui-dashboard');
+	const toggle = document.getElementById('dash-arrange');
+	const reset = document.getElementById('dash-arrange-reset');
+	const hint = document.getElementById('dash-arrange-hint');
+	const status = document.getElementById('dash-arrange-status');
+	const main = grid.closest('main');
+	const key = 'webui-dashboard-order-v1';
+	const core = Array.from(grid.children).map(c => c.dataset.dashboardKey).filter(s => s && !s.startsWith('ext:'));
+	let order = [], arranging = false, drag = null, frame = null;
+	let storageFailed = false;
+	const cards = () => Array.from(grid.children).filter(c => c.dataset.dashboardKey);
+	const id = c => c.dataset.dashboardKey;
+	const label = c => c.id === 'card-now' ? webuiL('dash.arrange_now', 'Now')
+		: c.getAttribute('aria-label') || (c.querySelector('.webui-card-title') || c).textContent.trim();
+	const normal = list => Array.isArray(list) ? list.filter((s, i) => typeof s === 'string' &&
+		(core.includes(s) || /^ext:[A-Za-z0-9_-][A-Za-z0-9._-]*$/.test(s)) && list.indexOf(s) === i) : [];
+	try { order = normal(JSON.parse(localStorage.getItem(key))); }
+	catch (e) { storageFailed = e.name !== 'SyntaxError'; }
+	const defaults = () => core.concat(cards().map(id).filter(s => !core.includes(s)).sort());
+	const balance = () => webuiBalanceGrid('.webui-dashboard', {tracks: 60, cardMin: 380, maxPer: 4,
+		breakpoint: 760, skip: '.webui-dash-now, .webui-dash-gauges'});
+	const announce = text => {
+		status.textContent = text + (storageFailed ? '. ' + webuiL('dash.arrange_not_saved',
+			'Order could not be saved in this browser') : '');
+	};
+	const position = c => {
+		const args = [label(c), cards().indexOf(c) + 1, cards().length];
+		return webuiL('dash.arrange_position', '%s, position %s of %s').replace(/%s/g, () => args.shift());
+	};
+	const save = clear => {
+		try {
+			if (clear) localStorage.removeItem(key);
+			else localStorage.setItem(key, JSON.stringify(order));
+			storageFailed = false;
+		} catch (e) { storageFailed = true; }
+	};
+	// moveBefore preserves focus and embedded state where available. The
+	// fallback restores focus without scrolling the page to another card.
+	const place = (card, before) => {
+		if (card === before || card.nextElementSibling === before) return;
+		const focused = document.activeElement;
+		if (grid.moveBefore) grid.moveBefore(card, before);
+		else grid.insertBefore(card, before);
+		if (focused && card.contains(focused) && document.activeElement !== focused)
+			focused.focus({preventScroll: true});
+	};
+	const observe = () => {
+		observer.observe(grid, {childList: true});
+		cards().forEach(c => observer.observe(c, {attributes: true, attributeFilter: ['hidden']}));
+	};
+	const changeDOM = fn => {
+		observer.disconnect();
+		try { fn(); } finally { observe(); }
+	};
+	const buttons = () => cards().forEach((c, i, all) => {
+		const controls = c.querySelector('.webui-dash-order-controls');
+		controls.hidden = !arranging;
+		controls.querySelector('.webui-dash-order-before').setAttribute('aria-disabled', String(i === 0));
+		controls.querySelector('.webui-dash-order-after').setAttribute('aria-disabled', String(i === all.length - 1));
+	});
+	const move = (card, target, focus) => {
+		const all = cards(), from = all.indexOf(card);
+		target = Math.max(0, Math.min(all.length - 1, target));
+		if (from === target) return;
+		all.splice(from, 1);
+		changeDOM(() => place(card, all[target] || null));
+		// Replace the occupied slots, leaving missing extensions in theirs.
+		const visible = cards().map(id);
+		let i = 0;
+		order = order.map(s => visible.includes(s) ? visible[i++] : s);
+		save(false);
+		balance();
+		buttons();
+		if (focus) {
+			focus.focus({preventScroll: true});
+			card.scrollIntoView({block: 'nearest', behavior: 'instant'});
+		}
+		announce(position(card));
+	};
+	const marker = webuiEl('div', {className: 'webui-dash-drop', hidden: true, attrs: {'aria-hidden': 'true'}});
+	document.body.appendChild(marker);
+	const finish = cancel => {
+		if (!drag) return;
+		const d = drag;
+		drag = null;
+		cancelAnimationFrame(frame);
+		d.card.classList.remove('webui-dash-dragging');
+		marker.hidden = true;
+		if (d.handle.hasPointerCapture(d.pointer)) d.handle.releasePointerCapture(d.pointer);
+		if (!cancel && d.active && d.width === innerWidth && d.height === innerHeight)
+			move(d.card, d.target, d.handle);
+	};
+	const dropAt = () => {
+		if (!drag || !drag.active) return;
+		const d = drag, all = cards().filter(c => c !== d.card && !c.hidden);
+		let best = null, distance = Infinity;
+		all.forEach(c => {
+			const r = c.getBoundingClientRect();
+			const dx = Math.max(r.left - d.x, 0, d.x - r.right);
+			const dy = Math.max(r.top - d.y, 0, d.y - r.bottom);
+			const dist = dx * dx + dy * dy;
+			if (dist < distance) { best = c; distance = dist; }
+		});
+		if (!best) return;
+		const r = best.getBoundingClientRect();
+		const row = all.some(c => c !== best && Math.abs(c.getBoundingClientRect().top - r.top) < 2);
+		const after = row ? d.x > (r.left + r.right) / 2 : d.y > (r.top + r.bottom) / 2;
+		d.target = cards().filter(c => c !== d.card).indexOf(best) + (after ? 1 : 0);
+		const viewport = main.getBoundingClientRect();
+		const edge = row ? (after ? r.right : r.left) : (after ? r.bottom : r.top);
+		const top = row ? Math.max(r.top, viewport.top) : edge - 2;
+		const bottom = Math.min(r.bottom, viewport.bottom);
+		marker.hidden = row ? bottom <= top : edge < viewport.top || edge > viewport.bottom;
+		Object.assign(marker.style, {left: (row ? edge - 2 : r.left) + 'px', top: top + 'px',
+			width: (row ? 4 : r.width) + 'px', height: (row ? Math.max(0, bottom - top) : 4) + 'px'});
+	};
+	const scrollDrag = () => {
+		if (!drag || !drag.active) return;
+		const r = main.getBoundingClientRect();
+		const y = drag.y;
+		const step = y < r.top + 48 ? -Math.min(18, (r.top + 48 - y) / 3)
+			: y > r.bottom - 48 ? Math.min(18, (y - r.bottom + 48) / 3) : 0;
+		if (step) main.scrollTop += step;
+		dropAt();
+		frame = requestAnimationFrame(scrollDrag);
+	};
+	const addControls = card => {
+		if (card.querySelector('.webui-dash-order-controls')) return;
+		const handle = webuiEl('button', {type: 'button', className: 'webui-btn webui-dash-order-handle',
+			attrs: {'aria-label': webuiL('dash.arrange_handle', 'Move %s').replace('%s', label(card)),
+				'aria-describedby': 'dash-arrange-hint'}},
+			webuiEl('span', {attrs: {'aria-hidden': 'true'}}, '⠿'), label(card));
+		const step = (delta, cls, text, glyph) => webuiEl('button', {type: 'button', className: 'webui-btn ' + cls,
+			attrs: {'aria-label': text + ': ' + label(card)}, on: {click: e => {
+				if (e.currentTarget.getAttribute('aria-disabled') === 'true') return;
+				finish(true);
+				move(card, cards().indexOf(card) + delta, e.currentTarget);
+			}}}, webuiEl('span', {attrs: {'aria-hidden': 'true'}}, glyph));
+		const controls = webuiEl('div', {className: 'webui-dash-order-controls', hidden: !arranging}, handle,
+			step(-1, 'webui-dash-order-before', webuiL('dash.arrange_before', 'Move earlier'), '↑'),
+			step(1, 'webui-dash-order-after', webuiL('dash.arrange_after', 'Move later'), '↓'));
+		card.prepend(controls);
+		handle.addEventListener('keydown', e => {
+			let target = cards().indexOf(card);
+			if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') target--;
+			else if (e.key === 'ArrowRight' || e.key === 'ArrowDown') target++;
+			else if (e.key === 'Home') target = 0;
+			else if (e.key === 'End') target = cards().length - 1;
+			else return;
+			e.preventDefault();
+			finish(true);
+			move(card, target, handle);
+		});
+		handle.addEventListener('pointerdown', e => {
+			if (!arranging || e.button !== 0 || !e.isPrimary || drag) return;
+			e.preventDefault();
+			handle.focus({preventScroll: true});
+			drag = {card, handle, pointer: e.pointerId, x0: e.clientX, y0: e.clientY,
+				x: e.clientX, y: e.clientY, width: innerWidth, height: innerHeight, active: false, target: cards().indexOf(card)};
+			handle.setPointerCapture(e.pointerId);
+		});
+		handle.addEventListener('pointermove', e => {
+			if (!drag || e.pointerId !== drag.pointer) return;
+			drag.x = e.clientX; drag.y = e.clientY;
+			if (!drag.active && Math.hypot(drag.x - drag.x0, drag.y - drag.y0) >= 8) {
+				drag.active = true;
+				card.classList.add('webui-dash-dragging');
+				scrollDrag();
+			}
+			dropAt();
+		});
+		handle.addEventListener('pointerup', e => { if (drag && e.pointerId === drag.pointer) finish(false); });
+		handle.addEventListener('pointercancel', () => finish(true));
+		handle.addEventListener('lostpointercapture', () => finish(true));
+	};
+	const reconcile = () => {
+		finish(true);
+		changeDOM(() => {
+			const all = cards();
+			order = normal(order);
+			defaults().forEach(s => { if (!order.includes(s)) order.push(s); });
+			let at = grid.firstElementChild;
+			order.forEach(s => {
+				const card = all.find(c => id(c) === s);
+				if (!card) return;
+				addControls(card);
+				place(card, at);
+				at = card.nextElementSibling;
+			});
+		});
+		buttons();
+		balance();
+	};
+	const observer = new MutationObserver(reconcile);
+	reconcile();
+	toggle.addEventListener('click', () => {
+		finish(true);
+		arranging = !arranging;
+		toggle.setAttribute('aria-pressed', String(arranging));
+		reset.hidden = hint.hidden = !arranging;
+		buttons();
+		balance();
+		if (arranging) announce(hint.textContent);
+	});
+	reset.addEventListener('click', () => {
+		finish(true);
+		order = defaults();
+		reconcile();
+		save(true);
+		announce(webuiL('dash.arrange_reset_done', 'Default order restored'));
+	});
+	document.addEventListener('keydown', e => {
+		if (e.key === 'Escape' && drag) { e.preventDefault(); finish(true); }
+	});
+	window.addEventListener('blur', () => finish(true));
+	window.addEventListener('resize', () => { finish(true); balance(); });
+}
