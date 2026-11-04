@@ -213,17 +213,6 @@ class CRCInput
 			RC_f9		= KEY_F9,
 			RC_f10		= KEY_F10,
 
-			RC_braille_dot1	= KEY_BRL_DOT1,
-			RC_braille_dot2	= KEY_BRL_DOT2,
-			RC_braille_dot3	= KEY_BRL_DOT3,
-			RC_braille_dot4	= KEY_BRL_DOT4,
-			RC_braille_dot5	= KEY_BRL_DOT5,
-			RC_braille_dot6	= KEY_BRL_DOT6,
-			RC_braille_dot7	= KEY_BRL_DOT7,
-			RC_braille_dot8	= KEY_BRL_DOT8,
-			RC_braille_dot9	= KEY_BRL_DOT9,
-			RC_braille_dot10 = KEY_BRL_DOT10,
-
 			RC_power_on	= KEY_POWERON,
 			RC_power_off	= KEY_POWEROFF,
 			RC_standby_on	= KEY_STANDBYON,
