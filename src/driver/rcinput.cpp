@@ -1632,6 +1632,18 @@ void CRCInput::getMsg_us(neutrino_msg_t * msg, neutrino_msg_data_t * data, uint6
 	}
 }
 
+bool CRCInput::postInjectedKey(int wire)
+{
+	/* The line the read loop writes for a press, so a key that never went
+	   through a node is still on the console with the others. A press only:
+	   the loop is handed no release. */
+	const uint32_t trkey = translate(wire);
+	printf("key: %04x value %d, translate: %04x -%s-\n", wire, 1, trkey, getKeyName(trkey).c_str());
+	if (trkey == RC_nokey)
+		return false;
+	return postMsg((neutrino_msg_t) trkey, 0);
+}
+
 bool CRCInput::postMsg(const neutrino_msg_t msg, const neutrino_msg_data_t data, const bool Priority)
 {
 //	printf("postMsg %x %x %d\n", msg, data, Priority );

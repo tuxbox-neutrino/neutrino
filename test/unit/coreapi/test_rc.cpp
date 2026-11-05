@@ -216,3 +216,97 @@ TEST_CASE("a key the node lacks still reaches the loop, once", "[rc]")
 	rc.getMsg_ms(&got, &data, 300);
 	REQUIRE(got == (neutrino_msg_t) CRCInput::RC_timeout);
 }
+
+namespace
+{
+
+/* What this process writes to stdout while one of these is alive, kept in a
+   file beside the others this file makes. Put back by the destructor, so a
+   failed assertion does not leave the rest of the run writing into it. */
+struct CapturedStdout
+{
+	std::string path;
+	int saved;
+
+	CapturedStdout() : path(std::string("/tmp/coreapi-stdout.") + std::to_string(getpid())), saved(-1)
+	{
+		fflush(stdout);
+		saved = dup(STDOUT_FILENO);
+		REQUIRE(saved >= 0);
+		const int fd = open(path.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_CLOEXEC, 0600);
+		REQUIRE(fd >= 0);
+		REQUIRE(dup2(fd, STDOUT_FILENO) == STDOUT_FILENO);
+		close(fd);
+	}
+
+	// Everything written so far, with stdout put back first.
+	std::string text()
+	{
+		restore();
+		std::string out;
+		FILE *f = fopen(path.c_str(), "r");
+		if (f == NULL)
+			return out;
+		char buf[512];
+		size_t n;
+		while ((n = fread(buf, 1, sizeof(buf), f)) > 0)
+			out.append(buf, n);
+		fclose(f);
+		return out;
+	}
+
+	~CapturedStdout()
+	{
+		restore();
+		unlink(path.c_str());
+	}
+
+	private:
+		void restore()
+		{
+			if (saved < 0)
+				return;
+			fflush(stdout);
+			dup2(saved, STDOUT_FILENO);
+			close(saved);
+			saved = -1;
+		}
+
+		CapturedStdout(const CapturedStdout &);
+		CapturedStdout &operator=(const CapturedStdout &);
+};
+
+} // namespace
+
+/* A key read off a node is on the console as one line, and somebody watching
+   it for what the box was told has nothing else to go by. A key handed to the
+   loop past the node is on it in that same line, as a press. */
+TEST_CASE("a key the node lacks is on the console like any other", "[rc]")
+{
+	InjectedNode node;
+	requireFreeEventSocket();
+
+	CRCInput rc;
+	InstalledRealInput installed(&rc);
+	NodeLackingKeys lacking;
+
+	std::string said;
+	{
+		CapturedStdout out;
+		REQUIRE(osd::sendKey("KEY_STANDBYON").ok());
+		said = out.text();
+	}
+
+	char line[128];
+	snprintf(line, sizeof(line), "key: %04x value 1, translate: %04x -%s-\n",
+		 (unsigned) KEY_STANDBYON, (unsigned) CRCInput::RC_standby_on,
+		 CRCInput::getKeyName(CRCInput::RC_standby_on).c_str());
+	INFO("the console said: " << said);
+	REQUIRE(said.find(line) != std::string::npos);
+
+	// And the key went where the line says it did.
+	neutrino_msg_t got = 0;
+	neutrino_msg_data_t data = 0;
+	rc.getMsg_ms(&got, &data, 2000);
+	REQUIRE(got == (neutrino_msg_t) CRCInput::RC_standby_on);
+}

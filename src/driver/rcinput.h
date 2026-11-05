@@ -308,9 +308,11 @@ class CRCInput
 		int messageLoop(bool anyKeyCancels = false, int timeout = -1);
 
 		int translateRevert(int c) { return translate_revert(c); };
-		/* What the loop makes of a code read off a node, for a key that is
-		   handed to it without going through one. */
-		int translateWire(int c) { return translate(c); };
+		/* A key handed to the loop without going through a node, as what the
+		   loop would have made of it off one, and reported on the console in
+		   the line a key read off a node is. False for a code that is no key,
+		   and for a queue that would not take it. */
+		bool postInjectedKey(int wire);
 		void setLongPressAny(bool b) { longPressAny = b; };
 		void setKeyRepeatDelay(unsigned int start_ms, unsigned int repeat_ms);
 };

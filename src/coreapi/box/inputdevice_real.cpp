@@ -111,10 +111,7 @@ class RealInputDevice : public InputDevice
 			if (g_RCInput != NULL && !nodeCarriesKey(fd, (unsigned int) wire))
 			{
 				close(fd);
-				const neutrino_msg_t msg = (neutrino_msg_t) g_RCInput->translateWire(wire);
-				if (msg == (neutrino_msg_t) CRCInput::RC_nokey)
-					return Status::Internal;
-				return g_RCInput->postMsg(msg, 0) ? Status::Ok : Status::Internal;
+				return g_RCInput->postInjectedKey(wire) ? Status::Ok : Status::Internal;
 			}
 
 			/* Down and up, each followed by the report that says the batch is
