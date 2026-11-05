@@ -129,6 +129,37 @@ std::vector<std::string> injectedKeyNodes()
 	return out;
 }
 
+bool keyInBits(const unsigned long *bits, size_t longs, unsigned int code)
+{
+	const size_t per_long = sizeof(unsigned long) * CHAR_BIT;
+	if (code / per_long >= longs)
+		return false;
+	return (bits[code / per_long] >> (code % per_long)) & 1UL;
+}
+
+static bool probeNode(int fd, unsigned int code)
+{
+	unsigned long bits[KEY_MAX / (sizeof(unsigned long) * CHAR_BIT) + 1];
+	memset(bits, 0, sizeof(bits));
+	/* Refused by anything that is not an event node, and that is a node that
+	   hands back what was written to it rather than one that sorts it. */
+	if (ioctl(fd, EVIOCGBIT(EV_KEY, sizeof(bits)), bits) < 0)
+		return true;
+	return keyInBits(bits, sizeof(bits) / sizeof(bits[0]), code);
+}
+
+static bool (*node_carries_key)(int, unsigned int) = probeNode;
+
+bool nodeCarriesKey(int fd, unsigned int code)
+{
+	return node_carries_key(fd, code);
+}
+
+void setNodeCarriesKeyForTest(bool (*probe)(int fd, unsigned int code))
+{
+	node_carries_key = probe ? probe : probeNode;
+}
+
 static unsigned int _start_ms = 0;
 static unsigned int _repeat_ms = 0;
 

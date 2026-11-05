@@ -103,6 +103,20 @@ class RealInputDevice : public InputDevice
 			const int wire = (g_RCInput != NULL) ? g_RCInput->translateRevert((int) code)
 			                                     : (int) code;
 
+			/* A key the node does not have is dropped by it unread, and the
+			   write below would still say it went. Such keys (mute on and
+			   off, power on and off and the like, which stand in for no
+			   button on any handset) are handed to the loop directly, as
+			   what it would have made of them off the node. */
+			if (g_RCInput != NULL && !nodeCarriesKey(fd, (unsigned int) wire))
+			{
+				close(fd);
+				const neutrino_msg_t msg = (neutrino_msg_t) g_RCInput->translateWire(wire);
+				if (msg == (neutrino_msg_t) CRCInput::RC_nokey)
+					return Status::Internal;
+				return g_RCInput->postMsg(msg, 0) ? Status::Ok : Status::Internal;
+			}
+
 			/* Down and up, each followed by the report that says the batch is
 			   whole. A press with no release leaves the key held for whoever
 			   reads the node next, which is a box that repeats it until
