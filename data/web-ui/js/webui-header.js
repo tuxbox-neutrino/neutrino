@@ -722,17 +722,18 @@ function _webuiArrowReachable(el) {
 
 /* The one entry of a group Tab stops at: the one with the focus, else the
    one last focused while it is still there, else the one shown or chosen
-   (aria-current other than false, aria-pressed, the class active), else
-   the first; each among the entries that can take the focus, measured
-   only as far as needed. Where none can (a side bar the phone does not
-   show, a section closed), it is chosen the same way among all, so Tab
-   finds the group once it shows. */
+   (aria-current other than false on it or on the list item holding it,
+   aria-pressed, the class active), else the first; each among the entries
+   that can take the focus, measured only as far as needed. Where none can
+   (a side bar the phone does not show, a section closed), it is chosen the
+   same way among all, so Tab finds the group once it shows. */
 function _webuiArrowStop(group) {
 	var arrow = group._webuiArrow;
 	var all = _webuiArrowEntries(group);
 	var chosen = function(el) {
-		var c = el.getAttribute('aria-current');
-		return (c && c !== 'false') || el.getAttribute('aria-pressed') === 'true' || el.classList.contains('active');
+		var c = el.getAttribute('aria-current'), li = el.closest('li');
+		return (c && c !== 'false') || el.getAttribute('aria-pressed') === 'true' || el.classList.contains('active') ||
+			(!!li && group.contains(li) && li.getAttribute('aria-current') === 'true');
 	};
 	var pick = function(ok) {
 		var at = document.activeElement, i;

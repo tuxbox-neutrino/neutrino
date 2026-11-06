@@ -149,6 +149,86 @@ function channelRow(ch) {
 		webuiEl('span', {className: 'webui-channel-acts'}, zap, menu));
 }
 
+// A row's actions: what runs now (its information), Zap, the menu
+const CHANNEL_ACTS = '.webui-channel-now-open, .webui-channel-acts > button';
+const CHANNEL_STEP = {ArrowDown: 1, ArrowUp: -1, ArrowRight: 1, ArrowLeft: -1};
+
+function channelActs(row) {
+	return Array.from(row.querySelectorAll(CHANNEL_ACTS)).filter(b => !b.hidden && b.getClientRects().length > 0);
+}
+
+function channelActKind(el) {
+	return ['webui-channel-now-open', 'webui-menu-btn', 'webui-channel-zap'].find(c => el.classList.contains(c));
+}
+
+/* change() run on the rows with the focus on a row's action kept: a row
+   drawn again takes the focus away (Zap hidden on the channel now shown,
+   the programme drawn anew or gone), and the keys would reach no list.
+   It goes back to the same action of that channel's row, else to the
+   row's first, unless something else took it meanwhile (a question).
+   With only, nothing is looked at unless the focus is in that row. */
+function keepChannelFocus(change, only) {
+	const at = document.activeElement;
+	const row = at && at.matches && at.matches(CHANNEL_ACTS) ? at.closest('.webui-channel-row') : null;
+	if (!row || (only && row !== only))
+		return change();
+	const id = row.dataset.id, kind = channelActKind(at);
+	let shown = true;
+	try { shown = at.matches(':focus-visible'); } catch (e) { /* an old browser: shown */ }
+	const done = change();
+	const now = document.activeElement;
+	if (now !== at && now && now !== document.body)
+		return done;
+	if (now === at && at.isConnected && channelActs(row).indexOf(at) >= 0)
+		return done;
+	const again = rowOf(id);
+	const acts = again ? channelActs(again) : [];
+	const to = acts.find(b => b.classList.contains(kind)) || acts[0];
+	if (to)
+		to.focus({preventScroll: true, focusVisible: shown});
+	return done;
+}
+
+/* The channel list as one stop of Tab (webuiArrowKeys, which also takes
+   Home and End): Up and Down move from row to row, to the same action where
+   that row has it (Zap is hidden on the channel shown), else to its first;
+   Left and Right among the actions of one row. Enter does what a click on
+   the action does. Taken before webuiArrowKeys, which would step through
+   the actions of all rows in one line. */
+function channelKeys(list) {
+	if (!list.dataset.keys) {
+		list.dataset.keys = '1';
+		list.addEventListener('keydown', e => {
+			if (e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey || e.shiftKey || !(e.key in CHANNEL_STEP))
+				return;
+			const at = document.activeElement;
+			const row = at && at.matches(CHANNEL_ACTS) ? at.closest('.webui-channel-row') : null;
+			if (!row)
+				return;
+			const d = CHANNEL_STEP[e.key];
+			let to = null;
+			if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+				const own = channelActs(row);
+				to = own[(own.indexOf(at) + d + own.length) % own.length];
+			} else {
+				const rows = Array.from(list.querySelectorAll('.webui-channel-row'));
+				const kind = channelActKind(at);
+				const i = rows.indexOf(row), n = rows.length;
+				for (let k = 1; k < n && !to; k++) {
+					const acts = channelActs(rows[((i + d * k) % n + n) % n]);
+					to = acts.find(b => b.classList.contains(kind)) || acts[0] || null;
+				}
+			}
+			// no other row to go to (a bouquet of one channel): the focus
+			// stays, and the key is not handed on to step along the row
+			if (to && to !== at)
+				to.focus();
+			e.preventDefault();
+		});
+	}
+	webuiArrowKeys(list, CHANNEL_ACTS);
+}
+
 let channelsToken = 0;
 async function loadChannels(bouquet) {
 	const token = ++channelsToken;
@@ -182,6 +262,7 @@ async function loadChannels(bouquet) {
 		channelsShown = Object.create(null);
 		list.replaceChildren.apply(list, channels.map(channelRow));
 		markCurrent();
+		channelKeys(list);
 
 		// the current channel in view, once the rows are laid out
 		requestAnimationFrame(() => {
@@ -239,18 +320,18 @@ function showNow(channelId, events, now) {
 	const cell = row.querySelector('.webui-channel-now');
 	if (!ev) {
 		delete epgNow[channelId];
-		cell.replaceChildren();
+		keepChannelFocus(() => cell.replaceChildren(), row);
 		return;
 	}
 	epgNow[channelId] = ev;
 	// the programme opens its information, as a click on it did before
 	const ch = channelsShown[channelId];
-	cell.replaceChildren(webuiEl('button', {type: 'button', className: 'webui-channel-now-open',
+	keepChannelFocus(() => cell.replaceChildren(webuiEl('button', {type: 'button', className: 'webui-channel-now-open',
 		attrs: {title: webuiL('dash.epg_info', 'Programme info') + ': ' + (ev.title || '')},
 		on: {click: () => ch && showInfo(ch)}},
 		webuiEl('span', {}, ev.title || ''),
 		webuiEl('small', {}, clock(ev.start) + ' – ' + clock(ev.start + ev.duration)),
-		webuiEl('div', {className: 'webui-progress', attrs: {'aria-hidden': 'true'}}, webuiEl('span'))));
+		webuiEl('div', {className: 'webui-progress', attrs: {'aria-hidden': 'true'}}, webuiEl('span')))), row);
 	updateChannelProgress(channelId);
 }
 
@@ -296,7 +377,7 @@ async function refreshNow(ids) {
 
 // The row of the channel the box plays, and the ones it records
 function markCurrent() {
-	document.querySelectorAll('.webui-channel-row').forEach(row => {
+	keepChannelFocus(() => document.querySelectorAll('.webui-channel-row').forEach(row => {
 		const current = row.dataset.id === currentChannelId;
 		const recorded = recordedIds.has(row.dataset.id);
 		row.setAttribute('aria-current', current ? 'true' : 'false');
@@ -308,7 +389,7 @@ function markCurrent() {
 				recorded ? webuiL('bc.recording', 'Recording') : webuiL('bq.live', 'On now')) : '');
 		}
 		row.querySelector('.webui-channel-zap').hidden = current;
-	});
+	}));
 }
 
 // Zap: a file the player plays, or a box in standby, is asked about first

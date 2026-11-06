@@ -174,9 +174,13 @@
 		background: var(--webui-bg-elevated);
 	}
 
-	.webui-channel-now-open:focus-visible {
+	/* the actions of the channel list: the ring inside, as in the other
+	   lists, so the card's edge does not cut it off */
+	.webui-channel-now-open:focus-visible,
+	.webui-channel-acts > .webui-btn:focus-visible {
 		outline: 2px solid var(--webui-focus-color);
-		outline-offset: 1px;
+		outline-offset: -2px;
+		box-shadow: none;
 	}
 
 	.webui-channel-now-open > span {
