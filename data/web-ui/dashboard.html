@@ -432,9 +432,18 @@
 		overflow-wrap: anywhere;
 	}
 
-	/* the time it has run, where the box tells no temperature */
-	.webui-gauge-plain .webui-gauge-ring svg {
-		visibility: hidden;
+	/* where the box tells no temperature: its name, how long it has run
+	   and its kernel as rows in place of the ring */
+	.webui-gauge-plain .webui-gauge-ring,
+	.webui-gauge-plain p,
+	.webui-gauge-facts[hidden] {
+		display: none;
+	}
+
+	.webui-gauge-facts {
+		margin-top: 0.3rem;
+		gap: 0.15rem 0.75rem;
+		text-align: start;
 	}
 
 	@container (max-width: 54rem) {
@@ -569,6 +578,12 @@
 		.webui-ext-open:hover {
 			background: var(--webui-bg-elevated);
 		}
+	}
+
+	/* reached by Tab: the ring inside its edge, which a card may clip */
+	.webui-ext-open[role="link"]:focus-visible {
+		outline: 2px solid var(--webui-focus-color);
+		outline-offset: -2px;
 	}
 
 	/* a tuner: its name and state, then signal and noise distance */
@@ -866,7 +881,13 @@
 				</div>
 				<div class="webui-gauge" id="gauge-temp" data-ext-open="sysinfo" title="Show system details" data-l-title="dash.sys_details">
 					<div class="webui-gauge-ring" role="img"><svg viewBox="0 0 84 84" aria-hidden="true"><circle class="track" cx="42" cy="42" r="36"/><circle class="fill" cx="42" cy="42" r="36"/></svg><b>--</b></div>
-					<div><h3 data-l="dash.temp">Temperature</h3><p>--</p></div>
+					<div><h3 data-l="dash.temp">Temperature</h3><p>--</p>
+						<dl class="webui-kv webui-gauge-facts" hidden>
+							<dt data-l="dash.hostname">Host name</dt><dd id="gauge-host">--</dd>
+							<dt data-l="dash.running">Uptime</dt><dd id="gauge-uptime">--</dd>
+							<dt data-l="dash.kernel">Kernel</dt><dd id="gauge-kernel">--</dd>
+						</dl>
+					</div>
 				</div>
 				</div>
 			</section>

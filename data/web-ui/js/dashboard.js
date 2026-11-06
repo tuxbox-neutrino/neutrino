@@ -361,18 +361,22 @@ function loadSystemInfo() {
 				formatKB(data.disk.free) + ' ' + webuiL('dash.free', 'free'));
 
 		// The temperature, warm from 60 and hot from 70 °C on, and how long
-		// the box has run below it; where it tells no temperature, that time
-		// in its place
+		// the box has run below it; where it tells no temperature, the box's
+		// name, how long it has run and its kernel as rows in its place
 		withEl('gauge-temp', function(el) {
 			const t = data.temperature;
 			const known = t !== null && t !== undefined;
 			const up = formatUptime(data.uptime || 0);
 			el.classList.toggle('webui-gauge-plain', !known);
-			el.querySelector('h3').textContent = known ? webuiL('dash.temp', 'Temperature') : webuiL('dash.uptime', 'Up for');
-			if (known)
+			el.querySelector('.webui-gauge-facts').hidden = known;
+			el.querySelector('h3').textContent = known ? webuiL('dash.temp', 'Temperature') : webuiL('dash.system', 'System');
+			if (known) {
 				setGauge('gauge-temp', t, t + ' °C', webuiL('dash.up_for', 'up for %s').replace('%s', up), t >= 70 ? 'danger' : t >= 60 ? 'warn' : 'ok');
-			else
-				setGauge('gauge-temp', 0, up, '', '');
+			} else {
+				setText('gauge-host', data.hostname || '--');
+				setText('gauge-uptime', up);
+				setText('gauge-kernel', data.kernel || '--');
+			}
 		});
 
 		// Hostname in network tile's head
