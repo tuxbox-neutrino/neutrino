@@ -1280,7 +1280,10 @@ CFrontend * CFEManager::allocateFE(CZapitChannel * channel, bool forrecord)
 
 /* One view per frontend, in the order of the map, so the walk visits them as
    getFrontend does; a master lists the views of its links. A view is locked
-   when the frontend's use count is above zero. */
+   when the frontend's use count is above zero. What getFrontend asks the FBC
+   tuner manager is in the views as well: whether a root carries the input of
+   an automatic link, and for a root the links tied to it with the link flag,
+   whose band fesearch weighs as fbcLinksCanTune does. */
 void CFEManager::streamViews(CZapitChannel * channel, std::vector<CFrontend *> &fes,
 			     std::vector<fesearch::FeView> &views)
 {
@@ -1291,6 +1294,7 @@ void CFEManager::streamViews(CZapitChannel * channel, std::vector<CFrontend *> &
 		fes.push_back(it->second);
 	}
 
+	CFBCTunerManager *fbc = CFBCTunerManager::getInstance();
 	const t_satellite_position pos = channel->getSatellitePosition();
 	views.assign(fes.size(), fesearch::FeView());
 	for (size_t i = 0; i < fes.size(); i++) {
@@ -1328,6 +1332,13 @@ void CFEManager::streamViews(CZapitChannel * channel, std::vector<CFrontend *> &
 					v.links.push_back(li->second);
 			}
 		}
+		if (v.mode != fesearch::FeView::Other)
+			v.root_carries = !(isFBCAuto(fe) && !findFBCRoot(fe, channel));
+		if (fbc->IsRoot(fe->fenumber)) {
+			for (size_t j = 0; j < fes.size(); j++)
+				if (j != i && fbc->IsLinkedTo(fes[j]->fenumber, fe->fenumber))
+					v.fbc_links.push_back((int) j);
+		}
 	}
 }
 
@@ -1359,8 +1370,16 @@ CFrontend * CFEManager::pickIdleForStream(CZapitChannel * channel, const std::ve
 		cDemux::SetSource(b.demux, b.source);
 	if (no_same_fe)
 		frontend->setChannelID(channel->getChannelID());
-	if (lock)
+	/* TODO: an automatic FBC link is tied only where a stream hold locks its
+	   frontend (kHoldLocksFrontend in zapit.cpp); with bind and no lock it
+	   tunes untied, from the first root's input, and that root may retune
+	   under it. */
+	if (lock) {
+		/* Tied before zapit tunes, as allocateFE ties it: a locked
+		   frontend is never tied, and the last unlock unties it. */
+		fbcTie(frontend, channel);
 		lockFrontend(frontend);
+	}
 	return frontend;
 }
 

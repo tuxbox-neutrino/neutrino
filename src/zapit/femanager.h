@@ -158,7 +158,9 @@ class CFEManager
 		   frontends but never one that is busy (fesearch.h). With bind, the
 		   channel's record and stream demux become the frontend's and the
 		   demux reads from it; with no_same_fe the frontend carries the
-		   channel, and with lock it is locked. For fixed demux numbers only. */
+		   channel, and with lock it is locked, an automatic FBC link tied
+		   to its root first as allocateFE ties it. For fixed demux numbers
+		   only. */
 		CFrontend *	pickIdleForStream(CZapitChannel * channel, const std::vector<int> &held,
 					  bool bind, bool lock, bool no_same_fe);
 		/* The picture's frontend for a stream of the live channel or of

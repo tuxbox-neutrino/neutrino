@@ -307,6 +307,7 @@ EXTRA_DIST = interop/peer/README support/catch.hpp support/run-tests.sh support/
 	scan/check-pip-source-order.sh \
 	scan/check-stream-keeps-picture.sh \
 	scan/check-record-tuner.sh \
+	scan/check-fesearch-fbc.sh \
 	scan/check-epgscan-resume.sh \
 	scan/check-zapit-stop.sh \
 	scan/check-standby-flag.sh \
@@ -473,6 +474,7 @@ check-local: check-TESTS
 	@$(SHELL) $(srcdir)/scan/check-pip-source-order.sh $(top_srcdir)
 	@$(SHELL) $(srcdir)/scan/check-stream-keeps-picture.sh $(top_srcdir)
 	@$(SHELL) $(srcdir)/scan/check-record-tuner.sh $(top_srcdir)
+	@$(SHELL) $(srcdir)/scan/check-fesearch-fbc.sh $(top_srcdir)
 	@$(SHELL) $(srcdir)/scan/check-epgscan-resume.sh $(top_srcdir)
 	@$(SHELL) $(srcdir)/scan/check-zapit-stop.sh $(top_srcdir)
 	@$(SHELL) $(srcdir)/scan/check-standby-flag.sh $(top_srcdir)
