@@ -171,4 +171,103 @@ async function sysInfoToggle(details, type) {
 	pre.removeAttribute('aria-busy');
 }
 
-webuiExtTexts('sysinfo').then(loadSysInfo);
+/* Copying. The text of a card is its title and its rows, one row to a line
+   (label, then value), as plain text; "all" is the cards one after another,
+   a blank line between them. */
+function sysInfoCardText(card) {
+	var flat = function(el) { return el.textContent.replace(/\s+/g, ' ').trim(); };
+	var lines = [flat(card.querySelector('.sysinfo-card-header span:not(.webui-visually-hidden)'))];
+	card.querySelectorAll('.sysinfo-grid').forEach(function(grid) {
+		for (var i = 0; i + 1 < grid.children.length; i += 2)
+			lines.push(flat(grid.children[i]) + ': ' + flat(grid.children[i + 1]));
+	});
+	card.querySelectorAll('.sysinfo-card-body > .sysinfo-label').forEach(function(note) {
+		lines.push(flat(note));
+	});
+	card.querySelectorAll('.sysinfo-iface').forEach(function(row) {
+		var parts = Array.prototype.map.call(row.querySelectorAll('span:not(.sysinfo-iface-status)'), flat).filter(Boolean);
+		lines.push(parts.join(' '));
+	});
+	return lines.join('\n');
+}
+
+function sysInfoCards() {
+	return Array.prototype.slice.call(document.querySelectorAll('#sysinfo-cards .sysinfo-card'));
+}
+
+/* Puts the text on the clipboard. Where the page is served without TLS the
+   clipboard API is not there (navigator.clipboard is undefined outside a
+   secure context): then a field out of sight is selected and copied with the
+   old command, and where that is refused too, the text is selected on the
+   page for the user to copy by hand. Resolves 'copied' or 'selected'. */
+async function sysInfoClipboard(text, shown) {
+	if (navigator.clipboard && window.isSecureContext) {
+		try {
+			await navigator.clipboard.writeText(text);
+			return 'copied';
+		} catch (e) {
+			// refused (a permission, a frame): the old way may still work
+		}
+	}
+	var before = document.activeElement;
+	var field = document.createElement('textarea');
+	field.className = 'sysinfo-clip';
+	field.value = text;
+	field.setAttribute('readonly', '');
+	field.setAttribute('aria-hidden', 'true');
+	field.tabIndex = -1;
+	document.body.appendChild(field);
+	var done = false;
+	try {
+		field.select();
+		field.setSelectionRange(0, text.length);
+		done = document.execCommand('copy');
+	} catch (e) {
+		done = false;
+	}
+	field.remove();
+	if (before && before.focus)
+		before.focus({preventScroll: true});
+	if (done)
+		return 'copied';
+	var range = document.createRange();
+	range.selectNodeContents(shown);
+	var sel = window.getSelection();
+	sel.removeAllRanges();
+	sel.addRange(range);
+	return 'selected';
+}
+
+// card: the card to copy, none for all of them
+async function sysInfoCopy(card) {
+	var cards = card ? [card] : sysInfoCards();
+	if (document.getElementById('sysinfo-cards').hidden) {
+		webuiShowToast(webuiL('si.copy_none', 'There is nothing to copy yet'), true);
+		return;
+	}
+	var text = cards.map(sysInfoCardText).join('\n\n');
+	var name = card ? sysInfoCardText(card).split('\n')[0] : '';
+	var how = await sysInfoClipboard(text, card || document.getElementById('sysinfo-cards'));
+	var msg;
+	if (how === 'copied')
+		msg = card ? webuiL('si.copied', '%s copied').replace('%s', name) : webuiL('si.copied_all', 'All system information copied');
+	else
+		msg = webuiL('si.copy_select', 'The browser did not allow copying here. The text is selected: press Ctrl+C.');
+	webuiShowToast(msg, how !== 'copied');
+}
+
+// the buttons of the cards are named by their card, once the texts are in
+function sysInfoNameCopyButtons() {
+	document.querySelectorAll('#sysinfo-cards .sysinfo-card').forEach(function(card) {
+		var btn = card.querySelector('[data-copy-card]');
+		var label = webuiL('si.copy_card', 'Copy %s').replace('%s', sysInfoCardText(card).split('\n')[0]);
+		btn.setAttribute('aria-label', label);
+		btn.title = label;
+		btn.onclick = function() { sysInfoCopy(card); };
+	});
+}
+
+webuiExtTexts('sysinfo').then(function() {
+	sysInfoNameCopyButtons();
+	return loadSysInfo();
+});

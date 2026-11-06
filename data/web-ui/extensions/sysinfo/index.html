@@ -65,6 +65,55 @@
 			font-size: var(--webui-font-sm);
 		}
 
+		.sysinfo-card-header .sysinfo-copy {
+			--pico-color: inherit;
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+			width: 1.9rem;
+			height: 1.9rem;
+			margin: 0 -0.3rem 0 auto;
+			padding: 0;
+			border: 0;
+			border-radius: 50%;
+			background: none;
+			box-shadow: none;
+			color: var(--pico-muted-color);
+			cursor: pointer;
+		}
+
+		.sysinfo-card-header .sysinfo-copy svg {
+			color: inherit;
+		}
+
+		@media (hover: hover) {
+			.sysinfo-card-header .sysinfo-copy:hover {
+				background: var(--webui-accent-light);
+				color: var(--pico-color);
+			}
+		}
+
+		.sysinfo-card-header .sysinfo-copy:focus-visible {
+			outline: 2px solid var(--webui-focus-color);
+			outline-offset: 1px;
+			box-shadow: none;
+		}
+
+		/* the field a copy goes through where the clipboard has no API: in
+		   the page, out of sight, 16 px so that no phone zooms into it */
+		.sysinfo-clip {
+			position: fixed;
+			top: 0;
+			left: 0;
+			width: 1px;
+			height: 1px;
+			padding: 0;
+			border: 0;
+			opacity: 0;
+			font-size: 16px;
+			pointer-events: none;
+		}
+
 		.sysinfo-card-header svg {
 			width: 16px;
 			height: 16px;
@@ -217,6 +266,10 @@
 				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:1rem;height:1rem;margin-right:0.3rem" aria-hidden="true"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
 				<span data-l="si.refresh">Refresh</span>
 			</button>
+			<button type="button" class="webui-btn" id="sysinfo-copy-all" onclick="sysInfoCopy()" data-l-title="si.copy_all_tip" title="Copy everything on the cards as text">
+				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+				<span data-l="si.copy_all">Copy all</span>
+			</button>
 		</div>
 
 		<div id="sysinfo-state"></div>
@@ -227,6 +280,7 @@
 				<div class="sysinfo-card-header">
 					<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"/></svg>
 					<span data-l="si.hardware">Hardware</span>
+					<button type="button" class="sysinfo-copy" data-copy-card><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></button>
 				</div>
 				<div class="sysinfo-card-body">
 					<div class="sysinfo-grid" id="sysinfo-hw">
@@ -239,6 +293,7 @@
 				<div class="sysinfo-card-header">
 					<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"/><line x1="6" y1="10" x2="6" y2="14"/><line x1="10" y1="10" x2="10" y2="14"/><line x1="14" y1="10" x2="14" y2="14"/></svg>
 					<span data-l="si.memory">Memory</span>
+					<button type="button" class="sysinfo-copy" data-copy-card><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></button>
 				</div>
 				<div class="sysinfo-card-body">
 					<div class="sysinfo-grid" id="sysinfo-mem">
@@ -251,6 +306,7 @@
 				<div class="sysinfo-card-header">
 					<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
 					<span data-l="si.system">System</span>
+					<button type="button" class="sysinfo-copy" data-copy-card><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></button>
 				</div>
 				<div class="sysinfo-card-body">
 					<div class="sysinfo-grid" id="sysinfo-sys">
@@ -263,6 +319,7 @@
 				<div class="sysinfo-card-header">
 					<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
 					<span data-l="si.software">Software</span>
+					<button type="button" class="sysinfo-copy" data-copy-card><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></button>
 				</div>
 				<div class="sysinfo-card-body">
 					<div class="sysinfo-grid" id="sysinfo-sw">
@@ -274,6 +331,7 @@
 				<div class="sysinfo-card-header">
 					<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12.55a11 11 0 0114.08 0"/><path d="M1.42 9a16 16 0 0121.16 0"/><path d="M8.53 16.11a6 6 0 016.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>
 					<span data-l="si.network">Network</span>
+					<button type="button" class="sysinfo-copy" data-copy-card><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></button>
 				</div>
 				<div class="sysinfo-card-body" id="sysinfo-net">
 				</div>
