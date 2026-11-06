@@ -221,7 +221,7 @@ function recordingRow(rec) {
 			webuiMenuButton(webuiL('bq.more', 'More for %s').replace('%s', title), [
 				{label: webuiL('tm.details', 'Details'), icon: SVG_INFO, onClick: () => choose(rec)},
 				{label: webuiL('media.playlist', 'Playlist (M3U)'), icon: SVG_LIST, onClick: () => fetchTo(base + '/playlist.m3u')},
-				{label: webuiL('media.download', 'Download file'), icon: SVG_DOWN, onClick: () => fetchTo(base + '/file')},
+				{label: webuiL('media.download', 'Download'), icon: SVG_DOWN, onClick: () => fetchTo(base + '/file')},
 				null,
 				{label: webuiL('media.delete', 'Delete'), icon: SVG_DELETE, danger: true, onClick: () => remove(rec)}])));
 }
@@ -350,7 +350,7 @@ async function showBeside(id) {
 			webuiEl('div', {className: 'webui-media-detail-acts'},
 				act('primary', SVG_PLAY, webuiL('media.play', 'Play on TV'), () => play(id)),
 				act('', SVG_LIST, webuiL('media.playlist', 'Playlist (M3U)'), () => fetchTo(base + '/playlist.m3u')),
-				act('', SVG_DOWN, webuiL('media.download', 'Download file'), () => fetchTo(base + '/file')),
+				act('', SVG_DOWN, webuiL('media.download', 'Download'), () => fetchTo(base + '/file')),
 				act('webui-media-delete', SVG_DELETE, webuiL('media.delete', 'Delete'), () => remove(rec)))));
 }
 
@@ -372,7 +372,7 @@ async function showDetail(id) {
 			textOf(rec),
 			webuiEl('div', {className: 'webui-media-detail-links'},
 				webuiEl('a', {attrs: {href: base + '/playlist.m3u', download: ''}}, webuiL('media.playlist', 'Playlist (M3U)')),
-				webuiEl('a', {attrs: {href: base + '/file', download: ''}}, webuiL('media.download', 'Download file')))
+				webuiEl('a', {attrs: {href: base + '/file', download: ''}}, webuiL('media.download', 'Download')))
 		],
 		actions: [
 			{label: webuiL('media.delete', 'Delete'), value: 'delete', danger: true},
