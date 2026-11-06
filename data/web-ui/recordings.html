@@ -91,6 +91,13 @@
 			font-weight: 600;
 		}
 
+		/* the ring inside the chip, as the other lists beside a page's content */
+		.webui-media-chips button:focus-visible {
+			outline: 2px solid var(--webui-focus-color);
+			outline-offset: -2px;
+			box-shadow: none;
+		}
+
 		.webui-media-count {
 			margin-left: auto;
 			color: var(--pico-muted-color);

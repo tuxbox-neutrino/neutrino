@@ -2548,6 +2548,32 @@ textarea:focus-visible {
 	--pico-box-shadow: none;
 }
 
+/* The entries of menus and of the lists beside a page's content: the ring
+   inside the entry, as the box around them scrolls or clips (the side
+   bar's list, the row of pages, the bouquets) and cut it off at its edge */
+.webui-side-link:focus-visible,
+.webui-side-brand:focus-visible,
+.webui-subnav a:focus-visible,
+.webui-tabbar a:focus-visible,
+.webui-tabbar button:focus-visible,
+.webui-more-menu a:focus-visible,
+.webui-more-menu button:focus-visible,
+.webui-lang-menu button:focus-visible,
+.webui-side-list button:focus-visible {
+	outline: 2px solid var(--webui-focus-color);
+	outline-offset: -2px;
+	box-shadow: none;
+	--pico-box-shadow: none;
+}
+
+/* The focus a page set itself after a click or a tap (webuiArrowKeys): no
+   ring until a key is pressed. It has to outweigh every ring, those set
+   by an id among them. */
+.webui-focus-quiet:focus-visible {
+	outline: none !important;
+	box-shadow: none !important;
+}
+
 /* Pico sets its button colour again on hover, focus and press
    ([type=button]:is(:hover, :active, :focus), which outweighs one class):
    the text colour of its filled buttons, white in light and near black in

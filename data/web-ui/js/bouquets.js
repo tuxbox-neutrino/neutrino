@@ -28,6 +28,25 @@ function rowOf(channelId) {
 	return document.querySelector('.webui-channel-row[data-id="' + CSS.escape(String(channelId)) + '"]');
 }
 
+// An entry brought into sight by scrolling the boxes it lies in, its middle
+// to theirs where center is set, else just inside their edges. Not by
+// scrollIntoView: Chromium lets the next Tab start where that went, so the
+// first Tab of the page landed in the list instead of the menu.
+function scrollIntoSight(el, center) {
+	for (let box = el.parentElement; box; box = box.parentElement) {
+		if (box.scrollHeight <= box.clientHeight || !/auto|scroll/.test(getComputedStyle(box).overflowY))
+			continue;
+		const r = el.getBoundingClientRect();
+		const top = box.getBoundingClientRect().top + box.clientTop, height = box.clientHeight;
+		if (center)
+			box.scrollTop += r.top + r.height / 2 - (top + height / 2);
+		else if (r.top < top)
+			box.scrollTop += r.top - top;
+		else if (r.bottom > top + height)
+			box.scrollTop += Math.min(r.bottom - (top + height), r.top - top);
+	}
+}
+
 // The channel the box plays, and with it which list to show
 async function loadCurrentChannel() {
 	const ch = await webuiV1('GET', '/channels/current').catch(() => null);
@@ -81,7 +100,7 @@ function renderBouquetList(activeBouquet) {
 	renderBouquetPick(activeBouquet);
 	currentBouquetNumber = activeBouquet;
 	const activeItem = list.querySelector('[aria-current="true"]');
-	if (activeItem) activeItem.scrollIntoView({block: 'nearest'});
+	if (activeItem) scrollIntoSight(activeItem, false);
 	loadChannels(activeBouquet);
 }
 
@@ -167,7 +186,7 @@ async function loadChannels(bouquet) {
 		// the current channel in view, once the rows are laid out
 		requestAnimationFrame(() => {
 			const currentRow = list.querySelector('[aria-current="true"]');
-			if (currentRow) currentRow.scrollIntoView({block: 'center'});
+			if (currentRow) scrollIntoSight(currentRow, true);
 		});
 
 		loadEpgInfo(channels, bouquet, token);

@@ -451,8 +451,11 @@ function _webuiPageTitle(areas, page) {
 }
 
 // Draws the side bar, the page's name, the row of the shown area's pages
-// and the tab bar.
+// and the tab bar. An entry reached from the keyboard keeps the focus when
+// they are drawn anew, and after Enter on one the page it opened gives the
+// focus to its menu (_webuiArrowBack).
 function webuiRenderNav(pageName) {
+	var held = _webuiArrowHeld();
 	var page = _webuiNavPage(pageName);
 	_webuiNavShown = pageName || '';
 	var areas = _webuiNavAreas(_webuiNavExtsKept());
@@ -466,7 +469,9 @@ function webuiRenderNav(pageName) {
 	};
 
 	_webuiRenderSide(areas, page);
-	webuiArrowKeys(document.querySelector('.webui-side-nav'), 'a');
+	// the mark takes the arrows with the pages, so the first Tab reaches
+	// the page shown and the start page stays in reach
+	webuiArrowKeys(document.getElementById('webui-side'), 'a', 'side');
 	var title = document.getElementById('webui-page-title');
 	if (title)
 		title.textContent = _webuiPageTitle(areas, page);
@@ -485,7 +490,7 @@ function webuiRenderNav(pageName) {
 			sub.appendChild(li);
 		});
 		_webuiSubnavEdges(sub);
-		webuiArrowKeys(sub, 'a');
+		webuiArrowKeys(sub, 'a', 'subnav');
 	}
 
 	var tabs = document.getElementById('webui-tabbar');
@@ -511,12 +516,13 @@ function webuiRenderNav(pageName) {
 		more.innerHTML = WEBUI_ICONS.more + '<span>' + webuiLH('nav.more', 'More') + '</span>';
 		more.addEventListener('click', webuiToggleMoreMenu);
 		tabs.appendChild(more);
-		webuiArrowKeys(tabs, 'a, button');
+		webuiArrowKeys(tabs, 'a, button', 'tabs');
 	}
 	_webuiTimerCountStart();
 	// the row of pages changes the head's height
 	if (typeof webuiUpdateHeaderSpacer === 'function')
 		webuiUpdateHeaderSpacer();
+	_webuiArrowBack(held);
 }
 
 /* Which side of the row of pages runs past the edge, as data-more on its
@@ -553,47 +559,286 @@ function _webuiSubnavEdges(sub) {
 		document.fonts.ready.then(mark);
 }
 
+var _webuiArrowGroups = [];	// the groups, for the stop at a new size of the window
+var _webuiArrowNamed = {};	// the named groups of the navigation
+var _webuiArrowResized = 0;
+
+// a narrower or wider window shows or hides groups (the side bar, the tab
+// bar): their stops chosen again, once it has settled
+window.addEventListener('resize', function() {
+	clearTimeout(_webuiArrowResized);
+	_webuiArrowResized = setTimeout(function() {
+		_webuiArrowKept().forEach(_webuiArrowStop);
+	}, 150);
+});
+
+// a page the browser shows again from its cache draws no navigation: a
+// name an Enter left whose page never came goes here (_webuiArrowBack)
+window.addEventListener('pageshow', function(e) {
+	if (e.persisted)
+		try { sessionStorage.removeItem('webui-keys-back'); } catch (x) { /* no web storage */ }
+});
+
+// the groups still in the page; a menu closed since (More, language) let go
+function _webuiArrowKept() {
+	_webuiArrowGroups = _webuiArrowGroups.filter(function(g) {
+		if (g.isConnected)
+			return true;
+		if (g._webuiArrow.watch)
+			g._webuiArrow.watch.disconnect();
+		return false;
+	});
+	return _webuiArrowGroups;
+}
+
 /* The arrow keys within a group of links or buttons (side bar, row of
    pages, tab bar, the More and language menus, the lists beside a page's
    content): Down and Right move the focus to the next entry, Up and Left
    to the one before, both round the ends, Home and End to the first and the
-   last. Tab keeps its order. An entry counts while it is drawn and not
-   disabled. The content of a closed <details> keeps its boxes in Chromium
-   but cannot take the focus, so everything in one is passed over except
-   its own summary, and that only while no closed <details> holds it in
-   turn. The entries are looked up at each key, as the group is drawn
-   again; a group takes the keys once however often that happens. */
-function webuiArrowKeys(group, selector) {
-	if (!group || group._webuiArrowKeys)
+   last. An entry counts while it is drawn and not disabled. The content of
+   a closed <details> keeps its boxes in Chromium but cannot take the
+   focus, so everything in one is passed over except its own summary, and
+   that only while no closed <details> holds it in turn. The entries are
+   looked up at each key, as the group is drawn again; a group takes the
+   keys once however often that happens.
+   The group is one stop of Tab: one entry has tabindex 0, the others -1
+   (_webuiArrowStop), so Tab and Shift+Tab pass from one group to the next.
+   With the focus on the group itself or on a part of it with tabindex -1
+   (one that scrolls), an arrow key moves it to that entry; a field keeps
+   its keys. A group with a name (side, subnav, tabs) leaves that name and
+   the address in this tab's sessionStorage when one of its links opens
+   another page, and that page gives the focus to the group of the name
+   (_webuiArrowBack): seen after Enter (the click that comes right after
+   it; Firefox gives that click detail 1, so detail cannot tell), without
+   its ring after a click of the mouse or a tap. A script's click or one
+   with a key held leaves none and takes a name left before away. */
+function webuiArrowKeys(group, selector, name) {
+	if (!group)
 		return;
-	group._webuiArrowKeys = true;
+	if (group._webuiArrow) {
+		_webuiArrowStop(group);
+		return;
+	}
+	var arrow = group._webuiArrow = {selector: selector, name: name || '', last: null, keyed: null, watch: null, soon: 0};
 	var step = {ArrowDown: 1, ArrowRight: 1, ArrowUp: -1, ArrowLeft: -1};
-	var reachable = function(el) {
-		var closed = el.closest('details:not([open])');
-		if (closed && !(el.tagName === 'SUMMARY' && el.parentElement === closed))
-			return false;
-		if (closed && closed.parentElement && closed.parentElement.closest('details:not([open])'))
-			return false;
-		return !el.disabled && el.getClientRects().length > 0;
-	};
+	// the More menu's entries are named for the tab bar, which keeps the name
+	if (arrow.name && !(_webuiArrowNamed[arrow.name] && _webuiArrowNamed[arrow.name].isConnected))
+		_webuiArrowNamed[arrow.name] = group;
 	group.addEventListener('keydown', function(e) {
 		if (e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey || e.shiftKey)
 			return;
+		// the click Enter gives on a link comes in the same task
+		if (e.key === 'Enter') {
+			arrow.keyed = e.target;
+			setTimeout(function() { arrow.keyed = null; }, 0);
+			return;
+		}
 		if (!(e.key in step) && e.key !== 'Home' && e.key !== 'End')
 			return;
-		var all = Array.prototype.filter.call(group.querySelectorAll(selector), reachable);
-		var i = all.indexOf(document.activeElement);
-		if (i < 0)
+		// the next entry that can take the focus, looked for from one end or
+		// from the entry with the focus, so a long list is not measured whole
+		var all = _webuiArrowEntries(group), n = all.length;
+		var at = document.activeElement, i = all.indexOf(at), to = null;
+		if (i < 0 || !_webuiArrowReachable(at)) {
+			// the group itself or a part of it that scrolls: an arrow goes
+			// to the stop (which is one that can take the focus, if any can)
+			if (/^(INPUT|SELECT|TEXTAREA)$/.test(at.tagName) || !(at === group || at.getAttribute('tabindex') === '-1'))
+				return;
+			if (e.key in step) {
+				to = _webuiArrowStop(group);
+				if (to && !_webuiArrowReachable(to))
+					return;
+			}
+			i = -1;
+		}
+		var dir = e.key === 'End' ? -1 : step[e.key] || 1;
+		var from = e.key === 'End' ? n : e.key === 'Home' ? -1 : i;
+		for (var k = 1; !to && k <= n; k++) {
+			var el = all[((from + dir * k) % n + n) % n];
+			if (_webuiArrowReachable(el))
+				to = el;
+		}
+		if (!to)
 			return;
-		if (e.key === 'Home')
-			i = 0;
-		else if (e.key === 'End')
-			i = all.length - 1;
-		else
-			i = (i + step[e.key] + all.length) % all.length;
-		all[i].focus();
+		to.focus();
 		e.preventDefault();
 	});
+	group.addEventListener('focusin', function(e) {
+		if (_webuiArrowEntries(group).indexOf(e.target) >= 0)
+			arrow.last = e.target;
+		_webuiArrowStop(group);
+	});
+	// a <details> opened or closed: its toggle does not bubble
+	group.addEventListener('toggle', function() { _webuiArrowStop(group); }, true);
+	// the group drawn anew or its marks changed; tabindex is left out, as
+	// the stop is set by it
+	if (typeof MutationObserver === 'function') {
+		// once a frame, as a long list (the channels) changes row by row
+		arrow.watch = new MutationObserver(function() {
+			if (!arrow.soon)
+				arrow.soon = requestAnimationFrame(function() {
+					arrow.soon = 0;
+					if (group.isConnected)
+						_webuiArrowStop(group);
+				});
+		});
+		arrow.watch.observe(group, {childList: true, subtree: true,
+			attributes: true, attributeFilter: ['aria-current', 'aria-pressed', 'class', 'hidden', 'disabled', 'open']});
+	}
+	if (arrow.name)
+		group.addEventListener('click', function(e) {
+			var a = e.target.closest ? e.target.closest('a[href]') : null;
+			if (!a || _webuiArrowEntries(group).indexOf(a) < 0)
+				return;
+			try {
+				// one whose page did not come (stopped, refused) leaves
+				// nothing for the next one either
+				if (!e.isTrusted || e.button !== 0 || e.altKey || e.ctrlKey || e.metaKey || e.shiftKey ||
+						e.defaultPrevented || a.origin !== location.origin ||
+						(a.target && a.target !== '_self') || a.hasAttribute('download') ||
+						a.pathname + a.search === location.pathname + location.search)
+					sessionStorage.removeItem('webui-keys-back');
+				else
+					sessionStorage.setItem('webui-keys-back', JSON.stringify({name: arrow.name, to: a.pathname + a.search,
+						quiet: arrow.keyed !== a, at: Date.now()}));
+			} catch (ignore) { /* the page opens without the focus on its menu then */ }
+		});
+	_webuiArrowKept().push(group);
+	_webuiArrowStop(group);
+}
+
+function _webuiArrowEntries(group) {
+	return Array.prototype.slice.call(group.querySelectorAll(group._webuiArrow.selector));
+}
+
+function _webuiArrowReachable(el) {
+	var closed = el.closest('details:not([open])');
+	if (closed && !(el.tagName === 'SUMMARY' && el.parentElement === closed))
+		return false;
+	if (closed && closed.parentElement && closed.parentElement.closest('details:not([open])'))
+		return false;
+	return !el.disabled && el.getClientRects().length > 0;
+}
+
+/* The one entry of a group Tab stops at: the one with the focus, else the
+   one last focused while it is still there, else the one shown or chosen
+   (aria-current other than false, aria-pressed, the class active), else
+   the first; each among the entries that can take the focus, measured
+   only as far as needed. Where none can (a side bar the phone does not
+   show, a section closed), it is chosen the same way among all, so Tab
+   finds the group once it shows. */
+function _webuiArrowStop(group) {
+	var arrow = group._webuiArrow;
+	var all = _webuiArrowEntries(group);
+	var chosen = function(el) {
+		var c = el.getAttribute('aria-current');
+		return (c && c !== 'false') || el.getAttribute('aria-pressed') === 'true' || el.classList.contains('active');
+	};
+	var pick = function(ok) {
+		var at = document.activeElement, i;
+		if (all.indexOf(at) >= 0 && ok(at))
+			return at;
+		if (arrow.last && all.indexOf(arrow.last) >= 0 && ok(arrow.last))
+			return arrow.last;
+		for (i = 0; i < all.length; i++)
+			if (chosen(all[i]) && ok(all[i]))
+				return all[i];
+		for (i = 0; i < all.length; i++)
+			if (ok(all[i]))
+				return all[i];
+		return null;
+	};
+	var stop = pick(_webuiArrowReachable) || pick(function() { return true; });
+	all.forEach(function(el) {
+		var want = el === stop ? '0' : '-1';
+		if (el.getAttribute('tabindex') !== want)
+			el.setAttribute('tabindex', want);
+	});
+	return stop || null;
+}
+
+// An entry as it is found again once drawn anew: its id (More has no
+// address), else its address
+function _webuiArrowKey(el) {
+	return el.id ? '#' + el.id : el.getAttribute('href') || '';
+}
+
+// The named group with the focus, that entry's key and whether its ring
+// was hidden (focused by the mouse, or quietly by the page), before the
+// navigation is drawn anew
+function _webuiArrowHeld() {
+	var at = document.activeElement;
+	if (!at || at === document.body)
+		return null;
+	var shown = true;
+	try { shown = at.matches(':focus-visible'); } catch (e) { /* an old browser: shown */ }
+	for (var name in _webuiArrowNamed) {
+		var g = _webuiArrowNamed[name];
+		if (at !== g && g.isConnected && g.contains(at))
+			return {name: name, key: _webuiArrowKey(at), quiet: !shown || at.classList.contains('webui-focus-quiet')};
+	}
+	return null;
+}
+
+/* The focus given back to a menu while the page has none: after the
+   navigation was drawn anew, to the entry that had it (held), and on a page
+   opened by an entry, to the stop of the group named, the entry of the
+   page shown; quietly where a click or a tap opened it. That holds within 20 seconds, for a page opened anew (not
+   loaded again, not reached through the history), and on the page the
+   entry named, or for the mark on the start page its address sends on to.
+   The name kept is taken away either way. Without web storage, or where
+   the browser does not tell how the page was opened, only that second part
+   is lost. */
+function _webuiArrowBack(held) {
+	var back = held;
+	try {
+		var kept = JSON.parse(sessionStorage.getItem('webui-keys-back') || 'null');
+		sessionStorage.removeItem('webui-keys-back');
+		var age = kept ? Date.now() - kept.at : -1;
+		var via = '', kind = '';
+		try {
+			var from = new URL(document.referrer);
+			if (from.origin === location.origin)
+				via = from.pathname + from.search;
+		} catch (e) { /* none */ }
+		try {
+			var nav = performance.getEntriesByType('navigation')[0];
+			kind = nav ? nav.type : ['navigate', 'reload', 'back_forward'][performance.navigation.type] || '';
+		} catch (e) { /* not told */ }
+		if (!back && kind === 'navigate' && age >= 0 && age < 20000 &&
+				(kept.to === location.pathname + location.search || (kept.to === '/' && via === '/')))
+			back = kept;
+	} catch (e) { /* no web storage */ }
+	var at = document.activeElement;
+	var group = back ? _webuiArrowNamed[back.name] : null;
+	if (!group || !group.isConnected || (at && at !== document.body))
+		return;
+	var to = _webuiArrowStop(group);
+	if (back.key)
+		to = _webuiArrowEntries(group).filter(function(el) { return _webuiArrowKey(el) === back.key; })[0] || to;
+	if (to && _webuiArrowReachable(to))
+		_webuiArrowFocus(to, back.quiet);
+}
+
+/* The focus a page sets on an entry: seen after Enter, as the keys led
+   there; after a click or a tap without its ring until a key is pressed or
+   the focus moves on (the class webui-focus-quiet: browsers differ in
+   whether they draw the ring for a focus set by a script) and without
+   scrolling to it */
+function _webuiArrowFocus(el, quiet) {
+	if (!quiet) {
+		el.focus({focusVisible: true});
+		return;
+	}
+	var loud = function() {
+		el.classList.remove('webui-focus-quiet');
+		document.removeEventListener('keydown', loud, true);
+		el.removeEventListener('blur', loud);
+	};
+	el.classList.add('webui-focus-quiet');
+	document.addEventListener('keydown', loud, true);
+	el.addEventListener('blur', loud);
+	el.focus({preventScroll: true, focusVisible: false});
 }
 
 // "More" on the phone: the areas the tab bar has no room for, above it
@@ -633,15 +878,14 @@ function webuiToggleMoreMenu(ev) {
 	});
 	menu.appendChild(about);
 	document.body.appendChild(menu);
-	webuiArrowKeys(menu, 'a, button');
+	// its pages take the focus back to the tab bar when Enter opened one
+	webuiArrowKeys(menu, 'a, button', 'tabs');
 	if (btn) btn.setAttribute('aria-expanded', 'true');
-	// Escape closes it and hands the focus back to "More", and so does Tab
-	// on its last entry, as the menu is the last thing on the page; leaving
-	// it by Shift+Tab or a click closes it as well
+	// Escape closes it and hands the focus back to "More", and so does Tab,
+	// as the menu is one stop of Tab and the last thing on the page;
+	// leaving it by Shift+Tab or a click closes it as well
 	menu.addEventListener('keydown', function(e) {
-		var links = menu.querySelectorAll('a, button');
-		var out = e.key === 'Tab' && !e.shiftKey && document.activeElement === links[links.length - 1];
-		if (e.key !== 'Escape' && !out)
+		if (e.key !== 'Escape' && !(e.key === 'Tab' && !e.shiftKey))
 			return;
 		e.preventDefault();
 		menu.remove();
@@ -676,12 +920,12 @@ function webuiToggleMoreMenu(ev) {
 function webuiGetSideHTML() {
 	return `
 <aside class="webui-side" id="webui-side">
-	<a href="/" class="webui-side-brand" title="${WEBUI_CONFIG.title}">
+	<a href="/" class="webui-side-brand" title="${WEBUI_CONFIG.title}" tabindex="-1">
 		<img class="webui-mark" src="${WEBUI_CONFIG.logo}" alt="" width="160" height="160">
 		<span class="webui-side-name"><b>${WEBUI_CONFIG.title}</b><small id="webui-side-host"></small></span>
 	</a>
 	<nav class="webui-side-nav" aria-label="${webuiLH('nav.pages', 'Pages')}">
-		<div class="webui-side-groups" id="webui-side-groups"></div>
+		<div class="webui-side-groups" id="webui-side-groups" tabindex="-1"></div>
 		<ul class="webui-side-links webui-side-end" id="webui-side-end"></ul>
 	</nav>
 	<div class="webui-side-foot">
@@ -762,7 +1006,7 @@ function webuiGetHeaderHTML(activePage) {
 			</button>
 		</div>
 	</div>
-	<nav class="webui-subnav-nav"><ul class="webui-subnav" id="webui-subnav" hidden></ul></nav>
+	<nav class="webui-subnav-nav"><ul class="webui-subnav" id="webui-subnav" tabindex="-1" hidden></ul></nav>
 	<nav class="webui-tabbar" id="webui-tabbar" aria-label="${webuiLH('nav.areas', 'Areas')}"></nav>
 </header>`;
 }
@@ -941,11 +1185,10 @@ async function webuiToggleLangMenu(ev) {
 		menu.appendChild(b);
 	});
 	// Escape closes it and hands the focus back to the button, and so does
-	// Tab on its last entry, as the menu is the last thing on the page;
+	// Tab, as the menu is one stop of Tab and the last thing on the page;
 	// leaving it by Shift+Tab closes it as well
 	menu.addEventListener('keydown', function(e) {
-		var all = menu.querySelectorAll('button');
-		if (e.key === 'Escape' || (e.key === 'Tab' && !e.shiftKey && document.activeElement === all[all.length - 1])) {
+		if (e.key === 'Escape' || (e.key === 'Tab' && !e.shiftKey)) {
 			e.preventDefault();
 			shut(true);
 		}

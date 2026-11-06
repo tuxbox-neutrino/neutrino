@@ -104,9 +104,11 @@
 		#settingsSidebar summary.grp::after {
 			margin-inline-start: 0;
 		}
-		#settingsSidebar summary.grp:focus-visible {
+		#settingsSidebar summary.grp:focus-visible,
+		#settingsSidebar button:focus-visible {
 			outline: 2px solid var(--webui-focus-color);
 			outline-offset: -2px;
+			box-shadow: none;
 		}
 		#settingsSidebar details[open] > button:last-child {
 			margin-bottom: 0.4rem;
