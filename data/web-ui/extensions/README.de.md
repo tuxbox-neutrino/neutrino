@@ -191,6 +191,10 @@ Kernpunkte:
   Header auf die Seite.
 - Styling: Pico CSS + `/css/webui.css` verlinken — fertige Klassen
   (`webui-card`, `webui-form-row`, `webui-btn`) nutzen.
+- Erweiterungen bringen kein eigenes Favicon mit, sie nutzen das der
+  Oberfläche, mit denselben zwei Zeilen im `<head>` wie jede ihrer Seiten:
+  `<link rel="icon" href="/favicon/favicon.ico">` und
+  `<link rel="apple-touch-icon" href="/favicon/apple-touch-icon.png">`.
 - Theme **vor** diesen Stylesheets setzen, sonst malt die Seite erst in
   einem Theme und springt dann ins andere. Hell oder dunkel folgt dem
   Gerät, bis jemand mit dem Schalter im Kopf eines wählt; die Wahl steht

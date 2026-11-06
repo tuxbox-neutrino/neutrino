@@ -189,6 +189,10 @@ Key points:
   page.
 - Styling: link Pico CSS + `/css/webui.css` — use the ready-made classes
   (`webui-card`, `webui-form-row`, `webui-btn`).
+- Extensions bring no favicon of their own; they use the interface's, with
+  the same two lines in the `<head>` as every page of it:
+  `<link rel="icon" href="/favicon/favicon.ico">` and
+  `<link rel="apple-touch-icon" href="/favicon/apple-touch-icon.png">`.
 - Apply the theme **before** those stylesheets, otherwise the page paints
   in one theme first and then jumps to the other. Light or dark is the
   device's setting until somebody picks one with the header's toggle,
