@@ -74,6 +74,7 @@ coreapi_tests_SOURCES = \
 	coreapi/test_commandsink.cpp \
 	coreapi/test_postpayload.cpp \
 	coreapi/test_system.cpp \
+	coreapi/test_rc.cpp \
 	coreapi/test_shellcontract.cpp \
 	system/test_mysystem.cpp \
 	timerd/test_timerwake.cpp \
