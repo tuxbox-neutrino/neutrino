@@ -5135,17 +5135,42 @@ body.webui-signin {
 }
 
 /* Arrangement controls sit outside each card's contents, so the contents
-   keep their own layout and input gestures. */
+   keep their own layout and input gestures. Outside a draft the bar holds
+   only its small button, at the right, half in the space the page and the
+   grid keep above the cards; while a draft is open it holds the hint and
+   the draft's actions and stays in sight at the top of the scrolling page,
+   which then keeps a focused or dragged card clear of it
+   (--webui-dash-bar, the bar's height). */
 .webui-dash-arrange-bar {
 	display: flex;
 	align-items: center;
+	justify-content: flex-end;
 	flex-wrap: wrap;
-	gap: 0.5rem 0.75rem;
+	gap: 0.5rem;
 	max-width: var(--webui-page-max);
-	margin: 0 auto;
-	padding: 0.75rem 1rem 0;
+	margin: -0.5rem auto;
+	padding: 0 1rem;
 }
-.webui-dash-arrange-bar small { flex-basis: 100%; }
+.webui-dash-arrange-bar.drafting {
+	position: sticky;
+	/* the edge of main itself, not of its content: main's padding */
+	top: calc(-1 * var(--pico-block-spacing-vertical));
+	z-index: 5;
+	margin-bottom: 0;
+	padding-block: 0.5rem;
+	background: var(--pico-background-color);
+	border-bottom: 1px solid var(--webui-border-subtle);
+}
+main.webui-dash-drafting {
+	scroll-padding-top: calc(var(--webui-dash-bar, 0px) + 0.5rem);
+}
+.webui-dash-arrange-bar small { flex: 1 1 14rem; }
+.webui-dash-arrange-bar .webui-btn {
+	min-height: 2rem;
+	margin: 0;
+	padding: 0.2rem 0.65rem;
+	font-size: var(--webui-font-sm);
+}
 .webui-dash-order-controls {
 	display: flex;
 	align-items: center;
@@ -5190,11 +5215,6 @@ body.webui-signin {
 	box-shadow: 0 0 0 2px var(--pico-card-background-color);
 }
 
-.webui-dash-arrange-bar [aria-pressed="true"] {
-	background: var(--webui-accent-light);
-	border-color: var(--webui-accent);
-	color: var(--webui-accent);
-}
 .webui-dash-order-controls [aria-disabled="true"] {
 	cursor: not-allowed;
 	color: var(--webui-text-secondary);

@@ -792,10 +792,11 @@
 	<div class="webui-header-spacer"></div>
 
 	<main>
-		<div class="webui-dash-arrange-bar">
-			<button type="button" class="webui-btn" id="dash-arrange" aria-pressed="false" aria-controls="dashboard-cards" data-l="dash.arrange">Arrange cards</button>
-			<button type="button" class="webui-btn" id="dash-arrange-reset" data-l="dash.arrange_reset" hidden>Reset order</button>
+		<div class="webui-dash-arrange-bar" role="toolbar" aria-label="Order of the cards" data-l-aria-label="dash.arrange_bar">
 			<small id="dash-arrange-hint" data-l="dash.arrange_hint" hidden>Drag a handle or use the arrow keys</small>
+			<button type="button" class="webui-btn" id="dash-arrange-reset" data-l="dash.arrange_reset" hidden>Reset order</button>
+			<button type="button" class="webui-btn" id="dash-arrange-cancel" data-l="msg.cancel" hidden>Cancel</button>
+			<button type="button" class="webui-btn" id="dash-arrange" aria-controls="dashboard-cards" data-l="dash.arrange">Arrange cards</button>
 			<span id="dash-arrange-status" class="webui-visually-hidden" role="status"></span>
 		</div>
 		<div class="webui-dashboard" id="dashboard-cards">

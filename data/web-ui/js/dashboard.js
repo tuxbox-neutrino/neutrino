@@ -1189,16 +1189,22 @@ webuiAfterTexts(function() {
 // A single DOM order serves every screen width and the reading/tab order.
 // Missing extension keys stay in the saved list so a returning card keeps
 // its place. Only the reserved extension namespace may name absent cards.
+// Arranging is a draft: moves and Reset change the page only, Apply keeps
+// the order with one write, Cancel, Escape and leaving the page put the
+// kept order back.
 function initDashboardOrder() {
 	const grid = document.querySelector('.webui-dashboard');
 	const toggle = document.getElementById('dash-arrange');
+	const cancel = document.getElementById('dash-arrange-cancel');
 	const reset = document.getElementById('dash-arrange-reset');
 	const hint = document.getElementById('dash-arrange-hint');
 	const status = document.getElementById('dash-arrange-status');
+	const bar = toggle.parentElement;
 	const main = grid.closest('main');
 	const key = 'webui-dashboard-order-v1';
 	const core = Array.from(grid.children).map(c => c.dataset.dashboardKey).filter(s => s && !s.startsWith('ext:'));
 	let order = [], arranging = false, drag = null, frame = null;
+	let kept = [], changed = false;	// the order kept when the draft began; whether the draft moved a card
 	let storageFailed = false;
 	const cards = () => Array.from(grid.children).filter(c => c.dataset.dashboardKey);
 	const id = c => c.dataset.dashboardKey;
@@ -1211,10 +1217,14 @@ function initDashboardOrder() {
 	const defaults = () => core.concat(cards().map(id).filter(s => !core.includes(s)).sort());
 	const balance = () => webuiBalanceGrid('.webui-dashboard', {tracks: 60, cardMin: 380, maxPer: 4,
 		breakpoint: 760, skip: '.webui-dash-now, .webui-dash-gauges'});
-	const announce = text => {
-		status.textContent = text + (storageFailed ? '. ' + webuiL('dash.arrange_not_saved',
+	// a browser that keeps nothing is told when a draft begins (and on
+	// Apply), not with every move of the draft
+	const announce = (text, warn) => {
+		status.textContent = text + (warn && storageFailed ? '. ' + webuiL('dash.arrange_not_saved',
 			'Order could not be saved in this browser') : '');
 	};
+	// the height of the draft's bar, which covers the top of the page
+	const barHeight = () => main.style.setProperty('--webui-dash-bar', arranging ? bar.offsetHeight + 'px' : '0px');
 	const position = c => {
 		const args = [label(c), cards().indexOf(c) + 1, cards().length];
 		return webuiL('dash.arrange_position', '%s, position %s of %s').replace(/%s/g, () => args.shift());
@@ -1260,7 +1270,7 @@ function initDashboardOrder() {
 		const visible = cards().map(id);
 		let i = 0;
 		order = order.map(s => visible.includes(s) ? visible[i++] : s);
-		save(false);
+		changed = true;
 		balance();
 		buttons();
 		if (focus) {
@@ -1299,18 +1309,21 @@ function initDashboardOrder() {
 		const after = row ? d.x > (r.left + r.right) / 2 : d.y > (r.top + r.bottom) / 2;
 		d.target = cards().filter(c => c !== d.card).indexOf(best) + (after ? 1 : 0);
 		const viewport = main.getBoundingClientRect();
+		const shown = Math.max(viewport.top, bar.getBoundingClientRect().bottom);
 		const edge = row ? (after ? r.right : r.left) : (after ? r.bottom : r.top);
-		const top = row ? Math.max(r.top, viewport.top) : edge - 2;
+		const top = row ? Math.max(r.top, shown) : edge - 2;
 		const bottom = Math.min(r.bottom, viewport.bottom);
-		marker.hidden = row ? bottom <= top : edge < viewport.top || edge > viewport.bottom;
+		marker.hidden = row ? bottom <= top : edge < shown || edge > viewport.bottom;
 		Object.assign(marker.style, {left: (row ? edge - 2 : r.left) + 'px', top: top + 'px',
 			width: (row ? 4 : r.width) + 'px', height: (row ? Math.max(0, bottom - top) : 4) + 'px'});
 	};
 	const scrollDrag = () => {
 		if (!drag || !drag.active) return;
 		const r = main.getBoundingClientRect();
+		// the bar of the draft covers the top of the page while it is open
+		const top = Math.max(r.top, bar.getBoundingClientRect().bottom);
 		const y = drag.y;
-		const step = y < r.top + 48 ? -Math.min(18, (r.top + 48 - y) / 3)
+		const step = y < top + 48 ? -Math.min(18, (top + 48 - y) / 3)
 			: y > r.bottom - 48 ? Math.min(18, (y - r.bottom + 48) / 3) : 0;
 		if (step) main.scrollTop += step;
 		dropAt();
@@ -1385,25 +1398,76 @@ function initDashboardOrder() {
 	};
 	const observer = new MutationObserver(reconcile);
 	reconcile();
-	toggle.addEventListener('click', () => {
-		finish(true);
-		arranging = !arranging;
-		toggle.setAttribute('aria-pressed', String(arranging));
-		reset.hidden = hint.hidden = !arranging;
+	// the bar's buttons are one stop of Tab, the arrows move among them
+	if (typeof webuiArrowKeys === 'function')
+		webuiArrowKeys(bar, '.webui-btn');
+	// The one button starts a draft and then applies it, so it says what a
+	// press does now; Cancel and Reset are there while the draft is open.
+	const mode = on => {
+		arranging = on;
+		toggle.textContent = on ? webuiL('dash.arrange_apply', 'Apply') : webuiL('dash.arrange', 'Arrange cards');
+		toggle.classList.toggle('primary', on);
+		bar.classList.toggle('drafting', on);
+		main.classList.toggle('webui-dash-drafting', on);
+		cancel.hidden = reset.hidden = hint.hidden = !on;
 		buttons();
 		balance();
-		if (arranging) announce(hint.textContent);
+		barHeight();
+	};
+	// The focus on a control the end of the draft hides goes to the button.
+	const end = () => {
+		const focused = document.activeElement;
+		const lost = focused && focused !== toggle && (bar.contains(focused) || focused.closest('.webui-dash-order-controls'));
+		mode(false);
+		if (lost) toggle.focus({preventScroll: true});
+	};
+	const discard = quiet => {
+		finish(true);
+		order = kept.slice();
+		changed = false;
+		reconcile();
+		end();
+		if (!quiet) announce(webuiL('dash.arrange_discarded', 'Changes discarded'));
+	};
+	toggle.addEventListener('click', () => {
+		finish(true);
+		if (!arranging) {
+			kept = order.slice();
+			changed = false;
+			mode(true);
+			announce(hint.textContent, true);
+			return;
+		}
+		// the default order is kept as no entry, so cards added later
+		// take their default places
+		if (changed) save(JSON.stringify(order) === JSON.stringify(defaults()));
+		const saved = changed;
+		changed = false;
+		end();
+		if (saved && storageFailed)
+			status.textContent = webuiL('dash.arrange_not_saved', 'Order could not be saved in this browser');
+		else
+			announce(saved ? webuiL('dash.arrange_saved', 'Order saved') : webuiL('dash.arrange_unchanged', 'Order unchanged'));
 	});
+	cancel.addEventListener('click', () => discard(false));
 	reset.addEventListener('click', () => {
 		finish(true);
 		order = defaults();
+		changed = true;
 		reconcile();
-		save(true);
 		announce(webuiL('dash.arrange_reset_done', 'Default order restored'));
 	});
+	// Escape ends a drag, else the draft; not when it closes a dialog
 	document.addEventListener('keydown', e => {
-		if (e.key === 'Escape' && drag) { e.preventDefault(); finish(true); }
+		if (e.key !== 'Escape') return;
+		if (drag) { e.preventDefault(); finish(true); return; }
+		if (!arranging || e.defaultPrevented || (e.target.closest && e.target.closest('[role="dialog"], [role="alertdialog"], dialog')))
+			return;
+		e.preventDefault();
+		discard(false);
 	});
+	// a page kept for Back must not come back with the draft open
+	window.addEventListener('pagehide', () => { if (arranging) discard(true); });
 	window.addEventListener('blur', () => finish(true));
-	window.addEventListener('resize', () => { finish(true); balance(); });
+	window.addEventListener('resize', () => { finish(true); balance(); barHeight(); });
 }
