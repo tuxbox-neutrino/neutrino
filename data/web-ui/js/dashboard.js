@@ -318,17 +318,21 @@ function showState() {
 	});
 }
 
-/* Gauges that never showed values say they could not be read, in place of
-   the gauges (they carry the link to the system information), and offer to
-   read again. */
+/* Gauges and the list of interfaces that never showed values say they
+   could not be read, in place of what they hold and beside it, as that
+   carries the link to the system information, and offer to read again. A
+   failure that comes again keeps the block, and the focus on its button. */
 function systemFailed(failed) {
-	withEl('card-gauges', function(sec) {
-		var st = sec.querySelector(':scope > .webui-state');
+	[['#card-gauges', 'gauges'], ['#card-network > .webui-card-body', 'net-interfaces']].forEach(function(part) {
+		var host = document.querySelector(part[0]);
+		if (!host)
+			return;
+		var st = host.querySelector(':scope > .webui-state');
 		if (failed && !st)
-			sec.prepend(webuiState('error', webuiL('state.failed', 'Could not be read'), '', {retry: loadSystemInfo}));
+			host.prepend(webuiState('error', webuiL('state.failed', 'Could not be read'), '', {retry: loadSystemInfo}));
 		else if (!failed && st)
 			st.remove();
-		withEl('gauges', function(g) { g.hidden = failed; });
+		withEl(part[1], function(el) { el.hidden = failed; });
 	});
 }
 
@@ -1151,6 +1155,7 @@ webuiAfterTexts(function() {
 	withEl('timer-list', function(el) { el.replaceChildren(webuiState('loading', webuiL('msg.loading', 'Loading...'), '')); });
 	withEl('tuner-list', function(el) { el.replaceChildren(webuiState('loading', webuiL('msg.loading', 'Loading...'), '')); });
 	withEl('recent-list', function(el) { el.replaceChildren(webuiEl('li', {}, webuiState('loading', webuiL('msg.loading', 'Loading...'), ''))); });
+	withEl('net-list', function(el) { el.replaceChildren(webuiEl('li', {}, webuiState('loading', webuiL('msg.loading', 'Loading...'), ''))); });
 	initVolume();
 
 	refreshEvented();

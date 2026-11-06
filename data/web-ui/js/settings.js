@@ -435,10 +435,15 @@ function extSettingsSection(cfgName) {
 	return m ? m[1] : '';
 }
 
+// The shared loading state of a panel, as markup for the panels drawn as text
+function settingsLoading(text) {
+	return webuiState('loading', text, '').outerHTML;
+}
+
 function renderExtConfigPanel(cat) {
 	setTimeout(function() { loadExtConfigPanel(cat); }, 0);
 	return '<div class="settings-card">' + makeCardHeader(cat.label) +
-		'<div id="extcfg-' + cat.id + '"><p aria-busy="true">' + webuiLH('msg.loading', 'Loading...') + '</p></div></div>';
+		'<div id="extcfg-' + cat.id + '">' + settingsLoading(webuiL('msg.loading', 'Loading...')) + '</div></div>';
 }
 
 async function loadExtConfigPanel(cat) {
@@ -657,7 +662,7 @@ async function webuiRestoreGo(btn) {
 function renderExtensionsPanel() {
 	setTimeout(loadExtensionsPanel, 0);
 	return '<div class="settings-card">' + makeCardHeader(webuiL('set.ext_title', 'Neutrino-Web-UI extensions')) +
-		'<div id="extPanel"><p aria-busy="true">' + webuiLH('set.ext_search', 'Searching for extensions...') + '</p></div></div>';
+		'<div id="extPanel">' + settingsLoading(webuiL('set.ext_search', 'Searching for extensions...')) + '</div></div>';
 }
 
 // dir -> {version, url} filled by an explicit update check
@@ -1040,7 +1045,7 @@ async function saveExtensions(btn) {
 function renderWolPanel() {
 	setTimeout(loadWolPanel, 0);
 	return '<div class="settings-card">' + makeCardHeader('Wake-on-LAN') +
-		'<div id="wolPanel"><p aria-busy="true">Lade…</p></div></div>';
+		'<div id="wolPanel">' + settingsLoading(webuiL('msg.loading', 'Loading...')) + '</div></div>';
 }
 
 async function loadWolPanel() {
@@ -1129,7 +1134,7 @@ function xmltvOwed() {
 function renderXmltvPanel() {
 	setTimeout(loadXmltvPanel, 0);
 	return '<div class="settings-card">' + makeCardHeader(webuiL('set.xmltv_title', 'WebTV, web radio and XMLTV sources')) +
-		'<div id="xmltvPanel"><p aria-busy="true">Lade…</p></div></div>';
+		'<div id="xmltvPanel">' + settingsLoading(webuiL('msg.loading', 'Loading...')) + '</div></div>';
 }
 
 function xmltvSection(kind, title, upload) {
@@ -1299,7 +1304,7 @@ async function doZapitUploadNow(btn, inp, target, status) {
 function renderPluginsPanel() {
 	setTimeout(loadPluginsPanel, 0);
 	return '<div class="settings-card">' + makeCardHeader(webuiL('reg.plugins', 'Neutrino plugins')) +
-		'<div id="pluginsPanel"><p aria-busy="true">' + webuiLH('set.plugins_loading', 'Loading plugins...') + '</p></div></div>';
+		'<div id="pluginsPanel">' + settingsLoading(webuiL('set.plugins_loading', 'Loading plugins...')) + '</div></div>';
 }
 
 function pluginRow(label, note, button) {
@@ -1494,7 +1499,7 @@ function shareStateName(state) {
 function renderMountsPanel() {
 	setTimeout(loadSharesPanel, 0);
 	return '<div class="settings-card">' + makeCardHeader(webuiL('reg.mounts', 'Network mounts')) +
-		'<div id="sharesPanel"><p aria-busy="true"></p></div></div>';
+		'<div id="sharesPanel">' + settingsLoading(webuiL('msg.loading', 'Loading...')) + '</div></div>';
 }
 
 async function loadSharesPanel() {

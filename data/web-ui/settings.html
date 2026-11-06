@@ -715,13 +715,6 @@
 			}
 		}
 
-		/* Loading */
-		.settings-loading {
-			text-align: center;
-			padding: 3rem;
-			color: var(--pico-muted-color);
-		}
-
 		/* Mobile — settings-specific overrides (form-row mobile handled by webui.css) */
 		@media (max-width: 800px) {
 			.webui-settings-sidebar { display: none; }
@@ -767,7 +760,8 @@
 			</search>
 			<div id="settingsHits" class="settings-card" hidden></div>
 			<div id="settingsContent">
-				<div class="settings-loading" data-l="set.loading">Loading settings...</div>
+				<!-- webuiState('loading'), here before the scripts are in -->
+				<div class="webui-state loading" aria-busy="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M21 12a9 9 0 1 1-6.2-8.6"/></svg><strong data-l="set.loading">Loading settings...</strong></div>
 			</div>
 			<div id="settingsSaveBar" class="settings-save-bar" hidden>
 				<span class="note"><b id="saveBarCount">0</b> <span data-l="set.unsaved">unsaved changes</span></span>
