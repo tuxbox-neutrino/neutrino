@@ -172,6 +172,17 @@ function onPicture(box, parts) {
 	return box;
 }
 
+// A click or a tap on a recording's picture in the list opens its details,
+// as its title does; a button on the picture keeps its own action. The
+// title stays the way there by keyboard.
+function opensDetails(box, rec) {
+	box.classList.add('opens');
+	box.addEventListener('click', e => {
+		if (!e.target.closest('button')) choose(rec);
+	});
+	return box;
+}
+
 function playingPill() {
 	return webuiEl('span', {className: 'webui-pill ok'}, webuiL('media.playing', 'Playing'));
 }
@@ -201,7 +212,7 @@ function recordingTile(rec) {
 			webuiMarkup(SVG_PLAY_FILLED))]);
 	return webuiEl('li', {className: 'webui-media-tile' + (rec.id === chosen ? ' chosen' : ''), data: {id: rec.id},
 		attrs: rec.id === chosen ? {'aria-current': 'true'} : {}},
-		pic, openButton(rec, title, meta, false));
+		opensDetails(pic, rec), openButton(rec, title, meta, false));
 }
 
 // One recording as a row: its picture, its title and what it is, Play on
@@ -212,7 +223,7 @@ function recordingRow(rec) {
 	const base = '/api/v1' + archive(rec.id);
 	return webuiEl('li', {className: 'webui-media-row' + (rec.id === chosen ? ' chosen' : ''), data: {id: rec.id},
 		attrs: rec.id === chosen ? {'aria-current': 'true'} : {}},
-		onPicture(picture(rec), []),
+		opensDetails(onPicture(picture(rec), []), rec),
 		webuiEl('div', {className: 'webui-media-info'}, openButton(rec, title, meta, rec.playing)),
 		webuiEl('div', {className: 'webui-media-actions'},
 			webuiEl('button', {type: 'button', className: 'webui-btn webui-media-play',
