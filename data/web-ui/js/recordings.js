@@ -424,6 +424,28 @@ function remove(rec) {
 	});
 }
 
+/* The bar and the column beside the list stay in sight while the list
+   scrolls: the column sticks below the bar and is as high as the room left
+   under it, so its actions stay reachable however long its text. Both
+   heights change with the window and with the bar's wrapping. */
+function fitSticky() {
+	const page = document.querySelector('.webui-media');
+	const bar = document.querySelector('.webui-media-bar');
+	const main = page && page.closest('main');
+	if (!bar || !main) return;
+	const m = getComputedStyle(main);
+	page.style.setProperty('--webui-media-bar-h', bar.offsetHeight + 'px');
+	page.style.setProperty('--webui-media-room', (main.clientHeight - parseFloat(m.paddingTop) - parseFloat(m.paddingBottom)) + 'px');
+}
+if (typeof ResizeObserver === 'function') {
+	const fit = new ResizeObserver(fitSticky);
+	fit.observe(document.querySelector('.webui-media-bar'));
+	fit.observe(document.querySelector('main'));
+} else {
+	window.addEventListener('resize', fitSticky);
+	fitSticky();
+}
+
 // Controls: a search waits for the typing to pause
 let searchTimer = null;
 document.getElementById('mediaSearch').addEventListener('input', () => {

@@ -28,11 +28,21 @@
 			padding: 1rem;
 		}
 
+		/* The bar stays at the top while the list scrolls under it (main
+		   scrolls, webui.css), on the page's ground, which also covers the
+		   strip of main's padding above it */
 		.webui-media-bar {
+			position: sticky;
+			top: 0;
+			z-index: 3;
 			display: flex;
 			flex-wrap: wrap;
 			align-items: center;
 			gap: 0.6rem;
+			padding-bottom: 0.5rem;
+			margin-bottom: -0.5rem;
+			background: var(--pico-background-color);
+			box-shadow: 0 -1rem 0 var(--pico-background-color);
 		}
 
 		.webui-media-bar input[type="search"] {
@@ -396,6 +406,38 @@
 			.webui-media-play span {
 				display: none;
 			}
+
+			/* the bar that stays in sight takes three short lines: the
+			   search; the folders, scrolled sideways, with the count; the
+			   order with the view */
+			.webui-media-bar {
+				gap: 0.4rem;
+			}
+
+			.webui-media-bar input[type="search"] {
+				flex: 1 1 100%;
+				max-width: none;
+				height: 2.2rem;
+			}
+
+			.webui-media-chips,
+			.webui-media-chips[role="group"] {
+				flex: 1 1 60%;
+				flex-wrap: nowrap;
+				min-width: 0;
+				overflow-x: auto;
+				scrollbar-width: none;
+			}
+
+			.webui-media-order {
+				flex: 1 1 55%;
+				min-width: 0;
+			}
+
+			.webui-media-order select {
+				flex: 1 1 0;
+				min-width: 0;
+			}
 		}
 
 		.webui-media-note {
@@ -424,10 +466,14 @@
 				grid-column: 1 / -1;
 			}
 
+			/* beside the list, below the bar, as high as the room under it
+			   (measured by recordings.js), its own content scrolling */
 			.webui-media-detail {
 				display: block;
 				position: sticky;
-				top: 0;
+				top: calc(var(--webui-media-bar-h, 3rem) + 1rem);
+				max-height: calc(var(--webui-media-room, 100dvh) - var(--webui-media-bar-h, 3rem) - 2rem);
+				overflow-y: auto;
 			}
 		}
 
@@ -477,6 +523,19 @@
 
 		.webui-media-detail-acts .primary {
 			grid-column: 1 / -1;
+		}
+
+		/* in the column beside the list its actions stay at its foot while
+		   a long text scrolls */
+		@media (min-width: 1200px) {
+			.webui-media-detail .webui-media-detail-acts {
+				position: sticky;
+				bottom: -1.1rem;
+				margin: 1rem -1.1rem -1.1rem;
+				padding: 0.75rem 1.1rem 1.1rem;
+				border-top: 1px solid var(--pico-muted-border-color);
+				background: var(--pico-card-background-color);
+			}
 		}
 
 		.webui-media-detail-acts .webui-media-delete {
