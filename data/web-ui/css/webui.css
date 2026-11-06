@@ -1356,13 +1356,26 @@ body ul.webui-side-list > li {
 }
 
 .webui-modal-close {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 2rem;
+	height: 2rem;
 	background: none;
 	border: none;
 	color: var(--pico-muted-color);
 	cursor: pointer;
-	padding: 0.25rem;
+	padding: 0;
 	border-radius: 50%;
 	transition: var(--webui-transition);
+}
+
+/* A focus a script set (the dialog's first control) or a click gave is not a
+   keyboard focus: Pico's focus shadow would draw a frame around the round
+   box there. The keyboard ring is the outline of :focus-visible below. */
+.webui-modal-close:focus:not(:focus-visible) {
+	box-shadow: none;
+	--pico-box-shadow: none;
 }
 
 @media (hover: hover) {
