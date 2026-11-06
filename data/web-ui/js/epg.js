@@ -20,7 +20,6 @@ let currentStartTime = null;
 let currentChannelId = null;
 let bouquetError = null;	// why the bouquets could not be read, null once they were
 let timers = [];
-let knownRecordings = [];	// accepted guide reads, without timeshift
 let gridToken = 0;
 let gridRows = Object.create(null);	// channel id -> {channel, el, events}, for the grid shown
 let gridWindow = null;		// {start, stop} of the grid shown
@@ -76,7 +75,6 @@ async function loadTimers() {
 		const r = await webuiV1('GET', '/timers');
 		if (read !== timersRead) return;
 		timers = (r && r.items) || [];
-		knownRecordings = knownRecordings.filter(rec => timers.some(t => t.id === rec.id && t.state === 2));
 		webuiTimersSeen(timers);
 	} catch (e) {
 		if (read !== timersRead) return;
@@ -202,7 +200,9 @@ function pressed(ev, fn) {
 
 // The programmes of a row in the window, each a button that names it,
 // its time, its channel and a timer set on it; a row the guide knows
-// nothing for says so
+// nothing for says so. A zap timer frames its programme in green, a
+// recording scheduled in yellow; a recording running keeps the usual frame
+// and says so by its mark.
 function fillRow(target) {
 	const channel = target.channel, el = target.el, events = target.events || [];
 	const win = gridWindow;
@@ -218,20 +218,18 @@ function fillRow(target) {
 		const widthPercent = ((displayStop - displayStart) / 60) / TOTAL_MINUTES * 100;
 		const timer = timerFor(channel.id, ev);
 		const status = webuiEventTimerMark(timer, true);
-		const recording = _webuiEpgRuns(ev) && knownRecordings.some(rec => rec.channel_id === channel.id);
-		const mark = [status ? status.textContent : '', recording ? webuiL('bc.recording', 'Recording') : ''].filter(Boolean).join(' · ');
-		const name = [ev.title || '', clock(ev.start) + ' – ' + clock(evStop), channel.name, mark].filter(Boolean).join(', ');
+		const kind = webuiEventTimerMarkKind(timer);
+		const name = [ev.title || '', clock(ev.start) + ' – ' + clock(evStop), channel.name, status ? status.textContent : ''].filter(Boolean).join(', ');
 		// under ten minutes of the four hours shown: too narrow for its text
 		const tiny = widthPercent < 10 / TOTAL_MINUTES * 100 ? ' tiny' : '';
-		boxes.push(webuiEl('div', {className: 'webui-epg-program' + tiny + (timer.length ? ' timer-marked' : ''),
+		const framed = kind === 'zap' ? ' timer-marked timer-zap' : kind === 'record' ? ' timer-marked timer-record' : '';
+		boxes.push(webuiEl('div', {className: 'webui-epg-program' + tiny + framed,
 			tabIndex: 0, attrs: {role: 'button', 'aria-label': name}, data: {start: String(ev.start), stop: String(evStop)},
 			style: {left: leftPercent + '%', width: 'calc(' + widthPercent + '% - 2px)'},
 			on: {click: () => showProgramDetail(channel, ev), keydown: k => pressed(k, () => showProgramDetail(channel, ev))}},
 			webuiEl('div', {className: 'webui-epg-program-title'}, ev.title || ''),
 			webuiEl('div', {className: 'webui-epg-program-time'}, clock(ev.start)),
-			webuiEl('div', {className: 'webui-epg-program-status'}, status || '',
-				recording ? webuiEl('span', {className: 'webui-pill rec'},
-					webuiEl('span', {className: 'webui-visually-hidden'}, webuiL('bc.recording', 'Recording'))) : '')));
+			webuiEl('div', {className: 'webui-epg-program-status'}, status || '')));
 	});
 	if (!boxes.length)
 		boxes.push(webuiEl('div', {className: 'webui-epg-none'}, webuiL('epg.none', 'No programme data')));
@@ -307,11 +305,6 @@ async function refreshRows() {
 		});
 	}
 }
-
-document.addEventListener('webui-recordings-seen', function(e) {
-	knownRecordings = e.detail.filter(rec => !rec.timeshift);
-	Object.keys(gridRows).forEach(id => { if (gridRows[id].events) fillRow(gridRows[id]); });
-});
 
 // A timer set or taken away anywhere moves the marks
 async function timersChanged() {

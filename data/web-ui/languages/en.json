@@ -1048,5 +1048,5 @@
 	"tip.numpad": "The number keys and the other keys of the remote",
 	"epg.timer_record_planned": "Recording scheduled",
 	"epg.timer_zap_planned": "Channel switch scheduled",
-	"epg.timer_running": "Timer running"
+	"epg.timer_record_running": "Recording timer running"
 }

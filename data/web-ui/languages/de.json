@@ -1048,5 +1048,5 @@
 	"tip.numpad": "Die Zifferntasten und die übrigen Tasten der Fernbedienung",
 	"epg.timer_record_planned": "Aufnahme geplant",
 	"epg.timer_zap_planned": "Umschalten geplant",
-	"epg.timer_running": "Timer wird ausgeführt"
+	"epg.timer_record_running": "Aufnahme-Timer läuft"
 }

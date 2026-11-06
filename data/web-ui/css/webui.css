@@ -5003,6 +5003,27 @@ body.webui-signin {
 
 .webui-pill.webui-timer-mark { color: var(--webui-warning); }
 
+/* A programme's timers in the guide (webuiEventTimerMark): a zap timer in
+   green and a recording scheduled in yellow, its programme framed in that
+   colour, the timer symbol without a dot; a recording running keeps the
+   usual frame, its symbol red with the dot pulsing beside it. */
+.webui-pill.webui-timer-mark.zap { color: var(--webui-success); }
+.webui-pill.webui-timer-mark.record.running { color: var(--webui-recording); }
+
+.webui-pill.webui-timer-mark.zap::before,
+.webui-pill.webui-timer-mark.record:not(.running)::before {
+	content: none;
+}
+
+.webui-epg-program.timer-marked.timer-zap { border: 2px solid var(--webui-success); }
+.webui-epg-program.timer-marked.timer-record { border: 2px solid var(--webui-warning); }
+
+.webui-epg-modal .webui-pill.webui-timer-mark svg {
+	flex: none;
+	width: 1em;
+	height: 1em;
+}
+
 /* While it records, the action is filled in the red with its label and dot
    in white, so it stands apart from the action at rest. */
 .webui-btn.webui-record-btn.recording,

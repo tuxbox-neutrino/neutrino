@@ -764,16 +764,26 @@ function webuiTimersForEvent(items, channelId, ev) {
 	});
 }
 
+/* The mark of a programme's timers, all taken from the timer list: a zap
+   timer ('zap'), a recording scheduled ('record') or running ('record
+   running', state 2). A zap timer is over once it switched (the daemon
+   finishes it at once), so it marks nothing after that. compact leaves the
+   symbol and puts the words where only a screen reader reads them. */
+function webuiEventTimerMarkKind(items) {
+	const record = items.filter(function(t) { return t.kind !== 'zapto'; });
+	if (!record.length) return items.length ? 'zap' : '';
+	return record.some(function(t) { return t.state === 2; }) ? 'record running' : 'record';
+}
+
 function webuiEventTimerMark(items, compact) {
 	if (!items.length) return null;
-	const running = items.some(function(t) { return t.state === 2; });
 	const label = items.map(function(t) {
 		return t.kind === 'zapto' ? webuiL('epg.timer_zap_planned', 'Channel switch scheduled') :
+			t.state === 2 ? webuiL('epg.timer_record_running', 'Recording timer running') :
 			webuiL('epg.timer_record_planned', 'Recording scheduled');
 	}).filter(function(s, i, all) { return all.indexOf(s) === i; });
-	if (running) label.push(webuiL('epg.timer_running', 'Timer running'));
-	return webuiEl('span', {className: 'webui-pill webui-timer-mark' + (running ? ' running' : '')},
-		compact ? webuiMarkup('<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 6v6l4 2"/></svg>') : '',
+	return webuiEl('span', {className: 'webui-pill webui-timer-mark ' + webuiEventTimerMarkKind(items)},
+		webuiMarkup('<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 6v6l4 2"/></svg>'),
 		webuiEl('span', {className: compact ? 'webui-visually-hidden' : ''}, label.join(' · ')));
 }
 
