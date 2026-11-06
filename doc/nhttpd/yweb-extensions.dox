@@ -26,7 +26,7 @@ Der Loader lebt in `data/web-ui/js/webui-header.js` (`webuiDiscoverExtensions` /
   `channels` | `epg` | `timers` | `recordings` | `files` | `system`
   (ohne Angabe oder unbekannt: `system`)
 - `slot`: optional, die anderen Plaetze: `nav` (eigener Bereich) |
-  `dashboard` (Karte im Ueberblick) | `page` (nur Direktaufruf/Verwaltung);
+  `dashboard` (Karte im Dashboard) | `page` (nur Direktaufruf/Verwaltung);
   `tools` heisst dasselbe wie keine Angabe
 - `entry`: Einstiegsdatei relativ zum Erweiterungsordner; URL-Schema
   `/extensions/<ordner>/<entry>`
@@ -67,7 +67,7 @@ Helfer in `webui-header.js`:
 
 Konventionen:
 - Reserved Keys `manifest.name` / `manifest.description` uebersetzen
-  Name/Untertitel ueberall (Navigation, Karte im Ueberblick, Verwaltung); die
+  Name/Untertitel ueberall (Navigation, Karte im Dashboard, Verwaltung); die
   Discovery laedt das Paket fuer aktivierte Erweiterungen automatisch.
 - Manifest-Strings (settings-`label`, Section-`title`, Feld-`label`,
   `button`, `success`) mit Praefix `L:` werden aus dem Paket aufgeloest
@@ -226,7 +226,7 @@ init of every modern page.
   `channels` | `epg` | `timers` | `recordings` | `files` | `system`
   (none or an unknown one: `system`)
 - `slot`: optional, the other places: `nav` (an area of its own) |
-  `dashboard` (a card on the overview) | `page` (direct URL/manager
+  `dashboard` (a card on the dashboard) | `page` (direct URL/manager
   only); `tools` means the same as leaving it out
 - `entry`: entry file relative to the extension folder; URL scheme
   `/extensions/<folder>/<entry>`

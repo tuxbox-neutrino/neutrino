@@ -663,20 +663,26 @@ function renderExtensionsPanel() {
 // dir -> {version, url} filled by an explicit update check
 var _extUpdates = {};
 
-/* Where an extension's page can go: into one of the areas of the navigation,
-   an area of its own, a card on the overview, or reached by its address
-   alone (webuiRenderNav, webuiInjectExtensions). */
+/* Where an extension's page can go, in two groups: a page in one of the
+   areas of the navigation or in an area of its own, and outside the
+   navigation a card on the dashboard or its address alone (webuiRenderNav,
+   webuiInjectExtensions). Each choice names the kind of place itself, as a
+   closed list shows the choice without its group: the area Dashboard and a
+   card on the dashboard are different places. */
 function extPlaces() {
 	var areaLabels = {now: ['nav.area_now', 'Dashboard'], channels: ['nav.area_channels', 'Channels'], epg: ['nav.epg', 'EPG'],
 		timers: ['nav.timer', 'Timer'], recordings: ['nav.recordings', 'Recordings'], files: ['nav.area_files', 'Files'],
 		system: ['nav.area_system', 'System']};
-	return WEBUI_EXT_AREAS.map(function(a) {
-		return {value: 'area:' + a, label: webuiL(areaLabels[a][0], areaLabels[a][1])};
-	}).concat([
-		{value: 'nav', label: webuiL('set.ext_place_own', 'An area of its own')},
-		{value: 'dashboard', label: webuiL('set.ext_place_dashboard', 'A card on the overview')},
-		{value: 'page', label: webuiL('set.ext_place_page', 'Its address only')}
-	]);
+	var pageIn = webuiL('set.ext_place_area', 'Page in the %s area');
+	return [
+		{label: webuiL('set.ext_place_in_nav', 'In the navigation'), places: WEBUI_EXT_AREAS.map(function(a) {
+			return {value: 'area:' + a, label: pageIn.replace('%s', webuiL(areaLabels[a][0], areaLabels[a][1]))};
+		}).concat([{value: 'nav', label: webuiL('set.ext_place_own', 'Page in an area of its own')}])},
+		{label: webuiL('set.ext_place_outside', 'Outside the navigation'), places: [
+			{value: 'dashboard', label: webuiL('set.ext_place_dashboard', 'Card on the dashboard')},
+			{value: 'page', label: webuiL('set.ext_place_page', 'Its address only')}
+		]}
+	];
 }
 
 function extPlaceOf(m) {
@@ -707,7 +713,7 @@ async function loadExtensionsPanel() {
 		html = '<div class="webui-form-section"><div class="webui-form-section-title">' + webuiLH('set.ext_found', 'Discovered extensions') + '</div>' +
 			'<div class="ext-grid">' +
 			'<div class="ext-grid-head">' + webuiLH('set.ext_col_ext', 'Extension') + '</div>' +
-			'<div class="ext-grid-head">' + webuiLH('set.ext_col_place', 'Place') + '</div>' +
+			'<div class="ext-grid-head place">' + webuiLH('set.ext_col_place', 'Place') + '</div>' +
 			'<div class="ext-grid-head center">' + webuiLH('set.ext_col_on', 'Active') + '</div>' +
 			'<div class="ext-grid-head right">' + webuiLH('set.ext_col_action', 'Action') + '</div>' +
 			'<div class="ext-grid-rule"></div>';
@@ -721,10 +727,12 @@ async function loadExtensionsPanel() {
 				(m.url ? '<a class="ext-open" href="' + escapeHtml(m.url) + '" title="' + webuiLH('set.ext_open', 'Open its page') + '"' +
 					' aria-label="' + webuiLH('set.ext_open', 'Open its page') + ': ' + escapeHtml(m.name) + '">' +
 					OPEN_ICON.replace('<svg ', '<svg aria-hidden="true" focusable="false" ') + '</a>' : '') + '</div>' +
-				'<div><select id="extslot_' + m.dir + '" aria-label="' + webuiLH('set.ext_col_place', 'Place') + ': ' + escapeHtml(m.name) + '"' +
-				' title="' + webuiLH('tip.ext_place', 'Where the extension shows: an area of the navigation, a tile of the dashboard, or its address only') + '">' +
-				extPlaces().map(function(pl) {
-					return '<option value="' + pl.value + '"' + (extPlaceOf(m) === pl.value ? ' selected' : '') + '>' + escapeHtml(pl.label) + '</option>';
+				'<div class="ext-place"><select id="extslot_' + m.dir + '" aria-label="' + webuiLH('set.ext_col_place', 'Place') + ': ' + escapeHtml(m.name) + '"' +
+				' title="' + webuiLH('tip.ext_place', 'Where the extension shows: as a page in an area of the navigation, as a card on the dashboard, or by its address only') + '">' +
+				extPlaces().map(function(g) {
+					return '<optgroup label="' + escapeHtml(g.label) + '">' + g.places.map(function(pl) {
+						return '<option value="' + pl.value + '"' + (extPlaceOf(m) === pl.value ? ' selected' : '') + '>' + escapeHtml(pl.label) + '</option>';
+					}).join('') + '</optgroup>';
 				}).join('') + '</select></div>' +
 				'<div class="ext-cell-center"><label class="webui-toggle" title="' + webuiLH('tip.ext_on', 'Switch the extension on or off; Save puts it in effect') + '"><input type="checkbox" id="extena_' + m.dir + '"' + (m.enabled ? ' checked' : '') +
 				' aria-label="' + webuiLH('set.ext_col_on', 'Active') + ': ' + escapeHtml(m.name) + '">' +

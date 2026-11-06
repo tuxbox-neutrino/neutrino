@@ -13,7 +13,7 @@ One flat JSON object, UTF-8, the key on the left, the text on the right:
 
 ```json
 {
-	"nav.sub_overview": "Overview",
+	"nav.sub_overview": "Dashboard",
 	"login.title": "Sign in"
 }
 ```

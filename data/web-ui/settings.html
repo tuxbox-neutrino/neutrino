@@ -612,10 +612,12 @@
 			display: block;
 		}
 
-		/* Extensions as a 4-column table (name | slot | active | action) */
+		/* Extensions as a 4-column table (name | place | active | action);
+		   the place as wide as its longest choice, which names the kind of
+		   place and has to be read whole in the closed list */
 		.ext-grid {
 			display: grid;
-			grid-template-columns: 1fr 140px 52px auto;
+			grid-template-columns: minmax(0, 1fr) max-content 52px auto;
 			gap: 0.45rem 0.75rem;
 			align-items: center;
 		}
@@ -651,7 +653,8 @@
 			display: block;
 			width: 100%;
 			margin: 0;
-			padding: 0.2rem 0.4rem !important;
+			/* room on the right for the chevron Pico draws there */
+			padding: 0.2rem 2.25rem 0.2rem 0.4rem !important;
 			height: auto !important;
 			font-size: var(--webui-font-sm);
 		}
@@ -695,10 +698,20 @@
 			margin-left: 0.4rem;
 			vertical-align: middle;
 		}
+		/* On a phone the place goes on a line of its own below the name, as
+		   wide as the row; dense flow puts switch and buttons beside the name */
 		@media (max-width: 600px) {
 			.ext-grid {
-				grid-template-columns: minmax(0, 1fr) 90px 44px auto;
+				grid-template-columns: minmax(0, 1fr) 44px auto;
+				grid-auto-flow: row dense;
 				gap: 0.4rem 0.4rem;
+			}
+			.ext-grid .ext-grid-head.place {
+				display: none;
+			}
+			.ext-grid .ext-place {
+				grid-column: 1 / -1;
+				margin-bottom: 0.4rem;
 			}
 		}
 

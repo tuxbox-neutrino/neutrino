@@ -34,7 +34,7 @@ extensions/
 | `name` | Anzeigename (Eintrag in der Navigation, Verwaltung) |
 | `version` | frei, wird in der Verwaltung angezeigt |
 | `area` | Der Bereich der Navigation, in dem die Seite steht: `now`, `channels`, `epg`, `timers`, `recordings`, `files` oder `system`; die Seite steht dann bei den Seiten dieses Bereichs. Ohne Angabe oder mit einem Namen außerhalb der Liste: `system` |
-| `slot` | optional, für die anderen Plätze: `nav` (ein eigener Bereich), `dashboard` (eine Karte im Überblick), `page` (nur über die Adresse erreichbar). `tools`, das die Erweiterungen der Tools-Seite trugen, heißt dasselbe wie keine Angabe: die Seite kommt in ihren Bereich |
+| `slot` | optional, für die anderen Plätze: `nav` (ein eigener Bereich), `dashboard` (eine Karte im Dashboard), `page` (nur über die Adresse erreichbar). `tools`, das die Erweiterungen der Tools-Seite trugen, heißt dasselbe wie keine Angabe: die Seite kommt in ihren Bereich |
 | `entry` | Einstiegsdatei relativ zum Erweiterungsordner |
 | `entry_js` | optional: Laufzeit-Skript, wird auf jeder modernen Seite geladen (siehe unten) |
 | `description` | optionaler Untertitel |
@@ -111,7 +111,7 @@ meine-erweiterung/
 
 - **Reserved Keys** `manifest.name` / `manifest.description` übersetzen
   Name und Untertitel überall dort, wo die Erweiterung andockt
-  (Navigation, Karte im Überblick, Verwaltung).
+  (Navigation, Karte im Dashboard, Verwaltung).
 - **Manifest-Strings** (Settings-`label`, Section-`title`, Feld-`label`,
   `button`, `success`) werden übersetzt, wenn ihr Wert mit `L:` beginnt:
   `"label": "L:settings.greeting"` → Key `settings.greeting` aus dem
@@ -225,7 +225,7 @@ Kernpunkte:
 
 Einstellungen → **Erweiterungen**: die neue Erweiterung erscheint
 automatisch in der Liste → Schalter aktivieren, optional ihren Platz
-ändern (ein Bereich, ein eigener Bereich, eine Karte im Überblick, nur
+ändern (ein Bereich, ein eigener Bereich, eine Karte im Dashboard, nur
 die Adresse) → Speichern → Seite neu laden.
 
 Technisch: die Schaltung liegt in `webui.conf`

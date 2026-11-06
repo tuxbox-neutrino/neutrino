@@ -1,4 +1,4 @@
-// The script of dashboard.html: the overview, variant A of Phase 4 (what
+// The script of dashboard.html: the dashboard, variant A of Phase 4 (what
 // runs now as a band, the tiles below it).
 
 // The head's number of set timers comes from this page's reads.

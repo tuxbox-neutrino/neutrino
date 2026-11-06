@@ -1316,7 +1316,7 @@ function _webuiPowerShow(awake) {
 /* The state read without a sign-in, as the head's other reads are: a caller
    the box lets read nothing gets no sign-in dialog from the key's own
    reading, only from a press. Also for a page that learned of a change (the
-   overview's standby event). */
+   dashboard's standby event). */
 async function webuiPowerRead() {
 	if (document.hidden) return;
 	try {
@@ -1356,7 +1356,7 @@ function _webuiPowerInit() {
 	});
 }
 
-// Standby after asking, waking without; for the head and the overview
+// Standby after asking, waking without; for the head and the dashboard
 async function webuiPowerKey() {
 	var send = async function(on) {
 		await webuiV1('POST', '/system/standby', {body: {on: on}});
@@ -3911,7 +3911,7 @@ async function webuiInjectExtensions(pageName) {
 		if (m.slot === 'dashboard') {
 			var dash = document.querySelector('.webui-dashboard');
 			if (dash) {
-				// a tile like the overview's own, its name and its link as text
+				// a card like the dashboard's own, its name and its link as text
 				var card = document.createElement('section');
 				card.className = 'webui-card';
 				card.dataset.dashboardKey = 'ext:' + m.dir;
@@ -3929,7 +3929,7 @@ async function webuiInjectExtensions(pageName) {
 /* Where each switched-on extension with a page goes in the navigation: the
    area the extension manager or its manifest names (area), System where
    neither names one of the areas an extension may join, an area of its own
-   for slot nav; none for a card on the overview (dashboard) or a page
+   for slot nav; none for a card on the dashboard (slot dashboard) or a page
    reached by its address alone (page). Its icon goes with it, for the side
    bar and for an area of its own. */
 /* The places of the extensions' pages in the navigation, kept for the next

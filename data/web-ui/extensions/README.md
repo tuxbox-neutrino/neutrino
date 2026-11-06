@@ -34,7 +34,7 @@ extensions/
 | `name` | Display name (its entry in the navigation, the manager) |
 | `version` | free-form, shown in the manager |
 | `area` | The area of the navigation its page joins: `now`, `channels`, `epg`, `timers`, `recordings`, `files` or `system`; the page then stands among that area's pages. Without one, or with a name not in this list, it joins `system` |
-| `slot` | optional, for the other places: `nav` (an area of its own), `dashboard` (a card on the overview), `page` (reached by its address alone). `tools`, which the extensions of the Tools page named, means the same as leaving it out: the page goes into its area |
+| `slot` | optional, for the other places: `nav` (an area of its own), `dashboard` (a card on the dashboard), `page` (reached by its address alone). `tools`, which the extensions of the Tools page named, means the same as leaving it out: the page goes into its area |
 | `entry` | Entry file relative to the extension folder |
 | `entry_js` | optional: runtime script, loaded on every modern page (see below) |
 | `description` | optional subtitle |
@@ -222,7 +222,7 @@ Key points:
 
 Settings → **Extensions**: the new extension shows up automatically in
 the list → enable the switch, optionally change its place (an area, an
-area of its own, a card on the overview, its address only) → save →
+area of its own, a card on the dashboard, its address only) → save →
 reload the page.
 
 Technically the switch lives in `webui.conf`
