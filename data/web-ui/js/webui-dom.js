@@ -334,8 +334,10 @@ function webuiRowActions(actions) {
 
 // webuiMenuButton(label, items) -> a "more" button that opens a menu of the
 //   actions a row has beside its main one. items: [{label, icon, onClick,
-//   danger, disabled}], null for a rule, or a function that answers them
-//   when the menu opens. label names the button for a screen reader and as
+//   danger, disabled, unavailable}], null for a rule, or a function that
+//   answers them when the menu opens. unavailable, a text, greys an entry
+//   out with the text as its tooltip; it stays among the entries the arrows
+//   reach, and a click on it still calls onClick, which says why. label names the button for a screen reader and as
 //   its tooltip. The menu (role menu) opens below the button, above it where
 //   the window ends; arrows, Home and End move between its entries, Escape
 //   and Tab close it with the focus back on the button, and a click
@@ -371,7 +373,8 @@ function _webuiMenuOpen(btn, items) {
 			return;
 		}
 		menu.appendChild(webuiEl('button', {type: 'button', className: it.danger ? 'danger' : '', disabled: !!it.disabled,
-			attrs: {role: 'menuitem', tabindex: '-1'},
+			title: it.unavailable || null,
+			attrs: it.unavailable ? {role: 'menuitem', tabindex: '-1', 'aria-disabled': 'true'} : {role: 'menuitem', tabindex: '-1'},
 			on: {click: function(ev) {
 				ev.stopPropagation();
 				_webuiMenuClose(true);

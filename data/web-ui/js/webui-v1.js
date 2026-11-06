@@ -865,6 +865,7 @@ async function webuiShowEpgModal(channelId, channelName, opts) {
 	recBtn.hidden = false;
 	// handed to the player, which reads the channel where it is not known
 	_webuiEpgModalKind = opts.kind || '';
+	webuiPlayOffer(document.getElementById('webuiEpgPlayBtn'), channelId, webuiEpgModalChannelName);
 
 	modal.classList.add('open');
 	document.body.style.overflow = 'hidden';
@@ -1035,12 +1036,75 @@ function webuiOpenInPlayer(channelId) {
 	});
 }
 
+/* The coding of a channel's picture as this tab has learnt it: the player
+   notes what the box reports for a channel it plays, and any other source
+   of a channel's coding notes it the same way. Only an H.264 or H.265
+   picture plays in a browser (the box does not re-encode one), so a channel
+   known to send another is offered for a player on this computer instead.
+   Kept for the tab, so the other pages know it too. */
+const _webuiVideoKey = 'webui-video-codecs';
+let _webuiVideoSeen = null;
+function _webuiVideoCodecs() {
+	if (!_webuiVideoSeen) {
+		_webuiVideoSeen = Object.create(null);
+		try {
+			Object.assign(_webuiVideoSeen, JSON.parse(sessionStorage.getItem(_webuiVideoKey) || '{}'));
+		} catch (e) { /* known to this page only */ }
+	}
+	return _webuiVideoSeen;
+}
+
+function webuiNoteVideo(channelId, codec) {
+	if (!channelId || !codec || codec === 'unknown') return;
+	const seen = _webuiVideoCodecs();
+	if (seen[channelId] === codec) return;
+	seen[channelId] = codec;
+	try {
+		sessionStorage.setItem(_webuiVideoKey, JSON.stringify(seen));
+	} catch (e) { /* known to this page only */ }
+}
+
+// The coding of a channel's picture where no browser plays it, else ''
+function webuiUnplayableVideo(channelId) {
+	const codec = channelId ? _webuiVideoCodecs()[channelId] : '';
+	return codec && ['h264', 'hevc', 'none'].indexOf(codec) < 0 ? codec : '';
+}
+
+const WEBUI_VIDEO_NAMES = {mpeg2: 'MPEG-2', h264: 'H.264', hevc: 'H.265', cavs: 'AVS'};
+
+/* Why a channel does not play in the browser: the channel and the coding of
+   its picture where that is known to be the reason; else the box cannot
+   convert it (it carries no converter, or cannot decode the sound). With
+   hint, the way out follows it. */
+function webuiUnplayableText(name, codec, hint) {
+	const args = codec ? [name || webuiL('play.this_channel', 'This channel'), WEBUI_VIDEO_NAMES[codec] || String(codec).toUpperCase()]
+		: [name || webuiL('play.the_channel', 'the channel')];
+	const text = (codec ? webuiL('play.unplayable_video', '%s sends %s video. Browsers cannot play it.')
+		: webuiL('play.unplayable', 'This box cannot convert %s for the browser.')).replace(/%s/g, function() { return args.shift(); });
+	return hint ? text + ' ' + webuiL('play.unplayable_hint', 'Open the channel in a player instead (M3U).') : text;
+}
+
+/* Play in browser, offered for a channel: greyed out with the reason as its
+   tooltip where its picture is known to play in no browser, but still
+   focusable, so the reason can be read and a press tells it. */
+function webuiPlayOffer(btn, channelId, channelName) {
+	const codec = webuiUnplayableVideo(channelId);
+	if (codec) {
+		btn.setAttribute('aria-disabled', 'true');
+		btn.title = webuiUnplayableText(channelName, codec, true);
+	} else {
+		btn.removeAttribute('aria-disabled');
+		btn.removeAttribute('title');
+	}
+}
+
 /* A channel played in this page (js/webui-player.js, loaded on the first
    use): the box fetches a web channel for the browser, so it plays here
    although the server it comes from does not let a page read it, and
    converts one from its tuners where the browser cannot decode its sound.
    Without arguments, the channel of the guide dialog, which makes way for
-   the player. */
+   the player. A channel known to play in no browser is not tried: the
+   reason is said instead. */
 var _webuiPlayerLoad = null;
 function webuiPlayInBrowser(channelId, channelName, kind) {
 	if (!channelId) {
@@ -1049,6 +1113,11 @@ function webuiPlayInBrowser(channelId, channelName, kind) {
 		kind = _webuiEpgModalKind;
 	}
 	if (!channelId) return;
+	const codec = webuiUnplayableVideo(channelId);
+	if (codec) {
+		webuiShowToast(webuiUnplayableText(channelName, codec, true));
+		return;
+	}
 	if (!_webuiPlayerLoad)
 		_webuiPlayerLoad = webuiLoadScript('/js/webui-player.js?v=1');
 	_webuiPlayerLoad.then(function() {

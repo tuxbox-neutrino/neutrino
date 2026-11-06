@@ -1878,6 +1878,39 @@ audio.webui-player-media {
 	color: var(--webui-danger);
 }
 
+/* the reason, and below it in the text colour what to do instead */
+.webui-player-reason,
+.webui-player-hint {
+	display: block;
+}
+
+.webui-player-hint {
+	margin-top: 0.15rem;
+	color: var(--webui-text-primary);
+}
+
+.webui-player-hint[hidden] {
+	display: none;
+}
+
+/* Play in browser for a channel known to play in no browser: greyed out,
+   still focusable, its tooltip says why (webuiPlayOffer) */
+.webui-epg-modal-footer .webui-btn[aria-disabled="true"],
+.webui-epg-modal-footer .webui-btn[aria-disabled="true"]:is(:hover, :focus, :active),
+.webui-menu button[aria-disabled="true"],
+.webui-menu button[aria-disabled="true"]:is(:hover, :focus, :active) {
+	border-style: dashed;
+	background: none;
+	color: var(--pico-muted-color);
+	cursor: not-allowed;
+	transform: none;
+	box-shadow: none;
+}
+
+.webui-menu button[aria-disabled="true"]:focus-visible {
+	box-shadow: inset 0 0 0 2px var(--webui-focus-color);
+}
+
 .webui-epg-title {
 	font-size: 1.1rem;
 	font-weight: 600;

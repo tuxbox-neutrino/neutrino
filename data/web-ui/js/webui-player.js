@@ -86,7 +86,9 @@ function _webuiPlayerBuild() {
 		attrs: {'aria-label': webuiL('play.close', 'Close player')},
 		on: {click: function() { webuiPlayerClose(); }}}, webuiMarkup(WEBUI_PLAYER_CLOSE_SVG));
 	p.stage = webuiEl('div', {className: 'webui-player-stage'});
-	p.state = webuiEl('p', {className: 'webui-player-state', attrs: {role: 'status'}});
+	p.reason = webuiEl('span', {className: 'webui-player-reason'});
+	p.hint = webuiEl('span', {className: 'webui-player-hint', hidden: true});
+	p.state = webuiEl('p', {className: 'webui-player-state', attrs: {role: 'status'}}, p.reason, p.hint);
 	p.resume = webuiEl('button', {type: 'button', className: 'webui-btn primary', hidden: true,
 		on: {click: function() { _webuiPlayerResume(p); }}}, webuiL('play.resume', 'Resume'));
 	p.retry = webuiEl('button', {type: 'button', className: 'webui-btn', hidden: true,
@@ -105,20 +107,25 @@ function _webuiPlayerBuild() {
 	return p;
 }
 
-/* What the player says under the picture: a text, and which of its two
-   buttons goes with it ('resume', 'retry' or none). Trying again comes with
-   the channel's playlist for a player on this computer where the channel is
-   one of the tuners'. An error is announced. A button that goes away with
-   the focus on it hands the focus on to the picture, or to the close button,
-   so it stays in the player. */
-function _webuiPlayerSay(p, text, button, error) {
+/* What the player says under the picture: a text, a hint below it, and
+   which buttons go with it: 'resume'; 'retry', which comes with the
+   channel's playlist for a player on this computer where the channel is one
+   of the tuners'; 'retry-only', where the playlist would meet the same
+   refusal; 'external', the playlist alone as the way out, for a channel no
+   browser plays; or none. An error is announced. A button that goes away
+   with the focus on it hands the focus on to the picture, or to the close
+   button, so it stays in the player. */
+function _webuiPlayerSay(p, text, button, error, hint) {
 	var had = document.activeElement;
-	p.state.textContent = text || '';
+	p.reason.textContent = text || '';
+	p.hint.textContent = hint || '';
+	p.hint.hidden = !hint;
 	p.state.setAttribute('role', error ? 'alert' : 'status');
 	p.state.classList.toggle('error', !!error);
 	p.resume.hidden = button !== 'resume';
-	p.retry.hidden = button !== 'retry';
-	p.external.hidden = button !== 'retry' || _webuiPlayerWeb(p.channel.kind);
+	p.retry.hidden = button !== 'retry' && button !== 'retry-only';
+	p.external.hidden = !(button === 'external' || (button === 'retry' && !_webuiPlayerWeb(p.channel.kind)));
+	p.external.classList.toggle('primary', button === 'external');
 	if ([p.resume, p.retry, p.external].some(function(b) { return had === b && b.hidden; }))
 		(p.media || p.close).focus();
 }
@@ -286,9 +293,28 @@ function _webuiPlayerCurrent(p, token) {
 	return token === p.token && !p.paused;
 }
 
-// A failure: everything stops, and the reason with a way to try again.
+/* A failure: everything stops, and the reason with a way on. A channel no
+   browser plays is told by its name and, where that is the reason, by the
+   coding of its picture, with its playlist as the way out and nothing to try
+   again; the coding is noted, so the page offers the channel that way from
+   now on. No free tuner is explained, with a way to try again once the TV
+   has moved; the playlist would be refused the same way. */
 function _webuiPlayerFail(p, err) {
 	_webuiPlayerLetGo(p);
+	if (err && err.code === 'not-playable-in-browser') {
+		var video = p.streams ? p.streams.video : '';
+		var named = video && ['h264', 'hevc', 'none', 'unknown'].indexOf(video) < 0;
+		if (named)
+			webuiNoteVideo(p.channel.id, video);
+		_webuiPlayerSay(p, webuiUnplayableText(p.channel.name, named ? video : ''), 'external', true,
+			webuiL('play.unplayable_hint', 'Open the channel in a player instead (M3U).'));
+		return;
+	}
+	if (err && err.code === 'no-free-tuner') {
+		_webuiPlayerSay(p, webuiErrText(err), 'retry-only', true,
+			webuiL('play.no_tuner_hint', 'The TV picture or a recording holds the tuner. A channel on the same transponder still plays, and in standby any channel does, except one being recorded.'));
+		return;
+	}
 	_webuiPlayerSay(p, err ? webuiErrText(err) : webuiL('play.no_codec', 'This browser cannot play this stream'),
 		'retry', true);
 }
@@ -606,6 +632,7 @@ function _webuiPlayerLearn(p, token, times) {
 			return;
 		}
 		p.streams.video = s.video;
+		webuiNoteVideo(p.channel.id, s.video);
 		if (s.video !== 'h264' && s.video !== 'hevc')
 			_webuiPlayerFail(p, {status: 501, code: 'not-playable-in-browser', message: ''});
 		else if (!_webuiPlayerCanPlay(s))
@@ -633,6 +660,8 @@ async function _webuiPlayerTunerStart(p, token) {
 	if (ch && ch.kind)
 		p.channel.kind = ch.kind;
 	p.streams = _webuiPlayerStreams(ch, p.channel.kind === 'radio');
+	if (!p.streams.radio)
+		webuiNoteVideo(p.channel.id, p.streams.video);
 	if (!_webuiPlayerCanPlay(p.streams)) {
 		_webuiPlayerFail(p, null);
 		return;

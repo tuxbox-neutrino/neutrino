@@ -136,6 +136,7 @@ function channelRow(ch) {
 		{label: webuiL('dash.epg_info', 'Programme info'), icon: SVG_INFO, onClick: () => showInfo(ch)},
 		{label: webuiL('bq.rec_title', 'Record programme'), icon: SVG_REC, onClick: () => webuiRecordEvent(ch.id, ch.name, epgNow[ch.id])},
 		{label: webuiL('play.in_browser', 'Play in browser'), icon: SVG_PLAY,
+			unavailable: webuiUnplayableVideo(ch.id) ? webuiUnplayableText(ch.name, webuiUnplayableVideo(ch.id), true) : '',
 			onClick: () => webuiPlayInBrowser(ch.id, ch.name, ch.kind)},
 		{label: webuiL('play.external', 'Open in a player (M3U)'), icon: SVG_STREAM, onClick: () => webuiOpenInPlayer(ch.id)}
 	]);
