@@ -579,3 +579,490 @@ TEST_CASE("O15: a frontend is kept by any use beyond the holds that lock it", "[
 		REQUIRE_FALSE(fesearch::keptBy(2, 2, true));
 	}
 }
+
+/* FBC: one input feeds the tuners of a set. A root tunes the input, and a
+   link tied to it with the link flag tunes from what the root tuned. An
+   automatic link tunes only from a root that already carries the channel's
+   input, and a root does not move its input from under a locked link that
+   could not follow. The views say so through root_carries and fbc_links; a
+   box without FBC leaves both at their defaults. */
+
+namespace
+{
+
+// The views at the indices given hang on the root at index r with the link flag.
+void tie(std::vector<FeView> &fes, int r, int a, int b = -1, int c = -1)
+{
+	fes[r].fbc_links.clear();
+	fes[r].fbc_links.push_back(a);
+	if (b >= 0)
+		fes[r].fbc_links.push_back(b);
+	if (c >= 0)
+		fes[r].fbc_links.push_back(c);
+}
+
+// An automatic link no root of its set carries the channel's input for.
+FeView uncarried(int number)
+{
+	FeView v = independent(number);
+	v.root_carries = false;
+	return v;
+}
+
+std::vector<int> numbersFrom(int first, int last)
+{
+	std::vector<int> v;
+	for (int n = first; n <= last; ++n)
+		v.push_back(n);
+	return v;
+}
+
+} // namespace
+
+TEST_CASE("F1: a link whose input no root carries is not chosen", "[zapit][fesearch][fbc]")
+{
+	/* Roots 0 and 1 are busy and tuned to nothing link 2 could share: tied
+	   to either, it would take that root's input away. */
+	std::vector<FeView> fes;
+	fes.push_back(independent(0));
+	fes.push_back(independent(1));
+	fes.push_back(uncarried(2));
+	fes[0].locked = true;
+	fes[1].locked = true;
+	REQUIRE(fesearch::pickIdle(fes) == -1);
+
+	// A root that carries the channel's input lets the link be taken.
+	fes[2].root_carries = true;
+	REQUIRE(fesearch::pickIdle(fes) == 2);
+}
+
+TEST_CASE("F2: a free root comes before the links of its set", "[zapit][fesearch][fbc]")
+{
+	SECTION("the free root first in the map, not the free link after it")
+	{
+		std::vector<FeView> fes;
+		fes.push_back(independent(0));
+		fes.push_back(independent(1));
+		fes.push_back(independent(2));
+		fes[1].locked = true;
+		REQUIRE(fesearch::pickIdle(fes) == 0);
+	}
+	SECTION("a link no root carries for gives way to the free root after it")
+	{
+		std::vector<FeView> fes;
+		fes.push_back(uncarried(0));
+		fes.push_back(independent(1));
+		REQUIRE(fesearch::pickIdle(fes) == 1);
+	}
+}
+
+TEST_CASE("F3: a free root with a locked link on another band is passed over", "[zapit][fesearch][fbc]")
+{
+	std::vector<FeView> fes;
+	fes.push_back(independent(0));  // root, free
+	fes.push_back(independent(1));  // root, busy
+	fes.push_back(independent(2));  // link tied to root 0
+	fes.push_back(independent(3));  // link, free
+	tie(fes, 0, 2);
+	fes[1].locked = true;
+	fes[2].locked = true;
+	fes[2].loop_can_tune = false;
+	REQUIRE(fesearch::pickIdle(fes) == 3);
+
+	// The link holds a band the channel is on: the root may tune.
+	fes[2].loop_can_tune = true;
+	REQUIRE(fesearch::pickIdle(fes) == 0);
+
+	// A free link holds nothing.
+	fes[2].loop_can_tune = false;
+	fes[2].locked = false;
+	REQUIRE(fesearch::pickIdle(fes) == 0);
+}
+
+TEST_CASE("F4: a free master a link blocks leaves only its twins", "[zapit][fesearch][fbc]")
+{
+	std::vector<FeView> fes;
+	fes.push_back(master(0, true, false));
+	fes.push_back(member(1, false));  // loop
+	fes.push_back(member(2, true));   // twin
+	fes.push_back(independent(3));    // link tied to the master
+	link(fes, 0, 1, 2);
+	tie(fes, 0, 3);
+	fes[3].locked = true;
+	fes[3].loop_can_tune = false;
+	// Not the free loop member: the master is its first free member and out.
+	REQUIRE(fesearch::pickIdle(fes) == 2);
+
+	fes[2].locked = true;
+	REQUIRE(fesearch::pickIdle(fes) == -1);
+
+	fes[2].locked = false;
+	fes[3].loop_can_tune = true;
+	REQUIRE(fesearch::pickIdle(fes) == 0);
+}
+
+TEST_CASE("F5: a link blocks the master itself, not a loop member of a locked master", "[zapit][fesearch][fbc]")
+{
+	std::vector<FeView> fes;
+	fes.push_back(master(0, true, false));
+	fes.push_back(member(1, false));  // loop
+	fes.push_back(member(2, true));   // twin
+	fes.push_back(independent(3));    // link tied to the master
+	link(fes, 0, 1, 2);
+	tie(fes, 0, 3);
+	fes[0].locked = true;             // on a band the channel is on
+	fes[3].locked = true;
+	fes[3].loop_can_tune = false;
+	REQUIRE(fesearch::pickIdle(fes) == 1);
+}
+
+TEST_CASE("F6: without FBC the walk is the one it was", "[zapit][fesearch][fbc]")
+{
+	const FeView none;
+	REQUIRE(none.root_carries);
+	REQUIRE(none.fbc_links.empty());
+
+	// Two satellite tuners, the second unused, and a terrestrial one.
+	std::vector<FeView> fes;
+	fes.push_back(independent(0));
+	FeView unused;
+	unused.number = 1;
+	fes.push_back(unused);
+	fes.push_back(independent(2));
+	fes[2].usable = false;            // a satellite channel
+	fes[0].locked = true;             // held
+	REQUIRE(fesearch::pickIdle(fes) == -1);
+
+	fes[0].locked = false;
+	REQUIRE(fesearch::pickIdle(fes) == 0);
+}
+
+TEST_CASE("S1: a free link no root carries for is not found as it is", "[zapit][fesearch][streamstoend][fbc]")
+{
+	std::vector<FeView> fes;
+	fes.push_back(independent(0));    // root, streams on another transponder
+	fes.push_back(uncarried(1));
+	std::vector<Use> use(2);
+	streamsOnly(fes, use, 0);
+
+	const StreamsToEnd r = fesearch::streamsToEnd(fes, use, false, false);
+	REQUIRE(r.stage == 2);
+	REQUIRE(r.end == numbers(0));
+}
+
+TEST_CASE("S2: a busy link on the channel's transponder is shared whatever its roots carry", "[zapit][fesearch][streamstoend][fbc]")
+{
+	std::vector<FeView> fes;
+	fes.push_back(uncarried(0));
+	std::vector<Use> use(1);
+	streamsOnly(fes, use, 0);
+	use[0].on_tp = true;
+
+	const StreamsToEnd r = fesearch::streamsToEnd(fes, use, false, false);
+	REQUIRE(r.stage == 1);
+	REQUIRE(r.end.empty());
+}
+
+TEST_CASE("S3: the streams on a link that cannot serve the recording are not ended", "[zapit][fesearch][streamstoend][fbc]")
+{
+	std::vector<FeView> fes;
+	fes.push_back(independent(0));
+	fes.push_back(uncarried(1));
+	std::vector<Use> use(2);
+	kept(fes, use, 0);
+	streamsOnly(fes, use, 1);
+
+	const StreamsToEnd r = fesearch::streamsToEnd(fes, use, false, false);
+	REQUIRE(r.stage == 0);
+	REQUIRE(r.end.empty());
+}
+
+TEST_CASE("S4: a root is free once the streams on its link on another band end", "[zapit][fesearch][streamstoend][fbc]")
+{
+	std::vector<FeView> fes;
+	fes.push_back(independent(0));    // root, free
+	fes.push_back(uncarried(1));      // link tied to it
+	tie(fes, 0, 1);
+	fes[1].loop_can_tune = false;
+	std::vector<Use> use(2);
+
+	SECTION("streams alone hold the link: they end")
+	{
+		streamsOnly(fes, use, 1);
+		const StreamsToEnd r = fesearch::streamsToEnd(fes, use, false, false);
+		REQUIRE(r.stage == 2);
+		REQUIRE(r.end == numbers(1));
+	}
+	SECTION("the link is kept: no stream frees the root")
+	{
+		kept(fes, use, 1);
+		const StreamsToEnd r = fesearch::streamsToEnd(fes, use, false, false);
+		REQUIRE(r.stage == 0);
+		REQUIRE(r.end.empty());
+	}
+}
+
+TEST_CASE("S5: with the picture on a link, stage 3 ends the streams of its root", "[zapit][fesearch][streamstoend][fbc]")
+{
+	std::vector<FeView> fes;
+	fes.push_back(independent(0));    // root, streams
+	fes.push_back(uncarried(1));      // link tied to it, the picture
+	tie(fes, 0, 1);
+	fes[1].loop_can_tune = false;
+	std::vector<Use> use(2);
+	streamsOnly(fes, use, 0);
+	use[1].live = true;               // the picture locks nothing
+
+	const StreamsToEnd r = fesearch::streamsToEnd(fes, use, true, false);
+	REQUIRE(r.stage == 3);
+	REQUIRE(r.end == numbers(0));
+}
+
+TEST_CASE("S6: a stream on a link of the picture's root gives way to the recording", "[zapit][fesearch][streamstoend][fbc]")
+{
+	std::vector<FeView> fes;
+	fes.push_back(independent(0));    // root, the picture
+	fes.push_back(independent(1));    // root, a recording
+	fes.push_back(uncarried(2));      // link tied to root 0, a stream
+	fes.push_back(uncarried(3));      // link, free
+	tie(fes, 0, 2);
+	fes[2].loop_can_tune = false;
+	std::vector<Use> use(4);
+	use[0].live = true;
+	kept(fes, use, 1);
+	streamsOnly(fes, use, 2);
+
+	const StreamsToEnd r = fesearch::streamsToEnd(fes, use, true, false);
+	REQUIRE(r.stage == 3);
+	REQUIRE(r.end == numbers(2));
+}
+
+TEST_CASE("S7: a free master a kept link blocks offers no member as it is, a free twin does", "[zapit][fesearch][streamstoend][fbc]")
+{
+	std::vector<FeView> fes;
+	fes.push_back(master(0, true, false));
+	fes.push_back(member(1, false));  // loop, free
+	fes.push_back(uncarried(2));      // link tied to the master
+	link(fes, 0, 1);
+	tie(fes, 0, 2);
+	fes[2].loop_can_tune = false;
+	std::vector<Use> use(3);
+	kept(fes, use, 2);
+
+	SECTION("no twin: nothing, whatever streams end")
+	{
+		const StreamsToEnd r = fesearch::streamsToEnd(fes, use, false, false);
+		REQUIRE(r.stage == 0);
+		REQUIRE(r.end.empty());
+	}
+	SECTION("a free twin is found as it is")
+	{
+		fes.push_back(member(3, true));
+		use.push_back(Use());
+		link(fes, 0, 1, 3);
+		const StreamsToEnd r = fesearch::streamsToEnd(fes, use, false, false);
+		REQUIRE(r.stage == 1);
+		REQUIRE(r.end.empty());
+	}
+	SECTION("the master held on a band the channel is on: its free loop member is found as it is")
+	{
+		kept(fes, use, 0);
+		const StreamsToEnd r = fesearch::streamsToEnd(fes, use, false, false);
+		REQUIRE(r.stage == 1);
+		REQUIRE(r.end.empty());
+	}
+}
+
+TEST_CASE("S8: a loop member needs the links of its master out of the way", "[zapit][fesearch][streamstoend][fbc]")
+{
+	std::vector<FeView> fes;
+	fes.push_back(master(0, true, false));
+	fes.push_back(member(1, false));  // loop, streams on another band
+	fes.push_back(uncarried(2));      // link tied to the master, another band
+	link(fes, 0, 1);
+	tie(fes, 0, 2);
+	fes[1].loop_can_tune = false;
+	fes[2].loop_can_tune = false;
+	std::vector<Use> use(3);
+	streamsOnly(fes, use, 1);
+
+	SECTION("the link is kept: no way")
+	{
+		kept(fes, use, 2);
+		const StreamsToEnd r = fesearch::streamsToEnd(fes, use, false, false);
+		REQUIRE(r.stage == 0);
+		REQUIRE(r.end.empty());
+	}
+	SECTION("streams alone hold the link: both end")
+	{
+		streamsOnly(fes, use, 2);
+		const StreamsToEnd r = fesearch::streamsToEnd(fes, use, false, false);
+		REQUIRE(r.stage == 2);
+		REQUIRE(r.end == numbers(1, 2));
+	}
+}
+
+TEST_CASE("S9: a PiP on a link holds its root against a stream, not against a recording", "[zapit][fesearch][streamstoend][fbc]")
+{
+	std::vector<FeView> fes;
+	fes.push_back(independent(0));    // root, free
+	fes.push_back(uncarried(1));      // link tied to it, the PiP
+	tie(fes, 0, 1);
+	fes[1].loop_can_tune = false;
+
+	SECTION("a stream: the PiP's frontend is held, so its root is out")
+	{
+		fes[1].locked = true;
+		REQUIRE(fesearch::pickIdle(fes) == -1);
+	}
+	SECTION("a recording: the PiP locks nothing, the root is found as it is")
+	{
+		std::vector<Use> use(2);
+		use[1].kept = true;
+		liveElsewhere(fes, use);
+		const StreamsToEnd r = fesearch::streamsToEnd(fes, use, true, false);
+		REQUIRE(r.stage == 1);
+		REQUIRE(r.end.empty());
+	}
+}
+
+TEST_CASE("S10: a loop member that is tied to its master as well is ended once", "[zapit][fesearch][streamstoend][fbc]")
+{
+	/* Loop members 1 to 3 are tied to master 0 as well, so each is both one
+	   of its links and one of its FBC links. Counted twice, the master would
+	   end five or six frontends, and root 4 with its three links would win
+	   with four. */
+	std::vector<FeView> fes;
+	fes.push_back(master(0, true, false));
+	fes.push_back(member(1, false));
+	fes.push_back(member(2, false));
+	fes.push_back(member(3, false));
+	fes[0].links = numbersFrom(0, 3);
+	tie(fes, 0, 1, 2, 3);
+	fes.push_back(independent(4));
+	fes.push_back(uncarried(5));
+	fes.push_back(uncarried(6));
+	fes.push_back(uncarried(7));
+	tie(fes, 4, 5, 6, 7);
+	std::vector<Use> use(8);
+	for (int i = 1; i < 8; ++i)
+	{
+		if (i != 4)
+			fes[i].loop_can_tune = false;
+		streamsOnly(fes, use, i);
+	}
+
+	const StreamsToEnd r = fesearch::streamsToEnd(fes, use, false, false);
+	REQUIRE(r.stage == 2);
+	REQUIRE(r.end == numbersFrom(1, 3));
+}
+
+TEST_CASE("S11: a loop member of a master that stays held is free once its own streams end", "[zapit][fesearch][streamstoend][fbc]")
+{
+	/* The walk weighs the links tied to a master only when it takes the
+	   master itself. Master 0 stays held on a band the channel is on, so
+	   once the stream on loop member 1 ends, member 1 is taken whatever
+	   link 2 holds. */
+	std::vector<FeView> fes;
+	fes.push_back(master(0, true, false));
+	fes.push_back(member(1, false));  // loop, a stream on another band
+	fes.push_back(uncarried(2));      // link tied to the master, another band
+	link(fes, 0, 1);
+	tie(fes, 0, 2);
+	fes[1].loop_can_tune = false;
+	fes[2].loop_can_tune = false;
+	std::vector<Use> use(3);
+	kept(fes, use, 0);
+	streamsOnly(fes, use, 1);
+
+	SECTION("the link is kept: the member's stream ends")
+	{
+		kept(fes, use, 2);
+		const StreamsToEnd r = fesearch::streamsToEnd(fes, use, false, false);
+		REQUIRE(r.stage == 2);
+		REQUIRE(r.end == numbers(1));
+	}
+	SECTION("streams hold the link: they stay")
+	{
+		streamsOnly(fes, use, 2);
+		const StreamsToEnd r = fesearch::streamsToEnd(fes, use, false, false);
+		REQUIRE(r.stage == 2);
+		REQUIRE(r.end == numbers(1));
+	}
+}
+
+TEST_CASE("S12: a master whose own streams end is free, so the links tied to it count", "[zapit][fesearch][streamstoend][fbc]")
+{
+	/* Master 0 carries streams on another band. Once they end, the walk takes
+	   the master first, and link 2 on another band holds its input. */
+	std::vector<FeView> fes;
+	fes.push_back(master(0, true, false));
+	fes.push_back(member(1, false));  // loop, free
+	fes.push_back(uncarried(2));      // link tied to the master, another band
+	link(fes, 0, 1);
+	tie(fes, 0, 2);
+	fes[0].loop_can_tune = false;
+	fes[2].loop_can_tune = false;
+	std::vector<Use> use(3);
+	streamsOnly(fes, use, 0);
+
+	SECTION("the link is kept: no way")
+	{
+		kept(fes, use, 2);
+		const StreamsToEnd r = fesearch::streamsToEnd(fes, use, false, false);
+		REQUIRE(r.stage == 0);
+		REQUIRE(r.end.empty());
+	}
+	SECTION("streams hold the link: they end with the master's")
+	{
+		streamsOnly(fes, use, 2);
+		const StreamsToEnd r = fesearch::streamsToEnd(fes, use, false, false);
+		REQUIRE(r.stage == 2);
+		REQUIRE(r.end == numbers(0, 2));
+	}
+}
+
+TEST_CASE("S13: frontends that share a number are told apart", "[zapit][fesearch][streamstoend][fbc]")
+{
+	/* A number is only unique within its adapter: frontend 0 of a second
+	   adapter has number 0 as well. */
+	SECTION("a member with the master's number does not free the master")
+	{
+		std::vector<FeView> fes;
+		fes.push_back(master(0, true, false));
+		fes.push_back(member(0, false));  // loop, a stream on another band
+		fes.push_back(uncarried(2));      // link tied to the master, another band
+		link(fes, 0, 1);
+		tie(fes, 0, 2);
+		fes[1].loop_can_tune = false;
+		fes[2].loop_can_tune = false;
+		std::vector<Use> use(3);
+		kept(fes, use, 0);
+		streamsOnly(fes, use, 1);
+		kept(fes, use, 2);
+
+		const StreamsToEnd r = fesearch::streamsToEnd(fes, use, false, false);
+		REQUIRE(r.stage == 2);
+		REQUIRE(r.end == numbers(0));
+	}
+	SECTION("two members with one number are two frontends to end")
+	{
+		std::vector<FeView> fes;
+		fes.push_back(master(0, true, false));
+		fes.push_back(member(1, false));
+		fes.push_back(member(1, false));
+		link(fes, 0, 1, 2);
+		fes[1].loop_can_tune = false;
+		fes[2].loop_can_tune = false;
+		fes.push_back(independent(3));
+		std::vector<Use> use(4);
+		streamsOnly(fes, use, 1);
+		streamsOnly(fes, use, 2);
+		streamsOnly(fes, use, 3);
+
+		// The master ends two frontends, frontend 3 one.
+		const StreamsToEnd r = fesearch::streamsToEnd(fes, use, false, false);
+		REQUIRE(r.stage == 2);
+		REQUIRE(r.end == numbers(3));
+	}
+}

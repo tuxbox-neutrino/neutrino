@@ -37,10 +37,25 @@ bool valid(const std::vector<FeView> &fes, int i)
 	return i >= 0 && (size_t) i < fes.size();
 }
 
-/* The members of one master: the first free one that is no twin, else the
-   first free twin, else none. */
-int pickOnMaster(const std::vector<FeView> &fes, const FeView &master)
+/* Whether a locked link on an FBC root holds a band or polarisation the
+   channel would change: the root tunes the input the link tunes from. */
+bool linksBlock(const std::vector<FeView> &fes, const FeView &root)
 {
+	for (size_t k = 0; k < root.fbc_links.size(); ++k)
+	{
+		const int j = root.fbc_links[k];
+		if (valid(fes, j) && fes[j].locked && !fes[j].loop_can_tune)
+			return true;
+	}
+	return false;
+}
+
+/* The members of the master at index m: the first free one that is no twin,
+   else the first free twin, else none. When the first free one is the master
+   itself and a link on it blocks, only a twin is left. */
+int pickOnMaster(const std::vector<FeView> &fes, int m)
+{
+	const FeView &master = fes[m];
 	int free_frontend = -1;
 	int free_twin = -1;
 	bool loop_busy = false;
@@ -78,6 +93,8 @@ int pickOnMaster(const std::vector<FeView> &fes, const FeView &master)
 			free_frontend = i;
 	}
 
+	if (free_frontend == m && linksBlock(fes, master))
+		free_frontend = -1;
 	return (free_frontend >= 0) ? free_frontend : free_twin;
 }
 
@@ -93,13 +110,13 @@ int pickIdle(const std::vector<FeView> &fes)
 
 		if (m.mode == FeView::Master)
 		{
-			const int got = pickOnMaster(fes, m);
+			const int got = pickOnMaster(fes, (int) i);
 			if (got >= 0)
 				return got;
 		}
 		else if (m.mode == FeView::Independent)
 		{
-			if (!m.locked)
+			if (!m.locked && m.root_carries && !linksBlock(fes, m))
 				return (int) i;
 		}
 	}
@@ -154,12 +171,26 @@ bool shared(const Use &u, bool no_same_fe)
 	return u.on_tp && (!no_same_fe || u.same_service);
 }
 
-/* Whether getFrontend takes a member of this master as the frontends are:
-   a busy one it shares, or a free one. */
-bool masterOffers(const std::vector<FeView> &fes, const std::vector<Use> &use, const FeView &master,
+/* linksBlock as a recording sees it: a link is held when it is not Free. */
+bool linksBlockFor(const std::vector<FeView> &fes, const std::vector<Use> &use, const FeView &root,
+		   bool live_locked)
+{
+	for (size_t k = 0; k < root.fbc_links.size(); ++k)
+	{
+		const int j = root.fbc_links[k];
+		if (valid(fes, j) && !fes[j].loop_can_tune && holdOf(fes, use, j, live_locked) != Free)
+			return true;
+	}
+	return false;
+}
+
+/* Whether getFrontend takes a member of the master at index m as the
+   frontends are: a busy one it shares, or a free one. */
+bool masterOffers(const std::vector<FeView> &fes, const std::vector<Use> &use, int m,
 		  bool live_locked, bool no_same_fe)
 {
-	bool free_frontend = false;
+	const FeView &master = fes[m];
+	int free_frontend = -1;
 	bool free_twin = false;
 	bool loop_busy = false;
 
@@ -178,7 +209,7 @@ bool masterOffers(const std::vector<FeView> &fes, const std::vector<Use> &use, c
 				return true;
 			if (!loop_busy && !fe.is_twin && master.have_loop && !fe.loop_can_tune)
 			{
-				free_frontend = false;
+				free_frontend = -1;
 				loop_busy = true;
 			}
 			continue;
@@ -186,10 +217,12 @@ bool masterOffers(const std::vector<FeView> &fes, const std::vector<Use> &use, c
 
 		if (fe.is_twin)
 			free_twin = true;
-		else if (!loop_busy)
-			free_frontend = true;
+		else if (!loop_busy && free_frontend < 0)
+			free_frontend = i;
 	}
-	return free_frontend || free_twin;
+	if (free_frontend == m && linksBlockFor(fes, use, master, live_locked))
+		free_frontend = -1;
+	return free_frontend >= 0 || free_twin;
 }
 
 bool foundAsItIs(const std::vector<FeView> &fes, const std::vector<Use> &use, bool live_kept, bool no_same_fe)
@@ -209,52 +242,109 @@ bool foundAsItIs(const std::vector<FeView> &fes, const std::vector<Use> &use, bo
 			continue;
 		if (m.mode == FeView::Master)
 		{
-			if (masterOffers(fes, use, m, live_kept, no_same_fe))
+			if (masterOffers(fes, use, (int) i, live_kept, no_same_fe))
 				return true;
 		}
 		else if (m.mode == FeView::Independent)
 		{
-			if (holdOf(fes, use, (int) i, live_kept) == Free || shared(useOf(use, (int) i), no_same_fe))
+			if ((holdOf(fes, use, (int) i, live_kept) == Free && m.root_carries &&
+			     !linksBlockFor(fes, use, m, live_kept)) ||
+			    shared(useOf(use, (int) i), no_same_fe))
 				return true;
 		}
 	}
 	return false;
 }
 
-/* The frontends whose streams have to end for the walk to take target on
-   master (an independent frontend is its own master, without links), or
-   false when the target or a member in its way is used by more than
-   streams. */
-bool endFor(const std::vector<FeView> &fes, const std::vector<Use> &use, const FeView &master, int target,
+/* Each frontend once, by its index, ascending. A frontend may be named
+   twice: a loop member tied to its master is one of the master's links and
+   one of its FBC links, and a candidate is weighed by how many frontends it
+   ends. A number is no such identity, as it is unique only within its
+   adapter. */
+void normalize(std::vector<int> &ends)
+{
+	std::sort(ends.begin(), ends.end());
+	ends.erase(std::unique(ends.begin(), ends.end()), ends.end());
+}
+
+/* For endFor: each FBC link tied to root, target aside, that holds a band or
+   polarisation the channel would change goes into ends, as the root tunes the
+   input it tunes from; false when one of them is used by more than streams. */
+bool fbcLinksEnd(const std::vector<FeView> &fes, const std::vector<Use> &use, const FeView &root, int target,
+		 bool live_locked, std::vector<int> &ends)
+{
+	for (size_t k = 0; k < root.fbc_links.size(); ++k)
+	{
+		const int j = root.fbc_links[k];
+		if (!valid(fes, j) || j == target || fes[j].loop_can_tune)
+			continue;
+		const Hold h = holdOf(fes, use, j, live_locked);
+		if (h == Free)
+			continue;
+		if (h == Fixed)
+			return false;
+		ends.push_back(j);
+	}
+	return true;
+}
+
+/* The numbers of the frontends whose streams have to end for the walk to
+   take target on the master at index m (an independent frontend is its own
+   master, without links), or false when the target or a frontend in its way
+   is used by more than streams. In its way are a member the master's rotor
+   would turn away from, and on a loop-through master a member that is no twin
+   and holds another band or polarisation. The FBC links tied to the root
+   count where the walk weighs them: for an independent target, which is its
+   own root, and for a target on a master that is free once the streams end,
+   as the walk then takes the master first; a member of a master that stays
+   held is taken without them, and a twin keeps its own control. An
+   independent target no root carries the channel's input for is out. */
+bool endFor(const std::vector<FeView> &fes, const std::vector<Use> &use, int m, int target,
 	    bool live_locked, std::vector<int> &end)
 {
+	const FeView &master = fes[m];
+	std::vector<int> ends;  // indices
 	end.clear();
 	const Hold own = holdOf(fes, use, target, live_locked);
 	if (own == Fixed)
 		return false;
 	if (own == StreamsOnly)
-		end.push_back(fes[target].number);
+		ends.push_back(target);
 
 	if (master.mode != FeView::Master)
-		return true;
-
-	for (size_t k = 0; k < master.links.size(); ++k)
 	{
-		const int i = master.links[k];
-		if (!valid(fes, i) || i == target)
-			continue;
-		const Hold h = holdOf(fes, use, i, live_locked);
-		if (h == Free)
-			continue;
-		const FeView &fe = fes[i];
-		const bool rotor = master.have_rotor && !fe.same_pos;
-		const bool loop = master.have_loop && !fes[target].is_twin && !fe.is_twin && !fe.loop_can_tune;
-		if (!rotor && !loop)
-			continue;
-		if (h == Fixed)
+		if (!fes[target].root_carries || !fbcLinksEnd(fes, use, master, target, live_locked, ends))
 			return false;
-		end.push_back(fe.number);
 	}
+	else
+	{
+		for (size_t k = 0; k < master.links.size(); ++k)
+		{
+			const int i = master.links[k];
+			if (!valid(fes, i) || i == target)
+				continue;
+			const Hold h = holdOf(fes, use, i, live_locked);
+			if (h == Free)
+				continue;
+			const FeView &fe = fes[i];
+			const bool rotor = master.have_rotor && !fe.same_pos;
+			const bool loop = master.have_loop && !fes[target].is_twin && !fe.is_twin && !fe.loop_can_tune;
+			if (!rotor && !loop)
+				continue;
+			if (h == Fixed)
+				return false;
+			ends.push_back(i);
+		}
+
+		const bool master_freed = holdOf(fes, use, m, live_locked) == Free ||
+					  std::find(ends.begin(), ends.end(), m) != ends.end();
+		if (!fes[target].is_twin && master_freed && !fbcLinksEnd(fes, use, master, target, live_locked, ends))
+			return false;
+	}
+
+	normalize(ends);
+	for (size_t k = 0; k < ends.size(); ++k)
+		end.push_back(fes[ends[k]].number);
 	return true;
 }
 
@@ -286,13 +376,13 @@ bool fewestToEnd(const std::vector<FeView> &fes, const std::vector<Use> &use, bo
 			for (size_t k = 0; k < m.links.size(); ++k)
 			{
 				const int t = m.links[k];
-				if (valid(fes, t) && endFor(fes, use, m, t, live_locked, end))
+				if (valid(fes, t) && endFor(fes, use, (int) i, t, live_locked, end))
 					keepFewer(end, found, best);
 			}
 		}
 		else if (m.mode == FeView::Independent)
 		{
-			if (endFor(fes, use, m, (int) i, live_locked, end))
+			if (endFor(fes, use, (int) i, (int) i, live_locked, end))
 				keepFewer(end, found, best);
 		}
 	}

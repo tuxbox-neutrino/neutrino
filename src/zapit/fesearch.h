@@ -57,6 +57,12 @@ struct FeView
 	   delivery system, the user did not force it to another one, and a
 	   satellite frontend has the channel's position configured. */
 	bool usable;
+	/* For an independent frontend: false for an automatic FBC link that no
+	   root of its set carries the channel's input for, as none is tuned to
+	   the channel's transponder or to one its input carries; tied to a root,
+	   such a link would take that root's input from what it is tuned to.
+	   True for every other frontend, and on a box without FBC tuners. */
+	bool root_carries;
 	/* In use (a use count above zero), or held for something that must not
 	   lose it: the picture, a PiP slot, a running stream. */
 	bool locked;
@@ -69,11 +75,17 @@ struct FeView
 	/* For a master: the indices of itself and of every frontend linked to it,
 	   master first, in the order the walk visits them. */
 	std::vector<int> links;
+	/* For an FBC root: the indices of the frontends tied to it with the link
+	   flag, which tune from the input it tunes. One that holds a band or
+	   polarisation the channel would change keeps the root from tuning, for
+	   as long as it is held. Empty for every other frontend, and on a box
+	   without FBC tuners. */
+	std::vector<int> fbc_links;
 	bool have_loop;
 	bool have_rotor;
 
 	FeView()
-		: number(-1), mode(Other), usable(false), locked(false), same_pos(false),
+		: number(-1), mode(Other), usable(false), root_carries(true), locked(false), same_pos(false),
 		  loop_can_tune(true), is_twin(false), have_loop(false), have_rotor(false)
 	{
 	}
@@ -84,8 +96,12 @@ struct FeView
    master with a rotor that a locked member keeps on another position offers
    none of its members, and on a loop-through master a locked member whose
    band or polarisation the channel would change keeps the others free only
-   as twins. A free frontend comes before a free twin, and the first master or
-   independent frontend in the order given that offers one wins. */
+   as twins. A locked FBC link of the same kind keeps its root from being
+   taken: an independent root is passed over, and a master that would be its
+   own first free member leaves only its twins. An independent frontend
+   without root_carries is never chosen. A free frontend comes before a free
+   twin, and the first master or independent frontend in the order given that
+   offers one wins. */
 int pickIdle(const std::vector<FeView> &fes);
 
 /* Where a stream on frontend number fe reads from without dynamic demux:
@@ -148,11 +164,18 @@ struct StreamsToEnd
    end: besides itself, every busy member its master's rotor would have to
    turn away from, and on a loop-through master every busy member, no twin,
    whose band or polarisation the channel would change - unless the
-   candidate is a twin itself.
+   candidate is a twin itself. The FBC links tied to a root that holds
+   another band or polarisation count as such members too where the walk
+   weighs them: for an independent candidate, which is its own root, and for
+   a candidate on a master that is free once the streams end, no twin; a
+   member of a master that stays held is taken without them. An independent
+   candidate without root_carries is out; a busy frontend on the channel's
+   transponder is still shared as it is.
    A candidate that such a member blocks and whose streams may not end is
    out. Of the candidates, the one that ends streams on the fewest
-   frontends wins, and of those the first the walk meets. With no_same_fe a
-   busy frontend is shared only with its own service. */
+   frontends wins, each frontend counted once, and of those the first the
+   walk meets. With no_same_fe a busy frontend is shared only with its own
+   service. */
 StreamsToEnd streamsToEnd(const std::vector<FeView> &fes, const std::vector<Use> &use,
 			  bool live_kept, bool no_same_fe);
 
