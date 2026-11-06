@@ -132,6 +132,11 @@ function channelRow(ch) {
 		title: webuiL('tip.zap_to', 'Switch the box to %s').replace('%s', ch.name),
 		attrs: {'aria-label': webuiL('bq.zap_title', 'Switch channel') + ': ' + ch.name}, on: {click: () => zapTo(ch.id)}},
 		webuiL('bq.zap_title', 'Switch channel'));
+	// a click or a tap on the logo switches as Zap does and asks the same
+	// questions; Zap stays the way by keyboard, the logo is no stop of its own
+	logo.addEventListener('click', () => {
+		if (ch.id !== currentChannelId) zapTo(ch.id);
+	});
 	const menu = webuiMenuButton(webuiL('bq.more', 'More for %s').replace('%s', ch.name), () => [
 		{label: webuiL('dash.epg_info', 'Programme info'), icon: SVG_INFO, onClick: () => showInfo(ch)},
 		{label: webuiL('bq.rec_title', 'Record programme'), icon: SVG_REC, onClick: () => webuiRecordEvent(ch.id, ch.name, epgNow[ch.id])},
@@ -390,6 +395,9 @@ function markCurrent() {
 				recorded ? webuiL('bc.recording', 'Recording') : webuiL('bq.live', 'On now')) : '');
 		}
 		row.querySelector('.webui-channel-zap').hidden = current;
+		const logo = row.querySelector('.webui-channel-logo');
+		logo.classList.toggle('zaps', !current);
+		logo.title = current ? '' : row.querySelector('.webui-channel-zap').title;
 	}));
 }
 
