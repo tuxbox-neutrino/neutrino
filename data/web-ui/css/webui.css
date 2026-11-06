@@ -857,7 +857,7 @@ html.webui-side-narrow .webui-side .webui-side-toggle {
 .webui-more-menu {
 	position: fixed;
 	right: 0.5rem;
-	bottom: calc(3.75rem + env(safe-area-inset-bottom, 0px) + 0.5rem);
+	bottom: calc(3.4rem + env(safe-area-inset-bottom, 0px) + 0.5rem);
 	z-index: 102;
 	display: flex;
 	flex-direction: column;
@@ -952,7 +952,7 @@ html.webui-side-narrow .webui-side .webui-side-toggle {
 		right: 0;
 		bottom: 0;
 		z-index: 101;
-		height: calc(3.75rem + env(safe-area-inset-bottom, 0px));
+		height: calc(3.4rem + env(safe-area-inset-bottom, 0px));
 		padding-bottom: env(safe-area-inset-bottom, 0px);
 		background: var(--pico-card-background-color);
 		border-top: 1px solid var(--pico-muted-border-color);
@@ -991,12 +991,12 @@ html.webui-side-narrow .webui-side .webui-side-toggle {
 	}
 
 	.webui-toast-host {
-		bottom: calc(3.75rem + 0.75rem + env(safe-area-inset-bottom, 0px));
+		bottom: calc(3.4rem + 0.75rem + env(safe-area-inset-bottom, 0px));
 	}
 
 	/* the page ends above the tab bar */
 	body {
-		padding-bottom: calc(3.75rem + env(safe-area-inset-bottom, 0px));
+		padding-bottom: calc(3.4rem + env(safe-area-inset-bottom, 0px));
 	}
 }
 
