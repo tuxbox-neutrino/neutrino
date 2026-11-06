@@ -1824,7 +1824,7 @@ function webuiGetRemoteHTML(opts) {
 		'</div>' +
 
 		/* Zone B: Core thumb zone (VOL | D-Pad | CH); the pad's corners hold
-		   Menu and Exit above it, Info and EPG below it, where the remote
+		   Menu and Info above it, Exit and EPG below it, where the remote
 		   controls of the boxes have them */
 		'<div class="webui-rc-core">' +
 			'<div class="webui-rc-rocker">' +
@@ -1835,7 +1835,7 @@ function webuiGetRemoteHTML(opts) {
 			'<div class="webui-rc-pad">' +
 				'<div class="webui-rc-pair">' +
 					btn('webui-rc-func', 'KEY_SETUP', webuiL('rc.menu', 'Menu')) +
-					btn('webui-rc-func', 'KEY_HOME', webuiL('rc.exit', 'Exit')) +
+					btn('webui-rc-func', 'KEY_INFO', webuiL('rc.info', 'Info')) +
 				'</div>' +
 				'<div class="webui-rc-dpad">' +
 					'<div></div>' + iconBtn('webui-rc-arrow', 'KEY_UP', webuiL('rc.up', 'Up'), svgUp) + '<div></div>' +
@@ -1845,7 +1845,7 @@ function webuiGetRemoteHTML(opts) {
 					'<div></div>' + iconBtn('webui-rc-arrow', 'KEY_DOWN', webuiL('rc.down', 'Down'), svgDown) + '<div></div>' +
 				'</div>' +
 				'<div class="webui-rc-pair">' +
-					btn('webui-rc-func', 'KEY_INFO', webuiL('rc.info', 'Info')) +
+					btn('webui-rc-func', 'KEY_HOME', webuiL('rc.exit', 'Exit')) +
 					btn('webui-rc-func', 'KEY_EPG', webuiL('rc.epg', 'EPG')) +
 				'</div>' +
 			'</div>' +

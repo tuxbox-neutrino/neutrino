@@ -3605,7 +3605,7 @@ html:not([data-theme="dark"]) .webui-remote .webui-rc-power {
 }
 
 /* ── D-Pad ── */
-/* the pad with Menu and Exit above it, Info and EPG below it */
+/* the pad with Menu and Info above it, Exit and EPG below it */
 .webui-remote .webui-rc-pad {
 	display: grid;
 	gap: 6px;
