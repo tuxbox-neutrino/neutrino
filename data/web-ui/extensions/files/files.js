@@ -535,6 +535,11 @@ function isAtScrollTop() {
 // The roots first, so the top level and the breadcrumb know them; an
 // address with #<path> inside them opens there
 webuiExtTexts('files').then(async function() {
+	// the folders beside and the list are one stop of Tab each: the arrows
+	// go from folder to folder, and in the list from row to row and to the
+	// buttons of a row as they lie
+	webuiArrowKeys(document.getElementById('quickList'), '.fm-open');
+	webuiArrowKeys(document.getElementById('fileList'), '.fm-open, .webui-file-actions .webui-btn, .webui-state button', '', {near: true});
 	await loadQuickDirs();
 	let asked = '';
 	try { asked = decodeURIComponent(location.hash.replace(/^#/, '')); } catch (e) { /* not an address */ }
