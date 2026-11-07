@@ -450,6 +450,7 @@
 	"play.the_channel": "den Sender",
 	"play.unplayable_hint": "Öffne den Sender stattdessen in einem Player (M3U).",
 	"play.no_tuner_hint": "Fernsehbild oder Aufnahme belegen den Tuner. Ein Sender auf demselben Transponder geht trotzdem, im Standby der Box jeder Sender außer einem, der gerade aufgenommen wird.",
+	"play.guess_mpeg2": "Laut Senderliste sendet %s MPEG-2; Browser spielen das meist nicht. Im Player öffnen (M3U).",
 	"bq.more": "Mehr zu %s",
 	"bq.live": "Läuft",
 	"tm.all": "Alle",

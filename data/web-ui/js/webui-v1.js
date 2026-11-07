@@ -21,6 +21,11 @@
 // resolves true for 202, which says the box took the request on, and false
 // for 204, which says there was nothing to do.
 //
+// Every channel answer (GET /channels, /channels/current, /channels/{id})
+// names the coding the box expects of the channel's picture; it is noted as
+// it passes (webuiNoteChannels), so the pages offer playing in the browser
+// as that coding allows without asking the box for it.
+//
 // Reading needs no sign-in from the home network; changing anything does,
 // and so does reading from anywhere else. The box answers either with 403,
 // so a 403 opens the sign-in dialog (POST /api/v1/login) unless a session
@@ -214,7 +219,10 @@ async function webuiV1(method, path, opts) {
 		if (!resp.ok) throw _webuiV1Declined(await _webuiV1Error(resp, method, path), declined);
 		if (resp.status === 202 || resp.status === 204) return opts.accepted ? resp.status === 202 : null;
 		var type = resp.headers.get('Content-Type') || '';
-		return await (type.indexOf('json') >= 0 ? resp.json() : resp.text());
+		var doc = await (type.indexOf('json') >= 0 ? resp.json() : resp.text());
+		if (method === 'GET' && /^\/channels(\/[^/?]+)?(\?|$)/.test(path))
+			webuiNoteChannels(doc);
+		return doc;
 	} finally {
 		if (done) done();
 	}
@@ -672,6 +680,7 @@ function _webuiEpgModalHTML() {
 			</section>
 		</div>
 		<footer class="webui-epg-modal-footer">
+			<p class="webui-epg-play-note" id="webuiEpgPlayNote" hidden></p>
 			<button type="button" class="webui-btn primary" onclick="webuiEpgModalZap()" title="${webuiLH('epg.zap_title', 'Switch to this channel now')}">
 				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="7" width="20" height="15" rx="2"/><polyline points="17 2 12 7 7 2"/></svg>
 				<span>${webuiLH('epg.zap', 'Zap')}</span>
@@ -688,7 +697,7 @@ function _webuiEpgModalHTML() {
 				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="4" width="20" height="14" rx="2"/><path d="M10 8.5v5l4.5-2.5z"/><path d="M8 21h8"/></svg>
 				<span>${webuiLH('play.in_browser', 'Play in browser')}</span>
 			</button>
-			<button type="button" class="webui-epg-round" onclick="webuiOpenInPlayer()" title="${webuiLH('play.external', 'Open in a player (M3U)')}" aria-label="${webuiLH('play.external', 'Open in a player (M3U)')}">
+			<button type="button" class="webui-epg-round" id="webuiEpgM3uBtn" onclick="webuiOpenInPlayer()" title="${webuiLH('play.external', 'Open in a player (M3U)')}" aria-label="${webuiLH('play.external', 'Open in a player (M3U)')}">
 				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 17H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-1"/><polygon points="12 15 17 21 7 21"/></svg>
 			</button>
 		</footer>
@@ -879,7 +888,8 @@ async function webuiShowEpgModal(channelId, channelName, opts) {
 	recBtn.hidden = false;
 	// handed to the player, which reads the channel where it is not known
 	_webuiEpgModalKind = opts.kind || '';
-	webuiPlayOffer(document.getElementById('webuiEpgPlayBtn'), channelId, webuiEpgModalChannelName);
+	webuiPlayOffer(document.getElementById('webuiEpgPlayBtn'), channelId, webuiEpgModalChannelName,
+		document.getElementById('webuiEpgPlayNote'), document.getElementById('webuiEpgM3uBtn'));
 
 	modal.classList.add('open');
 	document.body.style.overflow = 'hidden';
@@ -1051,11 +1061,12 @@ function webuiOpenInPlayer(channelId) {
 }
 
 /* The coding of a channel's picture as this tab has learnt it: the player
-   notes what the box reports for a channel it plays, and any other source
-   of a channel's coding notes it the same way. Only an H.264 or H.265
-   picture plays in a browser (the box does not re-encode one), so a channel
-   known to send another is offered for a player on this computer instead.
-   Kept for the tab, so the other pages know it too. */
+   notes what the box reports for a channel it plays, and a channel answer
+   whose hint the box read off the channel itself (source stream) counts the
+   same. Only an H.264 or H.265 picture plays in a browser (the box does not
+   re-encode one), so a channel known to send another is offered for a player
+   on this computer instead. Kept for the tab, so the other pages know it
+   too. */
 const _webuiVideoKey = 'webui-video-codecs';
 let _webuiVideoSeen = null;
 function _webuiVideoCodecs() {
@@ -1068,20 +1079,78 @@ function _webuiVideoCodecs() {
 	return _webuiVideoSeen;
 }
 
-function webuiNoteVideo(channelId, codec) {
-	if (!channelId || !codec || codec === 'unknown') return;
-	const seen = _webuiVideoCodecs();
-	if (seen[channelId] === codec) return;
-	seen[channelId] = codec;
+/* The coding the channel list's service type names for a channel, where it
+   names MPEG-2: a guess, since that type is the generic one for television
+   and allowed for other codings too. Kept apart from what was learnt, which
+   it never replaces. */
+const _webuiGuessKey = 'webui-video-guesses';
+let _webuiGuessSeen = null;
+function _webuiVideoGuesses() {
+	if (!_webuiGuessSeen) {
+		_webuiGuessSeen = Object.create(null);
+		try {
+			Object.assign(_webuiGuessSeen, JSON.parse(sessionStorage.getItem(_webuiGuessKey) || '{}'));
+		} catch (e) { /* known to this page only */ }
+	}
+	return _webuiGuessSeen;
+}
+
+function _webuiKeep(key, map) {
 	try {
-		sessionStorage.setItem(_webuiVideoKey, JSON.stringify(seen));
+		sessionStorage.setItem(key, JSON.stringify(map));
 	} catch (e) { /* known to this page only */ }
+}
+
+// Notes a coding learnt for a channel; true where that changed what was known
+function _webuiNoteVideoOnly(channelId, codec) {
+	if (!channelId || !codec || codec === 'unknown') return false;
+	const seen = _webuiVideoCodecs();
+	if (seen[channelId] === codec) return false;
+	seen[channelId] = codec;
+	return true;
+}
+
+function webuiNoteVideo(channelId, codec) {
+	if (_webuiNoteVideoOnly(channelId, codec))
+		_webuiKeep(_webuiVideoKey, _webuiVideoCodecs());
+}
+
+/* The hints of a channel answer, a list ({items}) or one channel: a coding
+   the box read off the channel (stream) is learnt; one the service type
+   names (service_type) is kept as a guess where it is MPEG-2, and an
+   earlier guess goes where the type now names another. A web channel hints
+   at nothing. Written to the tab once per answer. */
+function webuiNoteChannels(doc) {
+	const list = doc && Array.isArray(doc.items) ? doc.items : doc && doc.id ? [doc] : [];
+	const guesses = _webuiVideoGuesses();
+	let learnt = false, guessed = false;
+	list.forEach(function(ch) {
+		if (!ch || !ch.id || typeof ch.video_codec_hint !== 'string') return;
+		const id = String(ch.id), hint = ch.video_codec_hint;
+		if (ch.video_codec_hint_source === 'stream') {
+			if (_webuiNoteVideoOnly(id, hint)) learnt = true;
+		} else if (ch.video_codec_hint_source === 'service_type') {
+			const guess = hint === 'mpeg2' ? hint : '';
+			if ((guesses[id] || '') === guess) return;
+			if (guess) guesses[id] = guess;
+			else delete guesses[id];
+			guessed = true;
+		}
+	});
+	if (learnt) _webuiKeep(_webuiVideoKey, _webuiVideoCodecs());
+	if (guessed) _webuiKeep(_webuiGuessKey, guesses);
 }
 
 // The coding of a channel's picture where no browser plays it, else ''
 function webuiUnplayableVideo(channelId) {
 	const codec = channelId ? _webuiVideoCodecs()[channelId] : '';
 	return codec && ['h264', 'hevc', 'none'].indexOf(codec) < 0 ? codec : '';
+}
+
+// The coding the channel list makes likely where nothing was learnt, else ''
+function webuiVideoGuess(channelId) {
+	if (!channelId || _webuiVideoCodecs()[channelId]) return '';
+	return _webuiVideoGuesses()[channelId] || '';
 }
 
 const WEBUI_VIDEO_NAMES = {mpeg2: 'MPEG-2', h264: 'H.264', hevc: 'H.265', cavs: 'AVS'};
@@ -1098,18 +1167,46 @@ function webuiUnplayableText(name, codec, hint) {
 	return hint ? text + ' ' + webuiL('play.unplayable_hint', 'Open the channel in a player instead (M3U).') : text;
 }
 
-/* Play in browser, offered for a channel: greyed out with the reason as its
-   tooltip where its picture is known to play in no browser, but still
-   focusable, so the reason can be read and a press tells it. */
-function webuiPlayOffer(btn, channelId, channelName) {
+/* What stands in the way of playing a channel in the browser, as this tab
+   knows it: {sure: true, text} where its picture is known to play in no
+   browser, {sure: false, text} where the channel list says MPEG-2, else
+   null. Either way the playlist for a player is the way to point to. */
+function webuiPlayDoubt(channelId, channelName) {
 	const codec = webuiUnplayableVideo(channelId);
-	if (codec) {
+	if (codec)
+		return {sure: true, text: webuiUnplayableText(channelName, codec, true)};
+	if (webuiVideoGuess(channelId) === 'mpeg2')
+		return {sure: false, text: webuiL('play.guess_mpeg2', 'The channel list says %s sends MPEG-2; browsers usually cannot play it. Open it in a player (M3U).')
+			.replace('%s', channelName || webuiL('play.this_channel', 'This channel'))};
+	return null;
+}
+
+/* Play in browser, offered for a channel: greyed out where its picture is
+   known to play in no browser, but still focusable, so the reason can be
+   read and a press tells it; offered where the channel list only makes MPEG-2
+   likely. The reason or the doubt is the tooltip and, where the caller has
+   one, the text of note, which then describes the button; m3u, the way to a
+   player, is marked as the one to take. */
+function webuiPlayOffer(btn, channelId, channelName, note, m3u) {
+	const doubt = webuiPlayDoubt(channelId, channelName);
+	if (doubt && doubt.sure)
 		btn.setAttribute('aria-disabled', 'true');
-		btn.title = webuiUnplayableText(channelName, codec, true);
-	} else {
+	else
 		btn.removeAttribute('aria-disabled');
+	if (doubt)
+		btn.title = doubt.text;
+	else
 		btn.removeAttribute('title');
+	if (note) {
+		note.textContent = doubt ? doubt.text : '';
+		note.hidden = !doubt;
+		if (doubt && note.id)
+			btn.setAttribute('aria-describedby', note.id);
+		else
+			btn.removeAttribute('aria-describedby');
 	}
+	if (m3u)
+		m3u.classList.toggle('suggested', !!doubt);
 }
 
 /* A channel played in this page (js/webui-player.js, loaded on the first

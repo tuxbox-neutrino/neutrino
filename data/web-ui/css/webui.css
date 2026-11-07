@@ -1924,6 +1924,50 @@ audio.webui-player-media {
 	box-shadow: inset 0 0 0 2px var(--webui-focus-color);
 }
 
+/* why playing in the browser may fail, below Play in browser in the guide
+   dialog's foot (webuiPlayOffer) and below its entry in a menu */
+.webui-epg-play-note {
+	flex: 1 1 100%;
+	order: -1;
+	margin: 0;
+	color: var(--pico-muted-color);
+	font-size: var(--webui-font-sm);
+}
+
+.webui-epg-play-note[hidden] {
+	display: none;
+}
+
+.webui-menu-text {
+	display: grid;
+	gap: 0.15rem;
+	min-width: 0;
+}
+
+.webui-menu-note {
+	max-width: 17rem;
+	color: var(--pico-muted-color);
+	font-size: var(--webui-font-xs);
+	line-height: 1.35;
+	white-space: normal;
+}
+
+/* the way to a player, where it is the one to take */
+.webui-epg-round.suggested {
+	border-color: var(--webui-accent);
+	background: var(--webui-accent-light);
+	color: var(--webui-accent);
+}
+
+.webui-menu button.suggested,
+.webui-menu button.suggested svg {
+	color: var(--webui-accent);
+}
+
+.webui-menu button.suggested {
+	font-weight: 600;
+}
+
 .webui-epg-title {
 	font-size: 1.1rem;
 	font-weight: 600;

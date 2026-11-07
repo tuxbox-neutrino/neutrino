@@ -450,6 +450,7 @@
 	"play.the_channel": "the channel",
 	"play.unplayable_hint": "Open the channel in a player instead (M3U).",
 	"play.no_tuner_hint": "The TV picture or a recording holds the tuner. A channel on the same transponder still plays, and in standby any channel does, except one being recorded.",
+	"play.guess_mpeg2": "The channel list says %s sends MPEG-2; browsers usually cannot play it. Open it in a player (M3U).",
 	"bq.more": "More for %s",
 	"bq.live": "On now",
 	"tm.all": "All",

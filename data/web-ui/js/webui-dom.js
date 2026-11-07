@@ -364,16 +364,19 @@ function webuiRowActions(actions) {
 
 // webuiMenuButton(label, items) -> a "more" button that opens a menu of the
 //   actions a row has beside its main one. items: [{label, icon, onClick,
-//   danger, disabled, unavailable}], null for a rule, or a function that
-//   answers them when the menu opens. unavailable, a text, greys an entry
-//   out with the text as its tooltip; it stays among the entries the arrows
-//   reach, and a click on it still calls onClick, which says why. label names the button for a screen reader and as
+//   danger, disabled, unavailable, note, suggested}], null for a rule, or a
+//   function that answers them when the menu opens. unavailable, a text,
+//   greys an entry out with the text as its tooltip; it stays among the
+//   entries the arrows reach, and a click on it still calls onClick, which
+//   says why. note, a text, stands below the entry's label and describes it;
+//   suggested marks the entry as the one to take. label names the button for a screen reader and as
 //   its tooltip. The menu (role menu) opens below the button, above it where
 //   the window ends; arrows, Home and End move between its entries, Escape
 //   and Tab close it with the focus back on the button, and a click
 //   elsewhere, a scroll or a resize close it too. A click on an entry closes
 //   it and calls onClick(event).
 
+var _webuiMenuNotes = 0;		// ids of the notes of menu entries
 var WEBUI_MORE_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true" focusable="false"><path d="M5 12h.01M12 12h.01M19 12h.01"/></svg>';
 var _webuiMenuShown = null;
 
@@ -402,15 +405,24 @@ function _webuiMenuOpen(btn, items) {
 			menu.appendChild(webuiEl('hr', {attrs: {role: 'separator'}}));
 			return;
 		}
-		menu.appendChild(webuiEl('button', {type: 'button', className: it.danger ? 'danger' : '', disabled: !!it.disabled,
-			title: it.unavailable || null,
-			attrs: it.unavailable ? {role: 'menuitem', tabindex: '-1', 'aria-disabled': 'true'} : {role: 'menuitem', tabindex: '-1'},
+		var attrs = {role: 'menuitem', tabindex: '-1'};
+		if (it.unavailable)
+			attrs['aria-disabled'] = 'true';
+		var note = null;
+		if (it.note) {
+			note = webuiEl('span', {className: 'webui-menu-note', id: 'webui-menu-note-' + (++_webuiMenuNotes)}, it.note);
+			attrs['aria-label'] = it.label;
+			attrs['aria-describedby'] = note.id;
+		}
+		menu.appendChild(webuiEl('button', {type: 'button', className: (it.danger ? 'danger' : '') + (it.suggested ? ' suggested' : ''),
+			disabled: !!it.disabled, title: it.unavailable || null, attrs: attrs,
 			on: {click: function(ev) {
 				ev.stopPropagation();
 				_webuiMenuClose(true);
 				if (it.onClick)
 					it.onClick(ev);
-			}}}, it.icon ? webuiMarkup(it.icon) : null, webuiEl('span', {}, it.label)));
+			}}}, it.icon ? webuiMarkup(it.icon) : null,
+			note ? webuiEl('span', {className: 'webui-menu-text'}, webuiEl('span', {}, it.label), note) : webuiEl('span', {}, it.label)));
 	});
 	document.body.appendChild(menu);
 	var r = btn.getBoundingClientRect();

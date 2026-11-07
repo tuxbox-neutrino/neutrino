@@ -112,7 +112,8 @@ function _webuiPlayerBuild() {
    channel's playlist for a player on this computer where the channel is one
    of the tuners'; 'retry-only', where the playlist would meet the same
    refusal; 'external', the playlist alone as the way out, for a channel no
-   browser plays; or none. An error is announced. A button that goes away
+   browser plays or beside the start of one the channel list says sends
+   MPEG-2; or none. An error is announced. A button that goes away
    with the focus on it hands the focus on to the picture, or to the close
    button, so it stays in the player. */
 function _webuiPlayerSay(p, text, button, error, hint) {
@@ -484,7 +485,8 @@ async function _webuiPlayerWebStart(p, token) {
    one, which it converts. A channel the box has not tuned since it started
    lists no tracks, and its sound is 'unknown': the box then converts the
    first track, whatever it is, and its picture is 'unknown' unless the box's
-   list of channels names it. */
+   list of channels names it or the channel's hint is a coding the box read
+   off the channel before (source stream). */
 function _webuiPlayerStreams(ch, radio) {
 	var tracks = ch && ch.streams_known && Array.isArray(ch.audio) ? ch.audio : [];
 	var chosen = tracks.filter(function(a) { return a.selected; })[0] || tracks[0] || null;
@@ -495,6 +497,8 @@ function _webuiPlayerStreams(ch, radio) {
 		if (aac) chosen = aac;
 	}
 	var video = ch && ch.video ? ch.video.codec : '';
+	if ((!video || video === 'unknown') && ch && ch.video_codec_hint_source === 'stream')
+		video = ch.video_codec_hint;
 	return {
 		radio: radio,
 		video: radio ? 'none' : (video && video !== 'none' ? video : 'unknown'),
@@ -700,7 +704,12 @@ async function _webuiPlayerStart(p) {
 	p.recovered = false;
 	p.streams = null;
 	p.note = '';
-	_webuiPlayerSay(p, webuiL('play.loading', 'Starting playback…'), '');
+	// a channel the channel list says sends MPEG-2 is tried, the way to a
+	// player beside it while it starts
+	var doubt = webuiPlayDoubt(p.channel.id, p.channel.name);
+	if (doubt && doubt.sure)
+		doubt = null;
+	_webuiPlayerSay(p, webuiL('play.loading', 'Starting playback…'), doubt ? 'external' : '', false, doubt ? doubt.text : '');
 
 	if (!await _webuiPlayerMayFetch()) {
 		if (token === p.token)

@@ -137,14 +137,19 @@ function channelRow(ch) {
 	logo.addEventListener('click', () => {
 		if (ch.id !== currentChannelId) zapTo(ch.id);
 	});
-	const menu = webuiMenuButton(webuiL('bq.more', 'More for %s').replace('%s', ch.name), () => [
-		{label: webuiL('dash.epg_info', 'Programme info'), icon: SVG_INFO, onClick: () => showInfo(ch)},
-		{label: webuiL('bq.rec_title', 'Record programme'), icon: SVG_REC, onClick: () => webuiRecordEvent(ch.id, ch.name, epgNow[ch.id])},
-		{label: webuiL('play.in_browser', 'Play in browser'), icon: SVG_PLAY,
-			unavailable: webuiUnplayableVideo(ch.id) ? webuiUnplayableText(ch.name, webuiUnplayableVideo(ch.id), true) : '',
-			onClick: () => webuiPlayInBrowser(ch.id, ch.name, ch.kind)},
-		{label: webuiL('play.external', 'Open in a player (M3U)'), icon: SVG_STREAM, onClick: () => webuiOpenInPlayer(ch.id)}
-	]);
+	// playing in the browser as the channel's coding allows, when the menu opens
+	const menu = webuiMenuButton(webuiL('bq.more', 'More for %s').replace('%s', ch.name), () => {
+		const doubt = webuiPlayDoubt(ch.id, ch.name);
+		return [
+			{label: webuiL('dash.epg_info', 'Programme info'), icon: SVG_INFO, onClick: () => showInfo(ch)},
+			{label: webuiL('bq.rec_title', 'Record programme'), icon: SVG_REC, onClick: () => webuiRecordEvent(ch.id, ch.name, epgNow[ch.id])},
+			{label: webuiL('play.in_browser', 'Play in browser'), icon: SVG_PLAY,
+				unavailable: doubt && doubt.sure ? doubt.text : '', note: doubt ? doubt.text : '',
+				onClick: () => webuiPlayInBrowser(ch.id, ch.name, ch.kind)},
+			{label: webuiL('play.external', 'Open in a player (M3U)'), icon: SVG_STREAM, suggested: !!doubt,
+				onClick: () => webuiOpenInPlayer(ch.id)}
+		];
+	});
 	channelsShown[ch.id] = ch;
 	return webuiEl('li', {className: 'webui-channel-row', data: {id: ch.id}},
 		webuiEl('span', {className: 'webui-channel-num'}, ch.number > 0 ? String(ch.number) : ''),
