@@ -270,6 +270,21 @@
 			margin-left: 2px;
 		}
 
+		/* the square of Stop sits in the middle; the triangle of Play is
+		   moved right to look centred */
+		.webui-media-tile-play.stops svg {
+			margin-left: 0;
+		}
+
+		/* Stop waiting for the box takes no second press, and a click on it
+		   stays on it: Pico lets a busy button's clicks through to the
+		   picture below, which would open the details */
+		.webui-media-play[aria-busy="true"],
+		.webui-media-act-play[aria-busy="true"] {
+			pointer-events: auto;
+			cursor: progress;
+		}
+
 		/* the title opens the details: a button that reads as a title */
 		.webui-media-open {
 			--pico-color: inherit;

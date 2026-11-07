@@ -17,6 +17,10 @@
 // user did not sign in for carries .cancelled. webuiToastError (in
 // webui-header.js) tells the user why, in the page's language.
 //
+// An answer without a body (202, 204) resolves null; with opts.accepted it
+// resolves true for 202, which says the box took the request on, and false
+// for 204, which says there was nothing to do.
+//
 // Reading needs no sign-in from the home network; changing anything does,
 // and so does reading from anywhere else. The box answers either with 403,
 // so a 403 opens the sign-in dialog (POST /api/v1/login) unless a session
@@ -208,7 +212,7 @@ async function webuiV1(method, path, opts) {
 			}
 		}
 		if (!resp.ok) throw _webuiV1Declined(await _webuiV1Error(resp, method, path), declined);
-		if (resp.status === 202 || resp.status === 204) return null;
+		if (resp.status === 202 || resp.status === 204) return opts.accepted ? resp.status === 202 : null;
 		var type = resp.headers.get('Content-Type') || '';
 		return await (type.indexOf('json') >= 0 ? resp.json() : resp.text());
 	} finally {

@@ -4,12 +4,15 @@
 // time, by folder, title words and order; as tiles with their cover or
 // their channel's logo, or as rows of a list; the one chosen with its
 // details and actions in a column beside them on a wide screen, in a sheet
-// on a narrower one. Titles and texts come from the recording's metadata
-// and go in as text.
+// on a narrower one. Play on TV turns into Stop while the TV plays the
+// recording. Titles and texts come from the recording's metadata and go in
+// as text.
 const PAGE = 30;
 const SVG_FILM = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M7 4v16M17 4v16M2 9h5M2 15h5M17 9h5M17 15h5"/></svg>';
 const SVG_PLAY = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polygon points="5,3 19,12 5,21"/></svg>';
 const SVG_PLAY_FILLED = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><polygon points="6 4 20 12 6 20"/></svg>';
+const SVG_STOP = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="5" y="5" width="14" height="14" rx="1.5"/></svg>';
+const SVG_STOP_FILLED = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="1.5"/></svg>';
 const SVG_INFO = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>';
 const SVG_LIST = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>';
 const SVG_DOWN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M4 21h16"/></svg>';
@@ -26,6 +29,11 @@ let shown = [];			// the recordings on screen, drawn again when the view changes
 let chosen = null;		// the id of the recording in the column beside the list
 let detailToken = 0;		// a newer choice makes an older answer stale
 let view = 'tiles';		// tiles or list, as this browser last left it
+let playingId = null;		// the recording the TV plays, from the list, the details and the playback events
+let stopping = null;		// {id, timer} from a press of Stop until the playback ends
+// how long a stop the box took on waits for the playback event before the
+// state is read once
+const STOP_WAIT = 8000;
 try {
 	if (localStorage.getItem('webui-media-view') === 'list') view = 'list';
 } catch (e) { /* tiles then */ }
@@ -55,14 +63,35 @@ function besideShown() {
 	return !!d && getComputedStyle(d).display !== 'none';
 }
 
-// One page of the list; more=true appends the next page
-async function loadList(more) {
+// The control of a recording in the list that has the focus, as
+// {id, cls}, so the same control of the same recording takes it again once
+// the list is drawn anew
+const FOCUS_KEPT = ['webui-media-play', 'webui-media-open', 'webui-menu-btn'];
+function focusInList(list) {
+	const at = document.activeElement;
+	const li = at && at !== list && list.contains(at) ? at.closest('li[data-id]') : null;
+	const cls = li ? FOCUS_KEPT.find(c => at.classList.contains(c)) : null;
+	return cls ? {id: li.dataset.id, cls: cls} : null;
+}
+
+function focusAgain(list, kept) {
+	if (!kept || document.activeElement !== document.body) return;
+	const li = Array.prototype.find.call(list.children, e => e.dataset.id === kept.id);
+	const el = li && li.querySelector('.' + kept.cls);
+	if (el) el.focus({preventScroll: true});
+}
+
+/* One page of the list; more=true appends the next page. quiet, for a read
+   the page makes of itself (the player moved, a recording ended), keeps the
+   list shown until the answer comes and the focus where it was. */
+async function loadList(more, quiet) {
 	const token = ++listToken;
 	const list = document.getElementById('mediaList');
 	const moreBtn = document.getElementById('mediaMore');
 	if (!more) {
 		nextOffset = 0;
-		list.replaceChildren(webuiEl('li', {}, webuiState('loading', webuiL('media.loading', 'Loading recordings...'), '')));
+		if (!quiet || !shown.length)
+			list.replaceChildren(webuiEl('li', {}, webuiState('loading', webuiL('media.loading', 'Loading recordings...'), '')));
 	}
 	if (nextOffset === null) return;
 
@@ -94,6 +123,8 @@ async function loadList(more) {
 
 	const items = (page && page.items) || [];
 	pagesShown = more ? pagesShown + 1 : 1;
+	sawPlaying(items);
+	const kept = more ? null : focusInList(list);
 	if (!more) {
 		list.replaceChildren();
 		shown = [];
@@ -102,6 +133,7 @@ async function loadList(more) {
 		shown.push(rec);
 		list.appendChild(itemFor(rec));
 	});
+	focusAgain(list, kept);
 	if (!more && items.length === 0) {
 		const empty = webuiEl('li', {}, webuiState('empty', webuiL('media.none', 'No recordings found'),
 			words ? webuiL('media.none_search', 'Nothing matches these words.') : ''));
@@ -146,7 +178,37 @@ async function loadList(more) {
 let playbackSoon = null;
 function playbackChanged() {
 	if (pagesShown > 1 || playbackSoon) return;
-	playbackSoon = setTimeout(() => { playbackSoon = null; loadList(false); }, 1000);
+	playbackSoon = setTimeout(() => { playbackSoon = null; loadList(false, true); }, 1000);
+}
+
+/* What plays, as an answer says it: the recording an item of a list or the
+   details marks playing; an item that says it does not ends the mark it
+   held, and a stop that waits for that. */
+function sawPlaying(items) {
+	const playing = items.find(r => r.playing);
+	if (playing) playingId = playing.id;
+	else if (items.some(r => r.id === playingId)) playingId = null;
+	if (stopping && stopping.id !== playingId)
+		stopDone(stopping);
+	syncPlay();
+}
+
+/* The playback event names its state, what plays and, for a recording, its
+   id ("playing recording <id>", "stopped recording <id>", "playing file"):
+   the buttons follow it at once, and a stop waiting for it is done once the
+   recording it stopped no longer plays. */
+function playbackEvent(data) {
+	const m = /^(\S+) (\S+)(?: (\S+))?/.exec((data && data.text) || '');
+	if (m) {
+		if (m[1] !== 'stopped')
+			playingId = m[2] === 'recording' && m[3] ? m[3] : null;
+		else if (!m[3] || m[3] === playingId)
+			playingId = null;
+		if (stopping && stopping.id !== playingId)
+			stopDone(stopping);
+		syncPlay();
+	}
+	playbackChanged();
 }
 
 /* A recording's picture: its cover, else its channel's logo on the dark
@@ -207,9 +269,7 @@ function recordingTile(rec) {
 	const pic = onPicture(picture(rec), [
 		rec.playing ? playingPill() : null,
 		rec.duration ? webuiEl('span', {className: 'webui-media-len'}, length(rec.duration)) : null,
-		webuiEl('button', {type: 'button', className: 'webui-media-tile-play webui-media-play', title: webuiL('media.play', 'Play on TV'),
-			attrs: {'aria-label': webuiL('media.play', 'Play on TV') + ': ' + title}, on: {click: () => play(rec.id)}},
-			webuiMarkup(SVG_PLAY_FILLED))]);
+		playButton(rec.id, title, 'tile', null)]);
 	return webuiEl('li', {className: 'webui-media-tile' + (rec.id === chosen ? ' chosen' : ''), data: {id: rec.id},
 		attrs: rec.id === chosen ? {'aria-current': 'true'} : {}},
 		opensDetails(pic, rec), openButton(rec, title, meta, false));
@@ -226,15 +286,116 @@ function recordingRow(rec) {
 		opensDetails(onPicture(picture(rec), []), rec),
 		webuiEl('div', {className: 'webui-media-info'}, openButton(rec, title, meta, rec.playing)),
 		webuiEl('div', {className: 'webui-media-actions'},
-			webuiEl('button', {type: 'button', className: 'webui-btn webui-media-play',
-				attrs: {'aria-label': webuiL('media.play', 'Play on TV') + ': ' + title}, on: {click: () => play(rec.id)}},
-				webuiMarkup(SVG_PLAY), webuiEl('span', {}, webuiL('media.play', 'Play on TV'))),
+			playButton(rec.id, title, 'row', null),
 			webuiMenuButton(webuiL('bq.more', 'More for %s').replace('%s', title), [
 				{label: webuiL('tm.details', 'Details'), icon: SVG_INFO, onClick: () => choose(rec)},
 				{label: webuiL('media.playlist', 'Playlist (M3U)'), icon: SVG_LIST, onClick: () => fetchTo(base + '/playlist.m3u')},
 				{label: webuiL('media.download', 'Download'), icon: SVG_DOWN, onClick: () => fetchTo(base + '/file')},
 				null,
 				{label: webuiL('media.delete', 'Delete'), icon: SVG_DELETE, danger: true, onClick: () => remove(rec)}])));
+}
+
+/* Play on TV, or Stop while the TV plays the recording: one button that
+   changes in place, so it keeps the focus. kind 'tile' is the symbol on the
+   picture, 'row' the symbol and the word of a row, 'act' the details'
+   action; title names the recording to a screen reader in the list. leave()
+   runs before Play, which takes the details' sheet away. */
+function playButton(id, title, kind, leave) {
+	const cls = kind === 'tile' ? 'webui-media-tile-play webui-media-play' :
+		kind === 'row' ? 'webui-btn webui-media-play' : 'webui-btn primary webui-media-act-play';
+	const btn = webuiEl('button', {type: 'button', className: cls, data: {play: id, kind: kind, title: title},
+		on: {click: () => playOrStop(id, leave)}});
+	showPlay(btn);
+	return btn;
+}
+
+function showPlay(btn) {
+	const id = btn.dataset.play, kind = btn.dataset.kind;
+	const stops = id === playingId;
+	const word = stops ? webuiL('media.stop', 'Stop') : webuiL('media.play', 'Play on TV');
+	const named = stops ? webuiL('media.stop_on_tv', 'Stop on TV') : webuiL('media.play', 'Play on TV');
+	if (btn.classList.contains('stops') !== stops || !btn.firstChild) {
+		btn.classList.toggle('stops', stops);
+		if (kind === 'tile')
+			btn.replaceChildren(webuiMarkup(stops ? SVG_STOP_FILLED : SVG_PLAY_FILLED));
+		else
+			btn.replaceChildren(webuiMarkup(stops ? SVG_STOP : SVG_PLAY), webuiEl('span', {}, word));
+	}
+	if (kind === 'tile') btn.title = named;
+	if (kind !== 'act') btn.setAttribute('aria-label', named + ': ' + btn.dataset.title);
+	// busy from the press until the box has ended the playback, without a
+	// second press meanwhile; the mark takes the colour and the position the
+	// button has in the page, so one built while a stop waits is marked once
+	// it is in
+	const busy = !!stopping && stopping.id === id;
+	if (busy && !btn.isConnected) {
+		queueMicrotask(() => { if (btn.isConnected) showPlay(btn); });
+		return;
+	}
+	if (busy !== !!btn._stopMarked) {
+		btn._stopMarked = busy;
+		_webuiWaitMark(btn, busy);
+	}
+}
+
+// every Play and Stop of the page as the playback stands now
+function syncPlay() {
+	document.querySelectorAll('[data-play]').forEach(showPlay);
+}
+
+function playOrStop(id, leave) {
+	if (stopping && stopping.id === id) return;
+	if (id === playingId) {
+		stop(id);
+		return;
+	}
+	if (leave) leave();
+	play(id);
+}
+
+/* Stops the recording on the TV (POST /api/v1/playback/stop with its id).
+   202 says the box took it on: the button stays busy until the playback
+   event says the recording ended, and where none comes in time, what plays
+   is read once. 204 says nothing played it: Play again. A request the box
+   did not take leaves Stop to press again. */
+async function stop(id) {
+	const mine = stopping = {id: id, timer: 0};
+	syncPlay();
+	let took;
+	try {
+		took = await webuiV1('POST', '/playback/stop', {body: {id: id}, accepted: true});
+	} catch (e) {
+		stopDone(mine);
+		if (e.code === 'command-not-posted')
+			webuiShowToast(webuiL('media.stop_not_taken', 'The box did not respond. Try again.'), true);
+		else
+			webuiToastError('', e);
+		return;
+	}
+	if (stopping !== mine) return;
+	if (!took) {
+		if (playingId === id) playingId = null;
+		stopDone(mine);
+		return;
+	}
+	mine.timer = setTimeout(() => stopLate(mine), STOP_WAIT);
+}
+
+function stopDone(mine) {
+	if (stopping !== mine) return;
+	clearTimeout(mine.timer);
+	stopping = null;
+	syncPlay();
+}
+
+// No playback event in time: what the TV shows, read once
+async function stopLate(mine) {
+	if (stopping !== mine) return;
+	const now = await _webuiV1Read('/playback').catch(() => null);
+	if (stopping !== mine) return;
+	if (now)
+		playingId = now.source === 'recording' && now.recording ? now.recording.id : null;
+	stopDone(mine);
 }
 
 function fetchTo(href) {
@@ -343,6 +504,7 @@ async function showBeside(id) {
 		return;
 	}
 	if (token !== detailToken) return;
+	sawPlaying([rec]);
 	const title = rec.title || rec.channel || rec.id;
 	const sub = [rec.channel, rec.start ? when(rec.start) : '', length(rec.duration)].filter(Boolean).join(' · ');
 	box.replaceChildren(
@@ -357,9 +519,10 @@ async function showBeside(id) {
 }
 
 /* The actions of a recording's details, the same in the column and in the
-   sheet: Play on TV across, Playlist and Download side by side, Delete
-   across below them, each with its symbol and its word. leave() runs
-   before Play and Delete, which take the sheet away. */
+   sheet: Play on TV (Stop while it plays) across, Playlist and Download side
+   by side, Delete across below them, each with its symbol and its word.
+   leave() runs before Play and Delete, which take the sheet away; Stop
+   leaves it open. */
 function detailActs(rec, leave) {
 	const base = '/api/v1' + archive(rec.id);
 	const act = function(cls, svg, label, onClick) {
@@ -368,7 +531,7 @@ function detailActs(rec, leave) {
 	};
 	const away = fn => () => { if (leave) leave(); fn(); };
 	return webuiEl('div', {className: 'webui-media-detail-acts'},
-		act('primary', SVG_PLAY, webuiL('media.play', 'Play on TV'), away(() => play(rec.id))),
+		playButton(rec.id, rec.title || rec.channel || rec.id, 'act', leave),
 		act('', SVG_LIST, webuiL('media.playlist', 'Playlist (M3U)'), () => fetchTo(base + '/playlist.m3u')),
 		act('', SVG_DOWN, webuiL('media.download', 'Download'), () => fetchTo(base + '/file')),
 		act('webui-media-delete', SVG_DELETE, webuiL('media.delete', 'Delete'), away(() => remove(rec))));
@@ -385,6 +548,7 @@ async function showDetail(id) {
 		webuiToastError('', e);
 		return;
 	}
+	sawPlaying([rec]);
 	const base = '/api/v1' + archive(id);
 	let sheet = null;
 	sheet = webuiSheet({
@@ -473,8 +637,8 @@ webuiAfterTexts(function() {
 	webuiArrowKeys(document.getElementById('viewTiles').parentElement, 'button');
 	loadList(false);
 	webuiV1Events({
-		'record-stop': () => loadList(false),
-		playback: playbackChanged
+		'record-stop': () => loadList(false, true),
+		playback: playbackEvent
 	});
 });
 
