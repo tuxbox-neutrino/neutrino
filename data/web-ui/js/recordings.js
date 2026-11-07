@@ -322,18 +322,19 @@ function openButton(rec, title, meta, pill) {
 		webuiEl('span', {className: 'webui-media-meta'}, meta));
 }
 
-// One recording as a tile: its picture with the length, whether it plays
-// and Play on TV on it; its title and what it is below
+// One recording as a tile: its picture with the length and whether it
+// plays; below it its title and what it is, Play on TV beside them as in a
+// row of the list, away from the picture, which opens the details
 function recordingTile(rec) {
 	const title = titleOf(rec);
 	const meta = [rec.channel, when(rec.start), bytes(rec.size)].filter(Boolean).join(' · ');
 	const pic = onPicture(picture(rec), [
 		rec.playing ? playingPill() : null,
-		rec.duration ? webuiEl('span', {className: 'webui-media-len'}, length(rec.duration)) : null,
-		playButton(rec.id, title, 'tile', null)]);
+		rec.duration ? webuiEl('span', {className: 'webui-media-len'}, length(rec.duration)) : null]);
 	return webuiEl('li', {className: 'webui-media-tile' + (rec.id === chosen ? ' chosen' : ''), data: {id: rec.id},
 		attrs: rec.id === chosen ? {'aria-current': 'true'} : {}},
-		opensDetails(pic, rec), openButton(rec, title, meta, false));
+		opensDetails(pic, rec),
+		webuiEl('div', {className: 'webui-media-foot'}, openButton(rec, title, meta, false), playButton(rec.id, title, 'tile', null)));
 }
 
 // One recording as a row: its picture, its title and what it is, Play on
@@ -357,12 +358,12 @@ function recordingRow(rec) {
 }
 
 /* Play on TV, or Stop while the TV plays the recording: one button that
-   changes in place, so it keeps the focus. kind 'tile' is the symbol on the
-   picture, 'row' the symbol and the word of a row, 'act' the details'
+   changes in place, so it keeps the focus. kind 'tile' is the symbol in a
+   tile's foot, 'row' the symbol and the word of a row, 'act' the details'
    action; title names the recording to a screen reader in the list. leave()
    runs before Play, which takes the details' sheet away. */
 function playButton(id, title, kind, leave) {
-	const cls = kind === 'tile' ? 'webui-media-tile-play webui-media-play' :
+	const cls = kind === 'tile' ? 'webui-btn webui-media-tile-play webui-media-play' :
 		kind === 'row' ? 'webui-btn webui-media-play' : 'webui-btn primary webui-media-act-play';
 	const btn = webuiEl('button', {type: 'button', className: cls, data: {play: id, kind: kind, title: title},
 		on: {click: () => playOrStop(id, leave)}});

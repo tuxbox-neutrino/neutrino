@@ -141,8 +141,8 @@
 			list-style: none;
 		}
 
-		/* tiles: a picture 16:9 with the length and Play on TV on it, the
-		   title and what it is below; the one chosen outlined */
+		/* tiles: a picture 16:9 with the length on it, the title and what it
+		   is below with Play on TV beside them; the one chosen outlined */
 		.webui-media-list.tiles {
 			display: grid;
 			grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
@@ -236,38 +236,28 @@
 			color: #7ee2a8;
 		}
 
+		/* a tile's foot: its title and what it is, Play on TV beside them,
+		   a small key of the row's kind whose whole square of 44 px takes a
+		   tap (a round one would take less) */
+		.webui-media-foot {
+			display: flex;
+			flex: 1 1 auto;
+			align-items: center;
+			gap: 0.25rem;
+			min-width: 0;
+			padding-right: 0.5rem;
+		}
+
 		.webui-media-tile-play {
-			position: absolute;
-			left: 0.6rem;
-			bottom: 0.5rem;
-			z-index: 1;
-			display: grid;
-			place-items: center;
-			width: 2.3rem;
-			height: 2.3rem;
-			margin: 0;
+			flex: none;
+			width: 2.75rem;
+			height: 2.75rem;
 			padding: 0;
-			border: 0;
-			border-radius: 50%;
-			background: rgba(255, 255, 255, 0.92);
-			box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
-			color: #111;
-		}
-
-		.webui-media-tile-play:is(:hover, :focus, :active) {
-			--pico-color: #111;
-			background: #fff;
-			color: #111;
-		}
-
-		.webui-media-tile-play:focus-visible {
-			outline: 2px solid var(--webui-focus-color);
-			outline-offset: 2px;
 		}
 
 		.webui-media-tile-play svg {
-			width: 0.95rem;
-			height: 0.95rem;
+			width: 1rem;
+			height: 1rem;
 			margin-left: 2px;
 		}
 
@@ -277,11 +267,17 @@
 			margin-left: 0;
 		}
 
-		/* Play on TV waiting while the TV plays something else: dimmed,
-		   still focusable, its tooltip says why */
-		.webui-media-tile-play[aria-disabled="true"] {
-			opacity: 0.6;
-			cursor: not-allowed;
+		/* with a mouse, Play shows while the pointer is on the tile or the
+		   focus in it (so the keyboard never lands on a hidden key), Stop
+		   always; by touch it is always there */
+		@media (hover: hover) {
+			.webui-media-tile-play:not(.stops) {
+				opacity: 0;
+			}
+
+			.webui-media-tile:is(:hover, :focus-within) .webui-media-tile-play {
+				opacity: 1;
+			}
 		}
 
 		/* Stop waiting for the box takes no second press, and a click on it
@@ -326,7 +322,8 @@
 
 		.webui-media-tile .webui-media-open {
 			flex: 1 1 auto;
-			padding: 0.6rem 0.75rem 0.75rem;
+			min-width: 0;
+			padding: 0.6rem 0.25rem 0.75rem 0.75rem;
 		}
 
 		.webui-media-title,
