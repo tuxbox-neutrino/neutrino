@@ -2711,10 +2711,11 @@ function webuiDialogA11y(dialog, opts) {
 	dialog.querySelectorAll('[data-l-aria-label]').forEach(function(el) {
 		el.setAttribute('aria-label', webuiL(el.getAttribute('data-l-aria-label'), el.getAttribute('aria-label') || ''));
 	});
+	// the stops of Tab: a group inside (one stop, arrows within) counts once
 	var controls = function() {
 		return Array.prototype.filter.call(
-			dialog.querySelectorAll('a[href], button, input, select, textarea, [tabindex]:not([tabindex="-1"])'),
-			function(el) { return !el.disabled && el.offsetParent !== null; });
+			dialog.querySelectorAll('a[href], button, input, select, textarea, [tabindex]'),
+			function(el) { return !el.disabled && el.tabIndex >= 0 && el.offsetParent !== null; });
 	};
 	var onKey = function(e) {
 		if (e.key === 'Escape' && opts.close) {
@@ -3303,10 +3304,25 @@ function webuiShowMessageDialog() {
 			'</div>' +
 		'</form>';
 	document.body.appendChild(pop);
+	// Escape closes it; Tab and Shift+Tab go round its controls, as in
+	// every other dialog
 	pop.addEventListener('keydown', function(e) {
 		if (e.key === 'Escape') {
 			e.preventDefault();
 			_webuiCloseMessage();
+			return;
+		}
+		if (e.key !== 'Tab')
+			return;
+		var all = Array.prototype.filter.call(pop.querySelectorAll('button, input'), function(el) { return !el.disabled && el.getClientRects().length > 0; });
+		if (!all.length)
+			return;
+		if (e.shiftKey && document.activeElement === all[0]) {
+			e.preventDefault();
+			all[all.length - 1].focus();
+		} else if (!e.shiftKey && document.activeElement === all[all.length - 1]) {
+			e.preventDefault();
+			all[0].focus();
 		}
 	});
 

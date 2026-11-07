@@ -2586,8 +2586,37 @@ input[type=time]:focus-visible,
 input[type=datetime-local]:focus-visible,
 input[type=month]:focus-visible,
 input[type=week]:focus-visible,
+input[type=checkbox]:focus-visible,
+input[type=radio]:focus-visible,
+input[type=range]:focus-visible,
+input[type=file]:focus-visible,
 select:focus-visible,
 textarea:focus-visible {
+	outline: 2px solid var(--webui-focus-color);
+	outline-offset: 2px;
+	box-shadow: none;
+	--pico-box-shadow: none;
+}
+
+/* Firefox makes a box that scrolls a stop of Tab of its own (the page's
+   main among them), so that the keys can scroll it: the ring inside it */
+main:focus-visible {
+	outline: 2px solid var(--webui-focus-color);
+	outline-offset: -2px;
+}
+
+/* Date and time fields: Tab moves through their parts (day, month, year,
+   the calendar button) inside the field, and on the calendar button
+   Chromium lets the field itself lose :focus and :focus-visible; their ring
+   follows the focus anywhere inside, as a text field's does. A link no
+   class gives a ring of its own (those in the About dialog, in a text)
+   takes the same one, below every rule of a class. */
+input[type=date]:focus-within,
+input[type=time]:focus-within,
+input[type=datetime-local]:focus-within,
+input[type=month]:focus-within,
+input[type=week]:focus-within,
+:where(a[href]):focus-visible {
 	outline: 2px solid var(--webui-focus-color);
 	outline-offset: 2px;
 	box-shadow: none;
