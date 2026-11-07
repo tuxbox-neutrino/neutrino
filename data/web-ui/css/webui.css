@@ -68,6 +68,12 @@ html.webui-i18n-pending body {
 	/* Transitions */
 	--webui-transition: 0.2s ease;
 
+	/* The phone's tab bar without the strip a browser may report below
+	   the page (env(safe-area-inset-bottom), added by each rule that
+	   uses this): the one height the bar, the "More" menu above it, the
+	   messages and the page's end follow */
+	--webui-tabbar-h: 3.4rem;
+
 	/* Font sizes - relative to viewport */
 	--webui-font-xs: clamp(0.6rem, 1.5vw, 0.75rem);
 	--webui-font-sm: clamp(0.7rem, 1.8vw, 0.85rem);
@@ -857,7 +863,7 @@ html.webui-side-narrow .webui-side .webui-side-toggle {
 .webui-more-menu {
 	position: fixed;
 	right: 0.5rem;
-	bottom: calc(3.4rem + env(safe-area-inset-bottom, 0px) + 0.5rem);
+	bottom: calc(var(--webui-tabbar-h) + env(safe-area-inset-bottom, 0px) + 0.5rem);
 	z-index: 102;
 	display: flex;
 	flex-direction: column;
@@ -952,7 +958,7 @@ html.webui-side-narrow .webui-side .webui-side-toggle {
 		right: 0;
 		bottom: 0;
 		z-index: 101;
-		height: calc(3.4rem + env(safe-area-inset-bottom, 0px));
+		height: calc(var(--webui-tabbar-h) + env(safe-area-inset-bottom, 0px));
 		padding-bottom: env(safe-area-inset-bottom, 0px);
 		background: var(--pico-card-background-color);
 		border-top: 1px solid var(--pico-muted-border-color);
@@ -991,12 +997,12 @@ html.webui-side-narrow .webui-side .webui-side-toggle {
 	}
 
 	.webui-toast-host {
-		bottom: calc(3.4rem + 0.75rem + env(safe-area-inset-bottom, 0px));
+		bottom: calc(var(--webui-tabbar-h) + 0.75rem + env(safe-area-inset-bottom, 0px));
 	}
 
 	/* the page ends above the tab bar */
 	body {
-		padding-bottom: calc(3.4rem + env(safe-area-inset-bottom, 0px));
+		padding-bottom: calc(var(--webui-tabbar-h) + env(safe-area-inset-bottom, 0px));
 	}
 }
 
