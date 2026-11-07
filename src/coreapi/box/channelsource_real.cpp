@@ -65,6 +65,7 @@ void fill(CZapitChannel &src, ChannelInfo &dst)
 					      !src.getUrl().empty());
 	dst.scrambled           = (src.scrambled != 0);
 	dst.locked              = src.Locked();
+	internal::videoHintOf(src, dst.video_hint, dst.video_hint_source);
 }
 
 // Walked rather than sorted, because the two lists a bouquet is set from are as

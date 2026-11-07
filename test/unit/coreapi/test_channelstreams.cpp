@@ -2,6 +2,7 @@
  * test_channelstreams.cpp - tests for reading a channel's stream layout
  *
  * Copyright (C) 2026 NI-Team
+ * Copyright (C) 2026 Tuxbox-Project (tests)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -313,4 +314,97 @@ TEST_CASE("the streams read forwards what the source says", "[channels]")
 	REQUIRE(nothing.ok());
 	REQUIRE_FALSE(nothing.value().known);
 	REQUIRE(nothing.value().audio.empty());
+}
+
+namespace
+{
+
+VideoCodec hintOf(CZapitChannel &c)
+{
+	VideoCodec hint = VideoCodec::Cavs;
+	CodecHintSource from = CodecHintSource::Stream;
+	internal::videoHintOf(c, hint, from);
+	return hint;
+}
+
+CodecHintSource sourceOf(CZapitChannel &c)
+{
+	VideoCodec hint = VideoCodec::Cavs;
+	CodecHintSource from = CodecHintSource::Stream;
+	internal::videoHintOf(c, hint, from);
+	return from;
+}
+
+} // namespace
+
+TEST_CASE("the service type names the picture coding a channel most likely carries", "[channelstreams][hint]")
+{
+	struct Row
+	{
+		unsigned char type;
+		VideoCodec    hint;
+	};
+	// ETSI EN 300 468, the service_type coding; what has no picture coding of its own is unknown.
+	const Row rows[] = {
+		{ 0x01, VideoCodec::Mpeg2 },    // digital television, MPEG-2 SD
+		{ 0x11, VideoCodec::Mpeg2 },    // MPEG-2 HD digital television
+		{ 0x16, VideoCodec::H264 },     // H.264/AVC SD digital television
+		{ 0x19, VideoCodec::H264 },     // H.264/AVC HD digital television
+		{ 0x1c, VideoCodec::H264 },     // H.264/AVC plano-stereoscopic HD digital television
+		{ 0x1f, VideoCodec::Hevc },     // HEVC digital television
+		{ 0x20, VideoCodec::Hevc },     // HEVC UHD digital television
+		{ 0x02, VideoCodec::None },     // digital radio sound
+		{ 0x0a, VideoCodec::None },     // advanced codec digital radio sound
+		{ 0x00, VideoCodec::Unknown },  // reserved
+		{ 0x03, VideoCodec::Unknown },  // teletext
+		{ 0x04, VideoCodec::Unknown },  // NVOD reference
+		{ 0x0c, VideoCodec::Unknown },  // data broadcast
+		{ 0x17, VideoCodec::Unknown },  // H.264/AVC SD NVOD time-shifted: no live picture of its own here
+		{ 0x21, VideoCodec::Unknown },  // past what is named here
+		{ 0x80, VideoCodec::Unknown },  // user defined
+	};
+	for (size_t i = 0; i < sizeof(rows) / sizeof(rows[0]); ++i)
+	{
+		INFO("service type " << (int) rows[i].type);
+		REQUIRE(internal::videoCodecOfServiceType(rows[i].type) == rows[i].hint);
+		CZapitChannel *c = makeChannel(rows[i].type);
+		REQUIRE(hintOf(*c) == rows[i].hint);
+		REQUIRE(sourceOf(*c) == (rows[i].hint == VideoCodec::Unknown ? CodecHintSource::None : CodecHintSource::ServiceType));
+		delete c;
+	}
+}
+
+TEST_CASE("the coding read off a channel comes before what its service type names", "[channelstreams][hint]")
+{
+	// Signalled as plain television, played once and found to be H.264.
+	CZapitChannel *c = makeChannel(0x01);
+	c->setVideoPid(0x1ff);
+	c->type = CHANNEL_MPEG4;
+	REQUIRE(hintOf(*c) == VideoCodec::H264);
+	REQUIRE(sourceOf(*c) == CodecHintSource::Stream);
+	c->type = CHANNEL_HEVC;
+	REQUIRE(hintOf(*c) == VideoCodec::Hevc);
+	// A number nothing here knows falls back to the service type.
+	c->type = 3;
+	REQUIRE(hintOf(*c) == VideoCodec::Mpeg2);
+	// Its pid forgotten as the box zapped away, the service type answers again.
+	c->setVideoPid(0);
+	c->type = CHANNEL_MPEG4;
+	REQUIRE(hintOf(*c) == VideoCodec::Mpeg2);
+	REQUIRE(sourceOf(*c) == CodecHintSource::ServiceType);
+	delete c;
+
+	CZapitChannel *hd = makeChannel(0x19);
+	hd->setVideoPid(0x1ff);
+	hd->type = CHANNEL_MPEG2;
+	REQUIRE(hintOf(*hd) == VideoCodec::Mpeg2);
+	delete hd;
+}
+
+TEST_CASE("a channel played from an address hints at no coding", "[channelstreams][hint]")
+{
+	CZapitChannel *web = new CZapitChannel("web", 0x7e5700000001ULL, "http://example.org/live.m3u8", "", 0, NULL, 0);
+	REQUIRE(hintOf(*web) == VideoCodec::Unknown);
+	REQUIRE(sourceOf(*web) == CodecHintSource::None);
+	delete web;
 }

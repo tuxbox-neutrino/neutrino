@@ -104,6 +104,15 @@ const char kVideoCodecDocs[] =
 	"hevc: H.265 (HEVC)\n"
 	"cavs: Chinese AVS video";
 
+const char kHintSourceValues[] = "none,stream,service_type";
+
+const char kHintSourceDocs[] =
+	"none: no hint, and video_codec_hint is unknown\n"
+	"stream: read off the channel, which the box does when it plays it, or written into its service list by a scan with the box's pid option\n"
+	"service_type: named by the DVB service type the broadcaster signals (ETSI EN 300 468): 0x01 and 0x11 mpeg2, "
+	"0x16, 0x19 and 0x1C h264, 0x1F and 0x20 hevc, 0x02 and 0x0A none; 0x01 is the generic television type, "
+	"used for MPEG-2 above all but allowed for other codings, so mpeg2 from it is a guess";
+
 const char kAudioCodecDocs[] =
 	"unknown: a track the box found and could not classify\n"
 	"mp2: MPEG-1 audio layer II\n"
@@ -133,6 +142,17 @@ const char *videoCodecName(coreapi::VideoCodec c)
 	// No default above, so a codec added without a word stops the build. What
 	// is left is a value cast into the enum from outside it.
 	return "unknown";
+}
+
+const char *hintSourceName(coreapi::CodecHintSource s)
+{
+	switch (s)
+	{
+		case coreapi::CodecHintSource::None:        return "none";
+		case coreapi::CodecHintSource::Stream:      return "stream";
+		case coreapi::CodecHintSource::ServiceType: return "service_type";
+	}
+	return "none";
 }
 
 const char *audioCodecName(coreapi::AudioCodec c)
@@ -218,7 +238,12 @@ const Schema kAudioTrackSchema = { "audio-track", HTTPD_FIELDS(kAudioTrackFields
 	HTTPD_MEMBER("scrambled", FieldType::Bool, \
 		"whether the channel is marked as scrambled, so the box needs a descrambler or softcam to show it"), \
 	HTTPD_MEMBER("locked", FieldType::Bool, \
-		"whether the box asks for the parental code before it plays")
+		"whether the box asks for the parental code before it plays"), \
+	HTTPD_MEMBER_OF_SET("video_codec_hint", kVideoCodecValues, \
+		"what the picture is most likely coded in, known before the channel is played: as read off the channel where the box has done so, else as its DVB service type names it; a hint, which `video` of the routes answering one channel settles once `streams_known` is true", \
+		kVideoCodecDocs), \
+	HTTPD_MEMBER_OF_SET("video_codec_hint_source", kHintSourceValues, \
+		"where `video_codec_hint` comes from, so a caller can tell a coding the box read from one it guessed", kHintSourceDocs)
 
 const FieldDesc kChannelFields[] = { HTTPD_CHANNEL_MEMBERS };
 
@@ -369,6 +394,10 @@ void appendChannelMembers(Json &j, const coreapi::ChannelInfo &c)
 	j.value(c.scrambled);
 	j.key("locked");
 	j.value(c.locked);
+	j.key("video_codec_hint");
+	j.value(videoCodecName(c.video_hint));
+	j.key("video_codec_hint_source");
+	j.value(hintSourceName(c.video_hint_source));
 }
 
 void appendChannel(Json &j, const coreapi::ChannelInfo &c)

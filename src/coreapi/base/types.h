@@ -76,33 +76,6 @@ inline ServiceKind serviceKind(bool is_radio, bool has_url)
 	return has_url ? ServiceKind::WebTv : ServiceKind::Tv;
 }
 
-struct ChannelInfo
-{
-	ChannelId   id;
-	// Channels that share their schedule carry a foreign id here, so it cannot
-	// be derived from id.
-	ChannelId   epg_id;
-	// Signed, so an unset or negative position stays recognisable.
-	int32_t     number;
-	std::string name;
-	// Set for the kinds that are played from a url instead of a tuner.
-	std::string url;
-	uint16_t    service_id;
-	uint16_t    transport_stream_id;
-	uint16_t    original_network_id;
-	int         satellite_position;
-	// Transponder key, not a frequency.
-	uint16_t    freq_id;
-	ServiceKind kind;
-	bool        scrambled;
-	bool        locked;
-
-	ChannelInfo()
-		: id(0), epg_id(0), number(0), service_id(0), transport_stream_id(0),
-		  original_network_id(0), satellite_position(0), freq_id(0),
-		  kind(ServiceKind::Unknown), scrambled(false), locked(false) {}
-};
-
 /* What a channel's picture is coded in.
 
    Unknown is not a codec but the answer for a channel whose stream layout the
@@ -124,6 +97,48 @@ enum class VideoCodec
 	H264,
 	Hevc,
 	Cavs
+};
+
+/* Where a channel's coding hint comes from: read off the channel, which the box
+   does when it plays it or a scan with its pid option writes down, or named by the
+   DVB service type the broadcaster signals, which is a guess. None goes with
+   Unknown. */
+enum class CodecHintSource
+{
+	None,
+	Stream,
+	ServiceType
+};
+
+struct ChannelInfo
+{
+	ChannelId   id;
+	// Channels that share their schedule carry a foreign id here, so it cannot
+	// be derived from id.
+	ChannelId   epg_id;
+	// Signed, so an unset or negative position stays recognisable.
+	int32_t     number;
+	std::string name;
+	// Set for the kinds that are played from a url instead of a tuner.
+	std::string url;
+	uint16_t    service_id;
+	uint16_t    transport_stream_id;
+	uint16_t    original_network_id;
+	int         satellite_position;
+	// Transponder key, not a frequency.
+	uint16_t    freq_id;
+	ServiceKind kind;
+	bool        scrambled;
+	bool        locked;
+	// What its picture is most likely coded in, known before it is played.
+	VideoCodec      video_hint;
+	CodecHintSource video_hint_source;
+
+	ChannelInfo()
+		: id(0), epg_id(0), number(0), service_id(0), transport_stream_id(0),
+		  original_network_id(0), satellite_position(0), freq_id(0),
+		  kind(ServiceKind::Unknown), scrambled(false), locked(false),
+		  video_hint(VideoCodec::Unknown), video_hint_source(CodecHintSource::None) {}
 };
 
 /* What one sound track is coded in.

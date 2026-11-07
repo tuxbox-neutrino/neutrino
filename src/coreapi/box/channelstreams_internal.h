@@ -2,6 +2,7 @@
  * channelstreams_internal.h - reading a channel's stream layout, for the source and the tests
  *
  * Copyright (C) 2026 NI-Team
+ * Copyright (C) 2026 Tuxbox-Project (coding hints)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -67,6 +68,56 @@ inline VideoCodec videoCodecOf(CZapitChannel &src)
 		// number nothing here has to recognise.
 		default:            return VideoCodec::Unknown;
 	}
+}
+
+/* The picture coding a DVB service type names, ETSI EN 300 468, service_type
+   coding. 0x01 is the generic digital television type: meant for MPEG-2 SD and
+   used for it above all, but allowed for other codings, so what it names is a
+   guess. Types without a picture of their own to stream, NVOD, mosaic, data and
+   teletext among them, name none here. */
+inline VideoCodec videoCodecOfServiceType(unsigned char type)
+{
+	switch (type)
+	{
+		case 0x01:   // digital television, MPEG-2 SD
+		case 0x11:   // MPEG-2 HD digital television
+			return VideoCodec::Mpeg2;
+		case 0x16:   // H.264/AVC SD digital television
+		case 0x19:   // H.264/AVC HD digital television
+		case 0x1c:   // H.264/AVC frame compatible plano-stereoscopic HD digital television
+			return VideoCodec::H264;
+		case 0x1f:   // HEVC digital television
+		case 0x20:   // HEVC UHD digital television with HDR or a high frame rate
+			return VideoCodec::Hevc;
+		case 0x02:   // digital radio sound
+		case 0x0a:   // advanced codec digital radio sound
+			return VideoCodec::None;
+		default:
+			return VideoCodec::Unknown;
+	}
+}
+
+/* What the channel's picture is most likely coded in, known before it is tuned:
+   the coding read off the channel where the box has its picture pid, else what its
+   service type names. A channel played from an address has a service type the box
+   gave it and none it was signalled, so it hints at nothing. The caller holds the
+   channel lock. */
+inline void videoHintOf(CZapitChannel &src, VideoCodec &hint, CodecHintSource &from)
+{
+	hint = VideoCodec::Unknown;
+	from = CodecHintSource::None;
+	if (!src.getUrl().empty())
+		return;
+	const VideoCodec read = videoCodecOf(src);
+	if (src.getVideoPid() != 0 && read != VideoCodec::Unknown)
+	{
+		hint = read;
+		from = CodecHintSource::Stream;
+		return;
+	}
+	hint = videoCodecOfServiceType(src.getServiceType(true));
+	if (hint != VideoCodec::Unknown)
+		from = CodecHintSource::ServiceType;
 }
 
 inline AudioCodec audioCodecOf(CZapitAudioChannel::ZapitAudioChannelType t)

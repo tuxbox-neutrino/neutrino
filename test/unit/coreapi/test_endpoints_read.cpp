@@ -3912,3 +3912,34 @@ TEST_CASE("a table this server has no file for is refused as a name", "[endpoint
 	const Reply r = get("/api/v1/storage/netfs/passwd", AuthLevel::System);
 	REQUIRE(r.code == 400);
 }
+
+TEST_CASE("every channel answer hints at its picture coding and says where the hint comes from", "[endpoints][hint]")
+{
+	ShippedRoutes shipped;
+	FakeChannelSource src;
+	fillChannels(src);
+	src.channels[0].video_hint = coreapi::VideoCodec::Mpeg2;
+	src.channels[0].video_hint_source = coreapi::CodecHintSource::ServiceType;
+	src.channels[1].video_hint = coreapi::VideoCodec::H264;
+	src.channels[1].video_hint_source = coreapi::CodecHintSource::Stream;
+	src.current = src.channels[1];
+	src.current_status = coreapi::Status::Ok;
+	InstalledChannelSource installed(&src);
+
+	const ::Json::Value list = parsed(get("/api/v1/channels?mode=tv&limit=12").body);
+	REQUIRE(list["items"].size() == kTvCount);
+	REQUIRE(list["items"][0]["video_codec_hint"].asString() == "mpeg2");
+	REQUIRE(list["items"][0]["video_codec_hint_source"].asString() == "service_type");
+	REQUIRE(list["items"][1]["video_codec_hint"].asString() == "h264");
+	REQUIRE(list["items"][1]["video_codec_hint_source"].asString() == "stream");
+	REQUIRE(list["items"][2]["video_codec_hint"].asString() == "unknown");
+	REQUIRE(list["items"][2]["video_codec_hint_source"].asString() == "none");
+
+	const ::Json::Value one = parsed(get("/api/v1/channels/" + hex(src.channels[0].id)).body);
+	REQUIRE(one["video_codec_hint"].asString() == "mpeg2");
+	REQUIRE(one["video_codec_hint_source"].asString() == "service_type");
+
+	const ::Json::Value now = parsed(get("/api/v1/channels/current").body);
+	REQUIRE(now["video_codec_hint"].asString() == "h264");
+	REQUIRE(now["video_codec_hint_source"].asString() == "stream");
+}
