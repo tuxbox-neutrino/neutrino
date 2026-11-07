@@ -330,6 +330,9 @@ async function deleteTimer(id, title) {
 webuiAfterTexts(function() {
 	renderFilters();
 	document.getElementById('timerList').replaceChildren(webuiEl('li', {}, webuiState('loading', webuiL('tm.loading', 'Loading timers...'), '')));
+	// the timers are one stop of Tab: Up and Down go from row to row, Left
+	// and Right to the buttons of a row (Edit, More, Details)
+	webuiArrowKeys(document.getElementById('timerList'), '.webui-timer-actions button, .webui-timer-more', '', {near: true});
 	loadTimers();
 	let opened = 0;
 	webuiV1Events({

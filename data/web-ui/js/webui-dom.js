@@ -112,6 +112,36 @@ function webuiMarkup(markup) {
 	return t.content.cloneNode(true);
 }
 
+/* Whether a row drawn anew is the one in the list. A group of the arrow
+   keys (webuiArrowKeys) around the list sets tabindex on its entries, one
+   0 and the others -1, so that the group is one stop of Tab; that alone
+   does not make a row another one, or every refresh would replace the rows
+   and take the focus away. */
+function _webuiSyncSame(fresh, node, list) {
+	if (fresh.isEqualNode(node))
+		return true;
+	var g = list;
+	while (g && !g._webuiArrow)
+		g = g.parentElement;
+	if (!g)
+		return false;
+	var sel = g._webuiArrow.selector;
+	var was = node.cloneNode(true);
+	var a = Array.prototype.slice.call(was.querySelectorAll(sel)), b = Array.prototype.slice.call(fresh.querySelectorAll(sel));
+	if (was.matches(sel)) a.unshift(was);
+	if (fresh.matches(sel)) b.unshift(fresh);
+	if (a.length !== b.length)
+		return false;
+	a.forEach(function(el, i) {
+		var t = b[i].getAttribute('tabindex');
+		if (t === null)
+			el.removeAttribute('tabindex');
+		else
+			el.setAttribute('tabindex', t);
+	});
+	return fresh.isEqualNode(was);
+}
+
 function webuiSync(list, items, keyOf, render, update) {
 	// maps without a prototype, so a key such as __proto__ is just a key
 	var old = Object.create(null);
@@ -137,7 +167,7 @@ function webuiSync(list, items, keyOf, render, update) {
 			} else {
 				var fresh = render(items[i]);
 				fresh.dataset.webuiKey = k;
-				if (!fresh.isEqualNode(node)) {
+				if (!_webuiSyncSame(fresh, node, list)) {
 					if (node === cursor)
 						cursor = fresh;
 					list.replaceChild(fresh, node);

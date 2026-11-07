@@ -462,6 +462,13 @@ document.getElementById('viewList').addEventListener('click', () => setView('lis
 // playback moves the "playing" mark
 webuiAfterTexts(function() {
 	setView(view);
+	// the recordings are one stop of Tab: the arrows go from tile to tile
+	// (or row to row) and to their buttons as they lie, Enter opens the
+	// details or presses the button
+	webuiArrowKeys(document.getElementById('mediaList'), '.webui-media-open, .webui-media-play, .webui-menu-btn', '',
+		{near: true, start: '.webui-media-open'});
+	// tiles or list: one stop, on the view shown
+	webuiArrowKeys(document.getElementById('viewTiles').parentElement, 'button');
 	loadList(false);
 	webuiV1Events({
 		'record-stop': () => loadList(false),

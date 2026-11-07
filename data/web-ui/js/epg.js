@@ -136,7 +136,9 @@ async function loadEpg() {
 			webuiEl('div', {className: 'webui-epg-channel-header'}, webuiL('msg.channel', 'Channel')),
 			webuiEl('div', {className: 'webui-epg-times'}, slots));
 
-		const rows = webuiEl('div', {className: 'webui-epg-channels', style: {position: 'relative'}},
+		// tabindex -1: Firefox would make the box that scrolls the guide a
+		// stop of its own; a click into it and an arrow go to the stop
+		const rows = webuiEl('div', {className: 'webui-epg-channels', tabIndex: -1, style: {position: 'relative'}},
 			webuiEl('div', {className: 'webui-epg-now-line', hidden: true}));
 		channels.forEach(channel => {
 			const programs = webuiEl('div', {className: 'webui-epg-programs'});
@@ -152,6 +154,12 @@ async function loadEpg() {
 				programs));
 		});
 		grid.replaceChildren(header, rows);
+		// the guide is one stop of Tab: the arrows go from channel to
+		// channel and from programme to programme as they lie on the
+		// screen, Enter opens one; Tab starts on what runs now on the
+		// channel shown
+		webuiArrowKeys(rows, '.webui-epg-channel-name, .webui-epg-program', '', {near: true,
+			start: ['.webui-epg-row.playing .webui-epg-program.current', '.webui-epg-program.current']});
 		drawn = true;
 		gridWindow = {start: startTime, stop: stopTime};
 		placeNow(now);
