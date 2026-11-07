@@ -157,4 +157,8 @@ async function svcDo(id, verb) {
 			webuiL('svc.now_stopped', '%s is not running.')).replace('%s', svcTitle(id)));
 }
 
+// the services are one stop of Tab: Up and Down go from service to
+// service, Left and Right to the buttons of one
+webuiArrowKeys(document.getElementById('svc-list'), 'button', '', {near: true});
+
 webuiExtTexts('services').then(svcLoad);
