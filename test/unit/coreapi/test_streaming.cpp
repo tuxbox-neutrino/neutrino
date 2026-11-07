@@ -1535,6 +1535,16 @@ TEST_CASE("a browser stream a switch would serve is refused naming the setting, 
 		CHECK(r.code() == 409);
 		CHECK(problemCodeOf(body) == "no-free-tuner");
 		CHECK(body.find("\"depends_on\":[\"streaming_switch_picture\"]") != std::string::npos);
+		CHECK(r.headerOf("X-Depends-On") == "streaming_switch_picture");
+	}
+	// A HEAD, which has no document, names the setting in the header.
+	{
+		WireStream r(box.port(), asWriter("HEAD", kBrowser).c_str());
+		REQUIRE(r.ok());
+		const std::string body = r.readToEof(3000);
+		CHECK(r.code() == 409);
+		CHECK(body.empty());
+		CHECK(r.headerOf("X-Depends-On") == "streaming_switch_picture");
 	}
 	CHECK(pidFrom(pidfile, 300) == 0);
 
@@ -1546,6 +1556,7 @@ TEST_CASE("a browser stream a switch would serve is refused naming the setting, 
 		const std::string body = r.readToEof(3000);
 		CHECK(r.code() == 409);
 		CHECK(body.find("depends_on") == std::string::npos);
+		CHECK_FALSE(r.hasHeader("X-Depends-On"));
 	}
 
 	// Switched on, the converter starts and the stream server does the switch.

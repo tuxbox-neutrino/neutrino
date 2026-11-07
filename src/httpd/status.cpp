@@ -25,6 +25,9 @@
 
 #include "coreapi/base/errors.h"
 
+#include <string>
+#include <utility>
+
 namespace httpd
 {
 
@@ -303,12 +306,28 @@ Response problemResponse(int http_code, coreapi::ErrorCode code, const std::stri
 	return problemResponse(http_code, coreapi::Error(statusForCode(http_code), code, detail));
 }
 
+const char *dependsOnHeader()
+{
+	return "X-Depends-On";
+}
+
 Response problemResponse(int http_code, const coreapi::Error &e)
 {
 	Response r;
 	r.code = http_code;
 	r.content_type = problemContentType();
 	appendProblem(r.body, e, http_code);
+	if (!e.depends_on.empty())
+	{
+		std::string keys;
+		for (size_t i = 0; i < e.depends_on.size(); ++i)
+		{
+			if (i > 0)
+				keys += ", ";
+			keys += e.depends_on[i];
+		}
+		r.headers.push_back(std::make_pair(std::string(dependsOnHeader()), keys));
+	}
 	return r;
 }
 

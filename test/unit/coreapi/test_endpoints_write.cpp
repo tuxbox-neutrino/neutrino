@@ -2635,6 +2635,22 @@ TEST_CASE("a start channel id that brings no name is refused for the channel it 
 	CHECK(box.store.strings.find("startchanneltv") == box.store.strings.end());
 }
 
+/* What a refusal depends on is in a header as well as in the document, every key in the
+   order the document has them, and a refusal depending on nothing carries no such header. */
+TEST_CASE("a refusal repeats in a header the settings it depends on", "[write][conditions]")
+{
+	coreapi::Error e(coreapi::Status::Conflict, coreapi::ErrorCode::SettingConditionNotMet, "refused");
+	CHECK(headerOf(replyOf(httpd::problemResponse(409, e)), "X-Depends-On").empty());
+	CHECK(std::string(httpd::dependsOnHeader()) == "X-Depends-On");
+
+	e.depends_on.push_back("t_switch");
+	CHECK(headerOf(replyOf(httpd::problemResponse(409, e)), "X-Depends-On") == "t_switch");
+	e.depends_on.push_back("t_other");
+	const Reply two = replyOf(httpd::problemResponse(409, e));
+	CHECK(headerOf(two, "X-Depends-On") == "t_switch, t_other");
+	CHECK(two.body.find("\"depends_on\":[\"t_switch\",\"t_other\"]") != std::string::npos);
+}
+
 /* A row's conditions through the route: a setting the screen greys out is refused with the
    settings that grey it out, written together with the one that allows it in either order
    it is taken, and a value it already holds is taken back unasked. */
@@ -2650,11 +2666,14 @@ TEST_CASE("a write is held to the conditions of the rows it writes", "[write][co
 	CHECK(refused["type"].asString() == "/errors/setting-condition-not-met");
 	REQUIRE(refused["depends_on"].size() == 1);
 	CHECK(refused["depends_on"][0].asString() == "srs_enable");
+	// The same key in the header, which an answer to a HEAD would carry as well.
+	CHECK(headerOf(alone, "X-Depends-On") == "srs_enable");
 	CHECK(box.store.ints.count("srs_algo") == 0);
 
 	// What the row holds goes back unasked, as when a page sends a whole section.
 	const Reply held = authedPatch("/api/v1/settings/audio", "{\"srs_algo\":\"1\"}");
 	CHECK(held.code == 200);
+	CHECK(headerOf(held, "X-Depends-On").empty());
 
 	const Reply both = authedPatch("/api/v1/settings/audio", "{\"srs_algo\":\"0\",\"srs_enable\":\"1\"}");
 	REQUIRE(both.code == 200);

@@ -756,7 +756,8 @@ void appendProblemSchema(Json &j, bool prose)
 		j.key("description");
 		j.value("present only for `setting-condition-not-met`, with the keys of the settings whose values refused "
 		        "this one, which `detail` names as well, and for `no-free-tuner` where switching the TV picture would "
-		        "free a tuner, with the key of the setting that allows a stream to do that");
+		        "free a tuner, with the key of the setting that allows a stream to do that; the answer repeats the "
+		        "keys in the header `X-Depends-On`, separated by commas, so the answer to a HEAD names them too");
 	}
 	j.endObject();
 	j.endObject();
