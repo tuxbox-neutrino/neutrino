@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="The HTTP API of the Neutrino set-top box software: what it does, how to sign in, how refusals and events look, with examples.">
+<title>Neutrino HTTP API</title>
+<link rel="stylesheet" href="assets/doc.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site-header"><div class="bar">
+<a class="brand" href="index.html">Neutrino HTTP API</a>
+<nav class="site-nav" aria-label="Site">
+<a href="index.html" aria-current="page">Overview</a>
+<a href="api/index.html">Reference</a>
+<a href="api/schemas.html">Schemas</a>
+<a href="api/openapi.json">openapi.json</a>
+</nav>
+</div></header>
+
+<div class="page page-narrow">
+<main id="main">
+
+<h1>Neutrino HTTP API</h1>
+<p class="lead">Control a Neutrino set-top box over HTTP: switch channels, read
+the program guide, set timers, stop recordings, change settings, and follow what
+happens on the box as it happens.</p>
+<p class="prose">The Neutrino-Web-UI is built on this API. Your scripts, apps and
+other boxes can use it the same way. Answers are JSON, and every route is
+described in an <a href="https://spec.openapis.org/oas/v3.1.0">OpenAPI 3.1</a>
+document.</p>
+
+<div class="actions">
+<a class="button button-primary" href="api/index.html">Open the reference</a>
+<a class="button button-secondary" href="api/openapi.json" download>Download openapi.json</a>
+</div>
+
+<div class="callout">
+<p><strong>Your box has the final word.</strong> This site describes the current
+development version. Each box describes the routes of its own build at
+<code>/api/openapi.json</code>. When the two differ, trust the box.</p>
+</div>
+
+<section class="section" id="layers" aria-labelledby="layers-h">
+<h2 id="layers-h">How a request travels</h2>
+<div class="split">
+<figure class="diagram">
+<svg viewBox="0 0 360 520" role="img" aria-labelledby="layers-t layers-d">
+<title id="layers-t">From a client to Neutrino</title>
+<desc id="layers-d">A request goes from a client over HTTP to the web server nhttpd, which hands requests under /api/v1 to the API layer. The API layer calls coreapi, and coreapi reaches the Neutrino program and its services.</desc>
+<defs>
+<marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+<path class="head" d="M0 0 L10 5 L0 10 z"/>
+</marker>
+</defs>
+<rect class="box" x="2" y="10" width="356" height="64" rx="6"/>
+<text class="label" x="18" y="37">Clients</text>
+<text class="note" x="18" y="59">Neutrino-Web-UI, scripts, apps, other boxes</text>
+<path class="wire" d="M40 76 V116" marker-end="url(#arrow)"/>
+<text class="note" x="54" y="101">HTTP</text>
+
+<rect class="box" x="2" y="120" width="356" height="64" rx="6"/>
+<text class="label" x="18" y="147">nhttpd, the web server</text>
+<text class="sub" x="18" y="169">src/nhttpd · pages, /control, /api/v4</text>
+<path class="wire" d="M40 186 V226" marker-end="url(#arrow)"/>
+<text class="note" x="54" y="211">/api/v1 and /api/openapi.json</text>
+
+<rect class="box box-accent" x="2" y="230" width="356" height="64" rx="6"/>
+<text class="label" x="18" y="257">API layer</text>
+<text class="sub" x="18" y="279">src/httpd · routes, access, document</text>
+<path class="wire" d="M40 296 V336" marker-end="url(#arrow)"/>
+<text class="note" x="54" y="321">function calls</text>
+
+<rect class="box" x="2" y="340" width="356" height="64" rx="6"/>
+<text class="label" x="18" y="367">coreapi</text>
+<text class="sub" x="18" y="389">src/coreapi · what the box can do</text>
+<path class="wire" d="M40 406 V446" marker-end="url(#arrow)"/>
+<text class="note" x="54" y="431">messages and daemon clients</text>
+
+<rect class="box" x="2" y="450" width="356" height="64" rx="6"/>
+<text class="label" x="18" y="477">Neutrino</text>
+<text class="sub" x="18" y="499">main loop, zapit, timerd, sectionsd</text>
+</svg>
+<figcaption>The layers a request to <code>/api/v1</code> passes through, with
+the source folders they live in.</figcaption>
+</figure>
+<div class="prose">
+<p><strong>nhttpd</strong> is the web server. It accepts the connection,
+serves the web pages and answers the older interfaces under
+<code>/control/</code> and <code>/api/v4/</code>. Requests under
+<code>/api/v1</code> and for <code>/api/openapi.json</code> it hands to the
+API layer.</p>
+<p>The <strong>API layer</strong> finds the route, checks the parameters, the
+body and the caller's access, and writes the answer or the refusal. It writes
+the OpenAPI document from the same route tables, so the description cannot
+drift away from what the box serves. It also carries the event stream.</p>
+<p><strong>coreapi</strong> does the work. It knows nothing about HTTP; it
+reads and changes the state of the box.</p>
+<p><strong>Neutrino</strong> is the program on the box: its main loop and the
+services beside it, such as zapit for tuning, timerd for timers and sectionsd
+for the program guide. Some changes, like switching the channel, are queued to
+the main loop and happen a moment after the answer.</p>
+</div>
+</div>
+</section>
+
+<section class="section" id="access" aria-labelledby="access-h">
+<h2 id="access-h">Signing in</h2>
+<p class="prose">Every route needs one of four access levels. The reference
+shows the level of each route.</p>
+<div class="table-scroll">
+<table>
+<thead><tr><th scope="col">Level</th><th scope="col">Who has it</th><th scope="col">For example</th></tr></thead>
+<tbody>
+<tr><td><span class="level">public</span></td><td>Anyone who reaches the box</td><td>Signing in, asking what a request is granted</td></tr>
+<tr><td><span class="level">read</span></td><td>Callers on a trusted network without signing in, every session, and every token from <code>api_tokens</code></td><td>Channels, the guide, timers, recordings</td></tr>
+<tr><td><span class="level">write</span></td><td>A session, or a token of level write or system</td><td>Switching the channel, timers, bouquets, the screen</td></tr>
+<tr><td><span class="level level-system">system</span></td><td>A session, or a token of level system</td><td>Settings, plugins, scripts, the server configuration</td></tr>
+</tbody>
+</table>
+</div>
+<p class="prose">By default the trusted networks are the loopback addresses and
+the private ranges <code>10.0.0.0/8</code>, <code>172.16.0.0/12</code>,
+<code>192.168.0.0/16</code> and <code>fc00::/7</code>. The setting
+<code>lan_read</code> changes them. While <code>nhttpd-access.conf</code>
+has a <code>trusted_proxies</code> line, even an empty one, nobody reads
+without credentials.</p>
+
+<h3>Three ways to present credentials</h3>
+<div class="prose">
+<p><strong>Session, for pages and interactive use.</strong> Send
+<code>POST /api/v1/login</code> with <code>{"user": …, "password": …}</code>.
+The answer sets the cookie <code>nhttpd-session</code> (<code>HttpOnly</code>,
+<code>SameSite=Lax</code>) and carries a second token in <code>csrf</code>.
+Send the cookie with every request. On every request that changes something,
+also send the header <code>X-CSRF-Token</code> with that value.
+<code>GET /api/v1/session</code> tells you what the current request is granted,
+and <code>POST /api/v1/logout</code> ends the session.</p>
+<p><strong>Bearer token, for programs.</strong> Send
+<code>Authorization: Bearer &lt;token&gt;</code>. The tokens are listed on the
+box in <code>nhttpd-access.conf</code> in its configuration folder (usually
+<code>/var/tuxbox/config</code>), on one line, separated by commas. Each entry is
+a level and a token with a colon between them, for example
+<code>api_tokens=read:&lt;token&gt;</code>. The level is <code>read</code>,
+<code>write</code> or <code>system</code>; the token is at least 32 lower-case
+hexadecimal digits, such as the output of <code>openssl rand -hex 16</code>.
+Neutrino reads the file when it starts. A bearer token needs no CSRF
+header.</p>
+<p><strong>Media token, for players.</strong> Some players can only carry a
+credential in the address. <code>POST /api/v1/token/media</code> draws a
+short-lived token for them, sent as <code>?token=</code>. It opens the media
+files on the box and nothing else.</p>
+<p>While the box still uses the password it shipped with, or a first password it
+made up for itself, a session or a system token gets only sign-in, session,
+sign-out and the password change (<code>PUT /api/v1/account/password</code>),
+and a write token only the first three. Every other route they could use
+answers <code>403 password-change-required</code> until you set a password of
+your own. Reading from a trusted network without signing in, or with a read
+token, is not affected. <a href="https://github.com/tuxbox-neutrino/neutrino/blob/master/doc/nhttpd/web-login.md">Signing
+in to the web interface</a> describes the first sign-in.</p>
+<p>A caller without the needed level gets <code>403</code>. The API never
+answers <code>401</code> to such a request, so a browser does not pop up its
+own login box; <code>401</code> only means that a login did not match.</p>
+</div>
+</section>
+
+<section class="section" id="errors" aria-labelledby="errors-h">
+<h2 id="errors-h">When a request is refused</h2>
+<div class="prose">
+<p>A refusal from the API is a problem document as defined by RFC 9457, sent
+as <code>application/problem+json</code>. The exceptions are three refusals
+the web server sends before a request reaches the API: <code>400</code> for
+a request it cannot read, <code>408</code> for a body that does not arrive
+in time, and <code>501</code> for a method it does not take. They come as a
+status line and headers, with no body.</p>
+<p>A problem document looks like this:</p>
+</div>
+<pre><code>HTTP/1.0 409 Conflict
+Content-Type: application/problem+json
+
+{
+  "type": "/errors/box-in-standby",
+  "title": "Conflict",
+  "status": 409,
+  "detail": "the box is in standby"
+}</code></pre>
+<div class="prose">
+<p>The last part of <code>type</code> is a stable code. Branch on that code,
+not on <code>title</code> or <code>detail</code>: one code can come with
+different titles, and <code>detail</code> is written for people. Each route in
+the reference lists the codes it can answer with, and an example for each.</p>
+<p>Two refusals add <code>depends_on</code>, a list of setting keys:
+<code>setting-condition-not-met</code> names the settings whose values refused
+the change, and <code>no-free-tuner</code> names the setting that would let a
+stream switch the TV picture to free a tuner. The same keys come in the header
+<code>X-Depends-On</code>, separated by commas, so the answer to a
+<code>HEAD</code> request names them too.</p>
+<p>Some refusals are the same for every route: <code>404</code> for a
+path without a route, <code>405</code> with an <code>Allow</code> header for a
+method the path does not take, <code>400</code> for a parameter or body that
+does not fit, and <code>413</code> for a body over 1 MiB. The
+<a href="api/schemas.html#schema-problem">problem schema</a> lists every
+member.</p>
+</div>
+</section>
+
+<section class="section" id="events" aria-labelledby="events-h">
+<h2 id="events-h">Following changes</h2>
+<div class="prose">
+<p><a href="api/group-events.html#get_api_v1_events"><code>GET /api/v1/events</code></a>
+opens a Server-Sent Events stream. The box announces changes on it as they
+happen, whoever caused them: this API, the remote control or a timer. Each event
+has a name and a small JSON object with <code>channel_id</code>,
+<code>value</code> and <code>text</code>. An event says what changed, not
+everything about it, so read the matching route again for the details.</p>
+<p>The events are <code>zap</code>, <code>mode</code>, <code>standby</code>,
+<code>volume</code>, <code>mute</code>, <code>record-start</code>,
+<code>record-stop</code>, <code>timer-changed</code>,
+<code>epg-updated</code>, <code>bouquets-changed</code>,
+<code>settings-changed</code> and <code>playback</code>. The
+<a href="api/group-events.html#get_api_v1_events">reference</a> says what each
+one carries.</p>
+<p>In a browser, <code>new EventSource("/api/v1/events")</code> is enough. The
+stream starts with a <code>retry:</code> line and sends a comment line as a
+heartbeat when nothing happens. A box carries up to 8 streams by default; the
+next caller gets <code>503 too-many-streams</code>.</p>
+</div>
+</section>
+
+<section class="section" id="examples" aria-labelledby="examples-h">
+<h2 id="examples-h">Examples</h2>
+<p class="prose">Replace <code>BOX</code> with the address of your box. The
+examples use <code>curl</code>.</p>
+
+<h3>Read what the box is playing</h3>
+<p class="prose">From a trusted network this needs no sign-in:</p>
+<pre><code>curl http://BOX/api/v1/channels/current</code></pre>
+<p class="prose">The answer describes the channel, with its name, its id and its
+streams.</p>
+
+<h3>Sign in and switch the channel</h3>
+<p class="prose">Sign in and keep the session cookie in a file:</p>
+<pre><code>curl -c session.txt -H 'Content-Type: application/json' \
+     -d '{"user": "root", "password": "YOUR-PASSWORD"}' \
+     http://BOX/api/v1/login</code></pre>
+<p class="prose">The answer holds <code>"csrf": "…"</code>. Send that value
+back with the cookie, together with a channel id from
+<code>GET /api/v1/channels</code>:</p>
+<pre><code>curl -b session.txt -H 'X-CSRF-Token: CSRF-VALUE' \
+     -H 'Content-Type: application/json' \
+     -d '{"channel_id": "283d000103f2"}' \
+     http://BOX/api/v1/zap</code></pre>
+<p class="prose"><code>202</code> means the box has taken the request. The
+<code>zap</code> event follows when the channel has changed.</p>
+
+<h3>Watch the events</h3>
+<pre><code>curl -N http://BOX/api/v1/events</code></pre>
+<p class="prose">The stream stays open. Change the volume with the remote
+control, and a frame like this arrives:</p>
+<pre><code>event: volume
+data: {"channel_id":"0","value":40,"text":""}</code></pre>
+</section>
+
+<section class="section" id="more" aria-labelledby="more-h">
+<h2 id="more-h">More documentation</h2>
+<div class="cards">
+<div class="card">
+<h3><a href="nhttpd/index.html">Web server (nhttpd)</a></h3>
+<p>The documentation of the web server itself, with its design.</p>
+</div>
+<div class="card">
+<h3><a href="nhttpd/nhttpd_controlapi.html">Control interface (/control/)</a></h3>
+<p>The older interface the box still serves, for existing scripts and tools.</p>
+</div>
+<div class="card">
+<h3><a href="https://github.com/tuxbox-neutrino/neutrino/blob/master/doc/nhttpd/apiv4.dox">Web-API v4 (/api/v4/)</a></h3>
+<p>The JSON form of the control interface, in German.</p>
+</div>
+<div class="card">
+<h3><a href="nhttpd/nhttpd_restapi.html">Notes on the API layer</a></h3>
+<p>How the API layer sits in nhttpd: requests, answers and access in detail.</p>
+</div>
+<div class="card">
+<h3><a href="https://github.com/tuxbox-neutrino/neutrino/blob/master/doc/nhttpd/yweb-extensions.dox">Web UI extensions</a></h3>
+<p>How extensions add pages to the Neutrino-Web-UI, in German and English.</p>
+</div>
+<div class="card">
+<h3><a href="timerd.html">timerd</a> and <a href="picviewer.html">picture viewer</a></h3>
+<p>Older notes on two parts of Neutrino.</p>
+</div>
+</div>
+</section>
+
+</main>
+</div>
+
+<footer class="site-footer"><div class="bar">
+<p>Neutrino is free software under the GNU General Public License. The source,
+this documentation included, is at
+<a href="https://github.com/tuxbox-neutrino/neutrino">github.com/tuxbox-neutrino/neutrino</a>.</p>
+</div></footer>
+</body>
+</html>
