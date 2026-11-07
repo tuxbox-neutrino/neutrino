@@ -64,6 +64,10 @@
 // it may have missed. webuiV1EventsLive() says whether the stream is open
 // right now; a page polls what it follows while it is not. The head, which
 // is not a page, listens to the same stream through webuiV1Watch(name, fn).
+//
+// webuiV1Offers('POST', '/playback/stop') says whether the box has a route,
+// from its description of the interface, so a page offers a newer route
+// only where the box has it.
 
 var _webuiV1Csrf = null;	// {header, token} of the open session, if any
 var _webuiV1SignInPending = null;	// the one sign-in dialog of the page, while open
@@ -366,6 +370,64 @@ async function webuiV1All(path, query) {
 		if (!page || !page.next_cursor) return items;
 		q.cursor = page.next_cursor;
 	}
+}
+
+/* Whether the box has a route, as its description of the interface (GET
+   /api/openapi.json, read once per page on the first ask, without a sign-in)
+   lists it, so a page offers a route only on a box that has it. path is the
+   route below /api/v1 as the description writes it ('/playback/stop',
+   '/recordings/archive/{id}/play'). A box without a description, or with
+   one that does not list the route, has it not, and neither has one whose
+   route answered 404 or 405 (webuiV1Gone). webuiV1Offers resolves true or
+   false; webuiV1OffersNow says it at once, null while the description is
+   still on its way. A read that got no answer, another refusal than 404 or
+   a body that does not parse is made again at the next ask. */
+var _webuiV1Routes = null;	// 'METHOD /api/v1/...' -> true, false for a box without a description
+var _webuiV1RoutesRead = null;
+var _webuiV1Gone = Object.create(null);
+
+function _webuiV1RouteKey(method, path) {
+	return method.toUpperCase() + ' /api/v1' + path;
+}
+
+function webuiV1Offers(method, path) {
+	if (!_webuiV1RoutesRead) {
+		_webuiV1RoutesRead = webuiFetchBox('/api/openapi.json', {credentials: 'same-origin'}).then(function(resp) {
+			if (resp.status === 404)
+				return null;
+			if (!resp.ok)
+				throw new Error('HTTP ' + resp.status);
+			return resp.json();
+		}).then(function(doc) {
+			var paths = doc && doc.paths;
+			if (!paths || typeof paths !== 'object') {
+				_webuiV1Routes = false;
+				return;
+			}
+			var routes = Object.create(null);
+			Object.keys(paths).forEach(function(p) {
+				Object.keys(paths[p] || {}).forEach(function(m) { routes[m.toUpperCase() + ' ' + p] = true; });
+			});
+			_webuiV1Routes = routes;
+		}, function() {
+			_webuiV1RoutesRead = null;
+		});
+	}
+	return _webuiV1RoutesRead.then(function() { return webuiV1OffersNow(method, path) === true; });
+}
+
+function webuiV1OffersNow(method, path) {
+	var key = _webuiV1RouteKey(method, path);
+	if (_webuiV1Gone[key])
+		return false;
+	if (_webuiV1Routes === null)
+		return null;
+	return !!(_webuiV1Routes && _webuiV1Routes[key]);
+}
+
+// A route that answered 404 or 405: the box has it not, whatever its description says
+function webuiV1Gone(method, path) {
+	_webuiV1Gone[_webuiV1RouteKey(method, path)] = true;
 }
 
 // The sign-in dialog; resolves true once signed in, false when cancelled.

@@ -5,8 +5,8 @@
 // as tiles with their cover or their channel's logo, or as rows of a list;
 // the one chosen with its details and actions in a column beside them on a
 // wide screen, in a sheet on a narrower one. Play on TV turns into Stop while
-// the TV plays the recording. Titles and texts come from the recording's
-// metadata and go in as text.
+// the TV plays the recording, on a box that has the route to stop it. Titles
+// and texts come from the recording's metadata and go in as text.
 const PAGE = 30;
 const SVG_FILM = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M7 4v16M17 4v16M2 9h5M2 15h5M17 9h5M17 15h5"/></svg>';
 const SVG_PLAY = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polygon points="5,3 19,12 5,21"/></svg>';
@@ -324,7 +324,12 @@ function playButton(id, title, kind, leave) {
 
 function showPlay(btn) {
 	const id = btn.dataset.play, kind = btn.dataset.kind;
-	const stops = id === playingId;
+	// Stop only where the box has the route; until its description is read,
+	// as it most likely has
+	const can = webuiV1OffersNow('POST', '/playback/stop');
+	if (id === playingId && can === null)
+		askStopRoute();
+	const stops = id === playingId && can !== false;
 	const word = stops ? webuiL('media.stop', 'Stop') : webuiL('media.play', 'Play on TV');
 	const named = stops ? webuiL('media.stop_on_tv', 'Stop on TV') : webuiL('media.play', 'Play on TV');
 	if (btn.classList.contains('stops') !== stops || !btn.firstChild) {
@@ -356,9 +361,21 @@ function syncPlay() {
 	document.querySelectorAll('[data-play]').forEach(showPlay);
 }
 
+/* Whether the box has the route Stop takes, asked once a Stop would be
+   drawn; the buttons are drawn again once that is known. A description that
+   did not come is asked for again at the next drawing, not at once. */
+let stopRouteAsk = null;
+function askStopRoute() {
+	if (stopRouteAsk) return;
+	stopRouteAsk = webuiV1Offers('POST', '/playback/stop').then(() => {
+		stopRouteAsk = null;
+		if (webuiV1OffersNow('POST', '/playback/stop') !== null) syncPlay();
+	});
+}
+
 function playOrStop(id, leave) {
 	if (stopping && stopping.id === id) return;
-	if (id === playingId) {
+	if (id === playingId && webuiV1OffersNow('POST', '/playback/stop') !== false) {
 		stop(id);
 		return;
 	}
@@ -370,7 +387,8 @@ function playOrStop(id, leave) {
    202 says the box took it on: the button stays busy until the playback
    event says the recording ended, and where none comes in time, what plays
    is read once. 204 says nothing played it: Play again. A request the box
-   did not take leaves Stop to press again. */
+   did not take leaves Stop to press again. A box that has no such route
+   (404, 405) gets Play back, without a word. */
 async function stop(id) {
 	const mine = stopping = {id: id, timer: 0};
 	syncPlay();
@@ -378,6 +396,11 @@ async function stop(id) {
 	try {
 		took = await webuiV1('POST', '/playback/stop', {body: {id: id}, accepted: true});
 	} catch (e) {
+		if (e.status === 404 || e.status === 405) {
+			webuiV1Gone('POST', '/playback/stop');
+			stopDone(mine);
+			return;
+		}
 		stopDone(mine);
 		if (e.code === 'command-not-posted')
 			webuiShowToast(webuiL('media.stop_not_taken', 'The box did not respond. Try again.'), true);
