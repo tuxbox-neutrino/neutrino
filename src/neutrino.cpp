@@ -4202,6 +4202,9 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 		if (mode != NeutrinoModes::mode_webtv && mode != NeutrinoModes::mode_webradio) {
 			delete [] (unsigned char*) data;
 		} else if (CMoviePlayerGui::getInstance().RestartLastWebtv(chid)) {
+#ifdef ENABLE_GRAPHLCD
+			cGLCD::releaseZapFailure();
+#endif
 			delete [] (unsigned char*) data;
 		} else {
 			if (mode == NeutrinoModes::mode_webtv || mode == NeutrinoModes::mode_webradio)
@@ -4232,6 +4235,10 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 				}
 				if (CMoviePlayerGui::getInstance().RestartBackground(cc->getUrl(), cc->getName(), cc->getChannelID(), cc->getScriptName())) {
 					printf("[webtv] zap complete: restart accepted channel=%llx\n", (unsigned long long)chid);
+#ifdef ENABLE_GRAPHLCD
+					/* webtv sends no EVT_ZAP_COMPLETE: this is its success. */
+					cGLCD::releaseZapFailure();
+#endif
 					delete [] (unsigned char*) data;
 				}
 				else
@@ -4287,6 +4294,9 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 
 		CVFD::getInstance()->UpdateIcons();
 #ifdef ENABLE_GRAPHLCD
+		/* A zap that no zapTo_ChannelID started (a timer, zapit itself)
+		   ends the failure shown before it as well. */
+		cGLCD::releaseZapFailure();
 		cGLCD::Update();
 #endif
 		g_RCInput->killTimer(scrambled_timer);

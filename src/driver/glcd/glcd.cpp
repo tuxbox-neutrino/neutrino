@@ -70,7 +70,7 @@ cGLCD::cGLCD()
 	pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_ERRORCHECK_NP);
 	pthread_mutex_init(&mutex, &attr);
 
-	channelLocked = false;
+	channelLock.unlock();
 	timeLocked = false;
 	durationLocked = false;
 	startLocked = false;
@@ -851,7 +851,7 @@ void *cGLCD::TimeThread(void *p)
 		sleep(1);
 		if (!cglcd->doExit && (
 				cglcd->locked_countdown == true
-				|| cglcd->channelLocked == true
+				|| cglcd->channelLock.locked()
 				|| cglcd->timeLocked == true
 				|| cglcd->durationLocked == true
 				|| cglcd->startLocked == true
@@ -1129,7 +1129,7 @@ void cGLCD::Run(void)
 					channel_id = -1;
 				}
 			}
-			else if (channelLocked)
+			else if (channelLock.locked())
 			{
 				Lock();
 				if (Epg.compare(stagingEpg))
@@ -1471,7 +1471,9 @@ void cGLCD::Resume()
 	if (cglcd)
 	{
 		cglcd->doSuspend = false;
-		cglcd->channelLocked = false;
+		cglcd->Lock();
+		cglcd->channelLock.unlock();
+		cglcd->Unlock();
 		cglcd->Update();
 	}
 }
@@ -1481,7 +1483,7 @@ void cGLCD::lockChannel(std::string c, std::string e, int s)
 	if (cglcd)
 	{
 		cglcd->Lock();
-		cglcd->channelLocked = true;
+		cglcd->channelLock.lock(cGLCDChannelLock::SCREEN);
 		cglcd->stagingChannel = c;
 		cglcd->stagingEpg = e;
 		cglcd->Scale = s;
@@ -1494,8 +1496,36 @@ void cGLCD::unlockChannel(void)
 {
 	if (cglcd)
 	{
-		cglcd->channelLocked = false;
+		cglcd->Lock();
+		cglcd->channelLock.unlock();
+		cglcd->Unlock();
 		cglcd->Update();
+	}
+}
+
+void cGLCD::lockZapFailure(std::string c)
+{
+	if (cglcd)
+	{
+		cglcd->Lock();
+		cglcd->channelLock.lock(cGLCDChannelLock::ZAP_FAILURE);
+		cglcd->stagingChannel = c;
+		cglcd->stagingEpg = "";
+		cglcd->Scale = 0;
+		cglcd->Unlock();
+		cglcd->Update();
+	}
+}
+
+void cGLCD::releaseZapFailure(void)
+{
+	if (cglcd)
+	{
+		cglcd->Lock();
+		bool released = cglcd->channelLock.release(cGLCDChannelLock::ZAP_FAILURE);
+		cglcd->Unlock();
+		if (released)
+			cglcd->Update();
 	}
 }
 

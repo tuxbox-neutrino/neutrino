@@ -1572,7 +1572,7 @@ int CInfoViewer::handleMsg (const neutrino_msg_t msg, neutrino_msg_data_t data)
 		CVFD::getInstance ()->showServicename ("(" + g_RemoteControl->getCurrentChannelName () + ')', g_RemoteControl->getCurrentChannelNumber());
 #ifdef ENABLE_GRAPHLCD
 		if (g_settings.glcd_enable)
-			cGLCD::lockChannel("(" + g_RemoteControl->getCurrentChannelName () + ')', "", 0);
+			cGLCD::lockZapFailure("(" + g_RemoteControl->getCurrentChannelName () + ')');
 #endif
 		printf ("zap failed!\n");
 		showFailure(failed_channel_id);
@@ -1589,7 +1589,7 @@ int CInfoViewer::handleMsg (const neutrino_msg_t msg, neutrino_msg_data_t data)
 			CVFD::getInstance ()->showServicename ("(" + g_RemoteControl->getCurrentChannelName () + ')', g_RemoteControl->getCurrentChannelNumber());
 #ifdef ENABLE_GRAPHLCD
 			if (g_settings.glcd_enable)
-				cGLCD::lockChannel("(" + g_RemoteControl->getCurrentChannelName () + ')', "", 0);
+				cGLCD::lockZapFailure("(" + g_RemoteControl->getCurrentChannelName () + ')');
 #endif
 			printf ("zap failed!\n");
 			showFailure(failed_channel_id);

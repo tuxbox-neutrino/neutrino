@@ -751,6 +751,13 @@ void CRemoteControl::zapTo_ChannelID(const t_channel_id channel_id, const std::s
 	needs_nvods = false;
 	director_mode = 0;
 
+#ifdef ENABLE_GRAPHLCD
+	/* The VFD shows the new name on every zap; the graphic display
+	   follows the channel list only while nobody holds its line, and the
+	   "(name)" of a failed zap would hold it to the end. */
+	cGLCD::releaseZapFailure();
+#endif
+
 	uint64_t now = time_monotonic_ms();
 	if (zap_completion_timeout < now)
 	{

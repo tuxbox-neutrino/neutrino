@@ -32,6 +32,7 @@
 #include <semaphore.h>
 #include <zapit/client/zapittypes.h>
 #include <neutrinoMessages.h>
+#include "channellock.h"
 
 #define CLAMP(x)    ((x < 0) ? 0 : ((x > 255) ? 255 : x))
 #define SWAP(x,y)	{ x ^= y; y ^= x; x ^= y; }
@@ -99,7 +100,7 @@ class cGLCD
 		bool scrollEpgForward;
 		bool scrollChannelForward;
 		bool blitFlag;
-		bool channelLocked;
+		cGLCDChannelLock channelLock;
 		bool timeLocked;
 		bool durationLocked;
 		bool startLocked;
@@ -212,6 +213,9 @@ class cGLCD
 		static cGLCD *getInstance();
 		static void lockChannel(std::string txt, std::string epg = "", int scale = 0);
 		static void unlockChannel();
+		// A failed zap shows "(name)" until the next zap starts or succeeds.
+		static void lockZapFailure(std::string txt);
+		static void releaseZapFailure();
 		static void lockTime(std::string time);
 		static void unlockTime();
 		static void lockDuration(std::string time);
