@@ -611,15 +611,24 @@ function _webuiArrowKept() {
    (_webuiArrowBack): seen after Enter (the click that comes right after
    it; Firefox gives that click detail 1, so detail cannot tell), without
    its ring after a click of the mouse or a tap. A script's click or one
-   with a key held leaves none and takes a name left before away. */
-function webuiArrowKeys(group, selector, name) {
+   with a key held leaves none and takes a name left before away.
+   opts.near lays the entries out in two dimensions (the keys of the
+   remote): an arrow goes to the nearest entry that way on the screen and
+   stops at the edge, Home and End to the first and the last;
+   opts.scope(group) narrows the entries to a part of the group (a sheet
+   over the rest) and opts.start, a selector or a list of them in order,
+   names the entry that is the stop before any other was focused (also
+   the one of an item chosen, where it has several). */
+function webuiArrowKeys(group, selector, name, opts) {
 	if (!group)
 		return;
 	if (group._webuiArrow) {
 		_webuiArrowStop(group);
 		return;
 	}
-	var arrow = group._webuiArrow = {selector: selector, name: name || '', last: null, keyed: null, watch: null, soon: 0};
+	opts = opts || {};
+	var arrow = group._webuiArrow = {selector: selector, name: name || '', last: null, keyed: null, watch: null, soon: 0,
+		near: !!opts.near, scope: opts.scope || null, start: [].concat(opts.start || [])};
 	var step = {ArrowDown: 1, ArrowRight: 1, ArrowUp: -1, ArrowLeft: -1};
 	// the More menu's entries are named for the tab bar, which keeps the name
 	if (arrow.name && !(_webuiArrowNamed[arrow.name] && _webuiArrowNamed[arrow.name].isConnected))
@@ -650,6 +659,15 @@ function webuiArrowKeys(group, selector, name) {
 					return;
 			}
 			i = -1;
+		}
+		if (arrow.near && e.key in step && i >= 0) {
+			// on the screen, not in the order of the page; at the edge the
+			// focus stays and the page does not scroll
+			to = _webuiArrowNear(all.filter(_webuiArrowReachable), at, e.key);
+			e.preventDefault();
+			if (to)
+				to.focus();
+			return;
 		}
 		var dir = e.key === 'End' ? -1 : step[e.key] || 1;
 		var from = e.key === 'End' ? n : e.key === 'Home' ? -1 : i;
@@ -708,7 +726,41 @@ function webuiArrowKeys(group, selector, name) {
 }
 
 function _webuiArrowEntries(group) {
-	return Array.prototype.slice.call(group.querySelectorAll(group._webuiArrow.selector));
+	var arrow = group._webuiArrow;
+	var within = arrow.scope ? arrow.scope(group) || group : group;
+	return Array.prototype.slice.call(within.querySelectorAll(arrow.selector));
+}
+
+/* The entry an arrow key leads to from the one with the focus, by their
+   boxes on the screen: among those whose middle lies that way, first the
+   ones level with it (their boxes overlap across the way), the nearest
+   edge first and then the middle closest in line; where none is level,
+   the one nearest by distance that way plus twice the distance across. */
+function _webuiArrowNear(all, from, key) {
+	var a = from.getBoundingClientRect();
+	var horizontal = key === 'ArrowLeft' || key === 'ArrowRight';
+	var sign = key === 'ArrowRight' || key === 'ArrowDown' ? 1 : -1;
+	var mid = function(r) { return horizontal ? r.left + r.width / 2 : r.top + r.height / 2; };
+	var across = function(r) { return horizontal ? r.top + r.height / 2 : r.left + r.width / 2; };
+	var best = null, bestLevel = false, bestScore = Infinity;
+	all.forEach(function(el) {
+		if (el === from)
+			return;
+		var b = el.getBoundingClientRect();
+		var along = (mid(b) - mid(a)) * sign;
+		if (along <= 1)
+			return;
+		var gap = Math.max(0, horizontal ? (sign > 0 ? b.left - a.right : a.left - b.right) : (sign > 0 ? b.top - a.bottom : a.top - b.bottom));
+		var off = Math.abs(across(b) - across(a));
+		var level = horizontal ? b.top < a.bottom - 1 && b.bottom > a.top + 1 : b.left < a.right - 1 && b.right > a.left + 1;
+		var score = level ? gap * 1000 + off : along + 2 * off;
+		if ((level && !bestLevel) || (level === bestLevel && score < bestScore)) {
+			best = el;
+			bestLevel = level;
+			bestScore = score;
+		}
+	});
+	return best;
 }
 
 function _webuiArrowReachable(el) {
@@ -723,13 +775,17 @@ function _webuiArrowReachable(el) {
 /* The one entry of a group Tab stops at: the one with the focus, else the
    one last focused while it is still there, else the one shown or chosen
    (aria-current other than false on it or on the list item holding it,
-   aria-pressed, the class active), else the first; each among the entries
+   aria-pressed, the class active), else the one the group starts on
+   (opts.start), else the first; each among the entries
    that can take the focus, measured only as far as needed. Where none can
    (a side bar the phone does not show, a section closed), it is chosen the
    same way among all, so Tab finds the group once it shows. */
 function _webuiArrowStop(group) {
 	var arrow = group._webuiArrow;
 	var all = _webuiArrowEntries(group);
+	var starts = function(el) {
+		return arrow.start.some(function(sel) { return el.matches(sel); });
+	};
 	var chosen = function(el) {
 		var c = el.getAttribute('aria-current'), li = el.closest('li');
 		return (c && c !== 'false') || el.getAttribute('aria-pressed') === 'true' || el.classList.contains('active') ||
@@ -741,16 +797,26 @@ function _webuiArrowStop(group) {
 			return at;
 		if (arrow.last && all.indexOf(arrow.last) >= 0 && ok(arrow.last))
 			return arrow.last;
+		// of the entries in the item chosen, the one it starts on first
+		for (i = 0; i < all.length; i++)
+			if (chosen(all[i]) && starts(all[i]) && ok(all[i]))
+				return all[i];
 		for (i = 0; i < all.length; i++)
 			if (chosen(all[i]) && ok(all[i]))
 				return all[i];
+		for (var s = 0; s < arrow.start.length; s++)
+			for (i = 0; i < all.length; i++)
+				if (all[i].matches(arrow.start[s]) && ok(all[i]))
+					return all[i];
 		for (i = 0; i < all.length; i++)
 			if (ok(all[i]))
 				return all[i];
 		return null;
 	};
 	var stop = pick(_webuiArrowReachable) || pick(function() { return true; });
-	all.forEach(function(el) {
+	// entries left out of a narrowed group are no stop either
+	var every = arrow.scope ? Array.prototype.slice.call(group.querySelectorAll(arrow.selector)) : all;
+	every.forEach(function(el) {
 		var want = el === stop ? '0' : '-1';
 		if (el.getAttribute('tabindex') !== want)
 			el.setAttribute('tabindex', want);
@@ -1955,8 +2021,11 @@ function webuiToggleRcSheet(id) {
 	var isOpen = backdrop.style.display === 'flex';
 	_webuiRcSheetMark(root, !isOpen);
 	if (isOpen) {
+		// the focus out of a sheet that goes back to the key that opened it
+		var inside = backdrop.contains(document.activeElement);
 		backdrop.style.display = 'none';
 		if (trigger) trigger.setAttribute('aria-expanded', 'false');
+		if (inside && trigger) trigger.focus();
 		if (backdrop._escHandler) {
 			document.removeEventListener('keydown', backdrop._escHandler);
 			backdrop._escHandler = null;
@@ -1964,6 +2033,12 @@ function webuiToggleRcSheet(id) {
 	} else {
 		backdrop.style.display = 'flex';
 		if (trigger) trigger.setAttribute('aria-expanded', 'true');
+		/* A bottom sheet lies over the key that opened it: the focus
+		   goes to its first digit, where the arrows go on */
+		if (trigger && document.activeElement === trigger && getComputedStyle(backdrop).position === 'fixed') {
+			var digit = backdrop.querySelector('.webui-rc-numpad button');
+			if (digit) digit.focus();
+		}
 		/* Desktop: the sheet is an inline region inside a scrolling
 		   panel (modal body / card body) - bring it into view */
 		if (window.innerWidth > 768) backdrop.scrollIntoView({ block: 'nearest' });
@@ -2113,12 +2188,27 @@ function webuiRenderRemote(hostId, opts) {
 		around.classList.remove('webui-rc-sheet-open');
 	host.innerHTML = webuiGetRemoteHTML(opts);
 	webuiInitRemoteRepeat(opts.id || 'webui-remote');
+	_webuiRcArrows(document.getElementById(opts.id || 'webui-remote'));
 	// a skin has the keys of its own remote control
 	if (!WEBUI_CONFIG.remoteRenderer) {
 		_webuiRcPlayerKeys(opts.id || 'webui-remote');
 		_webuiRcExtraKeys(opts.id || 'webui-remote');
 	}
 	_webuiRemoteInstances[hostId] = opts;
+}
+
+/* The keys of a remote are one stop of Tab; the arrows move the focus
+   from key to key as they lie (up from OK to the up key, from Menu down
+   to the pad), Enter or Space presses the key with it. The stop is OK
+   until another key had the focus. While a bottom sheet lies over the
+   keys, only its keys count. */
+function _webuiRcArrows(root) {
+	if (!root)
+		return;
+	webuiArrowKeys(root, 'button', '', {near: true, start: '.webui-rc-ok', scope: function(group) {
+		var sheet = group.querySelector('.webui-rc-sheet-backdrop');
+		return sheet && sheet.style.display === 'flex' && getComputedStyle(sheet).position === 'fixed' ? sheet : group;
+	}});
 }
 
 /* The additional keys of the numpad sheet the box knows: each one shown
@@ -2300,9 +2390,10 @@ function webuiShowRemote(opts) {
 				return;
 			}
 			if (e.key === 'Tab') {
+				// the stops of Tab: the remote's keys are one (the others -1)
 				var items = Array.prototype.filter.call(
 					modal.querySelectorAll('button'),
-					function(b) { return b.getClientRects().length > 0; });
+					function(b) { return b.tabIndex >= 0 && b.getClientRects().length > 0; });
 				if (!items.length) return;
 				/* Programmatic focus() does not trigger :focus-visible, so
 				   the ring would vanish exactly at the wrap point; mark the
@@ -2556,8 +2647,8 @@ document.addEventListener('keydown', function(e) {
 	if (e.key !== 'Tab' || !root || root.querySelector('[role="dialog"]') || _webuiRcDialogAbove(e))
 		return;
 	var items = Array.prototype.filter.call(
-		root.querySelectorAll('button, a[href], input, select, textarea, [tabindex]:not([tabindex="-1"])'),
-		function(el) { return !el.disabled && el.getClientRects().length > 0; });
+		root.querySelectorAll('button, a[href], input, select, textarea, [tabindex]'),
+		function(el) { return !el.disabled && el.tabIndex >= 0 && el.getClientRects().length > 0; });
 	if (!items.length)
 		return;
 	var at = document.activeElement;
