@@ -741,7 +741,7 @@ void appendProblemSchema(Json &j, bool prose)
 		}
 		j.endObject();
 	}
-	// Optional, so it stays out of required: only setting-condition-not-met carries it.
+	// Optional, so it stays out of required: only two refusals carry it.
 	j.key("depends_on");
 	j.beginObject();
 	j.key("type");
@@ -754,8 +754,9 @@ void appendProblemSchema(Json &j, bool prose)
 	if (prose)
 	{
 		j.key("description");
-		j.value("present only for `setting-condition-not-met`: the keys of the settings whose values refused "
-		        "this one, which `detail` names as well");
+		j.value("present only for `setting-condition-not-met`, with the keys of the settings whose values refused "
+		        "this one, which `detail` names as well, and for `no-free-tuner` where switching the TV picture would "
+		        "free a tuner, with the key of the setting that allows a stream to do that");
 	}
 	j.endObject();
 	j.endObject();

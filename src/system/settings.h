@@ -761,6 +761,7 @@ struct SNeutrinoSettings
 	int streaming_ecmmode;
 	int streaming_decryptmode;
 	int streaming_port;
+	int streaming_switch_picture;
 
 	// timeshift
 	std::string timeshiftdir;

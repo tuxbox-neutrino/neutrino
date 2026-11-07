@@ -292,17 +292,35 @@ class CZapitClient:public CBasicClient
 		int32_t  verdict;
 		uint32_t hold_id;
 		int32_t  fenumber;
-		responseStreamHold() : verdict(3), hold_id(0), fenumber(-1) {}
+		/* Asked for, on a refusal: 1 when switching the picture to the
+		   channel would free a frontend for it. */
+		int32_t  switch_frees;
+		responseStreamHold() : verdict(3), hold_id(0), fenumber(-1), switch_frees(0) {}
 	};
 
 	/* Has zapit hold a frontend for a stream of channel_id, giving it
 	   budget_ms from now to have it tuned. False when no whole answer
 	   came; reply is then a failure without a hold. A Deadline on the
 	   calling thread bounds the exchange itself. */
-	bool holdForStream(const t_channel_id channel_id, unsigned budget_ms, responseStreamHold &reply);
+	bool holdForStream(const t_channel_id channel_id, unsigned budget_ms, responseStreamHold &reply,
+			   bool ask_switch = false);
 	/* Whether a stream of channel_id would get a frontend now, without
 	   holding one. */
-	bool probeStream(const t_channel_id channel_id, responseStreamHold &reply);
+	bool probeStream(const t_channel_id channel_id, responseStreamHold &reply, bool ask_switch = false);
+
+	/* What zapit answers the GUI asking it to switch the picture for a
+	   stream: 1 when the picture shows the channel, 2 when a frontend is free
+	   for the stream as things are and nothing was switched, 0 otherwise. */
+	struct responseStreamSwitch
+	{
+		int32_t switched;
+		responseStreamSwitch() : switched(0) {}
+	};
+
+	/* Has zapit switch the picture to channel_id for a stream that found no
+	   frontend, if the prediction of the hold holds again; it waits for the
+	   zap. False when no whole answer came, and outcome is then 0. */
+	bool switchForStream(const t_channel_id channel_id, int &outcome);
 
 	/* What zapit answers a recording that asks it to end the streams in
 	   its way. stage is 1 when a frontend is to be had as the frontends

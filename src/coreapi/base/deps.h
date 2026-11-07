@@ -83,8 +83,10 @@ struct ChannelSource
 	// a tuner.
 	virtual Status canZap(ChannelId id, bool &out) const = 0;
 	/* Whether a stream of that channel would get a tuner now. Asks and
-	   holds nothing: the tuner is taken by the stream itself. */
-	virtual Status streamTuner(ChannelId id, StreamTuner &out) const = 0;
+	   holds nothing: the tuner is taken by the stream itself. With
+	   ask_switch a refusal says NoneFreeUnlessSwitched where switching the
+	   picture to the channel would free the picture's tuner for it. */
+	virtual Status streamTuner(ChannelId id, bool ask_switch, StreamTuner &out) const = 0;
 	/* Whether the stream server carries that channel already, so that its
 	   port hands it to another reader from the stream it has. */
 	virtual Status streamCarried(ChannelId id, bool &out) const = 0;
@@ -943,6 +945,8 @@ struct RecordingSource
 
 RecordingSource &recordingSource();
 void setRecordingSource(RecordingSource *s);
+// Whether a RecordingSource is wired in, for a read that has a sensible answer without one.
+bool recordingSourceInstalled();
 
 // Binds the accessors above to the record manager and the timer daemon.
 void installRealRecordingSource();

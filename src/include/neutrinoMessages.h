@@ -202,7 +202,11 @@ struct NeutrinoMessages
 		EVT_PLAY_RECORDING			= CRCInput::RC_WithData + 32,
 
 		/* from nhttpd: end the file the movie player plays, data: the playback's generation, uint64_t */
-		EVT_STOP_PLAYBACK			= CRCInput::RC_WithData + 33
+		EVT_STOP_PLAYBACK			= CRCInput::RC_WithData + 33,
+
+		/* from the stream server: switch the picture for a stream that found
+		   no tuner, data: CStreamManager::SwitchAsk */
+		EVT_STREAM_SWITCH			= CRCInput::RC_WithData + 34
 	};
 };
 

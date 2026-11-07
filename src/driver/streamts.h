@@ -147,6 +147,13 @@ class CStreamManager : public OpenThreads::Thread
 		streamsetup::StartGate gate;
 
 		class SetupOps;
+		/* One switch of the picture for a stream at a time, and where its
+		   setup waits for the GUI's answer. */
+		OpenThreads::Mutex switch_mutex;
+		streamsetup::SwitchWait switch_wait;
+		/* Asks the GUI to switch the picture for a stream of the channel
+		   and waits for its answer: whether the picture shows it. */
+		int	RequestSwitch(t_channel_id channel_id, uint64_t since);
 		bool	Listen();
 		streamsetup::Ops::Read Parse(int fd, streamsetup::Target &target);
 		void	PreparePids(CZapitChannel * channel, stream_pids_t &pids, bool is_e2);
@@ -172,5 +179,24 @@ class CStreamManager : public OpenThreads::Thread
 		/* Takes a client the accept loop has: Refused leaves the
 		   descriptor to the caller, Consumed means a stream has it. */
 		streamsetup::Outcome AddClient(int fd);
+
+		/* What EVT_STREAM_SWITCH carries to the GUI. */
+		struct SwitchAsk
+		{
+			t_channel_id channel_id;
+			uint32_t     seq;
+		};
+		/* Whether the box is in a state in which a stream of the channel may
+		   switch the picture at all, setting aside the setting: live
+		   television or radio of the channel's own kind, no PIN to ask for
+		   the channel or the one the picture shows, and nothing recording.
+		   Whether the GUI holds the picture back only the GUI checks. */
+		static bool SwitchEligible(t_channel_id channel_id);
+		/* The GUI's half of a switch request (streamsetup::serveSwitch): a
+		   request whose setup gave up is not carried out. */
+		bool ServeSwitch(uint32_t seq, t_channel_id channel_id, streamsetup::SwitchPicture &picture)
+		{
+			return streamsetup::serveSwitch(switch_wait, seq, channel_id, picture);
+		}
 };
 #endif

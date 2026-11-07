@@ -54,7 +54,11 @@ enum class StreamTuner
 {
 	Free,
 	NoneFree,
-	NoAnswer
+	NoAnswer,
+	// None is free, but switching the picture to the channel would free the picture's.
+	NoneFreeUnlessSwitched,
+	// That, where the setting lets a stream switch the picture: the stream server will.
+	FreeBySwitch
 };
 
 enum class ServiceKind

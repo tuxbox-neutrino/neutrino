@@ -1814,6 +1814,7 @@ menu.hint_softupdate_settings Das lokale Update-Verzeichnis und die Konfiguratio
 menu.hint_standby Versetzt die Box sofort in den Standby. Schnelles Wiedereinschalten möglich.
 menu.hint_start_tostandby Aktiviert den Standby-Modus direkt nach dem Starten der Box
 menu.hint_streaminfo Aktuelle Sender-Informationen über PIDs, SNR-Verhältnis, Bitrate usw.
+menu.hint_streaming_switch_picture Ohne freien Tuner schaltet ein Stream eines anderen Senders das Fernsehbild auf diesen Sender um und beendet eine PiP, die ihn zeigt; nie während einer Aufnahme oder Timeshift und nie, wenn der neue oder der laufende Sender die PIN abfragt
 menu.hint_subchannel_pos Wählen Sie die Anzeigeposition der Unterkanäle aus
 menu.hint_sw_update System aktualisieren, Image sichern und wiederherstellen
 menu.hint_theme Wählen Sie ein vordefiniertes Farbschema, speichern oder laden Sie ihre eigenen Farbschemata
@@ -2787,6 +2788,7 @@ streaming.ecmmode Berechtigungen senden
 streaming.overflow Aufnahme-Puffer Überlauf! Bitte ggf. einige Aufnahmen beenden.
 streaming.port Streaming-Port
 streaming.slow System oder Datenträger zu langsam! Bitte ggf. einige Aufnahmen beenden.
+streaming.switch_picture Streams dürfen das Fernsehbild umschalten
 streaming.write_error Die Aufnahme wurde leider abgebrochen,\nda ein Fehler beim Schreiben der Daten auftrat.
 stringinput.backspace Rücklöschen
 stringinput.caps Groß/Klein

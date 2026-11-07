@@ -156,7 +156,8 @@ class CZapitMessages
 			CMD_LOCKRC				   = 116,
 			CMD_STREAM_HOLD			   = 117,
 			CMD_STREAM_PROBE		   = 118,
-			CMD_STREAM_YIELD		   = 119
+			CMD_STREAM_YIELD		   = 119,
+			CMD_STREAM_SWITCH		   = 120
 		};
 
 	struct commandBoolean
@@ -362,12 +363,16 @@ class CZapitMessages
 
 	/* A stream asks for a frontend until deadline_ms on that clock; a
 	   recording asks for the streams in its way to end with the same
-	   request (CMD_STREAM_YIELD). */
+	   request (CMD_STREAM_YIELD), and the GUI asks for the picture to be
+	   switched for a stream (CMD_STREAM_SWITCH). With ask_switch a refused
+	   hold or probe says whether switching the picture would free a
+	   frontend. */
 	struct commandStreamHold
 	{
 		t_channel_id channel_id;
 		int64_t      deadline_ms;
-		commandStreamHold() : channel_id(0), deadline_ms(0) {}
+		int32_t      ask_switch;
+		commandStreamHold() : channel_id(0), deadline_ms(0), ask_switch(0) {}
 	};
 
 	struct responseZapComplete

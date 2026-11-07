@@ -265,6 +265,15 @@ Response streamForBrowser(const Request &r)
 	if (tuner.value() == coreapi::StreamTuner::NoneFree)
 		return problemResponse(StatusConflict, coreapi::ErrorCode::NoFreeTuner,
 		                       "no tuner is free for this channel without changing what the box shows");
+	if (tuner.value() == coreapi::StreamTuner::NoneFreeUnlessSwitched)
+	{
+		// Named, so a client can offer the setting rather than parse the text.
+		coreapi::Error e(coreapi::Status::Conflict, coreapi::ErrorCode::NoFreeTuner,
+		                 "no tuner is free for this channel unless the TV picture is switched to it, "
+		                 "which the setting streaming_switch_picture does not allow");
+		e.depends_on.push_back("streaming_switch_picture");
+		return problemResponse(StatusConflict, e);
+	}
 	if (tuner.value() == coreapi::StreamTuner::NoAnswer)
 		return problemResponse(StatusServiceUnavailable, coreapi::ErrorCode::UpstreamUnreachable,
 		                       "the box could not say whether a tuner is free for this channel");
@@ -456,7 +465,17 @@ const Endpoint kStreamEndpoints[] = {
 	  "recording and other streams keep theirs; a channel the box shows can "
 	  "be streamed from the picture's own tuner, a channel streamed already "
 	  "is shared, and a channel being recorded is refused, as on the "
-	  "streaming port.\n"
+	  "streaming port. Where switching the TV picture to the channel would "
+	  "free the picture's tuner, the setting `streaming_switch_picture` "
+	  "decides: switched on, as it is by default, the stream is answered and "
+	  "the box switches the picture as it starts (only while it shows live "
+	  "television or radio of the channel's kind and records nothing); "
+	  "switched off, the refusal "
+	  "carries `depends_on: [\"streaming_switch_picture\"]`, so a client can "
+	  "offer that setting. The picture is never switched to or away from a "
+	  "channel the box would ask the PIN for, and such a refusal carries no "
+	  "`depends_on`; nor is it switched while the box holds it back for the "
+	  "PIN.\n"
 	  "- `503 too-many-conversions`: the box is already converting as many "
 	  "streams as it will, at most 2 at once; retry after the time named in the "
 	  "`Retry-After` header.\n"

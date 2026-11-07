@@ -173,11 +173,13 @@ bool CZapitClient::streamHoldAnswer(bool sent, responseStreamHold &reply)
 	return true;
 }
 
-bool CZapitClient::holdForStream(const t_channel_id channel_id, unsigned budget_ms, responseStreamHold &reply)
+bool CZapitClient::holdForStream(const t_channel_id channel_id, unsigned budget_ms, responseStreamHold &reply,
+				 bool ask_switch)
 {
 	CZapitMessages::commandStreamHold msg;
 	msg.channel_id = channel_id;
 	msg.deadline_ms = CZapitMessages::streamHoldClockMs() + budget_ms;
+	msg.ask_switch = ask_switch ? 1 : 0;
 
 	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex);
 	const bool sent = send(CZapitMessages::CMD_STREAM_HOLD, (const char *) &msg, sizeof(msg));
@@ -186,15 +188,33 @@ bool CZapitClient::holdForStream(const t_channel_id channel_id, unsigned budget_
 	return ok;
 }
 
-bool CZapitClient::probeStream(const t_channel_id channel_id, responseStreamHold &reply)
+bool CZapitClient::probeStream(const t_channel_id channel_id, responseStreamHold &reply, bool ask_switch)
 {
 	CZapitMessages::commandStreamHold msg;
 	msg.channel_id = channel_id;
+	msg.ask_switch = ask_switch ? 1 : 0;
 
 	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex);
 	const bool sent = send(CZapitMessages::CMD_STREAM_PROBE, (const char *) &msg, sizeof(msg));
 	const bool ok = streamHoldAnswer(sent, reply);
 	close_connection();
+	return ok;
+}
+
+/* As a hold, the answer is taken only whole. */
+bool CZapitClient::switchForStream(const t_channel_id channel_id, int &outcome)
+{
+	CZapitMessages::commandStreamHold msg;
+	msg.channel_id = channel_id;
+
+	outcome = 0;
+	responseStreamSwitch got;
+	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex);
+	const bool ok = send(CZapitMessages::CMD_STREAM_SWITCH, (const char *) &msg, sizeof(msg)) &&
+			CBasicClient::receive_data((char *) &got, sizeof(got));
+	close_connection();
+	if (ok && (got.switched == 1 || got.switched == 2))
+		outcome = got.switched;
 	return ok;
 }
 

@@ -29,6 +29,7 @@
 #include <connection/basicmessage.h>
 #include <zapit/client/zapitclient.h>
 #include <zapit/client/msgtypes.h>
+#include <zapit/streamholdcmd.h>
 
 namespace
 {
@@ -332,4 +333,102 @@ TEST_CASE("no zapit to ask for a yield ended nothing", "[zapit][client][streamho
 	REQUIRE_FALSE(client.yieldStreams(0x1001, 12000, r));
 	REQUIRE(r.stage == -1);
 	REQUIRE(r.fe_mask == 0);
+}
+
+TEST_CASE("a hold and a probe ask about a switch of the picture only when told, and read the answer to it", "[zapit][client][streamhold][switch]")
+{
+	CZapitClient::responseStreamHold busy;
+	busy.verdict = 1;
+	busy.hold_id = 0;
+	busy.fenumber = -1;
+	busy.switch_frees = 1;
+	{
+		Peer peer(bytesOf(busy), sizeof(busy), 0);
+		ZapitClientHere client;
+		CZapitClient::responseStreamHold r;
+		REQUIRE(client.holdForStream(0x1001, 10000, r, true));
+		peer.finish();
+		REQUIRE(peer.body.ask_switch == 1);
+		REQUIRE(r.verdict == 1);
+		REQUIRE(r.switch_frees == 1);
+	}
+	{
+		Peer peer(bytesOf(busy), sizeof(busy), 0);
+		ZapitClientHere client;
+		CZapitClient::responseStreamHold r;
+		REQUIRE(client.probeStream(0x1001, r));
+		peer.finish();
+		REQUIRE(peer.header.cmd == CZapitMessages::CMD_STREAM_PROBE);
+		REQUIRE(peer.body.ask_switch == 0);
+	}
+	{
+		Peer peer(bytesOf(busy), sizeof(busy), 0);
+		ZapitClientHere client;
+		CZapitClient::responseStreamHold r;
+		REQUIRE(client.probeStream(0x1001, r, true));
+		peer.finish();
+		REQUIRE(peer.body.ask_switch == 1);
+		REQUIRE(r.switch_frees == 1);
+	}
+}
+
+TEST_CASE("a switch for a stream sends its channel and reads whether the picture was switched", "[zapit][client][streamhold][switch]")
+{
+	CZapitClient::responseStreamSwitch yes;
+	yes.switched = 1;
+	{
+		Peer peer(bytesOf(yes), sizeof(yes), 0);
+		ZapitClientHere client;
+		int outcome = 0;
+		REQUIRE(client.switchForStream(0xb544000800850088ULL, outcome));
+		peer.finish();
+		REQUIRE(peer.header.cmd == CZapitMessages::CMD_STREAM_SWITCH);
+		REQUIRE(peer.body.channel_id == 0xb544000800850088ULL);
+		REQUIRE(outcome == 1);
+	}
+	{
+		CZapitClient::responseStreamSwitch no;
+		Peer peer(bytesOf(no), sizeof(no), 0);
+		ZapitClientHere client;
+		int outcome = 1;
+		REQUIRE(client.switchForStream(0x1001, outcome));
+		peer.finish();
+		REQUIRE(outcome == 0);
+	}
+	{
+		CZapitClient::responseStreamSwitch free_now;
+		free_now.switched = 2;
+		Peer peer(bytesOf(free_now), sizeof(free_now), 0);
+		ZapitClientHere client;
+		int outcome = 0;
+		REQUIRE(client.switchForStream(0x1001, outcome));
+		peer.finish();
+		REQUIRE(outcome == 2);
+	}
+	{
+		// Cut short: no answer, and nothing switched.
+		Peer peer(bytesOf(yes), 2, 0);
+		ZapitClientHere client;
+		int outcome = 1;
+		REQUIRE_FALSE(client.switchForStream(0x1001, outcome));
+		peer.finish();
+		REQUIRE(outcome == 0);
+	}
+}
+
+TEST_CASE("the reply zapit sends for a hold is the client's reply, switch prediction included", "[zapit][client][streamhold][switch]")
+{
+	streamholdcmd::Reply r;
+	r.verdict = 1;
+	r.hold_id = 0;
+	r.fenumber = -1;
+	r.switch_frees = 1;
+	const CZapitClient::responseStreamHold wire = streamholdcmd::toWire<CZapitClient::responseStreamHold>(r);
+	Peer peer(bytesOf(wire), sizeof(wire), 0);
+	ZapitClientHere client;
+	CZapitClient::responseStreamHold got;
+	REQUIRE(client.probeStream(0x1001, got, true));
+	peer.finish();
+	REQUIRE(got.verdict == 1);
+	REQUIRE(got.switch_frees == 1);
 }

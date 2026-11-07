@@ -116,6 +116,17 @@ Way decide(const Facts &f, uint64_t channel);
 // is not in standby.
 bool liveRuns(const Facts &f);
 
+/* Whether switching the picture to a channel may be weighed for a stream that
+   found no frontend: the picture runs and nothing is under way that a zap would
+   disturb or race, a recording starting or a channel scan. Not with PiPs the GUI
+   starts past zapit, and not on a Cst box while a PiP runs. */
+bool switchable(const Facts &f);
+
+/* What the admission decides for a stream of channel once the picture shows it
+   from frontend number zap_fe and no PiP shows it; the live channel
+   itself stays on its frontend. Refuse without a frontend. */
+Way afterSwitch(const Facts &f, uint64_t channel, int zap_fe);
+
 /* The frontends an idle frontend must not be: the picture's while it runs,
    every PiP slot's frontend, frontend number i for every active slot i, and
    frontend 0 while the AV-input PiP reads demux 1. Frontends that streams

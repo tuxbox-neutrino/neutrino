@@ -912,6 +912,7 @@ int CNeutrinoApp::loadSetup(const char *fname)
 	g_settings.streaming_ecmmode = configfile.getInt32("streaming_ecmmode", 0);
 	g_settings.streaming_decryptmode = configfile.getInt32("streaming_decryptmode", 1);
 	g_settings.streaming_port = configfile.getInt32("streaming_port", 31339);
+	g_settings.streaming_switch_picture = configfile.getInt32("streaming_switch_picture", 1);
 
 	// timeshift
 	setSettingsText(g_settings.timeshiftdir, configfile.getString("timeshiftdir", ""));
@@ -1998,6 +1999,7 @@ void CNeutrinoApp::saveSetup(const char *fname)
 	configfile.setInt32("streaming_ecmmode", g_settings.streaming_ecmmode);
 	configfile.setInt32("streaming_decryptmode", g_settings.streaming_decryptmode);
 	configfile.setInt32("streaming_port", g_settings.streaming_port);
+	configfile.setInt32("streaming_switch_picture", g_settings.streaming_switch_picture);
 
 	// timeshift
 	configfile.setString("timeshiftdir", g_settings.timeshiftdir);
@@ -4393,6 +4395,45 @@ bool CNeutrinoApp::wakeOnto(const t_channel_id channel_id, bool tv)
 	return held && !recordingstatus && mode != NeutrinoModes::mode_standby;
 }
 
+/* For a stream that found no tuner, where the setting allows it: zapit switches
+   the picture to the channel and ends a PiP showing it, after the checks a
+   stream's switch needs here: live television or radio of the channel's kind,
+   no zap under way, nothing recording, no PIN to ask for the channel or the
+   picture it replaces, and that picture not held back. Waits for zapit, so
+   no recording starts meanwhile; the zap turns no dish and takes seconds. */
+int CNeutrinoApp::switchPictureForStream(const t_channel_id channel_id)
+{
+	if (!g_settings.streaming_switch_picture || !channelList || !g_RemoteControl)
+		return streamsetup::NotSwitched;
+	streamsetup::SwitchFacts s;
+	s.tv_mode = mode == NeutrinoModes::mode_tv;
+	s.radio_mode = mode == NeutrinoModes::mode_radio;
+	{
+		// A reload frees the channels under this lock; nothing else is taken inside it.
+		CServiceManager::ChannelGuard guard;
+		CZapitChannel *channel = CServiceManager::getInstance()->FindChannel(channel_id);
+		if (!channel)
+			return streamsetup::NotSwitched;
+		s.radio_channel = channel->getServiceType() == ST_DIGITAL_RADIO_SOUND_SERVICE;
+		// The channel list's rule: such a channel is shown only once the PIN is given.
+		s.pin_needed = streamsetup::pinNeeded(g_settings.parentallock_prompt == PARENTALLOCK_PROMPT_NEVER,
+						      channel->Locked(), g_settings.parentallock_defaultlocked != 0);
+		CZapitChannel *shown = CServiceManager::getInstance()->FindChannel(g_RemoteControl->current_channel_id);
+		s.shown_pin_needed = !shown ||
+				     streamsetup::pinNeeded(g_settings.parentallock_prompt == PARENTALLOCK_PROMPT_NEVER,
+							    shown->Locked(), g_settings.parentallock_defaultlocked != 0);
+	}
+	s.picture_held = !g_RemoteControl->is_video_started;
+	s.zap_pending = g_RemoteControl->zapPending();
+	s.recording = recordingstatus != 0 || CRecordManager::getInstance()->RecordingStatus();
+	if (!streamsetup::switchEligible(s) || channelList->hasChannelID(channel_id) < 0)
+		return streamsetup::NotSwitched;
+	int outcome = streamsetup::NotSwitched;
+	if (!g_Zapit->switchForStream(channel_id, outcome))
+		return streamsetup::NotSwitched;
+	return outcome;
+}
+
 void CNeutrinoApp::standbyToStandby(void)
 {
 	/* As in tryDeferredDeepStandby: a recording that has started but not
@@ -5608,6 +5649,20 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 			return messages_return::handled;
 		if (mode != NeutrinoModes::mode_standby && !CMoviePlayerGui::getInstance().Playing())
 			CMoviePlayerGui::getInstance().playRecording(asked.path);
+		return messages_return::handled;
+	}
+	else if (msg == NeutrinoMessages::EVT_STREAM_SWITCH) {
+		const CStreamManager::SwitchAsk asked = *(const CStreamManager::SwitchAsk *) data;
+		delete[] (unsigned char *) data;
+		/* Only while the stream setup still waits for it. Every recording
+		   starts on this thread, so none starts while zapit switches. */
+		struct PictureForStream : public streamsetup::SwitchPicture
+		{
+			CNeutrinoApp &app;
+			explicit PictureForStream(CNeutrinoApp &a) : app(a) {}
+			int switchPicture(uint64_t channel) { return app.switchPictureForStream(channel); }
+		} for_stream(*this);
+		CStreamManager::getInstance()->ServeSwitch(asked.seq, asked.channel_id, for_stream);
 		return messages_return::handled;
 	}
 	else if (msg == NeutrinoMessages::EVT_STOP_PLAYBACK) {

@@ -288,6 +288,14 @@ void StartGate::cancelChannelLocked(uint64_t channel)
 	channel_cancelled[channel] = ++epoch;
 }
 
+bool StartGate::frontendCancelledSinceLocked(uint64_t since) const
+{
+	for (std::map<int, uint64_t>::const_iterator f = fe_cancelled.begin(); f != fe_cancelled.end(); ++f)
+		if (f->second > since)
+			return true;
+	return false;
+}
+
 int StartGate::pendingLocked() const
 {
 	return pending;
@@ -473,7 +481,7 @@ Outcome run(int fd, StartGate &gate, Ops &ops)
 	if (ops.recording(t.channel))
 		return refusal(ops, fd, 503, kNoTuner);
 
-	const Ops::Hold held = ops.hold(t.channel);
+	const Ops::Hold held = ops.hold(fd, t.channel, since);
 	Outcome o = withHold(ops, gate, pending, fd, since, t, held);
 	o.asked_hold = true;
 	return o;
@@ -482,6 +490,224 @@ Outcome run(int fd, StartGate &gate, Ops &ops)
 bool idleAfter(const Outcome &o, bool streams_empty, int pending)
 {
 	return !o.published && streams_empty && pending == 0;
+}
+
+bool pinNeeded(bool prompt_never, bool channel_locked, bool default_locked)
+{
+	return !prompt_never && channel_locked != default_locked;
+}
+
+bool switchEligible(const SwitchFacts &s)
+{
+	const bool kind_shown = (s.tv_mode && !s.radio_channel) || (s.radio_mode && s.radio_channel);
+	return kind_shown && !s.zap_pending && !s.recording && !s.pin_needed && !s.shown_pin_needed &&
+	       !s.picture_held;
+}
+
+bool peerGone(int fd)
+{
+	struct pollfd p;
+	p.fd = fd;
+	// The half close and not POLLIN: more of the request is no hang-up.
+	p.events = POLLRDHUP;
+	p.revents = 0;
+	const int ready = poll(&p, 1, 0);
+	if (ready < 0)
+		return errno != EINTR;
+	return ready > 0 && (p.revents & (POLLRDHUP | POLLHUP | POLLERR | POLLNVAL)) != 0;
+}
+
+namespace
+{
+
+Ops::Hold heldOf(const HoldOps::Answer &a)
+{
+	Ops::Hold h;
+	h.id = a.verdict == 0 ? a.hold_id : 0;
+	h.fenumber = a.verdict == 0 ? a.fenumber : -1;
+	return h;
+}
+
+// Busy, and a switch of the picture would free a frontend.
+bool switchWouldFree(const HoldOps::Answer &a)
+{
+	return a.verdict == 1 && a.switch_frees;
+}
+
+} // namespace
+
+Ops::Hold holdWithSwitch(HoldOps &ops, unsigned budget_ms, int holds_after, unsigned retry_ms)
+{
+	const Ops::Hold none = heldOf(HoldOps::Answer());
+	HoldOps::Answer a;
+	if (ops.ask(ops.nowMs() + budget_ms, ops.eligible(), a) && a.verdict == 0)
+		return heldOf(a);
+	if (!switchWouldFree(a) || !ops.settingOn() || ops.clientGone())
+		return none;
+
+	ops.lockSwitch();
+	Ops::Hold got = none;
+	// A stream switched for while this one waited may sit on the picture's frontend.
+	if (ops.ask(ops.nowMs() + budget_ms, true, a) && a.verdict == 0)
+		got = heldOf(a);
+	else if (switchWouldFree(a) && !ops.clientGone() && ops.requestSwitch() != NotSwitched)
+	{
+		const int64_t until = ops.nowMs() + budget_ms;
+		for (int i = 0; i < holds_after && !ops.clientGone(); ++i)
+		{
+			if (ops.ask(until, false, a) && a.verdict == 0)
+			{
+				got = heldOf(a);
+				break;
+			}
+			if (a.verdict != 1 || ops.nowMs() >= until)
+				break;
+			ops.pause(retry_ms);
+		}
+	}
+	ops.unlockSwitch();
+	return got;
+}
+
+namespace
+{
+
+timespec monotonicIn(unsigned ms)
+{
+	timespec t;
+	clock_gettime(CLOCK_MONOTONIC, &t);
+	t.tv_sec += ms / 1000;
+	t.tv_nsec += (long) (ms % 1000) * 1000000L;
+	if (t.tv_nsec >= 1000000000L)
+	{
+		t.tv_sec++;
+		t.tv_nsec -= 1000000000L;
+	}
+	return t;
+}
+
+} // namespace
+
+SwitchWait::SwitchWait() : seq_(0), channel_(0), state_(Idle), outcome_(NotSwitched)
+{
+	pthread_mutex_init(&m, 0);
+	pthread_condattr_t attr;
+	pthread_condattr_init(&attr);
+	pthread_condattr_setclock(&attr, CLOCK_MONOTONIC);
+	pthread_cond_init(&changed, &attr);
+	pthread_condattr_destroy(&attr);
+}
+
+SwitchWait::~SwitchWait()
+{
+	pthread_cond_destroy(&changed);
+	pthread_mutex_destroy(&m);
+}
+
+uint32_t SwitchWait::begin(uint64_t channel)
+{
+	pthread_mutex_lock(&m);
+	if (++seq_ == 0)
+		++seq_;
+	channel_ = channel;
+	state_ = Pending;
+	outcome_ = NotSwitched;
+	const uint32_t seq = seq_;
+	pthread_mutex_unlock(&m);
+	return seq;
+}
+
+bool SwitchWait::claim(uint32_t seq)
+{
+	pthread_mutex_lock(&m);
+	const bool mine = seq == seq_ && state_ == Pending;
+	if (mine)
+	{
+		state_ = Claimed;
+		pthread_cond_broadcast(&changed);
+	}
+	pthread_mutex_unlock(&m);
+	return mine;
+}
+
+void SwitchWait::done(uint32_t seq, int outcome)
+{
+	pthread_mutex_lock(&m);
+	if (seq == seq_ && state_ == Claimed)
+	{
+		state_ = Done;
+		outcome_ = outcome;
+		pthread_cond_broadcast(&changed);
+	}
+	pthread_mutex_unlock(&m);
+}
+
+int SwitchWait::wait(uint32_t seq, unsigned claim_ms, unsigned done_ms)
+{
+	pthread_mutex_lock(&m);
+	const timespec claim_by = monotonicIn(claim_ms);
+	while (seq == seq_ && state_ == Pending)
+		if (pthread_cond_timedwait(&changed, &m, &claim_by) == ETIMEDOUT)
+			break;
+	if (seq == seq_ && state_ == Pending)
+		state_ = Cancelled;
+	const timespec done_by = monotonicIn(done_ms);
+	while (seq == seq_ && state_ == Claimed)
+		if (pthread_cond_timedwait(&changed, &m, &done_by) == ETIMEDOUT)
+			break;
+	const int outcome = (seq == seq_ && state_ == Done) ? outcome_ : (int) NotSwitched;
+	// Whatever is left of the request is over: a late done finds nothing.
+	if (seq == seq_)
+		state_ = Idle;
+	pthread_mutex_unlock(&m);
+	return outcome;
+}
+
+void SwitchWait::cancelFor(uint64_t channel)
+{
+	pthread_mutex_lock(&m);
+	if (state_ == Pending && channel_ == channel)
+	{
+		state_ = Cancelled;
+		pthread_cond_broadcast(&changed);
+	}
+	pthread_mutex_unlock(&m);
+}
+
+void SwitchWait::cancelPending()
+{
+	pthread_mutex_lock(&m);
+	if (state_ == Pending)
+	{
+		state_ = Cancelled;
+		pthread_cond_broadcast(&changed);
+	}
+	pthread_mutex_unlock(&m);
+}
+
+void SwitchWait::cancelAll()
+{
+	pthread_mutex_lock(&m);
+	if (state_ == Pending || state_ == Claimed)
+		state_ = Cancelled;
+	pthread_cond_broadcast(&changed);
+	pthread_mutex_unlock(&m);
+}
+
+bool beginSwitchLocked(const StartGate &gate, SwitchWait &w, uint64_t since, uint64_t channel, uint32_t &seq)
+{
+	if (gate.mayPublishLocked(since, -1, channel) != StartGate::Ok || gate.frontendCancelledSinceLocked(since))
+		return false;
+	seq = w.begin(channel);
+	return true;
+}
+
+bool serveSwitch(SwitchWait &wait, uint32_t seq, uint64_t channel, SwitchPicture &picture)
+{
+	if (!wait.claim(seq))
+		return false;
+	wait.done(seq, picture.switchPicture(channel));
+	return true;
 }
 
 } // namespace streamsetup

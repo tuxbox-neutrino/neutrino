@@ -235,6 +235,17 @@ class CZapit : public OpenThreads::Thread
 		   this thread. */
 		class StreamYieldOps;
 		void YieldStreams(int connfd);
+		/* Switches the picture for a stream that found no frontend
+		   (CMD_STREAM_SWITCH), where the prediction of the hold holds again;
+		   on this thread, which only the GUI asks. */
+		class StreamSwitchOps;
+		void SwitchForStream(int connfd);
+		/* The frontends of every stream hold and of every PiP slot, which a
+		   zap for a stream must leave alone. */
+		void StreamKeep(std::vector<CFrontend *> &keep);
+		/* Set while a zap for a stream runs: no PiP is stopped to find a
+		   frontend for it. */
+		bool zap_keeps_pip;
 		/* What a stream's admission and a recording's yield read of the
 		   picture and the PiPs; under the frontend manager's lock. */
 		void StreamFacts(streamadmission::Facts &f);

@@ -1814,6 +1814,7 @@ menu.hint_softupdate_settings The local update directory and the configuration f
 menu.hint_standby Puts the box into standby immediately. Quick power-on possible.
 menu.hint_start_tostandby Enter standby mode after boot
 menu.hint_streaminfo Current channel info: pids, signal and noise ratio\nBitrate graphs
+menu.hint_streaming_switch_picture Without a free tuner, a stream of another channel switches the TV picture to that channel and ends a PiP showing it; never while the box records or keeps a timeshift, nor when the new or the current channel asks for the PIN
 menu.hint_subchannel_pos Select subchannels menu position
 menu.hint_sw_update Update software
 menu.hint_theme Select pre-defined color theme\nSave or load theme from files
@@ -2787,6 +2788,7 @@ streaming.ecmmode Send entitlements
 streaming.overflow Record buffer overflow, consider to stop some records
 streaming.port Streaming port
 streaming.slow System/hdd too slow, consider to stop some records
+streaming.switch_picture Streams may switch the TV picture
 streaming.write_error The recording was aborted,\nsince an error occured during the writing process.
 stringinput.backspace Backspace
 stringinput.caps Upper/lower

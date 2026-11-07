@@ -18,6 +18,7 @@
 #include <zapit/streamholdcmd.h>
 
 #include <map>
+#include <string>
 #include <vector>
 
 using namespace streamholdcmd;
@@ -40,7 +41,7 @@ struct Fe
 	int use;   // the use count lockFrontend raises
 };
 
-struct Box : public Ops
+struct Box : public SwitchOps
 {
 	Fe fe[3];
 	streamadmission::Facts f;
@@ -61,6 +62,19 @@ struct Box : public Ops
 	int lock_depth;
 	int collects, opens, binds, live_holds, picks, tunes, pid_reads, unlocks, offers, drops, answers;
 	bool facts_locked, bind_locked, tune_unlocked, read_unlocked;
+	int zap_fe;            // what zapFrontend answers
+	bool zap_turns_dish;
+	int zap_asks;
+	bool zap_locked;       // every zapFrontend came under the lock
+	bool zap_ok;           // what a zap to any channel but the live one answers
+	bool zap_back_ok;      // what a zap to the live one answers
+	int zaps, pip_stops, switch_answers;
+	uint64_t pip_stopped, zapped;
+	std::vector<uint64_t> zapped_all;
+	std::string order;     // z for each zap, p for each PiP stop, in the order they came
+	bool switch_unlocked;  // the PiP stop and the zap came outside the lock
+	int32_t switched;
+	std::vector<void *> predicted_keep, zapped_keep;
 	uint64_t asked;
 	Reply sent;
 
@@ -69,7 +83,9 @@ struct Box : public Ops
 		  pids_ok(true), stop_while_reading(false), answer_ok(true), next_id(9), lock_depth(0), collects(0),
 		  opens(0), binds(0), live_holds(0), picks(0), tunes(0), pid_reads(0), unlocks(0), offers(0),
 		  drops(0), answers(0), facts_locked(true), bind_locked(true), tune_unlocked(true),
-		  read_unlocked(true), asked(0)
+		  read_unlocked(true), zap_fe(-1), zap_turns_dish(false), zap_asks(0), zap_locked(true),
+		  zap_ok(true), zap_back_ok(true), zaps(0), pip_stops(0), switch_answers(0), pip_stopped(0), zapped(0),
+		  switch_unlocked(true), switched(-1), asked(0)
 	{
 		for (int i = 0; i < 3; ++i)
 		{
@@ -148,6 +164,47 @@ struct Box : public Ops
 			return &fe[i];
 		}
 		return 0;
+	}
+	int zapFrontend(std::vector<void *> &keep, bool &turns_dish)
+	{
+		zap_asks++;
+		zap_locked = zap_locked && lock_depth > 0;
+		turns_dish = zap_turns_dish;
+		// As zapit counts them: every stream hold's frontend and every PiP's.
+		keep.clear();
+		for (size_t i = 0; i < stream_holds.size(); ++i)
+			keep.push_back(&fe[stream_holds[i]]);
+		for (int i = 0; i < f.slots; ++i)
+			if (f.slot[i].active && f.slot[i].fe >= 0)
+				keep.push_back(&fe[f.slot[i].fe]);
+		predicted_keep = keep;
+		return zap_fe;
+	}
+	void stopPipsShowing(uint64_t channel)
+	{
+		pip_stops++;
+		pip_stopped = channel;
+		order += 'p';
+		switch_unlocked = switch_unlocked && lock_depth == 0;
+		for (int i = 0; i < f.slots; ++i)
+			if (f.slot[i].active && f.slot[i].channel == channel)
+				f.slot[i].active = false;
+	}
+	bool zapKept(uint64_t channel, const std::vector<void *> &keep)
+	{
+		zaps++;
+		zapped = channel;
+		zapped_all.push_back(channel);
+		zapped_keep = keep;
+		order += 'z';
+		switch_unlocked = switch_unlocked && lock_depth == 0;
+		return channel == kLive ? zap_back_ok : zap_ok;
+	}
+	bool answerSwitch(int32_t s)
+	{
+		switch_answers++;
+		switched = s;
+		return true;
 	}
 	int number(void *p) { return static_cast<Fe *>(p)->number; }
 	bool tune(void *)
@@ -573,4 +630,278 @@ TEST_CASE("every command first collects what was dropped since the last", "[zapi
 	run(box, kOther, 0, true, true);
 	REQUIRE(box.collects == 3);
 	REQUIRE(box.answers == 3);
+}
+
+namespace
+{
+
+// Frontends 1 and 2 used by recordings: a channel on another transponder finds none idle.
+void fill(Box &box)
+{
+	box.fe[1].use = 1;
+	box.fe[2].use = 1;
+}
+
+} // namespace
+
+TEST_CASE("a refused hold asked nothing of a switch says nothing of one", "[zapit][streamholdcmd][switch]")
+{
+	Box box;
+	fill(box);
+	const Reply r = run(box, kOther, 5000, false, true);
+	REQUIRE(r.verdict == Busy);
+	REQUIRE(r.switch_frees == 0);
+	REQUIRE(box.zap_asks == 0);
+}
+
+TEST_CASE("a refused hold says whether switching the picture would free a tuner, and changes nothing", "[zapit][streamholdcmd][switch]")
+{
+	Box box;
+	fill(box);
+	box.zap_fe = 0;   // the zap would take the picture's own frontend
+	const Reply r = run(box, kOther, 5000, false, true, true);
+	REQUIRE(r.verdict == Busy);
+	REQUIRE(r.switch_frees == 1);
+	REQUIRE(r.hold_id == 0);
+	REQUIRE(r.fenumber == -1);
+	REQUIRE(box.sent.switch_frees == 1);
+	REQUIRE(box.zap_asks == 1);
+	REQUIRE(box.zap_locked);
+	REQUIRE(box.binds == 0);
+	REQUIRE(box.live_holds == 0);
+	REQUIRE(box.tunes == 0);
+	REQUIRE(box.offers == 0);
+	REQUIRE(box.uses() == 2);
+	REQUIRE(box.lock_depth == 0);
+
+	// A probe answers the same.
+	const Reply p = run(box, kOther, 0, true, true, true);
+	REQUIRE(p.verdict == Busy);
+	REQUIRE(p.switch_frees == 1);
+	REQUIRE(box.binds == 0);
+	REQUIRE(box.uses() == 2);
+}
+
+TEST_CASE("no switch frees a tuner where the zap finds none or would take a stream's", "[zapit][streamholdcmd][switch]")
+{
+	Box box;
+	fill(box);
+	box.zap_fe = -1;
+	REQUIRE(run(box, kOther, 5000, false, true, true).switch_frees == 0);
+
+	// A stream on the picture's frontend would lose its transponder.
+	box.zap_fe = 0;
+	box.stream_holds.push_back(0);
+	REQUIRE(run(box, kOther, 5000, false, true, true).switch_frees == 0);
+	REQUIRE(box.binds == 0);
+}
+
+TEST_CASE("no switch is offered while a recording starts, in standby, or where the demux would not be free", "[zapit][streamholdcmd][switch]")
+{
+	Box box;
+	fill(box);
+	box.zap_fe = 0;
+	box.f.recording_starting = true;
+	REQUIRE(run(box, kOther, 5000, false, true, true).switch_frees == 0);
+	box.f.recording_starting = false;
+
+	box.f.avinput_pip = true;   // reads demux 1, which a stream on frontend 0 would read
+	REQUIRE(run(box, kOther, 5000, false, true, true).switch_frees == 0);
+	box.f.avinput_pip = false;
+
+	box.f.standby = true;
+	fill(box);
+	box.fe[0].use = 1;   // in standby nothing is the picture's: all three used
+	REQUIRE(run(box, kOther, 5000, false, true, true).switch_frees == 0);
+}
+
+TEST_CASE("a granted hold asks nothing about a switch", "[zapit][streamholdcmd][switch]")
+{
+	Box box;
+	const Reply r = run(box, kOther, 5000, false, true, true);
+	REQUIRE(r.verdict == Granted);
+	REQUIRE(r.switch_frees == 0);
+	REQUIRE(box.zap_asks == 0);
+	REQUIRE(run(box, kLive, 5000, false, true, true).switch_frees == 0);
+	REQUIRE(box.zap_asks == 0);
+}
+
+TEST_CASE("the live channel shown by a PiP as well is freed by the switch without a zap", "[zapit][streamholdcmd][switch]")
+{
+	Box box;
+	box.f.slot[0].active = true;
+	box.f.slot[0].fe = 1;
+	box.f.slot[0].channel = kLive;
+	const Reply r = run(box, kLive, 5000, false, true, true);
+	REQUIRE(r.verdict == Busy);
+	REQUIRE(r.switch_frees == 1);
+	REQUIRE(box.zap_asks == 0);
+	REQUIRE(box.binds == 0);
+}
+
+TEST_CASE("the switch predicts on fresh facts under the lock, then zaps outside it and stops the PiP showing the channel", "[zapit][streamholdcmd][switch]")
+{
+	Box box;
+	fill(box);
+	box.zap_fe = 0;
+	box.f.slots = 2;
+	// A second PiP slot shows the channel from frontend 2.
+	box.f.slot[1].active = true;
+	box.f.slot[1].channel = kOther;
+	box.f.slot[1].fe = 2;
+	REQUIRE(runSwitch(box, kOther) == 1);
+	REQUIRE(box.switched == 1);
+	REQUIRE(box.switch_answers == 1);
+	REQUIRE(box.zap_asks == 1);
+	REQUIRE(box.zap_locked);
+	REQUIRE(box.pip_stops == 1);
+	REQUIRE(box.pip_stopped == kOther);
+	REQUIRE(box.zaps == 1);
+	REQUIRE(box.zapped == kOther);
+	REQUIRE(box.switch_unlocked);
+	REQUIRE(box.binds == 0);
+	REQUIRE(box.offers == 0);
+	REQUIRE(box.lock_depth == 0);
+	// The zap keeps what the prediction kept, the stopped PiP's frontend among them.
+	REQUIRE(box.predicted_keep.size() == 1);
+	REQUIRE(box.predicted_keep[0] == &box.fe[2]);
+	REQUIRE(box.zapped_keep == box.predicted_keep);
+	REQUIRE_FALSE(box.f.slot[1].active);
+	// The PiP stops once the picture shows the channel, not before the zap.
+	REQUIRE(box.order == "zp");
+}
+
+TEST_CASE("a switch the prediction does not hold up stops no PiP and zaps nothing", "[zapit][streamholdcmd][switch]")
+{
+	Box box;
+	fill(box);
+	box.zap_fe = -1;
+	REQUIRE(runSwitch(box, kOther) == 0);
+	box.zap_fe = 0;
+	box.zap_turns_dish = true;
+	REQUIRE(runSwitch(box, kOther) == 0);
+	box.zap_turns_dish = false;
+	box.stream_holds.push_back(0);
+	REQUIRE(runSwitch(box, kOther) == 0);
+	box.stream_holds.clear();
+	box.f.recording_starting = true;
+	REQUIRE(runSwitch(box, kOther) == 0);
+	box.f.recording_starting = false;
+	box.serving_now = false;
+	REQUIRE(runSwitch(box, kOther) == 0);
+	box.serving_now = true;
+	REQUIRE(runSwitch(box, kWeb) == 0);
+	REQUIRE(runSwitch(box, 0xdead) == 0);
+	REQUIRE(box.pip_stops == 0);
+	REQUIRE(box.zaps == 0);
+	REQUIRE(box.switch_answers == 7);
+	REQUIRE(box.switched == 0);
+	REQUIRE(box.lock_depth == 0);
+
+	// In standby nothing is the picture's: the stream takes its frontend, nothing is switched.
+	box.f.standby = true;
+	REQUIRE(runSwitch(box, kOther) == 2);
+	REQUIRE(box.pip_stops == 0);
+	REQUIRE(box.zaps == 0);
+}
+
+TEST_CASE("the live channel a PiP shows as well is switched by stopping that PiP alone", "[zapit][streamholdcmd][switch]")
+{
+	Box box;
+	box.f.slot[0].active = true;
+	box.f.slot[0].fe = 1;
+	box.f.slot[0].channel = kLive;
+	REQUIRE(runSwitch(box, kLive) == 1);
+	REQUIRE(box.pip_stops == 1);
+	REQUIRE(box.pip_stopped == kLive);
+	REQUIRE(box.zaps == 0);
+	REQUIRE(box.zap_asks == 0);
+	REQUIRE(box.order == "p");
+	// The stream then takes the picture's frontend.
+	REQUIRE(run(box, kLive, 5000, false, true).verdict == Granted);
+}
+
+TEST_CASE("a zap that fails goes back to the channel shown before, stops no PiP and answers that nothing was switched", "[zapit][streamholdcmd][switch]")
+{
+	Box box;
+	fill(box);
+	box.zap_fe = 0;
+	box.f.slots = 2;
+	box.f.slot[1].active = true;
+	box.f.slot[1].channel = kOther;
+	box.f.slot[1].fe = 2;
+	box.zap_ok = false;
+	REQUIRE(runSwitch(box, kOther) == 0);
+	REQUIRE(box.switched == 0);
+	REQUIRE(box.switch_answers == 1);
+	REQUIRE(box.zaps == 2);
+	REQUIRE(box.zapped_all.size() == 2);
+	REQUIRE(box.zapped_all[0] == kOther);
+	REQUIRE(box.zapped_all[1] == kLive);
+	// The way back keeps the same set, the PiP's frontend among them.
+	REQUIRE(box.zapped_keep == box.predicted_keep);
+	REQUIRE(box.pip_stops == 0);
+	REQUIRE(box.f.slot[1].active);
+	REQUIRE(box.switch_unlocked);
+	REQUIRE(box.lock_depth == 0);
+
+	// A way back that fails as well still answers 0, and tries no third zap.
+	box.zapped_all.clear();
+	box.zap_back_ok = false;
+	REQUIRE(runSwitch(box, kOther) == 0);
+	REQUIRE(box.zapped_all.size() == 2);
+	REQUIRE(box.pip_stops == 0);
+}
+
+TEST_CASE("a reply goes on the wire member for member", "[zapit][streamholdcmd][switch]")
+{
+	struct Wire
+	{
+		int32_t  verdict;
+		uint32_t hold_id;
+		int32_t  fenumber;
+		int32_t  switch_frees;
+		Wire() : verdict(3), hold_id(0), fenumber(-1), switch_frees(0) {}
+	};
+	Reply r;
+	r.verdict = Busy;
+	r.hold_id = 0x1234;
+	r.fenumber = 2;
+	r.switch_frees = 1;
+	const Wire w = toWire<Wire>(r);
+	REQUIRE(w.verdict == Busy);
+	REQUIRE(w.hold_id == 0x1234u);
+	REQUIRE(w.fenumber == 2);
+	REQUIRE(w.switch_frees == 1);
+
+	// The refusal a hold sends carries the prediction to the wire as well.
+	Box box;
+	fill(box);
+	box.zap_fe = 0;
+	const Wire sent = toWire<Wire>(run(box, kOther, 5000, false, true, true));
+	REQUIRE(sent.verdict == Busy);
+	REQUIRE(sent.switch_frees == 1);
+}
+
+TEST_CASE("a frontend that came free since the refusal is taken without a switch", "[zapit][streamholdcmd][switch]")
+{
+	Box box;   // frontends 1 and 2 free: a hold of the channel gets one as things are
+	box.zap_fe = 0;
+	REQUIRE(runSwitch(box, kOther) == 2);
+	REQUIRE(box.switched == 2);
+	REQUIRE(box.pip_stops == 0);
+	REQUIRE(box.zaps == 0);
+	REQUIRE(box.binds == 0);
+	REQUIRE(box.uses() == 0);
+	REQUIRE(box.lock_depth == 0);
+	// And the live channel itself, once nothing keeps its stream off.
+	REQUIRE(runSwitch(box, kLive) == 2);
+	REQUIRE(box.zaps == 0);
+
+	// No room for one more hold: switching would not help either.
+	fill(box);
+	box.room = false;
+	REQUIRE(runSwitch(box, kOther) == 0);
+	REQUIRE(box.zaps == 0);
+	REQUIRE(box.pip_stops == 0);
 }

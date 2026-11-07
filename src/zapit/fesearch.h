@@ -35,6 +35,8 @@
 #ifndef __zapit_fesearch_h__
 #define __zapit_fesearch_h__
 
+#include <cstddef>
+#include <stdint.h>
 #include <vector>
 
 namespace fesearch
@@ -178,6 +180,49 @@ struct StreamsToEnd
    service. */
 StreamsToEnd streamsToEnd(const std::vector<FeView> &fes, const std::vector<Use> &use,
 			  bool live_kept, bool no_same_fe);
+
+/* A zap that must take none of the frontends a stream switch kept: each of
+   their use counts one higher for its length. raiseKept says whether it
+   raised any, which leaves a frontend locked; releaseKept lowers them again,
+   never below nothing, and says whether any count in all is still above
+   nothing, which is what the frontend manager's have_locked says. */
+bool raiseKept(const std::vector<int *> &kept);
+bool releaseKept(const std::vector<int *> &kept, const std::vector<const int *> &all);
+
+/* What pick() finds with the counts in kept raised for its length, as
+   raiseKept raises them, and lowered after it; the channel ids of fes, which
+   a search may set on the frontends it weighs, are put back as they were. */
+template <typename Fe, typename Pick>
+Fe *pickKept(const std::vector<Fe *> &fes, const std::vector<int *> &kept, Pick &pick)
+{
+	std::vector<uint64_t> ids;
+	for (size_t i = 0; i < fes.size(); ++i)
+		ids.push_back(fes[i]->getChannelID());
+	raiseKept(kept);
+	Fe *found = pick();
+	for (size_t i = 0; i < kept.size(); ++i)
+		--*kept[i];
+	for (size_t i = 0; i < fes.size(); ++i)
+		fes[i]->setChannelID(ids[i]);
+	return found;
+}
+
+/* The frontend whose dish a tune on fe moves: a linked frontend's master,
+   found by its number among fes, else fe itself. */
+template <typename Fe>
+Fe *dishOf(Fe *fe, const std::vector<Fe *> &fes, bool linked)
+{
+	if (linked)
+		for (size_t i = 0; i < fes.size(); ++i)
+			if (fes[i]->getNumber() == fe->getMaster())
+				return fes[i];
+	return fe;
+}
+
+/* Whether a tune may drive a motor: the dish's frontend has a rotor or
+   steers by USALS, or the channel's satellite is listed for it with a motor
+   position or USALS of its own. */
+bool turnsDish(bool have_rotor, bool fe_usals, bool sat_listed, int motor_position, bool sat_usals);
 
 } // namespace fesearch
 

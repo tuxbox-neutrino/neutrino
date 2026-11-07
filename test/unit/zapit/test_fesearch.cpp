@@ -1066,3 +1066,172 @@ TEST_CASE("S13: frontends that share a number are told apart", "[zapit][fesearch
 		REQUIRE(r.end == numbers(3));
 	}
 }
+
+namespace
+{
+
+/* What the kept zap reads and sets on a frontend: its use count, the
+   channel it carries, its number and its master's. */
+struct KeptFe
+{
+	int usecount;
+	uint64_t channel;
+	int number;
+	int master;
+
+	explicit KeptFe(int n) : usecount(0), channel(0), number(n), master(-1)
+	{
+	}
+	uint64_t getChannelID() { return channel; }
+	void setChannelID(uint64_t id) { channel = id; }
+	int getNumber() const { return number; }
+	int getMaster() { return master; }
+};
+
+/* A search the way getFrontend makes one: it names the channel on each
+   frontend it weighs, and takes the first one nobody uses. */
+struct FirstUnused
+{
+	std::vector<KeptFe *> fes;
+	std::vector<int> counts_seen;   // the use counts as the search found them
+	int searches;
+
+	FirstUnused() : searches(0)
+	{
+	}
+	KeptFe *operator()()
+	{
+		++searches;
+		counts_seen.clear();
+		for (size_t i = 0; i < fes.size(); ++i)
+			counts_seen.push_back(fes[i]->usecount);
+		for (size_t i = 0; i < fes.size(); ++i)
+		{
+			fes[i]->setChannelID(0x77);
+			if (fes[i]->usecount == 0)
+				return fes[i];
+		}
+		return 0;
+	}
+};
+
+std::vector<int *> countsOf(const std::vector<KeptFe *> &fes)
+{
+	std::vector<int *> c;
+	for (size_t i = 0; i < fes.size(); ++i)
+		c.push_back(&fes[i]->usecount);
+	return c;
+}
+
+std::vector<const int *> allOf(const std::vector<KeptFe *> &fes)
+{
+	std::vector<const int *> c;
+	for (size_t i = 0; i < fes.size(); ++i)
+		c.push_back(&fes[i]->usecount);
+	return c;
+}
+
+} // namespace
+
+TEST_CASE("the zap a switch predicts counts the kept frontends busy and leaves every frontend as it found it", "[zapit][fesearch][switch]")
+{
+	KeptFe a(0), b(1), c(2);
+	a.channel = 0x11;
+	b.channel = 0x22;
+	std::vector<KeptFe *> fes;
+	fes.push_back(&a);
+	fes.push_back(&b);
+	fes.push_back(&c);
+	FirstUnused walk;
+	walk.fes = fes;
+
+	// Nothing kept: the search takes the first frontend.
+	std::vector<KeptFe *> keep;
+	REQUIRE(fesearch::pickKept(fes, countsOf(keep), walk) == &a);
+
+	// The stream's frontend and the PiP's kept: the search sees them busy and takes the third.
+	keep.push_back(&a);
+	keep.push_back(&b);
+	REQUIRE(fesearch::pickKept(fes, countsOf(keep), walk) == &c);
+	REQUIRE(walk.counts_seen == std::vector<int>({ 1, 1, 0 }));
+	// Afterwards the counts are back, and so are the channels the search named.
+	REQUIRE(a.usecount == 0);
+	REQUIRE(b.usecount == 0);
+	REQUIRE(c.usecount == 0);
+	REQUIRE(a.channel == 0x11);
+	REQUIRE(b.channel == 0x22);
+	REQUIRE(c.channel == 0);
+
+	// A frontend locked by a recording stays locked, one higher only for the search.
+	a.usecount = 1;
+	keep.clear();
+	keep.push_back(&b);
+	keep.push_back(&c);
+	REQUIRE(fesearch::pickKept(fes, countsOf(keep), walk) == 0);
+	REQUIRE(walk.counts_seen == std::vector<int>({ 1, 1, 1 }));
+	REQUIRE(a.usecount == 1);
+	REQUIRE(b.usecount == 0);
+	REQUIRE(c.usecount == 0);
+	REQUIRE(walk.searches == 3);
+}
+
+TEST_CASE("the kept zap raises the kept counts and its release works out what is still locked", "[zapit][fesearch][switch]")
+{
+	KeptFe a(0), b(1), c(2);
+	std::vector<KeptFe *> fes;
+	fes.push_back(&a);
+	fes.push_back(&b);
+	fes.push_back(&c);
+
+	std::vector<KeptFe *> keep;
+	REQUIRE_FALSE(fesearch::raiseKept(countsOf(keep)));
+	keep.push_back(&b);
+	REQUIRE(fesearch::raiseKept(countsOf(keep)));
+	REQUIRE(b.usecount == 1);
+	// Nothing else locked: once released no frontend is.
+	REQUIRE_FALSE(fesearch::releaseKept(countsOf(keep), allOf(fes)));
+	REQUIRE(b.usecount == 0);
+
+	// A recording on another frontend: still locked after the release.
+	c.usecount = 1;
+	REQUIRE(fesearch::raiseKept(countsOf(keep)));
+	REQUIRE(fesearch::releaseKept(countsOf(keep), allOf(fes)));
+	REQUIRE(b.usecount == 0);
+	REQUIRE(c.usecount == 1);
+
+	// A stream's lock on the kept frontend itself outlasts the zap.
+	c.usecount = 0;
+	b.usecount = 1;
+	REQUIRE(fesearch::raiseKept(countsOf(keep)));
+	REQUIRE(b.usecount == 2);
+	REQUIRE(fesearch::releaseKept(countsOf(keep), allOf(fes)));
+	REQUIRE(b.usecount == 1);
+
+	// A count at nothing is not lowered below it.
+	b.usecount = 0;
+	REQUIRE_FALSE(fesearch::releaseKept(countsOf(keep), allOf(fes)));
+	REQUIRE(b.usecount == 0);
+}
+
+TEST_CASE("a tune turns the dish where its frontend or the channel's satellite says a motor or USALS", "[zapit][fesearch][switch]")
+{
+	REQUIRE_FALSE(fesearch::turnsDish(false, false, false, 0, false));
+	REQUIRE_FALSE(fesearch::turnsDish(false, false, true, 0, false));
+	REQUIRE(fesearch::turnsDish(true, false, false, 0, false));
+	REQUIRE(fesearch::turnsDish(false, true, false, 0, false));
+	REQUIRE(fesearch::turnsDish(false, false, true, 3, false));
+	REQUIRE(fesearch::turnsDish(false, false, true, 0, true));
+	// A satellite the frontend does not list says nothing.
+	REQUIRE_FALSE(fesearch::turnsDish(false, false, false, 3, true));
+
+	// The dish is the master's for a linked frontend, the frontend's own otherwise.
+	KeptFe m(0), link(1), other(2);
+	link.master = 0;
+	std::vector<KeptFe *> fes;
+	fes.push_back(&other);
+	fes.push_back(&m);
+	fes.push_back(&link);
+	REQUIRE(fesearch::dishOf(&link, fes, true) == &m);
+	REQUIRE(fesearch::dishOf(&link, fes, false) == &link);
+	REQUIRE(fesearch::dishOf(&other, fes, false) == &other);
+}

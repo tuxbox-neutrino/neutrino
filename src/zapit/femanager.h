@@ -118,6 +118,10 @@ class CFEManager
 		bool		getSatelliteConfig(CFrontend * fe, sat_config_t &satconfig);
 
 		bool		loopCanTune(CFrontend * fe, CZapitChannel * channel);
+		// The use counts of fes, in their order, for the kept zap (fesearch.h).
+		static std::vector<int *> useCounts(const std::vector<CFrontend *> &fes);
+		// Every frontend, in the order of the map.
+		std::vector<CFrontend *> frontends();
 		void		streamViews(CZapitChannel * channel, std::vector<CFrontend *> &fes,
 					    std::vector<fesearch::FeView> &views);
 		void		copySettings(CFrontend * from, CFrontend * to);
@@ -181,6 +185,19 @@ class CFEManager
 						       const std::vector<CFrontend *> &stream_fes,
 						       CFrontend * live, const std::vector<CFrontend *> &pip_fes,
 						       bool holds_lock, bool no_same_fe);
+		/* The frontend a zap of channel would take: getFrontend as
+		   allocateFE runs it, with every frontend in keep counted as busy
+		   once more. Nothing is bound, tied or locked, and the use counts and
+		   channel ids getFrontend may set are put back as they were. */
+		CFrontend *	zapFrontendFor(CZapitChannel * channel, const std::vector<CFrontend *> &keep);
+		// Whether tuning channel on fe may drive a motor, of fe or of the master it is linked to.
+		bool		mayTurnDish(CFrontend * fe, CZapitChannel * channel);
+		/* Counts every frontend in keep as busy once more, for the length of a
+		   zap that must take none of them, and back again. Neither ties nor
+		   unties an FBC link; the release works out have_locked again, as
+		   unlockFrontend does. */
+		void		keepForZap(const std::vector<CFrontend *> &keep);
+		void		releaseKept(const std::vector<CFrontend *> &keep);
 
 		fe_mode_t	getMode() { return mode; };
 

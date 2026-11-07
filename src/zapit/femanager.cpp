@@ -1408,6 +1408,66 @@ fesearch::StreamsToEnd CFEManager::streamsToEndFor(CZapitChannel * channel,
 	return fesearch::streamsToEnd(views, use, live != NULL, no_same_fe);
 }
 
+std::vector<int *> CFEManager::useCounts(const std::vector<CFrontend *> &fes)
+{
+	std::vector<int *> counts;
+	for (size_t i = 0; i < fes.size(); i++)
+		counts.push_back(&fes[i]->usecount);
+	return counts;
+}
+
+std::vector<CFrontend *> CFEManager::frontends()
+{
+	std::vector<CFrontend *> fes;
+	for (fe_map_iterator_t it = femap.begin(); it != femap.end(); it++)
+		fes.push_back(it->second);
+	return fes;
+}
+
+CFrontend * CFEManager::zapFrontendFor(CZapitChannel * channel, const std::vector<CFrontend *> &keep)
+{
+	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
+
+	CZapit::getInstance()->GetConfig(zapitCfg);
+	noSameFE = zapitCfg.noSameFE;
+	fedebug = 0;
+
+	// getFrontend as allocateFE runs it, under the lock taken above.
+	struct Walk
+	{
+		CFEManager *fem;
+		CZapitChannel *channel;
+		CFrontend *operator()() { return fem->getFrontend(channel); }
+	} walk = { this, channel };
+	return fesearch::pickKept(frontends(), useCounts(keep), walk);
+}
+
+bool CFEManager::mayTurnDish(CFrontend * fe, CZapitChannel * channel)
+{
+	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
+
+	CFrontend * dish = fesearch::dishOf(fe, frontends(), CFrontend::linked(fe->getMode()));
+	satellite_map_t & satmap = dish->getSatellites();
+	sat_iterator_t sit = satmap.find(channel->getSatellitePosition());
+	const bool listed = sit != satmap.end();
+	return fesearch::turnsDish(dish->have_rotor, dish->getConfig().use_usals, listed,
+				   listed ? sit->second.motor_position : 0, listed && sit->second.use_usals);
+}
+
+void CFEManager::keepForZap(const std::vector<CFrontend *> &keep)
+{
+	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
+	if (fesearch::raiseKept(useCounts(keep)))
+		have_locked = true;
+}
+
+void CFEManager::releaseKept(const std::vector<CFrontend *> &keep)
+{
+	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
+	const std::vector<int *> all = useCounts(frontends());
+	have_locked = fesearch::releaseKept(useCounts(keep), std::vector<const int *>(all.begin(), all.end()));
+}
+
 void CFEManager::holdLiveForStream(CFrontend * live, CZapitChannel * channel, bool lock)
 {
 	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);

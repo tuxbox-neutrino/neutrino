@@ -27,6 +27,7 @@
 #include <cctype>
 #include <cerrno>
 #include <cmath>
+#include <algorithm>
 #include <fcntl.h>
 #include <sys/poll.h>
 #include <sys/ioctl.h>
@@ -151,6 +152,7 @@ CZapit::CZapit()
 	standby = true;
 	event_mode = true;
 	firstzap = true;
+	zap_keeps_pip = false;
 	playing = false;
 	list_changed = false; // flag to indicate, allchans was changed
 	currentMode = 0;
@@ -771,7 +773,7 @@ bool CZapit::ZapIt(const t_channel_id channel_id, bool forupdate, bool startplay
 	CFrontend * fe = CFEManager::getInstance()->allocateFE(newchannel);
 	if (pip_fe[0])
 		CFEManager::getInstance()->unlockFrontend(pip_fe[0]);
-	if (fe == NULL) {
+	if (fe == NULL && !zap_keeps_pip) {
 		StopPip();
 		fe = CFEManager::getInstance()->allocateFE(newchannel);
 	}
@@ -1299,6 +1301,16 @@ class CZapit::StreamHoldOps : public streamholdcmd::Ops
 									     zapit.config.noSameFE);
 		}
 
+		int zapFrontend(std::vector<void *> &keep, bool &turns_dish)
+		{
+			std::vector<CFrontend *> fes;
+			zapit.StreamKeep(fes);
+			keep.assign(fes.begin(), fes.end());
+			CFrontend *fe = CFEManager::getInstance()->zapFrontendFor(channel_obj, fes);
+			turns_dish = fe != NULL && CFEManager::getInstance()->mayTurnDish(fe, channel_obj);
+			return fe ? fe->getNumber() : -1;
+		}
+
 		int number(void *fe) { return static_cast<CFrontend *>(fe)->getNumber(); }
 
 		/* As a recording tunes, with the retries a Unicable line needs, but
@@ -1360,10 +1372,7 @@ class CZapit::StreamHoldOps : public streamholdcmd::Ops
 
 		bool answer(const streamholdcmd::Reply &r)
 		{
-			CZapitClient::responseStreamHold msg;
-			msg.verdict = r.verdict;
-			msg.hold_id = r.hold_id;
-			msg.fenumber = r.fenumber;
+			CZapitClient::responseStreamHold msg = streamholdcmd::toWire<CZapitClient::responseStreamHold>(r);
 			return CBasicServer::send_data(connfd, &msg, sizeof(msg));
 		}
 
@@ -1372,6 +1381,17 @@ class CZapit::StreamHoldOps : public streamholdcmd::Ops
 		int connfd;
 		CZapitChannel *channel_obj;
 };
+
+void CZapit::StreamKeep(std::vector<CFrontend *> &keep)
+{
+	keep.clear();
+	streamHoldFrontends(keep);
+#if ENABLE_PIP
+	for (int i = 0; i < streamadmission::kMaxSlots; ++i)
+		if (pip_fe[i] && std::find(keep.begin(), keep.end(), pip_fe[i]) == keep.end())
+			keep.push_back(pip_fe[i]);
+#endif
+}
 
 /* The body is read before any lock is taken: a client that is slow to send it
    must not keep the frontends locked. */
@@ -1383,9 +1403,89 @@ void CZapit::HoldForStream(int connfd, bool probe)
 
 	StreamHoldOps ops(*this, connfd);
 	const streamholdcmd::Reply r = streamholdcmd::run(ops, msg.channel_id, msg.deadline_ms,
-							  probe, kHoldLocksFrontend);
-	INFO("stream %s %" PRIx64 ": verdict %d hold %u fe %d", probe ? "probe" : "hold",
-	     msg.channel_id, r.verdict, r.hold_id, r.fenumber);
+							  probe, kHoldLocksFrontend, msg.ask_switch != 0);
+	INFO("stream %s %" PRIx64 ": verdict %d hold %u fe %d%s", probe ? "probe" : "hold",
+	     msg.channel_id, r.verdict, r.hold_id, r.fenumber, r.switch_frees ? ", a switch frees one" : "");
+}
+
+/* The hold's steps, and the switch over this zapit: the PiP slots that show
+   the channel stop, each by itself, and the zap is the one a channel list
+   sends, with the frontends of stream holds and PiPs counted busy for its
+   length, so it takes the frontend the prediction found and stops no PiP to
+   find another. */
+class CZapit::StreamSwitchOps : public streamholdcmd::SwitchOps
+{
+	public:
+		StreamSwitchOps(CZapit &z, int fd) : hold(z, fd), zapit(z), connfd(fd) {}
+
+		void collect() { hold.collect(); }
+		bool serving() { return hold.serving(); }
+		int64_t nowMs() { return hold.nowMs(); }
+		streamholdcmd::Kind channel(uint64_t id) { return hold.channel(id); }
+		bool roomForHold() { return hold.roomForHold(); }
+		void lockFrontends() { hold.lockFrontends(); }
+		void unlockFrontends() { hold.unlockFrontends(); }
+		void facts(streamadmission::Facts &f) { hold.facts(f); }
+		void heldByStreams(std::vector<int> &out) { hold.heldByStreams(out); }
+		void *holdLive(bool lock) { return hold.holdLive(lock); }
+		void openFrontends() { hold.openFrontends(); }
+		void *pickIdle(const std::vector<int> &held, bool bind, bool lock) { return hold.pickIdle(held, bind, lock); }
+		int zapFrontend(std::vector<void *> &keep, bool &turns_dish) { return hold.zapFrontend(keep, turns_dish); }
+		int number(void *fe) { return hold.number(fe); }
+		bool tune(void *fe) { return hold.tune(fe); }
+		bool readPids(void *fe) { return hold.readPids(fe); }
+		void unlockFrontend(void *fe) { hold.unlockFrontend(fe); }
+		uint32_t offer(void *fe) { return hold.offer(fe); }
+		void drop(uint32_t id) { hold.drop(id); }
+		bool answer(const streamholdcmd::Reply &r) { return hold.answer(r); }
+
+		void stopPipsShowing(uint64_t id)
+		{
+#if ENABLE_PIP
+			for (int i = 0; i < streamadmission::kMaxSlots; ++i)
+				if (zapit.pip_channel_id[i] == id)
+					zapit.StopPip(i);
+#else
+			(void) id;
+#endif
+		}
+
+		bool zapKept(uint64_t id, const std::vector<void *> &kept)
+		{
+			std::vector<CFrontend *> keep;
+			for (size_t i = 0; i < kept.size(); ++i)
+				keep.push_back(static_cast<CFrontend *>(kept[i]));
+			CFEManager::getInstance()->keepForZap(keep);
+			zapit.zap_keeps_pip = true;
+			const bool zapped = (zapit.ZapTo(id, false) & CZapitClient::ZAP_OK) != 0;
+			zapit.zap_keeps_pip = false;
+			CFEManager::getInstance()->releaseKept(keep);
+			return zapped;
+		}
+
+		bool answerSwitch(int32_t switched)
+		{
+			CZapitClient::responseStreamSwitch msg;
+			msg.switched = switched;
+			return CBasicServer::send_data(connfd, &msg, sizeof(msg));
+		}
+
+	private:
+		StreamHoldOps hold;
+		CZapit &zapit;
+		int connfd;
+};
+
+void CZapit::SwitchForStream(int connfd)
+{
+	CZapitMessages::commandStreamHold msg;
+	if (!CBasicServer::receive_data(connfd, &msg, sizeof(msg)))
+		return;
+
+	StreamSwitchOps ops(*this, connfd);
+	const int32_t outcome = streamholdcmd::runSwitch(ops, msg.channel_id);
+	INFO("stream switch %" PRIx64 ": %s", msg.channel_id,
+	     outcome == 1 ? "switched" : (outcome == 2 ? "not needed" : "not switched"));
 }
 
 /* A frontend number is a bit of the answer's mask. */
@@ -2025,6 +2125,9 @@ bool CZapit::ParseCommand(CBasicMessage::Header &rmsg, int connfd)
 		break;
 	case CZapitMessages::CMD_STREAM_YIELD:
 		YieldStreams(connfd);
+		break;
+	case CZapitMessages::CMD_STREAM_SWITCH:
+		SwitchForStream(connfd);
 		break;
 
 	case CZapitMessages::CMD_ZAPTO_SERVICEID_NOWAIT:

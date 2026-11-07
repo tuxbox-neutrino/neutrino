@@ -358,6 +358,30 @@ Result<std::string> playlist(const std::string &authority, Scope s)
 	return finish(f, path, written);
 }
 
+namespace
+{
+
+/* Whether the GUI asks for the parental PIN before it shows the channel, by
+   the rule its channel list zaps by: the prompt is on (0 is never) and the
+   channel's lock differs from the default. Unreadable counts as asked. */
+bool pinFirst(const ChannelInfo &channel)
+{
+	Result<std::string> prompt = settings::get("parentallock_prompt");
+	Result<std::string> default_locked = settings::get("parentallock_defaultlocked");
+	if (!prompt.ok() || !default_locked.ok())
+		return true;
+	return prompt.value() != "0" && channel.locked != (default_locked.value() != "0");
+}
+
+// The same for the channel the picture shows; one that cannot be read counts as asked.
+bool shownPinFirst()
+{
+	ChannelInfo shown;
+	return channelSource().currentChannel(shown) != Status::Ok || pinFirst(shown);
+}
+
+} // namespace
+
 Result<StreamTuner> tunerFor(ChannelId id)
 {
 	ChannelInfo channel;
@@ -385,10 +409,32 @@ Result<StreamTuner> tunerFor(ChannelId id)
 	if (channelSource().streamRecorded(id, recorded) == Status::Ok && recorded)
 		return ok(StreamTuner::NoneFree);
 
+	/* A switch of the picture is weighed only where the stream server would
+	   ask the GUI for one: live television or radio of the channel's own kind,
+	   no PIN to ask for the channel or the one the picture shows, and nothing
+	   recording. A picture the GUI holds back for the PIN only the GUI sees. */
+	bool ask_switch = false;
+	int mode = 0;
+	if (channelSource().currentMode(mode) == Status::Ok &&
+	    ((mode == NeutrinoModes::mode_tv && channel.kind == ServiceKind::Tv) ||
+	     (mode == NeutrinoModes::mode_radio && channel.kind == ServiceKind::Radio)) &&
+	    !pinFirst(channel) && !shownPinFirst() && recordingSourceInstalled())
+	{
+		// The source's own list: what records, without asking any file for its size.
+		RecordingList running;
+		ask_switch = recordingSource().list(running) == Status::Ok && running.empty();
+	}
+
 	StreamTuner t = StreamTuner::NoAnswer;
-	s = channelSource().streamTuner(id, t);
+	s = channelSource().streamTuner(id, ask_switch, t);
 	if (s != Status::Ok)
 		return ok(StreamTuner::NoAnswer);
+	if (t == StreamTuner::NoneFreeUnlessSwitched)
+	{
+		Result<std::string> allowed = settings::get("streaming_switch_picture");
+		if (allowed.ok() && allowed.value() == "1")
+			return ok(StreamTuner::FreeBySwitch);
+	}
 	return ok(t);
 }
 

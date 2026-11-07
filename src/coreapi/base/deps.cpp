@@ -205,6 +205,8 @@ RecordingSource &recordingSource()
 
 void setRecordingSource(RecordingSource *s) { g_recording_source = s; }
 
+bool recordingSourceInstalled() { return g_recording_source != 0; }
+
 namespace
 {
 /* What a read reaches while no store is installed. It refuses rather than

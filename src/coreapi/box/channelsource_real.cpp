@@ -362,17 +362,17 @@ class RealChannelSource : public ChannelSource
 		   call's own, because the one the program shares is gone while it
 		   restarts, and for two seconds at most: what did not answer by
 		   then counts as no answer. */
-		Status streamTuner(ChannelId id, StreamTuner &out) const
+		Status streamTuner(ChannelId id, bool ask_switch, StreamTuner &out) const
 		{
 			CZapitClient zapit;
 			CBasicClient::Deadline until(2000);
 			CZapitClient::responseStreamHold reply;
-			if (!zapit.probeStream((t_channel_id) id, reply))
+			if (!zapit.probeStream((t_channel_id) id, reply, ask_switch))
 				out = StreamTuner::NoAnswer;
 			else if (reply.verdict == 0)
 				out = StreamTuner::Free;
 			else if (reply.verdict == 1)
-				out = StreamTuner::NoneFree;
+				out = reply.switch_frees ? StreamTuner::NoneFreeUnlessSwitched : StreamTuner::NoneFree;
 			else
 				out = StreamTuner::NoAnswer;
 			return Status::Ok;

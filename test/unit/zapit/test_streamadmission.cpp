@@ -640,6 +640,12 @@ struct PipModel : public streamholdcmd::Ops
 		}
 		return 0;
 	}
+	int zapFrontend(std::vector<void *> &keep, bool &turns_dish)
+	{
+		keep.clear();
+		turns_dish = false;
+		return -1;
+	}
 	int number(void *p) { return *static_cast<int *>(p); }
 	bool tune(void *) { return true; }
 	bool readPids(void *) { return true; }
@@ -889,4 +895,89 @@ TEST_CASE("StopPip: no order of the two lets an admission bind under the PiP", "
 		stop.join();
 		REQUIRE(box.bound_demux1_under_pip == 0);
 	}
+}
+
+TEST_CASE("the picture may be switched for a stream only while live television runs and nothing is under way", "[zapit][streamadmission][switch]")
+{
+	const Facts f = sharingOn(0, kOtherTp);
+	REQUIRE(switchable(f));
+
+	Facts s = f;
+	s.standby = true;
+	REQUIRE_FALSE(switchable(s));
+	s = f;
+	s.box_standby = true;
+	REQUIRE_FALSE(switchable(s));
+	s = f;
+	s.recording_starting = true;
+	REQUIRE_FALSE(switchable(s));
+	s = f;
+	s.scanning = true;
+	REQUIRE_FALSE(switchable(s));
+	s = f;
+	s.variant = QuadPip;
+	REQUIRE_FALSE(switchable(s));
+	s = f;
+	s.live_dvb = false;   // a web channel, or none
+	REQUIRE_FALSE(switchable(s));
+	s = f;
+	s.live_tuned = false;
+	REQUIRE_FALSE(switchable(s));
+	s = f;
+	s.variant = Cst;
+	REQUIRE(switchable(s));
+	s.slot[0].active = true;
+	s.slot[0].channel = kPip;
+	s.slot[0].fe = 1;
+	REQUIRE_FALSE(switchable(s));
+}
+
+TEST_CASE("after a switch a stream of the channel runs from the frontend the zap takes, if its demux is free", "[zapit][streamadmission][switch]")
+{
+	const Facts f = sharingOn(0, kOtherTp);
+	REQUIRE(afterSwitch(f, kOther, 0) == Live);
+	REQUIRE(afterSwitch(f, kOther, 1) == Live);
+	REQUIRE(afterSwitch(f, kOther, -1) == Refuse);
+
+	// PiP slot 1 reads demux 2 from frontend 2: the picture moved to frontend 1
+	// would have the stream read that demux.
+	Facts p = f;
+	p.slots = 2;
+	p.slot[1].active = true;
+	p.slot[1].channel = kPip;
+	p.slot[1].fe = 2;
+	REQUIRE(afterSwitch(p, kOther, 1) == Refuse);
+	REQUIRE(afterSwitch(p, kOther, 0) == Live);
+
+	// The AV-input PiP reads demux 1, the stream demux of frontend 0.
+	Facts av = f;
+	av.avinput_pip = true;
+	REQUIRE(afterSwitch(av, kOther, 0) == Refuse);
+	REQUIRE(afterSwitch(av, kOther, 1) == Live);
+
+	// A PiP showing the channel ends with the switch.
+	Facts shown = f;
+	shown.slot[0].active = true;
+	shown.slot[0].channel = kOther;
+	shown.slot[0].fe = 1;
+	REQUIRE(decide(shown, kOther) == Refuse);
+	REQUIRE(afterSwitch(shown, kOther, 0) == Live);
+
+	// The live channel refused only because a PiP shows it too.
+	Facts live = liveOn(0);
+	live.slot[0].active = true;
+	live.slot[0].channel = kLive;
+	live.slot[0].fe = 1;
+	REQUIRE(decide(live, kLive) == Refuse);
+	REQUIRE(afterSwitch(live, kLive, 1) == Live);   // the picture stays where it is
+
+	// With dynamic demux another PiP keeps the live channel's stream off.
+	Facts dyn = f;
+	dyn.variant = DynamicDemux;
+	dyn.slot[0].active = true;
+	dyn.slot[0].channel = kPip;
+	dyn.slot[0].fe = 1;
+	REQUIRE(afterSwitch(dyn, kOther, 0) == Refuse);
+	dyn.slot[0].active = false;
+	REQUIRE(afterSwitch(dyn, kOther, 0) == Live);
 }

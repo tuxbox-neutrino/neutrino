@@ -18,6 +18,8 @@
 
 #include "streamholdcmd.h"
 
+#include <algorithm>
+
 namespace streamholdcmd
 {
 
@@ -30,6 +32,7 @@ Reply refusal(int32_t verdict)
 	r.verdict = verdict;
 	r.hold_id = 0;
 	r.fenumber = -1;
+	r.switch_frees = 0;
 	return r;
 }
 
@@ -46,7 +49,29 @@ bool late(Ops &ops, int64_t deadline_ms)
 
 } // namespace
 
-Reply run(Ops &ops, uint64_t channel, int64_t deadline_ms, bool probe, bool lock_frontend)
+bool switchFrees(Ops &ops, const streamadmission::Facts &f, uint64_t channel, std::vector<void *> *keep)
+{
+	if (!streamadmission::switchable(f))
+		return false;
+	int zap_fe = f.live_fe;
+	if (channel != f.live_channel)
+	{
+		bool turns_dish = false;
+		std::vector<void *> kept;
+		zap_fe = ops.zapFrontend(kept, turns_dish);
+		if (keep)
+			keep->swap(kept);
+		if (zap_fe < 0 || turns_dish)
+			return false;
+		std::vector<int> streams;
+		ops.heldByStreams(streams);
+		if (std::find(streams.begin(), streams.end(), zap_fe) != streams.end())
+			return false;
+	}
+	return streamadmission::afterSwitch(f, channel, zap_fe) == streamadmission::Live;
+}
+
+Reply run(Ops &ops, uint64_t channel, int64_t deadline_ms, bool probe, bool lock_frontend, bool ask_switch)
 {
 	// Holds dropped since the last command are given back before this one
 	// looks at what is free.
@@ -69,6 +94,7 @@ Reply run(Ops &ops, uint64_t channel, int64_t deadline_ms, bool probe, bool lock
 	void *fe = 0;
 	int fenumber = -1;
 	streamadmission::Way way;
+	bool frees = false;
 
 	ops.lockFrontends();
 	{
@@ -95,11 +121,17 @@ Reply run(Ops &ops, uint64_t channel, int64_t deadline_ms, bool probe, bool lock
 			if (fe)
 				fenumber = ops.number(fe);
 		}
+		if (ask_switch && (way == streamadmission::Refuse || fenumber < 0))
+			frees = switchFrees(ops, f, channel);
 	}
 	ops.unlockFrontends();
 
 	if (way == streamadmission::Refuse || fenumber < 0)
-		return send(ops, refusal(Busy));
+	{
+		Reply r = refusal(Busy);
+		r.switch_frees = frees ? 1 : 0;
+		return send(ops, r);
+	}
 
 	if (probe)
 	{
@@ -137,6 +169,7 @@ Reply run(Ops &ops, uint64_t channel, int64_t deadline_ms, bool probe, bool lock
 	r.verdict = Granted;
 	r.hold_id = id;
 	r.fenumber = fenumber;
+	r.switch_frees = 0;
 	/* An answer that did not go out leaves a hold nobody knows the number
 	   of: it is ended here rather than left to its expiry. */
 	if (!ops.answer(r))
@@ -145,6 +178,72 @@ Reply run(Ops &ops, uint64_t channel, int64_t deadline_ms, bool probe, bool lock
 		ops.collect();
 	}
 	return r;
+}
+
+int32_t runSwitch(SwitchOps &ops, uint64_t channel)
+{
+	ops.collect();
+	if (!ops.serving() || ops.channel(channel) != Broadcast || !ops.roomForHold())
+	{
+		ops.answerSwitch(0);
+		return 0;
+	}
+
+	bool grantable = false;
+	bool frees = false;
+	bool zap = false;
+	uint64_t shown = 0;
+	std::vector<void *> keep;
+	ops.lockFrontends();
+	{
+		streamadmission::Facts f;
+		ops.facts(f);
+		/* A frontend that came free since the hold was refused, a PiP that
+		   ended or a stream that stopped, serves the stream as things are. */
+		const streamadmission::Way way = streamadmission::decide(f, channel);
+		if (way == streamadmission::Live || way == streamadmission::Shared)
+			grantable = f.live_fe >= 0;
+		else if (way == streamadmission::Idle)
+		{
+			std::vector<int> held;
+			streamadmission::held(f, held);
+			ops.heldByStreams(held);
+			grantable = ops.pickIdle(held, false, false) != 0;
+		}
+		if (!grantable)
+		{
+			frees = switchFrees(ops, f, channel, &keep);
+			zap = channel != f.live_channel;
+			shown = f.live_channel;
+		}
+	}
+	ops.unlockFrontends();
+
+	if (grantable)
+	{
+		ops.answerSwitch(2);
+		return 2;
+	}
+
+	/* The zap keeps the set the prediction kept, the frontends of the PiPs
+	   showing the channel included, so it takes the frontend that was
+	   predicted; those PiPs stop once it has zapped. A zap that fails, a
+	   transponder that does not tune or a service missing from the PAT, has
+	   taken the picture off the channel shown before: it zaps back to that
+	   one with the same set kept, and no PiP stops. */
+	int32_t switched = 0;
+	if (frees)
+	{
+		if (!zap || ops.zapKept(channel, keep))
+		{
+			ops.stopPipsShowing(channel);
+			switched = 1;
+		}
+		else if (shown != 0)
+			ops.zapKept(shown, keep);
+	}
+	ops.answerSwitch(switched);
+	return switched;
 }
 
 } // namespace streamholdcmd

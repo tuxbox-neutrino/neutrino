@@ -106,6 +106,8 @@ struct FakeChannelSource : public coreapi::ChannelSource
 	// channel asked about.
 	coreapi::StreamTuner stream_tuner;
 	mutable std::vector<coreapi::ChannelId> tuner_asked;
+	// Whether each of those asked about a switch of the picture as well.
+	mutable std::vector<bool> tuner_asked_switch;
 
 	// No channel carried by the stream server by default; carried_asked keeps
 	// each channel asked about.
@@ -282,10 +284,14 @@ struct FakeChannelSource : public coreapi::ChannelSource
 		return coreapi::Status::Ok;
 	}
 
-	coreapi::Status streamTuner(coreapi::ChannelId id, coreapi::StreamTuner &out) const
+	coreapi::Status streamTuner(coreapi::ChannelId id, bool ask_switch, coreapi::StreamTuner &out) const
 	{
 		tuner_asked.push_back(id);
+		tuner_asked_switch.push_back(ask_switch);
 		out = stream_tuner;
+		// Not asked, zapit says nothing of a switch.
+		if (!ask_switch && out == coreapi::StreamTuner::NoneFreeUnlessSwitched)
+			out = coreapi::StreamTuner::NoneFree;
 		return coreapi::Status::Ok;
 	}
 

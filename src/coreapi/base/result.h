@@ -69,7 +69,8 @@ struct Error
 	ErrorCode   code;
 	std::string message;
 	/* For setting-condition-not-met: the settings whose values refused it, so a caller can
-	   name them rather than parse message. Empty for every other code. */
+	   name them rather than parse message; for no-free-tuner, the setting that would let the
+	   stream switch the picture to get one. Empty for every other code. */
 	std::vector<std::string> depends_on;
 
 	Error() : status(Status::Internal), code(ErrorCode::BoxUnreadable) {}

@@ -233,7 +233,7 @@ struct Server : public Ops
 		closeFd(fd);
 	}
 	bool recording(uint64_t) { return recorded; }
-	Hold hold(uint64_t)
+	Hold hold(int, uint64_t, uint64_t)
 	{
 		busy_at_hold = busy();
 		at_hold.pass();
@@ -1271,4 +1271,521 @@ TEST_CASE("a client's socket gets the send buffer asked for", "[driver][streamse
 	}
 	if (wmem_max > 0)
 		REQUIRE(after == 2 * std::min(asked, wmem_max));
+}
+
+namespace
+{
+
+struct LateAnswer
+{
+	SwitchWait *wait;
+	uint32_t    seq;
+	unsigned    after_ms;
+	bool        claim;
+	bool        switched;
+};
+
+void *answerLater(void *arg)
+{
+	LateAnswer *a = static_cast<LateAnswer *>(arg);
+	usleep(a->after_ms * 1000);
+	if (a->claim && a->wait->claim(a->seq))
+	{
+		usleep(a->after_ms * 1000);
+		a->wait->done(a->seq, a->switched ? Switched : NotSwitched);
+	}
+	return 0;
+}
+
+SwitchFacts tvWithNothingElse()
+{
+	SwitchFacts s;
+	s.tv_mode = true;
+	return s;
+}
+
+} // namespace
+
+TEST_CASE("a switch request the GUI claims in time comes back with what the GUI did", "[driver][streamsetup][switch]")
+{
+	SwitchWait w;
+	uint32_t seq = w.begin(kTv);
+	REQUIRE(w.claim(seq));
+	w.done(seq, Switched);
+	REQUIRE(w.wait(seq, 50, 50) == Switched);
+
+	seq = w.begin(kTv);
+	REQUIRE(w.claim(seq));
+	w.done(seq, NotSwitched);
+	REQUIRE(w.wait(seq, 50, 50) == NotSwitched);
+
+	// A frontend came free meanwhile: nothing was switched, and the setup asks again.
+	seq = w.begin(kTv);
+	REQUIRE(w.claim(seq));
+	w.done(seq, NotNeeded);
+	REQUIRE(w.wait(seq, 50, 50) == NotNeeded);
+
+	// Answered from another thread while the setup waits.
+	seq = w.begin(kTv);
+	LateAnswer a = { &w, seq, 20, true, true };
+	pthread_t t;
+	REQUIRE(pthread_create(&t, 0, answerLater, &a) == 0);
+	REQUIRE(w.wait(seq, 2000, 2000) == Switched);
+	pthread_join(t, 0);
+}
+
+TEST_CASE("a switch request nobody claims in time is cancelled and never carried out", "[driver][streamsetup][switch]")
+{
+	SwitchWait w;
+	const uint32_t seq = w.begin(kTv);
+	REQUIRE(w.wait(seq, 30, 1000) == NotSwitched);
+	// The GUI reaching it late finds nothing to do.
+	REQUIRE_FALSE(w.claim(seq));
+	w.done(seq, Switched);
+
+	// A later request is its own, and an answer to the old one is no answer to it.
+	const uint32_t next = w.begin(kTv);
+	REQUIRE(next != seq);
+	REQUIRE_FALSE(w.claim(seq));
+	w.done(seq, Switched);
+	REQUIRE(w.claim(next));
+	w.done(next, Switched);
+	REQUIRE(w.wait(next, 50, 50) == Switched);
+}
+
+TEST_CASE("a claimed switch that does not finish in time is no switch for the setup", "[driver][streamsetup][switch]")
+{
+	SwitchWait w;
+	const uint32_t seq = w.begin(kTv);
+	REQUIRE(w.claim(seq));
+	REQUIRE(w.wait(seq, 50, 30) == NotSwitched);
+	REQUIRE_FALSE(w.claim(seq));
+}
+
+TEST_CASE("stopping the server ends a wait and leaves nothing to claim", "[driver][streamsetup][switch]")
+{
+	SwitchWait w;
+	const uint32_t seq = w.begin(kTv);
+	struct Stopper
+	{
+		static void *run(void *arg)
+		{
+			usleep(20 * 1000);
+			static_cast<SwitchWait *>(arg)->cancelAll();
+			return 0;
+		}
+	};
+	pthread_t t;
+	REQUIRE(pthread_create(&t, 0, Stopper::run, &w) == 0);
+	REQUIRE(w.wait(seq, 5000, 5000) == NotSwitched);
+	pthread_join(t, 0);
+	REQUIRE_FALSE(w.claim(seq));
+}
+
+TEST_CASE("a switch is asked only for a setup that may still publish, and a stop that takes it back cancels it", "[driver][streamsetup][switch]")
+{
+	OpenThreads::Mutex m;
+	std::atomic<bool> running(true);
+	StartGate gate(m, running);
+	SwitchWait w;
+	uint64_t since = 0;
+	REQUIRE(gate.enter(since));
+
+	// A PiP of the channel takes its setup back after the request began.
+	uint32_t seq = 0;
+	{
+		OpenThreads::ScopedLock<OpenThreads::Mutex> l(m);
+		REQUIRE(beginSwitchLocked(gate, w, since, kTv, seq));
+		gate.cancelChannelLocked(kTv);
+		w.cancelFor(kTv);
+	}
+	REQUIRE_FALSE(w.claim(seq));
+	REQUIRE(w.wait(seq, 30, 30) == NotSwitched);
+
+	// Taken back before the request: no request at all.
+	{
+		OpenThreads::ScopedLock<OpenThreads::Mutex> l(m);
+		REQUIRE_FALSE(beginSwitchLocked(gate, w, since, kTv, seq));
+	}
+
+	// A stop of another channel leaves a request alone.
+	uint64_t later = 0;
+	REQUIRE(gate.enter(later));
+	{
+		OpenThreads::ScopedLock<OpenThreads::Mutex> l(m);
+		REQUIRE(beginSwitchLocked(gate, w, later, kTv, seq));
+		w.cancelFor(kTv + 1);
+	}
+	REQUIRE(w.claim(seq));
+	w.done(seq, Switched);
+	REQUIRE(w.wait(seq, 30, 30) == Switched);
+
+	// A stop of the streams on a frontend cancels what is pending.
+	{
+		OpenThreads::ScopedLock<OpenThreads::Mutex> l(m);
+		REQUIRE(beginSwitchLocked(gate, w, later, kTv, seq));
+		gate.cancelFrontendLocked(0);
+		w.cancelPending();
+	}
+	REQUIRE_FALSE(w.claim(seq));
+	REQUIRE(w.wait(seq, 30, 30) == NotSwitched);
+
+	// ... and one before the request keeps that setup from asking at all.
+	{
+		OpenThreads::ScopedLock<OpenThreads::Mutex> l(m);
+		REQUIRE_FALSE(beginSwitchLocked(gate, w, later, kTv, seq));
+	}
+
+	// A claimed request runs to its end whatever stops after it.
+	uint64_t last = 0;
+	REQUIRE(gate.enter(last));
+	{
+		OpenThreads::ScopedLock<OpenThreads::Mutex> l(m);
+		REQUIRE(beginSwitchLocked(gate, w, last, kTv, seq));
+	}
+	REQUIRE(w.claim(seq));
+	w.cancelFor(kTv);
+	w.cancelPending();
+	w.done(seq, Switched);
+	REQUIRE(w.wait(seq, 30, 30) == Switched);
+
+	{
+		OpenThreads::ScopedLock<OpenThreads::Mutex> l(m);
+		gate.leaveLocked();
+		gate.leaveLocked();
+		gate.leaveLocked();
+	}
+}
+
+TEST_CASE("the picture is switched for a stream only from live television of the channel's own kind, with nothing pending or recording", "[driver][streamsetup][switch]")
+{
+	SwitchFacts s = tvWithNothingElse();
+	REQUIRE(switchEligible(s));
+
+	s.radio_channel = true;   // a radio channel while the box shows television
+	REQUIRE_FALSE(switchEligible(s));
+	s.tv_mode = false;
+	s.radio_mode = true;
+	REQUIRE(switchEligible(s));
+	s.radio_channel = false;
+	REQUIRE_FALSE(switchEligible(s));
+
+	// Neither: standby, the movie player, a web channel.
+	s = tvWithNothingElse();
+	s.tv_mode = false;
+	REQUIRE_FALSE(switchEligible(s));
+
+	s = tvWithNothingElse();
+	s.zap_pending = true;
+	REQUIRE_FALSE(switchEligible(s));
+
+	s = tvWithNothingElse();
+	s.recording = true;
+	REQUIRE_FALSE(switchEligible(s));
+
+	// A channel the GUI would ask the PIN for is never put on the screen by a stream.
+	s = tvWithNothingElse();
+	s.pin_needed = true;
+	REQUIRE_FALSE(switchEligible(s));
+
+	// Nor is the picture switched away from one: a failed zap would come back to the PIN.
+	s = tvWithNothingElse();
+	s.shown_pin_needed = true;
+	REQUIRE_FALSE(switchEligible(s));
+
+	// A picture held back for the PIN would stay dark on the stream's channel.
+	s = tvWithNothingElse();
+	s.picture_held = true;
+	REQUIRE_FALSE(switchEligible(s));
+	s.tv_mode = false;
+	s.radio_mode = true;
+	s.radio_channel = true;
+	REQUIRE_FALSE(switchEligible(s));
+}
+
+TEST_CASE("the PIN is asked for by the channel list's rule", "[driver][streamsetup][switch]")
+{
+	// The prompt off: never.
+	REQUIRE_FALSE(pinNeeded(true, true, false));
+	REQUIRE_FALSE(pinNeeded(true, false, true));
+	// On: where the channel's lock differs from the default.
+	REQUIRE(pinNeeded(false, true, false));
+	REQUIRE(pinNeeded(false, false, true));
+	REQUIRE_FALSE(pinNeeded(false, true, true));
+	REQUIRE_FALSE(pinNeeded(false, false, false));
+}
+
+TEST_CASE("a client that hung up is told apart from one that sends more or waits", "[driver][streamsetup][switch]")
+{
+	int sv[2];
+	REQUIRE(socketpair(AF_UNIX, SOCK_STREAM, 0, sv) == 0);
+	REQUIRE_FALSE(peerGone(sv[0]));
+	REQUIRE(write(sv[1], "x", 1) == 1);
+	REQUIRE_FALSE(peerGone(sv[0]));
+	close(sv[1]);
+	REQUIRE(peerGone(sv[0]));
+	close(sv[0]);
+
+	// A peer that ends its side only, which is all a TCP client's close shows here.
+	REQUIRE(socketpair(AF_UNIX, SOCK_STREAM, 0, sv) == 0);
+	REQUIRE(shutdown(sv[1], SHUT_WR) == 0);
+	REQUIRE(peerGone(sv[0]));
+	close(sv[1]);
+	close(sv[0]);
+}
+
+TEST_CASE("an outcome for a switch request nobody claimed is no answer to it", "[driver][streamsetup][switch]")
+{
+	SwitchWait w;
+	const uint32_t seq = w.begin(kTv);
+	w.done(seq, Switched);
+	REQUIRE(w.wait(seq, 30, 30) == NotSwitched);
+}
+
+namespace
+{
+
+/* zapit, the GUI and the client as a hold with a switch sees them: answers
+   in order, and a log of what was done. */
+struct HoldModel : public HoldOps
+{
+	std::vector<Answer> answers;   // one per ask, the last repeats
+	size_t asked;
+	std::vector<bool> asked_switch;
+	bool is_eligible, setting, gone_before, gone_after_switch;
+	int gone_after_checks;         // gone from the check after this many, when not negative
+	int checks;
+	int outcome;
+	int requests, locks, unlocks, pauses;
+	bool locked_at_request;
+	int64_t clock;
+	int lock_depth;
+
+	HoldModel()
+		: asked(0), is_eligible(true), setting(true), gone_before(false), gone_after_switch(false),
+		  gone_after_checks(-1), checks(0),
+		  outcome(Switched), requests(0), locks(0), unlocks(0), pauses(0), locked_at_request(false),
+		  clock(1000), lock_depth(0)
+	{
+	}
+	static Answer busy(bool frees)
+	{
+		Answer a;
+		a.verdict = 1;
+		a.switch_frees = frees;
+		return a;
+	}
+	static Answer granted()
+	{
+		Answer a;
+		a.verdict = 0;
+		a.hold_id = 7;
+		a.fenumber = 0;
+		return a;
+	}
+	int64_t nowMs() { return clock; }
+	bool eligible() { return is_eligible; }
+	bool settingOn() { return setting; }
+	bool ask(int64_t, bool ask_switch, Answer &a)
+	{
+		asked_switch.push_back(ask_switch);
+		a = answers[std::min(asked, answers.size() - 1)];
+		asked++;
+		return true;
+	}
+	bool clientGone()
+	{
+		if (gone_after_checks >= 0 && checks++ >= gone_after_checks)
+			return true;
+		return requests > 0 ? gone_after_switch : gone_before;
+	}
+	void lockSwitch() { locks++; lock_depth++; }
+	void unlockSwitch() { unlocks++; lock_depth--; }
+	int requestSwitch()
+	{
+		requests++;
+		locked_at_request = lock_depth > 0;
+		return outcome;
+	}
+	void pause(unsigned) { pauses++; clock += 250; }
+};
+
+} // namespace
+
+TEST_CASE("a hold granted at once asks for no switch", "[driver][streamsetup][switch]")
+{
+	HoldModel m;
+	m.answers.push_back(HoldModel::granted());
+	const Ops::Hold h = holdWithSwitch(m, 10000, 4, 250);
+	REQUIRE(h.id == 7);
+	REQUIRE(m.requests == 0);
+	REQUIRE(m.locks == 0);
+	REQUIRE(m.asked_switch.size() == 1);
+	REQUIRE(m.asked_switch[0]);
+}
+
+TEST_CASE("a hold a switch would serve switches the picture under the lock and asks again", "[driver][streamsetup][switch]")
+{
+	HoldModel m;
+	m.answers.push_back(HoldModel::busy(true));
+	m.answers.push_back(HoldModel::busy(true));
+	m.answers.push_back(HoldModel::granted());
+	const Ops::Hold h = holdWithSwitch(m, 10000, 4, 250);
+	REQUIRE(h.id == 7);
+	REQUIRE(m.requests == 1);
+	REQUIRE(m.locked_at_request);
+	REQUIRE(m.locks == 1);
+	REQUIRE(m.unlocks == 1);
+	REQUIRE(m.asked == 3);
+	// The prediction is asked for twice, the hold after the switch without it.
+	REQUIRE(m.asked_switch[0]);
+	REQUIRE(m.asked_switch[1]);
+	REQUIRE_FALSE(m.asked_switch[2]);
+
+	// No room yet after the switch: asked again a few times, then given up.
+	HoldModel slow;
+	slow.answers.push_back(HoldModel::busy(true));
+	slow.answers.push_back(HoldModel::busy(true));
+	slow.answers.push_back(HoldModel::busy(false));
+	REQUIRE(holdWithSwitch(slow, 10000, 4, 250).id == 0);
+	REQUIRE(slow.asked == 2 + 4);
+	REQUIRE(slow.pauses == 4);
+	REQUIRE(slow.unlocks == 1);
+
+	// A frontend came free meanwhile: nothing switched, the hold is asked again.
+	HoldModel free_now;
+	free_now.outcome = NotNeeded;
+	free_now.answers.push_back(HoldModel::busy(true));
+	free_now.answers.push_back(HoldModel::busy(true));
+	free_now.answers.push_back(HoldModel::granted());
+	REQUIRE(holdWithSwitch(free_now, 10000, 4, 250).id == 7);
+}
+
+TEST_CASE("no switch is asked with the setting off, where no switch would help, or where the box rules it out", "[driver][streamsetup][switch]")
+{
+	HoldModel off;
+	off.setting = false;
+	off.answers.push_back(HoldModel::busy(true));
+	REQUIRE(holdWithSwitch(off, 10000, 4, 250).id == 0);
+	REQUIRE(off.requests == 0);
+	REQUIRE(off.locks == 0);
+
+	HoldModel useless;
+	useless.answers.push_back(HoldModel::busy(false));
+	REQUIRE(holdWithSwitch(useless, 10000, 4, 250).id == 0);
+	REQUIRE(useless.requests == 0);
+
+	// Not eligible: zapit is not even asked about a switch.
+	HoldModel ruled_out;
+	ruled_out.is_eligible = false;
+	ruled_out.answers.push_back(HoldModel::busy(false));
+	REQUIRE(holdWithSwitch(ruled_out, 10000, 4, 250).id == 0);
+	REQUIRE_FALSE(ruled_out.asked_switch[0]);
+	REQUIRE(ruled_out.requests == 0);
+
+	// Another stream took the picture's frontend while this one waited for the lock.
+	HoldModel taken;
+	taken.answers.push_back(HoldModel::busy(true));
+	taken.answers.push_back(HoldModel::busy(false));
+	REQUIRE(holdWithSwitch(taken, 10000, 4, 250).id == 0);
+	REQUIRE(taken.requests == 0);
+	REQUIRE(taken.unlocks == 1);
+
+	// The GUI did not switch.
+	HoldModel refused;
+	refused.outcome = NotSwitched;
+	refused.answers.push_back(HoldModel::busy(true));
+	REQUIRE(holdWithSwitch(refused, 10000, 4, 250).id == 0);
+	REQUIRE(refused.asked == 2);
+}
+
+TEST_CASE("the picture is not switched for a client that has hung up, nor a hold taken for it after", "[driver][streamsetup][switch]")
+{
+	HoldModel gone;
+	gone.gone_before = true;
+	gone.answers.push_back(HoldModel::busy(true));
+	REQUIRE(holdWithSwitch(gone, 10000, 4, 250).id == 0);
+	REQUIRE(gone.requests == 0);
+	REQUIRE(gone.asked == 1);
+
+	HoldModel left;
+	left.gone_after_switch = true;
+	left.answers.push_back(HoldModel::busy(true));
+	left.answers.push_back(HoldModel::busy(true));
+	left.answers.push_back(HoldModel::granted());
+	REQUIRE(holdWithSwitch(left, 10000, 4, 250).id == 0);
+	REQUIRE(left.requests == 1);
+	REQUIRE(left.asked == 2);
+	REQUIRE(left.unlocks == 1);
+
+	// Gone while the setup waited for the switch lock: asked again, not switched.
+	HoldModel waited;
+	waited.gone_after_checks = 1;
+	waited.answers.push_back(HoldModel::busy(true));
+	REQUIRE(holdWithSwitch(waited, 10000, 4, 250).id == 0);
+	REQUIRE(waited.locks == 1);
+	REQUIRE(waited.asked == 2);
+	REQUIRE(waited.requests == 0);
+	REQUIRE(waited.unlocks == 1);
+}
+
+namespace
+{
+
+// The GUI's switch, counted: what serveSwitch carries out.
+struct CountedPicture : public SwitchPicture
+{
+	int calls;
+	uint64_t asked;
+	int outcome;
+
+	CountedPicture() : calls(0), asked(0), outcome(Switched)
+	{
+	}
+	int switchPicture(uint64_t channel)
+	{
+		++calls;
+		asked = channel;
+		return outcome;
+	}
+};
+
+} // namespace
+
+TEST_CASE("the GUI switches the picture only for a request the setup still waits for", "[driver][streamsetup][switch]")
+{
+	SwitchWait w;
+	CountedPicture picture;
+
+	// Pending: carried out once, and the setup hears what it did.
+	uint32_t seq = w.begin(kTv);
+	REQUIRE(serveSwitch(w, seq, kTv, picture));
+	REQUIRE(picture.calls == 1);
+	REQUIRE(picture.asked == kTv);
+	REQUIRE(w.wait(seq, 50, 50) == Switched);
+	picture.outcome = NotNeeded;
+	seq = w.begin(kTv);
+	REQUIRE(serveSwitch(w, seq, kTv, picture));
+	REQUIRE(w.wait(seq, 50, 50) == NotNeeded);
+	REQUIRE(picture.calls == 2);
+	// Served once: a second message for it finds nothing to do.
+	REQUIRE_FALSE(serveSwitch(w, seq, kTv, picture));
+	REQUIRE(picture.calls == 2);
+
+	// Nobody claimed it in time: the setup gave up, and the picture stays.
+	seq = w.begin(kTv);
+	REQUIRE(w.wait(seq, 20, 50) == NotSwitched);
+	REQUIRE_FALSE(serveSwitch(w, seq, kTv, picture));
+	// The stream of its channel was stopped meanwhile.
+	seq = w.begin(kTv);
+	w.cancelFor(kTv);
+	REQUIRE_FALSE(serveSwitch(w, seq, kTv, picture));
+	// A later request came: the old one is no request at all.
+	const uint32_t old = w.begin(kTv);
+	const uint32_t next = w.begin(kTv);
+	REQUIRE_FALSE(serveSwitch(w, old, kTv, picture));
+	REQUIRE(picture.calls == 2);
+	REQUIRE(serveSwitch(w, next, kTv, picture));
+	REQUIRE(picture.calls == 3);
+	REQUIRE(w.wait(next, 50, 50) == NotNeeded);
 }

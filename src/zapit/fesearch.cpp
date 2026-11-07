@@ -407,4 +407,29 @@ StreamsToEnd streamsToEnd(const std::vector<FeView> &fes, const std::vector<Use>
 	return r;
 }
 
+bool raiseKept(const std::vector<int *> &kept)
+{
+	for (size_t i = 0; i < kept.size(); ++i)
+		++*kept[i];
+	return !kept.empty();
+}
+
+bool releaseKept(const std::vector<int *> &kept, const std::vector<const int *> &all)
+{
+	for (size_t i = 0; i < kept.size(); ++i)
+		if (*kept[i] > 0)
+			--*kept[i];
+	for (size_t i = 0; i < all.size(); ++i)
+		if (*all[i] != 0)
+			return true;
+	return false;
+}
+
+bool turnsDish(bool have_rotor, bool fe_usals, bool sat_listed, int motor_position, bool sat_usals)
+{
+	if (have_rotor || fe_usals)
+		return true;
+	return sat_listed && (motor_position != 0 || sat_usals);
+}
+
 } // namespace fesearch

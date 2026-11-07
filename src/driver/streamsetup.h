@@ -53,6 +53,7 @@
 
 #include <atomic>
 #include <map>
+#include <pthread.h>
 #include <stdint.h>
 #include <string>
 
@@ -85,6 +86,9 @@ public:
 	   before this. */
 	void cancelFrontendLocked(int fe);
 	void cancelChannelLocked(uint64_t channel);
+	/* Whether streams on any frontend were taken back since a setup was let in
+	   at since; a setup that has no frontend yet cannot say which it would get. */
+	bool frontendCancelledSinceLocked(uint64_t since) const;
 	int pendingLocked() const;
 
 	OpenThreads::Mutex &mutex() { return m; }
@@ -196,13 +200,14 @@ public:
 
 	virtual bool recording(uint64_t channel) = 0;
 	/* zapit's hold, asked with no lock held: its number, 0 when refused,
-	   and the frontend's number. */
+	   and the frontend's number. since is when the setup was let in, which
+	   a switch of the picture for it is held to. */
 	struct Hold
 	{
 		uint32_t id;
 		int      fenumber;
 	};
-	virtual Hold hold(uint64_t channel) = 0;
+	virtual Hold hold(int fd, uint64_t channel, uint64_t since) = 0;
 	virtual void *adopt(uint32_t id) = 0;
 	virtual void drop(uint32_t id) = 0;
 	// The pids to stream; false when there is nothing to stream.
@@ -242,6 +247,161 @@ Outcome run(int fd, StartGate &gate, Ops &ops);
    carries asked_hold: a frontend the setup had tuned may be the one the
    scan reads from, and no stream start was announced for it. */
 bool idleAfter(const Outcome &o, bool streams_empty, int pending);
+
+/* Switching the picture for a stream that found no frontend, where the
+   setting allows it.
+
+   What the GUI and the setup know of the box for it: the GUI decides on its own
+   thread just before it asks zapit, the setup decides the same without
+   zap_pending before it asks the GUI at all. */
+struct SwitchFacts
+{
+	bool tv_mode;        // the box shows live television from a tuner
+	bool radio_mode;     // or live radio from a tuner
+	bool radio_channel;  // the stream's channel is a radio channel
+	bool zap_pending;    // a zap the GUI sent has not been answered yet
+	bool recording;      // a recording or a timeshift runs, of any channel
+	/* The GUI would ask for the parental PIN before it showed the channel:
+	   the prompt is on and the channel's lock differs from the default. */
+	bool pin_needed;
+	/* The same for the channel the picture shows, or that channel is not
+	   known: a zap back from a failed switch would ask for the PIN again. */
+	bool shown_pin_needed;
+	// The GUI holds the picture back, for a PIN refused or being asked for.
+	bool picture_held;
+
+	SwitchFacts() : tv_mode(false), radio_mode(false), radio_channel(false), zap_pending(false), recording(false),
+			pin_needed(false), shown_pin_needed(false), picture_held(false) {}
+};
+
+/* Whether the GUI asks for the PIN before it shows a channel, by the rule the
+   channel list zaps by: never with the prompt off, else where the channel's
+   lock differs from the default. */
+bool pinNeeded(bool prompt_never, bool channel_locked, bool default_locked);
+
+/* Live television for a television channel or live radio for a radio
+   channel, no zap under way, nothing recording, and no PIN to ask for,
+   neither for the channel nor for the picture it would replace, which
+   plays: a recording of any channel could be starting or need its tuner
+   while the picture moves, an automatic timeshift is left to the GUI's own
+   zap to end, a stream never puts a locked channel on the screen, and a
+   picture held back for the PIN stays dark on the next channel too. */
+bool switchEligible(const SwitchFacts &s);
+
+/* Whether the client on fd has hung up or the descriptor failed, asked
+   without waiting. A client that sends more is not counted as gone. */
+bool peerGone(int fd);
+
+/* A setup's hold where the picture may be switched for it, as the stream
+   manager runs it over zapit, the GUI and the client. */
+class HoldOps
+{
+public:
+	virtual ~HoldOps() {}
+
+	struct Answer
+	{
+		int      verdict;       // zapit's: 0 granted, 1 busy, 2 not found, 3 failed
+		uint32_t hold_id;
+		int      fenumber;
+		bool     switch_frees;
+		Answer() : verdict(3), hold_id(0), fenumber(-1), switch_frees(false) {}
+	};
+	virtual int64_t nowMs() = 0;
+	// The box would let a stream of the channel switch the picture (switchEligible).
+	virtual bool eligible() = 0;
+	virtual bool settingOn() = 0;
+	// zapit's hold until the deadline; false when no answer came.
+	virtual bool ask(int64_t until, bool ask_switch, Answer &a) = 0;
+	virtual bool clientGone() = 0;
+	// One switch at a time.
+	virtual void lockSwitch() = 0;
+	virtual void unlockSwitch() = 0;
+	// Asks the GUI to switch the picture and waits for its answer (SwitchOutcome).
+	virtual int requestSwitch() = 0;
+	virtual void pause(unsigned ms) = 0;
+};
+
+/* The hold; where none is free, a switch would free one, the setting allows
+   it and the client is still there: once more under the switch lock, then
+   the switch, then the hold again, up to holds_after times retry_ms apart.
+   Each stage has budget_ms. Answers the hold, id 0 for a refusal. */
+Ops::Hold holdWithSwitch(HoldOps &ops, unsigned budget_ms, int holds_after, unsigned retry_ms);
+
+/* What the GUI's answer to a switch request says. */
+enum SwitchOutcome
+{
+	NotSwitched = 0,
+	Switched = 1,     // the picture shows the channel
+	NotNeeded = 2     // a frontend is free for the stream as things are
+};
+
+/* Where a setup waits for the GUI to switch the picture, one request at a
+   time. begin numbers a request; the GUI claims it before it acts and says
+   done after. Without a claim in time the setup cancels it, and so does a stop
+   of the streams of its channel or on a frontend; a later claim fails, so a
+   request nobody waits for, or one for a setup that is taken back, is never
+   carried out. A claimed request runs to its end. */
+class SwitchWait
+{
+public:
+	SwitchWait();
+	~SwitchWait();
+
+	uint32_t begin(uint64_t channel);
+	// The GUI: true while seq is still waited for; it is then carried out.
+	bool claim(uint32_t seq);
+	void done(uint32_t seq, int outcome);
+	/* The setup: up to claim_ms for the claim, then up to done_ms for the
+	   outcome; NotSwitched when the time ran out or the request was cancelled. */
+	int wait(uint32_t seq, unsigned claim_ms, unsigned done_ms);
+	// A stop of the streams of channel, or of any setup: what is pending is not claimed.
+	void cancelFor(uint64_t channel);
+	void cancelPending();
+	// As the server stops: every wait ends, and nothing pending is claimed after.
+	void cancelAll();
+
+private:
+	SwitchWait(const SwitchWait &);
+	SwitchWait &operator=(const SwitchWait &);
+
+	enum State
+	{
+		Idle,
+		Pending,
+		Claimed,
+		Done,
+		Cancelled
+	};
+
+	pthread_mutex_t m;
+	pthread_cond_t  changed;
+	uint32_t        seq_;
+	uint64_t        channel_;
+	State           state_;
+	int             outcome_;
+};
+
+/* Under the gate's mutex: begins a switch request for a setup let in at since,
+   only while that setup may still publish its stream of channel and no
+   frontend's streams were taken back since it was let in. A stop that takes
+   the setup back before this is seen here; one after it cancels the request
+   (cancelFor, cancelPending) under the same mutex. */
+bool beginSwitchLocked(const StartGate &gate, SwitchWait &w, uint64_t since, uint64_t channel, uint32_t &seq);
+
+/* What the GUI does for a switch request it claimed: switches the picture
+   to the channel, and answers Switched, NotSwitched or NotNeeded. */
+class SwitchPicture
+{
+public:
+	virtual ~SwitchPicture() {}
+	virtual int switchPicture(uint64_t channel) = 0;
+};
+
+/* The GUI's part of a switch request: the picture is switched only while
+   the setup still waits for seq, and the outcome goes back to it. Whether
+   it was carried out. */
+bool serveSwitch(SwitchWait &wait, uint32_t seq, uint64_t channel, SwitchPicture &picture);
 
 } // namespace streamsetup
 

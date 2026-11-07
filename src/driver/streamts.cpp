@@ -56,6 +56,7 @@
 #include <zapit/zapit.h>
 #include <zapit/pat.h>
 #include <zapit/streamhold.h>
+#include <zapit/client/msgtypes.h>
 #include <driver/streamts.h>
 #include <driver/abstime.h>
 #include <driver/record.h>
@@ -312,6 +313,7 @@ bool CStreamManager::Stop()
 	if (!running)
 		return false;
 	running = false;
+	switch_wait.cancelAll();
 	bool ret = false;
 	if (OpenThreads::Thread::CurrentThread() == this) {
 		cancel();
@@ -487,20 +489,16 @@ class CStreamManager::SetupOps : public streamsetup::Ops
 			return true;
 		}
 
-		Hold hold(uint64_t channel)
+		/* zapit's hold. Where none is free and the setting allows it, the GUI
+		   is asked to switch the picture to the channel, and the hold is then
+		   asked for again: the stream takes the picture's frontend. */
+		Hold hold(int fd, uint64_t channel, uint64_t since)
 		{
-			/* Bounds the exchange; zapit has the same time to tune. */
-			CBasicClient::Deadline until(kHoldBudgetMs);
-			CZapitClient::responseStreamHold reply;
-			Hold h;
-			h.id = 0;
-			h.fenumber = -1;
-			if (!sm.zapit.holdForStream(channel, kHoldBudgetMs, reply) || reply.verdict != 0) {
-				printf("CStreamManager::AddClient: no frontend for %" PRIx64 " (verdict %d)\n", channel, reply.verdict);
-				return h;
-			}
-			h.id = reply.hold_id;
-			h.fenumber = reply.fenumber;
+			HoldSteps steps(sm, fd, channel, since);
+			const Hold h = streamsetup::holdWithSwitch(steps, kHoldBudgetMs, kHoldsAfterSwitch, kHoldRetryMs);
+			if (!h.id)
+				printf("CStreamManager::AddClient: no frontend for %" PRIx64 " (verdict %d%s)\n", channel,
+				       steps.last.verdict, steps.last.switch_frees ? ", the picture is not switched for it" : "");
 			return h;
 		}
 
@@ -554,9 +552,109 @@ class CStreamManager::SetupOps : public streamsetup::Ops
 
 	private:
 		static const unsigned kHoldBudgetMs = 10000;
+		/* After a switch: zapit has run the zap before it reads the next
+		   command, so the first ask is meant to find the picture's frontend. */
+		static const int kHoldsAfterSwitch = 4;
+		static const unsigned kHoldRetryMs = 250;
 		CStreamManager &sm;
 		stream_pids_t pids;
+
+		/* The steps of a hold over zapit, the GUI and the client. */
+		struct HoldSteps : public streamsetup::HoldOps
+		{
+			CStreamManager &sm;
+			int fd;
+			uint64_t channel;
+			uint64_t since;
+			Answer last;
+
+			HoldSteps(CStreamManager &m, int f, uint64_t c, uint64_t s) : sm(m), fd(f), channel(c), since(s) {}
+
+			int64_t nowMs() { return CZapitMessages::streamHoldClockMs(); }
+			bool eligible() { return CStreamManager::SwitchEligible(channel); }
+			bool settingOn() { return g_settings.streaming_switch_picture != 0; }
+			/* Bounds the exchange; zapit has what is left of the time to tune. */
+			bool ask(int64_t until, bool ask_switch, Answer &a)
+			{
+				a = Answer();
+				const int64_t left = until - nowMs();
+				if (left <= 0)
+					return false;
+				CBasicClient::Deadline deadline((unsigned) left);
+				CZapitClient::responseStreamHold reply;
+				const bool got = sm.zapit.holdForStream(channel, (unsigned) left, reply, ask_switch);
+				if (got) {
+					a.verdict = reply.verdict;
+					a.hold_id = reply.hold_id;
+					a.fenumber = reply.fenumber;
+					a.switch_frees = reply.switch_frees != 0;
+				}
+				last = a;
+				return got;
+			}
+			bool clientGone() { return streamsetup::peerGone(fd); }
+			void lockSwitch() { sm.switch_mutex.lock(); }
+			void unlockSwitch() { sm.switch_mutex.unlock(); }
+			int requestSwitch() { return sm.RequestSwitch(channel, since); }
+			void pause(unsigned ms) { usleep(ms * 1000); }
+		};
 };
+
+bool CStreamManager::SwitchEligible(t_channel_id channel_id)
+{
+	CNeutrinoApp *app = CNeutrinoApp::getInstance();
+	streamsetup::SwitchFacts s;
+	const int mode = app->getMode();
+	s.tv_mode = mode == NeutrinoModes::mode_tv;
+	s.radio_mode = mode == NeutrinoModes::mode_radio;
+	{
+		// A reload frees the channels under this lock; nothing else is taken inside it.
+		CServiceManager::ChannelGuard guard;
+		CZapitChannel *channel = CServiceManager::getInstance()->FindChannel(channel_id);
+		if (!channel)
+			return false;
+		s.radio_channel = channel->getServiceType() == ST_DIGITAL_RADIO_SOUND_SERVICE;
+		s.pin_needed = streamsetup::pinNeeded(g_settings.parentallock_prompt == PARENTALLOCK_PROMPT_NEVER,
+						      channel->Locked(), g_settings.parentallock_defaultlocked != 0);
+		// The picture zapit shows; whether the GUI holds it back is the GUI's to say.
+		CZapitChannel *shown =
+			CServiceManager::getInstance()->FindChannel(CZapit::getInstance()->GetCurrentChannelID());
+		s.shown_pin_needed = !shown ||
+				     streamsetup::pinNeeded(g_settings.parentallock_prompt == PARENTALLOCK_PROMPT_NEVER,
+							    shown->Locked(), g_settings.parentallock_defaultlocked != 0);
+	}
+	s.recording = app->recordingstatus != 0 || CRecordManager::getInstance()->RecordingStatus();
+	return streamsetup::switchEligible(s);
+}
+
+static const unsigned kSwitchClaimMs = 3000;
+static const unsigned kSwitchDoneMs = 70000;
+
+int CStreamManager::RequestSwitch(t_channel_id channel_id, uint64_t since)
+{
+	uint32_t seq = 0;
+	{
+		// Against a stop that takes the setup back: before this it is seen, after it it cancels.
+		OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
+		if (!streamsetup::beginSwitchLocked(gate, switch_wait, since, channel_id, seq))
+			return streamsetup::NotSwitched;
+	}
+	SwitchAsk ask;
+	ask.channel_id = channel_id;
+	ask.seq = seq;
+	unsigned char *data = new unsigned char[sizeof(ask)];
+	memcpy(data, &ask, sizeof(ask));
+	// A message the queue does not take is freed by it.
+	if (!g_RCInput->postMsg(NeutrinoMessages::EVT_STREAM_SWITCH, (neutrino_msg_data_t) data, false)) {
+		switch_wait.cancelFor(channel_id);
+		return streamsetup::NotSwitched;
+	}
+	/* Claimed within 3 s or never; once claimed, the GUI waits for zapit's zap,
+	   which turns no dish and so takes seconds, and its client gives up after 60. */
+	const int outcome = switch_wait.wait(seq, kSwitchClaimMs, kSwitchDoneMs);
+	printf("CStreamManager::RequestSwitch: %" PRIx64 " outcome %d\n", channel_id, outcome);
+	return outcome;
+}
 
 streamsetup::Outcome CStreamManager::AddClient(int connfd)
 {
@@ -705,6 +803,7 @@ bool CStreamManager::StopStream(t_channel_id channel_id)
 	{
 		OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
 		gate.cancelChannelLocked(channel_id);
+		switch_wait.cancelFor(channel_id);
 		streammap_iterator_t it = streams.find(channel_id);
 		if (it != streams.end()) {
 			stream_to_stop = it->second;
@@ -726,6 +825,7 @@ bool CStreamManager::StopStream(CFrontend * fe)
 		OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
 		if (fe)
 			gate.cancelFrontendLocked(fe->getNumber());
+		switch_wait.cancelPending();
 		for (streammap_iterator_t it = streams.begin(); it != streams.end(); ) {
 			if (it->second->frontend == fe) {
 				to_stop.push_back(it->second);
@@ -752,6 +852,7 @@ bool CStreamManager::StopStreamsOn(uint32_t fe_mask)
 		for (int n = 0; n < 32; n++)
 			if (fe_mask & (1u << n))
 				gate.cancelFrontendLocked(n);
+		switch_wait.cancelPending();
 		for (streammap_iterator_t it = streams.begin(); it != streams.end(); ) {
 			CFrontend *fe = it->second->frontend;
 			const int n = fe ? fe->getNumber() : -1;

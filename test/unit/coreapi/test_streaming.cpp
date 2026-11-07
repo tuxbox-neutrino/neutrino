@@ -40,6 +40,7 @@
 #include "coreapi/base/errors.h"
 #include "coreapi/base/result.h"
 #include "coreapi/epg.h"
+#include "coreapi/settings/settings.h"
 #include "coreapi/streaming.h"
 #include "coreapi/base/types.h"
 
@@ -184,6 +185,9 @@ struct Fixture
 	Fixture() : in_settings(&settings)
 	{
 		settings.ints["streaming_port"] = 31339;
+		/* Off, so a case that switches the picture says so; what a box with
+		   no line for it does is a case of its own. */
+		settings.ints["streaming_switch_picture"] = 0;
 
 		coreapi::BouquetInfo shown;
 		shown.id = 1;
@@ -229,6 +233,9 @@ struct Fixture
 		   the same. */
 		deps.channels.channels.push_back(
 			makeChannel(kOdd, "A/B \"C\" \xc3\xb6\r\nX: y", coreapi::ServiceKind::Tv));
+		// The picture shows Second, which needs no PIN: a switch away from it may be weighed.
+		deps.channels.current = deps.channels.channels[1];
+		deps.channels.current_status = coreapi::Status::Ok;
 	}
 
 	private:
@@ -1434,4 +1441,173 @@ TEST_CASE("a browser stream with no tuner free beside the picture is refused bef
 	}
 	CHECK(box.fx.deps.channels.tuner_asked.empty());
 	CHECK(carry::running() == 0u);
+}
+
+// ================================================================ switching the picture
+
+TEST_CASE("a switch of the picture is weighed only for live television of the channel's kind with nothing recording",
+          "[streaming][tuner][switch]")
+{
+	Fixture fx;
+	fx.deps.channels.stream_tuner = coreapi::StreamTuner::NoneFreeUnlessSwitched;
+
+	// Mode left at nothing the box reports: not asked, and no switch offered.
+	REQUIRE(coreapi::streaming::tunerFor(0x1001).value() == coreapi::StreamTuner::NoneFree);
+	REQUIRE(fx.deps.channels.tuner_asked_switch.back() == false);
+
+	fx.deps.channels.mode = NeutrinoModes::mode_tv;
+	REQUIRE(coreapi::streaming::tunerFor(0x1001).value() == coreapi::StreamTuner::NoneFreeUnlessSwitched);
+	REQUIRE(fx.deps.channels.tuner_asked_switch.back() == true);
+	// A radio channel while the box shows television.
+	REQUIRE(coreapi::streaming::tunerFor(0x2001).value() == coreapi::StreamTuner::NoneFree);
+	REQUIRE(fx.deps.channels.tuner_asked_switch.back() == false);
+
+	fx.deps.channels.mode = NeutrinoModes::mode_radio;
+	REQUIRE(coreapi::streaming::tunerFor(0x2001).value() == coreapi::StreamTuner::NoneFreeUnlessSwitched);
+	REQUIRE(coreapi::streaming::tunerFor(0x1001).value() == coreapi::StreamTuner::NoneFree);
+
+	// The movie player, standby: neither.
+	fx.deps.channels.mode = NeutrinoModes::mode_ts;
+	REQUIRE(coreapi::streaming::tunerFor(0x1001).value() == coreapi::StreamTuner::NoneFree);
+	fx.deps.channels.mode = NeutrinoModes::mode_standby;
+	REQUIRE(coreapi::streaming::tunerFor(0x1001).value() == coreapi::StreamTuner::NoneFree);
+
+	// Anything recording, of any channel, a timeshift included.
+	fx.deps.channels.mode = NeutrinoModes::mode_tv;
+	coreapi::RecordingInfo shift;
+	shift.id = 7;
+	shift.channel_id = 0x1002;
+	shift.timeshift = true;
+	fx.deps.recordings.recordings.push_back(shift);
+	REQUIRE(coreapi::streaming::tunerFor(0x1001).value() == coreapi::StreamTuner::NoneFree);
+	REQUIRE(fx.deps.channels.tuner_asked_switch.back() == false);
+	fx.deps.recordings.recordings.clear();
+	REQUIRE(coreapi::streaming::tunerFor(0x1001).value() == coreapi::StreamTuner::NoneFreeUnlessSwitched);
+}
+
+TEST_CASE("the setting turns a switch that would free a tuner into a stream", "[streaming][tuner][switch]")
+{
+	Fixture fx;
+	fx.deps.channels.mode = NeutrinoModes::mode_tv;
+	fx.deps.channels.stream_tuner = coreapi::StreamTuner::NoneFreeUnlessSwitched;
+
+	REQUIRE(coreapi::streaming::tunerFor(0x1001).value() == coreapi::StreamTuner::NoneFreeUnlessSwitched);
+	fx.settings.ints["streaming_switch_picture"] = 1;
+	REQUIRE(coreapi::streaming::tunerFor(0x1001).value() == coreapi::StreamTuner::FreeBySwitch);
+	fx.settings.ints["streaming_switch_picture"] = 0;
+	REQUIRE(coreapi::streaming::tunerFor(0x1001).value() == coreapi::StreamTuner::NoneFreeUnlessSwitched);
+
+	// Where no switch would help, the setting changes nothing.
+	fx.settings.ints["streaming_switch_picture"] = 1;
+	fx.deps.channels.stream_tuner = coreapi::StreamTuner::NoneFree;
+	REQUIRE(coreapi::streaming::tunerFor(0x1001).value() == coreapi::StreamTuner::NoneFree);
+	fx.deps.channels.stream_tuner = coreapi::StreamTuner::Free;
+	REQUIRE(coreapi::streaming::tunerFor(0x1001).value() == coreapi::StreamTuner::Free);
+}
+
+TEST_CASE("a box with no line for the setting lets a stream switch the picture", "[streaming][tuner][switch]")
+{
+	Fixture fx;
+	fx.deps.channels.mode = NeutrinoModes::mode_tv;
+	fx.deps.channels.stream_tuner = coreapi::StreamTuner::NoneFreeUnlessSwitched;
+	fx.settings.ints.erase("streaming_switch_picture");
+
+	REQUIRE(coreapi::streaming::tunerFor(0x1001).value() == coreapi::StreamTuner::FreeBySwitch);
+	REQUIRE(coreapi::settings::get("streaming_switch_picture").value() == "1");
+	// A line that says off keeps it off.
+	fx.settings.ints["streaming_switch_picture"] = 0;
+	REQUIRE(coreapi::streaming::tunerFor(0x1001).value() == coreapi::StreamTuner::NoneFreeUnlessSwitched);
+}
+
+TEST_CASE("a browser stream a switch would serve is refused naming the setting, or streamed where it is on",
+          "[streaming][wire][tuner][switch]")
+{
+	StreamBox box;
+	std::string pidfile;
+	box.useConverter("echo $$ >> PIDFILE\nwhile :; do printf 'G'; sleep 0.05; done\n", &pidfile);
+	box.fx.deps.channels.mode = NeutrinoModes::mode_tv;
+	box.fx.deps.channels.stream_tuner = coreapi::StreamTuner::NoneFreeUnlessSwitched;
+
+	{
+		WireStream r(box.port(), asWriter("GET", kBrowser).c_str());
+		REQUIRE(r.ok());
+		const std::string body = r.readToEof(3000);
+		CHECK(r.code() == 409);
+		CHECK(problemCodeOf(body) == "no-free-tuner");
+		CHECK(body.find("\"depends_on\":[\"streaming_switch_picture\"]") != std::string::npos);
+	}
+	CHECK(pidFrom(pidfile, 300) == 0);
+
+	// Refused for another reason, the setting is not named.
+	box.fx.deps.channels.stream_tuner = coreapi::StreamTuner::NoneFree;
+	{
+		WireStream r(box.port(), asWriter("GET", kBrowser).c_str());
+		REQUIRE(r.ok());
+		const std::string body = r.readToEof(3000);
+		CHECK(r.code() == 409);
+		CHECK(body.find("depends_on") == std::string::npos);
+	}
+
+	// Switched on, the converter starts and the stream server does the switch.
+	box.fx.settings.ints["streaming_switch_picture"] = 1;
+	box.fx.deps.channels.stream_tuner = coreapi::StreamTuner::NoneFreeUnlessSwitched;
+	{
+		WireStream get(box.port(), asWriter("GET", kBrowser).c_str());
+		REQUIRE(get.ok());
+		CHECK(get.code() == 200);
+		CHECK(pidFrom(pidfile, 3000) > 0);
+	}
+	CHECK(runningAfter(2000) == 0);
+}
+
+TEST_CASE("no switch is weighed for a channel the GUI would ask the PIN for", "[streaming][tuner][switch]")
+{
+	Fixture fx;
+	fx.deps.channels.mode = NeutrinoModes::mode_tv;
+	fx.deps.channels.stream_tuner = coreapi::StreamTuner::NoneFreeUnlessSwitched;
+	for (size_t i = 0; i < fx.deps.channels.channels.size(); ++i)
+		if (fx.deps.channels.channels[i].id == 0x1001)
+			fx.deps.channels.channels[i].locked = true;
+
+	// The prompt off: the lock is not asked for, and a switch is weighed.
+	REQUIRE(coreapi::streaming::tunerFor(0x1001).value() == coreapi::StreamTuner::NoneFreeUnlessSwitched);
+	// On: a locked channel where bouquets start unlocked is not switched to.
+	fx.settings.ints["parentallock_prompt"] = 2;
+	REQUIRE(coreapi::streaming::tunerFor(0x1001).value() == coreapi::StreamTuner::NoneFree);
+	REQUIRE(fx.deps.channels.tuner_asked_switch.back() == false);
+	fx.settings.ints["streaming_switch_picture"] = 1;
+	REQUIRE(coreapi::streaming::tunerFor(0x1001).value() == coreapi::StreamTuner::NoneFree);
+	// Where bouquets start locked, a locked channel is the ordinary case and an unlocked one asks.
+	fx.settings.ints["parentallock_defaultlocked"] = 1;
+	fx.deps.channels.current.locked = true;
+	REQUIRE(coreapi::streaming::tunerFor(0x1001).value() == coreapi::StreamTuner::FreeBySwitch);
+	REQUIRE(coreapi::streaming::tunerFor(0x1002).value() == coreapi::StreamTuner::NoneFree);
+	// A rule that cannot be read counts as asking for the PIN.
+	fx.settings.ints["parentallock_prompt"] = 0;
+	REQUIRE(coreapi::streaming::tunerFor(0x1002).value() == coreapi::StreamTuner::FreeBySwitch);
+	fx.settings.fail_next = true;
+	REQUIRE(coreapi::streaming::tunerFor(0x1002).value() == coreapi::StreamTuner::NoneFree);
+	REQUIRE(fx.deps.channels.tuner_asked_switch.back() == false);
+}
+
+TEST_CASE("no switch is weighed away from a picture the GUI would ask the PIN for", "[streaming][tuner][switch]")
+{
+	Fixture fx;
+	fx.deps.channels.mode = NeutrinoModes::mode_tv;
+	fx.deps.channels.stream_tuner = coreapi::StreamTuner::NoneFreeUnlessSwitched;
+	fx.settings.ints["streaming_switch_picture"] = 1;
+	fx.settings.ints["parentallock_prompt"] = 2;
+
+	REQUIRE(coreapi::streaming::tunerFor(0x1001).value() == coreapi::StreamTuner::FreeBySwitch);
+	// The picture shows a locked channel where bouquets start unlocked: a zap back would ask again.
+	fx.deps.channels.current.locked = true;
+	REQUIRE(coreapi::streaming::tunerFor(0x1001).value() == coreapi::StreamTuner::NoneFree);
+	REQUIRE(fx.deps.channels.tuner_asked_switch.back() == false);
+	// With the prompt off it is shown without one.
+	fx.settings.ints["parentallock_prompt"] = 0;
+	REQUIRE(coreapi::streaming::tunerFor(0x1001).value() == coreapi::StreamTuner::FreeBySwitch);
+	// A picture whose channel cannot be told counts as one that asks.
+	fx.deps.channels.current_status = coreapi::Status::NotFound;
+	REQUIRE(coreapi::streaming::tunerFor(0x1001).value() == coreapi::StreamTuner::NoneFree);
+	REQUIRE(fx.deps.channels.tuner_asked_switch.back() == false);
 }

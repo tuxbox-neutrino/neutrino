@@ -73,7 +73,10 @@ Result<std::string> playlistFor(const std::string &authority, ChannelId id);
    channel the stream server carries already, which it hands to another
    reader. A channel being recorded gets none, as at the stream server's
    port. Asks and holds nothing, so the answer may be out of date by the
-   time the stream asks for its tuner itself. NotFound for a channel the box
+   time the stream asks for its tuner itself. Where none is free but
+   switching the picture to the channel would free one, the answer is
+   FreeBySwitch when the setting streaming_switch_picture allows that and
+   NoneFreeUnlessSwitched when it does not. NotFound for a channel the box
    does not have. */
 Result<StreamTuner> tunerFor(ChannelId id);
 

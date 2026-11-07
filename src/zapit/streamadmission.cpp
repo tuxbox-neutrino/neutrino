@@ -121,6 +121,40 @@ Way decide(const Facts &f, uint64_t channel)
 	return Idle;
 }
 
+bool switchable(const Facts &f)
+{
+	if (f.variant == QuadPip || f.recording_starting || f.scanning)
+		return false;
+	if (f.variant == Cst && anyPip(f))
+		return false;
+	return liveRuns(f);
+}
+
+Way afterSwitch(const Facts &f, uint64_t channel, int zap_fe)
+{
+	Facts g = f;
+	if (channel != f.live_channel)
+	{
+		if (zap_fe < 0)
+			return Refuse;
+		g.live_channel = channel;
+		g.live_fe = zap_fe;
+		g.live_tp = f.channel_tp;
+		g.live_tuned = true;
+		g.live_ci = f.channel_ci;
+	}
+	for (int i = 0; i < slotsOf(g); ++i)
+	{
+		if (g.slot[i].active && g.slot[i].channel == channel)
+		{
+			g.slot[i].active = false;
+			g.slot[i].channel = 0;
+			g.slot[i].fe = -1;
+		}
+	}
+	return decide(g, channel);
+}
+
 void held(const Facts &f, std::vector<int> &out)
 {
 	if (f.live_dvb && !(f.standby || f.box_standby) && f.live_fe >= 0)

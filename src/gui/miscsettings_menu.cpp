@@ -768,6 +768,11 @@ int CMiscMenue::showMiscSettingsMenuStreaming()
 	   one it shows the input's value, which also follows a change. */
 	CMenuForwarder * mf = new CMenuDForwarder(LOCALE_STREAMING_PORT, true, NULL, miscSettings_streamingport);
 	ms_sservices->addItem(mf);
+
+	// a stream that finds no tuner free may switch the picture to its channel
+	CMenuOptionChooser * mc = new CMenuOptionChooser(LOCALE_STREAMING_SWITCH_PICTURE, &g_settings.streaming_switch_picture, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
+	mc->setHint("", LOCALE_MENU_HINT_STREAMING_SWITCH_PICTURE);
+	ms_sservices->addItem(mc);
 #if 0
 	// entitlements
 	entitlements = new CMenuOptionChooser(LOCALE_STREAMING_ECMMODE, &g_settings.streaming_ecmmode, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);

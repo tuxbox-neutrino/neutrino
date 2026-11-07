@@ -141,6 +141,7 @@ private:
 	void AVInputMode( bool bOnOff );
 	void standbyMode( bool bOnOff, bool fromDeepStandby = false );
 	bool wakeOnto(const t_channel_id channel_id, bool tv);
+	int switchPictureForStream(const t_channel_id channel_id);
 	void cancelDeferredDeepStandby(void);
 	void getAnnounceEpgName(CTimerd::RecordingInfo * eventinfo, std::string &name);
 
