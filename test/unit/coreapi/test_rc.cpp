@@ -278,9 +278,24 @@ struct CapturedStdout
 
 } // namespace
 
-/* A key read off a node is on the console as one line, and somebody watching
-   it for what the box was told has nothing else to go by. A key handed to the
-   loop past the node is on it in that same line, as a press. */
+namespace
+{
+
+// The line the read loop writes for a press of code, translated to key.
+std::string pressLine(unsigned code, neutrino_msg_t key)
+{
+	char line[128];
+	snprintf(line, sizeof(line), "key: %04x value 1, translate: %04x -%s-\n",
+		 code, (unsigned) key, CRCInput::getKeyName(key).c_str());
+	return line;
+}
+
+} // namespace
+
+/* A key read off a node is on the console as one line in a build that debugs
+   the input, and in no other, so an ordinary build does not put every key
+   into the journal. A key handed to the loop past the node is on it exactly
+   where such a key is, in that same line, as a press. */
 TEST_CASE("a key the node lacks is on the console like any other", "[rc]")
 {
 	InjectedNode node;
@@ -288,25 +303,27 @@ TEST_CASE("a key the node lacks is on the console like any other", "[rc]")
 
 	CRCInput rc;
 	InstalledRealInput installed(&rc);
-	NodeLackingKeys lacking;
 
 	std::string said;
-	{
-		CapturedStdout out;
-		REQUIRE(osd::sendKey("KEY_STANDBYON").ok());
-		said = out.text();
-	}
-
-	char line[128];
-	snprintf(line, sizeof(line), "key: %04x value 1, translate: %04x -%s-\n",
-		 (unsigned) KEY_STANDBYON, (unsigned) CRCInput::RC_standby_on,
-		 CRCInput::getKeyName(CRCInput::RC_standby_on).c_str());
-	INFO("the console said: " << said);
-	REQUIRE(said.find(line) != std::string::npos);
-
-	// And the key went where the line says it did.
 	neutrino_msg_t got = 0;
 	neutrino_msg_data_t data = 0;
-	rc.getMsg_ms(&got, &data, 2000);
+	{
+		CapturedStdout out;
+		// One the node carries, read off it by the loop.
+		REQUIRE(osd::sendKey("KEY_MUTEON").ok());
+		rc.getMsg_ms(&got, &data, 2000);
+		REQUIRE(got == (neutrino_msg_t) CRCInput::RC_mute_on);
+		// One it lacks, handed to the loop past it.
+		NodeLackingKeys lacking;
+		REQUIRE(osd::sendKey("KEY_STANDBYON").ok());
+		rc.getMsg_ms(&got, &data, 2000);
+		said = out.text();
+	}
+	// And the key went where the line says it did.
 	REQUIRE(got == (neutrino_msg_t) CRCInput::RC_standby_on);
+
+	const bool read_line = said.find(pressLine(KEY_MUTEON, CRCInput::RC_mute_on)) != std::string::npos;
+	const bool past_line = said.find(pressLine(KEY_STANDBYON, CRCInput::RC_standby_on)) != std::string::npos;
+	INFO("the console said: " << said);
+	REQUIRE(past_line == read_line);
 }
