@@ -45,7 +45,11 @@ the same bytes as before.
 <p>
 What each route takes and answers is in the document; read it from the box or
 build it without one: <code>make -C src/httpd openapi-dump</code> writes the
-same bytes the route answers. Seventeen of the nineteen tables known from compatible forks are
+same bytes the route answers. A copy is kept in the tree as
+<code>doc/api/openapi.json</code>, laid out one member per line, so the
+documentation can be built without a configured tree; <code>make check</code> fails when it
+no longer matches the code, and <code>make -C src/httpd update-api-doc</code>
+refreshes it. Seventeen of the nineteen tables known from compatible forks are
 served, sessions, the event stream and the server's own table among them;
 the two relay tables (stream, web-TV) follow with the transport work they
 need.

@@ -482,3 +482,4 @@ check-local: check-TESTS
 	@$(SHELL) $(srcdir)/scan/check-live-displaced.sh $(top_srcdir)
 	@$(SHELL) $(srcdir)/scan/check-timer-epgid.sh $(top_srcdir)
 	@$(MAKE) $(AM_MAKEFLAGS) check-api-types
+	@$(MAKE) $(AM_MAKEFLAGS) -C $(top_builddir)/src/httpd check-api-doc

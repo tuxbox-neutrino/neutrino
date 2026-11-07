@@ -208,4 +208,74 @@ openapi-dump: openapi.json
 	@echo "$(abs_builddir)/openapi.json"
 .PHONY: openapi-dump
 
-CLEANFILES = openapi_dump$(EXEEXT) openapi.json openapi.json.tmp
+# The same document kept in the tree as doc/api/openapi.json, which is what the
+# published reference is built from without a configured tree, held to the one
+# this build writes. The file is the document laid out one member per line by
+# doc/api/format-openapi.py, so a change to a route reads in a diff as the lines
+# that changed; the script refuses a layout that would not give these bytes
+# back.
+#
+# Run by make check and never by a plain build. API_DOC_UNFIT names the first
+# reason this build cannot speak for the file, and both targets ask it before
+# they make the dump: a build compiled with one of the three switches below
+# writes a different document by design (no prose, Basic instead of sessions,
+# no legacy counter); the dump of a cross build is a program of the target and
+# does not run here; a tree without doc/api, such as a release archive, has
+# nothing to compare; and the layout needs python3. The check then says so and
+# passes, and the refresh refuses, so a reduced document never reaches the tree.
+API_DOC = $(top_srcdir)/doc/api/openapi.json
+API_DOC_FORMAT = $(top_srcdir)/doc/api/format-openapi.py
+API_DOC_UNFIT = \
+	case " $(DEFS) $(CPPFLAGS) $(AM_CPPFLAGS) $(CXXFLAGS) $(AM_CXXFLAGS) " in \
+	*DISABLE_API_DOC*|*HTTPD_AUTH_LEGACY_BASIC*|*DISABLE_LEGACY_API*) \
+		echo "this build writes a reduced document";; \
+	*) \
+		if test "$(build)" != "$(host)"; then \
+			echo "this is a cross build, whose dump does not run here"; \
+		elif test ! -f $(API_DOC_FORMAT); then \
+			echo "this tree has no doc/api"; \
+		elif ! command -v python3 >/dev/null 2>&1; then \
+			echo "this host has no python3"; \
+		fi;; \
+	esac
+
+check-api-doc:
+	@why=`$(API_DOC_UNFIT)`; \
+	if test -n "$$why"; then \
+		echo "check-api-doc: doc/api/openapi.json was not compared: $$why"; \
+		exit 0; \
+	fi; \
+	$(MAKE) $(AM_MAKEFLAGS) openapi.json || exit 1; \
+	python3 -I $(API_DOC_FORMAT) openapi.json openapi.json.laid-out || exit 1; \
+	if cmp -s openapi.json.laid-out $(API_DOC); then \
+		rm -f openapi.json.laid-out; \
+		exit 0; \
+	fi; \
+	{ \
+		echo "check-api-doc: doc/api/openapi.json is not the document this code writes:"; \
+		diff -u $(API_DOC) openapi.json.laid-out | head -n 40; \
+		echo "  When the change to the routes is intended, refresh the file and commit it with the change:"; \
+		echo "    make -C $(abs_builddir) update-api-doc"; \
+	} >&2; \
+	rm -f openapi.json.laid-out; \
+	exit 1
+
+# One recipe line per step, so make -n runs only the line naming $(MAKE), which
+# inherits -n, and prints the write into the source tree instead of doing it.
+# The write asks the question again, so make -i, which goes on past the first
+# line's refusal, still does not write a reduced document.
+update-api-doc:
+	@why=`$(API_DOC_UNFIT)`; \
+	if test -n "$$why"; then \
+		echo "update-api-doc: doc/api/openapi.json was not written: $$why" >&2; \
+		exit 1; \
+	fi
+	@$(MAKE) $(AM_MAKEFLAGS) openapi.json
+	@why=`$(API_DOC_UNFIT)`; test -z "$$why" && \
+	python3 -I $(API_DOC_FORMAT) openapi.json $(API_DOC) && \
+	echo "wrote $(API_DOC)"
+
+check-local: check-api-doc
+.PHONY: check-api-doc update-api-doc
+
+CLEANFILES = openapi_dump$(EXEEXT) openapi.json openapi.json.tmp openapi.json.laid-out
