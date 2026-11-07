@@ -1412,6 +1412,9 @@ async function loadPluginsPanel() {
 				webuiEl('a', {className: 'webui-btn', title: webuiL('tip.services', 'Start and stop services of the box such as NFS or Samba'),
 					attrs: {href: services.url}}, services.name)));
 		el.replaceChildren(installed, manage);
+		// the installed plugins are one stop of Tab: Up and Down go from
+		// plugin to plugin, Left and Right between Start and Hide
+		webuiArrowKeys(installed, '.webui-plugin-start, .webui-plugin-hide', '', {near: true});
 		pluginShowRunning(!!data.running);
 	} catch (e) {
 		el.replaceChildren(pluginRow(webuiL('set.plugins_notavail', 'Plugins not available') + ': ' + webuiErrText(e)));
@@ -1424,6 +1427,7 @@ function pluginHideButton(pl) {
 	var b = pluginButton(pl.hidden ? EYE_ICON : EYEOFF_ICON,
 		pl.hidden ? webuiL('set.plugins_show', 'Show') : webuiL('set.plugins_hide', 'Hide'),
 		function(btn) { setPluginHidden(pl, !pl.hidden, btn); });
+	b.classList.add('webui-plugin-hide');
 	b.setAttribute('aria-label', (pl.hidden ? webuiL('set.plugins_show_label', 'Show %s in the box\'s menus') :
 		webuiL('set.plugins_hide_label', 'Hide %s in the box\'s menus')).replace('%s', title));
 	b.title = b.getAttribute('aria-label');

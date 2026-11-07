@@ -1147,6 +1147,13 @@ function updateStreamInfoUI(resolution, height, aspect, fps, audio) {
 // Init, once the texts are in
 webuiAfterTexts(function() {
 	initDashboardOrder();
+	// the rows of buttons in the cards are one stop of Tab each, the arrows
+	// move along them: what runs now, TV or radio, the load of the box (where
+	// it opens the system details), the quick actions
+	document.querySelectorAll('.webui-now-actions').forEach(function(row) { webuiArrowKeys(row, ':scope > .webui-btn'); });
+	document.querySelectorAll('.webui-now-actions .webui-seg').forEach(function(seg) { webuiArrowKeys(seg, 'button'); });
+	withEl('gauges', function(el) { webuiArrowKeys(el, '.webui-ext-open'); });
+	document.querySelectorAll('#card-actions .webui-quick').forEach(function(row) { webuiArrowKeys(row, '.webui-btn'); });
 	NO_CHANNEL = webuiL('dash.no_channel', 'No channel');
 	NO_EPG = webuiL('dash.no_epg', 'No EPG data');
 	NO_TUNER = webuiL('dash.no_tuner', 'No tuner');
