@@ -4610,9 +4610,22 @@ dialog.webui-sheet footer button {
 	margin: 0;
 }
 
-dialog.webui-sheet footer button.danger {
-	--pico-background-color: var(--pico-del-color);
-	--pico-border-color: var(--pico-del-color);
+/* a destructive answer in the red the other danger buttons fill with:
+   Pico's del colour under its white text gave 2.9:1 in the dark theme.
+   Pico sets its own colours again on hover, focus and press. */
+dialog.webui-sheet footer button.danger,
+dialog.webui-sheet footer button.danger:is(:hover, :active, :focus) {
+	--pico-background-color: var(--webui-danger-fill);
+	--pico-border-color: var(--webui-danger-fill);
+	--pico-color: white;
+	color: white;
+}
+
+@media (hover: hover) {
+	dialog.webui-sheet footer button.danger:hover {
+		--pico-background-color: var(--webui-danger-fill-hover);
+		--pico-border-color: var(--webui-danger-fill-hover);
+	}
 }
 
 .webui-dock {

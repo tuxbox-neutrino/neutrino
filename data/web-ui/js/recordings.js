@@ -344,12 +344,7 @@ async function showBeside(id) {
 	}
 	if (token !== detailToken) return;
 	const title = rec.title || rec.channel || rec.id;
-	const base = '/api/v1' + archive(id);
 	const sub = [rec.channel, rec.start ? when(rec.start) : '', length(rec.duration)].filter(Boolean).join(' · ');
-	const act = function(cls, svg, label, onClick) {
-		return webuiEl('button', {type: 'button', className: 'webui-btn' + (cls ? ' ' + cls : ''), on: {click: onClick}},
-			webuiMarkup(svg), webuiEl('span', {}, label));
-	};
 	box.replaceChildren(
 		onPicture(picture(rec), [rec.playing ? playingPill() : null,
 			rec.duration ? webuiEl('span', {className: 'webui-media-len'}, length(rec.duration)) : null]),
@@ -358,14 +353,30 @@ async function showBeside(id) {
 			sub ? webuiEl('p', {className: 'webui-media-detail-sub'}, sub) : null,
 			factsOf(rec),
 			textOf(rec),
-			webuiEl('div', {className: 'webui-media-detail-acts'},
-				act('primary', SVG_PLAY, webuiL('media.play', 'Play on TV'), () => play(id)),
-				act('', SVG_LIST, webuiL('media.playlist', 'Playlist (M3U)'), () => fetchTo(base + '/playlist.m3u')),
-				act('', SVG_DOWN, webuiL('media.download', 'Download'), () => fetchTo(base + '/file')),
-				act('webui-media-delete', SVG_DELETE, webuiL('media.delete', 'Delete'), () => remove(rec)))));
+			detailActs(rec, null)));
 }
 
-// The details of one recording in a sheet
+/* The actions of a recording's details, the same in the column and in the
+   sheet: Play on TV across, Playlist and Download side by side, Delete
+   across below them, each with its symbol and its word. leave() runs
+   before Play and Delete, which take the sheet away. */
+function detailActs(rec, leave) {
+	const base = '/api/v1' + archive(rec.id);
+	const act = function(cls, svg, label, onClick) {
+		return webuiEl('button', {type: 'button', className: 'webui-btn' + (cls ? ' ' + cls : ''), on: {click: onClick}},
+			webuiMarkup(svg), webuiEl('span', {}, label));
+	};
+	const away = fn => () => { if (leave) leave(); fn(); };
+	return webuiEl('div', {className: 'webui-media-detail-acts'},
+		act('primary', SVG_PLAY, webuiL('media.play', 'Play on TV'), away(() => play(rec.id))),
+		act('', SVG_LIST, webuiL('media.playlist', 'Playlist (M3U)'), () => fetchTo(base + '/playlist.m3u')),
+		act('', SVG_DOWN, webuiL('media.download', 'Download'), () => fetchTo(base + '/file')),
+		act('webui-media-delete', SVG_DELETE, webuiL('media.delete', 'Delete'), away(() => remove(rec))));
+}
+
+// The details of one recording in a sheet: its picture, facts and text,
+// the actions at its foot in sight while the text scrolls; Close is the
+// sheet's cross and Escape
 async function showDetail(id) {
 	let rec;
 	try {
@@ -375,26 +386,17 @@ async function showDetail(id) {
 		return;
 	}
 	const base = '/api/v1' + archive(id);
-	webuiSheet({
+	let sheet = null;
+	sheet = webuiSheet({
 		title: rec.title || rec.channel || rec.id,
 		body: [
 			rec.cover ? webuiEl('img', {className: 'webui-media-detail-cover', attrs: {src: base + '/cover', alt: ''}}) : null,
 			factsOf(rec),
 			textOf(rec),
-			webuiEl('div', {className: 'webui-media-detail-links'},
-				webuiEl('a', {attrs: {href: base + '/playlist.m3u', download: ''}}, webuiL('media.playlist', 'Playlist (M3U)')),
-				webuiEl('a', {attrs: {href: base + '/file', download: ''}}, webuiL('media.download', 'Download')))
-		],
-		actions: [
-			{label: webuiL('media.delete', 'Delete'), value: 'delete', danger: true},
-			{label: webuiL('msg.close', 'Close'), value: 'close'},
-			{label: webuiL('media.play', 'Play on TV'), value: 'play', primary: true}
-		],
-		onClose: result => {
-			if (result === 'play') play(id);
-			else if (result === 'delete') remove(rec);
-		}
+			detailActs(rec, () => { if (sheet) sheet.close('close'); })
+		]
 	});
+	sheet.dialog.classList.add('webui-media-sheet');
 }
 
 // On the TV: a file the player plays, or a box in standby, is asked about first

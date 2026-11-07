@@ -510,8 +510,11 @@
 			margin-top: 1rem;
 		}
 
+		/* every action as high as a finger needs, its symbol beside its word */
 		.webui-media-detail-acts .webui-btn {
 			justify-content: center;
+			gap: 0.45rem;
+			min-height: 2.75rem;
 			margin: 0;
 			padding: 0.45rem 0.6rem;
 			font-size: var(--webui-font-sm);
@@ -522,8 +525,22 @@
 			height: 0.95rem;
 		}
 
-		.webui-media-detail-acts .primary {
+		/* Play on TV and Delete across, Playlist and Download side by side
+		   between them */
+		.webui-media-detail-acts .primary,
+		.webui-media-detail-acts .webui-media-delete {
 			grid-column: 1 / -1;
+		}
+
+		/* the sheet (where there is no column): the actions at its foot,
+		   in sight while its text scrolls, across the whole sheet */
+		dialog.webui-media-sheet .webui-media-detail-acts {
+			position: sticky;
+			bottom: calc(-1 * var(--pico-block-spacing-vertical));
+			margin: 1rem calc(-1 * var(--pico-block-spacing-horizontal)) calc(-1 * var(--pico-block-spacing-vertical));
+			padding: 0.75rem var(--pico-block-spacing-horizontal) var(--pico-block-spacing-vertical);
+			border-top: 1px solid var(--pico-muted-border-color);
+			background: var(--pico-card-background-color);
 		}
 
 		/* in the column beside the list its actions stay at its foot while
@@ -539,8 +556,10 @@
 			}
 		}
 
+		/* the red that reads on a key of either theme (the danger red of
+		   the dark one gives 4.1:1 there) */
 		.webui-media-detail-acts .webui-media-delete {
-			color: var(--webui-danger);
+			color: var(--webui-recording);
 		}
 
 		.webui-media-detail-cover {
@@ -573,13 +592,6 @@
 			font-size: 0.8rem;
 		}
 
-		.webui-media-detail-links {
-			display: flex;
-			flex-wrap: wrap;
-			gap: 0.8rem;
-			margin-top: 0.6rem;
-			font-size: 0.8rem;
-		}
 	</style>
 </head>
 <body>
