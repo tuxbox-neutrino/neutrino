@@ -3678,14 +3678,15 @@ html:not([data-theme="dark"]) .webui-remote .webui-rc-dpad {
 	letter-spacing: 0.02em;
 }
 
+/* blues the white letters read on at 4.5:1 or more (5.1 dark, 5.9 light) */
 [data-theme="dark"] .webui-remote .webui-rc-ok {
-	background: #1b84e0;
-	box-shadow: 0 3px 10px rgba(27,132,224,0.4), inset 0 1px 0 rgba(255,255,255,0.15);
+	background: #1670c0;
+	box-shadow: 0 3px 10px rgba(22,112,192,0.4), inset 0 1px 0 rgba(255,255,255,0.15);
 }
 
 html:not([data-theme="dark"]) .webui-remote .webui-rc-ok {
-	background: #1a7fd4;
-	box-shadow: 0 3px 10px rgba(26,127,212,0.35), inset 0 1px 0 rgba(255,255,255,0.25);
+	background: #1566b0;
+	box-shadow: 0 3px 10px rgba(21,102,176,0.35), inset 0 1px 0 rgba(255,255,255,0.25);
 }
 
 .webui-remote .webui-rc-ok:active {
@@ -3695,11 +3696,11 @@ html:not([data-theme="dark"]) .webui-remote .webui-rc-ok {
 /* pressed, OK keeps its blue a shade darker: the grey every other key
    takes when pressed left its white letters unreadable */
 [data-theme="dark"] .webui-remote .webui-rc-ok:active {
-	background: #1670c0;
+	background: #125ea0;
 }
 
 html:not([data-theme="dark"]) .webui-remote .webui-rc-ok:active {
-	background: #1566b0;
+	background: #115a99;
 }
 
 /* ── Navigation + Function rows ── */
