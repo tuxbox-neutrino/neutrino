@@ -1,0 +1,80 @@
+name: API Documentation
+
+# Publishes doc/ as the project's GitHub Pages site: the overview at the root,
+# the older documents beside it, and the API reference under api/, which
+# doc/api/build-site.py writes out of the checked-in doc/api/openapi.json.
+# The same script builds the same site locally:
+#
+#   python3 doc/api/build-site.py <out-dir>
+#
+# Nothing here builds the program. The document is checked in, and make check
+# holds it to the code (src/httpd, check-api-doc), so this only renders it.
+# The script fails on a link in the pages it writes that leads nowhere, which
+# fails the run before anything is deployed.
+#
+# The repository's Pages source has to be set to "GitHub Actions" for the
+# deployment to be accepted.
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - master
+    paths:
+      - "doc/**"
+      - ".github/workflows/api-docs.yaml"
+
+# The build only reads the tree; the deploy job asks for the two rights a
+# Pages deployment needs.
+permissions:
+  contents: read
+
+# One deployment at a time. A run that is already deploying finishes; a newer
+# push replaces one that is still waiting.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # branches: under push: does not constrain workflow_dispatch -- without
+      # this, a manual run would publish whatever branch it was started on.
+      - name: Refuse to run off master
+        if: github.ref != 'refs/heads/master'
+        run: |
+          echo "::error::This workflow publishes the documentation of master only (got ${GITHUB_REF})."
+          exit 1
+
+      - name: Checkout code
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Build the site
+        run: python3 -I doc/api/build-site.py _site
+
+      - name: Upload the site
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+
+    permissions:
+      pages: write
+      id-token: write
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5
