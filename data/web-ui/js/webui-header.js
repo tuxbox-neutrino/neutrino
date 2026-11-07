@@ -1817,6 +1817,10 @@ function webuiGetRemoteHTML(opts) {
 
 	return '<div class="webui-remote" id="' + id + '" data-rc-onkey="' + onKey + '">' +
 
+		/* The main keys in one column; the numpad sheet below them, or
+		   beside them where the window is wide enough */
+		'<div class="webui-rc-main">' +
+
 		/* Zone A: Power / Mute */
 		'<div class="webui-rc-row webui-rc-top">' +
 			iconBtn('webui-rc-power', 'KEY_POWER', webuiL('rc.power', 'Power'), svgPower) +
@@ -1888,6 +1892,8 @@ function webuiGetRemoteHTML(opts) {
 			'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true" focusable="false"><polyline points="6 9 12 15 18 9"/></svg>' +
 		'</button>' +
 
+		'</div>' +
+
 		/* Numpad sheet (bottom sheet on mobile, inline panel on desktop) */
 		'<div class="webui-rc-sheet-backdrop" id="' + id + '-sheet" onclick="webuiToggleRcSheet(\'' + id + '\')">' +
 			'<div class="webui-rc-sheet" onclick="event.stopPropagation()">' +
@@ -1928,7 +1934,18 @@ function webuiGetRemoteHTML(opts) {
 
 /* Numpad sheet toggle. Works on every viewport: a bottom sheet on
    mobile, an inline panel on desktop (CSS decides the presentation via
-   the media query; the JS only flips display). */
+   the media query; the JS only flips display). The class
+   webui-rc-sheet-open on the remote and on the page or window around it
+   lets a wide one take the sheet beside the main keys. */
+function _webuiRcSheetMark(root, open) {
+	if (!root)
+		return;
+	root.classList.toggle('webui-rc-sheet-open', open);
+	var around = root.closest('.webui-remote-full-root');
+	if (around)
+		around.classList.toggle('webui-rc-sheet-open', open);
+}
+
 function webuiToggleRcSheet(id) {
 	var backdrop = document.getElementById(id + '-sheet');
 	if (!backdrop) return;
@@ -1936,6 +1953,7 @@ function webuiToggleRcSheet(id) {
 	var trigger = root ? root.querySelector('.webui-rc-sheet-trigger') : null;
 
 	var isOpen = backdrop.style.display === 'flex';
+	_webuiRcSheetMark(root, !isOpen);
 	if (isOpen) {
 		backdrop.style.display = 'none';
 		if (trigger) trigger.setAttribute('aria-expanded', 'false');
@@ -2089,6 +2107,10 @@ function webuiRenderRemote(hostId, opts) {
 	}
 	opts = opts || {};
 	webuiRemoteRelease();
+	// keys drawn anew come with their sheet closed
+	var around = host.closest('.webui-remote-full-root');
+	if (around)
+		around.classList.remove('webui-rc-sheet-open');
 	host.innerHTML = webuiGetRemoteHTML(opts);
 	webuiInitRemoteRepeat(opts.id || 'webui-remote');
 	// a skin has the keys of its own remote control
@@ -2247,7 +2269,7 @@ function webuiShowRemote(opts) {
 					webuiRemoteFullToggle() +
 					_webuiCloseBtn('webuiCloseRemote()') +
 				'</div>' +
-				'<div id="webui-remote-modal-host"></div>' +
+				'<div id="webui-remote-modal-host" class="webui-rc-area"></div>' +
 			'</div>' +
 		'</div>';
 		document.body.insertAdjacentHTML('beforeend', html);
@@ -2323,6 +2345,10 @@ function webuiCloseRemote(event) {
 			   desktop media query shows this block inline via display:flex,
 			   and an inline none would stick on reopen (modal node persists). */
 			sheet.style.display = '';
+			_webuiRcSheetMark(sheet.closest('.webui-remote'), false);
+			var trig = modal.querySelector('.webui-rc-sheet-trigger');
+			if (trig)
+				trig.setAttribute('aria-expanded', 'false');
 			if (sheet._escHandler) {
 				document.removeEventListener('keydown', sheet._escHandler);
 				sheet._escHandler = null;

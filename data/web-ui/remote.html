@@ -47,11 +47,32 @@
 	}
 
 	.webui-remote-page.webui-remote-full #remoteHost {
-		display: flex;
-		flex: 1 0 auto;
-		flex-direction: column;
-		justify-content: center;
-		justify-content: safe center;
+		flex: 1 1 0;
+		min-height: 0;
+	}
+
+	/* a wide page takes the open numpad sheet beside the keys */
+	@media (min-width: 769px) {
+		.webui-remote-page.webui-rc-sheet-open:not(.webui-remote-full) {
+			max-width: 704px;
+		}
+	}
+
+	/* on a phone or a tablet the page's remote fills what the head and the
+	   tab bar leave (the room of .webui-rc-area) */
+	@media (max-width: 768px) {
+		.webui-remote-page {
+			display: flex;
+			flex-direction: column;
+			height: 100%;
+			max-width: none;
+			padding-bottom: 0.5rem;
+		}
+
+		.webui-remote-page #remoteHost {
+			flex: 1 1 0;
+			min-height: 0;
+		}
 	}
 	</style>
 </head>
@@ -62,7 +83,7 @@
 	<main>
 		<div class="webui-remote-page webui-remote-full-root" id="remotePage">
 			<div class="webui-remote-page-bar" id="remoteBar"></div>
-			<div id="remoteHost"></div>
+			<div id="remoteHost" class="webui-rc-area"></div>
 		</div>
 	</main>
 
