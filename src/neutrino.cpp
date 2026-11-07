@@ -57,6 +57,7 @@
 #include <driver/rcinput.h>
 #include <coreapi/archive.h>
 #include <coreapi/channels.h>
+#include <coreapi/playback.h>
 #include <coreapi/system.h>
 #include <coreapi/websources.h>
 #include <coreapi/webui.h>
@@ -5607,6 +5608,19 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 			return messages_return::handled;
 		if (mode != NeutrinoModes::mode_standby && !CMoviePlayerGui::getInstance().Playing())
 			CMoviePlayerGui::getInstance().playRecording(asked.path);
+		return messages_return::handled;
+	}
+	else if (msg == NeutrinoMessages::EVT_STOP_PLAYBACK) {
+		/* Only the playback named: one started since, a timeshift and live television
+		   stay, and no disk is asked. endFor posts the message again for after the
+		   player; by then the playback has ended, and the second turn only frees the data. */
+		uint64_t generation = 0;
+		if (data)
+			memcpy(&generation, (const void *) data, sizeof(generation));
+		if (mode != NeutrinoModes::mode_standby && coreapi::playback::playsGeneration(generation)
+		    && CMoviePlayerGui::getInstance().endFor(msg, data, false))
+			return messages_return::handled | messages_return::cancel_all;
+		delete[] (unsigned char *) data;
 		return messages_return::handled;
 	}
 	else if (msg == NeutrinoMessages::EVT_SERVICES_UPD) {

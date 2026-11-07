@@ -83,12 +83,14 @@ struct Snapshot
 	std::string title;
 	std::string channel;
 	ChannelId   channel_id;
+	// Counts the starts, never sent: what a stop names to the loop, which asks no disk about it.
+	uint64_t    generation;
 	long        position;    // seconds
 	long        duration;    // seconds
 	State       state;
 	int         speed;
 
-	Snapshot() : active(false), timeshift(false), channel_id(0), position(0), duration(0),
+	Snapshot() : active(false), timeshift(false), channel_id(0), generation(0), position(0), duration(0),
 		state(State::Stopped), speed(0) {}
 };
 
@@ -116,6 +118,22 @@ struct Now
 };
 
 Result<Now> now();
+
+enum class Stop
+{
+	Asked,          // the loop was asked to end the file
+	NothingToStop   // no file plays, a timeshift plays, or not the recording named
+};
+
+/* Asks the loop to end the file the movie player plays, as its stop key does:
+   any file where recording_id is empty, else only the recording of that id.
+   Live television and a timeshift are never ended. The message names the
+   playback by its generation. */
+Result<Stop> stop(const std::string &recording_id);
+
+/* For the loop: whether the playback of that generation still runs, and is a
+   file and no timeshift. Reads the snapshot only. */
+bool playsGeneration(uint64_t generation);
 
 /* What the picture on the television is. Read from the decoder only in the
    modes that show a moving picture: live television, a web channel and the

@@ -232,6 +232,25 @@ Response playbackPicture(const Request &)
 	return out;
 }
 
+const Param kStopParams[] = {
+	HTTPD_BODY_TEXT("id",
+		"the recording to stop, as GET /api/v1/recordings/archive names it; left out, whatever file the movie player plays", 16),
+};
+
+const RouteRefusal kStopRefusals[] = {
+	HTTPD_REFUSES(Busy, CommandNotPosted, "the box's loop did not take the request"),
+	HTTPD_REFUSES(Internal, CommandNotPosted, "the box has no loop to take the request"),
+};
+
+Response stopPlayback(const Request &r)
+{
+	coreapi::Result<coreapi::playback::Stop> done =
+		coreapi::playback::stop(r.has("id") ? r.asString("id") : std::string());
+	if (!done.ok())
+		return problemFor(done.error());
+	return done.value() == coreapi::playback::Stop::Asked ? accepted() : noContent();
+}
+
 const Endpoint kPlaybackEndpoints[] = {
 	{ Method::Get, "/api/v1/playback", AuthLevel::Read,
 	  "what the television shows: a live channel, a recording, another file or nothing",
@@ -262,6 +281,24 @@ const Endpoint kPlaybackEndpoints[] = {
 	  "channel's streams and their codecs.",
 	  NULL, 0, &kPictureSchema, &playbackPicture, false,
 	  Answers200, HTTPD_NO_REFUSALS },
+	{ Method::Post, "/api/v1/playback/stop", AuthLevel::Write,
+	  "asks the box to end the file the movie player plays, a recording or another file; never live television "
+	  "or its timeshift",
+	  "Ends what `POST /api/v1/recordings/archive/{id}/play` starts: the movie player's playback of a file, "
+	  "which `GET /api/v1/playback` answers as `recording` or `file`. The box ends it as its stop key does and "
+	  "goes back to the live channel; the movie browser does not open. With `id`, only that recording is "
+	  "ended, so a stop sent for a recording somebody has since replaced by another file ends nothing. "
+	  "Live television, a web channel and the timeshift of the live channel are never ended here.\n\n"
+	  "`202` means the request reached the box's loop, not that the playback has ended: the `playback` event "
+	  "on `GET /api/v1/events` says `stopped` once it has. The loop ends the file only if it still plays it. "
+	  "`204` means there was nothing to stop: no file plays, the box shows live television or its timeshift, "
+	  "it is in standby, or `id` names another recording than the one playing. Sending it again is harmless.\n\n"
+	  "**Refusals:**\n"
+	  "- `409 command-not-posted`: the box's loop did not take the request, its queue being full; try again.\n"
+	  "- `500 command-not-posted`: the box has no loop to take it.\n\n"
+	  "**Related:** `GET /api/v1/playback`, `POST /api/v1/recordings/archive/{id}/play`.",
+	  HTTPD_PARAMS(kStopParams), NULL, &stopPlayback, false,
+	  Answers202 | Answers204, HTTPD_REFUSALS_AND_BODY(kStopRefusals, "{\"id\":\"0123456789abcdef\"}") },
 };
 
 } // namespace

@@ -18,7 +18,7 @@ acted options matched to a declared row	27
 acted options whose row writes another member	5
 answer members narrower than free text	54
 applier sections registered	8
-body examples their routes accepted	40
+body examples their routes accepted	41
 body members the examples carry	25
 bounds compared against a screen	28
 bounds read off the screens	46
@@ -53,11 +53,11 @@ listed keys compared against the table	26
 locale names the program has	3092
 memory backed folders tried	1
 options an applier or its notifier branches on	50
-parameters the document describes	199
-refusals the document states against a route	1321
-refusals the routes declare of their own	262
-refusals the shipped routes were seen to give	358
-routes the document describes	139
+parameters the document describes	200
+refusals the document states against a route	1332
+refusals the routes declare of their own	264
+refusals the shipped routes were seen to give	362
+routes the document describes	140
 rows an applier acts on	26
 rows compared against the load and save pass	353
 rows in a section with an applier	222
@@ -66,5 +66,5 @@ rows whose set of values the box decides	3
 rows whose value is not in the settings file	5
 rule refusals the document states	18
 shapes the document files against a route	72
-success codes the document states	152
+success codes the document states	154
 text rules compared against a screen	44

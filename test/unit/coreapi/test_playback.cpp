@@ -21,6 +21,7 @@
 
 #include "support/catch.hpp"
 #include "support/fakes.h"
+#include "support/answers.h"
 
 #include "coreapi/archive.h"
 #include "coreapi/channels.h"
@@ -39,6 +40,8 @@
 #include <neutrinoMessages.h>
 
 #include <cstdio>
+#include <cstring>
+#include <map>
 #include <memory>
 #include <string>
 #include <vector>
@@ -581,4 +584,172 @@ TEST_CASE("the decoder's numbers are named as the box's own stream information n
 	REQUIRE_FALSE(p.shown);
 	REQUIRE(p.frame_rate == 0);
 	REQUIRE(p.aspect == "");
+}
+
+namespace
+{
+
+// The movie player notes a file in both places as it starts and forgets both as it ends.
+struct PlayingNow
+{
+	explicit PlayingNow(const std::string &path, bool timeshift = false)
+	{
+		archive::notePlaying(path, timeshift);
+		playback::Started s;
+		s.path = path;
+		s.timeshift = timeshift;
+		playback::begin(s);
+	}
+	~PlayingNow()
+	{
+		archive::notePlaying(std::string());
+		playback::end();
+	}
+};
+
+uint64_t postedGeneration(const FakeCommandSink &sink, size_t i)
+{
+	uint64_t g = 0;
+	memcpy(&g, (const void *) sink.posted[i].second, sizeof(g));
+	return g;
+}
+
+void freePosted(FakeCommandSink &sink)
+{
+	for (size_t i = 0; i < sink.posted.size(); ++i)
+		delete[] (unsigned char *) sink.posted[i].second;
+	sink.posted.clear();
+}
+
+httpd::Response askStop(const std::string &body, httpd::AuthLevel level = httpd::AuthLevel::Write)
+{
+	return httpd::dispatch(httpd::Post, "/api/v1/playback/stop", "", body, "192.168.1.9", level);
+}
+
+} // namespace
+
+TEST_CASE("a stop asks the loop to end the file the player plays and nothing else", "[playback][stop]")
+{
+	Shelf shelf;
+	FakeChannelSource channels;
+	InstalledChannelSource in_channels(&channels);
+	channels.mode = NeutrinoModes::mode_tv;
+	FakeCommandSink sink;
+	InstalledSink in_sink(&sink);
+	const std::string path = shelf.recording("Tatort", "Tatort");
+	const std::string id = archive::list("", 0, 1).value().items[0].id;
+
+	// Live television: nothing to stop and nothing asked.
+	REQUIRE(playback::stop("").value() == playback::Stop::NothingToStop);
+	REQUIRE(playback::stop(id).value() == playback::Stop::NothingToStop);
+	REQUIRE(sink.posted.empty());
+	{
+		PlayingNow p(path);
+		const uint64_t g = playback::snapshot().generation;
+		REQUIRE(g != 0);
+		REQUIRE(playback::stop("").value() == playback::Stop::Asked);
+		REQUIRE(playback::stop(id).value() == playback::Stop::Asked);
+		REQUIRE(playback::stop("0123456789abcdef").value() == playback::Stop::NothingToStop);
+		REQUIRE(sink.posted.size() == 2);
+		REQUIRE(sink.posted[0].first == NeutrinoMessages::EVT_STOP_PLAYBACK);
+		REQUIRE(sink.posted[1].first == NeutrinoMessages::EVT_STOP_PLAYBACK);
+		REQUIRE(postedGeneration(sink, 0) == g);
+		REQUIRE(postedGeneration(sink, 1) == g);
+	}
+	freePosted(sink);
+	{
+		PlayingNow p("/media/usb/Filme/Urlaub.mkv");
+		REQUIRE(playback::stop("").value() == playback::Stop::Asked);
+		// Another file is not the recording named.
+		REQUIRE(playback::stop(id).value() == playback::Stop::NothingToStop);
+		REQUIRE(sink.posted.size() == 1);
+		REQUIRE(postedGeneration(sink, 0) == playback::snapshot().generation);
+	}
+	freePosted(sink);
+	{
+		// The timeshift is live television shown from its buffer, and stays.
+		PlayingNow p(shelf.base + "/live_temp.ts", true);
+		REQUIRE(playback::stop("").value() == playback::Stop::NothingToStop);
+		REQUIRE(sink.posted.empty());
+	}
+	REQUIRE(playback::stop("").value() == playback::Stop::NothingToStop);
+	REQUIRE(sink.posted.empty());
+}
+
+TEST_CASE("the loop ends only the very playback a stop names, without asking a disk", "[playback][stop]")
+{
+	Shelf shelf;
+	const std::string path = shelf.recording("Tatort", "Tatort");
+
+	REQUIRE_FALSE(playback::playsGeneration(0));
+	uint64_t first = 0;
+	{
+		PlayingNow p(path);
+		first = playback::snapshot().generation;
+		REQUIRE(playback::playsGeneration(first));
+		REQUIRE_FALSE(playback::playsGeneration(first + 1));
+		REQUIRE_FALSE(playback::playsGeneration(0));
+	}
+	REQUIRE_FALSE(playback::playsGeneration(first));
+	{
+		// The same file started again is another playback.
+		PlayingNow p(path);
+		REQUIRE(playback::snapshot().generation != first);
+		REQUIRE_FALSE(playback::playsGeneration(first));
+		REQUIRE(playback::playsGeneration(playback::snapshot().generation));
+	}
+	{
+		PlayingNow p(shelf.base + "/live_temp.ts", true);
+		REQUIRE_FALSE(playback::playsGeneration(playback::snapshot().generation));
+	}
+}
+
+TEST_CASE("the stop route answers 202 when it asked and 204 when there was nothing to stop", "[playback][stop][routes]")
+{
+	Shelf shelf;
+	FakeChannelSource channels;
+	InstalledChannelSource in_channels(&channels);
+	channels.mode = NeutrinoModes::mode_tv;
+	FakeCommandSink sink;
+	InstalledSink in_sink(&sink);
+	const std::string path = shelf.recording("Tatort", "Tatort");
+	const std::string id = archive::list("", 0, 1).value().items[0].id;
+
+	REQUIRE(askStop("").code == 204);
+	REQUIRE(askStop("{}").code == 204);
+	REQUIRE(sink.posted.empty());
+	{
+		PlayingNow p(path);
+		REQUIRE(askStop("{\"id\":\"0123456789abcdef\"}").code == 204);
+		REQUIRE(sink.posted.empty());
+		REQUIRE(askStop("{\"id\":\"" + id + "\"}").code == 202);
+		REQUIRE(askStop("").code == 202);
+		REQUIRE(sink.posted.size() == 2);
+		REQUIRE(postedGeneration(sink, 1) == playback::snapshot().generation);
+		std::map<std::string, std::string> fills;
+		REQUIRE(sendBodyExample("POST", "/api/v1/playback/stop", fills) == 204);
+
+		// A read is not enough to stop anything.
+		REQUIRE(askStop("", httpd::AuthLevel::Read).code == 403);
+
+		// The loop did not take it: a full queue, and no loop at all.
+		sink.answer = Status::Busy;
+		httpd::Response busy = askStop("");
+		REQUIRE(busy.code == 409);
+		REQUIRE(busy.body.find("/errors/command-not-posted") != std::string::npos);
+		sink.answer = Status::Internal;
+		httpd::Response none = askStop("");
+		REQUIRE(none.code == 500);
+		REQUIRE(none.body.find("/errors/command-not-posted") != std::string::npos);
+		// Refused without a queue at all: the post freed the payload itself.
+		sink.posted.pop_back();
+		sink.answer = Status::Ok;
+	}
+	{
+		PlayingNow p(shelf.base + "/live_temp.ts", true);
+		REQUIRE(askStop("").code == 204);
+	}
+	REQUIRE(askStop("{\"id\":\"zz\"}").code == 204);
+	REQUIRE(askStop("{\"stop\":true}").code == 400);
+	freePosted(sink);
 }

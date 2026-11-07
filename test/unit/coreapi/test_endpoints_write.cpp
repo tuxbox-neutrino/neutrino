@@ -1463,7 +1463,7 @@ TEST_CASE("every route that changes something asks for more than a read", "[writ
 	}
 	// A walk that found nothing would pass this whatever the tables held, and a
 	// route added at a level below a write has to move this number by hand.
-	REQUIRE(changing == 68);
+	REQUIRE(changing == 69);
 }
 
 TEST_CASE("a caller on the local network cannot zap, reboot or write a setting", "[write]")

@@ -2,6 +2,7 @@
  * playback.cpp - what the movie player is playing, as the box shows it
  *
  * Copyright (C) 2026 NI-Team
+ * Copyright (C) 2026 Tuxbox-Project (stopping a playback)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -151,6 +152,8 @@ void begin(const Started &s)
 	snap.channel = bounded(snap.channel);
 
 	OpenThreads::ScopedLock<OpenThreads::Mutex> hold(lock());
+	static uint64_t started = 0;
+	snap.generation = ++started;
 	held() = Held();
 	held().snap = snap;
 	held().listed_duration = snap.duration;
@@ -253,6 +256,27 @@ Result<Now> now()
 	out.source = Source::Channel;
 	out.channel = c.value();
 	return ok(out);
+}
+
+Result<Stop> stop(const std::string &recording_id)
+{
+	// One snapshot, so the recording checked and the playback named are the same.
+	const Snapshot s = snapshot();
+	if (!s.active || s.timeshift)
+		return ok(Stop::NothingToStop);
+	if (!recording_id.empty() && s.archive_id != recording_id)
+		return ok(Stop::NothingToStop);
+	// The loop ends the playback only if it still runs: another may have started since.
+	Result<void> posted = postPayload(NeutrinoMessages::EVT_STOP_PLAYBACK, &s.generation, sizeof(s.generation));
+	if (!posted.ok())
+		return fail(posted.error());
+	return ok(Stop::Asked);
+}
+
+bool playsGeneration(uint64_t generation)
+{
+	const Snapshot s = snapshot();
+	return s.active && !s.timeshift && generation != 0 && s.generation == generation;
 }
 
 Result<PictureInfo> picture()

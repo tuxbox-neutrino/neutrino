@@ -199,7 +199,10 @@ struct NeutrinoMessages
 		EVT_WEBTV_RESTART			= CRCInput::RC_WithData + 31, /* data: (t_channel_id *) */
 
 		/* from nhttpd: a finished recording to play, data: the path, NUL terminated */
-		EVT_PLAY_RECORDING			= CRCInput::RC_WithData + 32
+		EVT_PLAY_RECORDING			= CRCInput::RC_WithData + 32,
+
+		/* from nhttpd: end the file the movie player plays, data: the playback's generation, uint64_t */
+		EVT_STOP_PLAYBACK			= CRCInput::RC_WithData + 33
 	};
 };
 
