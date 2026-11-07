@@ -93,8 +93,15 @@ function _webuiPlayerBuild() {
 		on: {click: function() { _webuiPlayerResume(p); }}}, webuiL('play.resume', 'Resume'));
 	p.retry = webuiEl('button', {type: 'button', className: 'webui-btn', hidden: true,
 		on: {click: function() { _webuiPlayerStart(p); }}}, webuiL('play.retry', 'Try again'));
+	// the playlist for a player on this device, its stream address to copy
+	// beside it, and which program opens the playlist
+	p.extNote = webuiEl('p', {className: 'webui-player-ext-note', id: 'webuiPlayerExtNote', hidden: true},
+		webuiL('play.external_note', 'The playlist opens in the program this device uses for playlists.'));
 	p.external = webuiEl('button', {type: 'button', className: 'webui-btn webui-player-external', hidden: true,
+		attrs: {'aria-describedby': p.extNote.id},
 		on: {click: function() { webuiOpenInPlayer(p.channel.id); }}}, webuiL('play.external', 'Open in a player (M3U)'));
+	p.copy = webuiEl('button', {type: 'button', className: 'webui-btn webui-player-copy', hidden: true,
+		on: {click: function() { webuiCopyChannelAddress(p.channel.id); }}}, webuiL('play.copy', 'Copy address'));
 	// the setting that lets a stream switch the TV picture, its row in focus
 	p.setting = webuiEl('a', {className: 'webui-btn primary webui-player-setting', hidden: true,
 		attrs: {href: '/settings.html#streaming_switch_picture'}}, webuiL('play.to_setting', 'Open the setting'));
@@ -103,7 +110,7 @@ function _webuiPlayerBuild() {
 		webuiEl('div', {className: 'webui-epg-modal-header'}, p.title, close),
 		webuiEl('div', {className: 'webui-epg-modal-body webui-player-body'},
 			p.stage,
-			webuiEl('div', {className: 'webui-player-foot'}, p.state, p.resume, p.setting, p.retry, p.external)));
+			webuiEl('div', {className: 'webui-player-foot'}, p.state, p.resume, p.setting, p.retry, p.external, p.copy, p.extNote)));
 	p.backdrop = webuiEl('div', {className: 'webui-epg-modal-backdrop webui-player-backdrop', id: 'webuiPlayer',
 		on: {click: function(e) { if (e.target === p.backdrop) webuiPlayerClose(); }}}, p.dialog);
 	document.body.appendChild(p.backdrop);
@@ -132,7 +139,8 @@ function _webuiPlayerSay(p, text, button, error, hint) {
 	p.setting.hidden = button !== 'retry-setting';
 	p.external.hidden = !(button === 'external' || (button === 'retry' && !_webuiPlayerWeb(p.channel.kind)));
 	p.external.classList.toggle('primary', button === 'external');
-	if ([p.resume, p.retry, p.external, p.setting].some(function(b) { return had === b && b.hidden; }))
+	p.copy.hidden = p.extNote.hidden = p.external.hidden;
+	if ([p.resume, p.retry, p.external, p.copy, p.setting].some(function(b) { return had === b && b.hidden; }))
 		(p.media || p.close).focus();
 }
 

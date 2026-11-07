@@ -1891,6 +1891,40 @@ audio.webui-player-media {
 	color: var(--webui-danger);
 }
 
+/* which program opens the playlist, below the player's keys */
+.webui-player-ext-note {
+	flex: 1 1 100%;
+	margin: 0;
+	color: var(--pico-muted-color);
+	font-size: var(--webui-font-sm);
+}
+
+.webui-player-ext-note[hidden] {
+	display: none;
+}
+
+/* the field a copy goes through where the clipboard has no API: in the
+   page, out of sight, 16 px so that no phone zooms into it */
+.webui-clip {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 1px;
+	height: 1px;
+	padding: 0;
+	border: 0;
+	opacity: 0;
+	font-size: 16px;
+	pointer-events: none;
+}
+
+/* an address shown for a copy by hand, whole and in one line */
+.webui-copy-field {
+	width: 100%;
+	font-family: monospace;
+	font-size: 16px;
+}
+
 /* the reason, and below it in the text colour what to do instead */
 .webui-player-reason,
 .webui-player-hint {
@@ -2265,6 +2299,11 @@ audio.webui-player-media {
 
 .webui-epg-show .webui-epg-modal-footer .webui-epg-round {
 	margin-left: auto;
+}
+
+/* Copy address right beside the way to a player */
+.webui-epg-show .webui-epg-modal-footer .webui-epg-round + .webui-epg-round {
+	margin-left: 0;
 }
 
 @media (max-width: 600px) {

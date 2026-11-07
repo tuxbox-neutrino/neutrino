@@ -352,6 +352,7 @@ function recordingRow(rec) {
 			webuiMenuButton(webuiL('bq.more', 'More for %s').replace('%s', title), [
 				{label: webuiL('tm.details', 'Details'), icon: SVG_INFO, onClick: () => choose(rec)},
 				{label: webuiL('media.playlist', 'Playlist (M3U)'), icon: SVG_LIST, onClick: () => fetchTo(base + '/playlist.m3u')},
+				{label: webuiL('play.copy', 'Copy address'), icon: WEBUI_COPY_SVG, onClick: () => copyAddress(rec)},
 				{label: webuiL('media.download', 'Download'), icon: SVG_DOWN, onClick: () => fetchTo(base + '/file')},
 				null,
 				{label: webuiL('media.delete', 'Delete'), icon: SVG_DELETE, danger: true, onClick: () => remove(rec)}])));
@@ -508,6 +509,11 @@ async function stopLate(mine) {
 	stopDone(mine);
 }
 
+// the stream address of a recording's playlist to the clipboard
+function copyAddress(rec) {
+	webuiCopyAddress(archive(rec.id) + '/playlist.m3u');
+}
+
 function fetchTo(href) {
 	const a = webuiEl('a', {attrs: {href: href, download: ''}});
 	document.body.appendChild(a);
@@ -629,10 +635,10 @@ async function showBeside(id) {
 }
 
 /* The actions of a recording's details, the same in the column and in the
-   sheet: Play on TV (Stop while it plays) across, Playlist and Download side
-   by side, Delete across below them, each with its symbol and its word.
-   leave() runs before Play and Delete, which take the sheet away; Stop
-   leaves it open. */
+   sheet: Play on TV (Stop while it plays) across, then side by side
+   Playlist and Copy address, Download and Delete, each with its symbol and
+   its word. leave() runs before Play and Delete, which take the sheet away;
+   Stop leaves it open. */
 function detailActs(rec, leave) {
 	const base = '/api/v1' + archive(rec.id);
 	const act = function(cls, svg, label, onClick) {
@@ -643,6 +649,7 @@ function detailActs(rec, leave) {
 	return webuiEl('div', {className: 'webui-media-detail-acts'},
 		playButton(rec.id, titleOf(rec), 'act', leave),
 		act('', SVG_LIST, webuiL('media.playlist', 'Playlist (M3U)'), () => fetchTo(base + '/playlist.m3u')),
+		act('webui-media-copy', WEBUI_COPY_SVG, webuiL('play.copy', 'Copy address'), () => copyAddress(rec)),
 		act('', SVG_DOWN, webuiL('media.download', 'Download'), () => fetchTo(base + '/file')),
 		act('webui-media-delete', SVG_DELETE, webuiL('media.delete', 'Delete'), away(() => remove(rec))));
 }

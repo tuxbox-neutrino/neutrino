@@ -147,7 +147,8 @@ function channelRow(ch) {
 				unavailable: doubt && doubt.sure ? doubt.text : '', note: doubt ? doubt.text : '',
 				onClick: () => webuiPlayInBrowser(ch.id, ch.name, ch.kind)},
 			{label: webuiL('play.external', 'Open in a player (M3U)'), icon: SVG_STREAM, suggested: !!doubt,
-				onClick: () => webuiOpenInPlayer(ch.id)}
+				onClick: () => webuiOpenInPlayer(ch.id)},
+			{label: webuiL('play.copy', 'Copy address'), icon: WEBUI_COPY_SVG, onClick: () => webuiCopyChannelAddress(ch.id)}
 		];
 	});
 	channelsShown[ch.id] = ch;

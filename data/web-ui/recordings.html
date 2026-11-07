@@ -529,9 +529,10 @@
 			font-size: var(--webui-font-sm);
 		}
 
+		/* two columns as wide as each other, whatever their words */
 		.webui-media-detail-acts {
 			display: grid;
-			grid-template-columns: 1fr 1fr;
+			grid-template-columns: repeat(2, minmax(0, 1fr));
 			gap: 0.5rem;
 			margin-top: 1rem;
 		}
@@ -542,7 +543,7 @@
 			gap: 0.45rem;
 			min-height: 2.75rem;
 			margin: 0;
-			padding: 0.45rem 0.6rem;
+			padding: 0.45rem 0.4rem;
 			font-size: var(--webui-font-sm);
 		}
 
@@ -551,10 +552,8 @@
 			height: 0.95rem;
 		}
 
-		/* Play on TV and Delete across, Playlist and Download side by side
-		   between them */
-		.webui-media-detail-acts .primary,
-		.webui-media-detail-acts .webui-media-delete {
+		/* Play on TV across, the others two by two below it */
+		.webui-media-detail-acts .primary {
 			grid-column: 1 / -1;
 		}
 

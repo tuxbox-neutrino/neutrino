@@ -278,10 +278,9 @@ function _webuiV1FileName(disposition) {
 	return name.replace(/[\/\\]/g, '_');
 }
 
-// A file the box answers as a download, saved under the name the box gives it
-// (Content-Disposition), else under fallback; the same sign-in on 403 as
-// webuiV1. Resolves to the name it was saved under.
-async function webuiV1Download(path, fallback) {
+// A file the box answers, read with the same sign-in on 403 as webuiV1: the
+// answer, or the refusal thrown as webuiV1 throws it.
+async function _webuiV1GetFile(path) {
 	var get = function() { return webuiFetchBox(_webuiV1Url(path), {credentials: 'same-origin', cache: 'no-store'}); };
 	var resp = await get();
 	if (await _webuiV1ChangeOwed(resp))
@@ -294,6 +293,14 @@ async function webuiV1Download(path, fallback) {
 			declined = true;
 	}
 	if (!resp.ok) throw _webuiV1Declined(await _webuiV1Error(resp, 'GET', path), declined);
+	return resp;
+}
+
+// A file the box answers as a download, saved under the name the box gives it
+// (Content-Disposition), else under fallback; the same sign-in on 403 as
+// webuiV1. Resolves to the name it was saved under.
+async function webuiV1Download(path, fallback) {
+	var resp = await _webuiV1GetFile(path);
 	var name = _webuiV1FileName(resp.headers.get('Content-Disposition') || '') || fallback;
 	var blob = await resp.blob();
 	var a = document.createElement('a');
@@ -830,6 +837,9 @@ function _webuiEpgModalHTML() {
 			<button type="button" class="webui-epg-round" id="webuiEpgM3uBtn" onclick="webuiOpenInPlayer()" title="${webuiLH('play.external', 'Open in a player (M3U)')}" aria-label="${webuiLH('play.external', 'Open in a player (M3U)')}">
 				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 17H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-1"/><polygon points="12 15 17 21 7 21"/></svg>
 			</button>
+			<button type="button" class="webui-epg-round" id="webuiEpgCopyBtn" onclick="webuiCopyChannelAddress()" title="${webuiLH('play.copy', 'Copy address')}" aria-label="${webuiLH('play.copy', 'Copy address')}">
+				${WEBUI_COPY_SVG}
+			</button>
 		</footer>
 	</div>
 </div>
@@ -1188,6 +1198,106 @@ function webuiOpenInPlayer(channelId) {
 	webuiV1Download('/stream/playlist/' + encodeURIComponent(channelId), 'channel.m3u').catch(function(e) {
 		webuiToastError(webuiL('play.external', 'Open in a player (M3U)'), e);
 	});
+}
+
+const WEBUI_COPY_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>';
+
+/* Puts a text on the clipboard; resolves whether it got there. Where the
+   page is served without TLS the clipboard API is not there
+   (navigator.clipboard is undefined outside a secure context): a field out
+   of sight is selected and copied with the old command instead, inside the
+   open modal dialog where there is one (the one holding the focus, else the
+   last opened), as the page around it takes no focus. */
+async function webuiCopyText(text) {
+	if (navigator.clipboard && window.isSecureContext) {
+		try {
+			await navigator.clipboard.writeText(text);
+			return true;
+		} catch (e) {
+			// refused (a permission, a frame): the old way may still work
+		}
+	}
+	const before = document.activeElement;
+	const field = document.createElement('textarea');
+	field.className = 'webui-clip';
+	field.value = text;
+	field.setAttribute('readonly', '');
+	field.setAttribute('aria-hidden', 'true');
+	field.tabIndex = -1;
+	const open = document.querySelectorAll('dialog[open]');
+	((before && before.closest && before.closest('dialog[open]')) || open[open.length - 1] || document.body).appendChild(field);
+	let done = false;
+	try {
+		field.focus({preventScroll: true});
+		field.select();
+		field.setSelectionRange(0, text.length);
+		done = document.execCommand('copy');
+	} catch (e) {
+		done = false;
+	}
+	field.remove();
+	if (before && before.focus)
+		before.focus({preventScroll: true});
+	return !!done;
+}
+
+/* The address a player opens, as a playlist of the box names it (path below
+   /api/v1): the playlist read with the page's session and its line that is
+   an http or https address, so the address is the one the playlist file
+   gives a player, with the token where the box writes one; '' where it
+   names none. */
+async function webuiPlaylistAddress(path) {
+	const resp = await _webuiV1GetFile(path);
+	const lines = (await resp.text()).split(/\r?\n/).map(function(l) { return l.trim(); });
+	return lines.find(function(l) { return /^https?:\/\//i.test(l); }) || '';
+}
+
+/* Copy address, beside each way to a player (M3U): the stream address of
+   the playlist at path to the clipboard, and the way to open it in VLC.
+   Where the browser refuses the copy, a sheet shows the address selected,
+   to copy by hand. */
+async function webuiCopyAddress(path) {
+	let address;
+	try {
+		address = await webuiPlaylistAddress(path);
+	} catch (e) {
+		webuiToastError(webuiL('play.copy', 'Copy address'), e);
+		return;
+	}
+	if (!address) {
+		webuiShowToast(webuiL('play.copy_none', 'The playlist names no address'), true);
+		return;
+	}
+	if (await webuiCopyText(address))
+		webuiShowToast(webuiL('play.copied', 'Address copied. In VLC: Media → Open Network Stream'));
+	else
+		_webuiShowAddress(address);
+}
+
+// A channel's address; without an argument, the guide dialog's channel
+function webuiCopyChannelAddress(channelId) {
+	channelId = channelId || webuiEpgModalChannelId;
+	if (channelId)
+		webuiCopyAddress('/stream/playlist/' + encodeURIComponent(channelId));
+}
+
+// The address shown selected in a sheet, for a copy by hand
+function _webuiShowAddress(address) {
+	const why = webuiL('play.copy_refused', 'The browser did not allow copying. Copy the address from here.');
+	if (typeof webuiSheet !== 'function') {
+		window.prompt(why, address);
+		return;
+	}
+	const field = webuiEl('input', {type: 'text', id: 'webuiCopyField', value: address, className: 'webui-copy-field',
+		attrs: {readonly: '', autofocus: '', spellcheck: 'false'}, on: {focus: function() { this.select(); }}});
+	webuiSheet({
+		title: webuiL('play.copy', 'Copy address'),
+		body: [webuiEl('p', {}, why),
+			webuiEl('label', {htmlFor: 'webuiCopyField', className: 'webui-visually-hidden'}, webuiL('play.address', 'Stream address')),
+			field],
+		actions: [{label: webuiL('msg.close', 'Close'), value: 'close'}]
+	});
+	field.select();
 }
 
 /* The coding of a channel's picture as this tab has learnt it: the player
