@@ -435,6 +435,32 @@ var V1SET_OWN_LABELS = {
 	'minimode': ['set.own.minimode', 'Simple mode: lists without recording and bouquet functions']
 };
 
+/* The words of a row whose name or help the box's language files lack: the
+   box then sends the name of the text (streaming.switch_picture) in its
+   place, and the page says it in its own words. */
+var V1SET_FALLBACK_TEXTS = {
+	'streaming_switch_picture': {
+		label: ['set.own.switch_picture', 'Streams may switch the TV picture'],
+		hint: ['set.own.switch_picture_hint', 'Without a free tuner, a stream of another channel switches the TV picture to that channel and ends a PiP showing it; never while the box records or keeps a timeshift']
+	}
+};
+
+// a text of the box that is the name of a text it lacks: empty, the key
+// of its help, or a dotted name in the manner of the language files
+function _v1setUntold(text, key) {
+	return !text || text === key || /^[a-z][a-z0-9_]*(\.[a-z0-9_]+)+$/.test(text);
+}
+
+// a row's name ('label') or help ('hint') as the box tells it, in the
+// page's words where the box sends only the name of a text it lacks
+function _v1setBoxText(item, what) {
+	var told = what === 'label' ? item.label : item.hint_text;
+	var own = _v1setHas(V1SET_FALLBACK_TEXTS, item.id);
+	if (own && own[what] && _v1setUntold(told, what === 'hint' ? item.hint : ''))
+		return webuiL(own[what][0], own[what][1]);
+	return told || '';
+}
+
 function _v1setOwnLabel(id) {
 	var own = Object.prototype.hasOwnProperty.call(V1SET_OWN_LABELS, id) ? V1SET_OWN_LABELS[id] : null;
 	return own ? webuiL(own[0], own[1]) : '';
@@ -491,7 +517,7 @@ function _v1setBaseLabel(item) {
 	var partner = part && item.pair ? V1SET.items[item.pair] : null;
 	if (part && item.label && partner && partner.label === item.label)
 		return webuiL(part[0], part[1]);
-	return item.label || V1SET.regLabels[item.id] || _v1setOwnLabel(item.id) || item.id;
+	return _v1setBoxText(item, 'label') || V1SET.regLabels[item.id] || _v1setOwnLabel(item.id) || item.id;
 }
 
 function _v1setLabel(item) {
@@ -739,10 +765,11 @@ function v1setRow(item) {
 
 	// the help the box shows beside the setting, opened by the info button
 	var help = null;
-	if (item.hint_text) {
+	var hint = _v1setBoxText(item, 'hint');
+	if (hint) {
 		var open = !!V1SET.helpOpen[item.id];
 		help = webuiEl('div', {className: 'webui-set-help', id: id + '_help', hidden: !open},
-			webuiEl('p', {}, item.hint_text),
+			webuiEl('p', {}, hint),
 			item.needs_restart ? webuiEl('p', {}, restart) : null,
 			item.secret ? null : webuiEl('p', {className: 'webui-set-default'},
 				webuiL('set.default', 'Default') + ': ' + _v1setDefaultText(item)));
@@ -759,10 +786,10 @@ function v1setRow(item) {
 	}
 
 	// the same help as a tip on the name and on the field, to be read on hover
-	if (item.hint_text) {
-		labelCell.querySelector('label').title = item.hint_text;
+	if (hint) {
+		labelCell.querySelector('label').title = hint;
 		var field = control.matches('[data-v1key]') ? control : control.querySelector('[data-v1key]');
-		if (field && !field.title) field.title = item.hint_text;
+		if (field && !field.title) field.title = hint;
 	}
 	var row = webuiEl('div', {className: 'webui-form-row', data: {v1row: item.id}}, labelCell, control, help);
 	var p = V1SET.pending[_v1setWrites(item)];

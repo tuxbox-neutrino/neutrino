@@ -95,12 +95,15 @@ function _webuiPlayerBuild() {
 		on: {click: function() { _webuiPlayerStart(p); }}}, webuiL('play.retry', 'Try again'));
 	p.external = webuiEl('button', {type: 'button', className: 'webui-btn webui-player-external', hidden: true,
 		on: {click: function() { webuiOpenInPlayer(p.channel.id); }}}, webuiL('play.external', 'Open in a player (M3U)'));
+	// the setting that lets a stream switch the TV picture, its row in focus
+	p.setting = webuiEl('a', {className: 'webui-btn primary webui-player-setting', hidden: true,
+		attrs: {href: '/settings.html#streaming_switch_picture'}}, webuiL('play.to_setting', 'Open the setting'));
 	p.dialog = webuiEl('div', {className: 'webui-epg-modal webui-player',
 		on: {click: function(e) { e.stopPropagation(); }}},
 		webuiEl('div', {className: 'webui-epg-modal-header'}, p.title, close),
 		webuiEl('div', {className: 'webui-epg-modal-body webui-player-body'},
 			p.stage,
-			webuiEl('div', {className: 'webui-player-foot'}, p.state, p.resume, p.retry, p.external)));
+			webuiEl('div', {className: 'webui-player-foot'}, p.state, p.resume, p.setting, p.retry, p.external)));
 	p.backdrop = webuiEl('div', {className: 'webui-epg-modal-backdrop webui-player-backdrop', id: 'webuiPlayer',
 		on: {click: function(e) { if (e.target === p.backdrop) webuiPlayerClose(); }}}, p.dialog);
 	document.body.appendChild(p.backdrop);
@@ -111,7 +114,8 @@ function _webuiPlayerBuild() {
    which buttons go with it: 'resume'; 'retry', which comes with the
    channel's playlist for a player on this computer where the channel is one
    of the tuners'; 'retry-only', where the playlist would meet the same
-   refusal; 'external', the playlist alone as the way out, for a channel no
+   refusal; 'retry-setting', that with the way to the setting that lifts
+   the refusal; 'external', the playlist alone as the way out, for a channel no
    browser plays or beside the start of one the channel list says sends
    MPEG-2; or none. An error is announced. A button that goes away
    with the focus on it hands the focus on to the picture, or to the close
@@ -124,10 +128,11 @@ function _webuiPlayerSay(p, text, button, error, hint) {
 	p.state.setAttribute('role', error ? 'alert' : 'status');
 	p.state.classList.toggle('error', !!error);
 	p.resume.hidden = button !== 'resume';
-	p.retry.hidden = button !== 'retry' && button !== 'retry-only';
+	p.retry.hidden = button !== 'retry' && button !== 'retry-only' && button !== 'retry-setting';
+	p.setting.hidden = button !== 'retry-setting';
 	p.external.hidden = !(button === 'external' || (button === 'retry' && !_webuiPlayerWeb(p.channel.kind)));
 	p.external.classList.toggle('primary', button === 'external');
-	if ([p.resume, p.retry, p.external].some(function(b) { return had === b && b.hidden; }))
+	if ([p.resume, p.retry, p.external, p.setting].some(function(b) { return had === b && b.hidden; }))
 		(p.media || p.close).focus();
 }
 
@@ -279,6 +284,15 @@ async function _webuiPlayerAsk(p, url) {
 		err.code = WEBUI_PLAYER_REFUSALS[resp.status] || '';
 		if (resp.status === 503)
 			err.code = resp.headers.get('Retry-After') ? 'too-many-conversions' : 'upstream-unreachable';
+		/* No free tuner may name the setting that would free one, which only
+		   the body says: asked once more with a GET, which the box refuses
+		   before it starts anything; one it would answer now is cut off at
+		   once and counts as the stream starting. */
+		if (resp.status === 409) {
+			var why = await _webuiPlayerWhy(p, url);
+			if (why === null || (why && why.code))
+				return why;
+		}
 		return err;
 	} catch (e) {
 		return e;
@@ -299,7 +313,9 @@ function _webuiPlayerCurrent(p, token) {
    coding of its picture, with its playlist as the way out and nothing to try
    again; the coding is noted, so the page offers the channel that way from
    now on. No free tuner is explained, with a way to try again once the TV
-   has moved; the playlist would be refused the same way. */
+   has moved; the playlist would be refused the same way. Where the box says
+   switching the TV picture would free one, the way to the setting that
+   allows it comes with that. */
 function _webuiPlayerFail(p, err) {
 	_webuiPlayerLetGo(p);
 	if (err && err.code === 'not-playable-in-browser') {
@@ -312,6 +328,12 @@ function _webuiPlayerFail(p, err) {
 		return;
 	}
 	if (err && err.code === 'no-free-tuner') {
+		if ((err.dependsOn || []).indexOf('streaming_switch_picture') >= 0) {
+			_webuiPlayerSay(p, webuiErrText(err), 'retry-setting', true,
+				webuiL('play.no_tuner_switch', 'The TV picture would have to switch for this; you can allow that under Settings → %s.')
+					.replace('%s', webuiL('set.sec_misc', 'Miscellaneous')));
+			return;
+		}
 		_webuiPlayerSay(p, webuiErrText(err), 'retry-only', true,
 			webuiL('play.no_tuner_hint', 'The TV picture or a recording holds the tuner. A channel on the same transponder still plays, and in standby any channel does, except one being recorded.'));
 		return;

@@ -2200,12 +2200,16 @@ async function loadSettings() {
 	_settingsFindable = null;
 	document.getElementById('settingsContent').innerHTML = '';
 
-	// Determine active category from hash or default to first
-	var targetCategory = categoryOfHash() || v1setCategories()[0].id;
+	// Determine active category from hash or default to first; an address
+	// that names a setting opens its category with the focus on its field
+	var hit = settingsHitOfHash();
+	var targetCategory = categoryOfHash() || (hit && hit.cat) || v1setCategories()[0].id;
 
 	activeCategory = '';
 	buildNavigation();
 	switchCategory(targetCategory);
+	if (hit)
+		settingsGo(hit);
 	webuiUpdateSaveBar();
 	// the search has its rows now; a word typed meanwhile is looked up again
 	var find = document.getElementById('settingsSearch');
@@ -2223,10 +2227,21 @@ function categoryOfHash() {
 	return known ? hash : '';
 }
 
+// A setting the address names by its key (settings.html#streaming_switch_picture,
+// where the player points to it), as a hit of the search: its category and row
+function settingsHitOfHash() {
+	var key = location.hash.replace('#', '');
+	if (!key || categoryOfHash())
+		return null;
+	return v1setFindable().filter(function(h) { return h.id === key; })[0] || null;
+}
+
 // Hash navigation
 window.addEventListener('hashchange', function() {
 	var cat = categoryOfHash();
+	var hit = cat ? null : settingsHitOfHash();
 	if (cat) switchCategory(cat);
+	else if (hit) settingsGo(hit);
 });
 
 // M5c: Dirty-State live verfolgen (Delegation — Panels werden lazy

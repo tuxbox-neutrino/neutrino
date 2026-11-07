@@ -13,9 +13,11 @@
 //
 // A refusal throws an Error with the box's reason as its message, the HTTP
 // status in .status and the code of the refusal in .code (answers come as
-// application/problem+json, whose type is /errors/ and the code); a 403 the
-// user did not sign in for carries .cancelled. webuiToastError (in
-// webui-header.js) tells the user why, in the page's language.
+// application/problem+json, whose type is /errors/ and the code), and in
+// .dependsOn the keys of the settings the refusal names as its cause (its
+// depends_on, [] where it names none); a 403 the user did not sign in for
+// carries .cancelled. webuiToastError (in webui-header.js) tells the user
+// why, in the page's language.
 //
 // An answer without a body (202, 204) resolves null; with opts.accepted it
 // resolves true for 202, which says the box took the request on, and false
@@ -154,15 +156,19 @@ async function _webuiV1Send(method, path, opts) {
 async function _webuiV1Error(resp, method, path) {
 	var text = '';
 	var code = '';
+	var depends = [];
 	try {
 		var p = await resp.json();
 		if (p) text = p.detail || p.title || '';
 		if (p && typeof p.type === 'string' && p.type.indexOf('/errors/') === 0)
 			code = p.type.substring(8);
+		if (p && Array.isArray(p.depends_on))
+			depends = p.depends_on.map(String);
 	} catch (e) { /* not a problem document */ }
 	var err = new Error(text || (method + ' ' + path + ': HTTP ' + resp.status));
 	err.status = resp.status;
 	err.code = code;
+	err.dependsOn = depends;
 	return err;
 }
 
