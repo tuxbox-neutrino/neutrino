@@ -603,6 +603,68 @@ async function webuiPlayRecording(id) {
 	}
 }
 
+/* What the TV's player plays, as GET /api/v1/playback says it, while it
+   plays a recording or a file: {source, id, title}, with the id for a
+   recording; null for live television, its timeshift, standby and a player
+   that has just ended. */
+function webuiPlaybackOf(doc) {
+	if (!doc || (doc.source !== 'recording' && doc.source !== 'file') || doc.state === 'stopped')
+		return null;
+	if (doc.source === 'recording') {
+		const r = doc.recording || {};
+		return {source: 'recording', id: r.id || '', title: r.title || r.channel || ''};
+	}
+	const f = doc.file || {};
+	return {source: 'file', id: '', title: f.title || f.name || ''};
+}
+
+/* The same from a playback event, whose text names the player's state,
+   what it plays and, for a recording, its id ("playing recording <id>",
+   "paused file", "stopped recording <id>"): {stopped, source, id}; null for
+   a text of another form. */
+function webuiPlaybackEvent(data) {
+	const m = /^(\S+) (\S+)(?: (\S+))?/.exec((data && data.text) || '');
+	return m ? {stopped: m[1] === 'stopped', source: m[2], id: m[3] || ''} : null;
+}
+
+// Why Play on TV waits: what the TV plays, a recording by its title
+function webuiPlayLockText(playing) {
+	if (playing.source === 'file')
+		return webuiL('media.lock_file', 'A file is playing on the TV. Stop it first.');
+	if (playing.title)
+		return webuiL('media.lock', '“%s” is playing on the TV. Stop it first.').replace('%s', playing.title);
+	return webuiL('media.lock_recording', 'A recording is playing on the TV. Stop it first.');
+}
+
+/* Play on TV held back while the TV plays something else: marked
+   aria-disabled, the reason its description and its tooltip, and still
+   focusable, so a press can say why (the caller says it and starts
+   nothing). An empty reason frees it again; tip is its tooltip when free,
+   none where it has its word. One element of the page holds the reason. */
+function webuiPlayLock(btn, reason, tip) {
+	if (reason) {
+		let note = document.getElementById('webuiPlayLock');
+		if (!note) {
+			note = document.createElement('span');
+			note.id = 'webuiPlayLock';
+			note.className = 'webui-visually-hidden';
+			document.body.appendChild(note);
+		}
+		if (note.textContent !== reason)
+			note.textContent = reason;
+		btn.setAttribute('aria-disabled', 'true');
+		btn.setAttribute('aria-describedby', note.id);
+		btn.title = reason;
+	} else {
+		btn.removeAttribute('aria-disabled');
+		btn.removeAttribute('aria-describedby');
+		if (tip)
+			btn.title = tip;
+		else
+			btn.removeAttribute('title');
+	}
+}
+
 // A yes or no in a sheet (webui-dom.js); without the helper layer the
 // browser's own confirm.
 function _webuiV1Ask(text, title, ok) {

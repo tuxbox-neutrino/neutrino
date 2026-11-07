@@ -277,6 +277,13 @@
 			margin-left: 0;
 		}
 
+		/* Play on TV waiting while the TV plays something else: dimmed,
+		   still focusable, its tooltip says why */
+		.webui-media-tile-play[aria-disabled="true"] {
+			opacity: 0.6;
+			cursor: not-allowed;
+		}
+
 		/* Stop waiting for the box takes no second press, and a click on it
 		   stays on it: Pico lets a busy button's clicks through to the
 		   picture below, which would open the details */

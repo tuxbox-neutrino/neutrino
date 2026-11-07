@@ -73,6 +73,7 @@ const dash = {
 	timersAsked: 0,		// counts timer reads, so an older answer arriving last is dropped
 	playback: null,
 	playbackAt: 0,		// when the playback state was read, to count its position on
+	playbackRead: 0,	// counts playback reads, so an older answer arriving last is dropped
 	channelRead: 0,			// counts channel reads, so an older answer arriving last is dropped
 	systemShown: false,		// the gauges showed values once
 	tunerShown: false,		// and the reception tile
@@ -278,9 +279,25 @@ function refreshGuideSoon() {
 // A recording or a file the player shows, from GET /api/v1/playback and
 // the playback event; the position is counted on while it plays.
 async function refreshPlayback() {
-	dash.playback = await dashGet('/playback');
+	const read = ++dash.playbackRead;
+	const p = await dashGet('/playback');
+	if (read !== dash.playbackRead) return;
+	dash.playback = p;
 	dash.playbackAt = Date.now();
 	showPlayback();
+	lockRecent();
+}
+
+// The playback event: an end frees Play on TV at once, before the state is
+// read again
+function playbackEvent(d) {
+	const ev = webuiPlaybackEvent(d);
+	if (ev && ev.stopped && dash.playback) {
+		dash.playback = null;
+		showPlayback();
+		lockRecent();
+	}
+	refreshPlayback();
 }
 
 function playing() {
@@ -413,8 +430,9 @@ function loadSystemInfo() {
 }
 
 // The latest recordings, from GET /api/v1/recordings/archive: the three
-// newest, each with Play on TV; read again when a recording ends. A list
-// that never showed says why it is empty.
+// newest, each with Play on TV, which waits while the TV plays a recording
+// or a file; read again when a recording ends. A list that never showed
+// says why it is empty.
 async function refreshRecent() {
 	const list = document.getElementById('recent-list');
 	if (!list) return;
@@ -440,10 +458,52 @@ async function refreshRecent() {
 			webuiEl('b', {}, r.start ? dayAndClock(r.start) : ''),
 			webuiEl('span', {}, title, webuiEl('small', {}, [r.channel, len].filter(Boolean).join(' · '))),
 			webuiEl('button', {type: 'button', className: 'webui-btn', title: webuiL('media.play', 'Play on TV'),
-				attrs: {'aria-label': webuiL('media.play', 'Play on TV') + ': ' + title},
-				on: {click: function() { webuiPlayRecording(r.id); }}},
+				data: {play: r.id}, attrs: {'aria-label': webuiL('media.play', 'Play on TV') + ': ' + title},
+				on: {click: function() { playRecent(r.id); }}},
 				webuiMarkup('<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><polygon points="6 4 20 12 6 20"/></svg>')));
 	});
+	lockRecent();
+}
+
+// What the TV's player plays, a recording or a file, else null
+function tvPlays() {
+	return webuiPlaybackOf(dash.playback);
+}
+
+/* Why Play on TV of the latest recordings waits, '' where it does not: the
+   TV plays one of them or anything else, and this card has no Stop, so a
+   second start stays away. On a box without the route to stop a playback
+   the box's own question about stopping stays the way; whether it has the
+   route is asked once something plays. */
+let stopRouteAsk = null;
+function recentLock() {
+	const p = tvPlays();
+	if (!p)
+		return '';
+	const can = webuiV1OffersNow('POST', '/playback/stop');
+	if (can === null && !stopRouteAsk)
+		stopRouteAsk = webuiV1Offers('POST', '/playback/stop').then(function() {
+			stopRouteAsk = null;
+			if (webuiV1OffersNow('POST', '/playback/stop') !== null) lockRecent();
+		});
+	return can === false ? '' : webuiPlayLockText(p);
+}
+
+function lockRecent() {
+	const why = recentLock();
+	document.querySelectorAll('#recent-list button[data-play]').forEach(function(b) {
+		webuiPlayLock(b, why, webuiL('media.play', 'Play on TV'));
+	});
+}
+
+// a press while it waits says why and starts nothing
+function playRecent(id) {
+	const why = recentLock();
+	if (why) {
+		webuiShowToast(why);
+		return;
+	}
+	webuiPlayRecording(id);
 }
 
 // What the box records, from GET /api/v1/recordings; the time left comes
@@ -936,7 +996,7 @@ function followTheBox() {
 			if (d && dash.channel && sameLow48(d.channel_id, dash.channel.id))
 				refreshGuideSoon();
 		},
-		playback: refreshPlayback,
+		playback: playbackEvent,
 		volume: function(d) { volumeEvent('percent', d); },
 		mute: function(d) { volumeEvent('muted', d); }
 	});

@@ -3546,21 +3546,29 @@ function webuiToastError(prefix, e) {
 
 /* Where the messages appear: one place for the page, there before the first
    message, so a screen reader announces what comes into it (an error at
-   once, as an alert). */
+   once, as an alert). A modal dialog (a sheet) lies above everything else
+   and leaves the page behind it inert: while one is open, the messages go
+   to a place of their own inside the last one opened, which goes with it;
+   made only then, it is marked fresh. */
 function _webuiToastHost() {
-	var host = document.getElementById('webui-toast-host');
+	var open = document.querySelectorAll('dialog[open]');
+	var top = open.length ? open[open.length - 1] : null;
+	var host = top ? top.querySelector(':scope > .webui-toast-host') : document.getElementById('webui-toast-host');
 	if (!host && document.body) {
 		host = document.createElement('div');
-		host.id = 'webui-toast-host';
+		if (!top)
+			host.id = 'webui-toast-host';
 		host.className = 'webui-toast-host';
 		host.setAttribute('aria-live', 'polite');
-		document.body.appendChild(host);
+		host._webuiFresh = !!top;
+		(top || document.body).appendChild(host);
 	}
 	return host;
 }
 
 // Toast notification: one at a time, at the bottom and above the phone's
 // tab bar; an error stays twice as long, and a click takes a message away.
+var _webuiToastSeq = 0;	// counts the messages, so only the newest is shown
 function webuiShowToast(message, isError) {
 	const existing = document.getElementById('webui-toast');
 	if (existing) existing.remove();
@@ -3571,7 +3579,17 @@ function webuiShowToast(message, isError) {
 	if (isError) toast.setAttribute('role', 'alert');
 	toast.textContent = message;
 	toast.addEventListener('click', function() { toast.remove(); });
-	(_webuiToastHost() || document.body).appendChild(toast);
+	const host = _webuiToastHost() || document.body;
+	const seq = ++_webuiToastSeq;
+	// a place made just now is in the page a moment before its first
+	// message, so that message is announced; a newer message meanwhile
+	// takes its place
+	if (host._webuiFresh) {
+		host._webuiFresh = false;
+		setTimeout(function() { if (seq === _webuiToastSeq && host.isConnected) host.appendChild(toast); }, 50);
+	} else {
+		host.appendChild(toast);
+	}
 	const shown = isError ? 6000 : 3000;
 	setTimeout(() => { toast.classList.add('leaving'); }, shown - 500);
 	setTimeout(() => { toast.remove(); }, shown);

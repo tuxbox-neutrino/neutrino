@@ -5,8 +5,10 @@
 // as tiles with their cover or their channel's logo, or as rows of a list;
 // the one chosen with its details and actions in a column beside them on a
 // wide screen, in a sheet on a narrower one. Play on TV turns into Stop while
-// the TV plays the recording, on a box that has the route to stop it. Titles
-// and texts come from the recording's metadata and go in as text.
+// the TV plays the recording, on a box that has the route to stop it; while
+// the TV plays a recording or a file, Play on TV of every other recording
+// waits and says why. Titles and texts come from the recording's metadata and
+// go in as text.
 const PAGE = 30;
 const SVG_FILM = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M7 4v16M17 4v16M2 9h5M2 15h5M17 9h5M17 15h5"/></svg>';
 const SVG_PLAY = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polygon points="5,3 19,12 5,21"/></svg>';
@@ -30,6 +32,8 @@ let chosen = null;		// the id of the recording in the column beside the list
 let detailToken = 0;		// a newer choice makes an older answer stale
 let view = 'tiles';		// tiles or list, as this browser last left it
 let playingId = null;		// the recording the TV plays, from the list, the details and the playback events
+let tvPlays = null;		// what the TV's player plays, a recording or a file ({source, id, title}), else null
+let playbackSeen = 0;		// counts reads and events of the playback, so an older read does not undo a newer event
 let stopping = null;		// {id, timer} from a press of Stop until the playback ends
 // how long a stop the box took on waits for the playback event before the
 // state is read once
@@ -189,29 +193,73 @@ function playbackChanged() {
 	playbackSoon = setTimeout(() => { playbackSoon = null; loadList(false, true); }, 1000);
 }
 
+function titleOf(rec) {
+	return rec.title || rec.channel || rec.id;
+}
+
 /* What plays, as an answer says it: the recording an item of a list or the
    details marks playing; an item that says it does not ends the mark it
    held, and a stop that waits for that. */
 function sawPlaying(items) {
 	const playing = items.find(r => r.playing);
-	if (playing) playingId = playing.id;
-	else if (items.some(r => r.id === playingId)) playingId = null;
+	if (playing) {
+		playingId = playing.id;
+		tvPlays = {source: 'recording', id: playing.id, title: titleOf(playing)};
+	} else if (items.some(r => r.id === playingId)) {
+		playingId = null;
+		if (tvPlays && tvPlays.source === 'recording') tvPlays = null;
+	}
+	// a recording that started from elsewhere is named once an answer has it
+	const named = tvPlays && tvPlays.source === 'recording' && !tvPlays.title ? items.find(r => r.id === tvPlays.id) : null;
+	if (named) tvPlays.title = titleOf(named);
 	if (stopping && stopping.id !== playingId)
 		stopDone(stopping);
 	syncPlay();
 }
 
+/* What the TV's player plays, as GET /api/v1/playback says it: read as the
+   page opens, after the event stream was away (it may have missed an end)
+   and where a stop waits too long for its event. A box that does not answer
+   leaves what is known; resolves whether it answered. */
+async function readPlayback() {
+	const read = ++playbackSeen;
+	const now = await _webuiV1Read('/playback').catch(() => null);
+	if (!now || read !== playbackSeen) return false;
+	tvPlays = webuiPlaybackOf(now);
+	playingId = tvPlays && tvPlays.source === 'recording' ? tvPlays.id : null;
+	if (stopping && stopping.id !== playingId)
+		stopDone(stopping);
+	syncPlay();
+	return true;
+}
+
 /* The playback event names its state, what plays and, for a recording, its
    id ("playing recording <id>", "stopped recording <id>", "playing file"):
    the buttons follow it at once, and a stop waiting for it is done once the
-   recording it stopped no longer plays. */
+   recording it stopped no longer plays. A recording the page does not show
+   is named by one read of what plays. */
 function playbackEvent(data) {
-	const m = /^(\S+) (\S+)(?: (\S+))?/.exec((data && data.text) || '');
-	if (m) {
-		if (m[1] !== 'stopped')
-			playingId = m[2] === 'recording' && m[3] ? m[3] : null;
-		else if (!m[3] || m[3] === playingId)
+	const ev = webuiPlaybackEvent(data);
+	if (ev) {
+		playbackSeen++;
+		if (ev.stopped) {
+			if (!ev.id || ev.id === playingId) playingId = null;
+			if (!ev.id || !tvPlays || tvPlays.source !== 'recording' || tvPlays.id === ev.id) tvPlays = null;
+		} else if (ev.source === 'recording' && ev.id) {
+			playingId = ev.id;
+			if (!tvPlays || tvPlays.id !== ev.id) {
+				const rec = shown.find(r => r.id === ev.id);
+				tvPlays = {source: 'recording', id: ev.id, title: rec ? titleOf(rec) : ''};
+				if (!rec) readPlayback();
+			}
+		} else if (ev.source === 'file') {
 			playingId = null;
+			if (!tvPlays || tvPlays.source !== 'file') tvPlays = {source: 'file', id: '', title: ''};
+		} else {
+			// live television or its timeshift: the player plays no file
+			playingId = null;
+			tvPlays = null;
+		}
 		if (stopping && stopping.id !== playingId)
 			stopDone(stopping);
 		syncPlay();
@@ -277,7 +325,7 @@ function openButton(rec, title, meta, pill) {
 // One recording as a tile: its picture with the length, whether it plays
 // and Play on TV on it; its title and what it is below
 function recordingTile(rec) {
-	const title = rec.title || rec.channel || rec.id;
+	const title = titleOf(rec);
 	const meta = [rec.channel, when(rec.start), bytes(rec.size)].filter(Boolean).join(' · ');
 	const pic = onPicture(picture(rec), [
 		rec.playing ? playingPill() : null,
@@ -291,7 +339,7 @@ function recordingTile(rec) {
 // One recording as a row: its picture, its title and what it is, Play on
 // TV and the menu with the others
 function recordingRow(rec) {
-	const title = rec.title || rec.channel || rec.id;
+	const title = titleOf(rec);
 	const meta = [rec.channel, when(rec.start), length(rec.duration), bytes(rec.size)].filter(Boolean).join(' · ');
 	const base = '/api/v1' + archive(rec.id);
 	return webuiEl('li', {className: 'webui-media-row' + (rec.id === chosen ? ' chosen' : ''), data: {id: rec.id},
@@ -327,7 +375,7 @@ function showPlay(btn) {
 	// Stop only where the box has the route; until its description is read,
 	// as it most likely has
 	const can = webuiV1OffersNow('POST', '/playback/stop');
-	if (id === playingId && can === null)
+	if (tvPlays && can === null)
 		askStopRoute();
 	const stops = id === playingId && can !== false;
 	const word = stops ? webuiL('media.stop', 'Stop') : webuiL('media.play', 'Play on TV');
@@ -339,8 +387,9 @@ function showPlay(btn) {
 		else
 			btn.replaceChildren(webuiMarkup(stops ? SVG_STOP : SVG_PLAY), webuiEl('span', {}, word));
 	}
-	if (kind === 'tile') btn.title = named;
 	if (kind !== 'act') btn.setAttribute('aria-label', named + ': ' + btn.dataset.title);
+	// while the TV plays something else, Play waits and says why
+	webuiPlayLock(btn, lockFor(id), kind === 'tile' ? named : '');
 	// busy from the press until the box has ended the playback, without a
 	// second press meanwhile; the mark takes the colour and the position the
 	// button has in the page, so one built while a stop waits is marked once
@@ -354,6 +403,15 @@ function showPlay(btn) {
 		btn._stopMarked = busy;
 		_webuiWaitMark(btn, busy);
 	}
+}
+
+// Why Play on TV of a recording waits, '' where it does not: the TV plays
+// a file or another recording. On a box without the route to stop it the
+// box's own question about stopping stays the way.
+function lockFor(id) {
+	if (!tvPlays || (tvPlays.source === 'recording' && tvPlays.id === id))
+		return '';
+	return webuiV1OffersNow('POST', '/playback/stop') === false ? '' : webuiPlayLockText(tvPlays);
 }
 
 // every Play and Stop of the page as the playback stands now
@@ -373,11 +431,26 @@ function askStopRoute() {
 	});
 }
 
-function playOrStop(id, leave) {
+let lockRead = null;		// the read a press of a waiting Play makes; a press meanwhile does nothing
+async function playOrStop(id, leave) {
 	if (stopping && stopping.id === id) return;
 	if (id === playingId && webuiV1OffersNow('POST', '/playback/stop') !== false) {
 		stop(id);
 		return;
+	}
+	// a press of a Play that waits reads what plays first, as an end may
+	// have gone by without its event; still waiting, it says why and starts
+	// nothing
+	if (lockFor(id)) {
+		if (lockRead) return;
+		lockRead = readPlayback();
+		await lockRead;
+		lockRead = null;
+		const lock = lockFor(id);
+		if (lock) {
+			webuiShowToast(lock);
+			return;
+		}
 	}
 	if (leave) leave();
 	play(id);
@@ -410,8 +483,11 @@ async function stop(id) {
 	}
 	if (stopping !== mine) return;
 	if (!took) {
+		// nothing played it any longer: what the TV shows now is read once
 		if (playingId === id) playingId = null;
+		if (tvPlays && tvPlays.source === 'recording' && tvPlays.id === id) tvPlays = null;
 		stopDone(mine);
+		readPlayback();
 		return;
 	}
 	mine.timer = setTimeout(() => stopLate(mine), STOP_WAIT);
@@ -427,10 +503,7 @@ function stopDone(mine) {
 // No playback event in time: what the TV shows, read once
 async function stopLate(mine) {
 	if (stopping !== mine) return;
-	const now = await _webuiV1Read('/playback').catch(() => null);
-	if (stopping !== mine) return;
-	if (now)
-		playingId = now.source === 'recording' && now.recording ? now.recording.id : null;
+	await readPlayback();
 	stopDone(mine);
 }
 
@@ -541,7 +614,7 @@ async function showBeside(id) {
 	}
 	if (token !== detailToken) return;
 	sawPlaying([rec]);
-	const title = rec.title || rec.channel || rec.id;
+	const title = titleOf(rec);
 	const sub = [rec.channel, rec.start ? when(rec.start) : '', length(rec.duration)].filter(Boolean).join(' · ');
 	box.replaceChildren(
 		onPicture(picture(rec), [rec.playing ? playingPill() : null,
@@ -567,7 +640,7 @@ function detailActs(rec, leave) {
 	};
 	const away = fn => () => { if (leave) leave(); fn(); };
 	return webuiEl('div', {className: 'webui-media-detail-acts'},
-		playButton(rec.id, rec.title || rec.channel || rec.id, 'act', leave),
+		playButton(rec.id, titleOf(rec), 'act', leave),
 		act('', SVG_LIST, webuiL('media.playlist', 'Playlist (M3U)'), () => fetchTo(base + '/playlist.m3u')),
 		act('', SVG_DOWN, webuiL('media.download', 'Download'), () => fetchTo(base + '/file')),
 		act('webui-media-delete', SVG_DELETE, webuiL('media.delete', 'Delete'), away(() => remove(rec))));
@@ -673,14 +746,24 @@ webuiAfterTexts(function() {
 	// tiles or list: one stop, on the view shown
 	webuiArrowKeys(document.getElementById('viewTiles').parentElement, 'button');
 	loadList(false);
+	// what the TV plays: read now, and again whenever the event stream
+	// comes back after a gap
+	readPlayback();
+	let opened = 0;
 	webuiV1Events({
+		open: () => { if (opened++) readPlayback(); },
 		'record-stop': () => loadList(false, true),
 		playback: playbackEvent
 	});
+	// without the event stream (refused, or none in this browser) what plays
+	// is read every 30 s while the page is visible
+	setInterval(() => {
+		if (!webuiV1EventsLive() && document.visibilityState === 'visible') readPlayback();
+	}, 30000);
 });
 
 if (typeof webuiSetRefreshCallback === 'function') {
 	webuiSetRefreshCallback(function() {
-		return loadList(false);
+		return Promise.all([loadList(false), readPlayback()]);
 	});
 }

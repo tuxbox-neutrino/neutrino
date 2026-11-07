@@ -1906,12 +1906,19 @@ audio.webui-player-media {
 	display: none;
 }
 
-/* Play in browser for a channel known to play in no browser: greyed out,
-   still focusable, its tooltip says why (webuiPlayOffer) */
+/* Play in browser for a channel known to play in no browser, and Play on TV
+   while the TV plays something else: greyed out, still focusable, the
+   tooltip says why (webuiPlayOffer, webuiPlayLock) */
 .webui-epg-modal-footer .webui-btn[aria-disabled="true"],
 .webui-epg-modal-footer .webui-btn[aria-disabled="true"]:is(:hover, :focus, :active),
 .webui-menu button[aria-disabled="true"],
-.webui-menu button[aria-disabled="true"]:is(:hover, :focus, :active) {
+.webui-menu button[aria-disabled="true"]:is(:hover, :focus, :active),
+.webui-btn.webui-media-play[aria-disabled="true"],
+.webui-btn.webui-media-play[aria-disabled="true"]:is(:hover, :focus, :active),
+.webui-btn.webui-media-act-play[aria-disabled="true"],
+.webui-btn.webui-media-act-play[aria-disabled="true"]:is(:hover, :focus, :active),
+.webui-recent-row .webui-btn[aria-disabled="true"],
+.webui-recent-row .webui-btn[aria-disabled="true"]:is(:hover, :focus, :active) {
 	border-style: dashed;
 	background: none;
 	color: var(--pico-muted-color);
