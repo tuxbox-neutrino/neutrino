@@ -2,6 +2,7 @@
  * archive.cpp - the finished recordings in the movie browser's directories
  *
  * Copyright (C) 2026 NI-Team
+ * Copyright (C) 2026 Tuxbox-Project (covers in the list)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -91,6 +92,9 @@ struct Found
 	std::string rel;   // below the root
 	std::string path;  // the resolved root and rel
 	struct stat st;
+	bool        cover; // a picture of its name lies beside it, by the rule coverOf keeps
+
+	Found() : cover(false) {}
 };
 
 bool endsWith(const std::string &s, const char *tail)
@@ -269,20 +273,37 @@ std::vector<std::string> audioNames(const std::string &xml)
 	return out;
 }
 
-// The movie browser's order; a link or anything but a plain file inside its library directory is no cover.
+// The movie browser's order.
+const char *const kCoverExts[] = { ".jpg", ".png", ".gif", ".jpeg", ".bmp" };
+const size_t kCoverExtCount = sizeof(kCoverExts) / sizeof(kCoverExts[0]);
+
+/* What a cover's own lstat has to show: a plain file with no second name. A
+   second link is a second name for the same bytes, the way a symlink is. */
+bool coverStat(const struct stat &st)
+{
+	return S_ISREG(st.st_mode) && st.st_nlink <= 1;
+}
+
+bool coverName(const std::string &name)
+{
+	for (size_t i = 0; i < kCoverExtCount; ++i)
+		if (endsWith(name, kCoverExts[i]))
+			return true;
+	return false;
+}
+
+// A link or anything but a plain file inside its library directory is no cover.
 std::string coverOf(const std::string &ts_path, const std::string &root)
 {
-	static const char *const kExts[] = { ".jpg", ".png", ".gif", ".jpeg", ".bmp" };
 	if (root.empty())
 		return std::string();
 	const std::string stem = stemOf(ts_path);
-	for (size_t i = 0; i < sizeof(kExts) / sizeof(kExts[0]); ++i)
+	for (size_t i = 0; i < kCoverExtCount; ++i)
 	{
-		const std::string path = stem + kExts[i];
+		const std::string path = stem + kCoverExts[i];
 		struct stat st;
 		char real[PATH_MAX];
-		// A second link is a second name for the same bytes, the way a symlink is.
-		if (!isPlainFile(path, &st) || st.st_nlink > 1 || realpath(path.c_str(), real) == NULL)
+		if (lstat(path.c_str(), &st) != 0 || !coverStat(st) || realpath(path.c_str(), real) == NULL)
 			continue;
 		if (std::string(real).compare(0, root.size() + 1, root + "/") == 0)
 			return path;
@@ -304,13 +325,19 @@ std::string metadataOf(const std::string &path)
 	return out;
 }
 
-// Depth 0 is the library directory, depth 1 one folder below it; links are never followed.
+/* Depth 0 is the library directory, depth 1 one folder below it; links are never followed.
+   Every name is looked at with lstat anyway, so the pictures among them are noted on
+   the way and a recording's cover costs no further call. Below the resolved root and
+   through no link, such a picture lies in the library directory, which is the rest of
+   what coverOf asks of one. */
 void scanDir(const std::string &root, const std::string &rel_dir, int depth, std::vector<Found> &out)
 {
 	const std::string dir = rel_dir.empty() ? root : root + "/" + rel_dir;
 	DIR *d = opendir(dir.c_str());
 	if (d == NULL)
 		return;
+	std::set<std::string> covers;   // names in this directory a cover may have
+	std::vector<size_t> here;       // what out gained from this directory, not from a folder below
 	struct dirent *e;
 	while ((e = readdir(d)) != NULL)
 	{
@@ -329,6 +356,12 @@ void scanDir(const std::string &root, const std::string &rel_dir, int depth, std
 				scanDir(root, rel, 1, out);
 			continue;
 		}
+		if (coverName(name))
+		{
+			if (coverStat(st))
+				covers.insert(name);
+			continue;
+		}
 		struct stat meta;
 		if (!S_ISREG(st.st_mode) || !endsWith(name, ".ts") || !isPlainFile(stemOf(path) + ".xml", &meta))
 			continue;
@@ -336,9 +369,18 @@ void scanDir(const std::string &root, const std::string &rel_dir, int depth, std
 		f.rel = rel;
 		f.path = path;
 		f.st = st;
+		here.push_back(out.size());
 		out.push_back(f);
 	}
 	closedir(d);
+	for (size_t i = 0; i < here.size() && !covers.empty(); ++i)
+	{
+		Found &f = out[here[i]];
+		const size_t slash = f.rel.rfind('/');
+		const std::string stem = stemOf(slash == std::string::npos ? f.rel : f.rel.substr(slash + 1));
+		for (size_t k = 0; k < kCoverExtCount && !f.cover; ++k)
+			f.cover = covers.count(stem + kCoverExts[k]) != 0;
+	}
 }
 
 Entry entryOf(const Found &f, const std::string &source, const std::string &root)
@@ -357,6 +399,7 @@ Entry entryOf(const Found &f, const std::string &source, const std::string &root
 	e.playing = false;
 	e.source = source;
 	e.root = root;
+	e.cover = f.cover;
 	return e;
 }
 
@@ -741,7 +784,7 @@ bool descendingByDefault(SortKey key)
 }
 
 Result<Page> list(const std::string &title_part, size_t offset, size_t limit, const Sort &sort,
-                  const std::string &source)
+                  const std::string &source, CoverFilter cover)
 {
 	if (limit > kMaxLimit)
 		limit = kMaxLimit;
@@ -753,6 +796,8 @@ Result<Page> list(const std::string &title_part, size_t offset, size_t limit, co
 	{
 		Entry e = lib.items[i].entry;
 		e.playing = now.is(lib.items[i]);
+		if (cover != CoverFilter::Any && e.cover != (cover == CoverFilter::With))
+			continue;
 		if (want.empty() || folded(e.title).find(want) != std::string::npos)
 			kept.push_back(e);
 	}

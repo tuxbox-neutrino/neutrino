@@ -300,6 +300,9 @@ const FieldDesc kArchiveFields[] = {
 	HTTPD_MEMBER("playing", FieldType::Bool, "whether the box is playing this recording on the television now"),
 	HTTPD_MEMBER("source", FieldType::String,
 		"the directory of the library it was found in, as the movie browser names it without a trailing slash"),
+	HTTPD_MEMBER("cover", FieldType::Bool,
+		"whether a cover picture lies beside it, as the last reading of its directory found; "
+		"GET /api/v1/recordings/archive/{id} looks again, and GET /api/v1/recordings/archive/{id}/cover sends it"),
 };
 const Schema kArchiveSchema = { "archived-recording", HTTPD_FIELDS(kArchiveFields) };
 
@@ -370,10 +373,13 @@ Response listArchive(const Request &r)
 	const coreapi::archive::SortKey key = sortKeyOf(r.has("sort") ? r.asString("sort") : std::string());
 	const bool descending = r.has("order") ? r.asString("order") == "desc"
 	                                       : coreapi::archive::descendingByDefault(key);
+	coreapi::archive::CoverFilter cover = coreapi::archive::CoverFilter::Any;
+	if (r.has("cover"))
+		cover = r.asBool("cover") ? coreapi::archive::CoverFilter::With : coreapi::archive::CoverFilter::Without;
 	coreapi::Result<coreapi::archive::Page> got =
 		coreapi::archive::list(r.has("title") ? r.asString("title") : std::string(), offset, limit,
 		                       coreapi::archive::Sort(key, descending),
-		                       r.has("source") ? r.asString("source") : std::string());
+		                       r.has("source") ? r.asString("source") : std::string(), cover);
 	if (!got.ok())
 		return problemFor(got.error());
 	const coreapi::archive::Page p = got.value();
@@ -406,6 +412,8 @@ Response listArchive(const Request &r)
 		j.value(e.playing);
 		j.key("source");
 		j.value(e.source);
+		j.key("cover");
+		j.value(e.cover);
 		j.endObject();
 	}
 	j.endArray();
@@ -740,6 +748,8 @@ Response archivedPlaylist(const Request &r)
 const Param kArchiveListParams[] = {
 	HTTPD_QUERY_TEXT("title", "only recordings whose title holds these words, any case", 255),
 	HTTPD_QUERY_TEXT("source", "only recordings from this directory of the library, as sources names it", 4095),
+	HTTPD_QUERY("cover", ParamType::Bool,
+		"`true` only recordings with a cover picture, `false` only those without, as the list's `cover` says; all when left out"),
 	HTTPD_QUERY_IN("offset", ParamType::UInt, "how many matching recordings to skip, 0 when left out", 0, 1000000),
 	HTTPD_QUERY_IN("limit", ParamType::UInt, "how many at most, 15 when left out", 1,
 		(long) coreapi::archive::kMaxLimit),
@@ -909,7 +919,10 @@ const Endpoint kRecordingEndpoints[] = {
 	  "words. `sort` orders the matching recordings by `title`, `start`, `channel`, `duration` or `size` "
 	  "before the page is cut; `order` left out is `desc` for `start`, `duration` and `size` and `asc` for "
 	  "`title` and `channel`. Recordings that compare equal follow their `id`, ascending, so pages never "
-	  "overlap. Pass `next_offset` back as `offset`, with the same `title`, `source`, `sort` and `order`, for "
+	  "overlap. `cover` says whether a picture lies beside a recording, as the last reading of its directory "
+	  "found, and the `cover` parameter narrows the list to recordings with or without one; like `title`, it "
+	  "narrows before the page is cut, so `total` and `next_offset` count only what matches. Pass "
+	  "`next_offset` back as `offset`, with the same `title`, `source`, `cover`, `sort` and `order`, for "
 	  "the next page; the last page carries none.\n\n"
 	  "**Related:** `GET /api/v1/recordings/archive/{id}`, `GET /api/v1/recordings/archive/{id}/file`, "
 	  "`POST /api/v1/recordings/archive/{id}/play`, "

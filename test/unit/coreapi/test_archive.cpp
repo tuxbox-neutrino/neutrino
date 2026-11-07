@@ -1731,6 +1731,120 @@ TEST_CASE("a cover is a plain picture of the same name beside the stream", "[arc
 	REQUIRE(archive::coverPath("0000000000000000").error().code == ErrorCode::NoSuchRecording);
 }
 
+TEST_CASE("the list says of each recording what its details say of the cover", "[archive][cover]")
+{
+	Archive a;
+	a.disk.recording("none", "None", "X", 1, 1790000000);
+	a.disk.recording("png", "Png", "X", 1, 1790000001);
+	a.disk.file("png.png", "PNG");
+	a.disk.recording("bmp", "Bmp", "X", 1, 1790000002);
+	a.disk.file("bmp.bmp", "BMP");
+	a.disk.recording("linked", "Linked", "X", 1, 1790000003);
+	a.disk.link("linked.jpg", "/etc/hostname");
+	a.disk.recording("folder", "Folder", "X", 1, 1790000004);
+	a.disk.dir("folder.jpg");
+	a.disk.recording("twice", "Twice", "X", 1, 1790000005);
+	const std::string target = a.disk.file("other.bin", "GIF");
+	REQUIRE(::link(target.c_str(), (a.disk.base + "/twice.gif").c_str()) == 0);
+	a.disk.made.push_back(a.disk.base + "/twice.gif");
+	a.disk.recording("upper", "Upper", "X", 1, 1790000006);
+	a.disk.file("upper.JPG", "JPG");
+	a.disk.dir("sub");
+	a.disk.recording("sub/deep", "Deep", "X", 1, 1790000007);
+	a.disk.file("sub/deep.jpeg", "JPEG");
+	// A picture of its name in the folder above is not the cover of a recording in the folder below.
+	a.disk.recording("sub/bare", "Bare", "X", 1, 1790000008);
+	a.disk.file("bare.jpg", "JPG");
+
+	const archive::Page p = archive::list("", 0, 20, archive::Sort(archive::SortKey::Title, false)).value();
+	REQUIRE(p.items.size() == 9);
+	std::map<std::string, bool> listed;
+	for (size_t i = 0; i < p.items.size(); ++i)
+	{
+		INFO(p.items[i].title);
+		listed[p.items[i].title] = p.items[i].cover;
+		REQUIRE(p.items[i].cover == archive::details(p.items[i].id).value().cover);
+	}
+	REQUIRE(listed["Png"]);
+	REQUIRE(listed["Bmp"]);
+	REQUIRE(listed["Deep"]);
+	REQUIRE_FALSE(listed["Bare"]);
+	REQUIRE_FALSE(listed["None"]);
+	REQUIRE_FALSE(listed["Linked"]);
+	REQUIRE_FALSE(listed["Folder"]);
+	REQUIRE_FALSE(listed["Twice"]);
+	REQUIRE_FALSE(listed["Upper"]);
+}
+
+TEST_CASE("the cover filter narrows the list before the page is cut", "[archive][cover]")
+{
+	Archive a;
+	// Newest first: r4 r3 r2 r1 r0, with a cover beside r4, r2 and r0.
+	for (int i = 0; i < 5; ++i)
+	{
+		const std::string stem = "r" + std::to_string(i);
+		a.disk.recording(stem, stem, "X", 1, 1790000000 + i);
+		if (i % 2 == 0)
+			a.disk.file(stem + ".jpg", "JPG");
+	}
+	const archive::Sort newest;
+
+	archive::Page with = archive::list("", 0, 2, newest, std::string(), archive::CoverFilter::With).value();
+	REQUIRE(with.total == 3);
+	REQUIRE(with.items.size() == 2);
+	REQUIRE(with.items[0].title == "r4");
+	REQUIRE(with.items[1].title == "r2");
+	with = archive::list("", 2, 2, newest, std::string(), archive::CoverFilter::With).value();
+	REQUIRE(with.total == 3);
+	REQUIRE(with.items.size() == 1);
+	REQUIRE(with.items[0].title == "r0");
+
+	const archive::Page without = archive::list("", 0, 10, newest, std::string(), archive::CoverFilter::Without).value();
+	REQUIRE(without.total == 2);
+	REQUIRE(without.items.size() == 2);
+	REQUIRE(without.items[0].title == "r3");
+	REQUIRE(without.items[1].title == "r1");
+	REQUIRE_FALSE(without.items[0].cover);
+
+	REQUIRE(archive::list("", 0, 10).value().total == 5);
+	// Together with the title filter, both hold.
+	REQUIRE(archive::list("r2", 0, 10, newest, std::string(), archive::CoverFilter::With).value().total == 1);
+	REQUIRE(archive::list("r3", 0, 10, newest, std::string(), archive::CoverFilter::With).value().total == 0);
+}
+
+TEST_CASE("the archive route says which recording has a cover and filters on it", "[archive][cover][routes]")
+{
+	Archive a;
+	a.disk.recording("old", "Old", "X", 1, 1790000000);
+	a.disk.file("old.png", "PNG");
+	a.disk.recording("mid", "Mid", "X", 1, 1790000001);
+	a.disk.recording("new", "New", "X", 1, 1790000002);
+	a.disk.file("new.jpg", "JPG");
+	const std::string path = "/api/v1/recordings/archive";
+
+	::Json::Value v = parsed(ask(httpd::Get, path, "", httpd::AuthLevel::Read).body);
+	REQUIRE(v["total"].asUInt() == 3);
+	REQUIRE(v["items"][0]["cover"].asBool() == true);
+	REQUIRE(v["items"][1]["cover"].asBool() == false);
+	REQUIRE(v["items"][2]["cover"].asBool() == true);
+
+	v = parsed(ask(httpd::Get, path, "cover=true&limit=1", httpd::AuthLevel::Read).body);
+	REQUIRE(v["total"].asUInt() == 2);
+	REQUIRE(v["items"].size() == 1);
+	REQUIRE(v["items"][0]["title"].asString() == "New");
+	REQUIRE(v["next_offset"].asUInt() == 1);
+	v = parsed(ask(httpd::Get, path, "cover=true&limit=1&offset=1", httpd::AuthLevel::Read).body);
+	REQUIRE(v["items"][0]["title"].asString() == "Old");
+	REQUIRE_FALSE(v.isMember("next_offset"));
+
+	v = parsed(ask(httpd::Get, path, "cover=false", httpd::AuthLevel::Read).body);
+	REQUIRE(v["total"].asUInt() == 1);
+	REQUIRE(v["items"][0]["title"].asString() == "Mid");
+	REQUIRE(v["items"][0]["cover"].asBool() == false);
+
+	REQUIRE(ask(httpd::Get, path, "cover=maybe", httpd::AuthLevel::Read).code == 400);
+}
+
 TEST_CASE("the details route answers the members the metadata states and no others", "[archive][routes]")
 {
 	Archive a;

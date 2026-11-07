@@ -2,6 +2,7 @@
  * archive.h - the finished recordings in the movie browser's directories
  *
  * Copyright (C) 2026 NI-Team
+ * Copyright (C) 2026 Tuxbox-Project (covers in the list)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -49,6 +50,9 @@ struct Entry
 	std::string path;        // whole name of the .ts, never sent by a list route
 	std::string source;      // the library directory as the movie browser names it, without a trailing slash
 	std::string root;        // that directory resolved, never sent
+	/* A picture of the same name lies beside it, as the scan that listed it
+	   found; false for an entry no scan made. */
+	bool        cover;
 };
 
 struct Page
@@ -63,6 +67,13 @@ struct Page
 
 const size_t kDefaultLimit = 15;
 const size_t kMaxLimit = 50;
+
+enum class CoverFilter
+{
+	Any,
+	With,     // only recordings with a cover
+	Without   // only those without one
+};
 
 enum class SortKey
 {
@@ -87,9 +98,10 @@ struct Sort
 bool descendingByDefault(SortKey key);
 
 /* An empty source is every library directory. A file two directories list
-   counts for the first of them, unless source names the other. */
+   counts for the first of them, unless source names the other. The title and
+   the cover filter narrow the list before it is sorted and cut into pages. */
 Result<Page> list(const std::string &title_part, size_t offset, size_t limit, const Sort &sort = Sort(),
-                  const std::string &source = std::string());
+                  const std::string &source = std::string(), CoverFilter cover = CoverFilter::Any);
 
 // The next request scans every library directory again.
 void refresh();
