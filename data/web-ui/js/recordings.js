@@ -1,12 +1,12 @@
 // The script of recordings.html.
 
 // The finished recordings over /api/v1/recordings/archive: a page at a
-// time, by folder, title words and order; as tiles with their cover or
-// their channel's logo, or as rows of a list; the one chosen with its
-// details and actions in a column beside them on a wide screen, in a sheet
-// on a narrower one. Play on TV turns into Stop while the TV plays the
-// recording. Titles and texts come from the recording's metadata and go in
-// as text.
+// time, by folder, title words, whether they have a thumbnail, and order;
+// as tiles with their cover or their channel's logo, or as rows of a list;
+// the one chosen with its details and actions in a column beside them on a
+// wide screen, in a sheet on a narrower one. Play on TV turns into Stop while
+// the TV plays the recording. Titles and texts come from the recording's
+// metadata and go in as text.
 const PAGE = 30;
 const SVG_FILM = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M7 4v16M17 4v16M2 9h5M2 15h5M17 9h5M17 15h5"/></svg>';
 const SVG_PLAY = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polygon points="5,3 19,12 5,21"/></svg>';
@@ -101,6 +101,10 @@ async function loadList(more, quiet) {
 	const words = document.getElementById('mediaSearch').value.trim();
 	if (words) query.title = words;
 	if (source) query.source = source;
+	// with or without a thumbnail: filtered by the box, so "more" goes on
+	// with the same filter
+	const cover = document.getElementById('mediaCover').value;
+	if (cover) query.cover = cover;
 
 	let page;
 	try {
@@ -135,11 +139,15 @@ async function loadList(more, quiet) {
 	});
 	focusAgain(list, kept);
 	if (!more && items.length === 0) {
-		const empty = webuiEl('li', {}, webuiState('empty', webuiL('media.none', 'No recordings found'),
+		// the filter on the thumbnail named, as it is the likeliest reason
+		const none = cover === 'true' ? webuiL('media.none_with_cover', 'No recordings with a thumbnail') :
+			cover === 'false' ? webuiL('media.none_without_cover', 'No recordings without a thumbnail') :
+			webuiL('media.none', 'No recordings found');
+		const empty = webuiEl('li', {}, webuiState('empty', none,
 			words ? webuiL('media.none_search', 'Nothing matches these words.') : ''));
 		list.appendChild(empty);
 		// no recordings at all: a folder that is not there says why
-		if (!words && !source)
+		if (!words && !source && !cover)
 			webuiMissingRecordFolders().then(r => {
 				if (!r.missing.length || token !== listToken || !empty.isConnected) return;
 				const why = r.partial ? webuiL('media.folder_slow', 'No answer in time, the drive or network share hangs or is not attached: %s') :
@@ -222,6 +230,11 @@ function picture(rec) {
 		box.classList.add('no-cover');
 		if (box._webuiOver) box.append.apply(box, box._webuiOver);
 	};
+	// a recording the box says has no cover is not asked for one
+	if (rec.cover === false) {
+		fallback();
+		return box;
+	}
 	box.appendChild(webuiEl('img', {attrs: {src: '/api/v1' + archive(rec.id) + '/cover', alt: '', loading: 'lazy'},
 		on: {error: fallback}}));
 	return box;
@@ -620,6 +633,7 @@ document.getElementById('mediaSearch').addEventListener('input', () => {
 });
 document.getElementById('mediaSort').addEventListener('change', () => loadList(false));
 document.getElementById('mediaOrder').addEventListener('change', () => loadList(false));
+document.getElementById('mediaCover').addEventListener('change', () => loadList(false));
 document.getElementById('mediaMore').addEventListener('click', () => loadList(true));
 document.getElementById('viewTiles').addEventListener('click', () => setView('tiles'));
 document.getElementById('viewList').addEventListener('click', () => setView('list'));

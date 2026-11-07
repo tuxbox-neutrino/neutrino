@@ -122,7 +122,8 @@
 			gap: 0.35rem;
 		}
 
-		.webui-media-order select {
+		.webui-media-order select,
+		.webui-media-bar .webui-media-filter {
 			width: auto;
 			margin: 0;
 			padding-top: 0.3rem;
@@ -423,8 +424,9 @@
 				display: none;
 			}
 
-			/* the bar that stays in sight takes three short lines: the
+			/* the bar that stays in sight takes four short lines: the
 			   search; the folders, scrolled sideways, with the count; the
+			   filter on the thumbnail, whose words need the width; the
 			   order with the view */
 			.webui-media-bar {
 				gap: 0.4rem;
@@ -443,6 +445,11 @@
 				min-width: 0;
 				overflow-x: auto;
 				scrollbar-width: none;
+			}
+
+			.webui-media-bar .webui-media-filter {
+				flex: 1 1 100%;
+				min-width: 0;
 			}
 
 			.webui-media-order {
@@ -620,6 +627,11 @@
 				<input type="search" id="mediaSearch" placeholder="Search titles" data-l-placeholder="media.search" aria-label="Search titles" data-l-aria-label="media.search">
 				<div class="webui-media-chips" id="sourceChips" role="group" aria-label="Sources" data-l-aria-label="media.sources"></div>
 				<span class="webui-media-count" id="mediaCount"></span>
+				<select class="webui-media-filter" title="Recordings with or without a thumbnail" data-l-title="tip.media_cover" id="mediaCover" aria-label="Thumbnail" data-l-aria-label="media.cover">
+					<option value="" data-l="media.cover_any">With and without thumbnail</option>
+					<option value="true" data-l="media.cover_with">With thumbnail</option>
+					<option value="false" data-l="media.cover_without">Without thumbnail</option>
+				</select>
 				<div class="webui-media-order">
 					<select title="What the recordings are sorted by" data-l-title="tip.media_sort" id="mediaSort" aria-label="Sort" data-l-aria-label="media.sort">
 						<option value="start" data-l="media.sort_start">Date</option>
