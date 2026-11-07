@@ -826,6 +826,16 @@ document.getElementById('bqeViews').addEventListener('click', function(e) {
 });
 document.getElementById('bqeBouquets').addEventListener('click', bqeBouquetEvent);
 document.getElementById('bqeBouquets').addEventListener('keydown', bqeBouquetEvent);
+// each list is one stop of Tab: the arrows go from row to row and to the
+// buttons of a row as they lie, Enter picks a bouquet or presses a button
+webuiArrowKeys(document.getElementById('bqeBouquets'), 'li[data-id], button[data-act]', '', {near: true});
+webuiArrowKeys(document.getElementById('bqeChannels'), 'button', '', {near: true});
+webuiArrowKeys(document.getElementById('bqeAll'), 'button', '', {near: true});
+// the boxes that scroll the lists are no stop of their own (Firefox would
+// make them one, without a ring); the list's stop scrolls them
+['bqeBouquets', 'bqeChannels', 'bqeAll'].forEach(function(id) { document.getElementById(id).parentElement.tabIndex = -1; });
+// the phone's choice of the list shown: one stop, on the list shown
+webuiArrowKeys(document.getElementById('bqeViews'), 'button');
 document.getElementById('bqeAll').addEventListener('click', bqeAllEvent);
 document.getElementById('bqeAll').addEventListener('dblclick', bqeAllEvent);
 document.getElementById('bqeAll').addEventListener('dragstart', bqeAllEvent);
