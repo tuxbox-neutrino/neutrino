@@ -264,6 +264,8 @@ function _webuiSideLink(p, area, page) {
 	a.appendChild(label);
 	if (p.page === 'timer')
 		_webuiTimerBadge(a, p.label);
+	if (p.page === 'recordings')
+		_webuiRecBadge(a, p.label);
 	var li = document.createElement('li');
 	li.appendChild(a);
 	return li;
@@ -555,6 +557,61 @@ function webuiRecordingsAfter() {
 	setTimeout(webuiRecordingsRead, 1500);
 }
 
+/* The number of recordings running as a badge beside "Recordings": in the
+   side bar, in the phone's "More" menu and on "More" itself, which holds
+   that link there. It comes from the page's shared read of the recordings
+   (webuiOnRecordings), so the head reads them on every page; a list kept
+   from before a failed read keeps its number, the badge marked stale and
+   the link's name saying so. The link keeps its name, the number follows
+   it ("Recordings, 1 recording running"); nothing is announced as it
+   changes. */
+function _webuiRecBadge(link, label) {
+	var badge = document.createElement('span');
+	badge.className = 'webui-nav-count webui-nav-rec';
+	badge.hidden = true;
+	badge.setAttribute('aria-hidden', 'true');
+	link.appendChild(badge);
+	link.setAttribute('data-rec-label', label);
+}
+
+function _webuiRecCountPaint() {
+	var view = webuiRecordingsNow();
+	var n = view.items.length;
+	var stale = webuiL('rec.status_stale', 'Recording status could not be refreshed');
+	var says = n === 1 ? webuiL('rec.active_one', '1 recording running')
+		: webuiL('rec.active_many', '%s recordings running').replace('%s', String(n));
+	Array.prototype.forEach.call(document.querySelectorAll('[data-rec-label]'), function(link) {
+		var badge = link.querySelector('.webui-nav-rec');
+		if (!badge)
+			return;
+		badge.hidden = !n;
+		badge.textContent = n ? (n > 99 ? '99+' : String(n)) : '';
+		badge.classList.toggle('stale', !!n && view.stale);
+		if (n && view.stale)
+			badge.title = stale;
+		else
+			badge.removeAttribute('title');
+		// the link's name, the number and whether it may be out of date put
+		// together by the language's pattern: %s the name, %r how many run,
+		// %t that the state could not be refreshed
+		var parts = {'%s': link.getAttribute('data-rec-label'), '%r': says, '%t': stale};
+		if (n)
+			link.setAttribute('aria-label', (view.stale ? webuiL('nav.rec_running_stale', '%s, %r. %t') : webuiL('nav.rec_running', '%s, %r'))
+				.replace(/%[srt]/g, function(m) { return parts[m]; }));
+		else
+			link.removeAttribute('aria-label');
+	});
+}
+
+var _webuiRecCountFollowed = false;
+function _webuiRecCountStart() {
+	if (!_webuiRecCountFollowed) {
+		_webuiRecCountFollowed = true;
+		webuiOnRecordings(_webuiRecCountPaint);
+	}
+	_webuiRecCountPaint();
+}
+
 // The side bar's groups with their pages, and Settings at its foot
 function _webuiRenderSide(areas, page) {
 	var host = document.getElementById('webui-side-groups');
@@ -673,11 +730,14 @@ function webuiRenderNav(pageName) {
 		if (current && !inTabs)
 			more.className = 'active';
 		more.innerHTML = WEBUI_ICONS.more + '<span>' + webuiLH('nav.more', 'More') + '</span>';
+		// the menu holds Recordings, so its number shows here too
+		_webuiRecBadge(more, webuiL('nav.more', 'More'));
 		more.addEventListener('click', webuiToggleMoreMenu);
 		tabs.appendChild(more);
 		webuiArrowKeys(tabs, 'a, button', 'tabs');
 	}
 	_webuiTimerCountStart();
+	_webuiRecCountStart();
 	// the row of pages changes the head's height
 	if (typeof webuiUpdateHeaderSpacer === 'function')
 		webuiUpdateHeaderSpacer();
@@ -1087,6 +1147,8 @@ function webuiToggleMoreMenu(ev) {
 		item.href = a.pages.length ? a.pages[0].href : '#';
 		item.setAttribute('data-area', a.id);
 		item.innerHTML = _webuiNavIcon(a) + '<span>' + escapeHtml(a.label) + '</span>';
+		if (a.id === 'recordings')
+			_webuiRecBadge(item, a.label);
 		if (current === a) {
 			item.className = 'active';
 			item.setAttribute('aria-current', 'page');
@@ -1104,6 +1166,7 @@ function webuiToggleMoreMenu(ev) {
 	});
 	menu.appendChild(about);
 	document.body.appendChild(menu);
+	_webuiRecCountPaint();
 	// its pages take the focus back to the tab bar when Enter opened one
 	webuiArrowKeys(menu, 'a, button', 'tabs');
 	if (btn) btn.setAttribute('aria-expanded', 'true');

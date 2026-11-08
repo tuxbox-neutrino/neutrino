@@ -3090,7 +3090,8 @@ input[type=week]:focus-within,
 }
 
 /* the narrow side bar shows icons alone: the badge sits on the icon's corner */
-html.webui-side-narrow .webui-side .webui-side-link[data-timer-label] {
+html.webui-side-narrow .webui-side .webui-side-link[data-timer-label],
+html.webui-side-narrow .webui-side .webui-side-link[data-rec-label] {
 	position: relative;
 }
 
@@ -3102,7 +3103,8 @@ html.webui-side-narrow .webui-side .webui-side-link .webui-nav-count {
 }
 
 @media (max-width: 900px) {
-	.webui-tabbar a[data-timer-label] {
+	.webui-tabbar a[data-timer-label],
+	.webui-tabbar [data-rec-label] {
 		position: relative;
 	}
 
@@ -3111,6 +3113,50 @@ html.webui-side-narrow .webui-side .webui-side-link .webui-nav-count {
 		top: 0.35rem;
 		left: calc(50% + 0.35rem);
 	}
+
+	/* beside the three dots of "More", not over the last of them */
+	.webui-tabbar #webui-tab-more .webui-nav-count {
+		top: 0.2rem;
+		left: calc(50% + 0.55rem);
+	}
+}
+
+/* The number of recordings running, beside "Recordings" in the side bar,
+   in the phone's "More" menu and on "More" itself: a red dot before the
+   number in a red frame on the ground of a card. The dot stands still, as
+   the link is on every page. A number kept from a read before the last one
+   failed has a dashed frame, and the link's name says that the state could
+   not be refreshed (a hollow dot would read as a nought before it). */
+.webui-nav-count.webui-nav-rec {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.2rem;
+	padding: 0 0.3rem 0 0.25rem;
+	border: 1px solid var(--webui-recording);
+	background: var(--pico-card-background-color);
+	color: var(--webui-recording);
+	line-height: 1;
+}
+
+.webui-nav-count.webui-nav-rec::before {
+	content: "";
+	flex: none;
+	width: 0.4rem;
+	height: 0.4rem;
+	border-radius: 50%;
+	background: currentColor;
+}
+
+.webui-nav-count.webui-nav-rec.stale {
+	border-style: dashed;
+}
+
+.webui-nav-count.webui-nav-rec[hidden] {
+	display: none;
+}
+
+.webui-more-menu a .webui-nav-count {
+	margin-inline-start: auto;
 }
 
 [data-theme="light"] .webui-nav-item {
