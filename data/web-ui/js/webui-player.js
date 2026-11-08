@@ -111,8 +111,11 @@ function _webuiPlayerBuild() {
 		webuiEl('div', {className: 'webui-epg-modal-body webui-player-body'},
 			p.stage,
 			webuiEl('div', {className: 'webui-player-foot'}, p.state, p.resume, p.setting, p.retry, p.external, p.copy, p.extNote)));
+	/* A press on the backdrop does not close the player: the close button
+	   and Escape do. It is kept from taking the focus off the dialog, which
+	   hears Escape and keeps Tab within itself. */
 	p.backdrop = webuiEl('div', {className: 'webui-epg-modal-backdrop webui-player-backdrop', id: 'webuiPlayer',
-		on: {click: function(e) { if (e.target === p.backdrop) webuiPlayerClose(); }}}, p.dialog);
+		on: {mousedown: function(e) { if (e.target === p.backdrop) e.preventDefault(); }}}, p.dialog);
 	document.body.appendChild(p.backdrop);
 	return p;
 }
