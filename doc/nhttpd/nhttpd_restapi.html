@@ -195,23 +195,23 @@ is dropped once 256 KiB are waiting for it.
 </p>
 
 <h2>Where things are</h2>
-<table border="0">
-<tr><td><code>src/httpd/ep/</code></td><td>the route tables and their handlers, one file per group</td></tr>
-<tr><td><code>src/httpd/router.cpp</code></td><td>matching, the access check, binding and checking the parameters, the check of the tables</td></tr>
-<tr><td><code>src/httpd/auth.cpp</code>, <code>webconfig.cpp</code>, <code>login_bridge.cpp</code></td><td>sessions and tokens, the layer's configuration with the account, and the way nhttpd's own login asks for it</td></tr>
-<tr><td><code>src/httpd/doc/</code></td><td>the document's writer and the <code>openapi_dump</code> program</td></tr>
-<tr><td><code>src/httpd/nhttpd_bridge.cpp</code></td><td>the hook that hands nhttpd's requests to the layer and its answers back</td></tr>
-<tr><td><code>src/httpd/carry.cpp</code>, <code>livestream.cpp</code>, <code>webtv.cpp</code></td><td>answers that stay open: a program's output, a relayed stream</td></tr>
-<tr><td><code>src/httpd/events.cpp</code></td><td>the event stream</td></tr>
-<tr><td><code>src/httpd/stubs/</code></td><td>what the layer asks of a web server (<code>server.h</code>, <code>static.h</code>), answered for nhttpd</td></tr>
-<tr><td><code>src/nhttpd/yhttpd_core/</code></td><td>what the core of nhttpd does for the layer: the API addresses (<code>registerApiPrefix</code>), the request reader for them, exact socket I/O</td></tr>
-<tr><td><code>src/coreapi/</code></td><td>what the handlers call to read and change the box</td></tr>
-<tr><td><code>doc/api/</code></td><td>the kept copy of the document, its layout script and the site builder</td></tr>
-<tr><td><code>test/unit/httpd/</code>, <code>test/unit/nhttpd/</code></td><td>unit tests of the layer, the bridge and the core pieces it uses</td></tr>
-<tr><td><code>test/unit/support/run-tests.sh</code></td><td>runs the suite and names the cases it leaves out, each with the reason</td></tr>
-<tr><td><code>test/unit/interop/</code></td><td>the client another box uses for remote timers, and <code>remotebox_client</code>, which drives it one call at a time</td></tr>
-<tr><td><code>test/http/</code></td><td>checks against a running box: <code>check-v1.sh</code> for the API over the wire, <code>check-remotebox.sh</code> for the remote-timer client</td></tr>
-<tr><td><code>test/web/openapi-types.js</code></td><td>TypeScript declarations written from the document</td></tr>
-</table>
+<dl>
+<dt><code>src/httpd/ep/</code></dt><dd>the route tables and their handlers, one file per group</dd>
+<dt><code>src/httpd/router.cpp</code></dt><dd>matching, the access check, binding and checking the parameters, the check of the tables</dd>
+<dt><code>src/httpd/auth.cpp</code>, <code>webconfig.cpp</code>, <code>login_bridge.cpp</code></dt><dd>sessions and tokens, the layer's configuration with the account, and the way nhttpd's own login asks for it</dd>
+<dt><code>src/httpd/doc/</code></dt><dd>the document's writer and the <code>openapi_dump</code> program</dd>
+<dt><code>src/httpd/nhttpd_bridge.cpp</code></dt><dd>the hook that hands nhttpd's requests to the layer and its answers back</dd>
+<dt><code>src/httpd/carry.cpp</code>, <code>livestream.cpp</code>, <code>webtv.cpp</code></dt><dd>answers that stay open: a program's output, a relayed stream</dd>
+<dt><code>src/httpd/events.cpp</code></dt><dd>the event stream</dd>
+<dt><code>src/httpd/stubs/</code></dt><dd>what the layer asks of a web server (<code>server.h</code>, <code>static.h</code>), answered for nhttpd</dd>
+<dt><code>src/nhttpd/yhttpd_core/</code></dt><dd>what the core of nhttpd does for the layer: the API addresses (<code>registerApiPrefix</code>), the request reader for them, exact socket I/O</dd>
+<dt><code>src/coreapi/</code></dt><dd>what the handlers call to read and change the box</dd>
+<dt><code>doc/api/</code></dt><dd>the kept copy of the document, its layout script and the site builder</dd>
+<dt><code>test/unit/httpd/</code>, <code>test/unit/nhttpd/</code></dt><dd>unit tests of the layer, the bridge and the core pieces it uses</dd>
+<dt><code>test/unit/support/run-tests.sh</code></dt><dd>runs the suite and names the cases it leaves out, each with the reason</dd>
+<dt><code>test/unit/interop/</code></dt><dd>the client another box uses for remote timers, and <code>remotebox_client</code>, which drives it one call at a time</dd>
+<dt><code>test/http/</code></dt><dd>checks against a running box: <code>check-v1.sh</code> for the API over the wire, <code>check-remotebox.sh</code> for the remote-timer client</dd>
+<dt><code>test/web/openapi-types.js</code></dt><dd>TypeScript declarations written from the document</dd>
+</dl>
 </body>
 </html>
