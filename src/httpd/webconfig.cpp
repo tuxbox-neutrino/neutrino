@@ -2611,6 +2611,15 @@ private:
 
 } // namespace
 
+bool usernameAcceptable(const std::string &name, std::string *why)
+{
+	if (!name.empty() && survivesTheFile(name))
+		return true;
+	if (why != NULL)
+		*why = "the new name is empty, or carries a control byte, a number sign or a space at one of its ends";
+	return false;
+}
+
 bool saveWebSettings(const std::string &path, const WebSettings &s, std::string *stored_hash,
                      const WebSettings *from)
 {
@@ -2770,7 +2779,7 @@ bool saveWebSettings(const std::string &path, const WebSettings &s, std::string 
 		return false;
 	}
 
-	if (s.username.empty() || !survivesTheFile(s.username))
+	if (!usernameAcceptable(s.username, NULL))
 	{
 		complain(std::string(kKeyUser) + ": the name is empty, or carries a control byte, a number "
 			 "sign or a space at one of its ends, and nothing is written. An empty name is not "

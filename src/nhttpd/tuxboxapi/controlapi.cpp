@@ -5044,6 +5044,15 @@ static bool config_key_is_secret(const std::string &key)
 		|| key.find("_token") != std::string::npos;
 }
 
+// A parameter of /control/config as the file names its key: "_dot_" for ".", "_bind_" for "-".
+static std::string config_key_of(const std::string &param)
+{
+	std::string key = param;
+	replace(key, "_dot_", ".");
+	replace(key, "_bind_", "-");
+	return key;
+}
+
 //-------------------------------------------------------------------------
 /** Send the channel logo as an image (api v4).
  *
@@ -5185,6 +5194,35 @@ void CControlAPI::ConfigCGI(CyhookHandler *hh)
 	std::string error = "";
 	std::string result = "";
 	std::string configFileName = hh->ParamList["config"];
+
+	/* nhttpd: the account goes to nhttpd-access.conf through the one login and never
+	   into nhttpd.conf, and an empty field leaves that half as it is, which is what a
+	   page that cannot show the password sends. With the page login off nothing in
+	   front of this asks who the caller is, and the account is what opens the REST
+	   layer, so a request naming it is taken only from a signed-in caller or from the
+	   box itself, where root can write nhttpd-access.conf anyway. That is decided
+	   here, before any lock is taken (login_bridge::mayChange); refused, nothing of
+	   the request is written, the other keys of the file included. */
+	std::string login_user, login_password;
+	if (configFileName == "nhttpd" && !load) {
+		for (CStringList::iterator it = hh->ParamList.begin(); it != hh->ParamList.end(); ++it) {
+			const std::string key = config_key_of(it->first);
+			if (key == "mod_auth.username")
+				login_user = it->second;
+			else if (key == "mod_auth.password")
+				login_password = it->second;
+		}
+	}
+	const bool names_account = !login_user.empty() || !login_password.empty();
+	login_bridge::Ask from;
+	if (names_account) {
+		std::string why;
+		from = CmAuth::AskOf(hh);
+		if (!login_bridge::mayChange(from, login_user, login_password, &why))
+			error = "the settings were not written: " + why;
+	}
+	const bool refused = !error.empty();
+
 	/* The web interface's own file is also read and written over /api/v1, in
 	   this same program: one at a time, or each could write over the other. */
 	coreapi::webui::FileLock *yweb_lock = NULL;
@@ -5192,9 +5230,10 @@ void CControlAPI::ConfigCGI(CyhookHandler *hh)
 		yweb_lock = new coreapi::webui::FileLock;
 	/* nhttpd's own file likewise, against the REST route, the menu at the box and
 	   nhttpd's own read of it. Released before the account is changed below,
-	   whose lock is taken before this one everywhere else. */
+	   whose lock is taken before this one everywhere else. A refused request
+	   neither takes it nor reads the file. */
 	httpd::ServerFileLock *server_lock = NULL;
-	if (configFileName == "nhttpd")
+	if (configFileName == "nhttpd" && !refused)
 		server_lock = new httpd::ServerFileLock;
 
 	hh->outStart();
@@ -5215,7 +5254,7 @@ void CControlAPI::ConfigCGI(CyhookHandler *hh)
 		else if (configFileName == "yweb")
 			config_filename = WEBUI_CONFIGFILE;
 
-		if (!config_filename.empty())
+		if (!config_filename.empty() && !refused)
 			Config->loadConfig(config_filename);
 	}
 
@@ -5249,33 +5288,19 @@ void CControlAPI::ConfigCGI(CyhookHandler *hh)
 				result += hh->outPair("mod_auth_dot_password_default", login_bridge::passwordOwed() ? "true" : "false", false);
 			}
 		}
-		else { // set values and save list
+		else if (!refused) { // set values and save list
 			// neutrino: saveSetup() rewrites every g_settings-backed key
 			// from RAM, so flushing has to happen BEFORE the submitted
 			// values go into the shared instance — the old order silently
 			// clobbered every submitted key g_settings knows about.
 			if (configFileName == "neutrino")
 				CNeutrinoApp::getInstance()->saveSetup(NEUTRINO_SETTINGS_FILE);
-			// nhttpd: the account goes to nhttpd-access.conf through the one login
-			// and never into this file; an empty password field leaves the
-			// stored one, which is what a page that cannot show it sends
-			std::string login_user, login_password;
 			for (CStringList::iterator it = hh->ParamList.begin(); it != hh->ParamList.end(); ++it) {
-				std::string key = it->first;
-				replace(key, "_dot_", ".");
-				replace(key, "_bind_", "-");
-				if (configFileName == "nhttpd") {
-					if (key == "mod_auth.username") {
-						login_user = it->second;
-						continue;
-					}
-					if (key == "mod_auth.password") {
-						login_password = it->second;
-						continue;
-					}
-					if (key == "mod_auth.session_timeout")
-						continue;
-				}
+				const std::string key = config_key_of(it->first);
+				// nhttpd: the account was read off the request above
+				if (configFileName == "nhttpd" && (key == "mod_auth.username" || key == "mod_auth.password"
+				    || key == "mod_auth.session_timeout"))
+					continue;
 				if (key != "_dc" && key != "action" && key != "format" && key != "config"
 			    && !key.empty() && key.find_first_not_of("0123456789") != std::string::npos)
 					Config->setString(key, it->second);
@@ -5286,13 +5311,11 @@ void CControlAPI::ConfigCGI(CyhookHandler *hh)
 					error = "the settings were not written: " + config_filename;
 				delete server_lock;
 				server_lock = NULL;
-				if (!login_user.empty() || !login_password.empty()) {
+				if (names_account) {
 					std::string why;
-					const login_bridge::Ask from = CmAuth::AskOf(hh);
 					if (!login_bridge::change(login_user, login_password, &why, &from))
 						error = "the login was not changed: " + why;
 				}
-				login_password.assign(login_password.size(), '\0');
 				// pick up new auth credentials without a restart,
 				// same as the legacy do_reload_httpd_config block
 				yhttpd_reload_config();
@@ -5332,6 +5355,7 @@ void CControlAPI::ConfigCGI(CyhookHandler *hh)
 			hh->SendError(error);
 	}
 
+	login_password.assign(login_password.size(), '\0');
 	if (own_config)
 		delete Config;
 	delete server_lock;

@@ -108,7 +108,8 @@ paths, except for calls from the box itself, the addresses
 before anyone signs in. It accepts the session that the API login opens,
 and Basic authentication against the same account. The
 <code>nhttpd.conf</code> the image installs has it off, and then those
-paths answer without credentials.</li>
+paths answer without credentials, except for a change to the account
+(below).</li>
 <li>On the paths that change the box with a GET (<code>/control/</code>,
 <code>/cgi-bin/</code>, <code>/fb/</code>, <code>/api/v4/</code> and
 <code>/y/</code>), and for a request with an <code>execute</code>
@@ -116,6 +117,19 @@ parameter, the session counts only when the request comes from a page of
 this box: <code>Sec-Fetch-Site: same-origin</code>, or else an
 <code>Origin</code> or
 <code>Referer</code> naming this host.</li>
+<li>A change to the account over <code>/control/config?config=nhttpd</code>
+(<code>mod_auth.username</code> or <code>mod_auth.password</code>, also
+written with <code>_dot_</code>) is taken only from a page of this box, by
+the rule above, and only with Basic authentication against the account, a
+session, or from the box itself: the loopback, while no proxy is
+configured. A <code>trusted_proxies</code> line in
+<code>nhttpd-access.conf</code> counts as configured also when it is empty
+or cannot be read. <code>mod_auth.authenticate</code> changes none of this,
+and an address that <code>mod_auth.no_auth_client</code> names is not
+enough. While the box still waits for a password of the owner's own, every
+such change is refused with the answer the API gives a caller signed in
+then, which points to <code>PUT /api/v1/account/password</code>. A refused
+request writes nothing.</li>
 </ul>
 
 <h2 id="requests">Requests</h2>

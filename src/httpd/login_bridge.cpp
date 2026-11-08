@@ -10,6 +10,7 @@
 
 #include "auth.h"
 #include "credentials.h"
+#include "router.h"
 #include "webconfig.h"
 
 #include <OpenThreads/Mutex>
@@ -79,6 +80,9 @@ bool fromThisBox(const Ask &a)
 		return namesHost(a.referer, a.host);
 	return false;
 }
+
+// What a change to the account that fromThisBox refuses is answered with.
+const char kOnlyFromThisBox[] = "the account is changed only from a page of this box";
 
 /* What a right Basic pair is remembered as: a digest keyed with a secret this
    process drew for itself, beside the stored form it was checked against. The
@@ -266,6 +270,48 @@ bool basicAdmits(const Ask &a)
 	}
 	catch (...)
 	{
+		return false;
+	}
+}
+
+bool mayChange(const Ask &a, const std::string &user, const std::string &password, std::string *why)
+{
+	if (why != NULL)
+		why->clear();
+	try
+	{
+		if (!fromThisBox(a))
+		{
+			if (why != NULL)
+				*why = kOnlyFromThisBox;
+			return false;
+		}
+
+		// the loopback first, so a call from the box costs no derivation and no login attempt
+		const bool here = !httpd::proxiesConfigured(httpd::config()) && httpd::isLoopbackPeer(a.peer);
+		if (!here && !sessionAdmits(a) && !basicAdmits(a))
+		{
+			if (why != NULL)
+				*why = "changing the account needs a sign-in";
+			return false;
+		}
+
+		// the REST layer's own answer to a caller signed in while this holds
+		if (passwordOwed())
+		{
+			if (why != NULL)
+				*why = httpd::passwordChangeRequiredDetail();
+			return false;
+		}
+
+		if (!user.empty() && !httpd::usernameAcceptable(user, why))
+			return false;
+		return password.empty() || httpd::passwordAcceptable(password, why);
+	}
+	catch (...)
+	{
+		if (why != NULL)
+			*why = "the account could not be changed";
 		return false;
 	}
 }
@@ -478,7 +524,7 @@ bool change(const std::string &user, const std::string &password, std::string *w
 		if (from != NULL && !fromThisBox(*from))
 		{
 			if (why != NULL)
-				*why = "the account is changed only from a page of this box";
+				*why = kOnlyFromThisBox;
 			return false;
 		}
 

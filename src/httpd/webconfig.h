@@ -145,17 +145,12 @@ WebConfig defaultWebConfig();
    line naming one could not be read are the same list and not the same box. */
 bool proxiesConfigured(const WebConfig &c);
 
-/* Whether peer is loopback, judged against the two networks 6.6 itself seeds for
-   it (127.0.0.0/8 and ::1/128) and never against lan_read as it stands.
-
-   The legacy surface under /control/ reads this, and not lan_read, for its own
-   wider exemption: a caller from loopback reaches every level there, where the
-   rest of the seeded ranges reach only Read. lan_read is a line an operator can
-   edit, and that exemption must not shrink with it, because the old server
-   skipped its own check for loopback unconditionally (mod_auth.cpp:19) and a
-   handful of plugins shipped against exactly that promise. Nothing here reads
-   trusted_proxies either: unlike the general exemption in auth.cpp, this one is
-   not switched off behind a reverse proxy. */
+/* Whether peer is loopback: an address in 127.0.0.0/8, also written as an IPv4
+   address mapped into IPv6, or ::1. Judged against those two networks and never
+   against lan_read, which is a line an operator can edit and which grants Read and
+   no more. trusted_proxies is not read here either: behind a proxy on the box every
+   request arrives from the loopback, so a caller that lets the loopback stand for
+   the box asks proxiesConfigured as well, as login_bridge::mayChange does. */
 bool isLoopbackPeer(const std::string &peer);
 
 /* What is in effect. Installed by load or by setConfigForTest and read everywhere
@@ -202,6 +197,11 @@ const size_t kMinPasswordChars = 8;
    Every writer of the account's password asks this, and a first password
    passes it. */
 bool passwordAcceptable(const std::string &password, std::string *why);
+
+/* Whether a name may be the account's: not empty, and nothing in it that the file
+   would not read back as written, which is a control byte, a number sign or a space
+   at one of its ends. why says what is wrong. saveWebSettings writes no other name. */
+bool usernameAcceptable(const std::string &name, std::string *why);
 
 /* Reads path and installs what it holds.
 

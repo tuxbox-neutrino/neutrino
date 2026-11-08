@@ -69,6 +69,29 @@ bool sessionAdmits(const Ask &a);
    gate the REST login goes through, wrong answers counted against the address. */
 bool basicAdmits(const Ask &a);
 
+/* Whether a request over the old server may change the account, and why not where it
+   may not. The old configuration route asks this first, before anything of a request
+   naming the account is written, so a request refused here changes nothing at all.
+   It may when all of these hold:
+   - it comes from a page of this box, the rule change() holds it to as well;
+   - it carries the Basic pair of the account (basicAdmits) or a session
+     (sessionAdmits), or it comes from the box itself: a peer on the loopback while
+     no proxy is configured in front of this server;
+   - the box does not wait for a password of the owner's own (passwordOwed), which
+     PUT /api/v1/account/password sets against the current one;
+   - user and password, where given, pass httpd::usernameAcceptable and
+     httpd::passwordAcceptable, the checks the file and change() hold them to.
+
+   With the page login switched off nothing in front of the old routes asks who the
+   caller is, and the account is what opens the REST layer, so the headers saying that
+   a request came from a page of this box are not enough on their own: any program can
+   send them. The loopback is, because root on the box can write nhttpd-access.conf
+   directly. Behind a proxy on the box every request arrives from the loopback, and a
+   configured proxy is the only sign of one, so with one configured the loopback counts
+   for nothing. An address the old server lets in without a login
+   (mod_auth.no_auth_client) is none of these. */
+bool mayChange(const Ask &a, const std::string &user, const std::string &password, std::string *why);
+
 /* Closes the session the Cookie header names, and whether there was one. */
 bool closeSessionOf(const std::string &cookie_header);
 

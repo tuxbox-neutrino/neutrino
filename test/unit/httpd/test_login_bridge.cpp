@@ -14,6 +14,8 @@
 #include "httpd/server.h"
 #include "httpd/server_control.h"
 #include "httpd/webconfig.h"
+#include "yhook.h"
+#include "yhttpd_mods/mod_auth.h"
 
 #include <cstdio>
 #include <string>
@@ -680,4 +682,197 @@ TEST_CASE("a stored password the boxes shipped with is recognised, and another o
 	setConfigForTest(c);
 	REQUIRE_FALSE(login_bridge::passwordSet());
 	REQUIRE_FALSE(login_bridge::passwordOwed());
+}
+
+namespace
+{
+
+const char kRequested[] = "set-by-request";
+
+/* nhttpd's own gate in front of /control/, as nhttpd.conf sets it: the page login on
+   or off, and the prefix of the addresses it lets in without asking. */
+struct Gate : CmAuth
+{
+	Gate(bool page_login, const std::string &let_in)
+	{
+		authenticate = page_login;
+		no_auth_client = let_in;
+	}
+};
+
+/* /control/config?config=nhttpd&action=submit asking for a new name and password, each
+   left out where empty, as nhttpd hands it to its hooks, from peer and with no header
+   saying where it came from. */
+void submitFrom(CyhookHandler &hh, const std::string &peer, const std::string &user,
+                const std::string &password)
+{
+	hh.Method = M_GET;
+	hh.UrlData["url"] = "/control/config";
+	hh.UrlData["fullurl"] = "/control/config?config=nhttpd&action=submit";
+	hh.UrlData["path"] = "/control/";
+	hh.UrlData["filename"] = "config";
+	hh.UrlData["clientaddr"] = peer;
+	hh.HeaderList["Host"] = "box.lan";
+	hh.ParamList["config"] = "nhttpd";
+	hh.ParamList["action"] = "submit";
+	if (!user.empty())
+		hh.ParamList["mod_auth_dot_username"] = user;
+	if (!password.empty())
+		hh.ParamList["mod_auth_dot_password"] = password;
+}
+
+/* The account the cases below start from, in a file: kUser with kPassword, or with
+   first standing as its first password where one is given, then the lines in more. */
+std::string controlAccount(const std::string &first, const char *more)
+{
+	char name[96];
+	std::snprintf(name, sizeof(name), "/tmp/login-control-%d", (int) getpid());
+	std::FILE *f = std::fopen(name, "w");
+	REQUIRE(f != NULL);
+	const std::string password = first.empty() ? std::string(kPassword) : first;
+	std::fprintf(f, "username=%s\npassword_hash=%s\n", kUser, hashSecret(password, 1000).c_str());
+	if (!first.empty())
+		std::fprintf(f, "first_password=%s\n", first.c_str());
+	std::fputs(more, f);
+	REQUIRE(std::fclose(f) == 0);
+	return name;
+}
+
+} // namespace
+
+TEST_CASE("the account changes over /control/ only for a signed-in caller or the box itself, page login off or on",
+          "[login]")
+{
+	Account account;
+	const WebConfig before = config();
+	const std::string first = drawFirstPassword();
+	REQUIRE(first.size() == kFirstPasswordChars);
+
+	enum Cookie { kNoCookie, kLiveSession, kClosedSession };
+	struct Case
+	{
+		const char *what;
+		const char *peer;
+		const char *authorization;  // the Authorization header, empty for none
+		Cookie      cookie;         // the session the Cookie header names
+		const char *sec_fetch_site; // empty for none
+		const char *user;           // the new name asked for, empty for none
+		const char *password;       // the new password asked for, empty for none
+		bool        first_password; // the account still on its first password
+		const char *more;           // further lines of the account's file
+		bool        past_gate_on;   // through the gate while the page login is on
+		bool        changes;
+		const char *says;           // part of the refusal, empty where there is none
+	};
+	const Case cases[] = {
+		{ "no credentials, the headers of a page of this box", "203.0.113.20", "", kNoCookie,
+		  "same-origin", "", kRequested, false, "", false, false, "sign-in" },
+		{ "the Basic pair of the account", "203.0.113.21", kRightBasic, kNoCookie,
+		  "same-origin", "", kRequested, false, "", true, true, "" },
+		{ "a wrong Basic pair", "203.0.113.24", kWrongBasic, kNoCookie,
+		  "same-origin", "", kRequested, false, "", false, false, "sign-in" },
+		{ "the Basic pair of the account, not from a page of this box", "203.0.113.26", kRightBasic, kNoCookie,
+		  "", "", kRequested, false, "", true, false, "page of this box" },
+		{ "a session, from a page of this box", "203.0.113.22", "", kLiveSession,
+		  "same-origin", "", kRequested, false, "", true, true, "" },
+		{ "a session, from a page of another site", "203.0.113.23", "", kLiveSession,
+		  "cross-site", "", kRequested, false, "", false, false, "page of this box" },
+		{ "a session that was closed", "203.0.113.25", "", kClosedSession,
+		  "same-origin", "", kRequested, false, "", false, false, "sign-in" },
+		{ "the box itself", "127.0.0.1", "", kNoCookie,
+		  "same-origin", "", kRequested, false, "", true, true, "" },
+		{ "the box itself, with a password the rules refuse", "127.0.0.1", "", kNoCookie,
+		  "same-origin", "", "seven77", false, "", true, false, "fewer than 8" },
+		{ "the box itself, with a name the file would not take", "127.0.0.1", "", kNoCookie,
+		  "same-origin", "ro#ot", "", false, "", true, false, "new name" },
+		{ "the box itself, while its first password stands", "127.0.0.1", "", kNoCookie,
+		  "same-origin", "", kRequested, true, "", true, false, "PUT /api/v1/account/password" },
+		{ "an address on the home network, and nothing else", "192.168.4.20", "", kNoCookie,
+		  "same-origin", "", kRequested, false, "", false, false, "sign-in" },
+		{ "an address the gate lets in unasked, and nothing else", "198.51.100.23", "", kNoCookie,
+		  "same-origin", "", kRequested, false, "", true, false, "sign-in" },
+		{ "the loopback behind a configured proxy", "127.0.0.1", "", kNoCookie,
+		  "same-origin", "", kRequested, false, "trusted_proxies=127.0.0.1/32\n", true, false, "sign-in" },
+		{ "the loopback with a proxy line that names none", "127.0.0.1", "", kNoCookie,
+		  "same-origin", "", kRequested, false, "trusted_proxies=\n", true, false, "sign-in" },
+		{ "the loopback with a proxy line that cannot be read", "127.0.0.1", "", kNoCookie,
+		  "same-origin", "", kRequested, false, "trusted_proxies=127.0.0.1/32 # in front\n", true, false, "sign-in" },
+	};
+	const bool page_login[] = { false, true };
+
+	for (size_t m = 0; m < sizeof(page_login) / sizeof(page_login[0]); ++m)
+	{
+		for (size_t i = 0; i < sizeof(cases) / sizeof(cases[0]); ++i)
+		{
+			const Case &c = cases[i];
+			INFO(c.what << (page_login[m] ? ", page login on" : ", page login off"));
+			// every case starts with no wrong answer counted against any address
+			forgetLoginAttemptsForTest();
+
+			const std::string path = controlAccount(c.first_password ? first : std::string(), c.more);
+			REQUIRE(load(path));
+			const std::string stored = c.first_password ? first : std::string(kPassword);
+
+			CyhookHandler hh;
+			submitFrom(hh, c.peer, c.user, c.password);
+			if (c.authorization[0] != '\0')
+				hh.HeaderList["Authorization"] = c.authorization;
+			if (c.sec_fetch_site[0] != '\0')
+				hh.HeaderList["Sec-Fetch-Site"] = c.sec_fetch_site;
+			std::string token;
+			if (c.cookie != kNoCookie)
+			{
+				token = openSession(kUser);
+				REQUIRE_FALSE(token.empty());
+				hh.HeaderList["Cookie"] = cookieFor(token);
+				if (c.cookie == kClosedSession)
+					REQUIRE(login_bridge::closeSessionOf(cookieFor(token)));
+			}
+
+			Gate gate(page_login[m], "198.51.100.");
+			const bool past_gate = gate.Hook_PrepareResponse(&hh) == HANDLED_CONTINUE;
+			CHECK(past_gate == (page_login[m] ? c.past_gate_on : true));
+
+			// The rule answers for itself, whatever the gate in front of it did.
+			const login_bridge::Ask from = CmAuth::AskOf(&hh);
+			std::string why;
+			const bool admitted = login_bridge::mayChange(from, c.user, c.password, &why);
+			CHECK(admitted == c.changes);
+			CHECK(admitted == why.empty());
+			CHECK(why.find(c.says) != std::string::npos);
+
+			// And in the route's order: the gate, the rule, then the change.
+			const bool changed = past_gate && admitted && login_bridge::change(c.user, c.password, &why, &from);
+			CHECK(changed == c.changes);
+			CHECK(verifySecret((c.changes && c.password[0] != '\0') ? std::string(c.password) : stored,
+			                   loginInEffect().password_hash));
+			CHECK(login_bridge::user() == ((c.changes && c.user[0] != '\0') ? std::string(c.user) : std::string(kUser)));
+
+			if (c.cookie == kLiveSession)
+				login_bridge::closeSessionOf(cookieFor(token));
+			::unlink(path.c_str());
+		}
+	}
+
+	/* The box itself in the other ways its address is written. nhttpd's socket
+	   reports an IPv4 address, and the rule reads the peer as one of either family. */
+	{
+		const std::string path = controlAccount(std::string(), "");
+		REQUIRE(load(path));
+		const char *const here[] = { "127.0.0.2", "::1", "::ffff:127.0.0.1" };
+		for (size_t i = 0; i < sizeof(here) / sizeof(here[0]); ++i)
+		{
+			INFO(here[i]);
+			login_bridge::Ask a;
+			a.path = "/control/";
+			a.peer = here[i];
+			a.host = "box.lan";
+			a.sec_fetch_site = "same-origin";
+			std::string why;
+			CHECK(login_bridge::mayChange(a, "", kRequested, &why));
+		}
+		::unlink(path.c_str());
+	}
+
+	setConfigForTest(before);
 }

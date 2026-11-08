@@ -2834,6 +2834,13 @@ Beispiel:<br>
 Option (format=...) als JSON oder XML aus.<br><br>
 <b>Schreiben:</b> action=submit&amp;key1=value1&amp;key2=value2&amp;...<br>
 Setzt die angegebenen Werte in der Konfiguration und speichert sie.<br><br>
+<b>Konto:</b> Bei <code>config=nhttpd</code> &auml;ndern <code>mod_auth_dot_username</code> und
+<code>mod_auth_dot_password</code> das Konto in <code>nhttpd-access.conf</code>, und zwar nur
+f&uuml;r eine Anfrage von einer Seite der Box, die angemeldet ist (Basic oder Sitzung) oder von
+der Box selbst kommt, sofern davor kein Proxy eingetragen ist (<code>trusted_proxies</code>),
+und nicht, solange die Box auf ein eigenes Passwort wartet
+(dann <code>PUT /api/v1/account/password</code>). Sonst lehnt die Box die ganze Anfrage ab und
+speichert nichts davon.<br><br>
 <b>Hinweis:</b> F&uuml;r <code>config=neutrino</code> wird Neutrinos interne Konfiguration verwendet
 (gleiche Instanz wie OSD-Men&uuml;). &Auml;nderungen werden &uuml;ber <code>saveSetup()</code> gespeichert.
 F&uuml;r <code>config=nhttpd</code> und <code>config=yweb</code> wird direkt auf die jeweilige

@@ -61,7 +61,16 @@ removes it from there.
 The old `/control/` interface asks for a login only while
 **Authentication** is on under **System settings → Network → Web server
 (nhttpd)**. The box ships with it off. Then `/control/` answers anybody who
-reaches the box, without a password, whatever an app sends.
+reaches the box, without a password, whatever an app sends, except for a
+change to the account. The user name and the password change over
+`/control/` only for a request from a page of this box
+(`Sec-Fetch-Site: same-origin`, or an `Origin` or `Referer` naming the box)
+that signs in, with HTTP Basic authentication or in the web interface, or
+that comes from the box itself while no proxy is configured in front of it,
+whether Authentication is off or on. Any other request to change them is
+refused as a whole, also from the address range under **No-auth clients**,
+and so is every one while the box still waits for a password of your own:
+set that one in the web interface.
 
 With Authentication on, `/control/` answers with HTTP Basic authentication,
 as before, also while the first password is in effect. Calls from the box

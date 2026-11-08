@@ -284,6 +284,7 @@ EXTRA_DIST = interop/peer/README support/catch.hpp support/run-tests.sh support/
 	scan/check-locale-catalog.sh \
 	scan/check-bouquet-save-atomic.sh \
 	scan/check-access-store.sh \
+	scan/check-control-account.sh \
 	scan/check-web-old-files.sh \
 	scan/check-mute-source.sh \
 	scan/check-channel-content-lock.sh \
@@ -451,6 +452,7 @@ check-local: check-TESTS
 	@$(SHELL) $(srcdir)/scan/check-zapit-write-checked.sh $(top_srcdir)
 	@$(SHELL) $(srcdir)/scan/check-bouquet-save-atomic.sh $(top_srcdir)
 	@$(SHELL) $(srcdir)/scan/check-access-store.sh $(top_srcdir)
+	@$(SHELL) $(srcdir)/scan/check-control-account.sh $(top_srcdir)
 	@$(SHELL) $(srcdir)/scan/check-mute-source.sh $(top_srcdir)
 	@$(SHELL) $(srcdir)/scan/check-channel-content-lock.sh $(top_srcdir)
 	@$(SHELL) $(srcdir)/scan/check-bouquet-vector-lock.sh $(top_srcdir)
