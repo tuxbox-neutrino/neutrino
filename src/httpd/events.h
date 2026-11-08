@@ -134,8 +134,14 @@ typedef bool (*StreamWrite)(void *ctx, const char *bytes, size_t n);
    is the caller's to spend, on exactly one of two calls: pumpStream(), or
    closeStream() for a stream whose header never made it out. The descriptor
    itself stays the caller's; it is named here only so a reaped stream can be
-   shut down under a blocked send. */
-Opened openStream(int fd, StreamHandle &out, Response &refusal);
+   shut down under a blocked send.
+
+   placed says the caller holds a place the transport reserved for this stream
+   before its job was started (carry.h, Carrier::reserve), which the stream then
+   takes on or, refused or failed, gives back; on a throw it is still the
+   caller's. A caller without one is held to the ceiling here, counting such
+   places. */
+Opened openStream(int fd, StreamHandle &out, Response &refusal, bool placed = false);
 
 /* Runs the stream on the calling thread until it ends: waits beside the
    lock, draws what is pending in blocks, and hands each block to write. Ends

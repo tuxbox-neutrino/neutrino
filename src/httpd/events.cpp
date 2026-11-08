@@ -248,6 +248,9 @@ std::vector<Stream *> &streams()
 }
 
 size_t   max_streams_      = 0;
+/* Places the transport reserved for streams whose jobs have not opened them yet
+   (reservePlace), counted with the open streams against the ceiling. */
+size_t   reserved_         = 0;
 unsigned heartbeat_ms_     = kHeartbeatDefaultMs;
 size_t   pending_ceiling_  = kPendingCeilingDefault;
 unsigned next_serial_      = 0;
@@ -688,25 +691,54 @@ bool isStreamRoute(const Endpoint &ep)
 	return false;
 }
 
-Opened openStream(int fd, StreamHandle &out, Response &refusal)
+namespace
+{
+
+// The refusal of a stream with no place, the same whether its place was asked for
+// before its job was started or when the stream was opened.
+Response noPlaceRefusal()
+{
+	char after[16];
+	std::snprintf(after, sizeof(after), "%u", kRetryAfterFullS);
+
+	Response refusal = problemResponse(StatusServiceUnavailable,
+	                                   coreapi::ErrorCode::TooManyStreams,
+	                                   streamsFullDetail());
+	refusal.headers.push_back(std::make_pair(std::string("Retry-After"),
+	                                         std::string(after)));
+	return refusal;
+}
+
+} // namespace
+
+Opened openStream(int fd, StreamHandle &out, Response &refusal, bool placed)
 {
 	out = NULL;
 
 	/* A connection that names no descriptor is not made into a stream at all:
 	   a stream that cannot be shut down is one a peer that stops reading
-	   holds until the server is stopped. */
+	   holds until the server is stopped. A place reserved for it goes back. */
 	if (fd < 0)
+	{
+		if (placed)
+		{
+			OpenThreads::ScopedLock<OpenThreads::Mutex> held(lock());
+			if (reserved_ > 0)
+				--reserved_;
+		}
 		return StreamFailed;
+	}
 
 	Stream *s = NULL;
 	{
 		OpenThreads::ScopedLock<OpenThreads::Mutex> held(lock());
 
 		/* Counted and registered under one lock, so that two requests arriving
-		   together cannot both find room for the last place. A refusal takes
-		   nothing from in here: the document that carries it is written below,
-		   once this is given up. */
-		if (serving_ && streams().size() < max_streams_)
+		   together cannot both find room for the last place, a place reserved
+		   for a stream not yet opened counted as taken. A refusal takes nothing
+		   from in here: the document that carries it is written below, once this
+		   is given up. */
+		if (serving_ && (placed || streams().size() + reserved_ < max_streams_))
 		{
 			/* Owned until the list owns it. Between the allocation and the
 			   push there are two calls that can fail, and a raw pointer
@@ -722,9 +754,14 @@ Opened openStream(int fd, StreamHandle &out, Response &refusal)
 			appendPreamble(made.held->pending, next_serial_);
 
 			streams().push_back(made.held);
+			// the reserved place is the stream's from here
+			if (placed && reserved_ > 0)
+				--reserved_;
 			++next_serial_;
 			s = made.release();
 		}
+		else if (placed && reserved_ > 0)
+			--reserved_;
 	}
 
 	if (s == NULL)
@@ -732,14 +769,7 @@ Opened openStream(int fd, StreamHandle &out, Response &refusal)
 		/* Written with the lock given up. It builds a document, an error and a header, which
 		   is three allocations and a format, and a delivery from the message path would queue
 		   behind all of it for an answer that is only ever a refusal. */
-		char after[16];
-		std::snprintf(after, sizeof(after), "%u", kRetryAfterFullS);
-
-		refusal = problemResponse(StatusServiceUnavailable,
-		                          coreapi::ErrorCode::TooManyStreams,
-		                          streamsFullDetail());
-		refusal.headers.push_back(std::make_pair(std::string("Retry-After"),
-		                                         std::string(after)));
+		refusal = noPlaceRefusal();
 		return StreamRefused;
 	}
 
@@ -895,7 +925,9 @@ void carryStream(carry::Job &job)
 
 	StreamHandle handle = NULL;
 	Response refusal;
-	const Opened got = openStream(fd, handle, refusal);
+	const Opened got = openStream(fd, handle, refusal, carry::holdsPlace(job));
+	// the reserved place taken on by the stream, or given back with the refusal
+	carry::placeTaken(job);
 	if (got == StreamRefused)
 	{
 		carry::refuse(job, refusal);
@@ -915,7 +947,32 @@ void carryStream(carry::Job &job)
 	pumpStream(held.spend(), &sendThroughJob, &job);
 }
 
-const carry::Carrier kStreamCarrier = { NULL, &carryStream };
+/* A place for a stream, taken before the transport starts the stream's job, so a
+   burst of requests starts no more jobs than the ceiling has places, and with a
+   ceiling of 0 none at all. Refused in the words openStream() uses. */
+bool reservePlace(Response &refusal)
+{
+	{
+		OpenThreads::ScopedLock<OpenThreads::Mutex> held(lock());
+		if (serving_ && streams().size() + reserved_ < max_streams_)
+		{
+			++reserved_;
+			return true;
+		}
+	}
+	refusal = noPlaceRefusal();
+	return false;
+}
+
+// A place reserved for a stream whose job never opened it.
+void unreservePlace()
+{
+	OpenThreads::ScopedLock<OpenThreads::Mutex> held(lock());
+	if (reserved_ > 0)
+		--reserved_;
+}
+
+const carry::Carrier kStreamCarrier = { NULL, &carryStream, &reservePlace, &unreservePlace };
 
 } // namespace
 
@@ -1121,7 +1178,7 @@ const Endpoint kEventsEndpoints[] = {
 	  "| `playback` | the movie player started, stopped, paused, resumed, jumped or changed speed | `text`: the state (`playing`, `paused`, `forward`, `rewind` or `stopped`), the source as `GET /api/v1/playback` names it and, for a recording, its archive id, separated by spaces; `value`: the position in seconds; `channel_id`: the channel of a recording or a timeshift, else 0 |\n\n"
 	  "**Refusals:**\n"
 	  "- `503 too-many-streams`: the server already carries as many event streams as it is set to "
-	  "(8 by default); close another one or try later.\n\n"
+	  "(16 by default); close another one or try later.\n\n"
 	  "**Related:** every route whose description names an event.", NULL, 0, NULL, &events::streamHandler, false,
 	  Answers200, HTTPD_NO_REFUSALS },
 };

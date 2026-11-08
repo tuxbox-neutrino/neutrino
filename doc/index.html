@@ -224,7 +224,7 @@ everything about it, so read the matching route again for the details.</p>
 one carries.</p>
 <p>In a browser, <code>new EventSource("/api/v1/events")</code> is enough. The
 stream starts with a <code>retry:</code> line and sends a comment line as a
-heartbeat when nothing happens. A box carries up to 8 streams by default; the
+heartbeat when nothing happens. A box carries up to 16 streams by default; the
 next caller gets <code>503 too-many-streams</code>.</p>
 </div>
 </section>

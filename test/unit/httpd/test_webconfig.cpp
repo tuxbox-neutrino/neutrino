@@ -247,7 +247,7 @@ TEST_CASE("the values a box that was never configured runs on", "[webconf]")
 	REQUIRE(c.username == "root");
 	REQUIRE(c.password_hash.empty());
 	REQUIRE(c.session_lifetime_s == 86400);
-	REQUIRE(c.sse_max_streams == 8);
+	REQUIRE(c.sse_max_streams == 16);
 	REQUIRE(c.legacy_enabled);
 	REQUIRE(c.docroot == std::string(PRIVATE_HTTPDDIR) + "/ni-web");
 	REQUIRE(c.trusted_proxies.empty());
@@ -1449,7 +1449,7 @@ TEST_CASE("a stream count of none is a real answer and one above the ceiling is 
 	writeFile(over.path(), "sse_max_streams=65\n");
 	REQUIRE(httpd::load(over.path()));
 	REQUIRE(httpd::config().sse_max_streams == 0);
-	REQUIRE(httpd::config().sse_max_streams != 8);
+	REQUIRE(httpd::config().sse_max_streams != 16);
 	REQUIRE(anyProblemMentions("sse_max_streams"));
 }
 
@@ -1730,7 +1730,7 @@ TEST_CASE("a stream count cut short is none", "[webconf]")
 
 	REQUIRE(httpd::load(conf.path()));
 	REQUIRE(httpd::config().sse_max_streams == 0);
-	REQUIRE(httpd::config().sse_max_streams != 8);
+	REQUIRE(httpd::config().sse_max_streams != 16);
 	REQUIRE(anyProblemMentions("sse_max_streams"));
 }
 

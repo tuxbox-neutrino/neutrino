@@ -60,13 +60,18 @@ struct Job
 	// The job's thread only: whether a byte of the answer was attempted. A
 	// problem document fits only before that.
 	bool              committed;
+	/* Whether the job holds a place its carrier reserved and has not taken on
+	   (Carrier::reserve). Set before the thread starts, then the thread's only. */
+	bool              placed;
 
 	Job()
 		: id(0), kind(Fetch), fd(-1), child(0), stopped(false), answer(NULL),
-		  method(UnknownMethod), committed(false)
+		  method(UnknownMethod), committed(false), placed(false)
 	{
 		carrier.check = NULL;
 		carrier.run = NULL;
+		carrier.reserve = NULL;
+		carrier.unreserve = NULL;
 	}
 
 private:
@@ -84,11 +89,12 @@ const size_t kKinds = 3;
    converter the box pays for in CPU). Outside nhttpd's connection threads:
    a job holds a connection thread only until it is handed over.
 
-   The event streams are counted here but never limited. Their module holds
-   them to its configured ceiling and refuses one over it with its own 503,
-   and it gives a stream's place back at the end of the stream's pump, before
-   the job's last act: a limit here would come free later than that one and
-   refuse a stream the module has room for. */
+   The event streams are counted here but never limited by a seat. Their
+   module holds them to its configured ceiling: its carrier reserves a place
+   there before a job's thread is started and refuses with its own 503 where
+   none is free, and the place goes back at the end of the stream's pump,
+   before the job's last act. A limit here would come free later than that one
+   and refuse a stream the module has room for. */
 const size_t kUnlimited = SIZE_MAX;
 const size_t kSeats[kKinds] = { 6, 2, kUnlimited };
 
@@ -507,6 +513,22 @@ void endJob(Job *j)
 	}
 }
 
+// The place the job's carrier reserved, given back where the job still holds it.
+void giveBackPlace(Job &j)
+{
+	if (!j.placed)
+		return;
+	j.placed = false;
+	try
+	{
+		if (j.carrier.unreserve != NULL)
+			j.carrier.unreserve();
+	}
+	catch (...)
+	{
+	}
+}
+
 void *jobMain(void *arg)
 {
 	Job *j = (Job *) arg;
@@ -525,6 +547,8 @@ void *jobMain(void *arg)
 			failInJob(*j);
 		}
 	}
+	// a place the carrier did not take on: a job stopped before it ran, or one that failed first
+	giveBackPlace(*j);
 	endJob(j);
 	return NULL;
 }
@@ -666,16 +690,35 @@ Outcome start(void *held, int fd, Method m, const std::string &path, Response &r
 
 	point(Admitted, job);
 
-	// Published. A thread that cannot be started takes everything back.
-	if (!spawn(job))
+	/* A place with the module of a kind it holds to a ceiling of its own, before a
+	   thread is started for it: none free, and no thread is started at all. */
+	Response no_place;
+	bool placed = true;
+	if (job->carrier.reserve != NULL)
 	{
+		try
+		{
+			placed = job->carrier.reserve(no_place);
+		}
+		catch (...)
+		{
+			placed = false;
+			no_place = refusalFor(NoResources, k);
+		}
+		job->placed = placed;
+	}
+
+	// Published. A thread that cannot be started takes everything back.
+	if (!placed || !spawn(job))
+	{
+		giveBackPlace(*job);
 		{
 			Locked hold_register;
 			unregister(job);
 			--reg().live;
 		}
 		destroy(job);
-		refusal = refusalFor(NoResources, k);
+		refusal = placed ? refusalFor(NoResources, k) : no_place;
 		return Refused;
 	}
 	return Carrying;
@@ -699,6 +742,16 @@ int descriptorOf(const Job &j)
 bool cancelled(const Job &j)
 {
 	return j.stopped.load();
+}
+
+bool holdsPlace(const Job &j)
+{
+	return j.placed;
+}
+
+void placeTaken(Job &j)
+{
+	j.placed = false;
 }
 
 bool waitPeer(Job &j, unsigned ms)

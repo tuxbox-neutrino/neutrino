@@ -42,6 +42,7 @@
 #include <vector>
 
 #include <fcntl.h>
+#include <netinet/in.h>
 #include <poll.h>
 #include <pthread.h>
 #include <signal.h>
@@ -370,7 +371,7 @@ void runCase(carry::Job &j)
 	++p.finished;
 }
 
-const carry::Carrier kCaseCarrier = { NULL, &runCase };
+const carry::Carrier kCaseCarrier = { NULL, &runCase, NULL, NULL };
 
 /* The case's carriers for both kinds, and every seam back to the product's on
    the way out, so a case that fails halfway leaves nothing behind. */
@@ -1009,6 +1010,216 @@ TEST_CASE("an event stream whose thread cannot start is refused with the wait of
 	const std::vector<int> fds = closedSoFar();
 	REQUIRE(fds.size() == 1);
 	CHECK(isClosed(fds[0]));
+	// and the place the stream had reserved is free again
+	WireStream after(serving.port);
+	REQUIRE(after.ok());
+	CHECK(after.code() == 200);
+}
+
+namespace
+{
+
+/* The jobs of the event streams, counted as they start, and those whose turn in
+   that count is from hold_from up to hold_to held there while a case says so, as
+   on a box whose threads are slow to get going: the count is how many were
+   started, not how many got through. */
+std::atomic<int>  events_started(0);
+std::atomic<bool> hold_events(false);
+std::atomic<int>  hold_from(0);
+std::atomic<int>  hold_to(1000);
+
+void holdEventJobs(carry::Point p, carry::Job *j)
+{
+	if (p != carry::JobStarted || j == NULL || !carry::answerOf(*j).event_stream)
+		return;
+	const int turn = events_started++;
+	if (turn < hold_from.load() || turn >= hold_to.load())
+		return;
+	while (hold_events.load())
+		napMs(2);
+}
+
+// A stop as an event stream's job is admitted, before its thread is started.
+void stopEventsWhenAdmitted(carry::Point p, carry::Job *j)
+{
+	if (p == carry::Admitted && j != NULL && carry::answerOf(*j).event_stream)
+		carry::beginStop();
+}
+
+// A request sent and not waited for: the descriptor its answer comes back on.
+int sendOnly(int port, const char *request)
+{
+	const int fd = socket(AF_INET, SOCK_STREAM, 0);
+	REQUIRE(fd >= 0);
+	struct sockaddr_in a;
+	std::memset(&a, 0, sizeof(a));
+	a.sin_family = AF_INET;
+	a.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+	a.sin_port = htons((uint16_t) port);
+	REQUIRE(connect(fd, (struct sockaddr *) &a, sizeof(a)) == 0);
+	const size_t n = std::strlen(request);
+	REQUIRE(send(fd, request, n, MSG_NOSIGNAL) == (ssize_t) n);
+	return fd;
+}
+
+// The code of the status line that came back within the wait, 0 where none did.
+int statusWithin(int fd, int wait_ms)
+{
+	std::string got;
+	const int64_t until = wireNowMs() + wait_ms;
+	while (got.find("\r\n") == std::string::npos)
+	{
+		const int64_t left = until - wireNowMs();
+		if (left <= 0)
+			return 0;
+		struct pollfd p;
+		p.fd = fd;
+		p.events = POLLIN;
+		p.revents = 0;
+		if (poll(&p, 1, (int) left) <= 0)
+			return 0;
+		char buf[256];
+		const ssize_t n = recv(fd, buf, sizeof(buf), 0);
+		if (n <= 0)
+			return 0;
+		got.append(buf, (size_t) n);
+	}
+	return got.size() > 12 ? (int) std::strtol(got.c_str() + 9, NULL, 10) : 0;
+}
+
+} // namespace
+
+TEST_CASE("a burst of event streams starts no more jobs than the ceiling has places", "[carry]")
+{
+	/* The place is reserved before a thread is started for the stream, so requests
+	   that arrive while the jobs before them have not opened their streams yet are
+	   refused on the connection's own thread: of eight at once under a ceiling of
+	   two, two start a job, and six are refused without one. */
+	Carriers c;
+	events_started = 0;
+	hold_from = 0;
+	hold_to = 1000;
+	hold_events = true;
+	carry::setPointHookForTest(&holdEventJobs);
+	WireServer serving(2, 5000, WireServer::Threaded);
+
+	std::vector<int> fds;
+	for (int i = 0; i < 8; ++i)
+		fds.push_back(sendOnly(serving.port, "GET /api/v1/events HTTP/1.0\r\nHost: box\r\n\r\n"));
+	int refused = 0;
+	int waiting = 0;
+	for (size_t i = 0; i < fds.size(); ++i)
+	{
+		const int code = statusWithin(fds[i], 1000);
+		if (code == 503)
+			++refused;
+		else if (code == 0)
+			++waiting;
+	}
+	CHECK(events_started.load() == 2);
+	CHECK(refused == 6);
+	CHECK(waiting == 2);
+	CHECK(carry::running() == 2);
+	CHECK(events::openStreams() == 0);
+
+	// let go, the two held ones open their streams, and every place comes back
+	hold_events = false;
+	int opened = 0;
+	for (size_t i = 0; i < fds.size(); ++i)
+		if (statusWithin(fds[i], 2000) == 200)
+			++opened;
+	CHECK(opened == 2);
+	for (size_t i = 0; i < fds.size(); ++i)
+		close(fds[i]);
+	CHECK(waitForRunning(0, 3000) == 0);
+	CHECK(events::openStreams() == 0);
+	carry::setPointHookForTest(NULL);
+	WireStream again(serving.port);
+	REQUIRE(again.ok());
+	CHECK(again.code() == 200);
+}
+
+TEST_CASE("a stream that ends gives back its own place and no other", "[carry]")
+{
+	/* Two places. A stream is open, a second request holds the other place while its
+	   job has not opened its stream yet, and the open one ends: that frees one place,
+	   so of two more requests one is carried and one is refused, and once the held job
+	   goes on, two streams are open and never three. */
+	Carriers c;
+	events_started = 0;
+	hold_from = 1;
+	hold_to = 2;
+	hold_events = true;
+	carry::setPointHookForTest(&holdEventJobs);
+	WireServer serving(2, 5000, WireServer::Threaded);
+
+	WireStream *first = new WireStream(serving.port);
+	REQUIRE(first->ok());
+	REQUIRE(first->code() == 200);
+	const int held = sendOnly(serving.port, "GET /api/v1/events HTTP/1.0\r\nHost: box\r\n\r\n");
+	for (int i = 0; i < 400 && events_started.load() < 2; ++i)
+		napMs(5);
+	REQUIRE(events_started.load() == 2);
+	delete first;
+	for (int i = 0; i < 600 && events::openStreams() != 0; ++i)
+		napMs(5);
+	REQUIRE(events::openStreams() == 0);
+	REQUIRE(waitForRunning(1, 3000) == 1);
+
+	WireStream third(serving.port);
+	REQUIRE(third.ok());
+	CHECK(third.code() == 200);
+	WireStream fourth(serving.port);
+	REQUIRE(fourth.ok());
+	CHECK(fourth.code() == 503);
+
+	hold_events = false;
+	CHECK(statusWithin(held, 3000) == 200);
+	CHECK(events::openStreams() == 2);
+	close(held);
+	carry::setPointHookForTest(NULL);
+}
+
+TEST_CASE("with a ceiling of no event streams a request starts no job at all", "[carry]")
+{
+	Carriers c;
+	events_started = 0;
+	hold_from = 0;
+	hold_to = 1000;
+	hold_events = false;
+	carry::setPointHookForTest(&holdEventJobs);
+	WireServer serving(0, 5000, WireServer::Threaded);
+
+	WireStream s(serving.port);
+	REQUIRE(s.ok());
+	CHECK(s.code() == 503);
+	CHECK(s.headerOf("Retry-After") == "30");
+	CHECK(s.readToEof(2000).find(events::streamsFullDetail()) != std::string::npos);
+	CHECK(events_started.load() == 0);
+	CHECK(carry::running() == 0);
+	CHECK(carry::seatsTaken(carry::Events) == 0);
+}
+
+TEST_CASE("an event stream's job a stop reaches before it runs gives its place back", "[carry]")
+{
+	Carriers c;
+	WireServer serving(1, 5000, WireServer::Threaded);
+	carry::setPointHookForTest(&stopEventsWhenAdmitted);
+	{
+		// the job writes nothing at all: no header comes back
+		WireStream stopped(serving.port);
+		CHECK_FALSE(stopped.ok());
+		CHECK(stopped.code() == 0);
+	}
+	carry::setPointHookForTest(NULL);
+	REQUIRE(carry::waitIdle(3000));
+	carry::endStop();
+	CHECK(events::openStreams() == 0);
+
+	// the one place is free again
+	WireStream after(serving.port);
+	REQUIRE(after.ok());
+	CHECK(after.code() == 200);
 }
 
 namespace

@@ -203,8 +203,11 @@ runs connection threads (<code>webserver.threading</code>).
 <p>
 <code>GET /api/v1/events</code> is a stream of Server-Sent Events. It has no
 <code>Content-Length</code>; the body ends when the connection closes. The
-layer carries at most <code>sse_max_streams</code> of them at once: 8 by
-default, up to 64. One more is answered 503 with a <code>Retry-After</code>.
+layer carries at most <code>sse_max_streams</code> of them at once: 16 by
+default, up to 64. One more is answered 503 with a <code>Retry-After</code>,
+before a thread is started for it: a stream's place is taken before its
+thread, so a burst of requests starts no more threads than there are places,
+and with <code>sse_max_streams=0</code> none at all.
 Each stream costs a thread whose stack reserves 512 KiB of address space,
 of which only the pages it touches are memory. A client that stops reading
 is dropped once 256 KiB are waiting for it, or once nothing could be written

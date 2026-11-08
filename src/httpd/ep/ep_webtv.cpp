@@ -274,7 +274,7 @@ void carryFetch(carry::Job &job)
 		webtv::relay(job);
 }
 
-const carry::Carrier kFetchCarrier = { &checkFetch, &carryFetch };
+const carry::Carrier kFetchCarrier = { &checkFetch, &carryFetch, NULL, NULL };
 
 /* Every answer these routes fetch for is carried: the fetch runs on a job of its
    own, with one of the transport's seats, and not on the thread that read the

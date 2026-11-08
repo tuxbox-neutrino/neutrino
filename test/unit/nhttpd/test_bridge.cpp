@@ -351,8 +351,8 @@ bool refuseAll(const httpd::Response &, httpd::Response &refusal)
 	return false;
 }
 
-const httpd::carry::Carrier kHeadOnly = { NULL, &headOnly };
-const httpd::carry::Carrier kRefusing = { &refuseAll, &headOnly };
+const httpd::carry::Carrier kHeadOnly = { NULL, &headOnly, NULL, NULL };
+const httpd::carry::Carrier kRefusing = { &refuseAll, &headOnly, NULL, NULL };
 
 struct Carrying
 {

@@ -313,7 +313,7 @@ void carryProgram(carry::Job &job)
 	}
 }
 
-const carry::Carrier kProgramCarrier = { &checkProgram, &carryProgram };
+const carry::Carrier kProgramCarrier = { &checkProgram, &carryProgram, NULL, NULL };
 
 } // namespace
 

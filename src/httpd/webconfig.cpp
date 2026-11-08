@@ -235,10 +235,12 @@ const unsigned kSessionLifetimeMax     = 2592000u;
 
    A stream holds a thread of its own and none of the server's connection
    threads. What it costs is that thread's stack, which reserves 512 KiB of
-   address space and fills only as far as it is used, and up to 256 KiB held
-   for a peer that does not read. The ceiling of 64 holds the worst of it to
-   32 MiB of address space and 16 MiB held. */
-const unsigned kSseMaxStreamsDefault = 8u;
+   address space and fills only as far as it is used, and up to 256 KiB
+   queued for a peer that does not read, in a buffer that may keep up to
+   twice that reserved. Sixteen by default, a few tabs on a few devices at
+   once; at the ceiling of 64 the worst of it is 32 MiB of address space and
+   about 30 MiB of buffers, which takes 64 peers that all stopped reading. */
+const unsigned kSseMaxStreamsDefault = 16u;
 const unsigned kSseMaxStreamsMax     = 64u;
 
 /* The shortest token this accepts, in characters of the hexadecimal a token is written

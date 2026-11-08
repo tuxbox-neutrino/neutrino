@@ -310,9 +310,12 @@ try:
 	# The seats really come back: fill to the ceiling, hard-close everything,
 	# then the same number opens again. Two extra opens would pass beside a
 	# leak; the full count cannot.
+	# One more than the configuration allows (sse_max_streams, at most 64),
+	# so the ceiling is found whatever the box is set to.
 	time.sleep(1.0)
+	most = 65
 	held = []
-	for i in range(12):
+	for i in range(most):
 		si, hi, bi = open_stream()
 		if b' 200 ' in hi.split(b'\r\n', 1)[0]:
 			held.append(si)
@@ -320,8 +323,8 @@ try:
 			si.close()
 			break
 	ceiling = len(held)
-	if ceiling == 0 or ceiling >= 12:
-		fails.append('no ceiling found within 12 streams (got %d)' % ceiling)
+	if ceiling == 0 or ceiling >= most:
+		fails.append('no ceiling found within %d streams (got %d)' % (most, ceiling))
 	for si in held:
 		si.close()
 	time.sleep(1.0)

@@ -63,8 +63,9 @@ enum Kind
 	Fetch,   // relay_url: bytes fetched from elsewhere and passed on
 	Program, // stream_argv: the output of a program the box runs
 	/* event_stream: the box's events as they happen. Counted here but never
-	   limited: the module that keeps the streams holds them to its configured
-	   ceiling and refuses one over it itself (events.h). */
+	   limited by a seat: the module that keeps the streams holds them to its
+	   configured ceiling, through a place its carrier reserves before a job is
+	   started (Carrier::reserve). */
 	Events
 };
 
@@ -81,11 +82,22 @@ struct Job;
    run carries the answer on the job's thread and returns when it is done.
    Before its first write it may still refuse, as an ordinary document; after
    it, every failure only ends the connection. A throw ends the job like a
-   return does. */
+   return does.
+
+   reserve, for a kind its module holds to a ceiling of its own, takes a place
+   there before the job's thread is started, and answers false with refusal
+   filled where none is free: then no thread is started at all, so a burst of
+   requests starts no more threads than there are places. The place is the
+   job's until run takes it on (placeTaken), and unreserve gives back one that
+   was not: where the thread could not be started, and where the job ends
+   without run having taken it, a job stopped before it ran among them. NULL
+   for a kind its seats here hold. */
 struct Carrier
 {
 	bool (*check)(const Response &answer, Response &refusal);
 	void (*run)(Job &job);
+	bool (*reserve)(Response &refusal);
+	void (*unreserve)();
 };
 
 // Installs the carrier of a kind, or removes it with NULL. The pointer is
@@ -123,9 +135,9 @@ enum Outcome
 /* Takes held over on every path, copies fd (which stays the caller's), and
    starts the answer's job. On nhttpd's thread, in the stream pass. Refused
    when no carrier exists for the kind (501), the server is stopping or the
-   kind's seats are taken (503), or the thread cannot be started (503). A
-   throw (out of memory) has given back the answer and the copy before it
-   leaves. */
+   kind's seats are taken (503), the carrier has no place to reserve (its own
+   refusal), or the thread cannot be started (503). A throw (out of memory)
+   has given back the answer and the copy before it leaves. */
 Outcome start(void *held, int fd, Method m, const std::string &path, Response &refusal);
 
 // ---- a carrier's calls, on its job's thread
@@ -144,6 +156,12 @@ int descriptorOf(const Job &j);
 
 // Set by a stop and never cleared. Every wait of a carrier asks it.
 bool cancelled(const Job &j);
+
+/* Whether the job holds a place its carrier reserved, and the carrier saying it
+   has taken that place on (or given it back itself), after which the job's end
+   gives nothing back for it. */
+bool holdsPlace(const Job &j);
+void placeTaken(Job &j);
 
 /* Waits up to ms for the far end, and answers false once it is gone or the
    job is cancelled: a carrier with nothing to send asks this at least every
