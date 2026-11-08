@@ -3,207 +3,215 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <link rel="STYLESHEET" type="text/css" href="yhttpd.css"/>
-<title>REST API v1 on nhttpd</title>
+<title>The API layer in nhttpd</title>
 </head>
 <body>
-<h1>REST API v1 on nhttpd</h1><hr>
+<h1>The API layer in nhttpd</h1><hr>
 
-<h2>What it is</h2>
 <p>
-Beside the control API under <code>/control/</code>, nhttpd answers a
-described, versioned REST API under <code>/api/v1/</code>. The routes, their
-parameters and their answers are declared as data in <code>src/httpd/ep/</code>;
-the router in <code>src/httpd/router.cpp</code> binds and checks a request
-against those declarations, and the OpenAPI 3.1 document at
-<code>/api/openapi.json</code> is written out of the same tables, so the
-description cannot drift from what is served. The layer is taken over
-unchanged, as compatible forks carry it; the server beneath it is nhttpd,
-not the dedicated server of those forks, and <code>/control/</code> stays what it was, byte for byte.
+nhttpd answers the HTTP API under <code>/api/v1/</code> through a layer of
+its own in <code>src/httpd/</code>. This page is for people who work on that
+layer: how a route is declared, how nhttpd hands a request over, and what
+the transport accepts and sends.
 </p>
 <p>
-One stated exception to that, for every answer of the server and not only
-the API: a body that holds a NUL byte now goes out whole. The header always
-counted it whole (<code>Content-Length</code> is the length of the answer as
-built), but the body stopped at the first NUL, so such an answer was cut
-short of its own length and the caller waited for bytes that never came.
-Answers without a NUL byte, which is every answer the pages ask for, are
-the same bytes as before.
+To use the API, start with the <a href="../index.html">overview</a>. Every
+route, with its parameters, answers and refusals, is in the
+<a href="../api/index.html">reference</a>.
 </p>
 
-<h2>Addresses</h2>
-<table border="0">
-<tr><td><code>GET /api/openapi.json</code></td><td>the document; gzipped when the caller's <code>Accept-Encoding</code> takes it</td></tr>
-<tr><td><code>/api/v1/system/...</code></td><td>the box, standby, reboot, shutdown, restart, the daemons</td></tr>
-<tr><td><code>/api/v1/channels...</code>, <code>/api/v1/bouquets...</code>, <code>/api/v1/zap</code>, <code>/api/v1/mode</code></td><td>the channel lists, the bouquets and their editing, the logos</td></tr>
-<tr><td><code>/api/v1/epg...</code></td><td>the guide: what is on, a channel's schedule, a search</td></tr>
-<tr><td><code>/api/v1/timers...</code>, <code>/api/v1/recordings...</code></td><td>the timers and their making, what has been recorded</td></tr>
-<tr><td><code>/api/v1/osd...</code></td><td>volume, mute, messages on the screen, the remote's keys</td></tr>
-<tr><td><code>/api/v1/settings...</code></td><td>the declared settings, their schema, reading and writing them</td></tr>
-<tr><td><code>/api/v1/storage...</code></td><td>mounts, directories, the files on them, network shares</td></tr>
-<tr><td><code>/api/v1/tuner...</code>, <code>/api/v1/plugins...</code>, <code>/api/v1/config...</code></td><td>the signal, the plugins, the configuration files</td></tr>
-</table>
+<h2>Routes are data</h2>
 <p>
-What each route takes and answers is in the document; read it from the box or
-build it without one: <code>make -C src/httpd openapi-dump</code> writes the
-same bytes the route answers. A copy is kept in the tree as
-<code>doc/api/openapi.json</code>, laid out one member per line, so the
-documentation can be built without a configured tree; <code>make check</code> fails when it
-no longer matches the code, and <code>make -C src/httpd update-api-doc</code>
-refreshes it. Seventeen of the nineteen tables known from compatible forks are
-served, sessions, the event stream and the server's own table among them;
-the two relay tables (stream, web-TV) follow with the transport work they
-need.
+Each group of routes is a table with one row per route. A row names the
+method, the path, the access level, the parameters and where each is
+carried (path, query or body), the shape of the answer, the refusals the
+route declares, and the handler. Most tables are in <code>src/httpd/ep/</code>;
+the event stream has its table in <code>src/httpd/events.cpp</code>, and the
+document's own route is in <code>src/httpd/doc/openapi.cpp</code>.
 </p>
 <p>
-Since slice 3 the box asks for a login. <code>POST /api/v1/login</code>
-takes <code>{"user","password"}</code> - the pair migrated out of
-nhttpd.conf on the first start - and answers the session cookie
-(HttpOnly, SameSite=Lax) with the CSRF header's name and value beside it;
-every request that changes something carries the cookie and that second
-token. Readers on the networks <code>lan_read</code> names (as shipped: the
-loopbacks, the RFC1918 ranges and the ULA prefix fc00::/7) read without
-presenting anything; everyone else is
-answered 403, deliberately never a 401 that would put a browser's Basic
-popup in front of the login. Programs present a configured token as
-<code>Authorization: Bearer</code> instead; an address may carry the
-scoped media token (<code>POST /api/v1/token/media</code>) as
-<code>?token=</code>, worth the media roots and nothing else. This is
-the flow another box's remote-timer screen speaks, so a box running a
-compatible fork can drive this box's timers over
-<code>/api/v1</code>. That is proven on
-the wire rather than read off the source: <code>test/http/check-remotebox.sh</code>
-drives the peer's own client code, kept word for word under
-<code>test/unit/interop/peer/</code> and built as <code>remotebox_client</code>
-by <code>make check</code>, through list, margins, channel, add, change
-and remove against a running box, and reads the box back after every
-write.
+The router in <code>src/httpd/router.cpp</code> matches a request against
+the tables and checks the caller's access level. It then binds and checks
+every parameter and body member against the row before the handler runs, so
+a handler only sees values its row allows. A path no route has is answered
+404, a method the path does not take is 405 with an <code>Allow</code>
+header, and a parameter or body the router will not bind is 400.
 </p>
 <p>
-<code>GET /api/v1/system/webserver</code> answers where this server
-really answers - the port is the one nhttpd bound - and the PUT moves
-it: the answer says first what the change means for the caller (the
-address under the new port, whether a restart is coming), then the
-webserver thread is stopped, the layer's configuration reloaded, the port and address
-written into nhttpd.conf and the thread started again. Sessions survive
-the move; the program is not restarted. nhttpd also speaks
-<code>PATCH</code> now (the settings section write), refused outside
-<code>/api/</code> exactly as PUT always was.
+The tables are checked when nhttpd starts. If they fail the check, nhttpd
+runs without the API layer and logs the reason once.
 </p>
 <p>
-<code>GET /api/v1/events</code> is the box's own events as they happen
-(<code>text/event-stream</code>): zap, mode, standby, volume, mute, record
-start and stop, timer, EPG, bouquet and settings changes. The stream opens
-with a <code>retry:</code> field spread across clients, carries a comment
-frame when it has been silent, and runs on the connection it arrived on -
-no <code>Content-Length</code>, the body ends when the connection closes.
-At most eight streams are carried at once; the ninth caller gets a 503 with
-a <code>Retry-After</code>. A peer that stops reading is dropped once its
-backlog passes a quarter megabyte rather than buffered forever.
+The timer routes are also what the remote-timer screen of another box uses
+to drive this box's timers. Its client is kept in
+<code>test/unit/interop/peer/</code>, and <code>test/http/check-remotebox.sh</code>
+runs it against a box, so a change to the timer routes can be checked
+against that client.
 </p>
 <p>
-The settings the tables declare are this tree's: a row is only there when
-this program loads the key and something reads the member, and a declared
-default is the one this program falls back to. Rows that compatible forks declare for features
-this tree has stilled are carried in <code>settingsundeclared.cpp</code> with their
-reasons instead of being served.
-</p>
-<p>
-<code>GET /api/v1/system/legacy-usage</code> answers with real counts:
-nhttpd's own <code>/control/</code> dispatcher (CControlAPI) seeds the known
-names and counts every name it is asked for, missing ones included, so the
-route answers the question it exists for - whether everything has moved off
-the copied surface. Counted behind nhttpd's authentication: a caller the
-password gate turned away is not in the counts.
-</p>
-<p>
-The TypeScript shapes of the API are written out of the document by
-<code>test/web/openapi-types.js</code>, taken over unchanged, as compatible forks ship it:
-<code>node test/web/openapi-types.js openapi.json api.d.ts</code>. Nothing
-generated is committed; a page that wants the types runs the generator against
-the document its build produced.
+A setting kept in the settings file gets a row only for a key Neutrino
+reads there, and the row names the member that key is loaded into; unit
+cases hold the table to both. A few rows stand for a value a daemon holds,
+or for one bit of a mask, and have no key in that file. Members of the
+settings without a row are listed, each with the reason, in
+<code>src/coreapi/settings/settingsundeclared.cpp</code>.
 </p>
 
-<h2>Answers</h2>
+<h2>The document</h2>
 <p>
-JSON, by length. A refusal is an RFC 9457 problem document
-(<code>application/problem+json</code>) with <code>type</code>,
-<code>title</code>, <code>status</code> and <code>detail</code>; the router
-answers 404 for a path it has no route for, 405 with <code>Allow</code> for a
-method the path does not take, 400 for a parameter or body it will not bind,
-501 for a method nhttpd cannot name. Every answer carries
-<code>Cache-Control: no-store</code>, <code>X-Content-Type-Options: nosniff</code>
-and <code>Vary: Cookie, Authorization</code>. Answers are HTTP/1.0 with
-<code>Connection: close</code>, like everything nhttpd sends.
+<code>src/httpd/doc/openapi.cpp</code> writes the OpenAPI 3.1 document at
+<code>/api/openapi.json</code> from the same tables, so it describes exactly
+the routes the build serves. It goes out gzipped when the request's
+<code>Accept-Encoding</code> allows it. To get the document without a box,
+run <code>make openapi-dump</code> in <code>src/httpd</code> of a build
+tree; it writes <code>openapi.json</code> there and refuses when the tables
+fail their check.
 </p>
 <p>
-An answer that is a file (a channel picture, a stored file, later a recording)
-is sent straight out of its descriptor, whatever its size, and takes one
-<code>Range</code>: a stretch inside the file is 206 with a
-<code>Content-Range</code>, a header nothing can be made of is the whole file,
-and a stretch the file does not hold is a 416 problem document whose
-<code>Content-Range: bytes */length</code> says what there is to ask for.
-<code>HEAD</code> answers with the stretch's headers and no body.
+A copy is kept in the source tree as <code>doc/api/openapi.json</code>,
+laid out one member per line, so a change to a route shows in a diff as the
+lines that changed. <code>make check</code> fails when the copy differs from
+the document the build writes, and <code>make -C src/httpd update-api-doc</code>
+writes it again. A build that writes a reduced document by design, or cannot
+run the comparison, such as a cross build, says so and skips it.
+<code>doc/api/build-site.py</code> builds the reference from that copy.
+<code>node test/web/openapi-types.js doc/api/openapi.json api.d.ts</code>,
+run in the source tree, writes TypeScript declarations from the kept copy;
+nothing it writes is checked in.
 </p>
 
-<h2>Requests</h2>
+<h2>How nhttpd hands a request over</h2>
 <p>
-GET, HEAD, POST, PUT, PATCH and DELETE. A POST, PUT or PATCH body is JSON, read by its
-<code>Content-Length</code> up to 1 MiB; above that the request is refused
-with 413, and the body is read and dropped (up to 16 MiB) so the refusal
-reaches the caller instead of a reset. A body the server cannot frame (two differing
-lengths, a length that is not a number, any <code>Transfer-Encoding</code>) is
-400; one that stops arriving is 408 after ten seconds. <code>100 Continue</code>
-is sent only when the client asks for it with <code>Expect</code>.
-PATCH is read since slice 3, the same way as POST and PUT. OPTIONS is not
-read by nhttpd yet: the connection is closed without an answer, which a
-client sees as a reset. Outside the API namespace nhttpd refuses PUT, PATCH,
-DELETE and TRACE as it always has: a 501 line and a close without reading
-the rest of the request, which a client sees as a reset.
+<code>src/httpd/nhttpd_bridge.cpp</code> registers <code>/api/v1</code>,
+with everything below it, and <code>/api/openapi.json</code> with the core
+of nhttpd as API addresses. A request to one of them is read the way
+<a href="#requests">Requests</a> describes and handed whole to the layer;
+the answer goes back the same way. Every other path, <code>/control/</code>
+included, stays with nhttpd's own handlers.
 </p>
 
 <h2>Access</h2>
 <p>
-The box has one account, kept in <code>nhttpd-access.conf</code> as a name and a
-stored form of the password; <code>nhttpd.conf</code> no longer carries
-either. nhttpd's own gate (<code>mod_auth</code>) still governs every path it
-serves itself, <code>/control/</code> included, and only when
-<code>mod_auth.authenticate</code> is on. It takes the session the API login
-opens, and Basic checked against that same account; on
-<code>/control/</code>, <code>/cgi-bin/</code>, <code>/fb/</code>,
-<code>/api/v4/</code> and <code>/y/</code>, which change the box with a GET,
-the session counts only for a request from a page of this box
-(<code>Sec-Fetch-Site: same-origin</code>, or else an <code>Origin</code> or
-<code>Referer</code> naming this host). The screen at the box, the settings
-pages and <code>/control/config</code> change the same account, at once and
-without a restart. A session ends after the configured lifetime without a
-request and at the latest 30 days after the login. The API namespace it hands on
-unchecked since slice 3, because the layer has a gate of its own: every
-route declares a level (recorded in the document as
-<code>x-auth-level</code>), a public route answers anyone, a read passes
-from the networks <code>lan_read</code> names without a credential, and a
-write or a system route needs the session cookie with its second token or
-a configured token as <code>Authorization: Bearer</code>. A refusal is 403,
-a login that does not open is 401. The login flow itself is described
-under Addresses above, where the route is.
+The box has one account, kept in <code>nhttpd-access.conf</code> as a name
+and a stored form of the password. Two gates use it. The layer reads it
+directly, and nhttpd's own login asks for it through
+<code>src/httpd/login_bridge.cpp</code>, so a changed password is in effect
+for both at once.
+</p>
+<ul>
+<li>The layer's gate guards the API addresses. Every route declares an
+access level, which the document states as <code>x-auth-level</code>.</li>
+<li>nhttpd's own login (<code>mod_auth</code>) leaves the API addresses
+alone. While <code>mod_auth.authenticate</code> is on, it guards the other
+paths, except for calls from the box itself, the addresses
+<code>mod_auth.no_auth_client</code> names, and the files the pages need
+before anyone signs in. It accepts the session that the API login opens,
+and Basic authentication against the same account. The
+<code>nhttpd.conf</code> the image installs has it off, and then those
+paths answer without credentials.</li>
+<li>On the paths that change the box with a GET (<code>/control/</code>,
+<code>/cgi-bin/</code>, <code>/fb/</code>, <code>/api/v4/</code> and
+<code>/y/</code>), and for a request with an <code>execute</code>
+parameter, the session counts only when the request comes from a page of
+this box: <code>Sec-Fetch-Site: same-origin</code>, or else an
+<code>Origin</code> or
+<code>Referer</code> naming this host.</li>
+</ul>
+
+<h2 id="requests">Requests</h2>
+<p>
+nhttpd reads GET, HEAD, POST, PUT, PATCH, DELETE and TRACE. Any other
+method, OPTIONS included, is answered 501 before the layer sees the
+request. TRACE is answered 501 on every path. Outside the API addresses,
+PUT, PATCH and DELETE are answered 501 as well.
+</p>
+<p>
+On an API address:
+</p>
+<ul>
+<li>Header lines that together pass 64 KiB, or that have not all arrived
+after 10 seconds, are answered 400.</li>
+<li>A body is read only for POST, PUT and PATCH, by its
+<code>Content-Length</code>, up to 1 MiB. A larger one is answered 413.
+Up to 16 MiB of it is read and dropped first, so the answer reaches the
+caller instead of a reset.</li>
+<li>A body the server cannot frame is answered 400: a second
+<code>Content-Length</code>, a length that is not a number, any
+<code>Transfer-Encoding</code>, or a body on another method.</li>
+<li>A body that has not arrived in full after 10 seconds is answered
+408.</li>
+<li><code>100 Continue</code> is sent only when the request asks for it
+with <code>Expect</code>.</li>
+</ul>
+
+<h2>Answers</h2>
+<p>
+A refusal the layer writes is a problem document
+(<code>application/problem+json</code>, RFC 9457) with <code>type</code>,
+<code>title</code>, <code>status</code> and <code>detail</code>. Of the
+refusals under <a href="#requests">Requests</a>, all except the 413 come from
+nhttpd's request reader before the layer sees the request: the 400 for the
+header or the body framing, the 408 and the 501. They are a status line and
+headers, with no body. Every answer the layer writes carries
+<code>X-Content-Type-Options: nosniff</code>, a <code>Vary</code> header that
+names <code>Cookie</code> and <code>Authorization</code>, and
+<code>Cache-Control: no-store</code> unless the route sets its own. nhttpd
+answers in HTTP/1.0 with <code>Connection: close</code>, one request per
+connection.
+</p>
+<p>
+An answer that is a file, such as a channel logo, a stored file or a
+recording, is sent from its descriptor, whatever its size, and honors one
+<code>Range</code>:
+</p>
+<ul>
+<li>A stretch inside the file is answered 206 with a
+<code>Content-Range</code>.</li>
+<li>A header that cannot be read, or one that names several stretches, gets
+the whole file.</li>
+<li>A stretch the file does not hold is a 416 problem document whose
+<code>Content-Range: bytes */length</code> says what there is to ask
+for.</li>
+</ul>
+<p>
+<code>HEAD</code> answers with the headers a GET would get and no body.
 </p>
 
-<h2>What is not there yet</h2>
-<ul>
-<li>the stream and web-TV relays (<code>/api/v1/stream...</code>,
-<code>/api/v1/webtv...</code>): they hand a long-lived connection to a
-program or a remote server; a route that would answer with one is refused
-with 501 until that path exists</li>
-</ul>
+<h2>Answers that stay open</h2>
+<p>
+A route can also answer with a program to run, whose output is the body
+(a channel played in a browser), or with an address to relay (WebTV). Both
+outlive the handler. <code>src/httpd/carry.cpp</code> runs each on a thread
+of its own, on a copy of the connection, until the far end stops reading.
+</p>
+<p>
+<code>GET /api/v1/events</code> is a stream of Server-Sent Events on the
+connection it arrived on. It has no <code>Content-Length</code>; the body
+ends when the connection closes. The layer carries at most
+<code>sse_max_streams</code> of them at once: 8 by default, and never more
+than 16. One more is
+answered 503 with a <code>Retry-After</code>. A client that stops reading
+is dropped once 256 KiB are waiting for it.
+</p>
 
 <h2>Where things are</h2>
 <table border="0">
-<tr><td><code>src/httpd/</code></td><td>the layer: declarations, router, generator, route modules, stubs standing in for the dedicated server of compatible forks</td></tr>
+<tr><td><code>src/httpd/ep/</code></td><td>the route tables and their handlers, one file per group</td></tr>
+<tr><td><code>src/httpd/router.cpp</code></td><td>matching, the access check, binding and checking the parameters, the check of the tables</td></tr>
+<tr><td><code>src/httpd/auth.cpp</code>, <code>webconfig.cpp</code>, <code>login_bridge.cpp</code></td><td>sessions and tokens, the layer's configuration with the account, and the way nhttpd's own login asks for it</td></tr>
+<tr><td><code>src/httpd/doc/</code></td><td>the document's writer and the <code>openapi_dump</code> program</td></tr>
 <tr><td><code>src/httpd/nhttpd_bridge.cpp</code></td><td>the hook that hands nhttpd's requests to the layer and its answers back</td></tr>
-<tr><td><code>src/nhttpd/yhttpd_core/</code></td><td>what the core grew for it: the API namespace (<code>registerApiPrefix</code>), the API body reader, the api-mode header, exact socket I/O</td></tr>
-<tr><td><code>test/unit/httpd/</code>, <code>test/unit/nhttpd/</code></td><td>the tests: the generator against the dump, the bridge with a filled hook handler, the core pieces over a socket pair</td></tr>
-<tr><td><code>test/unit/support/run-tests.sh</code></td><td>runs the suite; names the imported cases this tree cannot pass yet, and why</td></tr>
-<tr><td><code>test/unit/interop/</code></td><td>the remote-timer client another box speaks to this one with, as compatible forks ship it, and the small program <code>remotebox_client</code> that drives it one call at a time</td></tr>
-<tr><td><code>test/http/</code></td><td>the checks against a running box: <code>check-v1.sh</code> for the layer over the wire, <code>check-remotebox.sh</code> for the peer's client</td></tr>
+<tr><td><code>src/httpd/carry.cpp</code>, <code>livestream.cpp</code>, <code>webtv.cpp</code></td><td>answers that stay open: a program's output, a relayed stream</td></tr>
+<tr><td><code>src/httpd/events.cpp</code></td><td>the event stream</td></tr>
+<tr><td><code>src/httpd/stubs/</code></td><td>what the layer asks of a web server (<code>server.h</code>, <code>static.h</code>), answered for nhttpd</td></tr>
+<tr><td><code>src/nhttpd/yhttpd_core/</code></td><td>what the core of nhttpd does for the layer: the API addresses (<code>registerApiPrefix</code>), the request reader for them, exact socket I/O</td></tr>
+<tr><td><code>src/coreapi/</code></td><td>what the handlers call to read and change the box</td></tr>
+<tr><td><code>doc/api/</code></td><td>the kept copy of the document, its layout script and the site builder</td></tr>
+<tr><td><code>test/unit/httpd/</code>, <code>test/unit/nhttpd/</code></td><td>unit tests of the layer, the bridge and the core pieces it uses</td></tr>
+<tr><td><code>test/unit/support/run-tests.sh</code></td><td>runs the suite and names the cases it leaves out, each with the reason</td></tr>
+<tr><td><code>test/unit/interop/</code></td><td>the client another box uses for remote timers, and <code>remotebox_client</code>, which drives it one call at a time</td></tr>
+<tr><td><code>test/http/</code></td><td>checks against a running box: <code>check-v1.sh</code> for the API over the wire, <code>check-remotebox.sh</code> for the remote-timer client</td></tr>
+<tr><td><code>test/web/openapi-types.js</code></td><td>TypeScript declarations written from the document</td></tr>
 </table>
 </body>
 </html>
