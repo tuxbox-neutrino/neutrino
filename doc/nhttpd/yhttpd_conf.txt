@@ -56,8 +56,9 @@ mod_auth.no_auth_client=	IP-Adress of Client with no authentication
 
 (mod_auth.username and mod_auth.password are gone: the account is kept
 hashed in nhttpd-access.conf and checked through the REST layer's login. A box
-that still has them in this file drops them at the next start, after the
-first start carried them into nhttpd-access.conf.)
+that still has them in this file drops them at the start that carries them
+into nhttpd-access.conf. A password these boxes shipped with is not carried:
+the box makes up a first password in its place and shows it on the TV.)
 
 mod_weblog.logfile	=/cygdrive/d/Work/y/ws/nhttpd30/build/cygwin/yhhtpd.log
 mod_weblog.log_format	=ELF|CLF|<empty>
