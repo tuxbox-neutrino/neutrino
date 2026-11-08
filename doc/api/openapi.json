@@ -16577,7 +16577,7 @@
 							},
 							"example": {
 								"user": "root",
-								"password": "neutrino"
+								"password": "my own pass phrase"
 							}
 						}
 					}
@@ -16748,8 +16748,8 @@
 								"additionalProperties": false
 							},
 							"example": {
-								"current": "neutrino",
-								"password": "my own pass phrase"
+								"current": "my own pass phrase",
+								"password": "a new pass phrase"
 							}
 						}
 					}

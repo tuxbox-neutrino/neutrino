@@ -529,7 +529,7 @@ const Endpoint kAuthEndpoints[] = {
 	  "\n"
 	  "**Related:** `GET /api/v1/session`, `POST /api/v1/logout`.",
 	  HTTPD_PARAMS(kLoginParams), &kSessionStateSchema, &login, false,
-	  Answers200, HTTPD_REFUSALS_AND_BODY(kLoginRefusals, "{\"user\":\"root\",\"password\":\"neutrino\"}") },
+	  Answers200, HTTPD_REFUSALS_AND_BODY(kLoginRefusals, "{\"user\":\"root\",\"password\":\"my own pass phrase\"}") },
 	{ Method::Get, "/api/v1/session", AuthLevel::Public,
 	  "says what the request asking carries: whether it holds a session, what it was granted, and the second token to send back with what it changes",
 	  "Reads the credentials the request itself carries (the session cookie, a bearer token, or a token "
@@ -597,7 +597,7 @@ const Endpoint kAuthEndpoints[] = {
 	  "\n"
 	  "**Related:** `POST /api/v1/login`, `GET /api/v1/session`.",
 	  HTTPD_PARAMS(kPasswordParams), NULL, &changePassword, false,
-	  Answers204, HTTPD_REFUSALS_AND_BODY(kPasswordRefusals, "{\"current\":\"neutrino\",\"password\":\"my own pass phrase\"}") },
+	  Answers204, HTTPD_REFUSALS_AND_BODY(kPasswordRefusals, "{\"current\":\"my own pass phrase\",\"password\":\"a new pass phrase\"}") },
 	{ Method::Post, "/api/v1/token/media", AuthLevel::System,
 	  "draws a short lived token that reaches the media this box holds and nothing else, for a player that can carry a credential only in the address",
 	  "Mints a token scoped to the media this box holds, such as recordings, and answers it "

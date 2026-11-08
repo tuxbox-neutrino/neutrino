@@ -6231,14 +6231,14 @@ TEST_CASE("the body examples of the routes that write files are requests those r
 		ConfigFixture cfg;
 		WebConfig c = config();
 		c.username = "root";
-		c.password_hash = hashSecret(kShippedPassword, 2000);
+		c.password_hash = hashSecret("my own pass phrase", 2000);
 		setConfigForTest(c);
 		REQUIRE(sendBodyExample("POST", "/api/v1/login", std::map<std::string, std::string>()) == 200);
 	}
 	{
-		// the example replaces the shipped password, which the box starts from
+		// the example replaces the password the login example signs in with
 		WebFile file("example-password", std::string(kWebFileHead) + "password_hash=" +
-		             hashSecret(kShippedPassword, 2000) + "\n");
+		             hashSecret("my own pass phrase", 2000) + "\n");
 		REQUIRE(sendBodyExample("PUT", "/api/v1/account/password",
 		                        std::map<std::string, std::string>()) == 204);
 	}
