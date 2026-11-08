@@ -1030,8 +1030,10 @@ function followTheBox() {
 			loadStreamInfo();
 		},
 		standby: function() { refreshStandby(); refreshChannel(false); refreshPlayback(); webuiPowerRead(); },
-		'record-start': refreshTimers,
-		'record-stop': function() { refreshTimers(); refreshRecent(); },
+		// a timer's change of state when a recording begins or ends comes as
+		// timer-changed as well, so the record events read no timers; the
+		// recordings themselves are the shared read's (webuiOnRecordings)
+		'record-stop': refreshRecent,
 		'timer-changed': refreshTimers,
 		'epg-updated': function(d) {
 			if (d && dash.channel && sameLow48(d.channel_id, dash.channel.id))

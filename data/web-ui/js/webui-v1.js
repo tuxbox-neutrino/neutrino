@@ -979,7 +979,8 @@ function webuiEpgTimerMarks() {
 		if (next) li.querySelector('span').appendChild(next);
 	});
 }
-document.addEventListener('webui-timers-seen', webuiEpgTimerMarks);
+// the marks follow every timer list the page takes (webuiOnTimers)
+webuiOnTimers(webuiEpgTimerMarks);
 
 // whether an event runs now
 function _webuiEpgRuns(ev) {

@@ -403,23 +403,20 @@ function _webuiKeeperFollow(k, events) {
 }
 
 /* The number of timers set (planned, announced or running: state below
-   3) as a badge beside "Timer" in the side bar and the tab bar. It is read
-   once per page, silently (nothing is asked when the box refuses to
-   show the timers, and nothing is drawn then), and again when the box says
-   its timers changed on a stream the page opened. Zero or not known: no
-   badge. The link's name carries the number, the badge itself is for the eye. */
-var _webuiTimerCount = null;
-var webuiTimerItems = [];
-
-function webuiAcceptTimerItems(items) {
-	webuiTimerItems = items;
-	document.dispatchEvent(new Event('webui-timers-seen'));
-}
-var _webuiTimerCountStarted = false;
-var _webuiTimerCountRead = 0;
-var _webuiTimerCountOver = false;	// a read of the head came back, with or without a number
-var _webuiTimerCountEarly = false;	// the stream opened while the first read was under way
-var _webuiTimerCountLater = null;
+   3) as a badge beside "Timer" in the side bar and the tab bar. It comes
+   from the timer list the head keeps for the page (_webuiKeeper), which
+   takes every list a read brought, the page's own or the head's, keeps the
+   last one that answered, marks it stale when a read fails after it, and
+   tells whoever listens (webuiOnTimers: the badge, the programme dialog's
+   marks). The head reads the list once per page, silently (nothing is
+   asked when the box refuses to show the timers, and nothing is drawn
+   then), and again when the box says its timers changed on a stream the
+   page opened; without a live stream when the page comes back into view
+   and every minute while it is shown. Zero or not known: no badge; a read
+   that fails after one that answered keeps the number. The link's name
+   carries the number, the badge itself is for the eye. */
+var _webuiTimers = _webuiKeeper('/timers', null);
+var webuiTimerItems = [];	// the last list that answered, [] while none did
 
 function _webuiTimerBadge(link, label) {
 	var badge = document.createElement('span');
@@ -431,7 +428,7 @@ function _webuiTimerBadge(link, label) {
 }
 
 function _webuiTimerCountPaint() {
-	var n = _webuiTimerCount;
+	var n = webuiTimerItems.filter(function(t) { return t.state < 3; }).length;
 	Array.prototype.forEach.call(document.querySelectorAll('[data-timer-label]'), function(link) {
 		var badge = link.querySelector('.webui-nav-count');
 		if (!badge)
@@ -446,41 +443,20 @@ function _webuiTimerCountPaint() {
 	});
 }
 
-// One read soon, once the events of the moment are in.
-function _webuiTimerCountSoon() {
-	clearTimeout(_webuiTimerCountLater);
-	_webuiTimerCountLater = setTimeout(_webuiTimerCountLoad, 300);
+/* webuiOnTimers(fn): fn(view) hears of every list taken and of every read
+   that failed, at once as well when a list is there already; the view as
+   webuiOnRecordings has it. */
+function webuiOnTimers(fn) {
+	var k = _webuiTimers;
+	k.listeners.push(fn);
+	if (k.items !== null || k.stale)
+		fn(_webuiKeeperView(k));
 }
 
-// The first read of the head came back, n its number or null. When the
-// stream opened while it was under way, perhaps after a sign-in the read
-// went out before, a first read without a number is made once more.
-function _webuiTimerCountFirstBack(n) {
-	if (_webuiTimerCountOver)
-		return;
-	_webuiTimerCountOver = true;
-	if (n === null && _webuiTimerCountEarly)
-		_webuiTimerCountSoon();
-}
-
-async function _webuiTimerCountLoad() {
-	var read = ++_webuiTimerCountRead;
-	var n = null;
-	try {
-		var r = await _webuiV1Read('/timers');
-		if (r && Array.isArray(r.items))
-			n = r.items.filter(function(t) { return t.state < 3; }).length;
-	} catch (e) {
-		_webuiTimerCountFirstBack(null);
-		return;	// the box did not answer: the number shown stays
-	}
-	_webuiTimerCountFirstBack(n);
-	if (read !== _webuiTimerCountRead)
-		return;
-	if (r && Array.isArray(r.items)) webuiAcceptTimerItems(r.items);
-	_webuiTimerCount = n;
+webuiOnTimers(function(view) {
+	webuiTimerItems = view.items;
 	_webuiTimerCountPaint();
-}
+});
 
 /* A page that reads the timer list itself says so with
    webuiTimersFollowed() at the top of its script, before the head is drawn,
@@ -495,12 +471,24 @@ function webuiTimersFollowed() {
 
 function webuiTimersSeen(items) {
 	if (!Array.isArray(items)) {
-		_webuiTimerCountLoad();
+		_webuiKeeperRead(_webuiTimers);
 		return;
 	}
-	webuiAcceptTimerItems(items);
-	++_webuiTimerCountRead;		// a read of the head still under way is older
-	_webuiTimerCount = items.filter(function(t) { return t.state < 3; }).length;
+	++_webuiTimers.read;		// a read of the head still under way is older
+	_webuiKeeperTake(_webuiTimers, items);
+}
+
+// Reads the list on the first call and follows the timer events from then
+// on, unless the page hands its own reads over; every call draws the number
+// last read.
+function _webuiTimerCountStart() {
+	var k = _webuiTimers;
+	if (!k.started && !_webuiTimersFollowed) {
+		k.started = true;
+		_webuiKeeperRead(k);
+		_webuiKeeperFollow(k, ['timer-changed']);
+		_webuiKeeperPoll(k);
+	}
 	_webuiTimerCountPaint();
 }
 
@@ -565,31 +553,6 @@ function webuiRecordingsAfter() {
 	if (typeof webuiV1EventsLive === 'function' && webuiV1EventsLive())
 		return;
 	setTimeout(webuiRecordingsRead, 1500);
-}
-
-// Reads the number on the first call and follows the timer events from then
-// on, unless the page hands its own reads over; every call draws the number
-// last read.
-function _webuiTimerCountStart() {
-	if (!_webuiTimerCountStarted && !_webuiTimersFollowed) {
-		_webuiTimerCountStarted = true;
-		_webuiTimerCountLoad();
-		if (typeof webuiV1Watch === 'function') {
-			var opened = 0;
-			webuiV1Watch('timer-changed', _webuiTimerCountSoon);
-			// a reconnect after a gap, or the first connection when the first
-			// read got no number (refused until a sign-in opened the stream);
-			// while the first read is under way, it is made once more if it
-			// comes back without a number
-			webuiV1Watch('open', function() {
-				if (opened++ || (_webuiTimerCountOver && _webuiTimerCount === null))
-					_webuiTimerCountSoon();
-				else if (!_webuiTimerCountOver)
-					_webuiTimerCountEarly = true;
-			});
-		}
-	}
-	_webuiTimerCountPaint();
 }
 
 // The side bar's groups with their pages, and Settings at its foot

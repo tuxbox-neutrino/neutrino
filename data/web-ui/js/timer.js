@@ -1,7 +1,7 @@
 // The script of timer.html.
 
 // The timer list over /api/v1: GET /api/v1/timers, kept current by the
-// timer and record events; made with POST, changed with PATCH (times
+// timer events; made with POST, changed with PATCH (times
 // and repetition only), removed with DELETE. Titles, channel names and
 // folders go in as text.
 
@@ -319,7 +319,7 @@ function ask(heading, text, label, danger) {
 
 async function stopRecording(id, title) {
 	if (await ask(webuiL('dash.record_stop', 'Stop recording'), webuiL('tm.stop_ask', 'Stop the recording "%s"?').replace('%s', title), webuiL('tm.stop', 'Stop'), true))
-		await webuiStopRecording(id);	// the record event reads the list again
+		await webuiStopRecording(id);	// the timer event reads the list again
 }
 
 async function deleteTimer(id, title) {
@@ -333,8 +333,9 @@ async function deleteTimer(id, title) {
 	}
 }
 
-// Initialize: the list follows the timer and record events; without
-// an open stream it is read every minute
+// Initialize: the list follows the timer events, which also say when a
+// recording a timer carries begins or ends; without an open stream it is
+// read every minute
 webuiAfterTexts(function() {
 	renderFilters();
 	document.getElementById('timerList').replaceChildren(webuiEl('li', {}, webuiState('loading', webuiL('tm.loading', 'Loading timers...'), '')));
@@ -349,9 +350,7 @@ webuiAfterTexts(function() {
 		// the first open is the page loading, every later one a reconnect
 		// after a gap, which may have missed a change
 		open: function() { if (opened++) loadTimers(); },
-		'timer-changed': loadTimers,
-		'record-start': loadTimers,
-		'record-stop': loadTimers
+		'timer-changed': loadTimers
 	});
 	// the recordings: without the stream the shared read reads them itself
 	setInterval(() => { if (!webuiV1EventsLive()) loadTimers(); }, 60000);
