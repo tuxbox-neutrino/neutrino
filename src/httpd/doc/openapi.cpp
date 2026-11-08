@@ -1786,9 +1786,10 @@ void statedRefusals(const Endpoint &ep, std::vector<StatedRefusal> &out)
 	if (events::isStreamRoute(ep))
 		state(out, StatusServiceUnavailable, coreapi::ErrorCode::TooManyStreams,
 		      events::streamsFullDetail(), "seats");
-	// A carried answer meets a server that stops or restarts between the
-	// route's answer and the job that would carry it.
-	if (webtv::carriedRoute(ep) || livestream::carriedRoute(ep))
+	// A carried answer, the event stream among them, meets a server that
+	// stops or restarts between the route's answer and the job that would
+	// carry it.
+	if (webtv::carriedRoute(ep) || livestream::carriedRoute(ep) || events::isStreamRoute(ep))
 		state(out, StatusServiceUnavailable, coreapi::ErrorCode::ServerStopping,
 		      carry::stoppingDetail(), "stopping");
 }

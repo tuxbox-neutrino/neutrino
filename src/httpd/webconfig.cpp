@@ -231,8 +231,13 @@ const unsigned kSessionLifetimeMax     = 2592000u;
 /* How many event streams may be open at once. Zero is a real answer and means
    none: a box configured that way offers no live updates rather than offering
    an unbounded number of them, which is also why zero is what an unusable
-   value falls back to. The ceiling is what the connection limit can carry
-   without every slot being an idle stream. */
+   value falls back to.
+
+   A stream holds a thread of its own and none of the server's connection
+   threads. What it costs is that thread's stack, which reserves 512 KiB of
+   address space and fills only as far as it is used, and up to 256 KiB held
+   for a peer that does not read. The ceiling of 64 holds the worst of it to
+   32 MiB of address space and 16 MiB held. */
 const unsigned kSseMaxStreamsDefault = 8u;
 const unsigned kSseMaxStreamsMax     = 64u;
 

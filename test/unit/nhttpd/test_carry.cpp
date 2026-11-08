@@ -45,6 +45,8 @@
 #include <poll.h>
 #include <pthread.h>
 #include <signal.h>
+#include <stdint.h>
+#include <sys/prctl.h>
 #include <sys/socket.h>
 #include <sys/wait.h>
 #include <unistd.h>
@@ -774,7 +776,11 @@ TEST_CASE("a server stop ends every carried answer and every event stream", "[ca
 	REQUIRE(a.ok());
 	REQUIRE(b.ok());
 	REQUIRE(events_open.ok());
-	REQUIRE(carry::running() == 2);
+	REQUIRE(events_open.code() == 200);
+	// the event stream is a carried answer of its own kind
+	REQUIRE(carry::running() == 3);
+	REQUIRE(carry::seatsTaken(carry::Fetch) == 2);
+	REQUIRE(carry::seatsTaken(carry::Events) == 1);
 	REQUIRE(events::openStreams() == 1);
 
 	const int64_t asked = wireNowMs();
@@ -917,6 +923,157 @@ TEST_CASE("the seats of each kind run out on their own, with their own wait", "[
 	CHECK(waitForRunning(0, 2000) == 0);
 	CHECK(carry::seatsTaken(carry::Fetch) == 0);
 	CHECK(carry::seatsTaken(carry::Program) == 0);
+}
+
+TEST_CASE("the event streams take no seat of the other kinds, and only their module limits them", "[carry]")
+{
+	/* Eight streams: more than the six fetches and the two programs have
+	   seats, so a limit of the transport's on the streams, or seats shared
+	   with another kind, would refuse one of them. The ninth is refused by the
+	   events module, in its words, and the fetches still find all their seats
+	   beside the streams. The transport counts the streams all the same. */
+	Carriers c;
+	Front front;
+	WireServer serving(8, 5000, WireServer::Threaded, &front);
+	front.set(kCarriedPath, fetchAnswer("idle"));
+
+	CHECK(carry::seatsOf(carry::Events) == SIZE_MAX);
+	std::vector<WireStream *> open;
+	for (int i = 0; i < 8; ++i)
+	{
+		open.push_back(new WireStream(serving.port));
+		REQUIRE(open.back()->ok());
+		INFO("stream " << i);
+		REQUIRE(open.back()->code() == 200);
+	}
+	CHECK(carry::seatsTaken(carry::Events) == 8);
+	CHECK(events::openStreams() == 8);
+	{
+		WireStream over(serving.port);
+		REQUIRE(over.ok());
+		CHECK(over.code() == 503);
+		CHECK(over.readToEof(2000).find(events::streamsFullDetail()) != std::string::npos);
+	}
+	for (size_t i = 0; i < carry::seatsOf(carry::Fetch); ++i)
+	{
+		open.push_back(new WireStream(serving.port, request("GET", kCarriedPath).c_str()));
+		REQUIRE(open.back()->ok());
+		REQUIRE(open.back()->code() == 200);
+	}
+	CHECK(carry::seatsTaken(carry::Fetch) == 6);
+	// polled: the refused ninth closes its descriptor before it counts itself out
+	CHECK(waitForRunning(14, 2000) == 14);
+
+	for (size_t i = 0; i < open.size(); ++i)
+		delete open[i];
+	CHECK(waitForRunning(0, 3000) == 0);
+	CHECK(carry::seatsTaken(carry::Events) == 0);
+	CHECK(events::openStreams() == 0);
+}
+
+TEST_CASE("an event stream whose thread cannot start is refused with the wait of a full box", "[carry]")
+{
+	/* The transport's own refusal of the kind, met only when the stream's
+	   thread does not start: the code and the wait the events module gives a
+	   stream it has no place for, so a client cannot tell the two apart. The
+	   wait is read off a full box first, which holds the transport's copy of
+	   it to the module's. */
+	Carriers c;
+	WireServer serving(1, 5000, WireServer::Threaded);
+	std::string full_wait;
+	{
+		WireStream held(serving.port);
+		REQUIRE(held.ok());
+		REQUIRE(held.code() == 200);
+		WireStream full(serving.port);
+		REQUIRE(full.ok());
+		REQUIRE(full.code() == 503);
+		full_wait = full.headerOf("Retry-After");
+	}
+	REQUIRE(waitForRunning(0, 3000) == 0);
+	REQUIRE(events::openStreams() == 0);
+	CHECK(full_wait == "30");
+
+	watchCloses();
+	carry::failThreadStartForTest(true);
+	WireStream s(serving.port);
+	REQUIRE(s.ok());
+	CHECK(s.code() == 503);
+	CHECK(s.headerOf("Retry-After") == full_wait);
+	CHECK_FALSE(s.headerOf("Content-Length").empty());
+	CHECK(s.readToEof(2000).find("too-many-streams") != std::string::npos);
+	CHECK(carry::running() == 0);
+	CHECK(carry::seatsTaken(carry::Events) == 0);
+	CHECK(events::openStreams() == 0);
+	// the copy of the descriptor closed once
+	const std::vector<int> fds = closedSoFar();
+	REQUIRE(fds.size() == 1);
+	CHECK(isClosed(fds[0]));
+}
+
+namespace
+{
+
+pthread_mutex_t names_lock = PTHREAD_MUTEX_INITIALIZER;
+
+std::vector<std::string> &threadNames()
+{
+	static std::vector<std::string> v;
+	return v;
+}
+
+// Each job's thread as it starts, by the kind of answer it carries.
+void noteThreadName(carry::Point p, carry::Job *j)
+{
+	if (p != carry::JobStarted || j == NULL)
+		return;
+	char name[17] = { 0 };
+	prctl(PR_GET_NAME, (unsigned long) name, 0, 0, 0);
+	const Response &a = carry::answerOf(*j);
+	const char *kind = a.event_stream ? "events" : (!a.relay_url.empty() ? "fetch" : "program");
+	pthread_mutex_lock(&names_lock);
+	threadNames().push_back(std::string(kind) + "=" + name);
+	pthread_mutex_unlock(&names_lock);
+}
+
+bool threadNamed(const std::string &what)
+{
+	pthread_mutex_lock(&names_lock);
+	bool found = false;
+	for (size_t i = 0; i < threadNames().size(); ++i)
+		if (threadNames()[i] == what)
+			found = true;
+	pthread_mutex_unlock(&names_lock);
+	return found;
+}
+
+} // namespace
+
+TEST_CASE("the jobs of the event streams run under a name of their own", "[carry]")
+{
+	// so the threads a box spends on streams can be counted apart from the rest
+	Carriers c;
+	Front front;
+	WireServer serving(4, 5000, WireServer::Serial, &front);
+	front.set(kCarriedPath, fetchAnswer("length"));
+	pthread_mutex_lock(&names_lock);
+	threadNames().clear();
+	pthread_mutex_unlock(&names_lock);
+	carry::setPointHookForTest(&noteThreadName);
+	{
+		WireStream fetched(serving.port, request("GET", kCarriedPath).c_str());
+		REQUIRE(fetched.ok());
+		CHECK(fetched.readToEof(2000) == "hello");
+	}
+	{
+		WireStream streamed(serving.port);
+		REQUIRE(streamed.ok());
+		REQUIRE(streamed.code() == 200);
+	}
+	CHECK(waitForRunning(0, 3000) == 0);
+	carry::setPointHookForTest(NULL);
+	CHECK(threadNamed("fetch=httpd:carry"));
+	CHECK(threadNamed("events=httpd:events"));
 }
 
 TEST_CASE("a carrier that throws is answered before the header and cut off after it", "[carry]")

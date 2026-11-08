@@ -44,6 +44,7 @@
 #include <string>
 
 #include <fcntl.h>
+#include <poll.h>
 #include <strings.h>
 #include <sys/socket.h>
 #include <unistd.h>
@@ -361,12 +362,15 @@ struct Carrying
 	{
 		httpd::carry::setCarrier(httpd::carry::Fetch, c);
 		httpd::carry::setCarrier(httpd::carry::Program, c);
+		httpd::carry::setCarrier(httpd::carry::Events, c);
 	}
 	~Carrying()
 	{
 		httpd::carry::waitIdle(5000);
 		httpd::carry::setCarrier(httpd::carry::Fetch, NULL);
 		httpd::carry::setCarrier(httpd::carry::Program, NULL);
+		// the events module puts its own back whenever a server starts
+		httpd::carry::setCarrier(httpd::carry::Events, NULL);
 		httpd::carry::endStop();
 	}
 };
@@ -393,14 +397,28 @@ httpd::Response relayAnswer()
 	return r;
 }
 
+// What the event stream's route answers, as its handler marks it.
+httpd::Response eventsAnswer()
+{
+	httpd::Response r;
+	r.code = 200;
+	r.content_type = "text/event-stream";
+	r.event_stream = true;
+	r.headers.push_back(std::make_pair(std::string("Cache-Control"),
+	                                   std::string("no-cache, no-transform")));
+	return r;
+}
+
 } // namespace
 
-TEST_CASE("a program or an address with nothing to carry it is refused as 501", "[bridge]")
+TEST_CASE("a program, an address or the event stream with nothing to carry it is refused as 501", "[bridge]")
 {
 	Attached a;
+	// the events module puts its own back whenever a server starts
+	httpd::carry::setCarrier(httpd::carry::Events, NULL);
 	const size_t held = httpd::carry::heldAnswersForTest();
-	const httpd::Response answers[] = { programAnswer(), relayAnswer() };
-	for (size_t i = 0; i < 2; ++i)
+	const httpd::Response answers[] = { programAnswer(), relayAnswer(), eventsAnswer() };
+	for (size_t i = 0; i < 3; ++i)
 	{
 		Handler h(M_GET, kNoRoute);
 		CApiBridge::answerWith(&h.hh, answers[i]);
@@ -561,13 +579,10 @@ TEST_CASE("a carried answer is given back exactly once on every way", "[bridge]"
 TEST_CASE("an event-stream answer is handed to the stream pass", "[bridge]")
 {
 	Attached a;
-	httpd::Response sse;
-	sse.code = 200;
-	sse.content_type = "text/event-stream";
-	sse.headers.push_back(std::make_pair(std::string("Cache-Control"),
-	                                     std::string("no-cache, no-transform")));
+	Carrying c;
+	const httpd::Response sse = eventsAnswer();
 
-	SECTION("GET carries the handler's headers and asks for the stream")
+	SECTION("GET carries the handler's headers and parks the answer for its job")
 	{
 		Handler e(M_GET, "/api/v1/events");
 		CApiBridge::answerWith(&e.hh, sse);
@@ -581,6 +596,9 @@ TEST_CASE("an event-stream answer is handed to the stream pass", "[bridge]")
 				found = true;
 		CHECK(found);
 		CHECK(e.hh.yresult.empty());
+		REQUIRE(e.hh.Carried != NULL);
+		CHECK(e.hh.CarriedRelease == &httpd::carry::release);
+		CHECK(((const httpd::Response *) e.hh.Carried)->event_stream);
 	}
 	SECTION("HEAD is a finite answer with the stream's headers and no body")
 	{
@@ -590,10 +608,41 @@ TEST_CASE("an event-stream answer is handed to the stream pass", "[bridge]")
 		CHECK(e.hh.httpStatus == HTTP_OK);
 		CHECK(e.hh.ResponseMimeType == "text/event-stream");
 		CHECK(e.hh.yresult.empty());
+		CHECK(e.hh.Carried == NULL);
 		// No length: the GET it stands for has none, and a HEAD may only
 		// state the length that GET would carry (RFC 9110 8.6).
 		CHECK(e.hh.BuildHeader().find("Content-Length:") == std::string::npos);
 	}
+	CHECK(httpd::carry::running() == 0);
+}
+
+TEST_CASE("a HEAD of the event stream is the stream's head, stopping or not", "[bridge]")
+{
+	/* Not asked of the transport's admission: whether a GET finds a place is
+	   the events module's to say when it opens one, and a HEAD opens
+	   nothing. */
+	Attached a;
+	SECTION("nothing carries the kind")
+	{
+		// the events module puts its own back whenever a server starts
+		httpd::carry::setCarrier(httpd::carry::Events, NULL);
+		Handler e(M_HEAD, "/api/v1/events");
+		CApiBridge::answerWith(&e.hh, eventsAnswer());
+		CHECK(e.hh.status == HANDLED_READY);
+		CHECK(e.hh.httpStatus == HTTP_OK);
+		CHECK(e.hh.ResponseMimeType == "text/event-stream");
+	}
+	SECTION("the server is stopping")
+	{
+		Carrying c;
+		httpd::carry::beginStop();
+		Handler e(M_HEAD, "/api/v1/events");
+		CApiBridge::answerWith(&e.hh, eventsAnswer());
+		CHECK(e.hh.status == HANDLED_READY);
+		CHECK(e.hh.httpStatus == HTTP_OK);
+		CHECK(e.hh.yresult.empty());
+	}
+	CHECK(httpd::carry::running() == 0);
 }
 
 TEST_CASE("a file answer hands the descriptor to the transport", "[bridge]")
@@ -1234,30 +1283,51 @@ TEST_CASE("the gate: the query token counts only where the route reads one, and 
 	httpd::forgetApiTokens();
 }
 
-TEST_CASE("without connection threads an event stream is refused and a carried answer is not", "[bridge]")
+TEST_CASE("without connection threads an event stream is carried like the other carried answers", "[bridge]")
 {
-	/* webserver.threading=false runs WebThread on the accept thread itself;
-	   one healthy event stream would then be the last request the box ever
-	   takes. Refused before a seat is taken, as an ordinary finite answer. A
-	   carried answer runs on a thread of its own, so it is handed on all the
-	   same. */
+	/* webserver.threading=false runs WebThread on the accept thread itself.
+	   The event stream runs on a thread of its own all the same, as a
+	   program or an address does, so the accept thread is free again as soon
+	   as the stream pass has handed it on. The route's own answer, through
+	   the send pass. */
 	Attached a;
 	Carrying c;
-	httpd::Response sse;
-	sse.code = 200;
-	sse.content_type = "text/event-stream";
+	int sp[2];
+	REQUIRE(socketpair(AF_UNIX, SOCK_STREAM, 0, sp) == 0);
+	CySocket sock(sp[0]);
+	sock.isOpened = true;
+	sock.isValid = true;
 
 	CWebserver::is_threading = false;
 	Handler e(M_GET, "/api/v1/events");
-	CApiBridge::answerWith(&e.hh, sse);
+	const THandleStatus sent = a.bridge.Hook_SendResponse(&e.hh);
+	const bool parked = (e.hh.Carried != NULL)
+		&& ((const httpd::Response *) e.hh.Carried)->event_stream;
+	const THandleStatus streamed = a.bridge.Hook_SendStream(&e.hh, &sock);
 	Handler p(M_GET, kNoRoute);
 	CApiBridge::answerWith(&p.hh, programAnswer());
 	CWebserver::is_threading = true;
 
-	CHECK(e.hh.httpStatus == HTTP_NOT_IMPLEMENTED);
-	CHECK(e.hh.status == HANDLED_READY);
-	CHECK(e.hh.yresult.find("\"status\":501") != std::string::npos);
+	CHECK(sent == HANDLED_STREAM);
+	CHECK(e.hh.httpStatus == HTTP_OK);
+	CHECK(parked);
+	CHECK(streamed == HANDLED_STREAM);
+	CHECK(e.hh.Carried == NULL);
+	CHECK(httpd::carry::waitIdle(2000));
+	// bounded, so a stream pass that wrote nothing fails here rather than hangs
+	char buf[64];
+	ssize_t n = 0;
+	struct pollfd other_end;
+	other_end.fd = sp[1];
+	other_end.events = POLLIN;
+	other_end.revents = 0;
+	if (poll(&other_end, 1, 2000) > 0)
+		n = read(sp[1], buf, sizeof(buf));
+	CHECK(n > 0);
+	CHECK(std::string(buf, n > 0 ? (size_t) n : 0).find(" 200 ") != std::string::npos);
 
 	CHECK(p.hh.status == HANDLED_STREAM);
 	CHECK(p.hh.Carried != NULL);
+	sock.close();
+	close(sp[1]);
 }

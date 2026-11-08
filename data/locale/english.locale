@@ -1575,7 +1575,7 @@ menu.hint_net_httpd_reset_password Password forgotten? Resets the sign-in to roo
 menu.hint_net_httpd_ssl Web interface encrypted over HTTPS; needs a PEM file with certificate and key
 menu.hint_net_httpd_ssl_cafile Path to CA file (optional)
 menu.hint_net_httpd_ssl_pemfile Path to PEM file with certificate and key
-menu.hint_net_httpd_threading On: several requests at once; needed for the pages of the web interface to update themselves
+menu.hint_net_httpd_threading On: several requests at once; off: one after the other. The pages of the web interface update themselves either way
 menu.hint_net_httpd_user User for the sign-in to the web interface and the API (mostly root)
 menu.hint_net_if Select interface to config
 menu.hint_net_ipaddress Enter your box IP address

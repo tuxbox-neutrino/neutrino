@@ -194,18 +194,24 @@ for.</li>
 <h2>Answers that stay open</h2>
 <p>
 A route can also answer with a program to run, whose output is the body
-(a channel played in a browser), or with an address to relay (WebTV). Both
-outlive the handler. <code>src/httpd/carry.cpp</code> runs each on a thread
-of its own, on a copy of the connection, until the far end stops reading.
+(a channel played in a browser), with an address to relay (WebTV), or with
+the event stream. All three outlive the handler.
+<code>src/httpd/carry.cpp</code> runs each on a thread of its own, on a copy
+of the connection, until the far end stops reading, whether or not nhttpd
+runs connection threads (<code>webserver.threading</code>).
 </p>
 <p>
-<code>GET /api/v1/events</code> is a stream of Server-Sent Events on the
-connection it arrived on. It has no <code>Content-Length</code>; the body
-ends when the connection closes. The layer carries at most
-<code>sse_max_streams</code> of them at once: 8 by default, and never more
-than 16. One more is
-answered 503 with a <code>Retry-After</code>. A client that stops reading
-is dropped once 256 KiB are waiting for it.
+<code>GET /api/v1/events</code> is a stream of Server-Sent Events. It has no
+<code>Content-Length</code>; the body ends when the connection closes. The
+layer carries at most <code>sse_max_streams</code> of them at once: 8 by
+default, up to 64. One more is answered 503 with a <code>Retry-After</code>.
+Each stream costs a thread whose stack reserves 512 KiB of address space,
+of which only the pages it touches are memory. A client that stops reading
+is dropped once 256 KiB are waiting for it, or once nothing could be written
+to it for 30 seconds. A client that is gone without closing, such as a phone
+that left the network, frees its place after about 80 seconds: the
+20-second heartbeat and the 60-second TCP user timeout of the stream's
+socket.
 </p>
 
 <h2>Where things are</h2>

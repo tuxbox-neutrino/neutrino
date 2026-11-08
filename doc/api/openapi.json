@@ -336,9 +336,6 @@
 							},
 							"no-such-logo": {
 								"$ref": "#/components/examples/no-such-logo"
-							},
-							"no-such-name-held-back": {
-								"$ref": "#/components/examples/no-such-name-held-back"
 							}
 						}
 					}
@@ -1163,21 +1160,6 @@
 					}
 				}
 			},
-			"refused-404-10": {
-				"description": "Not found",
-				"content": {
-					"application/problem+json": {
-						"schema": {
-							"$ref": "#/components/schemas/problem"
-						},
-						"examples": {
-							"no-such-name-held-back": {
-								"$ref": "#/components/examples/no-such-name-held-back"
-							}
-						}
-					}
-				}
-			},
 			"refused-400-21": {
 				"description": "Bad request",
 				"content": {
@@ -1223,7 +1205,7 @@
 					}
 				}
 			},
-			"refused-404-11": {
+			"refused-404-10": {
 				"description": "Not found",
 				"content": {
 					"application/problem+json": {
@@ -1274,7 +1256,7 @@
 					}
 				}
 			},
-			"refused-404-12": {
+			"refused-404-11": {
 				"description": "Not found",
 				"content": {
 					"application/problem+json": {
@@ -1316,7 +1298,7 @@
 					}
 				}
 			},
-			"refused-404-13": {
+			"refused-404-12": {
 				"description": "Not found",
 				"content": {
 					"application/problem+json": {
@@ -1388,7 +1370,7 @@
 					}
 				}
 			},
-			"refused-404-14": {
+			"refused-404-13": {
 				"description": "Not found",
 				"content": {
 					"application/problem+json": {
@@ -1445,7 +1427,7 @@
 					}
 				}
 			},
-			"refused-404-15": {
+			"refused-404-14": {
 				"description": "Not found",
 				"content": {
 					"application/problem+json": {
@@ -1631,7 +1613,7 @@
 					}
 				}
 			},
-			"refused-404-16": {
+			"refused-404-15": {
 				"description": "Not found",
 				"content": {
 					"application/problem+json": {
@@ -1687,9 +1669,6 @@
 							"missing-parameter": {
 								"$ref": "#/components/examples/missing-parameter-13"
 							},
-							"bad-path": {
-								"$ref": "#/components/examples/bad-path"
-							},
 							"webserver-not-configured": {
 								"$ref": "#/components/examples/webserver-not-configured"
 							},
@@ -1716,45 +1695,6 @@
 							},
 							"bad-bool": {
 								"$ref": "#/components/examples/bad-bool-7"
-							}
-						}
-					}
-				}
-			},
-			"refused-403-3": {
-				"description": "Forbidden",
-				"content": {
-					"application/problem+json": {
-						"schema": {
-							"$ref": "#/components/schemas/problem"
-						},
-						"examples": {
-							"wrong-current-password": {
-								"$ref": "#/components/examples/wrong-current-password"
-							},
-							"not-permitted": {
-								"$ref": "#/components/examples/not-permitted-2"
-							},
-							"password-change-required": {
-								"$ref": "#/components/examples/password-change-required"
-							},
-							"not-permitted-without-token": {
-								"$ref": "#/components/examples/not-permitted-without-token"
-							}
-						}
-					}
-				}
-			},
-			"refused-429": {
-				"description": "Too many requests",
-				"content": {
-					"application/problem+json": {
-						"schema": {
-							"$ref": "#/components/schemas/problem"
-						},
-						"examples": {
-							"too-many-attempts": {
-								"$ref": "#/components/examples/too-many-attempts"
 							}
 						}
 					}
@@ -1940,7 +1880,7 @@
 					}
 				}
 			},
-			"refused-404-17": {
+			"refused-404-16": {
 				"description": "Not found",
 				"content": {
 					"application/problem+json": {
@@ -1982,7 +1922,7 @@
 					}
 				}
 			},
-			"refused-404-18": {
+			"refused-404-17": {
 				"description": "Not found",
 				"content": {
 					"application/problem+json": {
@@ -2042,7 +1982,7 @@
 					}
 				}
 			},
-			"refused-404-19": {
+			"refused-404-18": {
 				"description": "Not found",
 				"content": {
 					"application/problem+json": {
@@ -2285,7 +2225,7 @@
 					}
 				}
 			},
-			"refused-404-20": {
+			"refused-404-19": {
 				"description": "Not found",
 				"content": {
 					"application/problem+json": {
@@ -2357,7 +2297,7 @@
 					}
 				}
 			},
-			"refused-404-21": {
+			"refused-404-20": {
 				"description": "Not found",
 				"content": {
 					"application/problem+json": {
@@ -2525,7 +2465,7 @@
 					}
 				}
 			},
-			"refused-404-22": {
+			"refused-404-21": {
 				"description": "Not found",
 				"content": {
 					"application/problem+json": {
@@ -2892,6 +2832,9 @@
 						"examples": {
 							"too-many-streams": {
 								"$ref": "#/components/examples/too-many-streams"
+							},
+							"server-stopping": {
+								"$ref": "#/components/examples/server-stopping"
 							}
 						}
 					}
@@ -2906,13 +2849,28 @@
 						},
 						"examples": {
 							"not-permitted": {
-								"$ref": "#/components/examples/not-permitted-3"
+								"$ref": "#/components/examples/not-permitted-2"
 							}
 						}
 					}
 				}
 			},
-			"refused-403-4": {
+			"refused-429": {
+				"description": "Too many requests",
+				"content": {
+					"application/problem+json": {
+						"schema": {
+							"$ref": "#/components/schemas/problem"
+						},
+						"examples": {
+							"too-many-attempts": {
+								"$ref": "#/components/examples/too-many-attempts"
+							}
+						}
+					}
+				}
+			},
+			"refused-403-3": {
 				"description": "Forbidden",
 				"content": {
 					"application/problem+json": {
@@ -2957,7 +2915,7 @@
 					}
 				}
 			},
-			"refused-403-5": {
+			"refused-403-4": {
 				"description": "Forbidden",
 				"content": {
 					"application/problem+json": {
@@ -3005,7 +2963,7 @@
 					}
 				}
 			},
-			"refused-403-6": {
+			"refused-403-5": {
 				"description": "Forbidden",
 				"content": {
 					"application/problem+json": {
@@ -3013,11 +2971,8 @@
 							"$ref": "#/components/schemas/problem"
 						},
 						"examples": {
-							"wrong-current-password": {
-								"$ref": "#/components/examples/wrong-current-password"
-							},
 							"not-permitted": {
-								"$ref": "#/components/examples/not-permitted-2"
+								"$ref": "#/components/examples/not-permitted-3"
 							},
 							"not-permitted-without-token": {
 								"$ref": "#/components/examples/not-permitted-without-token"
@@ -3036,27 +2991,6 @@
 						"examples": {
 							"webserver-not-configured": {
 								"$ref": "#/components/examples/webserver-not-configured-2"
-							}
-						}
-					}
-				}
-			},
-			"refused-403-7": {
-				"description": "Forbidden",
-				"content": {
-					"application/problem+json": {
-						"schema": {
-							"$ref": "#/components/schemas/problem"
-						},
-						"examples": {
-							"not-permitted": {
-								"$ref": "#/components/examples/not-permitted-4"
-							},
-							"password-change-required": {
-								"$ref": "#/components/examples/password-change-required"
-							},
-							"not-permitted-without-token": {
-								"$ref": "#/components/examples/not-permitted-without-token"
 							}
 						}
 					}
@@ -3173,7 +3107,7 @@
 					}
 				}
 			},
-			"refused-404-23": {
+			"refused-404-22": {
 				"description": "Not found",
 				"content": {
 					"application/problem+json": {
@@ -3203,7 +3137,7 @@
 					}
 				}
 			},
-			"refused-404-24": {
+			"refused-404-23": {
 				"description": "Not found",
 				"content": {
 					"application/problem+json": {
@@ -3461,39 +3395,6 @@
 					}
 				}
 			},
-			"refused-409-22": {
-				"description": "Conflict",
-				"content": {
-					"application/problem+json": {
-						"schema": {
-							"$ref": "#/components/schemas/problem"
-						},
-						"examples": {
-							"screen-not-captured": {
-								"$ref": "#/components/examples/screen-not-captured-2"
-							},
-							"password-on-screen": {
-								"$ref": "#/components/examples/password-on-screen"
-							}
-						}
-					}
-				}
-			},
-			"refused-500-20": {
-				"description": "Internal error",
-				"content": {
-					"application/problem+json": {
-						"schema": {
-							"$ref": "#/components/schemas/problem"
-						},
-						"examples": {
-							"screen-not-captured": {
-								"$ref": "#/components/examples/screen-not-captured-3"
-							}
-						}
-					}
-				}
-			},
 			"refused-400-58": {
 				"description": "Bad request",
 				"content": {
@@ -3548,7 +3449,7 @@
 					}
 				}
 			},
-			"refused-500-21": {
+			"refused-500-20": {
 				"description": "Internal error",
 				"content": {
 					"application/problem+json": {
@@ -3558,21 +3459,6 @@
 						"examples": {
 							"display-not-captured": {
 								"$ref": "#/components/examples/display-not-captured-2"
-							}
-						}
-					}
-				}
-			},
-			"refused-409-23": {
-				"description": "Conflict",
-				"content": {
-					"application/problem+json": {
-						"schema": {
-							"$ref": "#/components/schemas/problem"
-						},
-						"examples": {
-							"password-on-screen": {
-								"$ref": "#/components/examples/password-on-screen-2"
 							}
 						}
 					}
@@ -3611,7 +3497,7 @@
 					}
 				}
 			},
-			"refused-404-25": {
+			"refused-404-24": {
 				"description": "Not found",
 				"content": {
 					"application/problem+json": {
@@ -3621,9 +3507,6 @@
 						"examples": {
 							"no-such-display": {
 								"$ref": "#/components/examples/no-such-display"
-							},
-							"no-such-name-held-back": {
-								"$ref": "#/components/examples/no-such-name-held-back"
 							}
 						}
 					}
@@ -3677,7 +3560,7 @@
 					}
 				}
 			},
-			"refused-404-26": {
+			"refused-404-25": {
 				"description": "Not found",
 				"content": {
 					"application/problem+json": {
@@ -3734,7 +3617,7 @@
 					}
 				}
 			},
-			"refused-500-22": {
+			"refused-500-21": {
 				"description": "Internal error",
 				"content": {
 					"application/problem+json": {
@@ -3749,7 +3632,7 @@
 					}
 				}
 			},
-			"refused-500-23": {
+			"refused-500-22": {
 				"description": "Internal error",
 				"content": {
 					"application/problem+json": {
@@ -3764,7 +3647,7 @@
 					}
 				}
 			},
-			"refused-409-24": {
+			"refused-409-22": {
 				"description": "Conflict",
 				"content": {
 					"application/problem+json": {
@@ -3842,7 +3725,7 @@
 					}
 				}
 			},
-			"refused-404-27": {
+			"refused-404-26": {
 				"description": "Not found",
 				"content": {
 					"application/problem+json": {
@@ -3857,7 +3740,7 @@
 					}
 				}
 			},
-			"refused-404-28": {
+			"refused-404-27": {
 				"description": "Not found",
 				"content": {
 					"application/problem+json": {
@@ -3867,9 +3750,6 @@
 						"examples": {
 							"config-document-unreadable": {
 								"$ref": "#/components/examples/config-document-unreadable"
-							},
-							"no-such-name-held-back": {
-								"$ref": "#/components/examples/no-such-name-held-back"
 							}
 						}
 					}
@@ -3965,24 +3845,6 @@
 					}
 				}
 			},
-			"refused-404-29": {
-				"description": "Not found",
-				"content": {
-					"application/problem+json": {
-						"schema": {
-							"$ref": "#/components/schemas/problem"
-						},
-						"examples": {
-							"no-such-channel": {
-								"$ref": "#/components/examples/no-such-channel-2"
-							},
-							"no-such-name-held-back": {
-								"$ref": "#/components/examples/no-such-name-held-back"
-							}
-						}
-					}
-				}
-			},
 			"refused-501-11": {
 				"description": "Not implemented",
 				"content": {
@@ -3998,7 +3860,7 @@
 					}
 				}
 			},
-			"refused-409-25": {
+			"refused-409-23": {
 				"description": "Conflict",
 				"content": {
 					"application/problem+json": {
@@ -4034,7 +3896,7 @@
 					}
 				}
 			},
-			"refused-500-24": {
+			"refused-500-23": {
 				"description": "Internal error",
 				"content": {
 					"application/problem+json": {
@@ -4088,7 +3950,7 @@
 					}
 				}
 			},
-			"refused-403-8": {
+			"refused-403-6": {
 				"description": "Forbidden",
 				"content": {
 					"application/problem+json": {
@@ -4109,7 +3971,7 @@
 					}
 				}
 			},
-			"refused-404-30": {
+			"refused-404-28": {
 				"description": "Not found",
 				"content": {
 					"application/problem+json": {
@@ -4166,7 +4028,7 @@
 					}
 				}
 			},
-			"refused-404-31": {
+			"refused-404-29": {
 				"description": "Not found",
 				"content": {
 					"application/problem+json": {
@@ -4181,7 +4043,7 @@
 					}
 				}
 			},
-			"refused-409-26": {
+			"refused-409-24": {
 				"description": "Conflict",
 				"content": {
 					"application/problem+json": {
@@ -4229,7 +4091,7 @@
 					}
 				}
 			},
-			"refused-409-27": {
+			"refused-409-25": {
 				"description": "Conflict",
 				"content": {
 					"application/problem+json": {
@@ -4244,7 +4106,7 @@
 					}
 				}
 			},
-			"refused-404-32": {
+			"refused-404-30": {
 				"description": "Not found",
 				"content": {
 					"application/problem+json": {
@@ -4298,7 +4160,7 @@
 					}
 				}
 			},
-			"refused-404-33": {
+			"refused-404-31": {
 				"description": "Not found",
 				"content": {
 					"application/problem+json": {
@@ -4337,7 +4199,7 @@
 					}
 				}
 			},
-			"refused-404-34": {
+			"refused-404-32": {
 				"description": "Not found",
 				"content": {
 					"application/problem+json": {
@@ -4352,7 +4214,7 @@
 					}
 				}
 			},
-			"refused-409-28": {
+			"refused-409-26": {
 				"description": "Conflict",
 				"content": {
 					"application/problem+json": {
@@ -4406,25 +4268,7 @@
 					}
 				}
 			},
-			"refused-404-35": {
-				"description": "Not found",
-				"content": {
-					"application/problem+json": {
-						"schema": {
-							"$ref": "#/components/schemas/problem"
-						},
-						"examples": {
-							"no-such-recording": {
-								"$ref": "#/components/examples/no-such-recording-2"
-							},
-							"no-such-name-held-back": {
-								"$ref": "#/components/examples/no-such-name-held-back"
-							}
-						}
-					}
-				}
-			},
-			"refused-403-9": {
+			"refused-403-7": {
 				"description": "Forbidden",
 				"content": {
 					"application/problem+json": {
@@ -4433,7 +4277,7 @@
 						},
 						"examples": {
 							"not-permitted": {
-								"$ref": "#/components/examples/not-permitted-5"
+								"$ref": "#/components/examples/not-permitted-4"
 							},
 							"password-change-required": {
 								"$ref": "#/components/examples/password-change-required"
@@ -4502,7 +4346,7 @@
 					}
 				}
 			},
-			"refused-409-29": {
+			"refused-409-27": {
 				"description": "Conflict",
 				"content": {
 					"application/problem+json": {
@@ -4523,7 +4367,7 @@
 					}
 				}
 			},
-			"refused-500-25": {
+			"refused-500-24": {
 				"description": "Internal error",
 				"content": {
 					"application/problem+json": {
@@ -4538,7 +4382,7 @@
 					}
 				}
 			},
-			"refused-409-30": {
+			"refused-409-28": {
 				"description": "Conflict",
 				"content": {
 					"application/problem+json": {
@@ -4553,7 +4397,7 @@
 					}
 				}
 			},
-			"refused-500-26": {
+			"refused-500-25": {
 				"description": "Internal error",
 				"content": {
 					"application/problem+json": {
@@ -4763,14 +4607,6 @@
 					"title": "Not found",
 					"status": 404,
 					"detail": "no picture for that channel"
-				}
-			},
-			"no-such-name-held-back": {
-				"value": {
-					"type": "/errors/no-such-name",
-					"title": "Not found",
-					"status": 404,
-					"detail": "nothing is handed out under this name"
 				}
 			},
 			"range-outside-file": {
@@ -5757,38 +5593,6 @@
 					"detail": "the body names nothing to change"
 				}
 			},
-			"bad-path": {
-				"value": {
-					"type": "/errors/bad-path",
-					"title": "Bad request",
-					"status": 400,
-					"detail": "override_directory may not be a web folder: it lies in /proc"
-				}
-			},
-			"wrong-current-password": {
-				"value": {
-					"type": "/errors/wrong-current-password",
-					"title": "Forbidden",
-					"status": 403,
-					"detail": "the current password is not the one in effect"
-				}
-			},
-			"not-permitted-2": {
-				"value": {
-					"type": "/errors/not-permitted",
-					"title": "Forbidden",
-					"status": 403,
-					"detail": "the account changed while the request was being checked"
-				}
-			},
-			"too-many-attempts": {
-				"value": {
-					"type": "/errors/too-many-attempts",
-					"title": "Too many requests",
-					"status": 429,
-					"detail": "too many attempts are being made here; come back in a moment"
-				}
-			},
 			"webserver-not-configured": {
 				"value": {
 					"type": "/errors/webserver-not-configured",
@@ -6661,12 +6465,28 @@
 					"detail": "this server is already carrying as many event streams as it will"
 				}
 			},
-			"not-permitted-3": {
+			"server-stopping": {
+				"value": {
+					"type": "/errors/server-stopping",
+					"title": "Service unavailable",
+					"status": 503,
+					"detail": "the server is stopping and starts no new stream"
+				}
+			},
+			"not-permitted-2": {
 				"value": {
 					"type": "/errors/not-permitted",
 					"title": "Unauthorized",
 					"status": 401,
 					"detail": "the name and the password do not go together"
+				}
+			},
+			"too-many-attempts": {
+				"value": {
+					"type": "/errors/too-many-attempts",
+					"title": "Too many requests",
+					"status": 429,
+					"detail": "too many attempts are being made here; come back in a moment"
 				}
 			},
 			"value-has-zero-byte-25": {
@@ -6709,6 +6529,14 @@
 					"detail": "the new password has fewer than 8 characters"
 				}
 			},
+			"not-permitted-3": {
+				"value": {
+					"type": "/errors/not-permitted",
+					"title": "Forbidden",
+					"status": 403,
+					"detail": "the current password is not the one in effect"
+				}
+			},
 			"webserver-not-configured-2": {
 				"value": {
 					"type": "/errors/webserver-not-configured",
@@ -6747,14 +6575,6 @@
 					"title": "Bad request",
 					"status": 400,
 					"detail": "parameter current is required"
-				}
-			},
-			"not-permitted-4": {
-				"value": {
-					"type": "/errors/not-permitted",
-					"title": "Forbidden",
-					"status": 403,
-					"detail": "the session that let the request in ended before the token was drawn"
 				}
 			},
 			"not-a-listed-value-3": {
@@ -7093,30 +6913,6 @@
 					"detail": "the box could not take a picture of its screen"
 				}
 			},
-			"screen-not-captured-2": {
-				"value": {
-					"type": "/errors/screen-not-captured",
-					"title": "Conflict",
-					"status": 409,
-					"detail": "the box is already taking a picture of its screen"
-				}
-			},
-			"screen-not-captured-3": {
-				"value": {
-					"type": "/errors/screen-not-captured",
-					"title": "Internal error",
-					"status": 500,
-					"detail": "the picture of the screen could not be taken, put in place or read back"
-				}
-			},
-			"password-on-screen": {
-				"value": {
-					"type": "/errors/password-on-screen",
-					"title": "Conflict",
-					"status": 409,
-					"detail": "the television is showing a password, and no picture of the screen is taken while it does"
-				}
-			},
 			"value-has-zero-byte-31": {
 				"value": {
 					"type": "/errors/value-has-zero-byte",
@@ -7187,14 +6983,6 @@
 					"title": "Internal error",
 					"status": 500,
 					"detail": "the picture of the display could not be written"
-				}
-			},
-			"password-on-screen-2": {
-				"value": {
-					"type": "/errors/password-on-screen",
-					"title": "Conflict",
-					"status": 409,
-					"detail": "the television is showing a password, and no picture of a display that can mirror it is taken while it does"
 				}
 			},
 			"value-has-zero-byte-32": {
@@ -7453,14 +7241,6 @@
 					"detail": "parameter video is not one of mpeg2,h264,hevc,cavs,none,unknown"
 				}
 			},
-			"server-stopping": {
-				"value": {
-					"type": "/errors/server-stopping",
-					"title": "Service unavailable",
-					"status": 503,
-					"detail": "the server is stopping and starts no new stream"
-				}
-			},
 			"address-refused": {
 				"value": {
 					"type": "/errors/address-refused",
@@ -7653,7 +7433,7 @@
 					"detail": "the box has not finished starting"
 				}
 			},
-			"not-permitted-5": {
+			"not-permitted-4": {
 				"value": {
 					"type": "/errors/not-permitted",
 					"title": "Forbidden",
@@ -9544,23 +9324,18 @@
 					},
 					"password_changed": {
 						"type": "boolean",
-						"description": "whether the next sign in needs a different password; once the restart has put a new password or user name in effect, every session opened before it ends except the one of the caller that asked, which this answer gave new tokens"
+						"description": "whether the next sign in needs a different password; a session already open is not ended by it, the program not being restarted"
 					},
 					"restarting": {
 						"type": "boolean",
 						"description": "whether the server is being put on what the file now says, which ends every connection it is holding, this one included, and false where the request asked for what was already in effect"
-					},
-					"csrf": {
-						"type": "string",
-						"description": "the second token of the session the caller holds from now on, where this change of the user name or the password gave the session it came with new tokens, the new cookie travelling in this answer's Set-Cookie and the old one naming nothing any more; empty where the request named neither or came without a session"
 					}
 				},
 				"required": [
 					"address",
 					"port_moved",
 					"password_changed",
-					"restarting",
-					"csrf"
+					"restarting"
 				],
 				"additionalProperties": false
 			},
@@ -13105,9 +12880,6 @@
 					"403": {
 						"$ref": "#/components/responses/refused-403"
 					},
-					"404": {
-						"$ref": "#/components/responses/refused-404-10"
-					},
 					"416": {
 						"$ref": "#/components/responses/refused-416"
 					},
@@ -13284,7 +13056,7 @@
 						"$ref": "#/components/responses/refused-403"
 					},
 					"404": {
-						"$ref": "#/components/responses/refused-404-11"
+						"$ref": "#/components/responses/refused-404-10"
 					},
 					"default": {
 						"$ref": "#/components/responses/problem"
@@ -13356,7 +13128,7 @@
 						"$ref": "#/components/responses/refused-403"
 					},
 					"404": {
-						"$ref": "#/components/responses/refused-404-12"
+						"$ref": "#/components/responses/refused-404-11"
 					},
 					"default": {
 						"$ref": "#/components/responses/problem"
@@ -13509,7 +13281,7 @@
 						"$ref": "#/components/responses/refused-403"
 					},
 					"404": {
-						"$ref": "#/components/responses/refused-404-13"
+						"$ref": "#/components/responses/refused-404-12"
 					},
 					"default": {
 						"$ref": "#/components/responses/problem"
@@ -13605,7 +13377,7 @@
 						"$ref": "#/components/responses/refused-403-2"
 					},
 					"404": {
-						"$ref": "#/components/responses/refused-404-15"
+						"$ref": "#/components/responses/refused-404-14"
 					},
 					"409": {
 						"$ref": "#/components/responses/refused-409-7"
@@ -13694,7 +13466,7 @@
 						"$ref": "#/components/responses/refused-403-2"
 					},
 					"404": {
-						"$ref": "#/components/responses/refused-404-14"
+						"$ref": "#/components/responses/refused-404-13"
 					},
 					"413": {
 						"$ref": "#/components/responses/refused-413"
@@ -14202,7 +13974,7 @@
 					"system"
 				],
 				"summary": "puts the settings of an uploaded archive back and restarts the box",
-				"description": "Puts back an archive uploaded to /tmp beforehand and restarts the box at once, as the settings menu does, so the program does not save its own settings over what was put back. A build for a PC that runs other things besides restarts only the program, started again in its own place without saving, and not the system (`--with-restore-restart`). `202` says the settings are back and the restart starts a few seconds later; the box, or the program, is then gone until it is up again. One restore runs at a time.\n\nThe box first takes the upload over: it copies it into a directory of its own under a name it chooses and removes the upload, so what it checks is what it puts back. Then every name in the archive is read from its headers. Each has to land in the configuration directory or on a path the box's tobackup.conf names: a directory, a file or a pattern. Names land below the box's /var/tuxbox where any of them begins with `config/`, and below `/` otherwise. An absolute name, one that climbs with `..`, one with a `.` or an empty part, one beginning with `.restore-`, a name with a control character, a link of either kind or a device in the archive, a link already on the box below where a name lands, a file where the box has a directory or the other way round, and an archive that holds one name as a file and as a directory or puts an entry below one of its files are refused, and so is an archive that cannot be read, one larger than 64 MiB, one whose headers say it unpacks to more than 256 MiB, or one of more than 20000 names.\n\nThe box unpacks the archive itself, with the same reading of its headers that checked it. From then on until the restart it saves no settings of its own, the saves under way finished first. Each file is written beside its place and takes its name only once every file is whole, with the permissions its entry carries, no set-id bits, and the owner the file had on the box where it had one; directories on the way, also a listed one the box does not have yet, are made where they are missing and not followed where they are links, and a directory entry sets its directory's permissions last.\n\nThe login stays as the box has it, whatever the archive carries: nhttpd-access.conf (the password, the API tokens and the rest of who may reach the box), the name that store had before and the working files the two servers write their files through are not put back, and an nhttpd.conf in the archive is put back with its lines for the user name and the password replaced by the box's own. So a restore never sets a login, also not the one of the box the archive was made on; the restore in the settings menu at the box does.\n\n**Preconditions:** the archive was uploaded to /tmp, as `PUT` and `PATCH /api/v1/storage/file` do in pieces for a file larger than one request.\n\n**Refusals:**\n- `400 bad-name`: `file` is not a plain name in /tmp ending in .tar.gz, .tgz or .tar.\n- `404 no-such-name`: no file of that name was uploaded.\n- `400 restore-refused`: the archive cannot be read or holds a name it may not; the detail names the first. Nothing was written.\n- `409 restore-refused`: another restore is under way, or settings put back before wait for their restart.\n- `500 restore-refused`: the box cannot restart itself, and nothing was put back; or it could not take the archive over or write a file of it, and its settings are as they were and it is not restarted; or, rarely, a file could not take its place after others had, and the settings are back in part and the box is not restarted; or the settings are back and the restart could not be started. The detail says which; in the last two the box saves no settings and has to be restarted by hand.\n\n**Related:** `GET /api/v1/system/backup`.",
+				"description": "Puts back an archive uploaded to /tmp beforehand and restarts the box at once, as the settings menu does, so the program does not save its own settings over what was put back. A build for a PC that runs other things besides restarts only the program, started again in its own place without saving, and not the system (`--with-restore-restart`). `202` says the settings are back and the restart starts a few seconds later; the box, or the program, is then gone until it is up again. One restore runs at a time.\n\nThe box first takes the upload over: it copies it into a directory of its own under a name it chooses and removes the upload, so what it checks is what it puts back. Then every name in the archive is read from its headers. Each has to land in the configuration directory or on a path the box's tobackup.conf names: a directory, a file or a pattern. Names land below the box's /var/tuxbox where any of them begins with `config/`, and below `/` otherwise. An absolute name, one that climbs with `..`, one with a `.` or an empty part, one beginning with `.restore-`, a name with a control character, a link of either kind or a device in the archive, a link already on the box below where a name lands, a file where the box has a directory or the other way round, and an archive that holds one name as a file and as a directory or puts an entry below one of its files are refused, and so is an archive that cannot be read, one larger than 64 MiB, one whose headers say it unpacks to more than 256 MiB, or one of more than 20000 names.\n\nThe box unpacks the archive itself, with the same reading of its headers that checked it. From then on until the restart it saves no settings of its own, the saves under way finished first. Each file is written beside its place and takes its name only once every file is whole, with the permissions its entry carries, no set-id bits, and the owner the file had on the box where it had one; directories on the way, also a listed one the box does not have yet, are made where they are missing and not followed where they are links, and a directory entry sets its directory's permissions last.\n\n**Preconditions:** the archive was uploaded to /tmp, as `PUT` and `PATCH /api/v1/storage/file` do in pieces for a file larger than one request.\n\n**Refusals:**\n- `400 bad-name`: `file` is not a plain name in /tmp ending in .tar.gz, .tgz or .tar.\n- `404 no-such-name`: no file of that name was uploaded.\n- `400 restore-refused`: the archive cannot be read or holds a name it may not; the detail names the first. Nothing was written.\n- `409 restore-refused`: another restore is under way, or settings put back before wait for their restart.\n- `500 restore-refused`: the box cannot restart itself, and nothing was put back; or it could not take the archive over or write a file of it, and its settings are as they were and it is not restarted; or, rarely, a file could not take its place after others had, and the settings are back in part and the box is not restarted; or the settings are back and the restart could not be started. The detail says which; in the last two the box saves no settings and has to be restarted by hand.\n\n**Related:** `GET /api/v1/system/backup`.",
 				"x-auth-level": "system",
 				"security": [
 					{
@@ -14260,7 +14032,7 @@
 						"$ref": "#/components/responses/refused-403-2"
 					},
 					"404": {
-						"$ref": "#/components/responses/refused-404-16"
+						"$ref": "#/components/responses/refused-404-15"
 					},
 					"409": {
 						"$ref": "#/components/responses/refused-409-8"
@@ -14370,7 +14142,7 @@
 					"webserver"
 				],
 				"summary": "sets this server up, naming only what is to change, and answers what the change means for the caller before the server is put on it",
-				"description": "Changes how this HTTP server itself is set up, naming only the members to change; a member left out keeps its stored value, and so does one sent as an empty string, except `no_login_prefix`, where an empty string is the value that exempts nobody. A new `password` and a new `user` are set only together with `current`, the password in effect, the one the caller signs in with, checked as `PUT /api/v1/account/password` checks it and counted against the address like a wrong login when it is wrong; a box with no password at all needs none. The file is written first, then this answer is sent, and only after it has gone out does the server, if anything that needs one changed, restart on the new file; a caller that moved the port or the bind address therefore still receives this answer on the connection it asked over.\n\nThe answer carries `webserver`, the configuration as the file now reads, and `caller`, what the change means for whoever asked: `address` is where to reach the server afterward, built from the name this request reached the box under and the new port, and empty when the request named no host; `port_moved` says whether the port changed; `password_changed` says whether the next sign in needs a different password, and once the restart has put a new password or user name in effect every session opened before it ends, except the one this request arrived with, and so does every token drawn from a session; that session is given new tokens by this answer already, the cookie in `Set-Cookie` and the second token in `csrf`, and the cookie the request came with names nothing from then on, so a copy of it is signed out at once; `restarting` says whether anything changed enough to restart the server at all, since a request asking for what is already in effect changes nothing and restarts nothing.\n\n**Side effects:** rewrites this server's own configuration file, and `nhttpd.conf` where `port`, `bind` or another member kept there differs from what that file says, that file being where the server answers and how nhttpd serves. When any member actually changed, the server is restarted on the new files once the answer has been sent, which drops every connection it is holding, this one included. Where nothing comes up on a new port or address, it goes back to the one it answered on before.\n\n**Refusals:**\n- `400 missing-parameter`: the body names nothing to change, or it sets `password` or a new `user` without `current` while the box has a password.\n- `400 bad-path`: `override_directory` or `hosted_directory` is no absolute path without a `..` part, or is, holds or lies in the configuration directory, /proc, /sys or /dev, which no web folder may (the old server puts such a folder back to the shipped one at its start); the detail names the member and why. Nothing is checked or written.\n- `400 webserver-not-configured`: a value given could not be written, for instance a `bind` that is not an address literal of the first family, the only one this server listens on, a `no_login_prefix` that is not the start of an IPv4 address, or a configuration file itself could not be written; the detail names which.\n- `403 wrong-current-password`: `current` is not the password in effect.\n- `403 not-permitted`: the request names `user` or `password` and the session it came with ended after the gate let it in, by a reset at the box, another change of the login or a logout, or the account changed after the request was checked; nothing is written.\n- `403 password-change-required`: the request names `user` or `password`, and since the gate let it in the box has come to wait for a password of the owner's own, as after the reset at the box; nothing is written.\n- `429 too-many-attempts`: wrong current passwords were sent from this address too often, too many are being checked at once, or too many wrong ones came from every address together; `Retry-After` says how long to wait.\n\n**Related:** `GET /api/v1/system/webserver`, `GET /api/v1/system/legacy-usage`.",
+				"description": "Changes how this HTTP server itself is set up, naming only the members to change; a member left out keeps its stored value, and so does one sent as an empty string, except `no_login_prefix`, where an empty string is the value that exempts nobody. The file is written first, then this answer is sent, and only after it has gone out does the server, if anything that needs one changed, restart on the new file; a caller that moved the port or the bind address therefore still receives this answer on the connection it asked over.\n\nThe answer carries `webserver`, the configuration as the file now reads, and `caller`, what the change means for whoever asked: `address` is where to reach the server afterward, built from the name this request reached the box under and the new port, and empty when the request named no host; `port_moved` says whether the port changed; `password_changed` says whether the next sign in needs a different password, a session already open not being ended by it; `restarting` says whether anything changed enough to restart the server at all, since a request asking for what is already in effect changes nothing and restarts nothing.\n\n**Side effects:** rewrites this server's own configuration file, and `nhttpd.conf` where `port`, `bind` or another member kept there differs from what that file says, that file being where the server answers and how nhttpd serves. When any member actually changed, the server is restarted on the new files once the answer has been sent, which drops every connection it is holding, this one included. Where nothing comes up on a new port or address, it goes back to the one it answered on before.\n\n**Refusals:**\n- `400 missing-parameter`: the body names nothing to change.\n- `400 webserver-not-configured`: a value given could not be written, for instance a `bind` that is not an address literal of the first family, the only one this server listens on, a `no_login_prefix` that is not the start of an IPv4 address, a directory that is not an absolute path, or a configuration file itself could not be written; the detail names which.\n\n**Related:** `GET /api/v1/system/webserver`, `GET /api/v1/system/legacy-usage`.",
 				"x-auth-level": "system",
 				"security": [
 					{
@@ -14417,12 +14189,6 @@
 										"x-max-bytes": 64,
 										"description": "the one name a password is presented under"
 									},
-									"current": {
-										"type": "string",
-										"maxLength": 512,
-										"x-max-bytes": 512,
-										"description": "the password in effect, the one the caller signs in with, as it is typed: a new password and a new user name are set only with it, unless the box has no password at all; read only together with password or a user that differs from the one there"
-									},
 									"password": {
 										"type": "string",
 										"maxLength": 256,
@@ -14451,13 +14217,13 @@
 										"type": "string",
 										"maxLength": 255,
 										"x-max-bytes": 255,
-										"description": "an absolute path whose files are to be served in place of the pages' own of the same name; not one that is, holds or lies in the configuration directory, /proc, /sys or /dev"
+										"description": "an absolute path whose files are to be served in place of the pages' own of the same name"
 									},
 									"hosted_directory": {
 										"type": "string",
 										"maxLength": 255,
 										"x-max-bytes": 255,
-										"description": "an absolute path to serve under /hosted/; not one that is, holds or lies in the configuration directory, /proc, /sys or /dev"
+										"description": "an absolute path to serve under /hosted/"
 									},
 									"send_all_types": {
 										"type": "boolean",
@@ -14489,13 +14255,10 @@
 						"$ref": "#/components/responses/refused-400-29"
 					},
 					"403": {
-						"$ref": "#/components/responses/refused-403-3"
+						"$ref": "#/components/responses/refused-403-2"
 					},
 					"413": {
 						"$ref": "#/components/responses/refused-413"
-					},
-					"429": {
-						"$ref": "#/components/responses/refused-429"
 					},
 					"default": {
 						"$ref": "#/components/responses/problem"
@@ -14754,7 +14517,7 @@
 						"$ref": "#/components/responses/refused-403-2"
 					},
 					"404": {
-						"$ref": "#/components/responses/refused-404-16"
+						"$ref": "#/components/responses/refused-404-15"
 					},
 					"409": {
 						"$ref": "#/components/responses/refused-409-10"
@@ -14854,7 +14617,7 @@
 						"$ref": "#/components/responses/refused-403-2"
 					},
 					"404": {
-						"$ref": "#/components/responses/refused-404-17"
+						"$ref": "#/components/responses/refused-404-16"
 					},
 					"413": {
 						"$ref": "#/components/responses/refused-413"
@@ -14919,7 +14682,7 @@
 						"$ref": "#/components/responses/refused-403-2"
 					},
 					"404": {
-						"$ref": "#/components/responses/refused-404-18"
+						"$ref": "#/components/responses/refused-404-17"
 					},
 					"409": {
 						"$ref": "#/components/responses/refused-409-10"
@@ -15020,7 +14783,7 @@
 						"$ref": "#/components/responses/refused-403-2"
 					},
 					"404": {
-						"$ref": "#/components/responses/refused-404-19"
+						"$ref": "#/components/responses/refused-404-18"
 					},
 					"409": {
 						"$ref": "#/components/responses/refused-409-11"
@@ -15552,7 +15315,7 @@
 						"$ref": "#/components/responses/refused-403-2"
 					},
 					"404": {
-						"$ref": "#/components/responses/refused-404-20"
+						"$ref": "#/components/responses/refused-404-19"
 					},
 					"409": {
 						"$ref": "#/components/responses/refused-409-13"
@@ -15615,7 +15378,7 @@
 						"$ref": "#/components/responses/refused-403-2"
 					},
 					"404": {
-						"$ref": "#/components/responses/refused-404-21"
+						"$ref": "#/components/responses/refused-404-20"
 					},
 					"409": {
 						"$ref": "#/components/responses/refused-409-14"
@@ -15669,9 +15432,6 @@
 					},
 					"403": {
 						"$ref": "#/components/responses/refused-403"
-					},
-					"404": {
-						"$ref": "#/components/responses/refused-404-10"
 					},
 					"416": {
 						"$ref": "#/components/responses/refused-416"
@@ -15835,7 +15595,7 @@
 						"$ref": "#/components/responses/refused-403-2"
 					},
 					"404": {
-						"$ref": "#/components/responses/refused-404-22"
+						"$ref": "#/components/responses/refused-404-21"
 					},
 					"409": {
 						"$ref": "#/components/responses/refused-409-16"
@@ -16789,7 +16549,7 @@
 					"auth"
 				],
 				"summary": "opens a session for a name and a password, and says what that session carries and is worth",
-				"description": "Checks the name and password against the single account this box is configured with and, when they match, opens a session for it. The answer carries the session state: `authenticated`, `level`, `user`, the second token `csrf` to send back in the header `csrf_header` names on every request that changes something, and `expires_in` in seconds. The session itself travels in a `Set-Cookie` header (`HttpOnly`, `SameSite=Lax`, no expiry attribute, so the browser forgets it when it closes). A session runs out after the configured lifetime without a request; every request it carries starts that lifetime again, up to 30 days after the login. It also ends when the account changes: a new password or user name, set anywhere, or the reset at the box, ends every session opened before it except the one of the caller that made the change.\n\n**Preconditions:** a username and a password hash must be configured on the box; a box with neither configured never matches whatever is sent, so login always fails.\n\n**Side effects:** opens an entry in the in-memory session table and sets the session cookie. Nothing is written to disk. Wrong attempts from the same address are delayed: the first 2 cost nothing extra, every one after that doubles the wait up to a ceiling of 60 seconds, and the record is forgotten after 10 minutes without another attempt from that address. At most 4 logins are checked at once across every address; a 5th caller arriving at the same moment is asked to retry rather than queued. Wrong answers from every address together draw on one budget: 20 of them in a row, after which one more is taken every 15 seconds. While it is spent a login is asked to retry, the right one included, for at most 15 seconds at a time; while wrong answers keep arriving, the logins share what comes back, so one may be asked to retry again. An address this box saw a right answer from within the last 30 days, while the program has been running, draws nothing from the budget and is held only to its own delay; after a start of the program, a deep standby among them, no address is known until it has answered right once. Forgetting an address gives nothing back, only time does.\n\n**Refusals:**\n- `401 not-permitted`: the name and the password do not go together. An unknown name and the right name with the wrong password are answered the same way and cost the same time to check, so a caller cannot use the delay to learn which it was.\n- `429 too-many-attempts`: this address is still inside its backoff delay, 4 logins are already being checked at once, or the budget of wrong answers from every address is spent for the moment; the `Retry-After` header carries how many seconds to wait before trying again.\n\n**Related:** `GET /api/v1/session`, `POST /api/v1/logout`.",
+				"description": "Checks the name and password against the single account this box is configured with and, when they match, opens a session for it. The answer carries the session state: `authenticated`, `level`, `user`, the second token `csrf` to send back in the header `csrf_header` names on every request that changes something, and `expires_in` in seconds. The session itself travels in a `Set-Cookie` header (`HttpOnly`, `SameSite=Lax`, no expiry attribute, so the browser forgets it when it closes). A session runs out after the configured lifetime without a request; every request it carries starts that lifetime again, up to 30 days after the login.\n\n**Preconditions:** a username and a password hash must be configured on the box; a box with neither configured never matches whatever is sent, so login always fails.\n\n**Side effects:** opens an entry in the in-memory session table and sets the session cookie. Nothing is written to disk. Wrong attempts from the same address are delayed: the first 2 cost nothing extra, every one after that doubles the wait up to a ceiling of 60 seconds, and the record is forgotten after 10 minutes without another attempt from that address. At most 4 logins are checked at once across every address; a 5th caller arriving at the same moment is asked to retry rather than queued.\n\n**Refusals:**\n- `401 not-permitted`: the name and the password do not go together. An unknown name and the right name with the wrong password are answered the same way and cost the same time to check, so a caller cannot use the delay to learn which it was.\n- `429 too-many-attempts`: either this address is still inside its backoff delay, or 4 logins are already being checked at once; the `Retry-After` header carries how many seconds to wait before trying again.\n\n**Related:** `GET /api/v1/session`, `POST /api/v1/logout`.",
 				"x-auth-level": "public",
 				"security": [],
 				"requestBody": {
@@ -16843,7 +16603,7 @@
 						"$ref": "#/components/responses/refused-401"
 					},
 					"403": {
-						"$ref": "#/components/responses/refused-403-4"
+						"$ref": "#/components/responses/refused-403-3"
 					},
 					"413": {
 						"$ref": "#/components/responses/refused-413"
@@ -16924,7 +16684,7 @@
 						"$ref": "#/components/responses/refused-400-2"
 					},
 					"403": {
-						"$ref": "#/components/responses/refused-403-5"
+						"$ref": "#/components/responses/refused-403-4"
 					},
 					"413": {
 						"$ref": "#/components/responses/refused-413"
@@ -16942,7 +16702,7 @@
 					"auth"
 				],
 				"summary": "replaces the account's password with one of the owner's own",
-				"description": "Sets the password of the single account this box has. The password in effect is asked for again in `current`; a wrong one is counted against the address like a wrong login. The new password has at least 8 characters, holds no control characters, is none of the passwords these boxes have shipped with and is not the one it replaces. It is in effect for every login when this answers. Every other session ends with it, and so does every token drawn from a session, this one's included. The session this request arrived with stays signed in under a new cookie and a new second token: the answer sets the cookie with `Set-Cookie` and carries the session state the login answers with, the new `csrf` among it, and the cookie the request came with names nothing from then on, so a copy of it is signed out with the rest. A caller that came without a session is answered what it is granted, as `GET /api/v1/session` answers it; one whose session could not be given new tokens holds none any more and is answered as a caller presenting nothing, without `Set-Cookie`, and signs in with the new password.\n\nWhile the box still opens to a password it shipped with, or to the first password it set for itself and showed on its screen, this is the route a caller signed in with it is to use: every route but this one, `POST /api/v1/login`, `GET /api/v1/session` and `POST /api/v1/logout` refuses it with `403 password-change-required`, which `GET /api/v1/session` announces as `password_change_required`. The old `/control/` routes keep answering the box's login as they always did.\n\n**Side effects:** the stored form of the password is written to nhttpd-access.conf; the password itself is kept nowhere.\n\n**Refusals:**\n- `400 bad-string`: the new password is too short, holds a control character, is one these boxes have shipped with, or is the one it replaces; the detail says which.\n- `403 wrong-current-password`: `current` is not the password in effect.\n- `403 not-permitted`: the account changed while the request was being checked, or the session asking ended after its password was checked; nothing is written then.\n- `429 too-many-attempts`: wrong passwords were sent from this address too often, too many are being checked at once, or too many wrong ones came from every address together; `Retry-After` says how long to wait.\n- `500 webserver-not-configured`: the box could not write the new password; the old one stays in effect.\n\n**Related:** `POST /api/v1/login`, `GET /api/v1/session`.",
+				"description": "Sets the password of the single account this box has. The password in effect is asked for again in `current`; a wrong one is counted against the address like a wrong login. The new password has at least 8 characters, holds no control characters, is none of the passwords these boxes have shipped with and is not the one it replaces. It is in effect for every login when this answers; sessions already open stay open, the one asking among them.\n\nWhile the box still opens to a password it shipped with, or to the first password it set for itself and showed on its screen, this is the route a caller signed in with it is to use: every route but this one, `POST /api/v1/login`, `GET /api/v1/session` and `POST /api/v1/logout` refuses it with `403 password-change-required`, which `GET /api/v1/session` announces as `password_change_required`. The old `/control/` routes keep answering the box's login as they always did.\n\n**Side effects:** the stored form of the password is written to nhttpd-access.conf; the password itself is kept nowhere.\n\n**Refusals:**\n- `400 bad-string`: the new password is too short, holds a control character, is one these boxes have shipped with, or is the one it replaces; the detail says which.\n- `403 not-permitted`: `current` is not the password in effect.\n- `429 too-many-attempts`: wrong passwords were sent from this address too often, or too many are being checked at once; `Retry-After` says how long to wait.\n- `500 webserver-not-configured`: the box could not write the new password; the old one stays in effect.\n\n**Related:** `POST /api/v1/login`, `GET /api/v1/session`.",
 				"x-auth-level": "system",
 				"security": [
 					{
@@ -16998,21 +16758,14 @@
 					}
 				},
 				"responses": {
-					"200": {
-						"description": "the answer",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/session-state"
-								}
-							}
-						}
+					"204": {
+						"description": "done"
 					},
 					"400": {
 						"$ref": "#/components/responses/refused-400-49"
 					},
 					"403": {
-						"$ref": "#/components/responses/refused-403-6"
+						"$ref": "#/components/responses/refused-403-5"
 					},
 					"413": {
 						"$ref": "#/components/responses/refused-413"
@@ -17036,7 +16789,7 @@
 					"auth"
 				],
 				"summary": "draws a short lived token that reaches the media this box holds and nothing else, for a player that can carry a credential only in the address",
-				"description": "Mints a token scoped to the media this box holds, such as recordings, and answers it together with its scope and lifetime in seconds, for a player that can only carry a credential in the address and not in a header or a cookie. Append it as `?token=...` to `GET /api/v1/storage/file`, where it reaches only files under the media directories, or to the archive file and playlist routes.\n\nThe scope is always `media` and cannot be chosen. On every other route the token is not a credential at all, in the query or as a bearer header, so a leaked address exposes the media and nothing more.\n\n**Preconditions:** the caller must already be granted the system level, by a session or by a bearer token minted at that level, since this route requires it.\n\n**Side effects:** records the token's hash and expiry in memory only; nothing is written to disk, so the token stops working the moment the box restarts. It lives 6 hours from the moment it is drawn, and a token drawn through a session ends earlier when that session ends, by logging out or by running out, and when the account's password or user name changes.\n\n**Refusals:**\n- `403 not-permitted`: the session the request came with ended between the sign-in check and the drawing, signed out or by a change of the account; no token is drawn then, and none that would outlive that session.\n\n**Related:** `POST /api/v1/login`, `GET /api/v1/storage/file`, `GET /api/v1/recordings/archive/{id}/file`, `GET /api/v1/recordings/archive/{id}/playlist.m3u`.",
+				"description": "Mints a token scoped to the media this box holds, such as recordings, and answers it together with its scope and lifetime in seconds, for a player that can only carry a credential in the address and not in a header or a cookie. Append it as `?token=...` to `GET /api/v1/storage/file`, where it reaches only files under the media directories, or to the archive file and playlist routes.\n\nThe scope is always `media` and cannot be chosen. On every other route the token is not a credential at all, in the query or as a bearer header, so a leaked address exposes the media and nothing more.\n\n**Preconditions:** the caller must already be granted the system level, by a session or by a bearer token minted at that level, since this route requires it.\n\n**Side effects:** records the token's hash and expiry in memory only; nothing is written to disk, so the token stops working the moment the box restarts. It lives 6 hours from the moment it is drawn, and a token drawn through a session ends earlier when that session ends, by logging out or by running out.\n\n**Related:** `POST /api/v1/login`, `GET /api/v1/storage/file`, `GET /api/v1/recordings/archive/{id}/file`, `GET /api/v1/recordings/archive/{id}/playlist.m3u`.",
 				"x-auth-level": "system",
 				"security": [
 					{
@@ -17073,7 +16826,7 @@
 						"$ref": "#/components/responses/refused-400-2"
 					},
 					"403": {
-						"$ref": "#/components/responses/refused-403-7"
+						"$ref": "#/components/responses/refused-403-2"
 					},
 					"413": {
 						"$ref": "#/components/responses/refused-413"
@@ -17411,7 +17164,7 @@
 						"$ref": "#/components/responses/refused-403-2"
 					},
 					"404": {
-						"$ref": "#/components/responses/refused-404-23"
+						"$ref": "#/components/responses/refused-404-22"
 					},
 					"409": {
 						"$ref": "#/components/responses/refused-409-21"
@@ -17475,7 +17228,7 @@
 						"$ref": "#/components/responses/refused-403-2"
 					},
 					"404": {
-						"$ref": "#/components/responses/refused-404-24"
+						"$ref": "#/components/responses/refused-404-23"
 					},
 					"500": {
 						"$ref": "#/components/responses/refused-500-18"
@@ -18107,7 +17860,7 @@
 					"osd"
 				],
 				"summary": "a picture of what the television is showing",
-				"description": "Takes a picture of the live screen and returns it as an image, in the format `format` names. `osd` and `video` each default to true and say whether the box's own OSD graphics and the live video are each drawn into the picture; leaving both at their default gives the same picture the television shows. The `at` parameter is never read; it exists only so that 2 requests for a fresh picture use 2 different addresses, which keeps a browser from answering a second `<img>` out of its own cache.\n\n**Preconditions:** only one capture of the screen runs at a time; a request that arrives while another is still running is refused with a conflict rather than waiting for it.\n\n**Refusals:**\n- `501 screen-not-captured`: this build or this box has no way of reading its own screen.\n- `409 screen-not-captured`: another capture of the screen is still running; ask again once it has answered.\n- `500 screen-not-captured`: the picture could not be taken, put in place or read back.\n- `409 password-on-screen`: the television is showing a password, such as the box's first password for the web interface, and no picture of the screen is taken while it does; a capture that was under way when the password came on is refused the same way. Ask again once the message is gone.",
+				"description": "Takes a picture of the live screen and returns it as an image, in the format `format` names. `osd` and `video` each default to true and say whether the box's own OSD graphics and the live video are each drawn into the picture; leaving both at their default gives the same picture the television shows. The `at` parameter is never read; it exists only so that 2 requests for a fresh picture use 2 different addresses, which keeps a browser from answering a second `<img>` out of its own cache.\n\n**Preconditions:** only one capture of the screen runs at a time; a request that arrives while another is still running is refused with a conflict rather than waiting for it.\n\n**Refusals:**\n- `501 screen-not-captured`: this build or this box has no way of reading its own screen.",
 				"x-auth-level": "read",
 				"security": [
 					{
@@ -18177,17 +17930,8 @@
 					"403": {
 						"$ref": "#/components/responses/refused-403"
 					},
-					"404": {
-						"$ref": "#/components/responses/refused-404-10"
-					},
-					"409": {
-						"$ref": "#/components/responses/refused-409-22"
-					},
 					"416": {
 						"$ref": "#/components/responses/refused-416"
-					},
-					"500": {
-						"$ref": "#/components/responses/refused-500-20"
 					},
 					"501": {
 						"$ref": "#/components/responses/refused-501-7"
@@ -18205,7 +17949,7 @@
 					"osd"
 				],
 				"summary": "a picture of the first display on the front of the box",
-				"description": "Takes a picture of the first display `GET /api/v1/osd/displays` lists and returns it as a PNG image. Most boxes have no such display; this answers a refusal rather than a picture for them, and `format` is not offered because this is written in one form only. The `at` parameter is never read; it exists only so that 2 requests for a fresh picture use 2 different addresses, which keeps a browser from answering a second `<img>` out of its own cache.\n\n**Refusals:**\n- `501 display-not-captured`: no display is drawing on this box, or this build was made without support for it.\n- `500 display-not-captured`: the picture could not be copied or written.\n- `409 password-on-screen`: the display is GraphLCD, which can mirror the television's menus, and the television is showing a password; no picture of it is taken until the message is gone.\n\n**Related:** `GET /api/v1/osd/displays/{name}/screenshot` names the display.",
+				"description": "Takes a picture of the first display `GET /api/v1/osd/displays` lists and returns it as a PNG image. Most boxes have no such display; this answers a refusal rather than a picture for them, and `format` is not offered because this is written in one form only. The `at` parameter is never read; it exists only so that 2 requests for a fresh picture use 2 different addresses, which keeps a browser from answering a second `<img>` out of its own cache.\n\n**Refusals:**\n- `501 display-not-captured`: no display is drawing on this box, or this build was made without support for it.\n- `500 display-not-captured`: the picture could not be copied or written.\n\n**Related:** `GET /api/v1/osd/displays/{name}/screenshot` names the display.",
 				"x-auth-level": "read",
 				"security": [
 					{
@@ -18240,17 +17984,11 @@
 					"403": {
 						"$ref": "#/components/responses/refused-403"
 					},
-					"404": {
-						"$ref": "#/components/responses/refused-404-10"
-					},
-					"409": {
-						"$ref": "#/components/responses/refused-409-23"
-					},
 					"416": {
 						"$ref": "#/components/responses/refused-416"
 					},
 					"500": {
-						"$ref": "#/components/responses/refused-500-21"
+						"$ref": "#/components/responses/refused-500-20"
 					},
 					"501": {
 						"$ref": "#/components/responses/refused-501-8"
@@ -18308,7 +18046,7 @@
 					"osd"
 				],
 				"summary": "a picture of one display on the front of the box",
-				"description": "Takes a picture of the named display and returns it as a PNG image; `format` is not offered because this is written in one form only. The `at` parameter is never read; it exists only so that 2 requests for a fresh picture use 2 different addresses, which keeps a browser from answering a second `<img>` out of its own cache.\n\n**Refusals:**\n- `404 no-such-display`: no display has that name. Take names from `GET /api/v1/osd/displays`.\n- `501 display-not-captured`: this display is not running on this box, or this build was made without support for it.\n- `500 display-not-captured`: the picture could not be copied or written.\n- `409 password-on-screen`: the display is GraphLCD, which can mirror the television's menus, and the television is showing a password; no picture of it is taken until the message is gone.\n\n**Related:** `GET /api/v1/osd/displays`.",
+				"description": "Takes a picture of the named display and returns it as a PNG image; `format` is not offered because this is written in one form only. The `at` parameter is never read; it exists only so that 2 requests for a fresh picture use 2 different addresses, which keeps a browser from answering a second `<img>` out of its own cache.\n\n**Refusals:**\n- `404 no-such-display`: no display has that name. Take names from `GET /api/v1/osd/displays`.\n- `501 display-not-captured`: this display is not running on this box, or this build was made without support for it.\n- `500 display-not-captured`: the picture could not be copied or written.\n\n**Related:** `GET /api/v1/osd/displays`.",
 				"x-auth-level": "read",
 				"security": [
 					{
@@ -18355,16 +18093,13 @@
 						"$ref": "#/components/responses/refused-403"
 					},
 					"404": {
-						"$ref": "#/components/responses/refused-404-25"
-					},
-					"409": {
-						"$ref": "#/components/responses/refused-409-23"
+						"$ref": "#/components/responses/refused-404-24"
 					},
 					"416": {
 						"$ref": "#/components/responses/refused-416"
 					},
 					"500": {
-						"$ref": "#/components/responses/refused-500-21"
+						"$ref": "#/components/responses/refused-500-20"
 					},
 					"501": {
 						"$ref": "#/components/responses/refused-501-9"
@@ -18441,7 +18176,7 @@
 						"$ref": "#/components/responses/refused-403-2"
 					},
 					"404": {
-						"$ref": "#/components/responses/refused-404-26"
+						"$ref": "#/components/responses/refused-404-25"
 					},
 					"413": {
 						"$ref": "#/components/responses/refused-413"
@@ -18678,7 +18413,7 @@
 						"$ref": "#/components/responses/refused-403"
 					},
 					"500": {
-						"$ref": "#/components/responses/refused-500-22"
+						"$ref": "#/components/responses/refused-500-21"
 					},
 					"default": {
 						"$ref": "#/components/responses/problem"
@@ -18729,7 +18464,7 @@
 						"$ref": "#/components/responses/refused-413"
 					},
 					"500": {
-						"$ref": "#/components/responses/refused-500-23"
+						"$ref": "#/components/responses/refused-500-22"
 					},
 					"default": {
 						"$ref": "#/components/responses/problem"
@@ -18828,7 +18563,7 @@
 						"$ref": "#/components/responses/refused-403-2"
 					},
 					"409": {
-						"$ref": "#/components/responses/refused-409-24"
+						"$ref": "#/components/responses/refused-409-22"
 					},
 					"413": {
 						"$ref": "#/components/responses/refused-413"
@@ -19049,7 +18784,7 @@
 						"$ref": "#/components/responses/refused-403-2"
 					},
 					"404": {
-						"$ref": "#/components/responses/refused-404-27"
+						"$ref": "#/components/responses/refused-404-26"
 					},
 					"413": {
 						"$ref": "#/components/responses/refused-413"
@@ -19113,7 +18848,7 @@
 						"$ref": "#/components/responses/refused-403"
 					},
 					"404": {
-						"$ref": "#/components/responses/refused-404-28"
+						"$ref": "#/components/responses/refused-404-27"
 					},
 					"416": {
 						"$ref": "#/components/responses/refused-416"
@@ -19221,9 +18956,6 @@
 					"403": {
 						"$ref": "#/components/responses/refused-403"
 					},
-					"404": {
-						"$ref": "#/components/responses/refused-404-10"
-					},
 					"416": {
 						"$ref": "#/components/responses/refused-416"
 					},
@@ -19282,9 +19014,6 @@
 					"403": {
 						"$ref": "#/components/responses/refused-403"
 					},
-					"404": {
-						"$ref": "#/components/responses/refused-404-10"
-					},
 					"416": {
 						"$ref": "#/components/responses/refused-416"
 					},
@@ -19338,7 +19067,7 @@
 						"$ref": "#/components/responses/refused-403"
 					},
 					"404": {
-						"$ref": "#/components/responses/refused-404-29"
+						"$ref": "#/components/responses/refused-404-4"
 					},
 					"416": {
 						"$ref": "#/components/responses/refused-416"
@@ -19518,10 +19247,10 @@
 						"$ref": "#/components/responses/refused-404-4"
 					},
 					"409": {
-						"$ref": "#/components/responses/refused-409-25"
+						"$ref": "#/components/responses/refused-409-23"
 					},
 					"500": {
-						"$ref": "#/components/responses/refused-500-24"
+						"$ref": "#/components/responses/refused-500-23"
 					},
 					"501": {
 						"$ref": "#/components/responses/refused-501-11"
@@ -19573,10 +19302,10 @@
 						"$ref": "#/components/responses/refused-400-4"
 					},
 					"403": {
-						"$ref": "#/components/responses/refused-403-8"
+						"$ref": "#/components/responses/refused-403-6"
 					},
 					"404": {
-						"$ref": "#/components/responses/refused-404-30"
+						"$ref": "#/components/responses/refused-404-28"
 					},
 					"415": {
 						"$ref": "#/components/responses/refused-415"
@@ -19628,10 +19357,10 @@
 						"$ref": "#/components/responses/refused-400-4"
 					},
 					"403": {
-						"$ref": "#/components/responses/refused-403-8"
+						"$ref": "#/components/responses/refused-403-6"
 					},
 					"404": {
-						"$ref": "#/components/responses/refused-404-30"
+						"$ref": "#/components/responses/refused-404-28"
 					},
 					"503": {
 						"$ref": "#/components/responses/refused-503-3"
@@ -19691,10 +19420,10 @@
 						"$ref": "#/components/responses/refused-400-4"
 					},
 					"403": {
-						"$ref": "#/components/responses/refused-403-8"
+						"$ref": "#/components/responses/refused-403-6"
 					},
 					"404": {
-						"$ref": "#/components/responses/refused-404-31"
+						"$ref": "#/components/responses/refused-404-29"
 					},
 					"415": {
 						"$ref": "#/components/responses/refused-415"
@@ -19806,7 +19535,7 @@
 						"$ref": "#/components/responses/refused-403-2"
 					},
 					"409": {
-						"$ref": "#/components/responses/refused-409-26"
+						"$ref": "#/components/responses/refused-409-24"
 					},
 					"413": {
 						"$ref": "#/components/responses/refused-413"
@@ -19897,7 +19626,7 @@
 						"$ref": "#/components/responses/refused-403-2"
 					},
 					"409": {
-						"$ref": "#/components/responses/refused-409-27"
+						"$ref": "#/components/responses/refused-409-25"
 					},
 					"413": {
 						"$ref": "#/components/responses/refused-413"
@@ -20003,7 +19732,7 @@
 						"$ref": "#/components/responses/refused-403-2"
 					},
 					"404": {
-						"$ref": "#/components/responses/refused-404-32"
+						"$ref": "#/components/responses/refused-404-30"
 					},
 					"default": {
 						"$ref": "#/components/responses/problem"
@@ -20194,7 +19923,7 @@
 						"$ref": "#/components/responses/refused-403"
 					},
 					"404": {
-						"$ref": "#/components/responses/refused-404-33"
+						"$ref": "#/components/responses/refused-404-31"
 					},
 					"default": {
 						"$ref": "#/components/responses/problem"
@@ -20251,10 +19980,10 @@
 						"$ref": "#/components/responses/refused-403-2"
 					},
 					"404": {
-						"$ref": "#/components/responses/refused-404-33"
+						"$ref": "#/components/responses/refused-404-31"
 					},
 					"409": {
-						"$ref": "#/components/responses/refused-409-29"
+						"$ref": "#/components/responses/refused-409-27"
 					},
 					"default": {
 						"$ref": "#/components/responses/problem"
@@ -20303,7 +20032,7 @@
 						"$ref": "#/components/responses/refused-403"
 					},
 					"404": {
-						"$ref": "#/components/responses/refused-404-34"
+						"$ref": "#/components/responses/refused-404-32"
 					},
 					"default": {
 						"$ref": "#/components/responses/problem"
@@ -20387,10 +20116,10 @@
 						"$ref": "#/components/responses/refused-403-2"
 					},
 					"404": {
-						"$ref": "#/components/responses/refused-404-33"
+						"$ref": "#/components/responses/refused-404-31"
 					},
 					"409": {
-						"$ref": "#/components/responses/refused-409-28"
+						"$ref": "#/components/responses/refused-409-26"
 					},
 					"413": {
 						"$ref": "#/components/responses/refused-413"
@@ -20445,10 +20174,10 @@
 						"$ref": "#/components/responses/refused-400-72"
 					},
 					"403": {
-						"$ref": "#/components/responses/refused-403-9"
+						"$ref": "#/components/responses/refused-403-7"
 					},
 					"404": {
-						"$ref": "#/components/responses/refused-404-35"
+						"$ref": "#/components/responses/refused-404-31"
 					},
 					"416": {
 						"$ref": "#/components/responses/refused-416"
@@ -20500,10 +20229,10 @@
 						"$ref": "#/components/responses/refused-400-73"
 					},
 					"403": {
-						"$ref": "#/components/responses/refused-403-9"
+						"$ref": "#/components/responses/refused-403-7"
 					},
 					"404": {
-						"$ref": "#/components/responses/refused-404-33"
+						"$ref": "#/components/responses/refused-404-31"
 					},
 					"default": {
 						"$ref": "#/components/responses/problem"
@@ -20546,7 +20275,7 @@
 						"$ref": "#/components/responses/refused-403"
 					},
 					"500": {
-						"$ref": "#/components/responses/refused-500-25"
+						"$ref": "#/components/responses/refused-500-24"
 					},
 					"default": {
 						"$ref": "#/components/responses/problem"
@@ -20659,13 +20388,13 @@
 						"$ref": "#/components/responses/refused-403-2"
 					},
 					"409": {
-						"$ref": "#/components/responses/refused-409-30"
+						"$ref": "#/components/responses/refused-409-28"
 					},
 					"413": {
 						"$ref": "#/components/responses/refused-413"
 					},
 					"500": {
-						"$ref": "#/components/responses/refused-500-26"
+						"$ref": "#/components/responses/refused-500-25"
 					},
 					"default": {
 						"$ref": "#/components/responses/problem"

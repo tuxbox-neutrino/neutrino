@@ -5,10 +5,11 @@
  * Copyright (C) 2026 Tuxbox-Project (fixes)
  *
  * DELIBERATE DRIFT from the source's events.cpp, declared here so the next
- * upstream diff reads mechanically. nhttpd carries a stream on the thread
- * of the connection it arrived on, where the source's libmicrohttpd holds
- * suspended connections in an event loop. The file is otherwise taken as
- * written; the translation is one pattern in eight places:
+ * upstream diff reads mechanically. nhttpd carries a stream on a thread of
+ * its own (carry.h), on a copy of the connection's descriptor, where the
+ * source's libmicrohttpd holds suspended connections in an event loop. The
+ * file is otherwise taken as written; the translation is one pattern in
+ * eight places:
  *
  *   Stream.conn                      -> gone; fd (already there) is enough
  *   suspended + MHD_suspend          -> suspended = "the pump waits on the
@@ -25,7 +26,8 @@
  *                                       refusal): registration, count and
  *                                       preamble seeding as written; the
  *                                       response object build is gone, the
- *                                       bridge writes the header
+ *                                       carrier has the transport write
+ *                                       the header
  *   reapUnderLock                    -> shutdown branch as written; the
  *                                       suspended branch asks for the one
  *                                       broadcast instead of a resume
@@ -37,11 +39,16 @@
  * loop turn. The draw stays at kBlockSize so pendingBytes() keeps meaning
  * what it says while a peer is not reading.
  *
- * One ceiling besides, in start(): every open stream holds one of nhttpd's
- * HTTPD_MAX_CONNECTIONS connection threads, and the configuration allows more
- * streams than there are threads, for a server that spends none on a stream.
- * At most a third of the threads go to streams, so ordinary requests always
- * find one.
+ * The carrier is this file's as well (carryStream below): it registers the
+ * stream, has the transport write the header and pumps through the
+ * transport's writes. So a stream holds a thread of the transport's and
+ * none of nhttpd's connection threads, with or without connection threads,
+ * and the configured ceiling is the only one. What a stream costs is that
+ * thread, whose stack reserves 512 KiB of address space and fills only as
+ * far as it is used, and what is pending for its peer, up to the pending
+ * ceiling. A write of the transport's waits at most its send limit for
+ * room, so a peer that takes nothing ends its stream after thirty seconds
+ * of a full send buffer, sooner than the pending ceiling would.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -60,6 +67,7 @@
 
 #include "events.h"
 
+#include "carry.h"
 #include "webconfig.h"
 #include "http.h"
 #include "json.h"
@@ -67,13 +75,13 @@
 
 #include "coreapi/base/errors.h"
 
-#include "yconfig.h"
-
 #include <cstddef>
 #include <cstdio>
 #include <cstring>
 #include <vector>
 
+#include <netinet/in.h>
+#include <netinet/tcp.h>
 #include <poll.h>
 #include <pthread.h>
 #include <sys/socket.h>
@@ -128,10 +136,25 @@ const unsigned kRetryBaseMs   = 10000;
 const unsigned kRetrySpreadMs = 1000;
 const unsigned kRetrySpread   = 10;
 
+/* How long the kernel may keep what a stream sent unacknowledged before it
+   gives the connection up. A peer that vanished, such as a phone that left
+   the network, acknowledges nothing, and a beat every twenty seconds is too
+   little to fill a send buffer, so without this the stream holds its place
+   through every retransmission, about a quarter of an hour. With it the
+   place comes free within a beat and this, about eighty seconds. A peer
+   that is only slow still acknowledges what it gets. */
+const unsigned kUnackedLimitMs = 60000;
+
+/* What a caller refused for want of a place is told to wait, in seconds. A
+   stream that closes gives its place back at once, and one whose peer
+   vanished within a beat and the unacknowledged limit above: told to wait
+   that long, a caller would sit out the common case for the rare one. */
+const unsigned kRetryAfterFullS = 30;
+
 struct Stream
 {
-	/* The socket, kept for the thread that reaps a wedged stream. The pump
-	   that owns the connection closes it only after this stream is gone from
+	/* The socket, kept for the thread that reaps a wedged stream. The job
+	   that carries the stream closes it only after this stream is gone from
 	   the list, so a descriptor read under the lock is good while it is held. */
 	int         fd;
 	std::string pending;
@@ -193,13 +216,13 @@ private:
    which has to happen while the emptiness that led to it still holds;
 
    and the shutdown of a wedged stream's socket, which is a syscall that takes no lock
-   of the library's and is the whole of what keeps that descriptor from being somebody
-   else's. The call that gives a stream back waits here, and the library closes the
-   socket behind that call, so a descriptor read under this lock cannot have been closed
-   until it is given up. Read it here and use it outside and the number can be closed,
-   reissued to another connection, and shut down under that one.
+   of the transport's and is the whole of what keeps that descriptor from being somebody
+   else's. The call that gives a stream back waits here, and the job that carries the
+   stream closes the socket only after that call, so a descriptor read under this lock
+   cannot have been closed until it is given up. Read it here and use it outside and the
+   number can be closed, reissued to another connection, and shut down under that one.
 
-   Nothing else that could take a lock of the library's is called from under it. */
+   Nothing else that could take a lock of the transport's is called from under it. */
 OpenThreads::Mutex &lock()
 {
 	static OpenThreads::Mutex m;
@@ -344,7 +367,7 @@ void Fanout::onEvent(const coreapi::Event &e)
 
 	/* Outside the lock, and this is the whole of what the bus thread does to a socket:
 	   nothing. The pumps wake, and each writes what was appended to its own
-	   stream on its own connection thread. */
+	   stream on its own job's thread. */
 	if (wake)
 		cond().broadcast();
 }
@@ -401,7 +424,7 @@ void streamGone(void *cls)
    server's streams does that.
 
    Called with the lock held, for the reason the reap below is: the descriptor belongs to
-   the library, and it is good only for as long as this lock is. */
+   the job that carries the stream, and it is good only for as long as this lock is. */
 bool peerGone(int fd)
 {
 	if (fd < 0)
@@ -434,8 +457,8 @@ bool peerGone(int fd)
 /* Takes a stream out of the pump's reach for good.
 
    Called with the lock held, and the shutdown below is why that is not merely a
-   convention. The descriptor belongs to the connection thread, which closes it
-   only after the pump has given this stream back, and giving it back waits on
+   convention. The descriptor belongs to the job that carries the stream, which closes
+   it only after the pump has given this stream back, and giving it back waits on
    this lock. So the number is good while it is held and is anybody's the moment
    it is not: read here and used outside, it can be closed, handed to the next
    connection the box accepts, and shut down under that one. */
@@ -647,7 +670,7 @@ const char *streamContentType()
 
 bool isStream(const Response &r)
 {
-	return r.code == StatusOk && r.content_type == streamContentType();
+	return r.code == StatusOk && r.event_stream;
 }
 
 const char *streamsFullDetail()
@@ -676,19 +699,14 @@ Opened openStream(int fd, StreamHandle &out, Response &refusal)
 		return StreamFailed;
 
 	Stream *s = NULL;
-	unsigned beat_s = 0;
 	{
 		OpenThreads::ScopedLock<OpenThreads::Mutex> held(lock());
 
 		/* Counted and registered under one lock, so that two requests arriving
-		   together cannot both find room for the last place. */
-		if (!serving_ || streams().size() >= max_streams_)
-		{
-			// Only the number is taken from in here. The document that carries
-			// it is written below, once this is given up.
-			beat_s = heartbeat_ms_ / 1000u;
-		}
-		else
+		   together cannot both find room for the last place. A refusal takes
+		   nothing from in here: the document that carries it is written below,
+		   once this is given up. */
+		if (serving_ && streams().size() < max_streams_)
 		{
 			/* Owned until the list owns it. Between the allocation and the
 			   push there are two calls that can fail, and a raw pointer
@@ -715,9 +733,7 @@ Opened openStream(int fd, StreamHandle &out, Response &refusal)
 		   is three allocations and a format, and a delivery from the message path would queue
 		   behind all of it for an answer that is only ever a refusal. */
 		char after[16];
-		// Longer than the interval after which a stream whose peer has gone is
-		// noticed, because that is when a place frees up.
-		std::snprintf(after, sizeof(after), "%u", beat_s + 10u);
+		std::snprintf(after, sizeof(after), "%u", kRetryAfterFullS);
 
 		refusal = problemResponse(StatusServiceUnavailable,
 		                          coreapi::ErrorCode::TooManyStreams,
@@ -825,24 +841,103 @@ void pumpStream(StreamHandle h, StreamWrite write, void *ctx)
 	streamGone(s);
 }
 
+namespace
+{
+
+/* A registration between opening and pumping. Whatever leaves the carrier
+   before the pump - a header the peer did not take, a throw out of a
+   string - gives the place back exactly once; spending it hands that duty
+   to pumpStream. */
+struct HeldStream
+{
+	StreamHandle h;
+	explicit HeldStream(StreamHandle x) : h(x) {}
+	~HeldStream()
+	{
+		if (h != NULL)
+			closeStream(h);
+	}
+	StreamHandle spend()
+	{
+		StreamHandle out = h;
+		h = NULL;
+		return out;
+	}
+private:
+	HeldStream(const HeldStream &);
+	HeldStream &operator=(const HeldStream &);
+};
+
+// The pump's way onto the wire: the job's own write, which waits at most the
+// transport's send limit for a peer that takes nothing.
+bool sendThroughJob(void *ctx, const char *bytes, size_t n)
+{
+	return carry::sendBody(*(carry::Job *) ctx, bytes, n);
+}
+
+/* One stream, on the job the transport carries it on (carry.h), so the
+   thread that read the request - the accept thread itself without
+   connection threads - is free again at once. Registered before the header
+   goes out: the place is counted and the opening frames are seeded first,
+   so an event published while the header travels waits in the stream, and
+   a refusal comes while nothing has been written, so it is still an
+   ordinary answer. A throw before the header is answered by the transport;
+   the guard gives the place back. */
+void carryStream(carry::Job &job)
+{
+	const int fd = carry::descriptorOf(job);
+#ifdef TCP_USER_TIMEOUT
+	// Not a reason to refuse the stream where the kernel will not take it:
+	// a peer that vanished then frees its place later, not never.
+	const unsigned int unacked_ms = kUnackedLimitMs;
+	setsockopt(fd, IPPROTO_TCP, TCP_USER_TIMEOUT, &unacked_ms, sizeof(unacked_ms));
+#endif
+
+	StreamHandle handle = NULL;
+	Response refusal;
+	const Opened got = openStream(fd, handle, refusal);
+	if (got == StreamRefused)
+	{
+		carry::refuse(job, refusal);
+		return;
+	}
+	if (got != StreamOpened)
+	{
+		carry::refuse(job, problemResponse(StatusInternalServerError,
+		                                   coreapi::ErrorCode::BoxUnreadable,
+		                                   "the stream could not be opened"));
+		return;
+	}
+
+	HeldStream held(handle);
+	if (!carry::sendHead(job, -1))
+		return;
+	pumpStream(held.spend(), &sendThroughJob, &job);
+}
+
+const carry::Carrier kStreamCarrier = { NULL, &carryStream };
+
+} // namespace
+
 void start()
 {
+	/* Before anything else and for good, as the other kinds are installed: the
+	   transport finds what carries a stream before the first one reaches it,
+	   and a stream that reaches a module that did not start is refused by
+	   openStream() as one with no place. */
+	carry::setCarrier(carry::Events, &kStreamCarrier);
+
 	bool serving = false;
 	{
 		OpenThreads::ScopedLock<OpenThreads::Mutex> held(lock());
 
 		/* Read here and not per request. The configuration is written before
 		   the server starts and read by the threads it runs, and a ceiling
-		   read on a request thread would be a second reader of it. */
+		   read on a request thread would be a second reader of it. Taken as
+		   it stands, inside the bounds the configuration holds it to: a
+		   stream holds a thread of the transport's and none of the server's
+		   connection threads, so nothing else limits how many may be open. */
 		max_streams_ = config().sse_max_streams;
-		const size_t carried = HTTPD_MAX_CONNECTIONS / 3;
-		if (max_streams_ > carried)
-		{
-			std::fprintf(stderr, "httpd: %u event streams configured, this server "
-			             "carries %u beside its other connections\n",
-			             (unsigned) max_streams_, (unsigned) carried);
-			max_streams_ = carried;
-		}
 		serving_ = true;
 
 		if (!tending_)
@@ -976,12 +1071,13 @@ size_t pendingCeiling()
 Response streamHandler(const Request &)
 {
 	/* Not the answer itself. What goes back from here says which media type the answer
-	   is and what has to be said around it, and the transport turns the connection into
-	   the stream: a handler answers with bytes and returns, and a stream is what happens
-	   after a handler has returned. */
+	   is and what has to be said around it, and the transport carries the stream on a
+	   thread of its own (carry.h): a handler answers with bytes and returns, and a stream
+	   is what happens after a handler has returned. */
 	Response out;
 	out.code = StatusOk;
 	out.content_type = streamContentType();
+	out.event_stream = true;
 
 	// Both of these are about what sits between this server and the browser.
 	// A cache that stored a stream would replay it, and a proxy that buffered

@@ -271,10 +271,10 @@ void Cyhttpd::version(FILE *dest) {
 void Cyhttpd::stop_webserver() {
 	aprintf("stop requested......\n");
 	if (webserver) {
-		// before the hooks go: every open event stream is closed and waited
-		// for, so no connection thread is inside the bridge when it is
-		// deleted; every carried answer is ended and waited for up to a
-		// bound, its thread being nobody's connection thread
+		// before the hooks go: every carried answer is ended, every open
+		// event stream among them closed and waited for, and the others
+		// waited for up to a bound; each runs on a thread of its own,
+		// nobody's connection thread, and touches no hook
 		if (api_bridge)
 			CApiBridge::stopStreams();
 		webserver->stop();

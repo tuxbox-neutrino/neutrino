@@ -492,8 +492,15 @@ struct Response
 	   for every other answer. */
 	int         relay_kind;
 	uint64_t    relay_channel;
+	/* Whether this answer is the box's event stream, which stays open and is written to
+	   as the box announces changes (events.h), and false for every other answer.
 
-	Response() : code(0), fd(-1), length(0), fd_own_unnamed(false), relay_kind(0), relay_channel(0) {}
+	   Here for the reason stream_argv is: the handler says what the answer is, and the
+	   transport carries it on a thread of its own (carry.h), which reads it here and
+	   needs nothing of the module that keeps the streams to recognise it. */
+	bool        event_stream;
+
+	Response() : code(0), fd(-1), length(0), fd_own_unnamed(false), relay_kind(0), relay_channel(0), event_stream(false) {}
 };
 
 /* Puts an open file behind a response and states its length from that same

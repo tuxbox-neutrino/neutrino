@@ -27,6 +27,7 @@
 #include "support/catch.hpp"
 #include "support/wireserver.h"
 
+#include "httpd/carry.h"
 #include "httpd/endpoint.h"
 #include "httpd/events.h"
 #include "httpd/http.h"
@@ -41,6 +42,7 @@
 
 #include "coreapi/base/eventbus.h"
 
+#include <cerrno>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -51,6 +53,7 @@
 
 #include <arpa/inet.h>
 #include <netinet/in.h>
+#include <netinet/tcp.h>
 #include <poll.h>
 #include <pthread.h>
 #include <sys/socket.h>
@@ -248,22 +251,29 @@ TEST_CASE("over the ceiling the answer is 503 and not a silent queue", "[sse]")
 	REQUIRE(all.find("\"status\":503") != std::string::npos);
 }
 
-TEST_CASE("the configured ceiling is cut to what the connection threads can carry", "[sse]")
+TEST_CASE("the configured ceiling is the one that holds, with nothing cut below it", "[sse]")
 {
-	// Each open stream holds one of nhttpd's 50 connection threads. The
-	// configuration allows 64, for a server that spends no thread on a
-	// stream; here a third of the threads is the most that goes to streams,
-	// so ordinary requests always find one.
-	WireServer serving(64);
+	/* A stream holds a thread of the transport's and none of nhttpd's
+	   connection threads, so the setting is taken as it stands. Twenty is
+	   more than a third of the fifty connection threads and more than any
+	   kind of the transport has seats: neither may cut the setting, and the
+	   twenty-first is refused by the module, with its own words and its own
+	   wait. Without connection threads, as boxes ship, so all twenty are
+	   open beside an accept thread that is free. */
+	WireServer serving(20, 5000, WireServer::Serial);
 	std::vector<WireStream *> open;
-	for (int i = 0; i < 16; i++) {
+	for (int i = 0; i < 20; i++) {
 		open.push_back(new WireStream(serving.port));
 		REQUIRE(open.back()->ok());
+		INFO("stream " << i);
 		REQUIRE(open.back()->code() == 200);
 	}
+	CHECK(events::openStreams() == 20);
 	WireStream one_more(serving.port);
 	REQUIRE(one_more.ok());
 	CHECK(one_more.code() == 503);
+	CHECK(one_more.headerOf("Retry-After") == "30");
+	CHECK(one_more.readToEof(2000).find(events::streamsFullDetail()) != std::string::npos);
 	for (size_t i = 0; i < open.size(); i++)
 		delete open[i];
 }
@@ -288,6 +298,231 @@ TEST_CASE("a head of the stream is answered without opening one", "[sse]")
 	// no body, and no seat taken
 	REQUIRE(s.readToEof(2000).empty());
 	REQUIRE(events::openStreams() == 0);
+}
+
+/* ==== Without connection threads (webserver.threading=false), which is how
+   boxes ship nhttpd.conf: the accept thread reads every request itself, and
+   a stream runs on a thread of the transport's all the same. ==== */
+
+TEST_CASE("without connection threads a stream opens with its head and carries an event", "[sse]")
+{
+	WireServer serving(4, 5000, WireServer::Serial);
+	WireStream s(serving.port);
+	REQUIRE(s.ok());
+	REQUIRE(s.code() == 200);
+	// the head a stream has with connection threads, line for line
+	CHECK(s.headerOf("Content-Type") == "text/event-stream");
+	CHECK(s.headerOf("Cache-Control") == "no-cache, no-transform");
+	CHECK(s.headerOf("X-Accel-Buffering") == "no");
+	CHECK(s.headerOf("X-Content-Type-Options") == "nosniff");
+	CHECK(s.headerOf("Connection") == "close");
+	CHECK_FALSE(s.hasHeader("Content-Length"));
+	CHECK_FALSE(s.hasHeader("Transfer-Encoding"));
+	REQUIRE(s.readFrame(2000).find("retry:") != std::string::npos);
+
+	publish(coreapi::EventType::Volume, 0, 42);
+	const std::string frame = s.readFrame(2000);
+	INFO(frame);
+	REQUIRE(frame.find("event: volume") != std::string::npos);
+	REQUIRE(frame.find("\"value\":42") != std::string::npos);
+}
+
+TEST_CASE("without connection threads the next request is answered while streams are open", "[sse]")
+{
+	WireServer serving(4, 5000, WireServer::Serial);
+	WireStream a(serving.port);
+	WireStream b(serving.port);
+	WireStream c(serving.port);
+	REQUIRE(a.ok());
+	REQUIRE(b.ok());
+	REQUIRE(c.ok());
+	REQUIRE(a.code() == 200);
+	REQUIRE(b.code() == 200);
+	REQUIRE(c.code() == 200);
+	REQUIRE(events::openStreams() == 3);
+
+	const int64_t asked = wireNowMs();
+	WireStream next(serving.port, "GET /api/v1/session HTTP/1.0\r\nHost: box\r\n\r\n");
+	REQUIRE(next.ok());
+	CHECK(next.code() == 200);
+	CHECK_FALSE(next.readToEof(2000).empty());
+	/* Generous for a loaded host: an accept thread a stream held would leave
+	   this request without a head, which ok() above already fails. */
+	CHECK(wireNowMs() - asked <= 2000);
+
+	// and the three still carry what happens
+	REQUIRE(a.readFrame(2000).find("retry:") != std::string::npos);
+	REQUIRE(c.readFrame(2000).find("retry:") != std::string::npos);
+	publish(coreapi::EventType::Mute, 0, 1);
+	CHECK(a.readFrame(2000).find("event: mute") != std::string::npos);
+	CHECK(c.readFrame(2000).find("event: mute") != std::string::npos);
+}
+
+TEST_CASE("without connection threads the ceiling refuses with a wait and a closed stream frees its place at once", "[sse]")
+{
+	/* The beat is a minute away, so the place cannot come back because
+	   something was written down the closed stream: the module found the
+	   peer gone. */
+	WireServer serving(1, 60000, WireServer::Serial);
+	{
+		WireStream s(serving.port);
+		REQUIRE(s.ok());
+		REQUIRE(s.code() == 200);
+		REQUIRE(events::openStreams() == 1);
+
+		WireStream over(serving.port);
+		REQUIRE(over.ok());
+		CHECK(over.code() == 503);
+		CHECK(over.headerOf("Content-Type") == "application/problem+json");
+		CHECK(over.headerOf("Retry-After") == "30");
+		CHECK_FALSE(over.headerOf("Content-Length").empty());
+		CHECK(over.readToEof(2000).find("too-many-streams") != std::string::npos);
+
+		// a HEAD is the stream's head whether a place is free or not, and takes none
+		WireStream head(serving.port, "HEAD /api/v1/events HTTP/1.0\r\nHost: box\r\n\r\n");
+		REQUIRE(head.ok());
+		CHECK(head.code() == 200);
+		CHECK(head.headerOf("Content-Type") == "text/event-stream");
+		CHECK(head.readToEof(2000).empty());
+		CHECK(events::openStreams() == 1);
+	}
+
+	const int64_t closed = wireNowMs();
+	REQUIRE(waitForStreams(0, 3000) == 0);
+	CHECK(wireNowMs() - closed < 1000);
+
+	WireStream again(serving.port);
+	REQUIRE(again.ok());
+	CHECK(again.code() == 200);
+	CHECK(events::openStreams() == 1);
+}
+
+namespace
+{
+
+/* The end of a connection this process serves, found by the address of its
+   client: the stream's own socket, on which its options are set. Asked once
+   nhttpd has let the connection go, so the job's copy is the only one. */
+int servedEndOf(const WireStream &s)
+{
+	struct sockaddr_in client;
+	socklen_t len = sizeof(client);
+	if (getsockname(s.fd, (struct sockaddr *) &client, &len) != 0)
+		return -1;
+	for (int fd = 3; fd < 4096; ++fd)
+	{
+		if (fd == s.fd)
+			continue;
+		struct sockaddr_in peer;
+		socklen_t plen = sizeof(peer);
+		if (getpeername(fd, (struct sockaddr *) &peer, &plen) != 0)
+			continue;
+		if (peer.sin_family == AF_INET && peer.sin_port == client.sin_port
+				&& peer.sin_addr.s_addr == client.sin_addr.s_addr)
+			return fd;
+	}
+	return -1;
+}
+
+} // namespace
+
+TEST_CASE("a stream's socket gives up on a peer that acknowledges nothing for a minute", "[sse]")
+{
+	/* A peer that vanished acknowledges nothing, and a beat is too little to
+	   fill a send buffer: without the limit the place stays taken for the
+	   quarter of an hour the retransmissions take. */
+#ifdef TCP_USER_TIMEOUT
+	WireServer serving(4, 5000, WireServer::Serial);
+	WireStream s(serving.port);
+	REQUIRE(s.ok());
+	REQUIRE(s.code() == 200);
+	REQUIRE(s.readFrame(2000).find("retry:") != std::string::npos);
+	for (int waited = 0; waited < 2000 && serving.served.load() < 1u; waited += 10)
+		napMs(10);
+	REQUIRE(serving.served.load() >= 1u);
+
+	const int served = servedEndOf(s);
+	REQUIRE(served >= 0);
+	unsigned int ms = 0;
+	socklen_t len = sizeof(ms);
+	REQUIRE(getsockopt(served, IPPROTO_TCP, TCP_USER_TIMEOUT, &ms, &len) == 0);
+	CHECK(ms == 60000u);
+#else
+	WARN("this build has no TCP_USER_TIMEOUT; a vanished peer keeps its place longer");
+	SUCCEED();
+#endif
+}
+
+namespace
+{
+
+std::atomic<int> writes_seen(0);
+
+// Fails the first write it is handed, which is a stream's head, and passes
+// every later one to the socket.
+ssize_t failFirstWrite(int fd, const char *bytes, size_t n)
+{
+	if (++writes_seen == 1)
+	{
+		errno = EPIPE;
+		return -1;
+	}
+	return ::send(fd, bytes, n, MSG_NOSIGNAL);
+}
+
+} // namespace
+
+TEST_CASE("a stream whose head could not be written gives its place back", "[sse]")
+{
+	/* A peer that resets right after its request: the head fails, and the
+	   place registered before it has to come back, or as many such peers as
+	   there are places leave the box refusing every stream. The writes after
+	   the first go out again, so a stream that pumped on past a failed head
+	   would hold its place and be seen here. */
+	struct Writer
+	{
+		Writer()
+		{
+			writes_seen = 0;
+			carry::setWriterForTest(&failFirstWrite);
+		}
+		~Writer() { carry::setWriterForTest(NULL); }
+	} writer;
+	WireServer serving(1, 60000, WireServer::Serial);
+	{
+		WireStream s(serving.port);
+		CHECK_FALSE(s.ok());
+		CHECK(s.eof);
+	}
+	REQUIRE(waitForStreams(0, 3000) == 0);
+
+	carry::setWriterForTest(NULL);
+	WireStream again(serving.port);
+	REQUIRE(again.ok());
+	CHECK(again.code() == 200);
+	CHECK(events::openStreams() == 1);
+}
+
+TEST_CASE("a server that is stopping refuses a stream until it starts again", "[sse]")
+{
+	/* Between a stop and the next start, as a reload has it: the stream is
+	   refused by the transport like every carried answer, before the module
+	   is asked, and comes back with the server. */
+	WireServer serving;
+	CApiBridge::stopStreams();
+	{
+		WireStream refused(serving.port);
+		REQUIRE(refused.ok());
+		CHECK(refused.code() == 503);
+		CHECK(refused.readToEof(2000).find("server-stopping") != std::string::npos);
+	}
+	CHECK(events::openStreams() == 0);
+
+	CApiBridge::startStreams();
+	WireStream again(serving.port);
+	REQUIRE(again.ok());
+	CHECK(again.code() == 200);
+	CHECK(again.readFrame(2000).find("retry:") != std::string::npos);
 }
 
 namespace
@@ -650,8 +885,11 @@ TEST_CASE("a wedged stream's descriptor is named while the lock is held", "[sse]
 		REQUIRE(wedged);
 		REQUIRE(events::openStreams() == 1);
 
-		// Leaving here stops the server, which takes every stream down, and a
-		// stream in that state is taken down by its descriptor.
+		/* This module's own stop, which takes every stream down, and a stream
+		   in that state by its descriptor. Asked before the server's: that one
+		   has the transport shut every carried descriptor down first, which
+		   ends the pump before this module's reap could reach it. */
+		events::stop();
 	}
 
 	events::setReapProbeForTest(NULL);

@@ -5,19 +5,22 @@
  *
  * License: GPL-2.0-or-later
  *
- * A route can answer with a program to run (Response::stream_argv) or with
- * an address to relay (Response::relay_url). Both answers outlive the
- * handler and the request: they run until the far end stops reading. Not
- * on nhttpd's connection thread, because without connection threads that
- * thread is the accept thread, and one such answer would be the last
- * request the box takes. Each runs on a thread of its own instead, on a
- * copy of the connection's descriptor, whatever the threading setting
- * says; every other request keeps the path it had.
+ * A route can answer with a program to run (Response::stream_argv), with
+ * an address to relay (Response::relay_url) or with the event stream
+ * (Response::event_stream). Each of these answers outlives the handler and
+ * the request: it runs until the far end stops reading. Not on nhttpd's
+ * connection thread, because without connection threads that thread is
+ * the accept thread, and one such answer would be the last request the box
+ * takes. Each runs on a thread of its own instead, on a copy of the
+ * connection's descriptor, whatever the threading setting says; every
+ * other request keeps the path it had.
  *
  * What runs on that thread is a carrier, one per kind, installed by the
- * module that knows how to fetch or to convert. This file owns everything
- * around it: the seats, the copy of the descriptor, a child the carrier
- * starts, the header, a refusal that still fits before it, and the stop.
+ * module that knows how to fetch, to convert or to stream the events. This
+ * file owns everything around it: the seats, which it counts for every kind
+ * and limits for all but the event streams, the copy of the descriptor, a
+ * child the carrier starts, the header, a refusal that still fits before
+ * it, and the stop.
  *
  * One mutex holds the register of jobs, and four rules keep it honest:
  *  - a job is registered whole (descriptor, answer, seat) before its thread
@@ -51,12 +54,18 @@ namespace httpd
 namespace carry
 {
 
-// What an answer is carried as. Each kind has its own seats and its own code
-// for running out of them.
+/* What an answer is carried as. Each kind has its own seats, which this
+   module counts for every kind and limits for all but Events, and its own
+   code for running out of room. Its jobs' thread is named for it, so the
+   threads of each kind can be told apart. */
 enum Kind
 {
 	Fetch,   // relay_url: bytes fetched from elsewhere and passed on
-	Program  // stream_argv: the output of a program the box runs
+	Program, // stream_argv: the output of a program the box runs
+	/* event_stream: the box's events as they happen. Counted here but never
+	   limited: the module that keeps the streams holds them to its configured
+	   ceiling and refuses one over it itself (events.h). */
+	Events
 };
 
 // One answer being carried. Opaque: a carrier reaches it through the calls
@@ -84,7 +93,8 @@ struct Carrier
 void setCarrier(Kind k, const Carrier *c);
 
 // Whether r is an answer this module carries, and of which kind: a 200 that
-// names a program or an address. Anything else is an ordinary answer.
+// names a program or an address, or that is the event stream. Anything else
+// is an ordinary answer.
 bool carried(const Response &r, Kind *kind);
 
 // Whether a carrier is installed for the kind.
@@ -124,6 +134,13 @@ Outcome start(void *held, int fd, Method m, const std::string &path, Response &r
    set its type and headers before that, from what it learned on its way. */
 Response &answerOf(Job &j);
 Method methodOf(const Job &j);
+
+/* The job's copy of the connection's descriptor, for a carrier that hands it
+   to a module of its own to watch the far end with or to set an option on.
+   Open until the carrier has returned and closed only here, so a module that
+   gives it up before that never meets a number handed to another connection.
+   Never to be closed by anyone else. */
+int descriptorOf(const Job &j);
 
 // Set by a stop and never cleared. Every wait of a carrier asks it.
 bool cancelled(const Job &j);
@@ -174,7 +191,9 @@ bool waitIdle(unsigned ms);
    long it takes to end. */
 void endStop();
 
-// Jobs that have not ended yet, and the seats of a kind in use and in all.
+/* Jobs that have not ended yet, and the seats of a kind in use and in all.
+   A kind this module counts but never limits (Events) has SIZE_MAX seats: it
+   is never refused here for want of one. */
 size_t running();
 size_t seatsTaken(Kind k);
 size_t seatsOf(Kind k);

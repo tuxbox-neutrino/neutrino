@@ -77,18 +77,47 @@ private:
 namespace
 {
 
-const size_t kKinds = 2;
+const size_t kKinds = 3;
 
 /* Seats per kind: six fetches (a relay, a segment, a playlist and the one
    nested in it, for a few browsers at once) and two programs (each a running
    converter the box pays for in CPU). Outside nhttpd's connection threads:
-   a job holds a connection thread only until it is handed over. */
-const size_t kSeats[kKinds] = { 6, 2 };
-// When a refused caller should come back: a fetch frees its seat within
-// seconds, a conversion lasts as long as somebody listens.
-const char *const kRetryAfter[kKinds] = { "5", "15" };
+   a job holds a connection thread only until it is handed over.
 
-// Each job's stack. Eight jobs at most, so 4 MiB of address space.
+   The event streams are counted here but never limited. Their module holds
+   them to its configured ceiling and refuses one over it with its own 503,
+   and it gives a stream's place back at the end of the stream's pump, before
+   the job's last act: a limit here would come free later than that one and
+   refuse a stream the module has room for. */
+const size_t kUnlimited = SIZE_MAX;
+const size_t kSeats[kKinds] = { 6, 2, kUnlimited };
+
+/* What a kind is refused with when its seats are taken or its job cannot be
+   started, and when the caller should come back: a fetch frees its seat
+   within seconds, a conversion lasts as long as somebody listens. An event
+   stream meets this only when its thread could not be started, and is told
+   the half minute its module tells a stream it has no place for. */
+struct NoRoom
+{
+	coreapi::ErrorCode code;
+	const char        *detail;
+	const char        *retry_after;
+};
+const NoRoom kNoRoom[kKinds] = {
+	{ coreapi::ErrorCode::TooManyStreams,
+	  "the box is already relaying as many streams as it will", "5" },
+	{ coreapi::ErrorCode::TooManyConversions,
+	  "the box is already converting as many streams as it will", "15" },
+	{ coreapi::ErrorCode::TooManyStreams,
+	  "the box is already carrying as many event streams as it can", "30" },
+};
+
+// What each kind's jobs are called, as the process lists its threads.
+const char *const kThreadName[kKinds] = { "httpd:carry", "httpd:carry", "httpd:events" };
+
+/* Each job's stack, of which only the pages it touches are memory. Eight
+   fetches and programs at most, so 4 MiB of address space, and one more per
+   open event stream, up to the ceiling of the module that keeps them. */
 const size_t kJobStack = 512 * 1024;
 
 const unsigned kSendTimeoutDefaultMs = 30000;
@@ -316,13 +345,9 @@ Response refusalFor(Reason why, Kind k)
 		case NoResources:
 			break;
 	}
-	Response r = (k == Program)
-		? problemResponse(StatusServiceUnavailable, coreapi::ErrorCode::TooManyConversions,
-		                  "the box is already converting as many streams as it will")
-		: problemResponse(StatusServiceUnavailable, coreapi::ErrorCode::TooManyStreams,
-		                  "the box is already relaying as many streams as it will");
+	Response r = problemResponse(StatusServiceUnavailable, kNoRoom[k].code, kNoRoom[k].detail);
 	r.headers.push_back(std::make_pair(std::string("Retry-After"),
-	                                   std::string(kRetryAfter[k])));
+	                                   std::string(kNoRoom[k].retry_after)));
 	return r;
 }
 
@@ -485,7 +510,7 @@ void endJob(Job *j)
 void *jobMain(void *arg)
 {
 	Job *j = (Job *) arg;
-	set_threadname("httpd:carry");
+	set_threadname(kThreadName[j->kind]);
 	point(JobStarted, j);
 	/* Nothing leaves this frame: the thread is nobody's to catch for. A job a
 	   stop reached before it ran writes nothing at all. */
@@ -536,6 +561,8 @@ bool carried(const Response &r, Kind *kind)
 		k = Program;
 	else if (!r.relay_url.empty())
 		k = Fetch;
+	else if (r.event_stream)
+		k = Events;
 	else
 		return false;
 	if (kind != NULL)
@@ -662,6 +689,11 @@ Response &answerOf(Job &j)
 Method methodOf(const Job &j)
 {
 	return j.method;
+}
+
+int descriptorOf(const Job &j)
+{
+	return j.fd;
 }
 
 bool cancelled(const Job &j)

@@ -30,9 +30,9 @@
 #include <string>
 
 /* DELIBERATE DRIFT from the source's events.h (see events.cpp's head): nhttpd
-   carries a stream on the thread of the connection it arrived on, so what a
-   caller hands over is the socket's descriptor and a write function, not a
-   library connection. Everything else in this header is as written. */
+   carries a stream on a thread of its own (carry.h), so what a caller hands
+   over is the socket's descriptor and a write function, not a library
+   connection. Everything else in this header is as written. */
 
 namespace httpd
 {
@@ -41,8 +41,9 @@ namespace events
 {
 
 /* Subscribes the one subscriber this server has and starts the thread that beats and
-   reaps. Idempotent, and called where the daemon is started, a stream being a
-   connection of that daemon.
+   reaps, and installs what the transport carries a stream with (carry::Events).
+   Idempotent, and called where the daemon is started, a stream being a connection of
+   that daemon.
 
    The ceiling on how many streams may be open at once is read here, out of the
    configuration in effect, and not per request: a ceiling read on a request thread
@@ -86,9 +87,10 @@ const char *typeName(coreapi::EventType t);
 void appendEventJson(std::string &out, const coreapi::Event &e);
 
 /* The media type a route asks for a stream with, and the test for an answer that is
-   such a request. A handler answers with a Response like any other, which keeps the
-   route in the table where it is declared and checked. What it cannot do from there
-   is write to a socket that stays open, so the transport turns the connection. */
+   such a request: a 200 marked as the stream (Response::event_stream). A handler
+   answers with a Response like any other, which keeps the route in the table where it
+   is declared and checked. What it cannot do from there is write to a socket that
+   stays open, so the transport carries the stream on a thread of its own (carry.h). */
 const char *streamContentType();
 bool isStream(const Response &r);
 

@@ -1575,7 +1575,7 @@ menu.hint_net_httpd_reset_password Passwort vergessen? Setzt die Anmeldung auf r
 menu.hint_net_httpd_ssl Weboberfläche verschlüsselt über HTTPS; braucht eine PEM-Datei mit Zertifikat und Schlüssel
 menu.hint_net_httpd_ssl_cafile Pfad zur CA-Datei (optional)
 menu.hint_net_httpd_ssl_pemfile Pfad zur PEM-Datei mit Zertifikat und Schlüssel
-menu.hint_net_httpd_threading Ein: mehrere Anfragen zugleich; nötig, damit sich die Seiten der Weboberfläche von selbst aktualisieren
+menu.hint_net_httpd_threading Ein: mehrere Anfragen zugleich; aus: eine nach der anderen. Die Seiten der Weboberfläche aktualisieren sich in beiden Fällen von selbst
 menu.hint_net_httpd_user Benutzer für die Anmeldung an Weboberfläche und API (meist root)
 menu.hint_net_if Wählen Sie die Schnittstelle zur Konfiguration
 menu.hint_net_ipaddress Geben Sie die IP-Adresse für die Box ein
