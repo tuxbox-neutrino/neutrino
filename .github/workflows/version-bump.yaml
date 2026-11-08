@@ -16,6 +16,11 @@ on:
       # nothing but streamprobe pushes never starts its version line; the
       # next app push opens the then-current month instead.
       - "src/tools/streamprobe**"
+      # Nothing under doc/ is built into or installed with neutrino, so a
+      # push that touches only the documentation must not move configure.ac
+      # either. A push with code in it still bumps, and its micro counts
+      # the documentation commits since the line tag along with the rest.
+      - "doc/**"
 
 concurrency:
   group: configure-version-bump-${{ github.ref }}
