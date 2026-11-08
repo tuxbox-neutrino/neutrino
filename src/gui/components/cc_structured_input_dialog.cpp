@@ -701,8 +701,12 @@ void CCStructuredInputDialog::moveCursor(int delta)
 			segment->buffer.setCursor(cell - 1);
 			refreshSegment(csd_active);
 		}
-		else if (csd_active > 0)
-			focusSegment(csd_active - 1, csd_segments[csd_active - 1]->len - 1);
+		else
+		{
+			/* around from the first cell to the last */
+			const size_t prev = csd_active > 0 ? csd_active - 1 : csd_segments.size() - 1;
+			focusSegment(prev, csd_segments[prev]->len - 1);
+		}
 	}
 	else
 	{
@@ -711,8 +715,12 @@ void CCStructuredInputDialog::moveCursor(int delta)
 			segment->buffer.setCursor(cell + 1);
 			refreshSegment(csd_active);
 		}
-		else if (csd_active + 1 < csd_segments.size())
-			focusSegment(csd_active + 1, 0);
+		else
+		{
+			/* and from the last cell back to the first */
+			const size_t next = csd_active + 1 < csd_segments.size() ? csd_active + 1 : 0;
+			focusSegment(next, 0);
+		}
 	}
 }
 

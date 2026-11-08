@@ -24,10 +24,11 @@
  * them as text. Every cell is always filled - with zeros where nothing was
  * typed - and typing overwrites the cell under the cursor and moves on, into
  * the next segment at the end of one: an IP address is twelve digits in a
- * row. Left and right move over all cells, up and down step the cell under
- * the cursor through what it may hold, which is also how the hex letters of
- * a MAC address are reached. Green steps back and zeroes that cell, yellow
- * zeroes all of them. On a weekday mask the digits 1 to 7 switch a day.
+ * row. Left and right move over all cells, and around from the first cell
+ * to the last and back; up and down step the cell under the cursor through
+ * what it may hold, which is also how the hex letters of a MAC address are
+ * reached. Green steps back and zeroes that cell, yellow zeroes all of
+ * them. On a weekday mask the digits 1 to 7 switch a day.
  *
  * Save checks every segment against its range and the whole value against
  * its format - a date has to exist. The first segment that fails takes the
