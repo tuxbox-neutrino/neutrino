@@ -3381,11 +3381,13 @@ TIMER_START();
 	/* First, because the file read below is the one this writes. A box with
 	 * no file of its own gets one here on every start until it has one: the
 	 * file under its former name where there is one, taken over whole; else
-	 * the user name and the password out of nhttpd's own file where there is
-	 * one to carry, the password hashed rather than copied; and the login the
-	 * image ships otherwise. nhttpd stays the server and its file keeps the
-	 * port and the address, so this one holds the API layer's credentials and
-	 * policy. */
+	 * the user name and the password out of nhttpd's own file, the password
+	 * hashed rather than copied, except a password these boxes shipped with,
+	 * which is not carried and is replaced by a freshly drawn first password,
+	 * and no password at all where that file names none; and user root with a
+	 * first password where there is no such file or it cannot be carried.
+	 * nhttpd stays the server and its file keeps the port and the address, so
+	 * this one holds the API layer's credentials and policy. */
 	if (httpd::ensureConfigFile(HTTPD_SERVER_FILE, HTTPD_ACCESS_FILE, HTTPD_ACCESS_FORMER_FILE))
 		printf("[neutrino] web server access configuration written to %s\n", HTTPD_ACCESS_FILE);
 
