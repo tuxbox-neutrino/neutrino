@@ -225,7 +225,7 @@ const FieldDesc kWebserverFields[] = {
 	HTTPD_LIST_OF_VALUES("lan_read", ElementType::String,
 		"the networks a caller may read from without presenting anything, as this box compares them and not as a file happened to write them, and empty where nobody may"),
 	HTTPD_LIST_OF_VALUES("trusted_proxies", ElementType::String,
-		"the networks whose forwarded address is believed, and empty where nothing in front of this server is configured"),
+		"the networks whose forwarded address is believed, as this box read them; empty where the file has no trusted_proxies line, and also where the line is empty or none of its entries is a network, which still keeps reading without a password off"),
 	HTTPD_MEMBER("legacy_enabled", FieldType::Bool,
 		"whether the copied surface under /control/ is answered at all, which is a line of the file and not something this route writes"),
 	HTTPD_MEMBER("channel_logos", FieldType::Bool,
