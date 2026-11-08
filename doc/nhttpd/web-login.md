@@ -45,13 +45,19 @@ again.
 
 ## For programs using `/api/v1`
 
-- `GET /api/v1/session` answers `password_change_required: true` for a
-  caller that has signed in while the default password is in effect.
-- Until then, every route except `POST /api/v1/login`, `GET /api/v1/session`,
-  `POST /api/v1/logout` and `PUT /api/v1/account/password` refuses such a
-  caller with `403 password-change-required`. This applies to API tokens as
-  well. A caller that reads without a password from the home network
-  (`lan_read`) is not affected.
+- While the box still uses a password it shipped with, or a first password
+  it made up for itself, it holds back every caller that may write: a
+  session, and an API token of level `write` or `system`.
+  `GET /api/v1/session` answers `password_change_required: true` for such
+  a caller.
+- Until a password of your own is set, such a caller reaches only
+  `POST /api/v1/login`, `GET /api/v1/session`, `POST /api/v1/logout` and
+  `PUT /api/v1/account/password`. The password change needs level
+  `system`, so a `write` token reaches only the first three. Every other
+  route it could use refuses it with `403 password-change-required`, also
+  the routes that only read.
+- An API token of level `read`, and a caller that reads without a password
+  from the home network (`lan_read`), are not affected.
 - `PUT /api/v1/account/password` takes `{"current": "...", "password": "..."}`
   and answers `204` once the new password is in effect.
 - `PUT /api/v1/webserver` holds a new `password` to the same rules. Only the
