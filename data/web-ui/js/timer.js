@@ -222,11 +222,19 @@ function timerRow(timer) {
 	const rep = repeatText(timer);
 	const timeRange = clock(timer.start) + (timer.stop ? ' – ' + clock(timer.stop) : '');
 	const isRecording = typeNum === 5 || typeNum === 9;
+	// the recording a running timer carries, as the page's shared read of
+	// the recordings has it: a timer that runs is not yet a recording made.
+	// Known from before a failed read, the pill says so (stale).
+	const recs = webuiRecordingsNow();
+	const recorded = state === 2 && isRecording && recs.items.some(r => r.id === timer.id);
+	const recStale = webuiL('rec.status_stale', 'Recording status could not be refreshed');
 
 	const badges = [];
 	if (timer.repeat) badges.push(webuiEl('span', {className: 'webui-pill'}, rep));
 	if (state === 2) badges.push(webuiEl('span', {className: 'webui-pill ' + (isRecording || timer.kind === 'zapto' ? 'webui-timer-mark running' : 'ok')}, stateLabel));
 	else if (state >= 3) badges.push(webuiEl('span', {className: 'webui-pill'}, stateLabel));
+	if (recorded) badges.push(webuiEl('span', {className: 'webui-pill rec' + (recs.stale ? ' stale' : ''), title: recs.stale ? recStale : null},
+		webuiL('bc.recording', 'Recording'), recs.stale ? webuiEl('span', {className: 'webui-visually-hidden'}, '. ' + recStale) : null));
 
 	// one main action, the others in the menu
 	const actions = [];
@@ -333,6 +341,8 @@ webuiAfterTexts(function() {
 	// the timers are one stop of Tab: Up and Down go from row to row, Left
 	// and Right to the buttons of a row (Edit, More, Details)
 	webuiArrowKeys(document.getElementById('timerList'), '.webui-timer-actions button, .webui-timer-more', '', {near: true});
+	// a running timer's recording is marked from the page's shared read
+	webuiOnRecordings(() => { if (timersShown) renderTimerList(); });
 	loadTimers();
 	let opened = 0;
 	webuiV1Events({
@@ -343,6 +353,7 @@ webuiAfterTexts(function() {
 		'record-start': loadTimers,
 		'record-stop': loadTimers
 	});
+	// the recordings: without the stream the shared read reads them itself
 	setInterval(() => { if (!webuiV1EventsLive()) loadTimers(); }, 60000);
 });
 webuiV1('GET', '/channels/current').then(ch => {
@@ -351,6 +362,7 @@ webuiV1('GET', '/channels/current').then(ch => {
 
 if (typeof webuiSetRefreshCallback === 'function') {
 	webuiSetRefreshCallback(function() {
+		webuiRecordingsRead();
 		return loadTimers();
 	});
 }

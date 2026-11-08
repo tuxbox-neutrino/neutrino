@@ -940,17 +940,31 @@ function webuiEventTimerMark(items, compact) {
 		webuiEl('span', {className: compact ? 'webui-visually-hidden' : ''}, label.join(' · ')));
 }
 
-var _webuiEpgRecordingRead = 0;
+/* The dialog's Record says Stop recording while the box records its
+   channel, for the programme running now and where the box has no guide
+   for the channel. What the box records comes from the page's shared read
+   (webuiOnRecordings in webui-header.js), so opening the dialog reads
+   nothing; the dialog shown follows each read that comes back. */
+let _webuiEpgRecShown = 0;	// the dialog (its token) whose Record follows the recordings
+let _webuiEpgRecFollowed = false;
 
-function webuiEpgRecordingsSeen(items) {
-	document.dispatchEvent(new CustomEvent('webui-recordings-seen', {detail: items}));
+function _webuiEpgRecSeen(view) {
 	const modal = document.getElementById('webuiEpgModal');
-	if (!modal || !modal.classList.contains('open')) return;
-	++_webuiEpgRecordingRead;
-	if (!webuiEpgModalEvent || _webuiEpgRuns(webuiEpgModalEvent))
-		webuiEpgModalUpdateRecBtn(items.some(function(it) {
-			return !it.timeshift && it.channel_id === webuiEpgModalChannelId;
-		}));
+	if (!modal || !modal.classList.contains('open') || _webuiEpgRecShown !== _webuiEpgModalToken) return;
+	if (webuiEpgModalEvent && !_webuiEpgRuns(webuiEpgModalEvent)) return;	// over since it opened
+	webuiEpgModalUpdateRecBtn(view.items.some(function(it) {
+		return it.channel_id === webuiEpgModalChannelId;
+	}));
+}
+
+function _webuiEpgRecFollow() {
+	_webuiEpgRecShown = _webuiEpgModalToken;
+	if (_webuiEpgRecFollowed) {
+		_webuiEpgRecSeen(webuiRecordingsNow());
+	} else {
+		_webuiEpgRecFollowed = true;
+		webuiOnRecordings(_webuiEpgRecSeen);
+	}
 }
 
 function webuiEpgTimerMarks() {
@@ -1041,16 +1055,6 @@ async function webuiShowEpgModal(channelId, channelName, opts) {
 	modal.querySelector('.webui-epg-modal').setAttribute('aria-labelledby', 'webuiEpgModalChannel webuiEpgCurrentTitle');
 
 	webuiEpgModalUpdateRecBtn(false);
-	// Stop recording while the box records the channel: for the programme
-	// running now, and where the box has no guide for the channel
-	const recorded = function() {
-		const read = ++_webuiEpgRecordingRead;
-		webuiCheckRecordingForChannel(channelId, function(items) {
-			if (token === _webuiEpgModalToken && read === _webuiEpgRecordingRead) webuiEpgRecordingsSeen(items);
-		}).then(function(rec) {
-			if (token === _webuiEpgModalToken && read === _webuiEpgRecordingRead) webuiEpgModalUpdateRecBtn(!!rec);
-		});
-	};
 
 	try {
 		const ev = opts.event || await _webuiV1Maybe('/epg/current', {channel: channelId});
@@ -1058,7 +1062,7 @@ async function webuiShowEpgModal(channelId, channelName, opts) {
 		if (!ev) {
 			titleEl.textContent = webuiL('epg.nodata', 'No EPG data available');
 			timeEl.textContent = '';
-			recorded();
+			_webuiEpgRecFollow();
 			return;
 		}
 		webuiEpgModalEvent = ev;
@@ -1077,7 +1081,7 @@ async function webuiShowEpgModal(channelId, channelName, opts) {
 			document.getElementById('webuiEpgRunText').textContent = [
 				webuiL('epg.running_since', 'on since %s').replace('%s', webuiClock(ev.start)),
 				webuiL('dash.left', '%s left').replace('%s', _webuiEpgMinutes(end - now))].join(' · ');
-			recorded();
+			_webuiEpgRecFollow();
 		} else if (ev.start > now) {
 			document.getElementById('webuiEpgZapTimerBtn').hidden = false;
 		} else {
@@ -1517,20 +1521,12 @@ async function webuiRecordEvent(channelId, channelName, ev) {
 	}
 }
 
-// Ends a recording through DELETE /api/v1/recordings/{id}; without an id the
-// one the box is recording, its timeshift left out. The id is the timer the
-// recording carries, so a timer list can pass its own.
+// Ends a recording through DELETE /api/v1/recordings/{id}. The id is the
+// timer the recording carries, so a timer list can pass its own; a page
+// that has to find the recording first does so with a read at the press
+// (webuiRecordingsRead), never from the list it shows.
 async function webuiStopRecording(recordingId) {
 	try {
-		if (!recordingId) {
-			const r = await webuiV1('GET', '/recordings');
-			const rec = ((r && r.items) || []).find(function(it) { return !it.timeshift; });
-			if (!rec) {
-				webuiShowToast(webuiL('rec.stop_fail', 'Stop failed'), true);
-				return false;
-			}
-			recordingId = rec.id;
-		}
 		await webuiV1('DELETE', '/recordings/' + encodeURIComponent(recordingId));
 		webuiShowToast(webuiL('rec.stopped', 'Recording stopped'));
 		return true;
@@ -1545,17 +1541,33 @@ async function webuiStopRecording(recordingId) {
 async function webuiEpgModalToggleRec() {
 	const done = _webuiEpgModalOnTimer;
 	if (webuiEpgModalIsRecording) {
-		// this channel's recording and no other: one that ended since the
-		// dialog opened leaves nothing to stop here
-		const rec = await webuiCheckRecordingForChannel(webuiEpgModalChannelId);
-		if (!rec || await webuiStopRecording(rec.id))
-			webuiEpgModalUpdateRecBtn(false);
+		// this channel's recording and no other, as a read at the press finds
+		// it (with a sign-in where the box asks for one): one that ended since
+		// the dialog opened leaves nothing to stop here, and the button says
+		// Record again without a word; a read that fails stops nothing. The
+		// button shows that the press is under way, read and stop alike.
+		const busy = webuiWaitBegin(webuiWaitButton());
+		try {
+			const channelId = webuiEpgModalChannelId;
+			const view = await webuiRecordingsRead({signIn: true});
+			if (view.stale) {
+				webuiShowToast(webuiL('rec.stop_fail', 'Stop failed'), true);
+				return;
+			}
+			const rec = view.items.find(function(it) { return it.channel_id === channelId; });
+			if (!rec || await webuiStopRecording(rec.id))
+				webuiEpgModalUpdateRecBtn(false);
+		} finally {
+			busy();
+		}
 	} else if (await webuiRecordEvent()) {
 		if (done) done();
-		if (_webuiEpgRuns(webuiEpgModalEvent))
-			webuiCheckRecordingForChannel(webuiEpgModalChannelId).then(function(rec) { webuiEpgModalUpdateRecBtn(!!rec); });
-		else
+		// the recording begins when the box fires the timer; its record-start
+		// event marks the button, or without the event stream a read later
+		if (!_webuiEpgRuns(webuiEpgModalEvent))
 			webuiCloseEpgModal();
+		else
+			webuiRecordingsAfter();
 	}
 }
 
@@ -1571,17 +1583,4 @@ function webuiEpgModalUpdateRecBtn(isRecording) {
 	if (label) label.textContent = isRecording ? webuiL('rec.stop', 'Stop recording') :
 		later ? webuiL('rec.plan', 'Plan recording') : webuiL('rec.start', 'Record');
 	btn.classList.toggle('recording', isRecording);
-}
-
-// The recording the box is making of a channel, its timeshift left out, or null
-async function webuiCheckRecordingForChannel(channelId, onSeen) {
-	try {
-		const r = await webuiV1('GET', '/recordings');
-		if (onSeen) onSeen((r && r.items) || []);
-		return ((r && r.items) || []).find(function(it) {
-			return !it.timeshift && it.channel_id === channelId;
-		}) || null;
-	} catch (e) {
-		return null;
-	}
 }

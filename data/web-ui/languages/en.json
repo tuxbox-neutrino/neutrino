@@ -917,6 +917,7 @@
 	"rec.stop_fail": "Stop failed",
 	"rec.stop": "Stop recording",
 	"rec.start": "Record",
+	"rec.status_stale": "Recording status could not be refreshed",
 	"timer.type.1": "Shutdown",
 	"timer.type.3": "Zap",
 	"timer.type.4": "Standby",

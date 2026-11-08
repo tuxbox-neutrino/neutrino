@@ -1,5 +1,9 @@
 // The script of tools.html: the box control.
 
+// What the box records comes from the page's shared read, which asks for a
+// sign-in where the box refuses it, as the page's own reads do.
+webuiRecordingsSignIn();
+
 // A box action over /api/v1 ('POST /channels/reload')
 async function bcDo(label, endpoint, params) {
 	try {
@@ -126,20 +130,28 @@ async function bcWait(kind, before, drops) {
 			{retry: function() { location.reload(); }}));
 }
 
-// What the box records besides its shift, after GET /api/v1/recordings:
-// a pill beside the card's title
-async function bcRecState() {
+// What the box records besides its shift, from the page's shared read of
+// GET /api/v1/recordings (webuiOnRecordings): a pill beside the card's
+// title. A failed read keeps the pill and says it may be out of date, as
+// its tooltip and in words a screen reader reads with it; there is none
+// until a read answered.
+function bcRecState(view) {
 	var el = document.getElementById('bcRecState');
 	if (!el) return;
-	try {
-		var r = await webuiV1('GET', '/recordings');
-		var on = ((r && r.items) || []).some(function(it) { return !it.timeshift; });
-		el.hidden = false;
-		el.className = 'webui-pill' + (on ? ' rec' : '');
-		el.textContent = on ? webuiL('bc.rec_running', 'recording running') : webuiL('bc.rec_none', 'no recording');
-	} catch (e) {
+	if (!view.known) {
 		el.hidden = true;
+		return;
 	}
+	var on = view.items.length > 0;
+	var stale = webuiL('rec.status_stale', 'Recording status could not be refreshed');
+	el.hidden = false;
+	el.className = 'webui-pill' + (on ? ' rec' : '') + (view.stale ? ' stale' : '');
+	el.replaceChildren(on ? webuiL('bc.rec_running', 'recording running') : webuiL('bc.rec_none', 'no recording'),
+		view.stale ? webuiEl('span', {className: 'webui-visually-hidden'}, '. ' + stale) : '');
+	if (view.stale)
+		el.title = stale;
+	else
+		el.removeAttribute('title');
 }
 
 // The record key's recording: of the channel the box shows, after asking
@@ -155,7 +167,7 @@ async function bcRecStart() {
 		});
 		if (!ok) return;
 		webuiShowToast(webuiL('bc.rec_started', 'Recording started'));
-		setTimeout(bcRecState, 1500);
+		webuiRecordingsAfter();
 	} catch (e) {
 		if (e.code === 'recording-running')
 			webuiShowToast(webuiL('bc.rec_already', 'The channel the box shows is being recorded already'), true);
@@ -165,19 +177,28 @@ async function bcRecStart() {
 }
 
 // Ends the recording of the channel the box shows, else the first that
-// is not its shift, as the old stop did
+// is not its shift, as the old stop did; the recordings as a read at the
+// press finds them (webuiRecordingsRead), never as the pill showed them. A
+// read that fails, or none running, stops nothing. The button shows that
+// the press is under way, read and stop alike.
 async function bcRecStop() {
-	var id = null;
+	var busy = webuiWaitBegin(webuiWaitButton());
 	try {
-		var lists = await Promise.all([webuiV1('GET', '/recordings'), webuiV1('GET', '/channels/current')]);
-		var live = lists[1] && lists[1].id ? webuiLegacyChannelId(lists[1].id) : '';
-		var mine = ((lists[0] && lists[0].items) || []).find(function(it) {
-			return !it.timeshift && webuiLegacyChannelId(it.channel_id) === live;
-		});
-		if (mine) id = mine.id;
-	} catch (e) {}
-	await webuiStopRecording(id);
-	bcRecState();
+		var got = await Promise.all([webuiRecordingsRead({signIn: true}),
+			webuiV1('GET', '/channels/current').catch(function() { return null; })]);
+		var view = got[0], live = got[1] && got[1].id ? webuiLegacyChannelId(got[1].id) : '';
+		var rec = view.stale ? null : view.items.find(function(it) {
+			return webuiLegacyChannelId(it.channel_id) === live;
+		}) || view.items[0];
+		if (!rec) {
+			webuiShowToast(webuiL('rec.stop_fail', 'Stop failed'), true);
+			return;
+		}
+		if (await webuiStopRecording(rec.id))
+			webuiRecordingsAfter();
+	} finally {
+		busy();
+	}
 }
 
 // The video modes this box offers, from its settings schema, with the one
@@ -233,8 +254,8 @@ webuiAfterTexts(function() {
 	// the cards share their rows out evenly, as the dashboard's cards, down
 	// to a phone's width
 	webuiBalanceGrid('.webui-boxcontrol', {tracks: 60, cardMin: 380, maxPer: 4, breakpoint: 760, watch: true});
-	bcRecState();
+	webuiOnRecordings(bcRecState);
 	bcVideoLoad();
-	webuiV1Events({'record-start': bcRecState, 'record-stop': bcRecState,
-		error: function() { bcStreamDrops++; }});
+	// the stream the shared read follows the record events on
+	webuiV1Events({error: function() { bcStreamDrops++; }});
 });

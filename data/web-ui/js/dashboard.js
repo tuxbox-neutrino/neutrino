@@ -1,8 +1,11 @@
 // The script of dashboard.html: the dashboard, variant A of Phase 4 (what
 // runs now as a band, the tiles below it).
 
-// The head's number of set timers comes from this page's reads.
+// The head's number of set timers comes from this page's reads; what the
+// box records comes from the page's shared read, which asks for a sign-in
+// where the box refuses it, as the page's own reads do.
 webuiTimersFollowed();
+webuiRecordingsSignIn();
 
 // Show EPG info for current channel
 function showCurrentEpgInfo() {
@@ -68,6 +71,7 @@ const dash = {
 	now: null,		// the guide event running on the current channel
 	next: null,		// and the one after it
 	recordings: [],		// what the box records, its timeshift left out
+	recordingsStale: false,	// the last read of them failed: they are what it recorded before
 	timers: [],
 	timersRead: false,	// whether the timers were read once, so a failure later keeps them
 	timersAsked: 0,		// counts timer reads, so an older answer arriving last is dropped
@@ -324,13 +328,15 @@ function showPlayback() {
 	setText('play-state', (p.paused || p.state === 'paused') ? webuiL('dash.paused', 'Paused') : webuiL('dash.playback', 'Playback'));
 }
 
-// The pill beside the channel: a recording, else a playback, else nothing
+// The pill beside the channel: a recording, else a playback, else nothing.
+// A recording known from before a failed read keeps its pill, its dot still
+// (stale).
 function showState() {
 	withEl('now-state', function(el) {
 		const rec = dash.recordings.length > 0;
 		const play = playing();
 		el.hidden = !rec && !play;
-		el.className = 'webui-pill ' + (rec ? 'rec' : 'ok');
+		el.className = 'webui-pill ' + (rec ? 'rec' : 'ok') + (rec && dash.recordingsStale ? ' stale' : '');
 		el.textContent = rec ? RECORDING : play ? webuiL('dash.playback', 'Playback') : '';
 	});
 }
@@ -506,26 +512,33 @@ function playRecent(id) {
 	webuiPlayRecording(id);
 }
 
-// What the box records, from GET /api/v1/recordings; the time left comes
-// from the timer that carries the recording.
-async function refreshRecordings() {
-	const r = await dashGet('/recordings');
-	dash.recordings = ((r && r.items) || []).filter(function(it) { return !it.timeshift; });
-	await webuiEnsureNames(dash.recordings.map(function(it) { return it.channel_id; }));
-	showRecording();
-	showTimers();
+// What the box records, from the page's shared read of GET
+// /api/v1/recordings (webuiOnRecordings); the time left comes from the
+// timer that carries the recording. A read that failed keeps what was
+// shown and says that it may be out of date.
+function recordingsSeen(view) {
+	dash.recordings = view.items;
+	dash.recordingsStale = view.known && view.stale;
+	webuiEnsureNames(view.items.map(function(it) { return it.channel_id; })).then(function() {
+		showRecording();
+		showTimers();
+	});
 }
 
 function showRecording() {
 	const rec = dash.recordings[0] || null;
 	const isRecording = !!rec;
-	withEl('rec-info', function(el) { el.hidden = !isRecording; });
+	withEl('rec-info', function(el) {
+		el.hidden = !isRecording;
+		const pill = el.querySelector('.webui-pill');
+		if (pill) pill.classList.toggle('stale', dash.recordingsStale);
+	});
 	showState();
-	webuiEpgRecordingsSeen(dash.recordings);
 
 	const recBtn = document.getElementById('rec-btn');
 	if (recBtn) {
 		recBtn.classList.toggle('recording', isRecording);
+		recBtn.classList.toggle('stale', isRecording && dash.recordingsStale);
 		recBtn.classList.add('webui-record-btn');
 		recBtn.querySelector('span').textContent = isRecording ? webuiL('dash.record_stop', 'Stop recording') : webuiL('dash.record', 'Record');
 	}
@@ -536,22 +549,47 @@ function showRecording() {
 	const left = timer && remaining(timer.stop);
 	setText('rec-title', rec.title || channel || RECORDING);
 	setText('rec-channel', rec.title && channel ? channel : '');
-	setText('rec-remaining', left ? webuiL('dash.left', '%s left').replace('%s', left) : '');
+	setText('rec-remaining', dash.recordingsStale ? webuiL('rec.status_stale', 'Recording status could not be refreshed')
+		: left ? webuiL('dash.left', '%s left').replace('%s', left) : '');
 }
 
 // Recording and stopping go through the helpers the EPG dialog and the
 // channel list share (webui-v1.js): what runs now is recorded, the
 // recording shown is ended. What they change comes back as record and
 // timer events.
-function toggleRecording() {
+async function toggleRecording() {
 	const btn = document.getElementById('rec-btn');
 	if (!btn) return;
 	if (btn.classList.contains('recording'))
-		webuiStopRecording(dash.recordings[0] ? dash.recordings[0].id : null);
+		await stopShownRecording();
 	else if (dash.channel)
 		webuiRecordEvent(dash.channel.id, dash.channel.name, dash.now);
 	// without the event stream nothing would say so
-	setTimeout(function() { if (!webuiV1EventsLive()) refreshEvented(); }, 1500);
+	setTimeout(function() { if (!webuiV1EventsLive()) refreshEvented(true); }, 1500);
+}
+
+// The recording the band shows, as a read at the press finds it
+// (webuiRecordingsRead), and no other: one that ended since leaves nothing
+// to stop, and the band follows that read without a word; a read that
+// fails stops nothing. Called by the click before its first await, so the
+// button shows that the press is under way, read and stop alike.
+async function stopShownRecording() {
+	const busy = webuiWaitBegin(webuiWaitButton());
+	try {
+		const shown = dash.recordings[0] ? dash.recordings[0].id : null;
+		const view = await webuiRecordingsRead({signIn: true});
+		if (view.stale) {
+			webuiShowToast(webuiL('rec.stop_fail', 'Stop failed'), true);
+			return;
+		}
+		const rec = shown === null ? null : view.items.find(function(it) { return it.id === shown; });
+		if (rec)
+			await webuiStopRecording(rec.id);
+		else
+			showRecording();
+	} finally {
+		busy();
+	}
 }
 
 // Standby: wake a sleeping box, put an awake one to sleep after asking,
@@ -954,7 +992,7 @@ function showTimers() {
 			return webuiEl('li', {className: 'webui-dash-row'},
 				webuiEl('b', {}, left ? webuiL('dash.left', '%s left').replace('%s', left) : RECORDING),
 				webuiEl('span', {}, timer.title || channel || RECORDING, what ? webuiEl('small', {}, what) : null),
-				webuiEl('span', {className: 'webui-pill rec'}, RECORDING));
+				webuiEl('span', {className: 'webui-pill rec' + (dash.recordingsStale ? ' stale' : '')}, RECORDING));
 		}
 		return webuiEl('li', {className: 'webui-dash-row'},
 			webuiEl('b', {}, dayAndClock(timer.start)),
@@ -965,12 +1003,15 @@ function showTimers() {
 
 // Everything the event stream keeps current, read again: on reconnect
 // (events may have been missed), on pull-to-refresh, and on a timer while
-// the stream is not open.
-function refreshEvented() {
+// the stream is not open. The shared read has the recordings on load, after
+// a reconnect and, without the stream, every minute; a pull-to-refresh and
+// the read after a press (fresh) ask for them too.
+function refreshEvented(fresh) {
 	refreshStandby();
 	refreshChannel(true);
 	refreshPlayback();
-	refreshRecordings();
+	if (fresh)
+		webuiRecordingsRead();
 	refreshTimers();
 	refreshVolume();
 }
@@ -989,8 +1030,8 @@ function followTheBox() {
 			loadStreamInfo();
 		},
 		standby: function() { refreshStandby(); refreshChannel(false); refreshPlayback(); webuiPowerRead(); },
-		'record-start': function() { refreshTimers().then(refreshRecordings); },
-		'record-stop': function() { refreshTimers().then(refreshRecordings); refreshRecent(); },
+		'record-start': refreshTimers,
+		'record-stop': function() { refreshTimers(); refreshRecent(); },
 		'timer-changed': refreshTimers,
 		'epg-updated': function(d) {
 			if (d && dash.channel && sameLow48(d.channel_id, dash.channel.id))
@@ -1225,6 +1266,7 @@ webuiAfterTexts(function() {
 	withEl('net-list', function(el) { el.replaceChildren(webuiEl('li', {}, webuiState('loading', webuiL('msg.loading', 'Loading...'), ''))); });
 	initVolume();
 
+	webuiOnRecordings(recordingsSeen);
 	refreshEvented();
 	followTheBox();
 	loadSystemInfo();
@@ -1236,7 +1278,8 @@ webuiAfterTexts(function() {
 	whileVisible(30000, loadSystemInfo);
 	whileVisible(5000, loadTunerStatus);
 	whileVisible(30000, loadStreamInfo);
-	// Without an open event stream the evented tiles are asked as well
+	// Without an open event stream the evented tiles are asked as well; the
+	// recordings without the stream the shared read reads itself
 	whileVisible(30000, function() { if (!webuiV1EventsLive()) refreshEvented(); });
 	// Counted here between events: guide progress, time left, playback position
 	setInterval(tickGuide, 15000);
@@ -1252,7 +1295,7 @@ webuiAfterTexts(function() {
 	// Register pull-to-refresh callback
 	if (typeof webuiSetRefreshCallback === 'function') {
 		webuiSetRefreshCallback(function() {
-			refreshEvented();
+			refreshEvented(true);
 			loadSystemInfo();
 			loadTunerStatus();
 			loadStreamInfo();

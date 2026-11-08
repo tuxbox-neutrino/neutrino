@@ -5275,6 +5275,21 @@ body.webui-signin {
 	}
 }
 
+/* A recording known from a read before the last one failed: the dot a
+   still ring, so the mark no longer claims that the recording runs now;
+   the words say why (rec.status_stale). The record button's dot stands
+   still as well. */
+.webui-pill.rec.stale::before,
+.webui-pill.stale::before {
+	background: transparent;
+	box-shadow: inset 0 0 0 1.5px currentColor;
+	animation: none;
+}
+
+.webui-record-btn.recording.stale > svg circle {
+	animation: none;
+}
+
 /* The room a remote fills (.webui-rc-area): its full-screen view, and on a
    phone or a tablet also the remote page and the dashboard's window, which
    fill the screen there anyway. The keys are sized to that room as a size

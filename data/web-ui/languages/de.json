@@ -917,6 +917,7 @@
 	"rec.stop_fail": "Fehler beim Stoppen",
 	"rec.stop": "Aufnahme stoppen",
 	"rec.start": "Aufnehmen",
+	"rec.status_stale": "Aufnahmestatus konnte nicht aktualisiert werden",
 	"timer.type.1": "Shutdown",
 	"timer.type.3": "Umschalten",
 	"timer.type.4": "Standby",

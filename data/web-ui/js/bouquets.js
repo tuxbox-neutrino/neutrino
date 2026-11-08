@@ -8,6 +8,11 @@ let currentMode = 'tv';		// the list shown: the one the box plays from
 let currentBouquetNumber = '';	// the v1 bouquet id, '' for all channels
 let bouquetsData = [];		// the bouquets of that list, hidden ones left out
 let recordedIds = new Set();	// the channels the box records now
+let recordedStale = false;	// the last read of them failed: they are the ones recorded before
+
+// What the box records comes from the page's shared read, which asks for a
+// sign-in where the box refuses it, as the page's own reads do.
+webuiRecordingsSignIn();
 
 const SVG_INFO = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg>';
 const SVG_REC = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="12" cy="12" r="6"/></svg>';
@@ -54,11 +59,11 @@ async function loadCurrentChannel() {
 	currentMode = ch && (ch.kind === 'radio' || ch.kind === 'webradio') ? 'radio' : 'tv';
 }
 
-// What the box records now, for the rows' state
-async function loadRecorded() {
-	const r = await webuiV1('GET', '/recordings').catch(() => null);
-	if (r) webuiEpgRecordingsSeen(r.items || []);
-	recordedIds = new Set(((r && r.items) || []).filter(it => !it.timeshift).map(it => it.channel_id));
+// What the box records now, for the rows' state, from the page's shared
+// read (webuiOnRecordings)
+function recordingsSeen(view) {
+	recordedIds = new Set(view.items.map(it => it.channel_id));
+	recordedStale = view.known && view.stale;
 	markCurrent();
 }
 
@@ -394,11 +399,15 @@ function markCurrent() {
 		const recorded = recordedIds.has(row.dataset.id);
 		row.setAttribute('aria-current', current ? 'true' : 'false');
 		const state = row.querySelector('.webui-channel-state');
-		const want = recorded ? 'rec' : current ? 'ok' : '';
+		const want = recorded ? (recordedStale ? 'rec stale' : 'rec') : current ? 'ok' : '';
 		if (state.dataset.state !== want) {
+			// a recording known from before a failed read says so, as the
+			// pill's tooltip and in words a screen reader reads with it
+			const stale = recorded && recordedStale ? webuiL('rec.status_stale', 'Recording status could not be refreshed') : '';
 			state.dataset.state = want;
-			state.replaceChildren(want ? webuiEl('span', {className: 'webui-pill ' + want},
-				recorded ? webuiL('bc.recording', 'Recording') : webuiL('bq.live', 'On now')) : '');
+			state.replaceChildren(want ? webuiEl('span', {className: 'webui-pill ' + want, title: stale || null},
+				recorded ? webuiL('bc.recording', 'Recording') : webuiL('bq.live', 'On now'),
+				stale ? webuiEl('span', {className: 'webui-visually-hidden'}, '. ' + stale) : null) : '');
 		}
 		row.querySelector('.webui-channel-zap').hidden = current;
 		const logo = row.querySelector('.webui-channel-logo');
@@ -440,8 +449,12 @@ function epgUpdated(d) {
 
 // Initialize once the texts are in; a zap from anywhere else (remote
 // control, timer) moves the mark, a recording that starts or stops marks
-// its row, and news of the guide updates the rows it concerns
-webuiAfterTexts(() => loadCurrentChannel().then(() => { loadBouquets(); loadRecorded(); }));
+// its row (the shared read follows the record events), and news of the
+// guide updates the rows it concerns
+webuiAfterTexts(() => {
+	webuiOnRecordings(recordingsSeen);
+	return loadCurrentChannel().then(loadBouquets);
+});
 let zapRead = 0;	// an older answer arriving after a newer one is dropped
 webuiAfterTexts(() => webuiV1Events({
 	zap: async function() {
@@ -454,13 +467,11 @@ webuiAfterTexts(() => webuiV1Events({
 		if (currentMode !== mode) loadBouquets();	// the box switched lists
 		else markCurrent();
 	},
-	'record-start': loadRecorded,
-	'record-stop': loadRecorded,
 	'epg-updated': epgUpdated
 }));
 
 if (typeof webuiSetRefreshCallback === 'function') {
 	webuiSetRefreshCallback(function() {
-		return loadCurrentChannel().then(() => { loadRecorded(); return loadBouquets(); });
+		return loadCurrentChannel().then(() => { webuiRecordingsRead(); return loadBouquets(); });
 	});
 }

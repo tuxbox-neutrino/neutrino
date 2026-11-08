@@ -269,6 +269,139 @@ function _webuiSideLink(p, area, page) {
 	return li;
 }
 
+/* What the head keeps of a list the box hands out and several parts of a
+   page show: the list the last read that answered brought, whether a read
+   failed after it (stale: what is shown may be older than it looks), and
+   whom to tell. Reads go out one at a time: one asked for while another is
+   under way follows it once, however often it was asked for meanwhile, and
+   the events of a moment lead to one read 300 ms after the last of them. A
+   page whose own reads asked for a sign-in when the box refused sets
+   signIn, so the shared read does the same there; elsewhere it reads
+   silently, as the head does. A read at a press asks for a sign-in on
+   every page, a read the keeper makes by itself without a live stream on
+   none (_webuiKeeperRead's mode). */
+function _webuiKeeper(path, keep) {
+	return {path: path, keep: keep, items: null, stale: false, listeners: [],
+		reading: null, again: false, later: null, signIn: false, ask: false, read: 0,
+		started: false, over: false, early: false};
+}
+
+// What a listener gets: the list (empty while none is known), whether one
+// is known, and whether the last read failed
+function _webuiKeeperView(k) {
+	return {items: k.items || [], known: k.items !== null, stale: k.stale};
+}
+
+// A list (an array) replaces the one kept, a failed read (null) keeps it as
+// stale; either way everyone listening hears of it
+function _webuiKeeperTake(k, items) {
+	if (Array.isArray(items)) {
+		k.items = k.keep ? items.filter(k.keep) : items.slice();
+		k.stale = false;
+	} else {
+		k.stale = true;
+	}
+	var view = _webuiKeeperView(k);
+	k.listeners.slice().forEach(function(fn) {
+		try {
+			fn(view);
+		} catch (e) {
+			console.error(e);
+		}
+	});
+}
+
+// The first read came back, with a list or without. When the stream opened
+// while it was under way, perhaps after a sign-in that read went out
+// before, a first read without a list is made once more.
+function _webuiKeeperFirstBack(k, items) {
+	if (k.over)
+		return;
+	k.over = true;
+	if (items === null && k.early)
+		_webuiKeeperSoon(k);
+}
+
+// A read now, or once more after the one under way; settles with the view
+// once no read is owed any more. mode 'signIn' asks for a sign-in when the
+// box refuses (a read at a press), 'quiet' never (the keeper's own reads
+// without a live stream), else as the page does (k.signIn); a read owed
+// with a sign-in asks for one, whatever else was owed with it.
+function _webuiKeeperRead(k, mode) {
+	clearTimeout(k.later);
+	k.later = null;
+	if (mode === 'signIn' || (mode !== 'quiet' && k.signIn))
+		k.ask = true;
+	if (k.reading) {
+		k.again = true;
+		return k.reading;
+	}
+	k.reading = (async function() {
+		do {
+			k.again = false;
+			var read = ++k.read;
+			var ask = k.ask;
+			k.ask = false;
+			var items = null;
+			try {
+				var r = ask ? await webuiV1('GET', k.path) : await _webuiV1Read(k.path);
+				if (r && Array.isArray(r.items))
+					items = r.items;
+			} catch (e) { /* items stays null: the read failed */ }
+			_webuiKeeperFirstBack(k, items);
+			// a list handed in meanwhile is newer than this answer
+			if (read === k.read)
+				_webuiKeeperTake(k, items);
+		} while (k.again);
+		k.reading = null;
+		return _webuiKeeperView(k);
+	})();
+	return k.reading;
+}
+
+// One read soon, once the events of the moment are in.
+function _webuiKeeperSoon(k) {
+	clearTimeout(k.later);
+	k.later = setTimeout(function() { _webuiKeeperRead(k); }, 300);
+}
+
+// Without a live event stream (a page that opens none, one the box refused
+// or closed) nothing says that the list changed: the keeper reads again when
+// the page comes back into view and every minute while it is shown. These
+// reads stand beside the one per change, are not made while the stream is
+// live, and never ask for a sign-in: a stream the box refused would bring
+// the dialog back every minute. A sign-in elsewhere opens the stream again,
+// and its opening reads.
+var WEBUI_KEEPER_POLL = 60000;
+function _webuiKeeperPoll(k) {
+	var again = function() {
+		if (document.hidden || (typeof webuiV1EventsLive === 'function' && webuiV1EventsLive()))
+			return;
+		_webuiKeeperRead(k, 'quiet');
+	};
+	document.addEventListener('visibilitychange', again);
+	setInterval(again, WEBUI_KEEPER_POLL);
+}
+
+// Reads again on each of the events named and when the stream comes back
+// after a gap; at its first opening only when the first read brought no
+// list (refused until a sign-in opened the stream), and while that read is
+// under way once it is back without one
+function _webuiKeeperFollow(k, events) {
+	if (typeof webuiV1Watch !== 'function')
+		return;
+	var opened = 0;
+	events.forEach(function(name) {
+		webuiV1Watch(name, function() { _webuiKeeperSoon(k); });
+	});
+	webuiV1Watch('open', function() {
+		if (opened++ || (k.over && k.items === null))
+			_webuiKeeperSoon(k);
+		else if (!k.over)
+			k.early = true;
+	});
+}
+
 /* The number of timers set (planned, announced or running: state below
    3) as a badge beside "Timer" in the side bar and the tab bar. It is read
    once per page, silently (nothing is asked when the box refuses to
@@ -369,6 +502,69 @@ function webuiTimersSeen(items) {
 	++_webuiTimerCountRead;		// a read of the head still under way is older
 	_webuiTimerCount = items.filter(function(t) { return t.state < 3; }).length;
 	_webuiTimerCountPaint();
+}
+
+/* The recordings the box is making (GET /api/v1/recordings, its timeshift
+   left out), read once for the page and shared by everything on it that
+   shows them: the parts of the page register with webuiOnRecordings(fn)
+   instead of reading themselves. The first registration reads, a
+   record-start or record-stop event reads again, as does the stream coming
+   back after a gap; without a live stream the keeper reads every minute
+   while the page is shown (_webuiKeeperPoll). A page whose own reads asked
+   for a sign-in when the box refused says webuiRecordingsSignIn() at the
+   top of its script, so the shared read asks too. fn(view) hears of every
+   read that came back, at once as well when one already has: view.items
+   the recordings, view.known whether a read ever answered, view.stale
+   whether the last read failed, so view.items is what was recorded before.
+   webuiRecordingsNow() is the view of the moment, for what is shown;
+   webuiRecordingsRead() reads now and settles with the view after it: a
+   pull to refresh, and every stop that has to find its recording, which
+   takes its target from that read and never from the view shown (a stale
+   one means the read failed); a stop by a timer's own id (the timer list)
+   needs no read. webuiRecordingsRead({signIn: true}) is the read at a
+   press, which asks for a sign-in on every page. webuiRecordingsAfter()
+   reads 1.5 s after an action that starts or stops one, where no event
+   stream will say so. */
+var _webuiRecordings = _webuiKeeper('/recordings', function(it) { return !it.timeshift; });
+
+function webuiRecordingsSignIn() {
+	_webuiRecordings.signIn = true;
+}
+
+function _webuiRecordingsStart() {
+	var k = _webuiRecordings;
+	if (k.started)
+		return false;
+	k.started = true;
+	_webuiKeeperRead(k);
+	_webuiKeeperFollow(k, ['record-start', 'record-stop']);
+	_webuiKeeperPoll(k);
+	return true;
+}
+
+function webuiOnRecordings(fn) {
+	var k = _webuiRecordings;
+	k.listeners.push(fn);
+	if (k.items !== null || k.stale)
+		fn(_webuiKeeperView(k));
+	_webuiRecordingsStart();
+}
+
+function webuiRecordingsNow() {
+	return _webuiKeeperView(_webuiRecordings);
+}
+
+function webuiRecordingsRead(opts) {
+	var k = _webuiRecordings;
+	if (_webuiRecordingsStart())
+		return k.reading;
+	return _webuiKeeperRead(k, opts && opts.signIn ? 'signIn' : '');
+}
+
+function webuiRecordingsAfter() {
+	if (typeof webuiV1EventsLive === 'function' && webuiV1EventsLive())
+		return;
+	setTimeout(webuiRecordingsRead, 1500);
 }
 
 // Reads the number on the first call and follows the timer events from then
