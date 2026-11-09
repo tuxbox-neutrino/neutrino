@@ -393,8 +393,18 @@ Response changePassword(const Request &r)
 	std::string why;
 	if (!acceptablePassword(password, current, why))
 		return problemResponse(StatusBadRequest, coreapi::ErrorCode::BadString, why);
-	const std::string keep = sessionIsLive(r.session()) ? r.session() : std::string();
-	if (!login_bridge::change(std::string(), password, &why, NULL, keep))
+
+	/* The account's lock from here to the write, and under it a second look at what
+	   the check above found. A reset at the box or another change landing since then
+	   leaves the current password checked against an account that is gone, and this
+	   request writes nothing. */
+	login_bridge::Admitted admitted;
+	admitted.revision = cfg.revision;
+	admitted.session = sessionIsLive(r.session()) ? r.session() : std::string();
+	login_bridge::Transaction account;
+	if (!account.admits(admitted, &why))
+		return problemResponse(StatusForbidden, coreapi::ErrorCode::NotPermitted, why);
+	if (!account.change(std::string(), password, &why))
 		return problemResponse(StatusInternalServerError, coreapi::ErrorCode::WebserverNotConfigured,
 		                       "the password could not be changed: " + why);
 	return noContent();
@@ -597,7 +607,8 @@ const Endpoint kAuthEndpoints[] = {
 	  "**Refusals:**\n"
 	  "- `400 bad-string`: the new password is too short, holds a control character, is one these "
 	  "boxes have shipped with, or is the one it replaces; the detail says which.\n"
-	  "- `403 not-permitted`: `current` is not the password in effect.\n"
+	  "- `403 not-permitted`: `current` is not the password in effect, or the account changed or the "
+	  "session asking ended while the request was being checked; nothing is written then.\n"
 	  "- `429 too-many-attempts`: wrong passwords were sent from this address too often, or too many "
 	  "are being checked at once; `Retry-After` says how long to wait.\n"
 	  "- `500 webserver-not-configured`: the box could not write the new password; the old one stays "

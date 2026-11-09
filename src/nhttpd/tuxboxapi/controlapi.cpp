@@ -5261,8 +5261,12 @@ void CControlAPI::ConfigCGI(CyhookHandler *hh)
 	   front of this asks who the caller is, and the account is what opens the REST
 	   layer, so a request naming it is taken only from a signed-in caller or from the
 	   box itself, where root can write nhttpd-access.conf anyway. That is decided
-	   here, before any lock is taken (login_bridge::mayChange); refused, nothing of
-	   the request is written, the other keys of the file included. */
+	   here: login_bridge::mayChange before any lock is taken, so no key derivation
+	   runs under one, and then a second look under the account's lock, held to the
+	   last write, so a reset at the box or another change landing in between leaves
+	   the request unwritten. Refused by either, nothing of the request is written,
+	   the other keys of the file included, and those are written only once the
+	   account went through. */
 	std::string login_user, login_password;
 	if (configFileName == "nhttpd" && !load) {
 		for (CStringList::iterator it = hh->ParamList.begin(); it != hh->ParamList.end(); ++it) {
@@ -5275,13 +5279,23 @@ void CControlAPI::ConfigCGI(CyhookHandler *hh)
 	}
 	const bool names_account = !login_user.empty() || !login_password.empty();
 	login_bridge::Ask from;
-	// the session that let the request in, which stays signed in across the change
-	std::string keep_session;
+	// the account's lock, from the second look below to the last write
+	login_bridge::Transaction *account = NULL;
 	if (names_account) {
 		std::string why;
+		login_bridge::Admitted admitted;
 		from = CmAuth::AskOf(hh);
-		if (!login_bridge::mayChange(from, login_user, login_password, &why, &keep_session))
+		if (!login_bridge::mayChange(from, login_user, login_password, &why, &admitted))
 			error = "the settings were not written: " + why;
+		else {
+			account = new login_bridge::Transaction;
+			if (!account->admits(admitted, &why)) {
+				error = "the settings were not written: " + why;
+				// nothing is written from here on: the account's lock goes at once
+				delete account;
+				account = NULL;
+			}
+		}
 	}
 	const bool refused = !error.empty();
 
@@ -5291,9 +5305,10 @@ void CControlAPI::ConfigCGI(CyhookHandler *hh)
 	if (configFileName == "yweb")
 		yweb_lock = new coreapi::webui::FileLock;
 	/* nhttpd's own file likewise, against the REST route, the menu at the box and
-	   nhttpd's own read of it. Released before the account is changed below,
-	   whose lock is taken before this one everywhere else. A refused request
-	   neither takes it nor reads the file. */
+	   nhttpd's own read of it. Taken inside the account's transaction where the
+	   request names the account, that lock coming first everywhere, and released
+	   before nhttpd reads the file again. A refused request neither takes it nor
+	   reads the file. */
 	httpd::ServerFileLock *server_lock = NULL;
 	if (configFileName == "nhttpd" && !refused)
 		server_lock = new httpd::ServerFileLock;
@@ -5368,16 +5383,20 @@ void CControlAPI::ConfigCGI(CyhookHandler *hh)
 					Config->setString(key, it->second);
 			}
 			if (configFileName == "nhttpd") {
-				// the file first and under its lock, the account after it
-				if (!httpd::saveServerFile(config_filename, Config->getConfigDataMap()))
-					error = "the settings were not written: " + config_filename;
-				delete server_lock;
-				server_lock = NULL;
-				if (names_account) {
+				// the account first, inside its transaction, and the other keys
+				// only once it went through
+				if (account != NULL) {
 					std::string why;
-					if (!login_bridge::change(login_user, login_password, &why, &from, keep_session))
+					if (!account->change(login_user, login_password, &why, &from))
 						error = "the login was not changed: " + why;
 				}
+				if (error.empty() && !httpd::saveServerFile(config_filename, Config->getConfigDataMap()))
+					error = "the settings were not written: " + config_filename;
+				// both locks given up before nhttpd reads its file again, which takes nhttpd.conf's
+				delete server_lock;
+				server_lock = NULL;
+				delete account;
+				account = NULL;
 				// pick up new auth credentials without a restart,
 				// same as the legacy do_reload_httpd_config block
 				yhttpd_reload_config();
@@ -5421,6 +5440,7 @@ void CControlAPI::ConfigCGI(CyhookHandler *hh)
 	if (own_config)
 		delete Config;
 	delete server_lock;
+	delete account;
 	delete yweb_lock;
 }
 

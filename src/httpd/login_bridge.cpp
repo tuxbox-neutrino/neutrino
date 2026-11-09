@@ -23,6 +23,7 @@
 #include <cstdio>
 #include <cstring>
 #include <deque>
+#include <new>
 
 #include <strings.h>
 
@@ -83,6 +84,11 @@ bool fromThisBox(const Ask &a)
 
 // What a change to the account that fromThisBox refuses is answered with.
 const char kOnlyFromThisBox[] = "the account is changed only from a page of this box";
+
+// What a change Transaction::admits refuses is answered with.
+const char kAccountMoved[] = "the account changed while the request was being checked";
+const char kSessionEnded[] = "the session the request came with ended while it was being checked";
+const char kNotChanged[]   = "the account could not be changed";
 
 /* What a right Basic pair is remembered as: a digest keyed with a secret this
    process drew for itself, beside the stored form it was checked against. The
@@ -275,14 +281,19 @@ bool basicAdmits(const Ask &a)
 }
 
 bool mayChange(const Ask &a, const std::string &user, const std::string &password, std::string *why,
-               std::string *session)
+               Admitted *admitted)
 {
 	if (why != NULL)
 		why->clear();
-	if (session != NULL)
-		session->clear();
+	if (admitted != NULL)
+		*admitted = Admitted();
 	try
 	{
+		/* Before anything is checked against the account: a change landing while the
+		   check runs then reads as one that landed after it, and the transaction that
+		   follows refuses. Read after, it could name an account the check never saw. */
+		const unsigned long long revision = httpd::accountRevision();
+
 		if (!fromThisBox(a))
 		{
 			if (why != NULL)
@@ -314,16 +325,21 @@ bool mayChange(const Ask &a, const std::string &user, const std::string &passwor
 			return false;
 		if (!password.empty() && !httpd::passwordAcceptable(password, why))
 			return false;
-		if (by_session && session != NULL)
-			*session = httpd::cookieValue(a.cookie, httpd::sessionCookieName());
+		if (admitted != NULL)
+		{
+			admitted->revision = revision;
+			if (by_session)
+				admitted->session = httpd::cookieValue(a.cookie, httpd::sessionCookieName());
+			admitted->owed_refuses = true;
+		}
 		return true;
 	}
 	catch (...)
 	{
 		if (why != NULL)
-			*why = "the account could not be changed";
-		if (session != NULL)
-			session->clear();
+			*why = kNotChanged;
+		if (admitted != NULL)
+			*admitted = Admitted();
 		return false;
 	}
 }
@@ -522,12 +538,16 @@ bool resetToFirstPassword(std::string *first, std::string *why)
 	}
 }
 
-bool change(const std::string &user, const std::string &password, std::string *why,
-            const Ask *from, const std::string &keep_session)
+namespace
 {
-	if (why != NULL)
-		why->clear();
-	try
+
+/* The change Transaction::change makes, with the account's lock held by the caller
+   across reading what is in effect, writing the file and publishing: shared with load,
+   a reload installing a configuration in between would otherwise leave the published
+   account older than the file. */
+bool changeHeld(const std::string &user, const std::string &password, std::string *why,
+                const Ask *from, const std::string &keep_session)
+{
 	{
 		// the rules every writer of the password is held to
 		if (!password.empty() && !httpd::passwordAcceptable(password, why))
@@ -539,11 +559,6 @@ bool change(const std::string &user, const std::string &password, std::string *w
 				*why = kOnlyFromThisBox;
 			return false;
 		}
-
-		/* Across reading what is in effect, writing the file and publishing, and
-		   shared with load: a reload installing a configuration in between would
-		   otherwise leave the published account older than the file. */
-		httpd::AccountLock held;
 
 		const std::string path = httpd::configPath();
 		if (path.empty())
@@ -595,12 +610,99 @@ bool change(const std::string &user, const std::string &password, std::string *w
 			(void) httpd::carrySession(keep_session, before.revision, revision);
 		return true;
 	}
+}
+
+} // namespace
+
+Transaction::Transaction() : held_(NULL), refused_(false)
+{
+	try
+	{
+		held_ = new (std::nothrow) httpd::AccountLock;
+	}
+	catch (...)
+	{
+		held_ = NULL;
+	}
+}
+
+Transaction::~Transaction()
+{
+	forget(keep_);
+	delete held_;
+}
+
+bool Transaction::admits(const Admitted &a, std::string *why)
+{
+	if (why != NULL)
+		why->clear();
+	forget(keep_);
+	refused_ = true;
+	try
+	{
+		if (held_ == NULL)
+		{
+			if (why != NULL)
+				*why = kNotChanged;
+			return false;
+		}
+		if (httpd::accountRevision() != a.revision)
+		{
+			if (why != NULL)
+				*why = kAccountMoved;
+			return false;
+		}
+		if (!a.session.empty() && !httpd::sessionIsLive(a.session))
+		{
+			if (why != NULL)
+				*why = kSessionEnded;
+			return false;
+		}
+		if (a.owed_refuses && passwordOwed())
+		{
+			if (why != NULL)
+				*why = httpd::passwordChangeRequiredDetail();
+			return false;
+		}
+		keep_ = a.session;
+		refused_ = false;
+		return true;
+	}
 	catch (...)
 	{
 		if (why != NULL)
-			*why = "the account could not be changed";
+			*why = kNotChanged;
 		return false;
 	}
+}
+
+bool Transaction::change(const std::string &user, const std::string &password, std::string *why,
+                         const Ask *from)
+{
+	if (why != NULL)
+		why->clear();
+	if (held_ == NULL || refused_)
+	{
+		if (why != NULL)
+			*why = kNotChanged;
+		return false;
+	}
+	try
+	{
+		return changeHeld(user, password, why, from, keep_);
+	}
+	catch (...)
+	{
+		if (why != NULL)
+			*why = kNotChanged;
+		return false;
+	}
+}
+
+bool change(const std::string &user, const std::string &password, std::string *why)
+{
+	Transaction account;
+	return account.change(user, password, why);
 }
 
 } // namespace login_bridge

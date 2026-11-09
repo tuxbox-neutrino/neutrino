@@ -22,6 +22,11 @@
 
 #include <string>
 
+namespace httpd
+{
+class AccountLock;
+}
+
 namespace login_bridge
 {
 
@@ -91,11 +96,66 @@ bool basicAdmits(const Ask &a);
    for nothing. An address the old server lets in without a login
    (mod_auth.no_auth_client) is none of these.
 
-   session, when it is not null, is left carrying the token of the session that lets
-   the request in where one does, and empty otherwise: the session change() keeps
-   signed in. */
+   admitted, when it is not null, is left carrying what the request was found to be,
+   for the transaction below to look at again under the account's lock. */
+struct Admitted
+{
+	/* The account the request was checked against (httpd::accountRevision), read
+	   before anything was checked against it, so a change landing during the check
+	   reads as one landing after it. */
+	unsigned long long revision;
+
+	/* The session that let the request in, and empty where the Basic pair or the box
+	   itself did: the session a change keeps signed in. */
+	std::string session;
+
+	// Whether a password still owed refuses the change, as it does over the old server.
+	bool owed_refuses;
+
+	Admitted() : revision(0), owed_refuses(false) {}
+};
+
 bool mayChange(const Ask &a, const std::string &user, const std::string &password, std::string *why,
-               std::string *session = 0);
+               Admitted *admitted = 0);
+
+/* One change to the account as one transaction: the account's lock (httpd::AccountLock)
+   held from a second look at what a check before it found to the last write, so nothing
+   changes the account, or ends the session that asked, in between, and nothing is
+   written for a request that no longer stands. The check itself (mayChange, or a
+   route's own look at the password in effect) runs before this and outside the lock,
+   being a key derivation.
+
+   admits takes that second look: the account in effect is the one the request was
+   checked against, the session that let it in is still live, and, where the check
+   refuses a password still owed, none is owed. False, with why, and change refuses
+   from then on. change is the change below, under the lock this holds, and keeps the
+   session admits found signed in; asked without admits it keeps nobody, which is the
+   screen at the box.
+
+   A writer of more than the account holds this across that write as well and makes it
+   only once the account went through: the old configuration route writes the other
+   keys of nhttpd.conf after it, taking httpd::ServerFileLock inside this one.
+
+   Lives on the stack or in a pointer the caller deletes, and gives the lock up when it
+   goes. Nothing here throws; a lock that could not be set up refuses everything. */
+class Transaction
+{
+public:
+	Transaction();
+	~Transaction();
+
+	bool admits(const Admitted &a, std::string *why);
+	bool change(const std::string &user, const std::string &password, std::string *why,
+	            const Ask *from = 0);
+
+private:
+	Transaction(const Transaction &);
+	Transaction &operator=(const Transaction &);
+
+	httpd::AccountLock *held_;
+	std::string         keep_;
+	bool                refused_;
+};
 
 /* Closes the session the Cookie header names, and whether there was one. */
 bool closeSessionOf(const std::string &cookie_header);
@@ -135,7 +195,7 @@ bool replaceShippedPassword(std::string *why);
    out again. */
 bool resetToFirstPassword(std::string *first, std::string *why);
 
-/* A change to the account from the screen at the box or from a page.
+/* A change to the account from the screen at the box.
 
    An empty name or an empty password leaves that half as it is: a screen cannot
    show a stored form, so it opens the field empty, and an untouched field must not
@@ -144,25 +204,25 @@ bool resetToFirstPassword(std::string *first, std::string *why);
 
    A new name or a new password ends every session opened before it, and every token
    drawn from one, wherever it was opened: whoever else held the account is signed
-   out. keep_session, the session of the caller that asked, stays signed in under
-   the new account, its cookie and its second token as they were; what it drew before
-   ends with the rest. Empty keeps nobody, which is the screen at the box and a caller
-   that holds no session. A change that changes nothing ends nothing.
+   out. This keeps nobody signed in, which is right for the screen at the box; a caller
+   over the old server or the REST layer changes the account through Transaction,
+   whose admits names the session that asked, and that one stays signed in under the
+   new account, its cookie and its second token as they were. What it drew before ends
+   with the rest. A change that changes nothing ends nothing.
 
-   from is the request that asked, for a change arriving over the old server, and
-   NULL for the screen at the box. Such a change is taken only from a page of this
+   A change arriving over the network goes through Transaction, whose change takes the
+   request that asked (from) and refuses one that did not come from a page of this
    box, by the rule sessionAdmits applies to the GET targets: the old routes that
    carry it take a GET, and with the page login switched off nothing else stands
-   between another site's link and the account. A program changes the account
-   through the REST route, with a sign-in.
+   between another site's link and the account. This one takes no request, so nothing
+   asking over a network reaches it without the second look.
 
-   False, with why, when the request did not come from a page of this box, or the
-   file would not take a value or could not be written; nothing is changed then.
+   False, with why, when the file would not take a value or could not be written;
+   nothing is changed then.
    A password set here has to pass httpd::passwordAcceptable, whoever sets it.
    A first password standing goes with any password set here and stays with a
    name changed alone. */
-bool change(const std::string &user, const std::string &password, std::string *why,
-            const Ask *from = 0, const std::string &keep_session = std::string());
+bool change(const std::string &user, const std::string &password, std::string *why);
 
 } // namespace login_bridge
 

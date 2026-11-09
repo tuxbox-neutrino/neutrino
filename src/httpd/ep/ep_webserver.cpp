@@ -27,6 +27,7 @@
 #include "httpd/login_bridge.h"
 #include "httpd/json.h"
 #include "httpd/netmatch.h"
+#include "httpd/router.h"
 #include "httpd/schema.h"
 #include "httpd/server.h"
 #include "httpd/status.h"
@@ -437,6 +438,19 @@ Response webserverWrite(const Request &r)
 	   which runs once these bytes are gone and takes the lock for its read. */
 	AccountLock account;
 
+	/* A change to the account from a caller the gate let in before this lock was
+	   taken. A reset at the box or another change landing in between ends the session
+	   the request came with, or leaves the box waiting for a password of the owner's
+	   own, and the request then writes nothing, answered as the gate answers either. */
+	if (r.has("user") || r.has("password"))
+	{
+		if (!r.session().empty() && !sessionIsLive(r.session()))
+			return problemResponse(StatusForbidden, coreapi::ErrorCode::NotPermitted, notPermittedDetail());
+		if (passwordChangeOwed())
+			return problemResponse(StatusForbidden, coreapi::ErrorCode::PasswordChangeRequired,
+			                       passwordChangeRequiredDetail());
+	}
+
 	const WebSettings before = currentWebSettings();
 	WebSettings s = before;
 
@@ -637,6 +651,10 @@ const Param kWriteParams[] = {
 const RouteRefusal kWebserverWriteRefusals[] = {
 	HTTPD_REFUSES(InvalidArgument, MissingParameter,
 		"the body names nothing to change"),
+	HTTPD_REFUSES_AS(403, NotPermitted,
+		"this endpoint is not open to this caller"),
+	HTTPD_REFUSES_AS(403, PasswordChangeRequired,
+		"this box still opens to a password it shipped with or to the first password it set for itself: set a password of your own first, with PUT /api/v1/account/password"),
 	HTTPD_REFUSES(InvalidArgument, WebserverNotConfigured,
 		"WebsiteMain.host: \"::1\" is not an address this server can listen on, and nothing is written. It listens on addresses of the first family only, and every interface is written as \"0.0.0.0\""),
 };
@@ -688,6 +706,12 @@ const Endpoint kWebserverEndpoints[] = {
 	  "that is not an address literal of the first family, the only one this server listens on, a "
 	  "`no_login_prefix` that is not the start of an IPv4 address, a directory that is not an absolute path, or a "
 	  "configuration file itself could not be written; the detail names which.\n"
+	  "- `403 not-permitted`: the request names `user` or `password` and the session it came with "
+	  "ended after the gate let it in, by a reset at the box, another change of the login or a "
+	  "logout; nothing is written.\n"
+	  "- `403 password-change-required`: the request names `user` or `password`, and since the gate "
+	  "let it in the box has come to wait for a password of the owner's own, as after the reset at "
+	  "the box; nothing is written.\n"
 	  "\n"
 	  "**Related:** `GET /api/v1/system/webserver`, `GET /api/v1/system/legacy-usage`.",
 	  HTTPD_PARAMS(kWriteParams), &kChangedSchema, &webserverWrite, false,

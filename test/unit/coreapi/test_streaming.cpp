@@ -849,7 +849,7 @@ TEST_CASE("a browser stream answers a session or a token that may write, and no 
 
 	const time_t t0 = 1800000000;
 	setSessionClockForTest(t0);
-	const std::string session = openSession("root");
+	const std::string session = openSessionForTest("root");
 	REQUIRE(!session.empty());
 	const std::string cookie = "Cookie: " + std::string(sessionCookieName()) + "=" + session + "\r\n";
 

@@ -80,7 +80,10 @@ that comes from the box itself while no proxy is configured in front of it,
 whether Authentication is off or on. Any other request to change them is
 refused as a whole, also from the address range under **No-auth clients**,
 and so is every one while the box still waits for a password of your own:
-set that one in the web interface.
+set that one in the web interface. A change that crosses a reset at the box
+or another change of the login, checked against the login before and arriving
+after, is refused as a whole as well; send it again with the login now in
+effect.
 
 With Authentication on, `/control/` answers with HTTP Basic authentication,
 as before, also while the first password is in effect. Calls from the box
@@ -135,6 +138,10 @@ nobody out.
   with its cookie and its `csrf` token. With `PUT /api/v1/system/webserver`
   this happens when the restart puts the change in effect. API tokens named
   in `nhttpd-access.conf` (`api_tokens`) are not affected.
+- A change to the login that crosses a reset at the box or another change of
+  the login writes nothing: `PUT /api/v1/account/password` answers
+  `403 not-permitted`, and so does `PUT /api/v1/system/webserver` for a
+  session that ended meanwhile.
 - `PUT /api/v1/system/webserver` holds a new `password` to the same rules,
   except that it may be the current one. Only the reset at the box sets a
   first password again.

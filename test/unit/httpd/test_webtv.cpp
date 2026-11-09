@@ -2050,7 +2050,7 @@ TEST_CASE("the routes answer a session or a token that may write, and no reader"
 	// both sessions open at one moment; the second is asked after the lifetime
 	const time_t t0 = 1800000000;
 	setSessionClockForTest(t0);
-	const std::string session = openSession("root");
+	const std::string session = openSessionForTest("root");
 	REQUIRE(!session.empty());
 	const std::string cookie = "Cookie: " + std::string(sessionCookieName()) + "=" + session + "\r\n";
 

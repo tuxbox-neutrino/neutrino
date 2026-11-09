@@ -1093,7 +1093,7 @@ TEST_CASE("the gate: a session reads as the owner and a mutation asks for the se
 {
 	Attached a;
 
-	const std::string session = httpd::openSession("root");
+	const std::string session = httpd::openSessionForTest("root");
 	REQUIRE(!session.empty());
 	const std::string csrf = httpd::csrfFor(session);
 	REQUIRE(!csrf.empty());

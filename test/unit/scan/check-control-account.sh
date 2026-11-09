@@ -1,18 +1,29 @@
 #!/bin/sh
 # /control/config takes a change to the account only where login_bridge::mayChange
-# says so, and a request it refuses writes nothing: no configuration file, not the
-# account, and it reloads nothing. The handler needs the whole application and
-# cannot be linked into the test binary, which drives the rule itself
-# (test_login_bridge.cpp); the decision and the order at the call site are held
-# here, read as text. In ConfigCGI:
+# says so and, under the account's lock, the transaction it then opens says so
+# again (login_bridge::Transaction::admits). A request either of them refuses writes
+# nothing: no configuration file, not the account, and it reloads nothing. The other
+# keys of nhttpd.conf are written only once the account went through, inside the same
+# transaction. The handler needs the whole application and cannot be linked into the
+# test binary, which drives the rule itself (test_login_bridge.cpp); the decision and
+# the order at the call site are held here, read as text. In ConfigCGI:
 #
 #  - login_bridge::mayChange is asked exactly once, negated, and the statement it
 #    guards assigns error;
-#  - refused is assigned exactly once, as !error.empty(), after that ask;
-#  - both come before ServerFileLock is taken, so no key derivation runs under
-#    that lock, and before every write;
+#  - one login_bridge::Transaction is made, after that ask, and its admits is asked
+#    exactly once after that, negated, the statement it guards assigning error;
+#  - a transaction whose admits refused is given up again before refused is set,
+#    so a refused request holds the account's lock no longer than the look takes;
+#  - refused is assigned exactly once, as !error.empty(), after both asks;
+#  - all of that comes before ServerFileLock is taken, so no key derivation runs
+#    under that lock and the account's lock is taken first, and before every write;
 #  - every write (a configuration file saved, the account changed, the server's
-#    configuration reloaded) stands in a block whose opening line tests !refused.
+#    configuration reloaded) stands in a block whose opening line tests !refused;
+#  - the account is changed through the transaction before nhttpd.conf is saved,
+#    and that save is guarded by error.empty(), so it follows only an account that
+#    went through;
+#  - the transaction is given up after that save and before the server's
+#    configuration is reloaded, which reads nhttpd.conf under its lock.
 set -e
 LC_ALL=C
 export LC_ALL
@@ -32,41 +43,69 @@ awk -v keepstrings=0 -f "$STRIP" "$FILE" | awk '
 	function fail(what) { printf "check-control-account.sh: ConfigCGI %s\n", what > "/dev/stderr"; bad = 1 }
 	!inside && !done && /^void[ \t]+CControlAPI::ConfigCGI[ \t]*\(/ { inside = 1 }
 	inside {
-		# the statement the refusing ask guards, on its own line or on the ask line
+		# the statement a refusing ask guards, on its own line or on the ask line
 		if (want_error && $0 !~ /^[ \t]*\{?[ \t]*$/) {
 			if ($0 !~ /^[ \t]*\{?[ \t]*error[ \t]*=[^=]/)
-				fail("does not take the refusal of login_bridge::mayChange into error")
-			want_error = 0
+				fail("does not take the refusal of " want_error " into error")
+			want_error = ""
 		}
 		if ($0 ~ /login_bridge::mayChange[ \t]*\(/) {
 			asks++
 			if ($0 !~ /![ \t]*login_bridge::mayChange[ \t]*\(/)
 				fail("asks login_bridge::mayChange without refusing on its answer")
 			else if ($0 !~ /\)[ \t]*error[ \t]*=[^=]/)
-				want_error = 1
+				want_error = "login_bridge::mayChange"
 			if (locks || writes)
 				fail("asks login_bridge::mayChange after it took the lock or wrote something")
 		}
+		if ($0 ~ /new[ \t]+login_bridge::Transaction/) {
+			made++
+			if (!asks || sets || locks || writes)
+				fail("opens the transaction before it asks login_bridge::mayChange, or after it decided, took the lock or wrote something")
+		}
+		if ($0 ~ /->[ \t]*admits[ \t]*\(/) {
+			admits++
+			if ($0 !~ /![ \t]*[A-Za-z_][A-Za-z_0-9]*[ \t]*->[ \t]*admits[ \t]*\(/)
+				fail("asks the transaction without refusing on its answer")
+			else if ($0 !~ /\)[ \t]*error[ \t]*=[^=]/)
+				want_error = "the transaction"
+			if (!made || sets || locks || writes)
+				fail("asks the transaction before it opened one, or after it decided, took the lock or wrote something")
+		}
+		if ($0 ~ /delete[ \t]+account[ \t]*;/ && admits && !sets)
+			let_go++
 		if ($0 ~ /(^|[^A-Za-z0-9_])refused[ \t]*=([^=]|$)/) {
 			sets++
 			if ($0 !~ /const[ \t]+bool[ \t]+refused[ \t]*=[ \t]*![ \t]*error\.empty[ \t]*\([ \t]*\)[ \t]*;/)
 				fail("sets refused to something other than !error.empty()")
-			if (!asks || locks || writes)
-				fail("sets refused before it asks login_bridge::mayChange, or after the lock or a write")
+			if (!asks || !admits || locks || writes)
+				fail("sets refused before it asks login_bridge::mayChange and the transaction, or after the lock or a write")
 		}
 		if ($0 ~ /new[ \t]+httpd::ServerFileLock/) {
 			locks++
-			if (!asks || !sets)
+			if (!asks || !admits || !sets)
 				fail("takes ServerFileLock before it has decided")
 		}
-		if ($0 ~ /httpd::saveServerFile[ \t]*\(/) saves_server++
-		if ($0 ~ /login_bridge::change[ \t]*\(/) changes++
-		if ($0 ~ /yhttpd_reload_config[ \t]*\(/) reloads++
+		if ($0 ~ /account[ \t]*->[ \t]*change[ \t]*\(/) changes++
+		if ($0 ~ /httpd::saveServerFile[ \t]*\(/) {
+			saves_server++
+			if (!changes)
+				fail("saves nhttpd.conf before it changed the account")
+			if ($0 !~ /error\.empty[ \t]*\([ \t]*\)[ \t]*&&[ \t]*![ \t]*httpd::saveServerFile[ \t]*\(/)
+				fail("saves nhttpd.conf without asking whether the account went through")
+		}
+		if ($0 ~ /delete[ \t]+account[ \t]*;/ && saves_server)
+			released++
+		if ($0 ~ /yhttpd_reload_config[ \t]*\(/) {
+			reloads++
+			if (!released)
+				fail("reloads the server configuration while it holds the account transaction")
+		}
 		if ($0 ~ /saveConfig[ \t]*\(/) saves_config++
 		if ($0 ~ /saveSetup[ \t]*\(/) saves_setup++
-		if ($0 ~ /httpd::saveServerFile[ \t]*\(|login_bridge::change[ \t]*\(|yhttpd_reload_config[ \t]*\(|saveConfig[ \t]*\(|saveSetup[ \t]*\(/) {
+		if ($0 ~ /httpd::saveServerFile[ \t]*\(|account[ \t]*->[ \t]*change[ \t]*\(|yhttpd_reload_config[ \t]*\(|saveConfig[ \t]*\(|saveSetup[ \t]*\(/) {
 			writes++
-			if (!asks || !sets)
+			if (!asks || !admits || !sets)
 				fail("writes before it has decided: " $0)
 			if (!guarded)
 				fail("writes outside the block for a request that was not refused: " $0)
@@ -92,10 +131,16 @@ awk -v keepstrings=0 -f "$STRIP" "$FILE" | awk '
 			fail("was not found, so the scan has stopped matching")
 		if (asks != 1)
 			fail("asks login_bridge::mayChange " asks + 0 " times, not once")
+		if (made != 1)
+			fail("opens the account transaction " made + 0 " times, not once")
+		if (admits != 1)
+			fail("asks the transaction " admits + 0 " times, not once")
 		if (sets != 1)
 			fail("sets refused " sets + 0 " times, not once")
-		if (want_error)
-			fail("ends before the statement login_bridge::mayChange guards")
+		if (!let_go)
+			fail("keeps the transaction its second look refused until the end of the handler")
+		if (want_error != "")
+			fail("ends before the statement " want_error " guards")
 		if (!locks || !saves_server || !changes || !reloads || !saves_config || !saves_setup)
 			fail("no longer locks, saves, changes the account and reloads where the scan looks")
 		exit bad

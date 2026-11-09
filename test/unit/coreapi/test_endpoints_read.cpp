@@ -3544,7 +3544,7 @@ struct HeldSession
 {
 	std::string token;
 
-	explicit HeldSession(const char *user) : token(openSession(user)) {}
+	explicit HeldSession(const char *user) : token(openSessionForTest(user)) {}
 	~HeldSession() { (void) closeSession(token); }
 
 	private:

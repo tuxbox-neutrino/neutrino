@@ -377,14 +377,15 @@ unsigned long long publishLogin(const Login &l, const std::string &first_passwor
    box shows it without being asked. */
 bool firstPasswordWrittenThisRun();
 
-/* Held by load for the whole of a read, by a change to the account at the box
-   (login_bridge::change) from reading what is in effect to publishing what it
-   wrote, and by the REST route that writes the same file (PUT
+/* Held by load for the whole of a read, by a change to the account
+   (login_bridge::Transaction) from the second look at what its check found to
+   publishing what it wrote, and by the REST route that writes the same file (PUT
    /api/v1/system/webserver) from its reading to its answer. A change runs on a
    thread that is not stopped while load replaces what is in effect, so without
    this they could interleave: a change reading a configuration being replaced,
-   publishing an account older than the file a reload just installed, or two
-   saves each rewriting the file the other one read. */
+   publishing an account older than the file a reload just installed, two saves
+   each rewriting the file the other one read, or a change checked against an
+   account a reset replaced before it wrote. */
 class AccountLock
 {
 public:
@@ -395,6 +396,13 @@ private:
 	AccountLock(const AccountLock &);
 	AccountLock &operator=(const AccountLock &);
 };
+
+/* Called once by the next AccountLock to be taken, before it takes the lock, and
+   forgotten as it is called; NULL forgets one not yet called. For a case that changes
+   the account between a check and the write the check allows, a moment no request
+   can be made to stop at. Nothing in the product installs one. */
+typedef void (*AccountLockProbe)();
+void setAccountLockProbeForTest(AccountLockProbe p);
 
 /* What the last load or migration dropped, one line each, and also written to the
    standard error as it happens.
@@ -457,7 +465,8 @@ bool sameServerOptions(const ServerOptions &a, const ServerOptions &b);
    write back what the first just changed.
 
    Taken after AccountLock where both are held, never before it: a writer that
-   changes the account as well releases this one first. */
+   changes the account as well either releases this one first (the menu at the box)
+   or takes it inside the account's transaction (the old config route). */
 class ServerFileLock
 {
 public:

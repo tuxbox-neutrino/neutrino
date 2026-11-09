@@ -912,7 +912,7 @@ bool allowed(AuthLevel need, AuthLevel have, Method m, const Credentials &c,
 	return true;
 }
 
-std::string openSession(const std::string &user)
+std::string openSessionForTest(const std::string &user)
 {
 	return openSession(user, accountRevision());
 }

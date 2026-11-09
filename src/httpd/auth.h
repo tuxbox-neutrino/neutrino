@@ -231,10 +231,11 @@ const char *csrfRefusedDetail();
    A revision that is no longer the one in effect opens nothing, so a login whose
    check raced a change to the account hands out no session.
 
-   The overload without a revision opens under the account in effect when it is
-   called, for a caller that checked nothing against it. */
+   openSessionForTest opens under the account in effect when it is called, for a case
+   that checked no password; a caller that did check one passes the revision it read
+   with the stored form. */
 std::string openSession(const std::string &user, unsigned long long revision);
-std::string openSession(const std::string &user);
+std::string openSessionForTest(const std::string &user);
 
 /* Keeps the session a change to the account was asked for by: moves it from the
    revision from, which it has to be live under, to the revision to, which the change

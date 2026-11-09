@@ -2135,9 +2135,31 @@ void restartRan()
 
 } // namespace
 
+namespace
+{
+
+AccountLockProbe &accountLockProbe()
+{
+	static AccountLockProbe probe = NULL;
+	return probe;
+}
+
+} // namespace
+
 AccountLock::AccountLock()
 {
+	const AccountLockProbe probe = accountLockProbe();
+	if (probe != NULL)
+	{
+		accountLockProbe() = NULL;
+		probe();
+	}
 	accountLock().lock();
+}
+
+void setAccountLockProbeForTest(AccountLockProbe p)
+{
+	accountLockProbe() = p;
 }
 
 AccountLock::~AccountLock()

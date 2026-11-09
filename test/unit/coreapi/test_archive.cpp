@@ -1502,7 +1502,7 @@ TEST_CASE("the ceiling drops a token that no longer stands before one that does"
 	                           httpd::AuthLevel::System, httpd::mediaScopeName(), now + 50));
 
 	// The rest drawn by a session the next change of the account ends.
-	const std::string session = httpd::openSession("owner");
+	const std::string session = httpd::openSessionForTest("owner");
 	REQUIRE_FALSE(session.empty());
 	for (size_t i = 0; i + 1 < httpd::kMaxScopedTokens; ++i)
 	{

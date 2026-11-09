@@ -65,6 +65,14 @@ std::string cookieFor(const std::string &token)
 	return std::string("theme=dark; ") + sessionCookieName() + "=" + token;
 }
 
+// A change over the old server, in a transaction of its own as the route makes it.
+bool changeFrom(const std::string &user, const std::string &password, std::string *why,
+                const login_bridge::Ask &from)
+{
+	login_bridge::Transaction t;
+	return t.change(user, password, why, &from);
+}
+
 login_bridge::Ask askFor(const std::string &path, const std::string &token)
 {
 	login_bridge::Ask a;
@@ -81,7 +89,7 @@ TEST_CASE("a session opens the pages, and the targets that change with a GET onl
           "[login]")
 {
 	Account account;
-	const std::string token = openSession(kUser);
+	const std::string token = openSessionForTest(kUser);
 	REQUIRE_FALSE(token.empty());
 
 	// A page: the cookie is enough, whoever linked to it.
@@ -261,14 +269,14 @@ TEST_CASE("a change at the box is what every login takes at once, and an empty f
 	// changes nothing, whatever it names.
 	login_bridge::Ask from;
 	from.host = "box.lan";
-	REQUIRE_FALSE(login_bridge::change("", "from-elsewhere", &why, &from));
+	REQUIRE_FALSE(changeFrom("", "from-elsewhere", &why, from));
 	REQUIRE_FALSE(why.empty());
 	from.sec_fetch_site = "cross-site";
 	from.referer = "http://box.lan/settings.html";
-	REQUIRE_FALSE(login_bridge::change("", "from-elsewhere", &why, &from));
+	REQUIRE_FALSE(changeFrom("", "from-elsewhere", &why, from));
 	REQUIRE(verifySecret("brand-new", loginInEffect().password_hash));
 	from.sec_fetch_site = "same-origin";
-	REQUIRE(login_bridge::change("", "from-the-box", &why, &from));
+	REQUIRE(changeFrom("", "from-the-box", &why, from));
 	REQUIRE(verifySecret("from-the-box", loginInEffect().password_hash));
 
 	// A name the file would not take changes nothing and says why.
@@ -823,7 +831,7 @@ TEST_CASE("the account changes over /control/ only for a signed-in caller or the
 			std::string token;
 			if (c.cookie != kNoCookie)
 			{
-				token = openSession(kUser);
+				token = openSessionForTest(kUser);
 				REQUIRE_FALSE(token.empty());
 				hh.HeaderList["Cookie"] = cookieFor(token);
 				if (c.cookie == kClosedSession)
@@ -837,13 +845,19 @@ TEST_CASE("the account changes over /control/ only for a signed-in caller or the
 			// The rule answers for itself, whatever the gate in front of it did.
 			const login_bridge::Ask from = CmAuth::AskOf(&hh);
 			std::string why;
-			const bool admitted = login_bridge::mayChange(from, c.user, c.password, &why);
+			login_bridge::Admitted found;
+			const bool admitted = login_bridge::mayChange(from, c.user, c.password, &why, &found);
 			CHECK(admitted == c.changes);
 			CHECK(admitted == why.empty());
 			CHECK(why.find(c.says) != std::string::npos);
 
-			// And in the route's order: the gate, the rule, then the change.
-			const bool changed = past_gate && admitted && login_bridge::change(c.user, c.password, &why, &from);
+			// And in the route's order: the gate, the rule, then the change in its transaction.
+			bool changed = false;
+			if (past_gate && admitted)
+			{
+				login_bridge::Transaction t;
+				changed = t.admits(found, &why) && t.change(c.user, c.password, &why, &from);
+			}
 			CHECK(changed == c.changes);
 			CHECK(verifySecret((c.changes && c.password[0] != '\0') ? std::string(c.password) : stored,
 			                   loginInEffect().password_hash));
@@ -901,9 +915,9 @@ TEST_CASE("a change of the account signs everybody else out and what they drew, 
 	REQUIRE(load(path));
 
 	// Three browsers signed in, and a player holding a token one of the others drew.
-	const std::string asking = openSession(kUser);
-	const std::string other = openSession(kUser);
-	const std::string third = openSession(kUser);
+	const std::string asking = openSessionForTest(kUser);
+	const std::string other = openSessionForTest(kUser);
+	const std::string third = openSessionForTest(kUser);
 	const std::string drawn = openScopedToken(mediaScopeName(), AuthLevel::System, other);
 	const std::string drawn_by_asking = openScopedToken(mediaScopeName(), AuthLevel::System, asking);
 	REQUIRE_FALSE(drawn.empty());
@@ -924,10 +938,14 @@ TEST_CASE("a change of the account signs everybody else out and what they drew, 
 	login_bridge::Ask from = askFor("/control/", asking);
 	from.sec_fetch_site = "same-origin";
 	std::string why;
-	std::string keep;
-	REQUIRE(login_bridge::mayChange(from, "", kRequested, &why, &keep));
-	REQUIRE(keep == asking);
-	REQUIRE(login_bridge::change("", kRequested, &why, &from, keep));
+	login_bridge::Admitted admitted;
+	REQUIRE(login_bridge::mayChange(from, "", kRequested, &why, &admitted));
+	REQUIRE(admitted.session == asking);
+	{
+		login_bridge::Transaction t;
+		REQUIRE(t.admits(admitted, &why));
+		REQUIRE(t.change("", kRequested, &why, &from));
+	}
 	REQUIRE(accountRevision() != revision);
 
 	// The one that asked goes on as it was, cookie and second token alike.
@@ -944,7 +962,7 @@ TEST_CASE("a change of the account signs everybody else out and what they drew, 
 	REQUIRE(playerWith(drawn_after) == AuthLevel::System);
 
 	// A new name at the box keeps nobody signed in.
-	const std::string later = openSession(kUser);
+	const std::string later = openSessionForTest(kUser);
 	REQUIRE(login_bridge::change("admin", "", &why));
 	REQUIRE_FALSE(sessionIsLive(asking));
 	REQUIRE_FALSE(sessionIsLive(later));
@@ -953,7 +971,7 @@ TEST_CASE("a change of the account signs everybody else out and what they drew, 
 	/* A walk of the table that read the account just before a change and takes the
 	   table just after it: a session the change carried across already holds the
 	   newer revision, and the walk leaves it. */
-	const std::string carried = openSession("admin");
+	const std::string carried = openSessionForTest("admin");
 	const unsigned long long reading = accountRevision();
 	REQUIRE(carrySession(carried, reading, reading + 1));
 	expireSessions(time(NULL));
@@ -964,7 +982,7 @@ TEST_CASE("a change of the account signs everybody else out and what they drew, 
 	// The reset at the box ends every session, and one checked against the account
 	// before it opens nothing after it.
 	const unsigned long long before_reset = accountRevision();
-	const std::string again = openSession("admin");
+	const std::string again = openSessionForTest("admin");
 	std::string first;
 	REQUIRE(login_bridge::resetToFirstPassword(&first, &why));
 	REQUIRE_FALSE(sessionIsLive(again));
@@ -972,5 +990,209 @@ TEST_CASE("a change of the account signs everybody else out and what they drew, 
 	REQUIRE(sessionIsLive(openSession("root", accountRevision())));
 
 	::unlink(path.c_str());
+	setConfigForTest(before);
+}
+
+namespace
+{
+
+/* What a probe between a check and the write it allows did, and what both files held
+   right after it: the files are the account's and nhttpd.conf beside it. */
+struct Between
+{
+	std::string access;
+	std::string server;
+	std::string closes; // the session closeThenLook closes
+	std::string access_after;
+	std::string server_after;
+	bool        ran;
+
+	Between() : ran(false) {}
+};
+
+Between &between()
+{
+	static Between b;
+	return b;
+}
+
+void lookAtBoth()
+{
+	between().access_after = contentOf(between().access);
+	between().server_after = contentOf(between().server);
+}
+
+// The reset at the box.
+void resetThenLook()
+{
+	std::string first, why;
+	between().ran = login_bridge::resetToFirstPassword(&first, &why);
+	lookAtBoth();
+}
+
+// Signing out in another tab.
+void closeThenLook()
+{
+	between().ran = closeSession(between().closes);
+	lookAtBoth();
+}
+
+/* The box asking for a password of the owner's own while the account stays the one it
+   was: the file read again naming the stored password as its first one. */
+void owedThenLook()
+{
+	std::FILE *f = std::fopen(between().access.c_str(), "a");
+	REQUIRE(f != NULL);
+	std::fprintf(f, "first_password=%s\n", kPassword);
+	REQUIRE(std::fclose(f) == 0);
+	const unsigned long long revision = accountRevision();
+	between().ran = load(between().access, between().server) && accountRevision() == revision &&
+	                login_bridge::passwordOwed();
+	lookAtBoth();
+}
+
+/* The account's file and an nhttpd.conf beside it, read in, and the probe's notes
+   pointed at both. */
+std::string stage(std::string *server)
+{
+	const std::string path = controlAccount(std::string(), "");
+	*server = path + ".nhttpd";
+	std::FILE *f = std::fopen(server->c_str(), "w");
+	REQUIRE(f != NULL);
+	std::fprintf(f, "WebsiteMain.port=8080\nmod_auth.authenticate=false\nconfigfile.version=5\n");
+	REQUIRE(std::fclose(f) == 0);
+	REQUIRE(load(path, *server));
+	between() = Between();
+	between().access = path;
+	between().server = *server;
+	return path;
+}
+
+login_bridge::Ask controlFromThisBox(const char *peer)
+{
+	login_bridge::Ask a;
+	a.path = "/control/";
+	a.peer = peer;
+	a.host = "box.lan";
+	a.sec_fetch_site = "same-origin";
+	return a;
+}
+
+// Forgets a probe a failed case left behind.
+struct ProbeCleared
+{
+	~ProbeCleared() { setAccountLockProbeForTest(NULL); }
+};
+
+} // namespace
+
+TEST_CASE("a change over /control/ that a reset made stale between its check and its write writes nothing",
+          "[login][transaction]")
+{
+	Account account;
+	ProbeCleared cleared;
+	const WebConfig before = config();
+
+	const char *const ways[] = { "the Basic pair", "a session", "the box itself" };
+	for (size_t w = 0; w < sizeof(ways) / sizeof(ways[0]); ++w)
+	{
+		INFO(ways[w]);
+		forgetLoginAttemptsForTest();
+		std::string server;
+		const std::string path = stage(&server);
+
+		login_bridge::Ask from = controlFromThisBox(w == 2 ? "127.0.0.1" : "203.0.113.60");
+		if (w == 0)
+			from.authorization = kRightBasic;
+		else if (w == 1)
+			from.cookie = cookieFor(openSessionForTest(kUser));
+
+		std::string why;
+		login_bridge::Admitted admitted;
+		REQUIRE(login_bridge::mayChange(from, "", kRequested, &why, &admitted));
+
+		setAccountLockProbeForTest(&resetThenLook);
+		{
+			login_bridge::Transaction t;
+			REQUIRE(between().ran);
+			REQUIRE_FALSE(t.admits(admitted, &why));
+			REQUIRE(why.find("account changed") != std::string::npos);
+			// and once it said no, the transaction writes nothing
+			REQUIRE_FALSE(t.change("", kRequested, &why, &from));
+		}
+		REQUIRE(contentOf(path) == between().access_after);
+		REQUIRE(contentOf(server) == between().server_after);
+		REQUIRE(firstPasswordStands());
+		REQUIRE_FALSE(verifySecret(kRequested, loginInEffect().password_hash));
+
+		::unlink(path.c_str());
+		::unlink(server.c_str());
+	}
+	setConfigForTest(before);
+}
+
+TEST_CASE("a change over /control/ whose session ended between its check and its write writes nothing",
+          "[login][transaction]")
+{
+	Account account;
+	ProbeCleared cleared;
+	const WebConfig before = config();
+	std::string server;
+	const std::string path = stage(&server);
+
+	const std::string session = openSessionForTest(kUser);
+	login_bridge::Ask from = controlFromThisBox("203.0.113.61");
+	from.cookie = cookieFor(session);
+	std::string why;
+	login_bridge::Admitted admitted;
+	REQUIRE(login_bridge::mayChange(from, "", kRequested, &why, &admitted));
+	REQUIRE(admitted.session == session);
+
+	between().closes = session;
+	setAccountLockProbeForTest(&closeThenLook);
+	{
+		login_bridge::Transaction t;
+		REQUIRE(between().ran);
+		REQUIRE_FALSE(t.admits(admitted, &why));
+		REQUIRE(why.find("session") != std::string::npos);
+		REQUIRE_FALSE(t.change("", kRequested, &why, &from));
+	}
+	REQUIRE(contentOf(path) == between().access_after);
+	REQUIRE(contentOf(server) == between().server_after);
+	REQUIRE(verifySecret(kPassword, loginInEffect().password_hash));
+
+	::unlink(path.c_str());
+	::unlink(server.c_str());
+	setConfigForTest(before);
+}
+
+TEST_CASE("a change over /control/ writes nothing once the box asks for a password of the owner's own in between",
+          "[login][transaction]")
+{
+	Account account;
+	ProbeCleared cleared;
+	const WebConfig before = config();
+	std::string server;
+	const std::string path = stage(&server);
+
+	login_bridge::Ask from = controlFromThisBox("203.0.113.62");
+	from.authorization = kRightBasic;
+	std::string why;
+	login_bridge::Admitted admitted;
+	REQUIRE(login_bridge::mayChange(from, "", kRequested, &why, &admitted));
+
+	setAccountLockProbeForTest(&owedThenLook);
+	{
+		login_bridge::Transaction t;
+		REQUIRE(between().ran);
+		REQUIRE_FALSE(t.admits(admitted, &why));
+		REQUIRE(why.find("PUT /api/v1/account/password") != std::string::npos);
+	}
+	REQUIRE(contentOf(path) == between().access_after);
+	REQUIRE(contentOf(server) == between().server_after);
+	REQUIRE(verifySecret(kPassword, loginInEffect().password_hash));
+
+	::unlink(path.c_str());
+	::unlink(server.c_str());
 	setConfigForTest(before);
 }

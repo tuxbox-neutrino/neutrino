@@ -1280,7 +1280,7 @@ TEST_CASE("a request a session carries moves its end on, and never past thirty d
 	setConfigForTest(c);
 	SessionClock clock;
 
-	const std::string token = openSession(kUser);
+	const std::string token = openSessionForTest(kUser);
 	REQUIRE_FALSE(token.empty());
 	REQUIRE(sessionExpiresIn(token) == 10 * 24 * 60 * 60);
 
@@ -1310,7 +1310,7 @@ TEST_CASE("a request a session carries moves its end on, and never past thirty d
 	REQUIRE_FALSE(sessionIsLive(token));
 
 	// Left alone for its lifetime, a session is gone without a request.
-	const std::string idle = openSession(kUser);
+	const std::string idle = openSessionForTest(kUser);
 	clock.move(10 * 24 * 60 * 60);
 	REQUIRE_FALSE(sessionIsLive(idle));
 }
@@ -1326,13 +1326,13 @@ TEST_CASE("the session table holds sixty four and gives up the one running out s
 	std::vector<std::string> tokens;
 	for (int i = 0; i < 64; ++i)
 	{
-		tokens.push_back(openSession(kUser));
+		tokens.push_back(openSessionForTest(kUser));
 		REQUIRE_FALSE(tokens.back().empty());
 		clock.move(1);
 	}
 	REQUIRE(sessionCount() == 64);
 
-	const std::string newest = openSession(kUser);
+	const std::string newest = openSessionForTest(kUser);
 	REQUIRE_FALSE(newest.empty());
 	REQUIRE(sessionCount() == 64);
 	REQUIRE_FALSE(sessionIsLive(tokens[0]));
@@ -1351,7 +1351,7 @@ TEST_CASE("a media token drawn through a session ends with that session", "[writ
 	player.peer = "203.0.113.5";
 
 	// Signing out ends it.
-	const std::string signed_out = openSession(kUser);
+	const std::string signed_out = openSessionForTest(kUser);
 	player.query_token = openScopedToken(mediaScopeName(), AuthLevel::System, signed_out);
 	REQUIRE_FALSE(player.query_token.empty());
 	REQUIRE(granted(player, true) == AuthLevel::System);
@@ -1359,7 +1359,7 @@ TEST_CASE("a media token drawn through a session ends with that session", "[writ
 	REQUIRE(granted(player, true) == AuthLevel::Public);
 
 	// So does running out, whether or not the table was walked since.
-	const std::string ran_out = openSession(kUser);
+	const std::string ran_out = openSessionForTest(kUser);
 	player.query_token = openScopedToken(mediaScopeName(), AuthLevel::System, ran_out);
 	REQUIRE(granted(player, true) == AuthLevel::System);
 	clock.move(config().session_lifetime_s);
@@ -1383,7 +1383,7 @@ TEST_CASE("a media token for a caller a bearer let in is not tied to a dead cook
 	ShippedRoutes shipped;
 	ConfigFixture cfg;
 
-	const std::string dead = openSession(kUser);
+	const std::string dead = openSessionForTest(kUser);
 	REQUIRE(closeSession(dead));
 
 	const Response out = dispatch(Post, "/api/v1/token/media", "", "", "127.0.0.1",
@@ -7977,7 +7977,7 @@ TEST_CASE("a box still opening to its shipped password asks for one of the owner
 	              ["password_change_required"].asBool());
 	// and one signed in with the shipped password may still leave
 	{
-		const std::string token = openSession("root");
+		const std::string token = openSessionForTest("root");
 		REQUIRE_FALSE(token.empty());
 		const Response out = dispatch(Post, "/api/v1/logout", "", "", "127.0.0.1",
 		                              AuthLevel::System, std::string(), token);
@@ -8220,4 +8220,104 @@ TEST_CASE("a new password over the webserver route signs the others out once the
 	REQUIRE(load(file.path, file.server));
 	REQUIRE(cookieAlone(asking) == AuthLevel::System);
 	REQUIRE(cookieAlone(later) == AuthLevel::System);
+}
+
+namespace
+{
+
+// What both files of a WebFile held right after a probe reset the account.
+struct ResetBetween
+{
+	std::string access;
+	std::string server;
+	std::string access_after;
+	std::string server_after;
+	bool        ran;
+
+	ResetBetween() : ran(false) {}
+};
+
+ResetBetween &resetBetween()
+{
+	static ResetBetween r;
+	return r;
+}
+
+void resetBeforeTheWrite()
+{
+	std::string first, why;
+	resetBetween().ran = login_bridge::resetToFirstPassword(&first, &why);
+	resetBetween().access_after = wholeOf(resetBetween().access);
+	resetBetween().server_after = wholeOf(resetBetween().server);
+}
+
+void watchBoth(const WebFile &file)
+{
+	resetBetween() = ResetBetween();
+	resetBetween().access = file.path;
+	resetBetween().server = file.server;
+	setAccountLockProbeForTest(&resetBeforeTheWrite);
+}
+
+struct ResetProbeCleared
+{
+	~ResetProbeCleared() { setAccountLockProbeForTest(NULL); }
+};
+
+} // namespace
+
+TEST_CASE("a change to the account over /api/v1 that a reset made stale before its write writes nothing",
+          "[write][transaction]")
+{
+	ShippedRoutes shipped;
+	ConfigFixture cfg;
+	ResetProbeCleared cleared;
+	const std::string own = std::string(kWebFileHead) + "password_hash=" + hashSecret(kPassword, 2000) + "\n";
+	WebFile file("stale", own);
+
+	// The password route, signed in: the current password was right for the account
+	// that the reset then replaced.
+	const std::string asking = tokenOf(login(kUser, kPassword));
+	watchBoth(file);
+	const Response put = dispatch(Put, "/api/v1/account/password", "",
+	                              std::string("{\"current\":\"") + kPassword + "\",\"password\":\"a new pass phrase\"}",
+	                              "127.0.0.1", AuthLevel::System, std::string(), asking);
+	REQUIRE(resetBetween().ran);
+	REQUIRE(put.code == 403);
+	REQUIRE(put.body.find("account changed") != std::string::npos);
+	REQUIRE(wholeOf(file.path) == resetBetween().access_after);
+	REQUIRE(wholeOf(file.server) == resetBetween().server_after);
+	REQUIRE(firstPasswordStands());
+	REQUIRE_FALSE(verifySecret("a new pass phrase", loginInEffect().password_hash));
+
+	// The webserver route, with a session the gate let in and the reset then ended.
+	WebFile::put(file.path, own);
+	REQUIRE(load(file.path, file.server));
+	const std::string again = tokenOf(login(kUser, kPassword));
+	watchBoth(file);
+	const Response ws = dispatch(Put, "/api/v1/system/webserver", "",
+	                             "{\"password\":\"a new pass phrase\",\"port\":8090}", "192.0.2.7",
+	                             AuthLevel::System, std::string(), again, "box.example:8081");
+	REQUIRE(resetBetween().ran);
+	REQUIRE(ws.code == 403);
+	REQUIRE(ws.body.find("not-permitted") != std::string::npos);
+	REQUIRE(ws.reload_after.empty());
+	REQUIRE(wholeOf(file.path) == resetBetween().access_after);
+	REQUIRE(wholeOf(file.server) == resetBetween().server_after);
+
+	// And without a session, a caller the reset leaves facing a box that asks for a
+	// password of the owner's own first, as the gate would have answered it.
+	WebFile::put(file.path, own);
+	REQUIRE(load(file.path, file.server));
+	PasswordOwedInstalled owed;
+	watchBoth(file);
+	const Response bare = dispatch(Put, "/api/v1/system/webserver", "",
+	                               "{\"user\":\"admin\",\"port\":8090}", "192.0.2.7",
+	                               AuthLevel::System, std::string(), std::string(), "box.example:8081");
+	REQUIRE(resetBetween().ran);
+	REQUIRE(bare.code == 403);
+	REQUIRE(bare.body.find("password-change-required") != std::string::npos);
+	REQUIRE(wholeOf(file.path) == resetBetween().access_after);
+	REQUIRE(wholeOf(file.server) == resetBetween().server_after);
+	REQUIRE(loginInEffect().username == "root");
 }
