@@ -100,7 +100,8 @@ network. To use the name, add it to `allowed_hosts`;
 the box reads the line again within 10 seconds, without a restart. The web
 interface shows the list under **Settings → Webserver**, but cannot change
 it. A request without a `Host`
-header, as some old scripts send it, is answered as before.
+header, as some old scripts send it, is answered as before. A request that
+names `Host` twice, the same name or not, gets the short page as well.
 
 This keeps out a page of another site that has its own name lead to the
 box's address: a browser would treat the box's answers as that page's own.

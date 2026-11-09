@@ -10,6 +10,7 @@
 
 #include "httpd/authority.h"
 #include "httpd/webconfig.h"
+#include "support/wireserver.h"
 
 #include <cstdio>
 #include <string>
@@ -279,4 +280,38 @@ TEST_CASE("a refused name is told how to reach the box and where a name is added
 	CHECK(unknownHostPage("192.168.1.5:80", lan, false).find(access) != std::string::npos);
 
 	CHECK(std::string(unknownHostDetail()).find("allowed_hosts") != std::string::npos);
+}
+
+TEST_CASE("a Host line twice on the wire is refused, the same name or not, in any case", "[authority][bridge]")
+{
+	/* Read off a socket by nhttpd's own reader, which keeps the header in a map: two
+	   lines of one spelling were one entry there, the last one, and the boundary saw a
+	   single name. An API target, a page and a form alike. */
+	NameSources names;
+	WireServer serving(1, 5000, WireServer::Serial);
+
+	{
+		WireStream once(serving.port, "GET /api/v1/session HTTP/1.0\r\nHost: 127.0.0.1\r\n\r\n");
+		REQUIRE(once.ok());
+		CHECK(once.code() == 200);
+	}
+
+	const char *const twice[] = {
+		"GET /api/v1/session HTTP/1.0\r\nHost: 127.0.0.1\r\nHost: 127.0.0.1\r\n\r\n",
+		"GET /api/v1/session HTTP/1.0\r\nHost: evil.example\r\nHost: 127.0.0.1\r\n\r\n",
+		"GET /api/v1/session HTTP/1.0\r\nHost: 127.0.0.1\r\nHost: evil.example\r\n\r\n",
+		"GET /api/v1/session HTTP/1.0\r\nHost: 127.0.0.1\r\nhost: 127.0.0.1\r\n\r\n",
+		"GET /api/v1/session HTTP/1.0\r\nHOST: 127.0.0.1\r\nHost: 127.0.0.1\r\nhost: 127.0.0.1\r\n\r\n",
+		"GET /control/info HTTP/1.0\r\nHost: 127.0.0.1\r\nHost: 127.0.0.1\r\n\r\n",
+		"POST /control/info HTTP/1.0\r\nHost: 127.0.0.1\r\nHost: 127.0.0.1\r\n"
+		"Content-Type: application/x-www-form-urlencoded\r\nContent-Length: 3\r\n\r\na=b",
+	};
+	for (size_t i = 0; i < sizeof(twice) / sizeof(twice[0]); ++i)
+	{
+		INFO(twice[i]);
+		WireStream s(serving.port, twice[i]);
+		REQUIRE(s.ok());
+		CHECK(s.code() == 400);
+		CHECK(s.readToEof(2000).find("allowed_hosts") != std::string::npos);
+	}
 }

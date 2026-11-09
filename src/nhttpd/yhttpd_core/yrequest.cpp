@@ -330,12 +330,26 @@ bool CWebserverRequest::ParseHeader(std::string header) {
 	std::string sheader = "", name = "", value = "";
 	if(!HeaderList.empty())
 		HeaderList.clear();
+	// the spelling of the first Host line, which every later one in any case joins
+	std::string host_name;
 
 	while (!ende) {
 		if (!ySplitStringExact(header, "\r\n", sheader, header))
 			ende = true;
-		if (ySplitStringExact(sheader, ":", name, value))
-			HeaderList[name] = trim(value);
+		if (ySplitStringExact(sheader, ":", name, value)) {
+			/* A second Host line, the same or not, in any case: kept with the first
+			   as one list rather than in place of it, as HTTP joins a field named
+			   twice. No authority reads that way, so the request boundary refuses
+			   the request, as HTTP asks of one naming more than one Host. */
+			const bool host = string_tolower(name) == "host";
+			if (host && !host_name.empty())
+				HeaderList[host_name] += ", " + trim(value);
+			else {
+				if (host)
+					host_name = name;
+				HeaderList[name] = trim(value);
+			}
+		}
 		log_level_printf(8, "ParseHeader: name: %s value: %s\n", ylog::text(name).c_str(),
 				ylog::headerValue(name, value).c_str());
 	}
