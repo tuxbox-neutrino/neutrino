@@ -107,6 +107,13 @@
 		<label for="wizUser" data-l="wiz.login_user">Username</label>
 		<input type="text" id="wizUser" autocomplete="username" value="root" style="margin-bottom:1.2rem">
 
+		<label for="wizCurrent" data-l="wiz.login_current">Current password</label>
+		<div class="wiz-pw-row">
+			<input type="password" id="wizCurrent" autocomplete="current-password" aria-describedby="wizCurrentHint">
+			<button type="button" class="webui-btn" aria-pressed="false" aria-label="Show password" data-l-aria-label="set.pw_show" onclick="wizTogglePw('wizCurrent', this)"></button>
+		</div>
+		<small class="wiz-note" id="wizCurrentHint" data-l="wiz.login_current_hint" style="display:block;margin-bottom:1.2rem">Needed to change the password or the user name: the password you signed in with.</small>
+
 		<label for="wizPass" data-l="wiz.login_pass">Password</label>
 		<div class="wiz-pw-row">
 			<input type="password" id="wizPass" autocomplete="new-password">
@@ -121,7 +128,7 @@
 
 		<!-- Fehlerelement existiert vorab im DOM, sonst wird nichts angesagt -->
 		<small class="wiz-err" id="wizErr" role="alert" tabindex="-1" hidden></small>
-		<small class="wiz-note" data-l="wiz.login_note">After saving, the browser asks for the new login. Access from the box itself stays open.</small>
+		<small class="wiz-note" id="wizLoginNote" data-l="wiz.login_note">A changed login keeps you signed in here; other browsers and apps sign in again with it. Access from the box itself stays open.</small>
 
 		<div class="wiz-actions">
 			<button type="button" class="webui-btn ghost" id="wizSkip" onclick="wizLoginDone()" data-l="wiz.login_skip">Skip</button>

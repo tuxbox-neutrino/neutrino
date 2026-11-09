@@ -26,7 +26,16 @@
 // protection). opts.refused() is called when the box refused the request and
 // it waits for the session to be read or the sign-in, opts.retried() when it
 // is sent once more afterwards: a page that keeps count of its changes on the
-// way leaves the wait out.
+// way leaves the wait out. opts.once sends a request that checks a password
+// once and no more: its 403 is thrown as it came, without reading the session
+// again, opening the sign-in or sending it a second time, which would count a
+// wrong password twice; a page reads the session (webuiV1Session, and
+// webuiV1SignIn where none is open) before such a request instead.
+//
+// A change of the login gives the page's session new tokens: the browser keeps
+// the new cookie by itself, and webuiV1Renewed(csrf) takes the second token the
+// answer carries (caller.csrf of PUT /system/webserver); without one it leaves
+// the token the page has.
 //
 // A change the box takes long to answer shows that it is under way, a bar
 // at the top and a spinner on the button whose click sent it
@@ -167,7 +176,8 @@ async function webuiV1(method, path, opts) {
 		if (await _webuiV1ChangeOwed(resp))
 			throw await _webuiV1Error(resp, method, path);
 		var declined = false;
-		if (resp.status === 403) {
+		// opts.once: a request that checks a password is not sent a second time
+		if (resp.status === 403 && !opts.once) {
 			// no open session, or a stale token
 			if (done) done();
 			if (opts.refused) opts.refused();

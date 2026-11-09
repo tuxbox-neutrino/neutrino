@@ -479,6 +479,9 @@ var SETTINGS_REGISTRY = [
 				fields: [
 					{ key: 'page_login', label: webuiL('reg.auth', 'Password protection'), type: 'bool' },
 					{ key: 'user', label: webuiL('set.mnt_user', 'User'), type: 'text' },
+					// sent only with a new password or user name, which the box changes only with it
+					{ key: 'current', label: webuiL('set.pw_current', 'Current password'), type: 'password', autocomplete: 'current-password',
+					  hint: webuiL('set.pw_current_hint', 'needed to change the password or the user name: the password you sign in with') },
 					{ key: 'password', label: webuiL('set.mnt_pass', 'Password'), type: 'password' },
 					{ key: 'no_login_prefix', label: webuiL('reg.noauth_client', 'Without login (IP prefix)'), type: 'text',
 					  hint: webuiL('reg.noauth_client_hint', 'callers whose address begins with this see the pages without the login, and the box itself always does; a change made in the web interface still asks for the sign-in') },

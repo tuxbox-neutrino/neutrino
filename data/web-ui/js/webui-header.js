@@ -2714,6 +2714,7 @@ var WEBUI_ERR_TEXTS = {
 	'recording-holds-tuner': 'A recording holds the tuner',
 	'plugin-running': 'A plugin is still running on the box',
 	'password-on-screen': 'No screenshot while the TV shows a password',
+	'wrong-current-password': 'The current password is not correct',
 	'no-running-channel': 'No channel is running',
 	'timer-exists': 'This timer exists already',
 	'timer-in-the-past': 'The time lies in the past',

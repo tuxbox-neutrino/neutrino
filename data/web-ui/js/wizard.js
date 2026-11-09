@@ -18,6 +18,10 @@ var wizParams = new URLSearchParams(location.search);
 var wizLoginOnly = wizParams.get('step') === 'login';
 var wizTarget = 'dashboard.html';
 var wizPwShipped = false;
+// whether a password is set, which a new one is set only with the current one of
+var wizHasPw = true;
+// the user name the box has, which a new one is set only with the current password for
+var wizUserWas = 'root';
 
 // The active language, by its code, so it is only written when it
 // changes (a write has the web server read its file again).
@@ -49,6 +53,7 @@ async function wizV1(method, path, body) {
 	if (!r.ok) {
 		var e = new Error((data && (data.detail || data.title)) || ('HTTP ' + r.status));
 		e.status = r.status;
+		e.code = (data && typeof data.type === 'string' && data.type.indexOf('/errors/') === 0) ? data.type.substring(8) : '';
 		throw e;
 	}
 	return data;
@@ -89,7 +94,9 @@ async function wizLoadLogin() {
 		var w = await wizV1('GET', '/system/webserver');
 		document.getElementById('wizAuth').checked = !!w.page_login;
 		document.getElementById('wizUser').value = w.user || 'root';
+		wizUserWas = w.user || 'root';
 		wizPwShipped = !!w.password_shipped;
+		wizHasPw = w.has_password !== false;
 	} catch (e) {}
 }
 
@@ -131,7 +138,8 @@ async function wizAfterRestart(answer) {
 	var caller = (answer && answer.caller) || {};
 	var was = (answer && answer.webserver) || {};
 	if (!caller.restarting) return;
-	var note = document.querySelector('#wizCardLogin .wiz-note');
+	// the note under the card, by its name: the hint of the current password is one too
+	var note = document.getElementById('wizLoginNote');
 	var noteWas = note ? note.textContent : '';
 	if (note) note.textContent = webuiL('set.ws_restarting', 'The web server restarts with the new settings');
 	var end = Date.now() + 30000;
@@ -178,9 +186,20 @@ async function wizLoginSave(btn) {
 	// in the gap: both wait for the save
 	var skip = document.getElementById('wizSkip');
 	btn.disabled = skip.disabled = true;
+	var current = document.getElementById('wizCurrent').value;
+	// a new password or user name is set only with the current password
+	var asks = !!pw || user !== wizUserWas;
+	if (asks && wizHasPw && !current) {
+		btn.disabled = skip.disabled = false;
+		wizError(webuiL('wiz.login_needcurrent', 'Please enter the current password as well.'));
+		document.getElementById('wizCurrent').focus();
+		return;
+	}
 	var body = {page_login: auth, user: user};
 	if (pw)
 		body.password = pw;
+	if (asks && current)
+		body.current = current;
 	try {
 		var answer = await wizV1('PUT', '/system/webserver', body);
 		// saved: a second save after a server slow to come back asks
@@ -189,14 +208,17 @@ async function wizLoginSave(btn) {
 		if (pw) {
 			document.getElementById('wizPass').value = '';
 			document.getElementById('wizPass2').value = '';
+			document.getElementById('wizCurrent').value = '';
 			wizPwShipped = false;
 		}
 		await wizAfterRestart(answer);
 		wizLoginDone();
 	} catch (e) {
 		btn.disabled = skip.disabled = false;
-		// the one this page writes itself (not back in time) is its own text
-		wizError(e.message === WIZ_AWAY ? WIZ_AWAY : e.wizSaid ? e.message : wizErrText(e));
+		// the one this page writes itself (not back in time) is its own text, and a
+		// current password that is not the one in effect says so
+		wizError(e.message === WIZ_AWAY ? WIZ_AWAY : e.wizSaid ? e.message
+			: e.code === 'wrong-current-password' ? webuiL('pw.wrong', 'The current password is not correct.') : wizErrText(e));
 	}
 }
 

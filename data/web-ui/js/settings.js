@@ -189,7 +189,7 @@ function renderField(f, opts) {
 		var pattr = f.pattern ? ' pattern="' + escapeHtml(f.pattern) + '"' : '';
 		if (f.maxlength) pattr += ' maxlength="' + escapeHtml(String(f.maxlength)) + '"';
 		return row + labelFor + '<span>' +
-			'<input type="password" id="' + id + '" data-key="' + escapeHtml(f.key) + '"' + ext + dis + described + pattr + ' autocomplete="new-password" value="' + val.replace(/"/g, '&quot;') + '">' +
+			'<input type="password" id="' + id + '" data-key="' + escapeHtml(f.key) + '"' + ext + dis + described + pattr + ' autocomplete="' + escapeHtml(f.autocomplete || 'new-password') + '" value="' + val.replace(/"/g, '&quot;') + '">' +
 			' <button type="button" class="webui-btn" aria-pressed="false" aria-label="' + webuiLH('set.pw_show', 'Show password') + '" onclick="togglePwField(\'' + id + '\', this)">' + EYEOFF_ICON + '</button></span></div>';
 	}
 	// text — optional mit Verzeichnis-Picker (f.picker: true)
@@ -521,6 +521,21 @@ async function saveExtConfig(catId, cfgName, btn) {
 			changed++;
 		}
 	});
+	if (webserver) {
+		// the current password goes only with a new password or user name, which the
+		// box changes only with it
+		var asks = ('password' in changes) || ('user' in changes);
+		if ('current' in changes) {
+			if (!asks) delete changes.current;
+			changed--;
+		}
+		if (asks && !('current' in changes) && cfg.has_password === true) {
+			webuiShowToast(webuiL('set.pw_current_need', 'Please enter the current password as well.'), true);
+			var cur = root.querySelector('[data-key="current"]');
+			if (cur) cur.focus();
+			return;
+		}
+	}
 	if (changed === 0) { webuiShowToast(webuiL('set.nochanges', 'No changes')); return; }
 	btn.disabled = true;
 	var after = '';
@@ -528,7 +543,16 @@ async function saveExtConfig(catId, cfgName, btn) {
 		if (webui)
 			await webuiSettingsWrite(changes);
 		else if (webserver) {
-			var written = await webuiV1('PUT', '/system/webserver', {body: changes});
+			/* A current password is sent once, a wrong one counting like a wrong
+			   sign-in; so the session it goes with is read first, and one that ended
+			   meanwhile (a deep standby, its lifetime) is signed in again before, and
+			   its refusal is never taken for a wrong password. */
+			var checks = 'current' in changes;
+			if (checks && !(await webuiV1Session()) && !(await webuiV1SignIn())) {
+				btn.disabled = false;
+				return;
+			}
+			var written = await webuiV1('PUT', '/system/webserver', {body: changes, once: checks});
 			// a new login hands this page's session new tokens
 			webuiV1Renewed(written && written.caller && written.caller.csrf);
 			after = await webserverAfterWrite(written);
@@ -545,7 +569,11 @@ async function saveExtConfig(catId, cfgName, btn) {
 		if (after !== 'restarting') webuiShowToast(changed + ' ' + (changed > 1 ? webuiL('set.saved_many', 'settings saved') : webuiL('set.saved_one', 'setting saved')));
 		await loadExtConfigPanel(SETTINGS_REGISTRY.find(function(c) { return c.id === catId; }) || EXT_SETTINGS_CATS[catId]);
 	} catch (e) {
-		webuiToastError(webuiL('msg.error', 'Error'), e);
+		// only the refusal that says so is a wrong current password
+		if (webserver && e && e.code === 'wrong-current-password')
+			webuiShowToast(webuiL('pw.wrong', 'The current password is not correct.'), true);
+		else
+			webuiToastError(webuiL('msg.error', 'Error'), e);
 	}
 	btn.disabled = false;
 }

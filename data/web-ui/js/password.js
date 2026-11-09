@@ -72,8 +72,17 @@ async function pwSubmit(e) {
 		}
 		// each refusal the route names in the page's words, never the box's
 		// own English; another by the kind its status says
-		if (resp.status === 403)
-			pwNote(pwText('wrong'));
+		// only the refusal that says so is a wrong current password; another 403 is
+		// the session, which the page reads again on the next try
+		if (resp.status === 403) {
+			var code = '';
+			try {
+				var p = await resp.json();
+				if (p && typeof p.type === 'string' && p.type.indexOf('/errors/') === 0)
+					code = p.type.substring(8);
+			} catch (ignore) {}
+			pwNote(code === 'wrong-current-password' ? pwText('wrong') : pwText('failed') + ': ' + webuiKindText(403));
+		}
 		else if (resp.status === 400)
 			pwNote(pwText('bad'));
 		else if (resp.status === 429)
