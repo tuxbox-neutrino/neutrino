@@ -116,7 +116,7 @@ for macro in HTTPD_ACCESS_FILE HTTPD_SERVER_FILE HTTPD_ACCESS_FORMER_FILE; do
 	}
 done
 grep -qF 'names.push_back(httpd::workingFile(stores[i]));' "$CONTROL" \
-	&& grep -qF 'yprotect::setFiles(accessFiles());' "$CONTROL" || {
+	&& grep -qF 'yprotect::setFiles(accessFiles())' "$CONTROL" || {
 	echo "check-access-store.sh: $CONTROL no longer hands the stores and their working files" >&2
 	echo "  to yprotect::setFiles" >&2
 	exit 1

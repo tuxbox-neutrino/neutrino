@@ -115,6 +115,11 @@ const char *rangeRefusedDetail()
 	return "the stretch that was asked for is not in this file";
 }
 
+const char *heldBackDetail()
+{
+	return "nothing is handed out under this name";
+}
+
 bool start(const ServerConfig &c)
 {
 	if (start_hand == 0)

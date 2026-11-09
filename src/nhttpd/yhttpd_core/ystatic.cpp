@@ -17,6 +17,7 @@
 
 #include "yconfig.h"
 #include "yhook.h"
+#include "yprotect.h"
 #include "ystatic.h"
 
 namespace ystatic
@@ -87,13 +88,14 @@ bool endsWithNoCase(const std::string &s, const char *tail)
 }
 
 // Opens name, without waiting on a FIFO, and answers the descriptor when
-// ownOpened accepts it; else -1. below as there.
+// ownOpened accepts it and it is none of the files that hold who may reach
+// the box (yprotect); else -1. below as there.
 int openOwnFile(CyhookHandler *hh, const std::string &name, std::string &below)
 {
 	const int fd = open(name.c_str(), O_RDONLY | O_CLOEXEC | O_NONBLOCK);
 	if (fd < 0)
 		return -1;
-	if (!ownOpened(hh, fd, below)) {
+	if (!ownOpened(hh, fd, below) || yprotect::isProtected(fd) || yprotect::inKeptPlace(fd)) {
 		close(fd);
 		return -1;
 	}
@@ -355,6 +357,22 @@ int openPublic(CyhookHandler *hh, const Target &t)
 	return fd;
 }
 
+int openToSend(const std::string &name, struct stat &st, bool config_ok)
+{
+	if (name.empty())
+		return -1;
+	const int fd = open(name.c_str(), O_RDONLY | O_CLOEXEC | O_NONBLOCK);
+	if (fd < 0)
+		return -1;
+	if (fstat(fd, &st) != 0 || !S_ISREG(st.st_mode) || yprotect::isProtected(fd)
+			|| yprotect::inKeptPlace(fd, config_ok)) {
+		close(fd);
+		return -1;
+	}
+	fcntl(fd, F_SETFL, fcntl(fd, F_GETFL) & ~O_NONBLOCK);
+	return fd;
+}
+
 std::string reparseSafe(const std::string &name)
 {
 	std::string out;
@@ -372,4 +390,70 @@ std::string reparseSafe(const std::string &name)
 	return out;
 }
 
+namespace
+{
+
+// the path with every link followed where it is there, else as written
+// without doubled or trailing slashes and . segments; empty for a path that
+// is not absolute or has a .. segment
+std::string placeOf(const std::string &path)
+{
+	if (path.empty() || path[0] != '/' || stepsOut(path))
+		return std::string();
+	const std::string real = realOf(path);
+	if (!real.empty())
+		return real;
+	std::string out;
+	size_t at = 0;
+	while (at < path.size()) {
+		size_t slash = path.find('/', at);
+		if (slash == std::string::npos)
+			slash = path.size();
+		const std::string piece = path.substr(at, slash - at);
+		if (!piece.empty() && piece != ".")
+			out += "/" + piece;
+		at = slash + 1;
+	}
+	return out.empty() ? std::string("/") : out;
+}
+
+// a lies in b or is b
+bool within(const std::string &a, const std::string &b)
+{
+	if (b == "/")
+		return true;
+	return a == b || (a.size() > b.size() && a.compare(0, b.size(), b) == 0 && a[b.size()] == '/');
+}
+
+} // namespace
+
+std::vector<std::string> keptPlaces()
+{
+	return yprotect::keptPlaces();
+}
+
+std::string rootRefused(const std::string &root, const std::vector<std::string> &kept)
+{
+	const std::string r = placeOf(root);
+	if (r.empty())
+		return "it is no absolute path without .. in it";
+	for (size_t i = 0; i < kept.size(); i++) {
+		const std::string k = placeOf(kept[i]);
+		if (k.empty())
+			continue;
+		if (within(k, r))
+			return r == k ? "it is " + kept[i] : "it holds " + kept[i];
+		if (within(r, k))
+			return "it lies in " + kept[i];
+	}
+	/* /tmp itself is no web folder either, nor one that holds it: captures,
+	   uploads and archives wait there, by names other requests could ask
+	   for. A folder below it is one like any other. */
+	const std::string tmp = placeOf("/tmp");
+	if (!tmp.empty() && within(tmp, r))
+		return r == tmp ? "it is /tmp" : "it holds /tmp";
+	return std::string();
+}
+
 } // namespace ystatic
+

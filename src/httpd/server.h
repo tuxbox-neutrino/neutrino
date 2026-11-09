@@ -57,6 +57,10 @@ ServerConfig defaultConfig();
 
 const char *tooLargeDetail();
 const char *rangeRefusedDetail();
+// The 404 a file answer meets where its descriptor holds one of the files that
+// hold who may reach the box (yprotect), asked where the answer is handed to the
+// transport whatever route opened it.
+const char *heldBackDetail();
 
 // False when the port cannot be bound, because the box may already be running
 // something there and a server that cannot listen is not a reason to end the program

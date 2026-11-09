@@ -454,7 +454,7 @@ coreapi::epg::Kind xmltvKindFor(const Request &r)
 /* The file coreapi wrote is opened here and removed under its name in the same breath,
    whether or not the open worked: the name was this request's alone, and a request that
    fails between here and the transport sending the answer must not be the reason one is
-   left in /tmp. What is left is the descriptor answerFromDescriptor takes over. */
+   left in /tmp. What is left is the descriptor answerFromOwnUnnamed takes over. */
 Response xmltvResponse(const std::string &path)
 {
 	const int fd = ::open(path.c_str(), O_RDONLY | O_CLOEXEC);
@@ -462,7 +462,7 @@ Response xmltvResponse(const std::string &path)
 
 	Response out;
 	out.code = StatusOk;
-	if (!answerFromDescriptor(out, fd))
+	if (!answerFromOwnUnnamed(out, fd))
 		return problemResponse(StatusInternalServerError, coreapi::ErrorCode::ChangeRefused,
 				       "the guide could not be read back for sending");
 	out.content_type = "application/xml";

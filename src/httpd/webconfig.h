@@ -466,6 +466,18 @@ bool saveServerFile(const std::string &path, const std::map<std::string, std::st
    be made; nhttpd calls it directly, so nothing leaves it as an exception. */
 std::string workingFile(const std::string &path);
 
+/* Called by every write of this layer once it has made the working file and kept
+   it as one of the files that hold who may reach the box (coreapi::accessfiles),
+   before a byte of the content is written; with the working file's name, NULL, as
+   the program runs, for none. A case uses it to hold a write at that point. */
+void setAfterCreateForTest(void (*hook)(const std::string &working));
+
+/* Called by every write of this layer that replaces a file, once the new content
+   is committed under the working name and before the working name takes the place
+   of path; NULL, as the program runs, for none. A case uses it to hold a write at
+   that point. */
+void setBeforeReplaceForTest(void (*hook)(const std::string &path));
+
 /* What nhttpd.conf (serverPath) says about the above now, and nhttpd's defaults
    where it says nothing, where there is no such file, or where none was named. */
 ServerOptions currentServerOptions();

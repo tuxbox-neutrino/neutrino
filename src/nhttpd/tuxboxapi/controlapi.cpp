@@ -164,7 +164,12 @@ CControlAPI::CControlAPI(CNeutrinoAPI *_NeutrinoAPI)
 	NeutrinoAPI = _NeutrinoAPI;
 	seedLegacyUsage();
 	ystatic::setRawPlaceTest(boxRawPlace);
-	yprotect::setFiles(accessFiles());
+	/* A file there is that could not be kept is still held back by its name,
+	   and a writer keeps it before it replaces it; said, so a box that ran out
+	   of descriptors at its start does not leave that unsaid. */
+	if (!yprotect::setFiles(accessFiles()))
+		aprintf("[controlapi] a file that holds who may reach the box could not be kept by what it is; "
+			"it is held back by its name\n");
 }
 //-----------------------------------------------------------------------------
 /* The plugin folders only. The web folder, the override folder and the
@@ -5109,8 +5114,12 @@ void CControlAPI::LogoCGI(CyhookHandler *hh)
 		sscanf(hh->ParamList["id"].c_str(), SCANF_CHANNEL_ID_TYPE, &channel_id);
 
 	std::string logo = NeutrinoAPI->getLogoFile(channel_id);
+	/* Opened once, checked on what was opened and sent from that descriptor:
+	   a channel list can name any file as a channel's picture, and none of
+	   the files that hold who may reach the box goes out (yprotect). */
 	struct stat statbuf;
-	if (logo.empty() || stat(logo.c_str(), &statbuf) != 0 || !S_ISREG(statbuf.st_mode))
+	const int fd = ystatic::openToSend(logo, statbuf);
+	if (fd < 0)
 	{
 		hh->SetHeader(HTTP_NOT_FOUND, "application/json; charset=UTF-8", HANDLED_READY);
 		hh->WriteLn("{\"success\": \"false\", \"error\":{\"msg\": \"no logo\"}}");
@@ -5148,6 +5157,7 @@ void CControlAPI::LogoCGI(CyhookHandler *hh)
 		 || start < 0 || start > end || end > (long long) hh->ContentLength - 1)
 		{
 			// no body: BuildHeader() forces Content-Length: 0 for 416 anyway
+			close(fd);
 			hh->SetHeader(HTTP_REQUEST_RANGE_NOT_SATISFIABLE, mime, HANDLED_READY);
 			return;
 		}
@@ -5158,7 +5168,7 @@ void CControlAPI::LogoCGI(CyhookHandler *hh)
 
 	// set the status last: SetHeader() would otherwise reset 206 back to 200
 	hh->SetHeader(status, mime);
-	hh->SendFile(logo);
+	hh->SendOpenedFile(fd, ystatic::reparseSafe(logo));
 }
 //-------------------------------------------------------------------------
 /** Get Config File or save values to given config file

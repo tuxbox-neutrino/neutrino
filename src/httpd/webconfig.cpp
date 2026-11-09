@@ -29,6 +29,7 @@
 #include "auth.h"
 #include "credentials.h"
 #include "randomsource.h"
+#include "coreapi/base/accessfiles.h"
 
 #include <configfile.h>
 
@@ -1133,6 +1134,56 @@ int renameNoReplace(const char *from, const char *to)
 #endif
 }
 
+void (*afterCreate)(const std::string &working) = NULL;
+void (*beforeReplace)(const std::string &path) = NULL;
+
+/* Every file the two writers below make is one of those that hold who may reach
+   the box, and is kept as one from the moment it is made, before a byte of it is
+   written (coreapi::accessfiles): a descriptor opened on it while it is written,
+   or under the name it gets afterwards, is never handed out. Made while no gate
+   asks about a descriptor (Making), so none opened on it before it was kept is let
+   through either. The descriptor, or -1 with the file removed and the reason said:
+   a file that could not be kept is not written at all. */
+int makeAccessFile(const std::string &working, mode_t mode)
+{
+	int fd;
+	{
+		coreapi::accessfiles::Making making;
+		fd = ::open(working.c_str(), O_WRONLY | O_CREAT | O_EXCL | O_CLOEXEC, mode);
+		if (fd < 0)
+		{
+			complain(std::string("cannot create ") + working + ": " + std::strerror(errno));
+			return -1;
+		}
+		if (!coreapi::accessfiles::created(fd))
+		{
+			::close(fd);
+			::unlink(working.c_str());
+			complain("cannot keep " + working + " as a file that holds who may reach the box, "
+				 "so nothing is written");
+			return -1;
+		}
+	}
+	if (afterCreate != NULL)
+		afterCreate(working);
+	return fd;
+}
+
+/* A working file a write that did not end left behind is one of those files as
+   well, and may have a second name elsewhere: kept before its name goes, so that
+   name stays held back. One that cannot be kept stays, and nothing is written. */
+bool discardWorking(const std::string &working)
+{
+	if (!coreapi::accessfiles::named(working))
+	{
+		complain("cannot keep " + working + ", left by a write that did not end, as a file that "
+			 "holds who may reach the box, so it stays and nothing is written");
+		return false;
+	}
+	::unlink(working.c_str());
+	return true;
+}
+
 /* The content goes to a working name first and is committed there, and only then
    is path made a second name of it: a link, which like the exclusive creation
    before it refuses a name that is taken, and which is one step, so a power cut
@@ -1152,14 +1203,12 @@ bool writeNewFile(const std::string &path, const std::string &text)
 	}
 
 	const std::string working = workingFile(path);
-	::unlink(working.c_str());
-
-	const int fd = ::open(working.c_str(), O_WRONLY | O_CREAT | O_EXCL | O_CLOEXEC, S_IRUSR | S_IWUSR);
-	if (fd < 0)
-	{
-		complain(std::string("cannot create ") + working + ": " + std::strerror(errno));
+	if (!discardWorking(working))
 		return false;
-	}
+
+	const int fd = makeAccessFile(working, S_IRUSR | S_IWUSR);
+	if (fd < 0)
+		return false;
 
 	bool ok = writeWholeFile(fd, text);
 
@@ -1670,14 +1719,12 @@ bool writeFirstFile(const std::string &out_path, const std::string &old_path, bo
 bool replaceFile(const std::string &path, const std::string &text, mode_t mode = S_IRUSR | S_IWUSR)
 {
 	const std::string working = workingFile(path);
-	::unlink(working.c_str());
-
-	const int fd = ::open(working.c_str(), O_WRONLY | O_CREAT | O_EXCL | O_CLOEXEC, mode);
-	if (fd < 0)
-	{
-		complain(std::string("cannot create ") + working + ": " + std::strerror(errno));
+	if (!discardWorking(working))
 		return false;
-	}
+
+	const int fd = makeAccessFile(working, mode);
+	if (fd < 0)
+		return false;
 
 	bool ok = writeWholeFile(fd, text);
 	if (ok && ::fsync(fd) != 0)
@@ -1685,6 +1732,17 @@ bool replaceFile(const std::string &path, const std::string &text, mode_t mode =
 	if (::close(fd) != 0)
 		ok = false;
 
+	/* The file this one replaces is kept before it loses its name, where the start
+	   could not keep it: a second name of it, or a descriptor on it, stays held
+	   back. Not kept, it is not replaced. */
+	if (ok && !coreapi::accessfiles::named(path))
+	{
+		complain("cannot keep " + path + " as a file that holds who may reach the box, "
+			 "so it is not replaced");
+		ok = false;
+	}
+	if (ok && beforeReplace != NULL)
+		beforeReplace(path);
 	if (ok && ::rename(working.c_str(), path.c_str()) != 0)
 	{
 		complain(std::string("cannot put ") + working + " in the place of " + path + ": " +
@@ -2394,6 +2452,16 @@ bool sameServerOptions(const ServerOptions &a, const ServerOptions &b)
 	return a.page_login == b.page_login && a.no_login_prefix == b.no_login_prefix &&
 	       a.threading == b.threading && a.override_directory == b.override_directory &&
 	       a.hosted_directory == b.hosted_directory && a.send_all_types == b.send_all_types;
+}
+
+void setAfterCreateForTest(void (*hook)(const std::string &path))
+{
+	afterCreate = hook;
+}
+
+void setBeforeReplaceForTest(void (*hook)(const std::string &path))
+{
+	beforeReplace = hook;
 }
 
 // nhttpd, built without exceptions, calls this directly: nothing leaves it
@@ -3235,6 +3303,11 @@ bool takeOverFormer(const std::string &former_path, const std::string &out_path)
 bool ensureConfigFile(const std::string &nhttpd_conf, const std::string &out_path,
 		      const std::string &former_path)
 {
+	/* Nothing below removes one of the files, or the working file one is written
+	   through, before it is kept by what it is (the former name here, a working
+	   file by the writers, a file replaced by replaceFile): a second name one has
+	   elsewhere stays held back once its name here is gone, and a file that
+	   cannot be kept is left where it is. */
 	/* A link to a file counts as the file: a box that kept its login there
 	   through a link is a box with a login, and building one out of nhttpd's
 	   file instead would hand it the one it shipped with. It is read through
@@ -3255,7 +3328,8 @@ bool ensureConfigFile(const std::string &nhttpd_conf, const std::string &out_pat
 	   where it cannot. */
 	if (::lstat(out_path.c_str(), &st) == 0)
 	{
-		if (have_former && ::unlink(former_path.c_str()) == 0)
+		if (have_former && coreapi::accessfiles::named(former_path) &&
+		    ::unlink(former_path.c_str()) == 0)
 			complain(former_path + " was left beside " + out_path + " and is removed; " +
 				 out_path + " is the one in effect");
 		return false;
@@ -3270,7 +3344,7 @@ bool ensureConfigFile(const std::string &nhttpd_conf, const std::string &out_pat
 	{
 		if (!takeOverFormer(former_path, out_path))
 			return false;
-		if (::unlink(former_path.c_str()) != 0)
+		if (!coreapi::accessfiles::named(former_path) || ::unlink(former_path.c_str()) != 0)
 			complain(std::string("cannot remove ") + former_path + " after taking it over: " +
 				 std::strerror(errno));
 		return true;

@@ -122,7 +122,7 @@ coreapi::streaming::Scope scopeFor(const Request &r)
    breath, whether or not the open worked: the name was this request's alone, and a
    request that fails between here and the transport sending the answer must not be
    the reason one is left in /tmp. What is left afterwards is the descriptor
-   answerFromDescriptor takes over, which is what frees the space once it is done. */
+   answerFromOwnUnnamed takes over, which is what frees the space once it is done. */
 Response playlistAt(const std::string &path)
 {
 	const int fd = ::open(path.c_str(), O_RDONLY | O_CLOEXEC);
@@ -130,7 +130,7 @@ Response playlistAt(const std::string &path)
 
 	Response out;
 	out.code = StatusOk;
-	if (!answerFromDescriptor(out, fd))
+	if (!answerFromOwnUnnamed(out, fd))
 		return problemResponse(StatusInternalServerError, coreapi::ErrorCode::ChangeRefused,
 				       "the playlist could not be read back for sending");
 	out.content_type = playlistContentType();

@@ -1776,6 +1776,10 @@ void statedRefusals(const Endpoint &ep, std::vector<StatedRefusal> &out)
 
 	if (takesBody(ep))
 		state(out, StatusPayloadTooLarge, coreapi::ErrorCode::BodyTooLarge, tooLargeDetail(), "body");
+	// Asked of every file answer where it is handed to the transport.
+	if ((ep.answers & Answers206) != 0)
+		state(out, StatusNotFound, coreapi::ErrorCode::NoSuchName, heldBackDetail(), "held-back",
+		      "-held-back");
 	if ((ep.answers & Answers206) != 0)
 		state(out, StatusRangeNotSatisfiable, coreapi::ErrorCode::RangeOutsideFile,
 		      rangeRefusedDetail(), "range");

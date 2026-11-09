@@ -113,7 +113,8 @@ libcoreapi_a_SOURCES = \
 	shares.cpp \
 	daemons.cpp \
 	base/eventbus.cpp \
-	base/messagebridge.cpp
+	base/messagebridge.cpp \
+	base/accessfiles.cpp
 
 noinst_HEADERS = \
 	base/errors.h \
@@ -166,7 +167,8 @@ noinst_HEADERS = \
 	netfs.h \
 	daemons.h \
 	base/eventbus.h \
-	base/messagebridge.h
+	base/messagebridge.h \
+	base/accessfiles.h
 
 EXTRA_DIST = check-layering.sh
 

@@ -336,6 +336,9 @@
 							},
 							"no-such-logo": {
 								"$ref": "#/components/examples/no-such-logo"
+							},
+							"no-such-name-held-back": {
+								"$ref": "#/components/examples/no-such-name-held-back"
 							}
 						}
 					}
@@ -1160,6 +1163,21 @@
 					}
 				}
 			},
+			"refused-404-10": {
+				"description": "Not found",
+				"content": {
+					"application/problem+json": {
+						"schema": {
+							"$ref": "#/components/schemas/problem"
+						},
+						"examples": {
+							"no-such-name-held-back": {
+								"$ref": "#/components/examples/no-such-name-held-back"
+							}
+						}
+					}
+				}
+			},
 			"refused-400-21": {
 				"description": "Bad request",
 				"content": {
@@ -1205,7 +1223,7 @@
 					}
 				}
 			},
-			"refused-404-10": {
+			"refused-404-11": {
 				"description": "Not found",
 				"content": {
 					"application/problem+json": {
@@ -1256,7 +1274,7 @@
 					}
 				}
 			},
-			"refused-404-11": {
+			"refused-404-12": {
 				"description": "Not found",
 				"content": {
 					"application/problem+json": {
@@ -1298,7 +1316,7 @@
 					}
 				}
 			},
-			"refused-404-12": {
+			"refused-404-13": {
 				"description": "Not found",
 				"content": {
 					"application/problem+json": {
@@ -1370,7 +1388,7 @@
 					}
 				}
 			},
-			"refused-404-13": {
+			"refused-404-14": {
 				"description": "Not found",
 				"content": {
 					"application/problem+json": {
@@ -1427,7 +1445,7 @@
 					}
 				}
 			},
-			"refused-404-14": {
+			"refused-404-15": {
 				"description": "Not found",
 				"content": {
 					"application/problem+json": {
@@ -1613,7 +1631,7 @@
 					}
 				}
 			},
-			"refused-404-15": {
+			"refused-404-16": {
 				"description": "Not found",
 				"content": {
 					"application/problem+json": {
@@ -1880,7 +1898,7 @@
 					}
 				}
 			},
-			"refused-404-16": {
+			"refused-404-17": {
 				"description": "Not found",
 				"content": {
 					"application/problem+json": {
@@ -1922,7 +1940,7 @@
 					}
 				}
 			},
-			"refused-404-17": {
+			"refused-404-18": {
 				"description": "Not found",
 				"content": {
 					"application/problem+json": {
@@ -1982,7 +2000,7 @@
 					}
 				}
 			},
-			"refused-404-18": {
+			"refused-404-19": {
 				"description": "Not found",
 				"content": {
 					"application/problem+json": {
@@ -2225,7 +2243,7 @@
 					}
 				}
 			},
-			"refused-404-19": {
+			"refused-404-20": {
 				"description": "Not found",
 				"content": {
 					"application/problem+json": {
@@ -2297,7 +2315,7 @@
 					}
 				}
 			},
-			"refused-404-20": {
+			"refused-404-21": {
 				"description": "Not found",
 				"content": {
 					"application/problem+json": {
@@ -2465,7 +2483,7 @@
 					}
 				}
 			},
-			"refused-404-21": {
+			"refused-404-22": {
 				"description": "Not found",
 				"content": {
 					"application/problem+json": {
@@ -3104,7 +3122,7 @@
 					}
 				}
 			},
-			"refused-404-22": {
+			"refused-404-23": {
 				"description": "Not found",
 				"content": {
 					"application/problem+json": {
@@ -3134,7 +3152,7 @@
 					}
 				}
 			},
-			"refused-404-23": {
+			"refused-404-24": {
 				"description": "Not found",
 				"content": {
 					"application/problem+json": {
@@ -3494,7 +3512,7 @@
 					}
 				}
 			},
-			"refused-404-24": {
+			"refused-404-25": {
 				"description": "Not found",
 				"content": {
 					"application/problem+json": {
@@ -3504,6 +3522,9 @@
 						"examples": {
 							"no-such-display": {
 								"$ref": "#/components/examples/no-such-display"
+							},
+							"no-such-name-held-back": {
+								"$ref": "#/components/examples/no-such-name-held-back"
 							}
 						}
 					}
@@ -3557,7 +3578,7 @@
 					}
 				}
 			},
-			"refused-404-25": {
+			"refused-404-26": {
 				"description": "Not found",
 				"content": {
 					"application/problem+json": {
@@ -3722,7 +3743,7 @@
 					}
 				}
 			},
-			"refused-404-26": {
+			"refused-404-27": {
 				"description": "Not found",
 				"content": {
 					"application/problem+json": {
@@ -3737,7 +3758,7 @@
 					}
 				}
 			},
-			"refused-404-27": {
+			"refused-404-28": {
 				"description": "Not found",
 				"content": {
 					"application/problem+json": {
@@ -3747,6 +3768,9 @@
 						"examples": {
 							"config-document-unreadable": {
 								"$ref": "#/components/examples/config-document-unreadable"
+							},
+							"no-such-name-held-back": {
+								"$ref": "#/components/examples/no-such-name-held-back"
 							}
 						}
 					}
@@ -3837,6 +3861,24 @@
 							},
 							"bad-int": {
 								"$ref": "#/components/examples/bad-int-2"
+							}
+						}
+					}
+				}
+			},
+			"refused-404-29": {
+				"description": "Not found",
+				"content": {
+					"application/problem+json": {
+						"schema": {
+							"$ref": "#/components/schemas/problem"
+						},
+						"examples": {
+							"no-such-channel": {
+								"$ref": "#/components/examples/no-such-channel-2"
+							},
+							"no-such-name-held-back": {
+								"$ref": "#/components/examples/no-such-name-held-back"
 							}
 						}
 					}
@@ -3968,7 +4010,7 @@
 					}
 				}
 			},
-			"refused-404-28": {
+			"refused-404-30": {
 				"description": "Not found",
 				"content": {
 					"application/problem+json": {
@@ -4025,7 +4067,7 @@
 					}
 				}
 			},
-			"refused-404-29": {
+			"refused-404-31": {
 				"description": "Not found",
 				"content": {
 					"application/problem+json": {
@@ -4103,7 +4145,7 @@
 					}
 				}
 			},
-			"refused-404-30": {
+			"refused-404-32": {
 				"description": "Not found",
 				"content": {
 					"application/problem+json": {
@@ -4157,7 +4199,7 @@
 					}
 				}
 			},
-			"refused-404-31": {
+			"refused-404-33": {
 				"description": "Not found",
 				"content": {
 					"application/problem+json": {
@@ -4196,7 +4238,7 @@
 					}
 				}
 			},
-			"refused-404-32": {
+			"refused-404-34": {
 				"description": "Not found",
 				"content": {
 					"application/problem+json": {
@@ -4260,6 +4302,24 @@
 							},
 							"bad-bool": {
 								"$ref": "#/components/examples/bad-bool-2"
+							}
+						}
+					}
+				}
+			},
+			"refused-404-35": {
+				"description": "Not found",
+				"content": {
+					"application/problem+json": {
+						"schema": {
+							"$ref": "#/components/schemas/problem"
+						},
+						"examples": {
+							"no-such-recording": {
+								"$ref": "#/components/examples/no-such-recording-2"
+							},
+							"no-such-name-held-back": {
+								"$ref": "#/components/examples/no-such-name-held-back"
 							}
 						}
 					}
@@ -4604,6 +4664,14 @@
 					"title": "Not found",
 					"status": 404,
 					"detail": "no picture for that channel"
+				}
+			},
+			"no-such-name-held-back": {
+				"value": {
+					"type": "/errors/no-such-name",
+					"title": "Not found",
+					"status": 404,
+					"detail": "nothing is handed out under this name"
 				}
 			},
 			"range-outside-file": {
@@ -12877,6 +12945,9 @@
 					"403": {
 						"$ref": "#/components/responses/refused-403"
 					},
+					"404": {
+						"$ref": "#/components/responses/refused-404-10"
+					},
 					"416": {
 						"$ref": "#/components/responses/refused-416"
 					},
@@ -13053,7 +13124,7 @@
 						"$ref": "#/components/responses/refused-403"
 					},
 					"404": {
-						"$ref": "#/components/responses/refused-404-10"
+						"$ref": "#/components/responses/refused-404-11"
 					},
 					"default": {
 						"$ref": "#/components/responses/problem"
@@ -13125,7 +13196,7 @@
 						"$ref": "#/components/responses/refused-403"
 					},
 					"404": {
-						"$ref": "#/components/responses/refused-404-11"
+						"$ref": "#/components/responses/refused-404-12"
 					},
 					"default": {
 						"$ref": "#/components/responses/problem"
@@ -13278,7 +13349,7 @@
 						"$ref": "#/components/responses/refused-403"
 					},
 					"404": {
-						"$ref": "#/components/responses/refused-404-12"
+						"$ref": "#/components/responses/refused-404-13"
 					},
 					"default": {
 						"$ref": "#/components/responses/problem"
@@ -13374,7 +13445,7 @@
 						"$ref": "#/components/responses/refused-403-2"
 					},
 					"404": {
-						"$ref": "#/components/responses/refused-404-14"
+						"$ref": "#/components/responses/refused-404-15"
 					},
 					"409": {
 						"$ref": "#/components/responses/refused-409-7"
@@ -13463,7 +13534,7 @@
 						"$ref": "#/components/responses/refused-403-2"
 					},
 					"404": {
-						"$ref": "#/components/responses/refused-404-13"
+						"$ref": "#/components/responses/refused-404-14"
 					},
 					"413": {
 						"$ref": "#/components/responses/refused-413"
@@ -14029,7 +14100,7 @@
 						"$ref": "#/components/responses/refused-403-2"
 					},
 					"404": {
-						"$ref": "#/components/responses/refused-404-15"
+						"$ref": "#/components/responses/refused-404-16"
 					},
 					"409": {
 						"$ref": "#/components/responses/refused-409-8"
@@ -14514,7 +14585,7 @@
 						"$ref": "#/components/responses/refused-403-2"
 					},
 					"404": {
-						"$ref": "#/components/responses/refused-404-15"
+						"$ref": "#/components/responses/refused-404-16"
 					},
 					"409": {
 						"$ref": "#/components/responses/refused-409-10"
@@ -14614,7 +14685,7 @@
 						"$ref": "#/components/responses/refused-403-2"
 					},
 					"404": {
-						"$ref": "#/components/responses/refused-404-16"
+						"$ref": "#/components/responses/refused-404-17"
 					},
 					"413": {
 						"$ref": "#/components/responses/refused-413"
@@ -14679,7 +14750,7 @@
 						"$ref": "#/components/responses/refused-403-2"
 					},
 					"404": {
-						"$ref": "#/components/responses/refused-404-17"
+						"$ref": "#/components/responses/refused-404-18"
 					},
 					"409": {
 						"$ref": "#/components/responses/refused-409-10"
@@ -14780,7 +14851,7 @@
 						"$ref": "#/components/responses/refused-403-2"
 					},
 					"404": {
-						"$ref": "#/components/responses/refused-404-18"
+						"$ref": "#/components/responses/refused-404-19"
 					},
 					"409": {
 						"$ref": "#/components/responses/refused-409-11"
@@ -15312,7 +15383,7 @@
 						"$ref": "#/components/responses/refused-403-2"
 					},
 					"404": {
-						"$ref": "#/components/responses/refused-404-19"
+						"$ref": "#/components/responses/refused-404-20"
 					},
 					"409": {
 						"$ref": "#/components/responses/refused-409-13"
@@ -15375,7 +15446,7 @@
 						"$ref": "#/components/responses/refused-403-2"
 					},
 					"404": {
-						"$ref": "#/components/responses/refused-404-20"
+						"$ref": "#/components/responses/refused-404-21"
 					},
 					"409": {
 						"$ref": "#/components/responses/refused-409-14"
@@ -15393,7 +15464,7 @@
 					"storage"
 				],
 				"summary": "the bytes of one file inside the roots",
-				"description": "Sends the bytes of one plain file named by `path`, straight out of the file on disk rather than copied through this process first, with a content type guessed from its name and a `Content-Disposition` header naming it for download. `200` carries the whole file; sending a `Range` header asks for part of it, which answers `206` with only that stretch, or `416` when the range does not fit inside the file. A name that is not there, or that is not a plain file (a directory, a device, a pipe), answers not found rather than saying which of those it is.\n\n**Preconditions:** `path` has to resolve inside one of the roots and must not be the web server's own access store. A credential carried in the address itself rather than in a header is accepted here too; it reaches only the media roots (where the box records and where its movie browser looks), never the rest of the roots this route otherwise reaches, and is refused where it does not.\n\n**Refusals:**\n- `400 access-store`: `path` names the web server's own store of who may reach this box, which no file route reads, writes or removes.\n- `400 outside-roots`: `path` resolves outside every permitted directory.\n\n**Related:** `GET /api/v1/storage/files`, `PUT /api/v1/storage/file`.",
+				"description": "Sends the bytes of one plain file named by `path`, straight out of the file on disk rather than copied through this process first, with a content type guessed from its name and a `Content-Disposition` header naming it for download. `200` carries the whole file; sending a `Range` header asks for part of it, which answers `206` with only that stretch, or `416` when the range does not fit inside the file. A name that is not there, or that is not a plain file (a directory, a device, a pipe), answers not found rather than saying which of those it is, and so does a file that lies in the box's configuration directory, whose documents go out through `/api/v1/config` instead.\n\n**Preconditions:** `path` has to resolve inside one of the roots and must not be the web server's own access store. A credential carried in the address itself rather than in a header is accepted here too; it reaches only the media roots (where the box records and where its movie browser looks), never the rest of the roots this route otherwise reaches, and is refused where it does not.\n\n**Refusals:**\n- `400 access-store`: `path` names the web server's own store of who may reach this box, which no file route reads, writes or removes.\n- `400 outside-roots`: `path` resolves outside every permitted directory.\n\n**Related:** `GET /api/v1/storage/files`, `PUT /api/v1/storage/file`.",
 				"x-auth-level": "system",
 				"security": [
 					{
@@ -15429,6 +15500,9 @@
 					},
 					"403": {
 						"$ref": "#/components/responses/refused-403"
+					},
+					"404": {
+						"$ref": "#/components/responses/refused-404-10"
 					},
 					"416": {
 						"$ref": "#/components/responses/refused-416"
@@ -15592,7 +15666,7 @@
 						"$ref": "#/components/responses/refused-403-2"
 					},
 					"404": {
-						"$ref": "#/components/responses/refused-404-21"
+						"$ref": "#/components/responses/refused-404-22"
 					},
 					"409": {
 						"$ref": "#/components/responses/refused-409-16"
@@ -17161,7 +17235,7 @@
 						"$ref": "#/components/responses/refused-403-2"
 					},
 					"404": {
-						"$ref": "#/components/responses/refused-404-22"
+						"$ref": "#/components/responses/refused-404-23"
 					},
 					"409": {
 						"$ref": "#/components/responses/refused-409-21"
@@ -17225,7 +17299,7 @@
 						"$ref": "#/components/responses/refused-403-2"
 					},
 					"404": {
-						"$ref": "#/components/responses/refused-404-23"
+						"$ref": "#/components/responses/refused-404-24"
 					},
 					"500": {
 						"$ref": "#/components/responses/refused-500-18"
@@ -17927,6 +18001,9 @@
 					"403": {
 						"$ref": "#/components/responses/refused-403"
 					},
+					"404": {
+						"$ref": "#/components/responses/refused-404-10"
+					},
 					"416": {
 						"$ref": "#/components/responses/refused-416"
 					},
@@ -17980,6 +18057,9 @@
 					},
 					"403": {
 						"$ref": "#/components/responses/refused-403"
+					},
+					"404": {
+						"$ref": "#/components/responses/refused-404-10"
 					},
 					"416": {
 						"$ref": "#/components/responses/refused-416"
@@ -18090,7 +18170,7 @@
 						"$ref": "#/components/responses/refused-403"
 					},
 					"404": {
-						"$ref": "#/components/responses/refused-404-24"
+						"$ref": "#/components/responses/refused-404-25"
 					},
 					"416": {
 						"$ref": "#/components/responses/refused-416"
@@ -18173,7 +18253,7 @@
 						"$ref": "#/components/responses/refused-403-2"
 					},
 					"404": {
-						"$ref": "#/components/responses/refused-404-25"
+						"$ref": "#/components/responses/refused-404-26"
 					},
 					"413": {
 						"$ref": "#/components/responses/refused-413"
@@ -18781,7 +18861,7 @@
 						"$ref": "#/components/responses/refused-403-2"
 					},
 					"404": {
-						"$ref": "#/components/responses/refused-404-26"
+						"$ref": "#/components/responses/refused-404-27"
 					},
 					"413": {
 						"$ref": "#/components/responses/refused-413"
@@ -18845,7 +18925,7 @@
 						"$ref": "#/components/responses/refused-403"
 					},
 					"404": {
-						"$ref": "#/components/responses/refused-404-27"
+						"$ref": "#/components/responses/refused-404-28"
 					},
 					"416": {
 						"$ref": "#/components/responses/refused-416"
@@ -18953,6 +19033,9 @@
 					"403": {
 						"$ref": "#/components/responses/refused-403"
 					},
+					"404": {
+						"$ref": "#/components/responses/refused-404-10"
+					},
 					"416": {
 						"$ref": "#/components/responses/refused-416"
 					},
@@ -19011,6 +19094,9 @@
 					"403": {
 						"$ref": "#/components/responses/refused-403"
 					},
+					"404": {
+						"$ref": "#/components/responses/refused-404-10"
+					},
 					"416": {
 						"$ref": "#/components/responses/refused-416"
 					},
@@ -19064,7 +19150,7 @@
 						"$ref": "#/components/responses/refused-403"
 					},
 					"404": {
-						"$ref": "#/components/responses/refused-404-4"
+						"$ref": "#/components/responses/refused-404-29"
 					},
 					"416": {
 						"$ref": "#/components/responses/refused-416"
@@ -19302,7 +19388,7 @@
 						"$ref": "#/components/responses/refused-403-6"
 					},
 					"404": {
-						"$ref": "#/components/responses/refused-404-28"
+						"$ref": "#/components/responses/refused-404-30"
 					},
 					"415": {
 						"$ref": "#/components/responses/refused-415"
@@ -19357,7 +19443,7 @@
 						"$ref": "#/components/responses/refused-403-6"
 					},
 					"404": {
-						"$ref": "#/components/responses/refused-404-28"
+						"$ref": "#/components/responses/refused-404-30"
 					},
 					"503": {
 						"$ref": "#/components/responses/refused-503-3"
@@ -19420,7 +19506,7 @@
 						"$ref": "#/components/responses/refused-403-6"
 					},
 					"404": {
-						"$ref": "#/components/responses/refused-404-29"
+						"$ref": "#/components/responses/refused-404-31"
 					},
 					"415": {
 						"$ref": "#/components/responses/refused-415"
@@ -19729,7 +19815,7 @@
 						"$ref": "#/components/responses/refused-403-2"
 					},
 					"404": {
-						"$ref": "#/components/responses/refused-404-30"
+						"$ref": "#/components/responses/refused-404-32"
 					},
 					"default": {
 						"$ref": "#/components/responses/problem"
@@ -19920,7 +20006,7 @@
 						"$ref": "#/components/responses/refused-403"
 					},
 					"404": {
-						"$ref": "#/components/responses/refused-404-31"
+						"$ref": "#/components/responses/refused-404-33"
 					},
 					"default": {
 						"$ref": "#/components/responses/problem"
@@ -19977,7 +20063,7 @@
 						"$ref": "#/components/responses/refused-403-2"
 					},
 					"404": {
-						"$ref": "#/components/responses/refused-404-31"
+						"$ref": "#/components/responses/refused-404-33"
 					},
 					"409": {
 						"$ref": "#/components/responses/refused-409-27"
@@ -20029,7 +20115,7 @@
 						"$ref": "#/components/responses/refused-403"
 					},
 					"404": {
-						"$ref": "#/components/responses/refused-404-32"
+						"$ref": "#/components/responses/refused-404-34"
 					},
 					"default": {
 						"$ref": "#/components/responses/problem"
@@ -20113,7 +20199,7 @@
 						"$ref": "#/components/responses/refused-403-2"
 					},
 					"404": {
-						"$ref": "#/components/responses/refused-404-31"
+						"$ref": "#/components/responses/refused-404-33"
 					},
 					"409": {
 						"$ref": "#/components/responses/refused-409-26"
@@ -20174,7 +20260,7 @@
 						"$ref": "#/components/responses/refused-403-7"
 					},
 					"404": {
-						"$ref": "#/components/responses/refused-404-31"
+						"$ref": "#/components/responses/refused-404-35"
 					},
 					"416": {
 						"$ref": "#/components/responses/refused-416"
@@ -20229,7 +20315,7 @@
 						"$ref": "#/components/responses/refused-403-7"
 					},
 					"404": {
-						"$ref": "#/components/responses/refused-404-31"
+						"$ref": "#/components/responses/refused-404-33"
 					},
 					"default": {
 						"$ref": "#/components/responses/problem"

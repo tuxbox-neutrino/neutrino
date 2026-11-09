@@ -11,24 +11,36 @@
  * other file on the box, templates, scripts, extensions and the spaces the
  * other hooks answer. What is checked is the file that was opened, and
  * that descriptor is the one sent, so a name swapped for a link after the
- * check changes nothing.
+ * check changes nothing. The files that hold who may reach the box go out
+ * neither way, by whatever name they are reached.
  */
 
 #include "support/catch.hpp"
+#include "support/wireserver.h"
+#include "httpd/webconfig.h"
+#include "httpd/endpoint.h"
+#include "httpd/nhttpd_bridge.h"
+#include "coreapi/base/accessfiles.h"
 
 #include "helper.h"
 #include "yhook.h"
+#include "yprotect.h"
 #include "ystatic.h"
 #include "yhttpd_mods/mod_cache.h"
+#include "yhttpd_mods/mod_sendfile.h"
 
 #include <configfile.h>
 
+#include <atomic>
 #include <climits>
+#include <map>
+#include <thread>
 #include <cstdlib>
 #include <cstring>
 #include <string>
 #include <vector>
 
+#include <dirent.h>
 #include <fcntl.h>
 #include <ftw.h>
 #include <sys/stat.h>
@@ -696,3 +708,845 @@ TEST_CASE("a page and a script or style named without its version are asked for 
 		CHECK(ystatic::mayBeKept(&hh) == cases[i].kept);
 	}
 }
+
+namespace {
+
+// What mod_sendfile sends for url, after the login: the body, or "-" where
+// it sends no file. handed, where given, is the descriptor mod_auth handed
+// on for an answer without a login (PublicFd).
+std::string sent(Box &b, const std::string &url, int handed = -1)
+{
+	CmodSendfile sendfile;
+	CConfigFile config(',');
+	CStringList list;
+	sendfile.Hook_ReadConfig(&config, list);
+	b.ask(url);
+	b.hh.status = HANDLED_NONE;
+	b.hh.dropSendFileFd();
+	b.hh.dropPublicFd();
+	b.hh.HookVarList.erase("sendfile.public");
+	if (handed >= 0) {
+		b.hh.PublicFd = handed;
+		b.hh.HookVarList["sendfile.public"] = b.core + url;
+	}
+	sendfile.Hook_PrepareResponse(&b.hh);
+	if (b.hh.status != HANDLED_SENDFILE || b.hh.SendFileFd < 0)
+		return "-";
+	const std::string body = readAll(b.hh.SendFileFd);
+	b.hh.dropSendFileFd();
+	return body;
+}
+
+} // namespace
+
+namespace {
+// what the case below sets, set back however it ends
+struct SetBack
+{
+	~SetBack()
+	{
+		yprotect::setFiles(std::vector<std::string>());
+		ystatic::setRawPlaceTest(NULL);
+	}
+};
+} // namespace
+
+TEST_CASE("a file that holds who may reach the box goes out by no name, link or folder", "[nhttpd]")
+{
+	SetBack setBack;
+	Box b;
+	b.file(b.core + "/store.txt", "hash");		// a type the server sends
+	b.file(b.core + "/nhttpd.conf", "secret");	// a type only sendAll sends
+	b.file(b.over + "/over.txt", "token");		// an override file
+	b.file(b.outside + "/logos/1.png", "logo");	// a raw place
+	b.link(b.core + "/store.txt", b.core + "/alias.txt");
+	REQUIRE(link((b.core + "/store.txt").c_str(), (b.core + "/hard.txt").c_str()) == 0);
+	REQUIRE(link((b.core + "/store.txt").c_str(), (b.outside + "/logos/2.png").c_str()) == 0);
+	// and ordinary files beside them, configuration among them
+	b.file(b.core + "/page.txt", "page");
+	b.file(b.core + "/other.conf", "ordinary");
+	b.file(b.over + "/plain.txt", "plain");
+	rawLogos = b.outside + "/logos";
+	ystatic::setRawPlaceTest(rawLogosOnly);
+
+	// the store named through another spelling of its folder is the file
+	b.link(b.core, b.root + "/core-alias");
+	std::vector<std::string> files;
+	files.push_back(b.root + "/core-alias/store.txt");
+	files.push_back(b.core + "/nhttpd.conf");
+	files.push_back(b.over + "/over.txt");
+	yprotect::setFiles(files);
+
+	// without a login: mod_auth finds nothing to hand on
+	const char *const openly[] = { "/store.txt", "/alias.txt", "/hard.txt", "/nhttpd.conf" };
+	for (size_t i = 0; i < sizeof(openly) / sizeof(openly[0]); i++) {
+		INFO(openly[i]);
+		CHECK(b.open_public(openly[i]) < 0);
+	}
+
+	// after it: mod_sendfile sends none of them, whatever sendAll says
+	const char *const sendAll[] = { "false", "true" };
+	for (size_t s = 0; s < 2; s++) {
+		INFO(sendAll[s]);
+		b.hh.WebserverConfigList["mod_sendfile.sendAll"] = sendAll[s];
+		const std::string names[] = {
+			"/store.txt", "/alias.txt", "/hard.txt", "/nhttpd.conf", "/over.txt",
+			b.outside + "/logos/2.png"
+		};
+		for (size_t i = 0; i < sizeof(names) / sizeof(names[0]); i++) {
+			INFO(names[i]);
+			CHECK(sent(b, names[i]) == "-");
+		}
+		CHECK(sent(b, "/page.txt") == "page");
+		CHECK(sent(b, "/plain.txt") == "plain");
+		CHECK(sent(b, b.outside + "/logos/1.png") == "logo");
+	}
+	// an ordinary configuration file still goes out where sendAll lets it
+	CHECK(sent(b, "/other.conf") == "ordinary");
+
+	// a descriptor mod_auth handed on is asked again
+	const int store = open((b.core + "/store.txt").c_str(), O_RDONLY);
+	REQUIRE(store >= 0);
+	CHECK(sent(b, "/store.txt", store) == "-");
+	const int page = open((b.core + "/page.txt").c_str(), O_RDONLY);
+	REQUIRE(page >= 0);
+	CHECK(sent(b, "/page.txt", page) == "page");
+
+	// it is the files named that are kept back: once none are, they go out
+	yprotect::setFiles(std::vector<std::string>());
+	CHECK(sent(b, "/store.txt") == "hash");
+	CHECK(sent(b, "/over.txt") == "token");
+	const int fd = b.open_public("/alias.txt");
+	CHECK(fd >= 0);
+	if (fd >= 0)
+		close(fd);
+}
+
+TEST_CASE("a file sent by a name it was handed is none that holds who may reach the box", "[nhttpd]")
+{
+	SetBack setBack;
+	Box b;
+	b.file(b.outside + "/store.conf", "hash");
+	b.file(b.outside + "/logo.png", "logo");
+	b.link(b.outside + "/store.conf", b.outside + "/alias.png");
+	REQUIRE(link((b.outside + "/store.conf").c_str(), (b.outside + "/hard.png").c_str()) == 0);
+	REQUIRE(mkfifo((b.outside + "/fifo.png").c_str(), 0600) == 0);
+	std::vector<std::string> files(1, b.outside + "/store.conf");
+	yprotect::setFiles(files);
+
+	// an ordinary file opens, measured off what was opened
+	struct stat st;
+	int fd = ystatic::openToSend(b.outside + "/logo.png", st);
+	REQUIRE(fd >= 0);
+	CHECK(st.st_size == 4);
+	CHECK(readAll(fd) == "logo");
+	close(fd);
+
+	// the store by its name, a link to it and a second name of it do not
+	const char *const held[] = { "/store.conf", "/alias.png", "/hard.png" };
+	for (size_t i = 0; i < sizeof(held) / sizeof(held[0]); i++) {
+		INFO(held[i]);
+		CHECK(ystatic::openToSend(b.outside + held[i], st) < 0);
+	}
+	// nor does anything that is no regular file, a FIFO without waiting on it
+	CHECK(ystatic::openToSend(b.outside + "/fifo.png", st) < 0);
+	CHECK(ystatic::openToSend(b.outside, st) < 0);
+	CHECK(ystatic::openToSend(b.outside + "/none.png", st) < 0);
+	CHECK(ystatic::openToSend("", st) < 0);
+
+	// it is the file named that is held back: once none is, it opens
+	yprotect::setFiles(std::vector<std::string>());
+	fd = ystatic::openToSend(b.outside + "/alias.png", st);
+	CHECK(fd >= 0);
+	if (fd >= 0)
+		close(fd);
+}
+
+namespace {
+
+// A directory of the case's own, removed with what is in it whichever line
+// the case leaves through.
+struct OwnDir
+{
+	std::string path;
+	OwnDir()
+	{
+		char name[] = "/tmp/yprotect-test-XXXXXX";
+		path = mkdtemp(name) ? name : "";
+	}
+	~OwnDir()
+	{
+		if (!path.empty())
+			nftw(path.c_str(), removeOne, 8, FTW_DEPTH | FTW_PHYS);
+	}
+	static int removeOne(const char *p, const struct stat *, int, struct FTW *)
+	{
+		chmod(p, 0700);
+		return remove(p);
+	}
+};
+
+std::map<std::string, std::string> lines(const char *value)
+{
+	std::map<std::string, std::string> m;
+	m["mod_auth.password"] = value;
+	return m;
+}
+
+bool waitTill(const std::atomic<bool> &flag)
+{
+	for (int waited = 0; waited < 5000 && !flag; waited += 5)
+		usleep(5 * 1000);
+	return flag;
+}
+
+// The write held once it made the working file and before a byte of it is
+// written, and let go from between two of isProtected's looks.
+struct Replacing
+{
+	std::atomic<bool> held;
+	std::atomic<bool> let_go;
+	std::atomic<bool> replaced;
+	Replacing() : held(false), let_go(false), replaced(false) {}
+};
+Replacing *replacing = NULL;
+
+void holdTheWrite(const std::string &)
+{
+	replacing->held = true;
+	waitTill(replacing->let_go);
+}
+
+void replaceAfterTheStore(size_t name)
+{
+	if (name != 0 || replacing == NULL || replacing->let_go)
+		return;
+	replacing->let_go = true;
+	waitTill(replacing->replaced);
+}
+
+// the seams back however the case ends
+struct SeamsBack
+{
+	~SeamsBack()
+	{
+		httpd::setAfterCreateForTest(NULL);
+		yprotect::setLookedForTest(NULL);
+		replacing = NULL;
+		yprotect::setFiles(std::vector<std::string>());
+	}
+};
+
+} // namespace
+
+/* The store opened, and replaced by a change of the account before what was
+   opened is asked about: the descriptor holds the store as it was, which no
+   name stands for any more. It is still one of the files, and so is a second
+   name the old store kept: the writer kept each file it made. */
+TEST_CASE("a store replaced while it was being opened is still held back", "[nhttpd]")
+{
+	SeamsBack back;
+	OwnDir dir;
+	REQUIRE_FALSE(dir.path.empty());
+	const std::string store = dir.path + "/store.conf";
+	std::vector<std::string> files;
+	files.push_back(store);
+	files.push_back(httpd::workingFile(store));
+	// named before the store is there, so that only the writer can say what
+	// it stood for
+	yprotect::setFiles(files);
+
+	REQUIRE(httpd::saveServerFile(store, lines("old")));
+	REQUIRE(link(store.c_str(), (dir.path + "/old-alias.txt").c_str()) == 0);
+	const int opened = open(store.c_str(), O_RDONLY);
+	REQUIRE(opened >= 0);
+	REQUIRE(httpd::saveServerFile(store, lines("new")));
+
+	CHECK(yprotect::isProtected(opened));
+	close(opened);
+	const int alias = open((dir.path + "/old-alias.txt").c_str(), O_RDONLY);
+	REQUIRE(alias >= 0);
+	CHECK(yprotect::isProtected(alias));
+	close(alias);
+	const int now = open(store.c_str(), O_RDONLY);
+	REQUIRE(now >= 0);
+	CHECK(yprotect::isProtected(now));
+	close(now);
+
+	// a file that never was one of them is not
+	{
+		FILE *f = fopen((dir.path + "/page.txt").c_str(), "w");
+		REQUIRE(f != NULL);
+		fputs("page", f);
+		fclose(f);
+	}
+	const int page = open((dir.path + "/page.txt").c_str(), O_RDONLY);
+	REQUIRE(page >= 0);
+	CHECK_FALSE(yprotect::isProtected(page));
+	close(page);
+}
+
+/* The working file made and opened before a byte of it is written, the store
+   looked at, and only then the content written and the working file renamed over
+   the store, before its own name is looked at: at its looks neither name stands
+   for the opened file, and what the file held at the first look is not what it
+   holds when it is read. */
+TEST_CASE("a working file opened before it was written and renamed between two looks is still held back", "[nhttpd]")
+{
+	SeamsBack back;
+	OwnDir dir;
+	REQUIRE_FALSE(dir.path.empty());
+	const std::string store = dir.path + "/store.conf";
+	const std::string working = httpd::workingFile(store);
+	REQUIRE(httpd::saveServerFile(store, lines("old")));
+	std::vector<std::string> files;
+	files.push_back(store);
+	files.push_back(working);
+	yprotect::setFiles(files);
+
+	Replacing r;
+	replacing = &r;
+	httpd::setAfterCreateForTest(holdTheWrite);
+	std::thread writer([&r, &store]() {
+		httpd::saveServerFile(store, lines("S3NT1NEL"));
+		r.replaced = true;
+	});
+	const bool held = waitTill(r.held);
+	const int opened = held ? open(working.c_str(), O_RDONLY) : -1;
+	struct stat before;
+	const bool empty = opened >= 0 && fstat(opened, &before) == 0 && before.st_size == 0;
+	yprotect::setLookedForTest(replaceAfterTheStore);
+	const bool kept = opened >= 0 && yprotect::isProtected(opened);
+	yprotect::setLookedForTest(NULL);
+	r.let_go = true;
+	writer.join();
+	httpd::setAfterCreateForTest(NULL);
+
+	REQUIRE(held);
+	REQUIRE(opened >= 0);
+	// the schedule ran: nothing was written at the open, the working name was
+	// gone at its look, and the descriptor now reads the new password
+	CHECK(empty);
+	CHECK(r.replaced);
+	CHECK(access(working.c_str(), F_OK) != 0);
+	CHECK(readAll(opened).find("S3NT1NEL") != std::string::npos);
+	CHECK(kept);
+	close(opened);
+}
+
+/* The start that takes the store over from the name it had before makes it under
+   its working name and gives it its name afterwards: kept from the moment it was
+   made, so the store is one of the files whatever list the server is given. */
+TEST_CASE("the access store a start writes is kept from the moment it is made", "[nhttpd]")
+{
+	SeamsBack back;
+	OwnDir dir;
+	REQUIRE_FALSE(dir.path.empty());
+	yprotect::setFiles(std::vector<std::string>());
+	const std::string former = dir.path + "/former.conf";
+	const std::string out = dir.path + "/nhttpd-access.conf";
+	{
+		FILE *f = fopen(former.c_str(), "w");
+		REQUIRE(f != NULL);
+		fputs("password_hash=S3NT1NEL\n", f);
+		fclose(f);
+	}
+	REQUIRE(httpd::ensureConfigFile(dir.path + "/nhttpd.conf", out, former));
+	struct stat st;
+	REQUIRE(stat(out.c_str(), &st) == 0);
+	CHECK(coreapi::accessfiles::held(st.st_dev, st.st_ino));
+	const int fd = open(out.c_str(), O_RDONLY);
+	REQUIRE(fd >= 0);
+	CHECK(yprotect::isProtected(fd));
+	close(fd);
+}
+
+namespace {
+
+// Takes the kept file's last name from between two looks and has the kept set
+// walk, as keeping any other file does: the file is let go.
+std::string *let_go_store = NULL;
+std::string let_go_other;
+
+void unlinkAndWalk(size_t name)
+{
+	if (name != 0 || let_go_store == NULL)
+		return;
+	const std::string store = *let_go_store;
+	let_go_store = NULL;
+	unlink(store.c_str());
+	coreapi::accessfiles::named(let_go_other);
+}
+
+} // namespace
+
+/* A kept file opened while it still had a name, its name taken and the file let
+   go from the kept set while it is being asked about: the set no longer knows it,
+   and the look at its link count that comes after the set does. */
+TEST_CASE("a kept file let go between the looks is still held back", "[nhttpd]")
+{
+	SeamsBack back;
+	OwnDir dir;
+	REQUIRE_FALSE(dir.path.empty());
+	// listed: a name that never stands for it, so only the kept set and the
+	// link count can tell
+	yprotect::setFiles(std::vector<std::string>(1, dir.path + "/other.conf"));
+	const std::string store = dir.path + "/store.conf";
+	REQUIRE(httpd::saveServerFile(store, lines("S3NT1NEL")));
+	const int opened = open(store.c_str(), O_RDONLY);
+	REQUIRE(opened >= 0);
+	struct stat st;
+	REQUIRE(fstat(opened, &st) == 0);
+	REQUIRE(st.st_nlink == 1u);
+
+	std::string name = store;
+	let_go_store = &name;
+	let_go_other = dir.path + "/other.conf";
+	{
+		FILE *f = fopen(let_go_other.c_str(), "w");
+		REQUIRE(f != NULL);
+		fclose(f);
+	}
+	yprotect::setLookedForTest(unlinkAndWalk);
+	const bool kept = yprotect::isProtected(opened);
+	yprotect::setLookedForTest(NULL);
+	REQUIRE(fstat(opened, &st) == 0);
+	CHECK(st.st_nlink == 0u);
+	CHECK_FALSE(coreapi::accessfiles::held(st.st_dev, st.st_ino));
+	CHECK(kept);
+	close(opened);
+}
+
+namespace {
+
+// The descriptors this process holds, by number.
+size_t openDescriptors()
+{
+	size_t n = 0;
+	DIR *d = opendir("/proc/self/fd");
+	if (d == NULL)
+		return 0;
+	while (readdir(d) != NULL)
+		n++;
+	closedir(d);
+	return n;
+}
+
+// Whether nothing holds the kept set's lock, which a failure must not leave held;
+// asked without waiting, so a lock left held fails the case and hangs nothing.
+bool keptSetAnswers()
+{
+	return coreapi::accessfiles::unlockedForTest();
+}
+
+struct FailBack
+{
+	~FailBack() { coreapi::accessfiles::setFailForTest(coreapi::accessfiles::FailNone); }
+};
+
+} // namespace
+
+/* A file that cannot be kept is not written at all: no descriptor left to
+   duplicate, or no memory for its entry. The file it was to replace stays as it
+   was, nothing is left beside it, and the kept set neither holds a descriptor nor
+   its lock. */
+TEST_CASE("a store that cannot be kept is not written, and the failure leaves nothing behind", "[nhttpd]")
+{
+	SeamsBack back;
+	FailBack fail_back;
+	OwnDir dir;
+	REQUIRE_FALSE(dir.path.empty());
+	const std::string store = dir.path + "/store.conf";
+	REQUIRE(httpd::saveServerFile(store, lines("old")));
+
+	const coreapi::accessfiles::Fail fails[] = { coreapi::accessfiles::FailDup, coreapi::accessfiles::FailAlloc };
+	for (size_t i = 0; i < sizeof(fails) / sizeof(fails[0]); i++) {
+		INFO(i);
+		const size_t before = openDescriptors();
+		coreapi::accessfiles::setFailForTest(fails[i]);
+		CHECK_FALSE(httpd::saveServerFile(store, lines("S3NT1NEL")));
+		const int fd = open(store.c_str(), O_RDONLY);
+		REQUIRE(fd >= 0);
+		CHECK_FALSE(coreapi::accessfiles::created(fd));
+		// named opens the file itself and duplicates nothing
+		CHECK(coreapi::accessfiles::named(store) == (fails[i] == coreapi::accessfiles::FailDup));
+		close(fd);
+		coreapi::accessfiles::setFailForTest(coreapi::accessfiles::FailNone);
+		CHECK(openDescriptors() == before);
+		CHECK(keptSetAnswers());
+		const int again = open(store.c_str(), O_RDONLY | O_CLOEXEC);
+		REQUIRE(again >= 0);
+		CHECK(readAll(again).find("old") != std::string::npos);
+		close(again);
+		CHECK(access(httpd::workingFile(store).c_str(), F_OK) != 0);
+	}
+	// and once it can be kept again, it is written
+	CHECK(httpd::saveServerFile(store, lines("new")));
+	// a name with no file there is nothing to keep, and no failure
+	CHECK(coreapi::accessfiles::named(dir.path + "/none.conf"));
+}
+
+namespace {
+
+// A working file the program left when it ended in the middle of a write, with a
+// second name, and a start that remembers nothing of it.
+void leaveWorking(const std::string &path, const std::string &alias)
+{
+	const std::string working = httpd::workingFile(path);
+	FILE *f = fopen(working.c_str(), "w");
+	REQUIRE(f != NULL);
+	fputs("password_hash=S3NT1NEL\n", f);
+	fclose(f);
+	unlink(alias.c_str());
+	REQUIRE(link(working.c_str(), alias.c_str()) == 0);
+	coreapi::accessfiles::forgetAll();
+}
+
+bool aliasHeldBack(const std::string &alias)
+{
+	const int fd = open(alias.c_str(), O_RDONLY | O_CLOEXEC);
+	if (fd < 0)
+		return false;
+	const bool held = yprotect::isProtected(fd);
+	close(fd);
+	return held;
+}
+
+} // namespace
+
+/* Such a file is kept before its working name goes, by the save's writer and by
+   the first start's: its second name stays held back. Where the start cannot keep
+   it, it stays where it is, held back by its name, and nothing is written. */
+TEST_CASE("a working file a write left behind is kept before its name goes, or stays", "[nhttpd]")
+{
+	SeamsBack back;
+	FailBack fail_back;
+	OwnDir dir;
+	REQUIRE_FALSE(dir.path.empty());
+	yprotect::setFiles(std::vector<std::string>());
+	const std::string alias = dir.path + "/alias.txt";
+
+	// the save's writer
+	const std::string store = dir.path + "/store.conf";
+	REQUIRE(httpd::saveServerFile(store, lines("old")));
+	leaveWorking(store, alias);
+	REQUIRE(httpd::saveServerFile(store, lines("new")));
+	CHECK(access(httpd::workingFile(store).c_str(), F_OK) != 0);
+	CHECK(aliasHeldBack(alias));
+
+	// the first start's
+	const std::string server = dir.path + "/nhttpd.conf";
+	const std::string out = dir.path + "/nhttpd-access.conf";
+	leaveWorking(out, alias);
+	REQUIRE(httpd::ensureConfigFile(server, out, std::string()));
+	CHECK(access(httpd::workingFile(out).c_str(), F_OK) != 0);
+	CHECK(aliasHeldBack(alias));
+
+	// a start that can keep nothing
+	REQUIRE(unlink(out.c_str()) == 0);
+	leaveWorking(out, alias);
+	coreapi::accessfiles::setFailForTest(coreapi::accessfiles::FailAlloc);
+	CHECK_FALSE(httpd::ensureConfigFile(server, out, std::string()));
+	std::vector<std::string> names;
+	names.push_back(out);
+	names.push_back(httpd::workingFile(out));
+	CHECK_FALSE(yprotect::setFiles(names));
+	coreapi::accessfiles::setFailForTest(coreapi::accessfiles::FailNone);
+	CHECK(access(httpd::workingFile(out).c_str(), F_OK) == 0);
+	CHECK(access(out.c_str(), F_OK) != 0);
+	CHECK(coreapi::accessfiles::count() == 0u);
+	CHECK(aliasHeldBack(alias));
+}
+
+/* What is kept is no more than the files that still have a name: a store
+   written again and again keeps one or two, not one for every write. */
+TEST_CASE("the files kept since they were made are let go once no name reaches them", "[nhttpd]")
+{
+	SeamsBack back;
+	OwnDir dir;
+	REQUIRE_FALSE(dir.path.empty());
+	yprotect::setFiles(std::vector<std::string>());
+	const std::string store = dir.path + "/store.conf";
+	for (int i = 0; i < 20; i++)
+		REQUIRE(httpd::saveServerFile(store, lines("again")));
+	CHECK(coreapi::accessfiles::count() <= 2u);
+	// a second name keeps the file it names
+	REQUIRE(link(store.c_str(), (dir.path + "/alias.txt").c_str()) == 0);
+	REQUIRE(httpd::saveServerFile(store, lines("once more")));
+	REQUIRE(httpd::saveServerFile(store, lines("and again")));
+	const int alias = open((dir.path + "/alias.txt").c_str(), O_RDONLY);
+	REQUIRE(alias >= 0);
+	CHECK(yprotect::isProtected(alias));
+	close(alias);
+	CHECK(coreapi::accessfiles::count() <= 3u);
+}
+
+/* A file that no name reaches any more cannot be told apart from what it was:
+   an unlinked capture that waits for captureguard, a store replaced while it was
+   opened. It goes out through no gate, the override folder pointed at /proc,
+   where /proc/self/fd/ names such files, and everything sent included. */
+TEST_CASE("a file no name reaches any more goes out through no gate, whatever the folders are", "[nhttpd]")
+{
+	SeamsBack back;
+	Box b;
+	b.file(b.outside + "/pending.txt", "S3NT1NEL");
+	b.file(b.outside + "/plain.txt", "plain");
+	const int pending = open((b.outside + "/pending.txt").c_str(), O_RDONLY);
+	REQUIRE(pending >= 0);
+	REQUIRE(unlink((b.outside + "/pending.txt").c_str()) == 0);
+	const int plain = open((b.outside + "/plain.txt").c_str(), O_RDONLY);
+	REQUIRE(plain >= 0);
+	const std::string pending_name = "/self/fd/" + std::to_string(pending);
+	const std::string plain_name = "/self/fd/" + std::to_string(plain);
+
+	CHECK(yprotect::isProtected(pending));
+	CHECK_FALSE(yprotect::isProtected(plain));
+	// a REST answer from such a file goes out only where the route made it
+	// and took its name itself, as a playlist written to /tmp is
+	CHECK(yprotect::isProtected(pending, false));
+	CHECK_FALSE(yprotect::isProtected(pending, true));
+	struct stat st;
+	CHECK(ystatic::openToSend("/proc" + pending_name, st) < 0);
+
+	// an override folder that came past the reading of the configuration
+	b.hh.WebserverConfigList["WebsiteMain.override_directory"] = "/proc";
+	b.hh.WebserverConfigList["mod_sendfile.sendAll"] = "true";
+	CHECK(sent(b, pending_name) == "-");
+	CHECK(b.open_public(pending_name) < 0);
+	// it is the missing name and not the folder that keeps it back
+	CHECK(sent(b, plain_name) == "plain");
+	close(pending);
+	close(plain);
+}
+
+/* A REST answer out of a file without a name goes out only where the route made
+   the file for the answer and took its name itself, as a playlist written to
+   /tmp is; any other is refused like one of the files that hold who may reach
+   the box. */
+TEST_CASE("a REST answer out of a file without a name goes out only where the route made it", "[nhttpd]")
+{
+	SeamsBack back;
+	OwnDir dir;
+	REQUIRE_FALSE(dir.path.empty());
+	const std::string name = dir.path + "/answer.m3u";
+	struct Answer
+	{
+		bool own;
+		bool sent;
+	};
+	const Answer answers[] = { { false, false }, { true, true } };
+	for (size_t i = 0; i < sizeof(answers) / sizeof(answers[0]); i++) {
+		INFO(answers[i].own);
+		{
+			FILE *f = fopen(name.c_str(), "w");
+			REQUIRE(f != NULL);
+			fputs("#EXTM3U\n", f);
+			fclose(f);
+		}
+		const int fd = open(name.c_str(), O_RDONLY | O_CLOEXEC);
+		REQUIRE(fd >= 0);
+		REQUIRE(unlink(name.c_str()) == 0);
+		httpd::Response r;
+		r.code = 200;
+		r.content_type = "audio/x-mpegurl";
+		REQUIRE((answers[i].own ? httpd::answerFromOwnUnnamed(r, fd) : httpd::answerFromDescriptor(r, fd)));
+		CyhookHandler hh;
+		CApiBridge::answerWith(&hh, r);
+		if (answers[i].sent) {
+			CHECK(hh.status == HANDLED_SENDFD);
+			CHECK(hh.SendFd >= 0);
+		} else {
+			CHECK(hh.status != HANDLED_SENDFD);
+			CHECK(hh.httpStatus == 404);
+		}
+		if (hh.SendFd >= 0) {
+			close(hh.SendFd);
+			hh.SendFd = -1;
+		}
+	}
+}
+
+namespace {
+struct KeptBack
+{
+	~KeptBack() { yprotect::setKeptPlacesForTest(std::vector<std::string>()); }
+};
+} // namespace
+
+/* A folder link inside an allowed web folder that leads into the configuration
+   directory, or into /proc, /sys or /dev, reaches nothing there: every gate asks
+   where the opened file really lies. */
+TEST_CASE("a link from a web folder into the configuration directory or a kernel tree reaches nothing", "[nhttpd]")
+{
+	SeamsBack back;
+	KeptBack kept_back;
+	Box b;
+	const std::string config = b.root + "/config";
+	b.file(config + "/neutrino.conf", "tmdb_api_key=S3NT1NEL");
+	b.file(b.over + "/plain.txt", "plain");
+	b.link(config, b.over + "/cfg");
+	b.link(config, b.core + "/cfg");
+	b.link("/proc/self", b.over + "/self");
+	std::vector<std::string> kept;
+	kept.push_back(config);
+	kept.push_back("/proc");
+	kept.push_back("/sys");
+	kept.push_back("/dev");
+	yprotect::setKeptPlacesForTest(kept);
+	b.hh.WebserverConfigList["mod_sendfile.sendAll"] = "true";
+
+	CHECK(sent(b, "/cfg/neutrino.conf") == "-");
+	CHECK(sent(b, "/self/status") == "-");
+	CHECK(b.open_public("/cfg/neutrino.conf") < 0);
+	struct stat st;
+	CHECK(ystatic::openToSend(b.over + "/cfg/neutrino.conf", st) < 0);
+	// a name the program fixes there itself, as the channel lists are
+	const int fixed = ystatic::openToSend(b.over + "/cfg/neutrino.conf", st, true);
+	CHECK(fixed >= 0);
+	if (fixed >= 0)
+		close(fixed);
+	// what lies in the folder itself goes out as before
+	CHECK(sent(b, "/plain.txt") == "plain");
+
+	// a descriptor whose place cannot be told is in none of them, and refused
+	int pipes[2];
+	REQUIRE(pipe(pipes) == 0);
+	CHECK(yprotect::inKeptPlace(pipes[0]));
+	close(pipes[0]);
+	close(pipes[1]);
+}
+
+TEST_CASE("no web folder is, holds or lies in the configuration directory or a kernel tree", "[nhttpd]")
+{
+	OwnDir dir;
+	REQUIRE_FALSE(dir.path.empty());
+	const std::string config = dir.path + "/config";
+	REQUIRE(mkdir(config.c_str(), 0700) == 0);
+	REQUIRE(mkdir((dir.path + "/web").c_str(), 0700) == 0);
+	REQUIRE(symlink("/proc", (dir.path + "/to-proc").c_str()) == 0);
+	REQUIRE(symlink(config.c_str(), (dir.path + "/to-config").c_str()) == 0);
+	std::vector<std::string> kept;
+	kept.push_back(config);
+	kept.push_back("/proc");
+	kept.push_back("/sys");
+	kept.push_back("/dev");
+
+	const std::string refused[] = {
+		config, config + "/", config + "/sub", dir.path, "/", "/tmp", "/tmp/", "/proc", "/proc/self/fd",
+		"/sys/class", "/dev", "/dev/shm", dir.path + "/to-proc", dir.path + "/to-config",
+		dir.path + "/to-proc/self", "relative/web", dir.path + "/web/../config", ""
+	};
+	for (size_t i = 0; i < sizeof(refused) / sizeof(refused[0]); i++) {
+		INFO(refused[i]);
+		CHECK_FALSE(ystatic::rootRefused(refused[i], kept).empty());
+	}
+	const std::string allowed[] = {
+		dir.path + "/web", dir.path + "/web/", dir.path + "/not-there-yet", dir.path + "/configured"
+	};
+	for (size_t i = 0; i < sizeof(allowed) / sizeof(allowed[0]); i++) {
+		INFO(allowed[i]);
+		CHECK(ystatic::rootRefused(allowed[i], kept).empty());
+	}
+	// /tmp itself, and a folder holding it, whatever else is kept
+	const std::vector<std::string> trees(kept.begin() + 1, kept.end());
+	CHECK_FALSE(ystatic::rootRefused("/tmp", trees).empty());
+	CHECK_FALSE(ystatic::rootRefused("/tmp/", trees).empty());
+	CHECK(ystatic::rootRefused(dir.path + "/web", trees).empty());
+	// the box's own list names its configuration directory and the three trees
+	const std::vector<std::string> own = ystatic::keptPlaces();
+	REQUIRE(own.size() == 4u);
+	CHECK(own[1] == "/proc");
+	CHECK(own[2] == "/sys");
+	CHECK(own[3] == "/dev");
+}
+
+// A name that cannot be looked at may be one of the files: held back.
+TEST_CASE("a name of the files that cannot be looked at holds every file back", "[nhttpd]")
+{
+	if (getuid() == 0)
+		return;	// root looks into any directory
+	SeamsBack back;
+	OwnDir dir;
+	REQUIRE_FALSE(dir.path.empty());
+	const std::string locked = dir.path + "/locked";
+	REQUIRE(mkdir(locked.c_str(), 0700) == 0);
+	{
+		FILE *f = fopen((dir.path + "/page.txt").c_str(), "w");
+		REQUIRE(f != NULL);
+		fclose(f);
+	}
+	std::vector<std::string> files(1, locked + "/store.conf");
+	yprotect::setFiles(files);
+	const int page = open((dir.path + "/page.txt").c_str(), O_RDONLY);
+	REQUIRE(page >= 0);
+	CHECK_FALSE(yprotect::isProtected(page));
+	REQUIRE(chmod(locked.c_str(), 0) == 0);
+	CHECK(yprotect::isProtected(page));
+	chmod(locked.c_str(), 0700);
+	close(page);
+}
+
+namespace {
+
+// A hook that answers with a file by its name, as /control/getservicesxml
+// and the version route do: the transport opens it.
+struct ByName : public Cyhook
+{
+	std::string dir;
+	virtual std::string getHookName(void) { return "case by name"; }
+	virtual THandleStatus Hook_SendResponse(CyhookHandler *hh)
+	{
+		const std::string url = hh->UrlData["url"];
+		if (url.compare(0, 8, "/byname/") != 0)
+			return HANDLED_NONE;
+		hh->SendFile(dir + "/" + url.substr(8));
+		return hh->status;
+	}
+};
+
+} // namespace
+
+TEST_CASE("a file answered by its name goes out of a checked descriptor, never a store", "[nhttpd]")
+{
+	SeamsBack back;
+	OwnDir dir;
+	REQUIRE_FALSE(dir.path.empty());
+	const std::string store = dir.path + "/store.conf";
+	{
+		FILE *f = fopen(store.c_str(), "w");
+		REQUIRE(f != NULL);
+		fputs("S3NT1NEL", f);
+		fclose(f);
+		f = fopen((dir.path + "/services.xml").c_str(), "w");
+		REQUIRE(f != NULL);
+		fputs("<zapit/>", f);
+		fclose(f);
+	}
+	REQUIRE(symlink(store.c_str(), (dir.path + "/bouquets.xml").c_str()) == 0);
+	REQUIRE(link(store.c_str(), (dir.path + "/ubouquets.xml").c_str()) == 0);
+	yprotect::setFiles(std::vector<std::string>(1, store));
+
+	ByName hook;
+	hook.dir = dir.path;
+	WireServer serving(4, 100, WireServer::Threaded, &hook);
+	struct Asked { const char *name; int code; const char *body; };
+	const Asked asked[] = {
+		{ "services.xml", 200, "<zapit/>" },
+		{ "bouquets.xml", 404, NULL },
+		{ "ubouquets.xml", 404, NULL },
+		{ "store.conf", 404, NULL },
+		{ "none.xml", 404, NULL },
+	};
+	for (size_t i = 0; i < sizeof(asked) / sizeof(asked[0]); i++) {
+		INFO(asked[i].name);
+		const std::string req = std::string("GET /byname/") + asked[i].name + " HTTP/1.0\r\nHost: box\r\n\r\n";
+		WireStream s(serving.port, req.c_str());
+		REQUIRE(s.ok());
+		const std::string body = s.readToEof(2000);
+		CHECK(s.code() == asked[i].code);
+		CHECK(body.find("S3NT1NEL") == std::string::npos);
+		if (asked[i].body != NULL)
+			CHECK(body.find(asked[i].body) != std::string::npos);
+	}
+}
+

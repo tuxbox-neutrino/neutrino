@@ -33,6 +33,10 @@ public:
 	virtual THandleStatus 	Hook_PrepareResponse(CyhookHandler *hh);
 //	virtual THandleStatus 	Hook_SendResponse(CyhookHandler *hh);
 	virtual THandleStatus 	Hook_ReadConfig(CConfigFile *Config, CStringList &ConfigList);
+
+	// Called with the descriptor of a file once every gate let it through and
+	// before its length is read off it; NULL, as the server runs, for none.
+	static void setCheckedForTest(void (*checked)(int fd));
 };
 
 #endif /* __yhttpd_mod_sendfile_h__ */

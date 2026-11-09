@@ -189,19 +189,32 @@ bool CWebserverResponse::SendResponse() {
 		   it opens instead of a day later (ystatic::mayBeKept). */
 		if (!ystatic::mayBeKept(&Connection->HookHandler))
 			cache = false;
+		/* A file a hook named and did not open itself is opened here, before
+		   its header, and asked of like every file that goes out
+		   (ystatic::openToSend): a regular file, and none of those that hold
+		   who may reach the box, whatever name, link or second name reached
+		   it. It goes out of that descriptor and is never opened by name
+		   again. */
+		if (Connection->HookHandler.SendFileFd < 0) {
+			struct stat named;
+			// the program fixes these names, the channel lists among them
+			const int fd = ystatic::openToSend(Connection->Request.UrlData["url"], named, true);
+			if (fd < 0) {
+				SendError(HTTP_NOT_FOUND);
+				return false;
+			}
+			Connection->HookHandler.SendFileFd = fd;
+		}
 		Write(Connection->HookHandler.BuildHeader(cache));
 		const off_t length = (Connection->HookHandler.RangeStart == 0 && Connection->HookHandler.RangeEnd == -1)
 			? -1 : Connection->HookHandler.RangeEnd - Connection->HookHandler.RangeStart + 1;
-		if (Connection->HookHandler.SendFileFd >= 0) {
-			// the file the hook opened and checked, never its name again
-			int filed = Connection->HookHandler.SendFileFd;
-			Connection->HookHandler.SendFileFd = -1;
-			if (Connection->Method != M_HEAD
-					&& !Connection->sock->SendFile(filed, Connection->HookHandler.RangeStart, length))
-				Connection->RequestCanceled = true;
-			close(filed);
-		} else if (Connection->Method != M_HEAD)
-			Sendfile(Connection->Request.UrlData["url"], Connection->HookHandler.RangeStart, length);
+		// the file opened and checked, never its name again
+		int filed = Connection->HookHandler.SendFileFd;
+		Connection->HookHandler.SendFileFd = -1;
+		if (Connection->Method != M_HEAD
+				&& !Connection->sock->SendFile(filed, Connection->HookHandler.RangeStart, length))
+			Connection->RequestCanceled = true;
+		close(filed);
 		return true;
 	}
 	if (Connection->HookHandler.status == HANDLED_SENDFILE && Connection->HookHandler.httpStatus == HTTP_REQUEST_RANGE_NOT_SATISFIABLE) {
@@ -257,19 +270,6 @@ bool CWebserverResponse::WriteLn(char const *text) {
 	return WriteData("\r\n", 2);
 }
 
-//-----------------------------------------------------------------------------
-bool CWebserverResponse::Sendfile(std::string filename, off_t start, off_t end) {
-	if (Connection->RequestCanceled)
-		return false;
-	int filed = open(filename.c_str(), O_RDONLY);
-	if (filed != -1) //can access file?
-	{
-		if (!Connection->sock->SendFile(filed, start, end))
-			Connection->RequestCanceled = true;
-		close(filed);
-	}
-	return (filed != -1);
-}
 
 //-----------------------------------------------------------------------------
 // Send File: Determine MIME-Type fro File-Extention

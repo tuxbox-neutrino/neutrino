@@ -31,9 +31,12 @@
 #include "coreapi/base/errors.h"
 
 #include "yhook.h"
+#include "yprotect.h"
 #include "ysocket.h"
 #include "ytypes_globals.h"
 #include "ywebserver.h"
+
+#include "support/fakes.h"
 
 #include <cstdlib>
 #include <cstring>
@@ -621,6 +624,162 @@ TEST_CASE("a file answer hands the descriptor to the transport", "[bridge]")
 	close(h.hh.SendFd);
 	h.hh.SendFd = -1;
 	unlink(name);
+}
+
+namespace {
+
+struct DirectoryBack
+{
+	~DirectoryBack() { yprotect::setKeptPlacesForTest(std::vector<std::string>()); }
+};
+
+// A file of the configuration directory answered the way a route answers it.
+int bridged(const std::string &path, bool box_document)
+{
+	const int fd = open(path.c_str(), O_RDONLY | O_CLOEXEC);
+	REQUIRE(fd >= 0);
+	httpd::Response r;
+	REQUIRE((box_document ? httpd::answerFromBoxDocument(r, fd) : httpd::answerFromDescriptor(r, fd)));
+	r.code = 200;
+	r.content_type = "application/xml";
+	Handler h(M_GET, "/api/v1/config/bouquets");
+	CApiBridge::answerWith(&h.hh, r);
+	if (h.hh.SendFd >= 0) {
+		close(h.hh.SendFd);
+		h.hh.SendFd = -1;
+	}
+	return h.hh.httpStatus;
+}
+
+} // namespace
+
+/* A file in the configuration directory goes out of a REST answer only as one of
+   the box's own documents opened by its fixed name; a route whose caller names the
+   file, as the storage file route does, gets 404 for it. */
+TEST_CASE("only the box's own documents come out of the configuration directory", "[bridge]")
+{
+	Attached a;
+	DirectoryBack back;
+	char dir[] = "/tmp/test_bridge_config_XXXXXX";
+	REQUIRE(mkdtemp(dir) != NULL);
+	const std::string doc = std::string(dir) + "/bouquets.xml";
+	{
+		FILE *f = fopen(doc.c_str(), "w");
+		REQUIRE(f != NULL);
+		fputs("<zapit/>\n", f);
+		fclose(f);
+	}
+	std::vector<std::string> kept;
+	kept.push_back(dir);
+	kept.push_back("/proc");
+	kept.push_back("/sys");
+	kept.push_back("/dev");
+	yprotect::setKeptPlacesForTest(kept);
+
+	CHECK(bridged(doc, true) == HTTP_OK);
+	CHECK(bridged(doc, false) == HTTP_NOT_FOUND);
+
+	// the document route answers with one of them
+	const std::string before = coreapi::config::configRoot();
+	coreapi::config::setConfigRoot(dir);
+	Handler h(M_GET, "/api/v1/config/bouquets");
+	(void) a.bridge.Hook_SendResponse(&h.hh);
+	coreapi::config::setConfigRoot(before);
+	CHECK(h.hh.httpStatus == HTTP_OK);
+	CHECK(h.hh.status == HANDLED_SENDFD);
+	if (h.hh.SendFd >= 0) {
+		close(h.hh.SendFd);
+		h.hh.SendFd = -1;
+	}
+
+	// a file of the kernel's trees goes out of neither
+	const int proc = open("/proc/self/status", O_RDONLY | O_CLOEXEC);
+	REQUIRE(proc >= 0);
+	CHECK(nhttpd_bridge::heldBack(proc, false, true));
+	CHECK(nhttpd_bridge::heldBack(proc, false, false));
+	close(proc);
+	unlink(doc.c_str());
+	rmdir(dir);
+}
+
+namespace {
+// what the cases below set, set back however they end
+struct Unprotected
+{
+	~Unprotected() { yprotect::setFiles(std::vector<std::string>()); }
+};
+} // namespace
+
+TEST_CASE("a file answer that holds who may reach the box is a 404 and the file is closed", "[bridge]")
+{
+	Attached a;
+	Unprotected unprotected;
+	char name[] = "/tmp/test_bridge_XXXXXX";
+	int fd = mkstemp(name);
+	REQUIRE(fd >= 0);
+	REQUIRE(write(fd, "hash", 4) == 4);
+	lseek(fd, 0, SEEK_SET);
+	// named by another spelling than the one opened: the inode decides
+	char link_name[] = "/tmp/test_bridge_link_XXXXXX";
+	REQUIRE(mkstemp(link_name) >= 0);
+	unlink(link_name);
+	REQUIRE(symlink(name, link_name) == 0);
+	yprotect::setFiles(std::vector<std::string>(1, link_name));
+
+	httpd::Response r;
+	REQUIRE(httpd::answerFromDescriptor(r, fd));
+	r.code = 200;
+	r.content_type = "image/png";
+	Handler h(M_GET, "/api/v1/channels/1/logo");
+	CApiBridge::answerWith(&h.hh, r);
+	CHECK(h.hh.httpStatus == HTTP_NOT_FOUND);
+	CHECK(h.hh.status == HANDLED_READY);
+	CHECK(h.hh.SendFd == -1);
+	CHECK(h.hh.yresult.find("\"status\":404") != std::string::npos);
+	CHECK(h.hh.yresult.find("hash") == std::string::npos);
+	CHECK(fcntl(fd, F_GETFD) == -1);
+	unlink(link_name);
+	unlink(name);
+}
+
+TEST_CASE("the channel logo route sends no file that holds who may reach the box", "[bridge]")
+{
+	Attached a;
+	Unprotected unprotected;
+	InstalledDependencies box;
+	char store[] = "/tmp/test_bridge_XXXXXX";
+	int made = mkstemp(store);
+	REQUIRE(made >= 0);
+	REQUIRE(write(made, "hash", 4) == 4);
+	close(made);
+	char picture[] = "/tmp/test_bridge_XXXXXX";
+	made = mkstemp(picture);
+	REQUIRE(made >= 0);
+	REQUIRE(write(made, "PNG", 3) == 3);
+	close(made);
+	yprotect::setFiles(std::vector<std::string>(1, store));
+
+	// a channel list that names the store as a channel's picture
+	box.logos.put(1, store);
+	Handler held(M_GET, "/api/v1/channels/1/logo");
+	REQUIRE(a.bridge.Hook_SendResponse(&held.hh) == HANDLED_READY);
+	CHECK(held.hh.httpStatus == HTTP_NOT_FOUND);
+	CHECK(held.hh.SendFd == -1);
+	CHECK(held.hh.yresult.find("hash") == std::string::npos);
+	CHECK(held.hh.yresult.find("no-such-name") != std::string::npos);
+
+	// and a picture beside it goes out as before
+	box.logos.put(2, picture);
+	Handler sent(M_GET, "/api/v1/channels/2/logo");
+	a.bridge.Hook_SendResponse(&sent.hh);
+	CHECK(sent.hh.httpStatus == HTTP_OK);
+	CHECK(sent.hh.status == HANDLED_SENDFD);
+	REQUIRE(sent.hh.SendFd >= 0);
+	CHECK(sent.hh.SendFdLength == 3);
+	close(sent.hh.SendFd);
+	sent.hh.SendFd = -1;
+	unlink(store);
+	unlink(picture);
 }
 
 TEST_CASE("the bridge and the request reader classify the same targets", "[bridge]")

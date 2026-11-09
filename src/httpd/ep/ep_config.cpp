@@ -97,9 +97,11 @@ Response documentAt(coreapi::config::Document d)
 	Response out;
 	out.code = StatusOk;
 	out.content_type = documentContentType();
-	// The descriptor is taken over whichever way this answers, so there is
-	// nothing left here to give back.
-	if (!answerFromDescriptor(out, fd))
+	/* The descriptor is taken over whichever way this answers, so there is
+	   nothing left here to give back. Opened by the name the program fixes for
+	   the document, the one answer that may come out of the configuration
+	   directory. */
+	if (!answerFromBoxDocument(out, fd))
 		return problemResponse(StatusInternalServerError,
 				       coreapi::ErrorCode::ConfigDocumentUnreadable,
 				       "the box's copy of that document could not be read");

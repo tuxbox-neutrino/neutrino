@@ -9,6 +9,8 @@
 #include <string>
 #include <vector>
 
+#include <sys/stat.h>
+
 class CyhookHandler;
 
 namespace ystatic
@@ -105,15 +107,39 @@ bool ownOpened(CyhookHandler *hh, int fd, std::string &below);
 // out without a login, else -1. What is checked is the file actually
 // opened, through /proc/self/fd, and not the name: a regular file that came
 // from the web directory, lies within it after every link is followed, not
-// under its extensions/ (ownOpened), and is neither template nor script. A
-// FIFO is not waited on. The caller sends from this descriptor and never
-// opens the name again, so a file swapped for a link after the check is not
-// what goes out. Without /proc (a server in a chroot) nothing is open.
+// under its extensions/ (ownOpened), is neither template nor script, and is
+// none of the files that hold who may reach the box, by whatever name
+// (yprotect). A FIFO is not waited on. The caller sends from this
+// descriptor and never opens the name again, so a file swapped for a link
+// after the check is not what goes out. Without /proc (a server in a chroot)
+// nothing is open.
 int openPublic(CyhookHandler *hh, const Target &t);
+
+// Opens name for an answer that sends the file it names wherever it lies, as
+// a channel logo does: a regular file, a FIFO not waited on, none of the
+// files that hold who may reach the box, and none lying in the places no
+// answer is sent out of (yprotect), asked of what was opened; config_ok
+// lets the configuration directory through, for a name the program fixes
+// there itself. The descriptor, with st read off it, or -1. The caller
+// sends from this descriptor and never opens the name again.
+int openToSend(const std::string &name, struct stat &st, bool config_ok = false);
 
 // The name as a URL the server's second analyzeURL pass turns back into
 // exactly this name: that pass decodes %XX and + and cuts at ?.
 std::string reparseSafe(const std::string &name);
+
+// The places no web folder may be, hold or lie in: the configuration
+// directory, which holds who may reach the box and the keys of the
+// services it uses, and the kernel's trees /proc, /sys and /dev, whose
+// files name what the program holds open, an unlinked capture among them.
+std::vector<std::string> keptPlaces();
+
+// Why root may not be a web folder (the web directory, the override
+// directory or the hosted one), empty where it may: it is not an absolute
+// path, has a .. segment, is, holds or lies in one of kept, or is or holds
+// /tmp, each taken with every link followed where it is there, as written
+// where it is not. A folder below /tmp may be one.
+std::string rootRefused(const std::string &root, const std::vector<std::string> &kept);
 
 } // namespace ystatic
 

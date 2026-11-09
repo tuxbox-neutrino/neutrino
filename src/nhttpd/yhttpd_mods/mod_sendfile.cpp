@@ -58,7 +58,18 @@
 #include <ytypes_globals.h>
 #include <helper.h>
 #include <ystatic.h>
+#include <yprotect.h>
 #include "mod_sendfile.h"
+
+namespace
+{
+void (*checkedHook)(int fd) = NULL;
+}
+
+void CmodSendfile::setCheckedForTest(void (*checked)(int fd))
+{
+	checkedHook = checked;
+}
 
 //=============================================================================
 // Initialization of static variables
@@ -112,6 +123,17 @@ THandleStatus CmodSendfile::Hook_PrepareResponse(CyhookHandler *hh) {
 				filed = -1;
 			}
 		}
+		/* None of the files that hold who may reach the box goes out, by
+		   whatever name, link or folder it was reached and whatever the
+		   types, mod_sendfile.sendAll and the login let through: asked of
+		   the descriptor, the one opened here and the one mod_auth handed
+		   on alike. */
+		if (filed >= 0 && (yprotect::isProtected(filed) || yprotect::inKeptPlace(filed))) {
+			close(filed);
+			filed = -1;
+		}
+		if (filed >= 0 && checkedHook != NULL)
+			checkedHook(filed);
 		if (filed != -1) //can access file?
 		{
 			struct stat statbuf;

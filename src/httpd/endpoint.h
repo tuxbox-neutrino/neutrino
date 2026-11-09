@@ -432,6 +432,16 @@ struct Response
 	   anything renames or replaces the name. */
 	int         fd;
 	uint64_t    length;
+	/* The file behind fd is one the route made for this answer and took the name of
+	   itself, as a playlist written to /tmp is: it may go out without a name. Any
+	   other file without a name goes out of no answer, since what it held cannot be
+	   told (yprotect). */
+	bool        fd_own_unnamed;
+	/* The file behind fd is one of the box's own documents the route opened by the
+	   name the program fixes for it (a channel list, a configuration document): it
+	   may lie in the configuration directory, out of which no other answer goes
+	   (yprotect::inKeptPlace). */
+	bool        fd_box_document;
 
 	/* The configuration this server is to be put on once these bytes have gone out, and
 	   empty for every answer that asks for nothing of the kind.
@@ -478,7 +488,8 @@ struct Response
 	int         relay_kind;
 	uint64_t    relay_channel;
 
-	Response() : code(0), fd(-1), length(0), relay_kind(0), relay_channel(0) {}
+	Response() : code(0), fd(-1), length(0), fd_own_unnamed(false), fd_box_document(false), relay_kind(0),
+	             relay_channel(0) {}
 };
 
 /* Puts an open file behind a response and states its length from that same
@@ -489,6 +500,14 @@ struct Response
    and a handler that measured the path would be measuring whatever carries that
    name by the time it asks. */
 bool answerFromDescriptor(Response &r, int fd);
+
+/* The same for a file the route made for this answer and whose name it removed
+   once it had it open (Response::fd_own_unnamed). */
+bool answerFromOwnUnnamed(Response &r, int fd);
+
+/* The same for one of the box's own documents, opened by the name the program
+   fixes for it (Response::fd_box_document). */
+bool answerFromBoxDocument(Response &r, int fd);
 
 // A set, because some routes answer two.
 enum Answer : unsigned

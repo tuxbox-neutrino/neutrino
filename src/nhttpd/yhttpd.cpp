@@ -21,6 +21,7 @@
 // yhttpd
 #include <ylogging.h>
 #include <yhook.h>
+#include <ystatic.h>
 #include <httpd/nhttpd_bridge.h>
 #include <httpd/server_control.h>
 #include <httpd/webconfig.h>
@@ -482,6 +483,28 @@ void Cyhttpd::ReadConfig(void) {
 	ConfigList["WebsiteMain.directory"] = Config->getString("WebsiteMain.directory", PRIVATEDOCUMENTROOT);
 	ConfigList["WebsiteMain.override_directory"] = Config->getString("WebsiteMain.override_directory", PUBLICDOCUMENTROOT);
 	ConfigList["WebsiteMain.hosted_directory"] = Config->getString("WebsiteMain.hosted_directory", HOSTEDDOCUMENTROOT);
+	/* No web folder is, holds or lies in the configuration directory or one
+	   of the kernel's trees (ystatic::keptPlaces): such a folder is put back
+	   to the one the box ships with, said once, and where even that one is
+	   refused, the folder is a name that is no directory and serves nothing. */
+	{
+		static const char *const roots[][2] = {
+			{ "WebsiteMain.directory", PRIVATEDOCUMENTROOT },
+			{ "WebsiteMain.override_directory", PUBLICDOCUMENTROOT },
+			{ "WebsiteMain.hosted_directory", HOSTEDDOCUMENTROOT },
+		};
+		const std::vector<std::string> kept = ystatic::keptPlaces();
+		for (size_t i = 0; i < sizeof(roots) / sizeof(roots[0]); i++) {
+			const std::string why = ystatic::rootRefused(ConfigList[roots[i][0]], kept);
+			if (why.empty())
+				continue;
+			const bool shipped = ystatic::rootRefused(roots[i][1], kept).empty();
+			aprintf("%s %s is refused as a web folder: %s; %s\n", roots[i][0],
+				ylog::text(ConfigList[roots[i][0]]).c_str(), ylog::text(why).c_str(),
+				shipped ? "the shipped one is used" : "it serves nothing");
+			ConfigList[roots[i][0]] = shipped ? roots[i][1] : "/dev/null/refused";
+		}
+	}
 
 	ConfigList["Tuxbox.DisplayLogos"] = Config->getString("Tuxbox.DisplayLogos", "true");
 	// Check location of logos
