@@ -264,6 +264,12 @@ TEST_CASE("the box's raw places: inside a logo folder, or a .png directly in /tm
 	wide.push_back("");
 	wide.push_back("/");
 	CHECK_FALSE(ystatic::rawPlaceAllowed(realOf(b.outside + "/logos/sub/1.png"), wide, "/nonexistent-tmp"));
+	/* nor a logo folder set where no web folder may be (ystatic::rootRefused): the
+	   kernel's trees, whose files name what the program holds open */
+	const std::vector<std::string> kernel(1, "/proc");
+	const std::vector<std::string> devices(1, "/dev");
+	CHECK_FALSE(ystatic::rawPlaceAllowed(realOf("/proc/self/status"), kernel, "/nonexistent-tmp"));
+	CHECK_FALSE(ystatic::rawPlaceAllowed(realOf("/dev/null"), devices, "/nonexistent-tmp"));
 }
 
 TEST_CASE("a name with a .. segment or a NUL is found nowhere", "[nhttpd]")

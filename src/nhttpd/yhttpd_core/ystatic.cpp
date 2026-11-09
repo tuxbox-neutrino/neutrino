@@ -175,8 +175,11 @@ bool rawPlaceAllowed(const std::string &real, const std::vector<std::string> &di
 {
 	if (real.empty() || real[0] != '/')
 		return false;
+	/* A folder set where no web folder may be (rootRefused), the logo folder of the
+	   settings say, counts for nothing: what lies there is not the box's to hand out. */
+	const std::vector<std::string> kept = keptPlaces();
 	for (size_t i = 0; i < dirs.size(); i++)
-		if (insideDir(real, dirs[i]))
+		if (rootRefused(dirs[i], kept).empty() && insideDir(real, dirs[i]))
 			return true;
 	const std::string t = realOf(tmp);
 	const size_t slash = real.rfind('/');

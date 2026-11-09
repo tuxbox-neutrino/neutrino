@@ -43,9 +43,10 @@ typedef bool (*RawPlaceTest)(const std::string &real);
 void setRawPlaceTest(RawPlaceTest test);
 
 // The rule the box sets: a file inside one of dirs (each taken by its own
-// real path; an empty one counts for nothing), or a .png directly in tmp,
-// where the box writes the pictures of its screens. real is a real path, as
-// realpath answers it.
+// real path; an empty one counts for nothing, and so does one rootRefused
+// below refuses as a web folder), or a .png directly in tmp, where the box
+// writes the pictures of its screens. real is a real path, as realpath
+// answers it.
 bool rawPlaceAllowed(const std::string &real, const std::vector<std::string> &dirs,
 		     const std::string &tmp = "/tmp");
 
