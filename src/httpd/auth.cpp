@@ -29,13 +29,17 @@
 #include "coreapi/base/errors.h"
 
 #include <openssl/crypto.h>
+#include <openssl/evp.h>
+#include <openssl/hmac.h>
 
+#include <cstdio>
 #include <cstring>
 #include <limits>
 #include <map>
 #include <string>
 #include <vector>
 
+#include <strings.h>
 #include <time.h>
 
 #include <arpa/inet.h>
@@ -61,6 +65,7 @@ const char kCsrfHeader[]    = "X-CSRF-Token";
    transport, a router and a document generator, and a name with a prefix on it would be a
    name a person copying an address has to get right too. */
 const char kQueryToken[]    = "token";
+const char kStartTicket[]   = "ticket";
 
 /* How long the gate leaves between walks of the session table. A walk is the length of
    the table, and one per request would make the cost of answering anything depend on how
@@ -429,9 +434,11 @@ void sweepIfDue()
 /* The session a cookie token names, when there is one and it has not run out.
    Expiry is read here and not left to the walk above: the walk happens on a timer,
    and a session that stayed usable until the next one came round would have a
-   lifetime of the setting plus up to an interval. */
+   lifetime of the setting plus up to an interval. revision is the account the
+   session stands under, which is the one in effect. */
 bool liveSession(const std::string &token, std::string *csrf,
-                 std::string *user = NULL, time_t *expires = NULL)
+                 std::string *user = NULL, time_t *expires = NULL,
+                 unsigned long long *revision = NULL)
 {
 	if (token.empty())
 		return false;
@@ -457,6 +464,8 @@ bool liveSession(const std::string &token, std::string *csrf,
 		*user = i->second.user;
 	if (expires != NULL)
 		*expires = i->second.expires;
+	if (revision != NULL)
+		*revision = i->second.revision;
 	return true;
 }
 
@@ -600,6 +609,27 @@ bool csrfSatisfied(Method m, const Credentials &c)
 
 	std::string named;
 	return tokenLevel(c.bearer_token, NULL, &named) && named.empty();
+}
+
+/* Whether an address names the host this request was sent to: http or https,
+   then exactly that host, then nothing or a path. Compared without regard to
+   case, a host name having none. */
+bool namesHost(const std::string &address, const std::string &host)
+{
+	if (host.empty())
+		return false;
+
+	static const char *const schemes[] = { "http://", "https://" };
+	for (size_t i = 0; i < 2; ++i)
+	{
+		const size_t n = strlen(schemes[i]);
+		if (address.size() <= n || strncasecmp(address.c_str(), schemes[i], n) != 0)
+			continue;
+		const size_t slash = address.find('/', n);
+		const std::string named = address.substr(n, (slash == std::string::npos) ? std::string::npos : slash - n);
+		return named.size() == host.size() && strcasecmp(named.c_str(), host.c_str()) == 0;
+	}
+	return false;
 }
 
 Response refused(const std::string &detail)
@@ -756,7 +786,86 @@ bool decodeBasicPayload(const std::string &in, std::string &out)
 
 const char kNotPermitted[] = "this endpoint is not open to this caller";
 
+// The clock a ticket runs out by, which is the sessions' own, read under their lock.
+time_t ticketNow()
+{
+	OpenThreads::ScopedLock<OpenThreads::Mutex> held(lock());
+	return sessionNow();
+}
+
+/* The digest of a ticket for path, running out at expires, under the session's second
+   token and for the revision of the account the session stood under: a session
+   carried to a new account keeps its second token, and a ticket drawn before is not
+   one of the new account's. */
+std::string ticketDigest(const std::string &csrf, unsigned long long revision, const std::string &path,
+                         time_t expires)
+{
+	char when[24];
+	std::snprintf(when, sizeof(when), "%lld", (long long) expires);
+	char under[24];
+	std::snprintf(under, sizeof(under), "%llu", revision);
+	const std::string data = std::string("start\n") + under + "\n" + path + "\n" + when;
+	unsigned char mac[EVP_MAX_MD_SIZE];
+	unsigned int n = 0;
+	if (csrf.empty() || HMAC(EVP_sha256(), csrf.data(), (int) csrf.size(),
+	                         (const unsigned char *) data.data(), data.size(), mac, &n) == NULL)
+		return std::string();
+	static const char hex[] = "0123456789abcdef";
+	std::string out;
+	out.reserve(2 * n);
+	for (unsigned int i = 0; i < n; ++i)
+	{
+		out += hex[mac[i] >> 4];
+		out += hex[mac[i] & 0x0f];
+	}
+	return out;
+}
+
+/* Whether ticket is one this server handed out to the session whose second token is
+   csrf, while it stood under revision, for path, and has not run out: the moment it
+   runs out, at most a ticket's lifetime ahead, a dash, and the digest. A clock that
+   went back leaves a ticket running out further ahead than that, and it counts as
+   run out. */
+bool ticketHolds(const std::string &csrf, unsigned long long revision, const std::string &path,
+                 const std::string &ticket)
+{
+	const size_t dash = ticket.find('-');
+	if (dash == std::string::npos || dash == 0 || dash > 18)
+		return false;
+	long long expires = 0;
+	for (size_t i = 0; i < dash; ++i)
+	{
+		if (ticket[i] < '0' || ticket[i] > '9')
+			return false;
+		expires = expires * 10 + (ticket[i] - '0');
+	}
+	const long long now = (long long) ticketNow();
+	if (expires <= now || expires > now + (long long) kStartTicketSeconds)
+		return false;
+	return sameSecret(ticketDigest(csrf, revision, path, (time_t) expires), ticket.substr(dash + 1));
+}
+
 } // namespace
+
+std::string startTicket(const std::string &session_token, const std::string &path)
+{
+	std::string csrf;
+	unsigned long long revision = 0;
+	if (!liveSession(session_token, &csrf, NULL, NULL, &revision))
+		return std::string();
+	const time_t expires = ticketNow() + (time_t) kStartTicketSeconds;
+	const std::string digest = ticketDigest(csrf, revision, path, expires);
+	if (digest.empty())
+		return std::string();
+	char when[24];
+	std::snprintf(when, sizeof(when), "%lld", (long long) expires);
+	return std::string(when) + "-" + digest;
+}
+
+const char *startTicketName()
+{
+	return kStartTicket;
+}
 
 const char *notPermittedDetail()
 {
@@ -766,6 +875,44 @@ const char *notPermittedDetail()
 const char *csrfRefusedDetail()
 {
 	return "this request changes something and carries no matching token";
+}
+
+bool fromPageOfThisBox(const Provenance &p)
+{
+	if (!p.sec_fetch_site.empty())
+		return p.sec_fetch_site == "same-origin";
+	if (!p.origin.empty())
+		return namesHost(p.origin, p.host) && p.origin.find('/', p.origin.find("//") + 2) == std::string::npos;
+	if (!p.referer.empty())
+		return namesHost(p.referer, p.host);
+	return false;
+}
+
+bool mayStartWithGet(const Credentials &c, const Provenance &p, const std::string &path)
+{
+	/* In csrfSatisfied's order and for its reason: the cookie is a lookup, the
+	   bearer thousands of rounds of a hash, reached only by a request that holds a
+	   live session and showed nothing else. */
+	std::string want;
+	unsigned long long revision = 0;
+	if (!liveSession(c.cookie_token, &want, NULL, NULL, &revision))
+		return true;
+	if (sameSecret(want, c.csrf_header))
+		return true;
+	if (!c.start_ticket.empty() && ticketHolds(want, revision, path, c.start_ticket))
+		return true;
+	if (fromPageOfThisBox(p))
+		return true;
+	if (c.bearer_token.empty())
+		return false;
+
+	std::string named;
+	return tokenLevel(c.bearer_token, NULL, &named) && named.empty();
+}
+
+const char *startRefusedDetail()
+{
+	return "this request starts something on the box and shows nothing saying it came from a page of this box";
 }
 
 const char *authLevelName(AuthLevel a)

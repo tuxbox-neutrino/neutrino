@@ -29,6 +29,7 @@
 #include "coreapi/system.h"
 #include "httpd/doc/openapi.h"
 #include "httpd/http.h"
+#include "httpd/login_bridge.h"
 #include "httpd/status.h"
 #include "httpd/webconfig.h"
 #include "coreapi/base/errors.h"
@@ -1438,4 +1439,410 @@ TEST_CASE("the boundary: a request under another name is refused before any hook
 	Handler bare(M_GET, "/control/info");
 	bare.hh.HeaderList.erase("Host");
 	CHECK(gate.Hook_PrepareResponse(&bare.hh) == HANDLED_CONTINUE);
+}
+
+TEST_CASE("the gate: a GET that starts a browser stream asks a session to show it came from a page of the box", "[bridge][origin]")
+{
+	Attached a;
+	// A box holding no channel: a request through the gate reaches the route and
+	// is answered 404, and none is converted.
+	FakeChannelSource none;
+	InstalledChannelSource installed(&none);
+
+	// Classified by its row: the GET, and not the HEAD it also answers or a route beside it.
+	{
+		httpd::AuthLevel need = httpd::AuthLevel::Public;
+		bool qok = false;
+		bool starts = false;
+		REQUIRE(httpd::routeLevelFor(httpd::Get, "/api/v1/stream/browser/1", &need, &qok, &starts));
+		CHECK(starts);
+		REQUIRE(httpd::routeLevelFor(httpd::Head, "/api/v1/stream/browser/1", &need, &qok, &starts));
+		CHECK_FALSE(starts);
+		REQUIRE(httpd::routeLevelFor(httpd::Get, "/api/v1/stream/1", &need, &qok, &starts));
+		CHECK_FALSE(starts);
+		REQUIRE(httpd::routeLevelFor(httpd::Get, "/api/v1/stream/playlist", &need, &qok, &starts));
+		CHECK_FALSE(starts);
+	}
+
+	const std::string session = httpd::openSessionForTest("root");
+	REQUIRE(!session.empty());
+	const std::string csrf = httpd::csrfFor(session);
+	REQUIRE(!csrf.empty());
+	const std::string cookie = std::string(httpd::sessionCookieName()) + "=" + session;
+	const char target[] = "/api/v1/stream/browser/1?video=h264&audio=aac";
+
+	struct Shown
+	{
+		const char *what;
+		const char *header;
+		const char *value;
+		bool        passes;
+	};
+	const Shown cases[] = {
+		{ "the cookie alone", "", "", false },
+		{ "another site, by Sec-Fetch-Site", "Sec-Fetch-Site", "cross-site", false },
+		{ "a typed address, by Sec-Fetch-Site", "Sec-Fetch-Site", "none", false },
+		{ "another site, by Origin", "Origin", "http://evil.example", false },
+		{ "another site, by Referer", "Referer", "http://evil.example/box.lan/", false },
+		{ "a second token that is not the session's", "X-CSRF-Token", "0123456789abcdef", false },
+		{ "a page of the box, by Sec-Fetch-Site", "Sec-Fetch-Site", "same-origin", true },
+		{ "a page of the box, by Origin", "Origin", "http://box.lan", true },
+		{ "a page of the box, by Referer", "Referer", "http://box.lan/dashboard.html", true },
+	};
+	for (size_t i = 0; i < sizeof(cases) / sizeof(cases[0]); ++i)
+	{
+		INFO(cases[i].what);
+		Handler get(M_GET, target);
+		get.hh.UrlData["clientaddr"] = "203.0.113.9";
+		get.hh.HeaderList["Cookie"] = cookie;
+		if (cases[i].header[0] != '\0')
+			get.hh.HeaderList[cases[i].header] = cases[i].value;
+		REQUIRE(a.bridge.Hook_SendResponse(&get.hh) == HANDLED_READY);
+		const bool refused = get.hh.yresult.find(httpd::startRefusedDetail()) != std::string::npos;
+		CHECK(refused == !cases[i].passes);
+		if (!refused)
+			CHECK(get.hh.httpStatus == HTTP_NOT_FOUND);
+		if (refused)
+		{
+			CHECK(get.hh.httpStatus == HTTP_FORBIDDEN);
+			CHECK(get.hh.yresult.find("\"type\":\"/errors/not-permitted\"") != std::string::npos);
+			// refused before the route ran: nothing is parked for the stream pass
+			CHECK(get.hh.Carried == NULL);
+		}
+	}
+
+	// The session's own second token, which the web interface's player sends.
+	Handler token(M_GET, target);
+	token.hh.UrlData["clientaddr"] = "203.0.113.9";
+	token.hh.HeaderList["Cookie"] = cookie;
+	token.hh.HeaderList[httpd::csrfHeaderName()] = csrf;
+	REQUIRE(a.bridge.Hook_SendResponse(&token.hh) == HANDLED_READY);
+	CHECK(token.hh.yresult.find(httpd::startRefusedDetail()) == std::string::npos);
+	CHECK(token.hh.httpStatus == HTTP_NOT_FOUND);
+
+	// A HEAD starts nothing and is not asked.
+	Handler head(M_HEAD, target);
+	head.hh.UrlData["clientaddr"] = "203.0.113.9";
+	head.hh.HeaderList["Cookie"] = cookie;
+	REQUIRE(a.bridge.Hook_SendResponse(&head.hh) == HANDLED_READY);
+	CHECK(head.hh.yresult.find(httpd::startRefusedDetail()) == std::string::npos);
+	CHECK(head.hh.httpStatus != HTTP_FORBIDDEN);
+
+	// A bearer token answers for itself, beside a cookie or alone.
+	const std::string bearer = "0f1e2d3c4b5a69780f1e2d3c4b5a6978";
+	httpd::addApiToken(httpd::tokenLookupPrefix(bearer), httpd::hashSecret(bearer),
+	                   httpd::AuthLevel::System, "", 0);
+	Handler both(M_GET, target);
+	both.hh.UrlData["clientaddr"] = "203.0.113.9";
+	both.hh.HeaderList["Cookie"] = cookie;
+	both.hh.HeaderList["Authorization"] = "Bearer " + bearer;
+	REQUIRE(a.bridge.Hook_SendResponse(&both.hh) == HANDLED_READY);
+	CHECK(both.hh.yresult.find(httpd::startRefusedDetail()) == std::string::npos);
+	CHECK(both.hh.httpStatus != HTTP_FORBIDDEN);
+
+	Handler alone(M_GET, target);
+	alone.hh.UrlData["clientaddr"] = "203.0.113.9";
+	alone.hh.HeaderList["Authorization"] = "Bearer " + bearer;
+	REQUIRE(a.bridge.Hook_SendResponse(&alone.hh) == HANDLED_READY);
+	CHECK(alone.hh.yresult.find(httpd::startRefusedDetail()) == std::string::npos);
+	CHECK(alone.hh.httpStatus != HTTP_FORBIDDEN);
+
+	httpd::forgetApiTokens();
+	httpd::closeSession(session);
+}
+
+namespace
+{
+
+// The member "ticket" of a ticket's answer, as a page reads it.
+std::string ticketIn(const std::string &answer)
+{
+	const std::string key = "\"ticket\":\"";
+	const size_t at = answer.find(key);
+	if (at == std::string::npos)
+		return std::string();
+	const size_t from = at + key.size();
+	return answer.substr(from, answer.find('"', from) - from);
+}
+
+// A ticket asked for as the web interface's player asks: the cookie, the second token, the path.
+Handler askTicket(const std::string &cookie, const std::string &csrf, const std::string &path)
+{
+	Handler h(M_POST, "/api/v1/session/ticket", "{\"path\":\"" + path + "\"}");
+	h.hh.UrlData["clientaddr"] = "203.0.113.9";
+	h.hh.HeaderList["Cookie"] = cookie;
+	h.hh.HeaderList["Content-Type"] = "application/json";
+	if (!csrf.empty())
+		h.hh.HeaderList[httpd::csrfHeaderName()] = csrf;
+	return h;
+}
+
+} // namespace
+
+TEST_CASE("the gate: a ticket of the session stands in for its second token on the GET it was asked for", "[bridge][origin]")
+{
+	/* What an audio element carries for radio, which can set no header: the second
+	   token is what shows a GET came from a page of the box where the browser sends no
+	   Referer, and the ticket stands in for it in the query. */
+	Attached a;
+	FakeChannelSource none;
+	InstalledChannelSource installed(&none);
+	const time_t t0 = 1900000000;
+	httpd::setSessionClockForTest(t0);
+
+	const std::string session = httpd::openSessionForTest("root");
+	const std::string other = httpd::openSessionForTest("root");
+	REQUIRE(!session.empty());
+	REQUIRE(!other.empty());
+	const std::string csrf = httpd::csrfFor(session);
+	const std::string cookie = std::string(httpd::sessionCookieName()) + "=" + session;
+	const std::string other_cookie = std::string(httpd::sessionCookieName()) + "=" + other;
+	const std::string path = "/api/v1/stream/browser/1";
+
+	Handler asked = askTicket(cookie, csrf, path);
+	REQUIRE(a.bridge.Hook_SendResponse(&asked.hh) == HANDLED_READY);
+	REQUIRE(asked.hh.httpStatus == HTTP_OK);
+	const std::string ticket = ticketIn(asked.hh.yresult);
+	REQUIRE(!ticket.empty());
+	CHECK(asked.hh.yresult.find("\"expires_in\":60") != std::string::npos);
+	CHECK(ticket.find(csrf) == std::string::npos);
+
+	// asked for with the cookie alone, as a page of another site can: refused as every change is
+	Handler bare = askTicket(cookie, "", path);
+	REQUIRE(a.bridge.Hook_SendResponse(&bare.hh) == HANDLED_READY);
+	CHECK(bare.hh.httpStatus == HTTP_FORBIDDEN);
+	CHECK(ticketIn(bare.hh.yresult).empty());
+
+	// for a path that starts nothing: none
+	const char *const idle[] = { "/api/v1/stream/1", "/api/v1/session", "/api/v1/stream/browser/1?video=h264" };
+	for (size_t i = 0; i < sizeof(idle) / sizeof(idle[0]); ++i)
+	{
+		INFO(idle[i]);
+		Handler wrong = askTicket(cookie, csrf, idle[i]);
+		REQUIRE(a.bridge.Hook_SendResponse(&wrong.hh) == HANDLED_READY);
+		CHECK(wrong.hh.httpStatus == HTTP_BAD_REQUEST);
+		CHECK(ticketIn(wrong.hh.yresult).empty());
+	}
+
+	struct Use
+	{
+		const char *what;
+		std::string target;
+		std::string cookie;
+		time_t      now;
+		bool        passes;
+	};
+	std::string tampered = ticket;
+	tampered[tampered.size() - 1] = (tampered[tampered.size() - 1] == '0') ? '1' : '0';
+	std::string later = ticket;
+	later[0] = (later[0] == '1') ? '2' : '1';
+	const Use uses[] = {
+		{ "the ticket, nothing else", path + "?video=h264&audio=aac&ticket=" + ticket, cookie, t0, true },
+		{ "the same path under another query", path + "?video=none&audio=mp2&apid=201&ticket=" + ticket, cookie, t0, true },
+		{ "a second before it runs out", path + "?video=h264&audio=aac&ticket=" + ticket, cookie, t0 + 59, true },
+		{ "when it has run out", path + "?video=h264&audio=aac&ticket=" + ticket, cookie, t0 + 60, false },
+		{ "after the clock went back", path + "?video=h264&audio=aac&ticket=" + ticket, cookie, t0 - 3600, false },
+		{ "on another channel", "/api/v1/stream/browser/2?video=h264&audio=aac&ticket=" + ticket, cookie, t0, false },
+		{ "beside another session's cookie", path + "?video=h264&audio=aac&ticket=" + ticket, other_cookie, t0, false },
+		{ "with a digit of its digest changed", path + "?video=h264&audio=aac&ticket=" + tampered, cookie, t0, false },
+		{ "with its time changed", path + "?video=h264&audio=aac&ticket=" + later, cookie, t0, false },
+		{ "no ticket", path + "?video=h264&audio=aac", cookie, t0, false },
+	};
+	for (size_t i = 0; i < sizeof(uses) / sizeof(uses[0]); ++i)
+	{
+		INFO(uses[i].what);
+		httpd::setSessionClockForTest(uses[i].now);
+		Handler get(M_GET, uses[i].target);
+		get.hh.UrlData["clientaddr"] = "203.0.113.9";
+		get.hh.HeaderList["Cookie"] = uses[i].cookie;
+		REQUIRE(a.bridge.Hook_SendResponse(&get.hh) == HANDLED_READY);
+		const bool refused = get.hh.yresult.find(httpd::startRefusedDetail()) != std::string::npos;
+		CHECK(refused == !uses[i].passes);
+		// past the gate the ticket is no parameter of the route: the channel is looked for
+		if (!refused)
+			CHECK(get.hh.httpStatus == HTTP_NOT_FOUND);
+	}
+
+	// named twice, the second was never checked
+	httpd::setSessionClockForTest(t0);
+	Handler twice(M_GET, path + "?video=h264&audio=aac&ticket=" + ticket + "&ticket=" + ticket);
+	twice.hh.UrlData["clientaddr"] = "203.0.113.9";
+	twice.hh.HeaderList["Cookie"] = cookie;
+	REQUIRE(a.bridge.Hook_SendResponse(&twice.hh) == HANDLED_READY);
+	CHECK(twice.hh.httpStatus == HTTP_BAD_REQUEST);
+
+	// on a route that starts nothing the name is no credential and no parameter either
+	Handler elsewhere(M_GET, "/api/v1/session?ticket=" + ticket);
+	elsewhere.hh.UrlData["clientaddr"] = "203.0.113.9";
+	elsewhere.hh.HeaderList["Cookie"] = cookie;
+	REQUIRE(a.bridge.Hook_SendResponse(&elsewhere.hh) == HANDLED_READY);
+	CHECK(elsewhere.hh.httpStatus == HTTP_BAD_REQUEST);
+
+	// a caller holding no session, here by a bearer token, is answered no ticket, its GET needing none
+	const std::string bearer = "1f2e3d4c5b6a79881f2e3d4c5b6a7988";
+	httpd::addApiToken(httpd::tokenLookupPrefix(bearer), httpd::hashSecret(bearer),
+	                   httpd::AuthLevel::System, "", 0);
+	Handler by_token(M_POST, "/api/v1/session/ticket", "{\"path\":\"" + path + "\"}");
+	by_token.hh.UrlData["clientaddr"] = "203.0.113.9";
+	by_token.hh.HeaderList["Content-Type"] = "application/json";
+	by_token.hh.HeaderList["Authorization"] = "Bearer " + bearer;
+	REQUIRE(a.bridge.Hook_SendResponse(&by_token.hh) == HANDLED_READY);
+	CHECK(by_token.hh.httpStatus == HTTP_OK);
+	CHECK(by_token.hh.yresult.find("\"ticket\":\"\"") != std::string::npos);
+	CHECK(by_token.hh.yresult.find("\"expires_in\":0") != std::string::npos);
+	httpd::forgetApiTokens();
+
+	httpd::setSessionClockForTest(0);
+	httpd::closeSession(other);
+	httpd::closeSession(session);
+}
+
+namespace
+{
+
+std::string cookieOf(const std::string &session)
+{
+	return std::string(httpd::sessionCookieName()) + "=" + session;
+}
+
+// A ticket for path as the player asks for it: the session's cookie and its second token.
+std::string ticketOf(Attached &a, const std::string &session, const std::string &path)
+{
+	Handler asked = askTicket(cookieOf(session), httpd::csrfFor(session), path);
+	REQUIRE(a.bridge.Hook_SendResponse(&asked.hh) == HANDLED_READY);
+	REQUIRE(asked.hh.httpStatus == HTTP_OK);
+	const std::string ticket = ticketIn(asked.hh.yresult);
+	REQUIRE(!ticket.empty());
+	return ticket;
+}
+
+// What the GET with a ticket in its query, beside a session's cookie, meets at the gate.
+enum Met
+{
+	Started,  // it reached the route: the box holds no channel, so 404
+	HeldBack, // the session stands, and the ticket shows nothing for it
+	NotLetIn  // no session stands behind the cookie, and the level refuses it
+};
+
+Met startedWith(Attached &a, const std::string &session, const std::string &path, const std::string &ticket)
+{
+	Handler get(M_GET, path + "?video=none&audio=aac&ticket=" + ticket);
+	get.hh.UrlData["clientaddr"] = "203.0.113.9";
+	get.hh.HeaderList["Cookie"] = cookieOf(session);
+	REQUIRE(a.bridge.Hook_SendResponse(&get.hh) == HANDLED_READY);
+	INFO(get.hh.yresult);
+	if (get.hh.httpStatus == HTTP_NOT_FOUND)
+		return Started;
+	REQUIRE(get.hh.httpStatus == HTTP_FORBIDDEN);
+	if (get.hh.yresult.find(httpd::startRefusedDetail()) != std::string::npos)
+		return HeldBack;
+	REQUIRE(get.hh.yresult.find(httpd::notPermittedDetail()) != std::string::npos);
+	return NotLetIn;
+}
+
+} // namespace
+
+TEST_CASE("the gate: a ticket ends with its session and with the account it was asked under", "[bridge][origin][revision]")
+{
+	Attached a;
+	FakeChannelSource none;
+	InstalledChannelSource installed(&none);
+	const httpd::WebConfig before = httpd::config();
+	const time_t t0 = 1900000000;
+	httpd::setSessionClockForTest(t0);
+	const std::string path = "/api/v1/stream/browser/1";
+
+	// an account read from a file, as the reset at the box writes one
+	char name[64];
+	std::snprintf(name, sizeof(name), "/tmp/bridge-ticket-%d", (int) getpid());
+	std::FILE *f = std::fopen(name, "w");
+	REQUIRE(f != NULL);
+	std::fprintf(f, "username=owner\npassword_hash=%s\n", httpd::hashSecret("right-one", 1000).c_str());
+	REQUIRE(std::fclose(f) == 0);
+	REQUIRE(httpd::load(name));
+
+	{
+		INFO("a sign-out");
+		const std::string s = httpd::openSessionForTest("owner");
+		const std::string t = ticketOf(a, s, path);
+		CHECK(startedWith(a, s, path, t) == Started);
+		REQUIRE(httpd::closeSession(s));
+		CHECK(startedWith(a, s, path, t) == NotLetIn);
+	}
+	{
+		INFO("the session running out, the ticket drawn 30 seconds before with 30 more to go");
+		const std::string s = httpd::openSessionForTest("owner");
+		const time_t left = httpd::sessionExpiresIn(s);
+		REQUIRE(left > (time_t) httpd::kStartTicketSeconds);
+		// drawn as the route draws it, and not through the gate, which would move the end on
+		httpd::setSessionClockForTest(t0 + left - 30);
+		const std::string t = httpd::startTicket(s, path);
+		REQUIRE(!t.empty());
+		httpd::setSessionClockForTest(t0 + left + 1);
+		CHECK(startedWith(a, s, path, t) == NotLetIn);
+		httpd::setSessionClockForTest(t0);
+	}
+	{
+		INFO("a new password made by this session, which goes on under new tokens");
+		const std::string s = httpd::openSessionForTest("owner");
+		const std::string t = ticketOf(a, s, path);
+		const unsigned long long r = httpd::accountRevision();
+		httpd::WebConfig changed = httpd::config();
+		changed.password_hash = httpd::hashSecret("a-new-password", 1000);
+		httpd::setConfigForTest(changed);
+		REQUIRE(httpd::accountRevision() == r + 1);
+		const std::string renewed = httpd::reissueSession(s, r, r + 1);
+		REQUIRE(!renewed.empty());
+		CHECK(startedWith(a, s, path, t) == NotLetIn);
+		CHECK(startedWith(a, renewed, path, t) == HeldBack);
+		CHECK(startedWith(a, renewed, path, ticketOf(a, renewed, path)) == Started);
+		httpd::closeSession(renewed);
+		REQUIRE(httpd::load(name));
+	}
+	{
+		INFO("a session carried to the new account with its tokens, as the restart after a new password "
+		     "over the webserver route carries the one that asked");
+		const std::string s = httpd::openSessionForTest("owner");
+		const std::string t = ticketOf(a, s, path);
+		const unsigned long long r = httpd::accountRevision();
+		REQUIRE(httpd::carrySession(s, r, r + 1));
+		httpd::WebConfig changed = httpd::config();
+		changed.password_hash = httpd::hashSecret("yet-another-one", 1000);
+		httpd::setConfigForTest(changed);
+		REQUIRE(httpd::accountRevision() == r + 1);
+		REQUIRE(httpd::sessionIsLive(s));
+		CHECK(startedWith(a, s, path, t) == HeldBack);
+		CHECK(startedWith(a, s, path, ticketOf(a, s, path)) == Started);
+		httpd::closeSession(s);
+		REQUIRE(httpd::load(name));
+	}
+	{
+		INFO("a caller let in by a bearer token, beside a live session's cookie");
+		const std::string s = httpd::openSessionForTest("owner");
+		const std::string bearer = "2f3e4d5c6b7a89982f3e4d5c6b7a8998";
+		httpd::addApiToken(httpd::tokenLookupPrefix(bearer), httpd::hashSecret(bearer),
+		                   httpd::AuthLevel::System, "", 0);
+		Handler both(M_POST, "/api/v1/session/ticket", "{\"path\":\"" + path + "\"}");
+		both.hh.UrlData["clientaddr"] = "203.0.113.9";
+		both.hh.HeaderList["Content-Type"] = "application/json";
+		both.hh.HeaderList["Cookie"] = cookieOf(s);
+		both.hh.HeaderList["Authorization"] = "Bearer " + bearer;
+		REQUIRE(a.bridge.Hook_SendResponse(&both.hh) == HANDLED_READY);
+		CHECK(both.hh.httpStatus == HTTP_OK);
+		CHECK(ticketIn(both.hh.yresult).empty());
+		httpd::forgetApiTokens();
+		httpd::closeSession(s);
+	}
+	{
+		INFO("the reset at the box");
+		const std::string s = httpd::openSessionForTest("owner");
+		const std::string t = ticketOf(a, s, path);
+		std::string first, why;
+		REQUIRE(login_bridge::resetToFirstPassword(&first, &why));
+		CHECK(startedWith(a, s, path, t) == NotLetIn);
+	}
+
+	httpd::setSessionClockForTest(0);
+	httpd::setConfigForTest(before);
+	::unlink(name);
 }

@@ -166,6 +166,20 @@ const FieldDesc kScopedTokenFields[] = {
 
 const Schema kScopedTokenSchema = { "scoped-token", HTTPD_FIELDS(kScopedTokenFields) };
 
+/* WHAT A TICKET FOR ONE GET THAT STARTS SOMETHING IS ANSWERED AS.
+
+   The ticket and how long it has, which is when a page asks again: each start of a
+   stream does, a ticket being worth nothing once it has run out. */
+const FieldDesc kStartTicketFields[] = {
+	HTTPD_MEMBER("ticket", FieldType::String,
+		"the ticket, to be put in the query of the GET it was asked for as ticket=...; empty for a request "
+		"that holds no session, whose GET needs none"),
+	HTTPD_MEMBER("expires_in", FieldType::UInt,
+		"how many seconds the ticket has left, 0 for none"),
+};
+
+const Schema kStartTicketSchema = { "start-ticket", HTTPD_FIELDS(kStartTicketFields) };
+
 /* One refusal for both halves of a wrong answer. Which of the name and the password
    was wrong is not said and is not answerable from the outside either: the same
    document goes back for a name this box does not have and for the right name with the
@@ -493,6 +507,44 @@ Response mintRecordingsToken(const Request &r)
 	return out;
 }
 
+/* A ticket for the GET that path names, which has to be one that starts something.
+   It stands in for the second token that GET would otherwise carry in a header and for
+   nothing else: the GET still asks for its own level. */
+Response startTicketFor(const Request &r)
+{
+	const std::string &path = r.asString("path");
+	bool starts = false;
+	// a path as the GET writes it, the query being no part of what a ticket names
+	if (path.find_first_of("?#") != std::string::npos || !routeLevelFor(Get, path, NULL, NULL, &starts) ||
+	    !starts)
+		return problemResponse(StatusBadRequest, coreapi::ErrorCode::BadString,
+		                       "the path names no GET that starts something");
+
+	/* For the session that let the request in, as a media token is drawn: one signed
+	   out or given new tokens since the gate draws none, and a caller let in by a
+	   bearer token has no session for the ticket to stand beside, whatever cookie it
+	   also carried. */
+	const std::string ticket = startTicket(r.admittingSession(), path);
+	Response out = okJson();
+	Json j(out.body, 192);
+	j.beginObject();
+	j.key("ticket");
+	j.value(ticket);
+	j.key("expires_in");
+	j.value((unsigned long long) (ticket.empty() ? 0 : kStartTicketSeconds));
+	j.endObject();
+	return out;
+}
+
+const Param kStartTicketParams[] = {
+	HTTPD_BODY_REQUIRED_TEXT("path", "the path of the GET the ticket is for, as that GET writes it and without its query, such as /api/v1/stream/browser/{id}", 256),
+};
+
+const RouteRefusal kStartTicketRefusals[] = {
+	HTTPD_REFUSES_AS(400, BadString,
+		"the path names no GET that starts something"),
+};
+
 const Param kLoginParams[] = {
 	HTTPD_BODY_REQUIRED_TEXT("user", "the account name, which must match the single username this box is configured with", 256),
 	/* Bounded well under what the derivation would take on the slowest box here. The
@@ -532,7 +584,7 @@ const RouteRefusal kLoginRefusals[] = {
 		"too many attempts are being made here; come back in a moment"),
 };
 
-/* Five routes and the one exception each of them is.
+/* Six routes and the one exception each of them is.
 
    Login is one of the two routes open to everybody, and it is where the check over these
    tables says it is: being reached grants nothing.
@@ -550,7 +602,11 @@ const RouteRefusal kLoginRefusals[] = {
    written where the handler is.
 
    The fifth asks for System as well, the password it sets being the credential every
-   other route is reached with, and asks for the password in effect once more besides. */
+   other route is reached with, and asks for the password in effect once more besides.
+
+   The sixth asks for a write, as the one GET it hands a ticket for does today; a ticket
+   stands in for the second token alone and never for a level, which that GET asks for
+   itself. */
 const Endpoint kAuthEndpoints[] = {
 	{ Method::Post, "/api/v1/login", AuthLevel::Public,
 	  "opens a session for a name and a password, and says what that session carries and is worth",
@@ -700,6 +756,33 @@ const Endpoint kAuthEndpoints[] = {
 	  "`GET /api/v1/recordings/archive/{id}/file`, `GET /api/v1/recordings/archive/{id}/playlist.m3u`.",
 	  NULL, 0, &kScopedTokenSchema, &mintRecordingsToken, false,
 	  Answers200, HTTPD_REFUSALS(kMintRefusals) },
+	{ Method::Post, "/api/v1/session/ticket", AuthLevel::Write,
+	  "hands a page a ticket that stands in for the session's second token on one GET that starts something, for an element that cannot send a header",
+	  "Answers a ticket for the GET that `path` names, which has to be one that starts something on "
+	  "the box, such as `GET /api/v1/stream/browser/{id}`. A request holding a session starts such a GET "
+	  "only where it shows it came from a page of this box, and the second token in its header is what "
+	  "shows it where the browser sends no `Referer`; an element that cannot set a header, as an audio "
+	  "element cannot, puts this ticket into the GET's query as `ticket=...` instead. It stands for that "
+	  "path alone, whatever the query, for 60 seconds, and only beside the cookie of the session it was "
+	  "handed to; it gives away nothing of the second token. It ends with that session and with the "
+	  "account the session stood under: a sign-out, the session running out and a change of the user "
+	  "name or the password end it, also for the session that made the change and goes on under new "
+	  "tokens.\n"
+	  "\n"
+	  "**Preconditions:** a request that writes with its session cookie carries the second token in the "
+	  "header this server names, as every such request does; a request no session let in, one holding "
+	  "none or one let in by a token, is answered an empty ticket, its GET needing none. The ticket "
+	  "stands in for that token alone: the GET still asks for its own level.\n"
+	  "\n"
+	  "**Side effects:** none; nothing is recorded, the ticket carrying what it stands for under a "
+	  "digest keyed with the session's second token.\n"
+	  "\n"
+	  "**Refusals:**\n"
+	  "- `400 bad-string`: `path` names no GET that starts something.\n"
+	  "\n"
+	  "**Related:** `GET /api/v1/stream/browser/{id}`, `GET /api/v1/session`.",
+	  HTTPD_PARAMS(kStartTicketParams), &kStartTicketSchema, &startTicketFor, false,
+	  Answers200, HTTPD_REFUSALS_AND_BODY(kStartTicketRefusals, "{\"path\":\"/api/v1/stream/browser/ffffffffae1827a2\"}") },
 };
 
 } // namespace

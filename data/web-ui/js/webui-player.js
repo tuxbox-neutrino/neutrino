@@ -16,6 +16,11 @@
 // AAC where a browser would not decode it. A channel with a picture comes as
 // a transport stream, which mpegts.js (js/mpegts.js, loaded on first use)
 // plays; radio comes as AAC alone, which an audio element plays by itself.
+// The box starts it for the page's session only where the request shows it
+// came from a page of the box: the fetch of a picture sends the session's
+// token, and the audio element of a radio channel, which can send no header,
+// a ticket in its address that stands in for that token
+// (POST /api/v1/session/ticket).
 // The page reads the channel first, for what it carries and which sound to
 // take, and asks with a HEAD whether the box would start the stream before
 // it fetches it: a HEAD starts nothing and takes no tuner. A fetch that
@@ -234,7 +239,7 @@ async function _webuiPlayerWhy(p, url) {
 		p.probes.push(ctl);
 	try {
 		var resp = await webuiFetchBox(url, {credentials: 'same-origin', cache: 'no-store',
-			signal: ctl ? ctl.signal : undefined});
+			headers: webuiV1SessionHeaders(), signal: ctl ? ctl.signal : undefined});
 		if (resp.ok) {
 			if (ctl) ctl.abort();
 			return null;
@@ -411,8 +416,11 @@ async function _webuiPlayerMayFetch() {
 	try {
 		var resp = await webuiFetchBox('/api/v1/session', {credentials: 'same-origin', cache: 'no-store'});
 		var s = resp.ok ? await resp.json() : null;
-		if (s && (s.level === 'write' || s.level === 'system') && !s.password_change_required)
+		if (s && (s.level === 'write' || s.level === 'system') && !s.password_change_required) {
+			// the converted stream sends the session's token (webuiV1SessionHeaders)
+			webuiV1KeepSession(s);
 			return true;
+		}
 	} catch (e) { /* asked for below */ }
 	return webuiV1SignIn();
 }
@@ -506,13 +514,16 @@ function _webuiPlayerLive(p, token, m) {
 	p.drained = false;
 	if (p.streams.radio) {
 		p.mode = 'adts';
-		m.src = p.url;
-		_webuiPlayerPlay(p, m);
+		_webuiPlayerRadio(p, token, m);
 		return;
 	}
 	p.mode = 'ts';
+	/* The session's token goes with the fetch: the box starts the conversion
+	   for a session only where the request shows it came from a page of the
+	   box, and a browser on a plain address sends no Sec-Fetch-Site and may be
+	   set to send no Referer. */
 	var ts = mpegts.createPlayer({type: 'mpegts', isLive: true, cors: false, url: p.url},
-		{enableStashBuffer: false, liveBufferLatencyChasing: true});
+		{enableStashBuffer: false, liveBufferLatencyChasing: true, headers: webuiV1SessionHeaders()});
 	p.ts = ts;
 	ts.on(mpegts.Events.ERROR, function() {
 		if (p.ts === ts && !p.quiet) _webuiPlayerOver(p, token);
@@ -543,6 +554,34 @@ async function _webuiPlayerOver(p, token) {
 	_webuiPlayerFail(p, why || {status: 0, message: started
 		? webuiL('play.ended', 'The stream ended')
 		: webuiL('play.start_failed', 'The stream could not be started')});
+}
+
+/* Radio plays in an audio element, which sends no header of its own: its
+   address carries a ticket in place of the session's token, which the box
+   hands a page of its own for this stream and this session alone, for a
+   minute. Asked for at every start, a pause having ended the conversion
+   before. Without a session there is no token to stand in for, and the box
+   asks for none. What the answer finds is acted on only for the start that
+   asked for it, the element included. */
+async function _webuiPlayerRadio(p, token, m) {
+	var url = p.url;
+	if (Object.keys(webuiV1SessionHeaders()).length) {
+		var got;
+		try {
+			got = await webuiV1('POST', '/session/ticket', {body: {path: url.split('?')[0]}, mark: false});
+		} catch (e) {
+			got = e;
+		}
+		if (!_webuiPlayerCurrent(p, token) || p.media !== m) return;
+		if (got instanceof Error) {
+			_webuiPlayerFail(p, got);
+			return;
+		}
+		if (got && got.ticket)
+			url += '&ticket=' + encodeURIComponent(got.ticket);
+	}
+	m.src = url;
+	_webuiPlayerPlay(p, m);
 }
 
 /* A channel the box had not tuned, read again while its stream starts,

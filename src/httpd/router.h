@@ -188,6 +188,9 @@ Response dispatch(Method m, const std::string &path,
    dispatch answers on its own: a path nobody has, a method that path does not take,
    a table that answers a request twice, and a target this cannot take apart.
 
+   starts_on_get, when it is not null, is left saying whether m is GET and the route is
+   one startsWithGet names, and false for every shape this answers false for.
+
    query_token_ok, when it is not null, is left saying whether that route takes a token
    with a scope, which decides both whether the gate reads one out of the query and
    whether one presented in a header counts here at all. False for every shape this
@@ -197,7 +200,23 @@ Response dispatch(Method m, const std::string &path,
    whole of one without the table declaring a member of it, which the route that
    writes settings does. */
 bool routeLevelFor(Method m, const std::string &path, AuthLevel *level,
-                   bool *query_token_ok = NULL);
+                   bool *query_token_ok = NULL, bool *starts_on_get = NULL);
+
+/* Whether a GET of ep starts something on the box that a page of another site must not
+   start in a browser's name, so that a session cookie alone does not carry it
+   (auth.h, mayStartWithGet). Named route by route, as the routes open while a password
+   is owed are: GET /api/v1/stream/browser/{id}, which runs a converter on one of the
+   box's two seats and may switch the TV picture to the channel. routeLevelFor answers
+   it as starts_on_get, for a GET and never for the HEAD the same route answers, which
+   starts nothing. The API document states the refusal on these routes.
+
+   The webtv relay's GETs (the stream, the playlist and its parts) are not named: they
+   have the box fetch an address of the internet for the caller and change nothing on
+   it, no tuner, no picture, no recording: a link of another site costs the box a
+   fetch for as long as the browser reads it, and one of the seats for carried
+   answers, which any reader on the home network can cost it too. A route that
+   changes what the box does or shows on a GET is named here. */
+bool startsWithGet(const Endpoint &ep);
 
 // All sent as 400.
 void parameterRefusals(const Endpoint &ep,

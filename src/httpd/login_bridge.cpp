@@ -64,41 +64,15 @@ bool carriesBasic(const std::string &authorization)
 	       (authorization[5] == ' ' || authorization[5] == '\t');
 }
 
-/* Whether an address names the host this request was sent to: http or https,
-   then exactly that host, then nothing or a path. Compared without regard to
-   case, a host name having none. */
-bool namesHost(const std::string &address, const std::string &host)
-{
-	if (host.empty())
-		return false;
-
-	static const char *const schemes[] = { "http://", "https://" };
-	for (size_t i = 0; i < 2; ++i)
-	{
-		const size_t n = strlen(schemes[i]);
-		if (address.size() <= n || strncasecmp(address.c_str(), schemes[i], n) != 0)
-			continue;
-		const size_t slash = address.find('/', n);
-		const std::string named = address.substr(n, (slash == std::string::npos) ? std::string::npos : slash - n);
-		return named.size() == host.size() && strcasecmp(named.c_str(), host.c_str()) == 0;
-	}
-	return false;
-}
-
-/* Whether the request came from a page of this box. Sec-Fetch-Site is set by the
-   browser and cannot be written by a page, so where it is present it decides alone;
-   Origin and Referer are the older ways of saying the same and are read only from a
-   browser that sends no Sec-Fetch-Site. A request carrying none of the three says
-   nothing about where it came from and is not taken as coming from here. */
+// Whether the request came from a page of this box, by the REST layer's reading of it.
 bool fromThisBox(const Ask &a)
 {
-	if (!a.sec_fetch_site.empty())
-		return a.sec_fetch_site == "same-origin";
-	if (!a.origin.empty())
-		return namesHost(a.origin, a.host) && a.origin.find('/', a.origin.find("//") + 2) == std::string::npos;
-	if (!a.referer.empty())
-		return namesHost(a.referer, a.host);
-	return false;
+	httpd::Provenance p;
+	p.sec_fetch_site = a.sec_fetch_site;
+	p.origin = a.origin;
+	p.referer = a.referer;
+	p.host = a.host;
+	return httpd::fromPageOfThisBox(p);
 }
 
 // What a change to the account that fromThisBox refuses is answered with.

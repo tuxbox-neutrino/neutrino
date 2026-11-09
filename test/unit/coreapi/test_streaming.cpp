@@ -866,7 +866,7 @@ TEST_CASE("a browser stream answers a session or a token that may write, and no 
 		{ "a token that may write", bearer(kWriteToken), "", true },
 		{ "a token of the system", bearer(owner), "", true },
 		{ "a token scoped to media", bearer(media), "", false },
-		{ "a session", cookie, "", true },
+		{ "a session, from a page of the box", cookie + "Referer: http://box/bouquets.html\r\n", "", true },
 		{ "a scoped token in the address", "", "&token=" + media, false },
 		{ "a standing token in the address", "", "&token=" + std::string(kWriteToken), false },
 	};
@@ -892,6 +892,23 @@ TEST_CASE("a browser stream answers a session or a token that may write, and no 
 					CHECK(problemCodeOf(body) == "not-permitted");
 			}
 		}
+	}
+
+	/* A session alone starts nothing with a GET: its cookie is what a page of
+	   another site makes a browser send (router.h, startsWithGet). The HEAD,
+	   which starts nothing, is answered. */
+	{
+		WireStream get(box.port(), askAs("GET", browser, cookie).c_str());
+		REQUIRE(get.ok());
+		const std::string body = get.readToEof(5000);
+		CHECK(get.code() == 403);
+		CHECK(body.find(startRefusedDetail()) != std::string::npos);
+
+		WireStream head(box.port(), askAs("HEAD", browser, cookie).c_str());
+		REQUIRE(head.ok());
+		head.readToEof(5000);
+		CHECK(head.code() != 403);
+		CHECK(head.code() != 0);
 	}
 
 	// The playlists and a channel's address stay a read: the home network

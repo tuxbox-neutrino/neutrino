@@ -781,6 +781,29 @@ Response runEndpoint(const Endpoint &ep,
 		given.swap(rest);
 	}
 
+	/* The ticket a GET that starts something may carry (auth.h, startTicket) is a
+	   credential in the query as well, read by the gate, and taken out here the same
+	   way, on such a route only. */
+	if (startsWithGet(ep))
+	{
+		const std::string credential = startTicketName();
+		std::vector<std::pair<std::string, std::string> > rest;
+		rest.reserve(given.size());
+		bool have_one = false;
+		for (size_t i = 0; i < given.size(); ++i)
+		{
+			if (given[i].first != credential)
+			{
+				rest.push_back(given[i]);
+				continue;
+			}
+			if (have_one)
+				return badParam(coreapi::ErrorCode::DuplicateParameter, credential.c_str(), kGivenTwice);
+			have_one = true;
+		}
+		given.swap(rest);
+	}
+
 	/* The body is taken apart only for a route that declares a value carried in one. A
 	   route that declares none is answered whatever it sent, refusing over bytes nobody
 	   looks at turning every stray body into an error about a request that was otherwise
@@ -1592,10 +1615,24 @@ void noteAnswer(Method m, const std::string &path, const Response &r)
 		answer_watch(*found.best, r);
 }
 
-bool routeLevelFor(Method m, const std::string &path, AuthLevel *level, bool *query_token_ok)
+bool startsWithGet(const Endpoint &ep)
+{
+	static const char *const starting[] = { "/api/v1/stream/browser/{id}" };
+	if (ep.method != Get || ep.path == NULL)
+		return false;
+	for (size_t i = 0; i < sizeof(starting) / sizeof(starting[0]); ++i)
+		if (std::strcmp(ep.path, starting[i]) == 0)
+			return true;
+	return false;
+}
+
+bool routeLevelFor(Method m, const std::string &path, AuthLevel *level, bool *query_token_ok,
+                   bool *starts_on_get)
 {
 	if (query_token_ok != NULL)
 		*query_token_ok = false;
+	if (starts_on_get != NULL)
+		*starts_on_get = false;
 
 	if (m == UnknownMethod)
 		return false;
@@ -1611,6 +1648,8 @@ bool routeLevelFor(Method m, const std::string &path, AuthLevel *level, bool *qu
 		*level = found.best->auth;
 	if (query_token_ok != NULL)
 		*query_token_ok = found.best->query_token_ok;
+	if (starts_on_get != NULL)
+		*starts_on_get = (m == Get) && startsWithGet(*found.best);
 	return true;
 }
 

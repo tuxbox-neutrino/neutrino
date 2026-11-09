@@ -227,6 +227,12 @@ nobody out.
   the routes that only read.
 - An API token of level `read`, and a caller that reads without a password
   from the home network (`lan_read`), are not affected.
+- `GET /api/v1/stream/browser/{id}` starts a conversion and may switch the
+  TV picture. With a session it is answered only when the request comes from
+  a page of the box (`Sec-Fetch-Site: same-origin`, or an `Origin` or
+  `Referer` naming the box) or carries the session's `X-CSRF-Token`, as the
+  web interface's player does; otherwise `403 not-permitted`. A bearer token
+  needs none of this.
 - `PUT /api/v1/account/password` takes `{"current": "...", "password": "..."}`
   and answers `200` with the session state once the new password is in
   effect. A wrong `current` is answered `403 wrong-current-password`.

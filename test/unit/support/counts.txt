@@ -54,7 +54,7 @@ locale names the program has	3094
 memory backed folders tried	1
 options an applier or its notifier branches on	50
 parameters the document describes	200
-refusals the document states against a route	1333
+refusals the document states against a route	1334
 refusals the routes declare of their own	264
 refusals the shipped routes were seen to give	363
 routes the document describes	140
@@ -64,7 +64,7 @@ rows in a section with an applier	223
 rows this build links	362
 rows whose set of values the box decides	3
 rows whose value is not in the settings file	5
-rule refusals the document states	18
+rule refusals the document states	19
 shapes the document files against a route	72
 success codes the document states	154
 text rules compared against a screen	44

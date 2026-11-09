@@ -73,17 +73,34 @@ function _webuiV1Url(path, query) {
 	return url;
 }
 
+// Keeps the token of a session document (GET /api/v1/session); true when it names one.
+function webuiV1KeepSession(s) {
+	if (s && s.authenticated && s.csrf && s.csrf_header) {
+		_webuiV1Csrf = {header: s.csrf_header, token: s.csrf};
+		return true;
+	}
+	return false;
+}
+
+/* The session's token in the header the session names, {name: token}, or {}
+   without one. For a GET that starts something, which the box takes on a
+   session only when it shows it came from a page of the box: the header
+   says so wherever the browser sends no Referer, and a page of another
+   site cannot send it. */
+function webuiV1SessionHeaders() {
+	var h = {};
+	if (_webuiV1Csrf)
+		h[_webuiV1Csrf.header] = _webuiV1Csrf.token;
+	return h;
+}
+
 // Reads the session state and keeps its token; true when one is open.
 async function webuiV1Session() {
 	_webuiV1Csrf = null;
 	try {
 		var resp = await webuiFetchBox('/api/v1/session', {credentials: 'same-origin', cache: 'no-store'});
 		if (!resp.ok) return false;
-		var s = await resp.json();
-		if (s && s.authenticated && s.csrf && s.csrf_header) {
-			_webuiV1Csrf = {header: s.csrf_header, token: s.csrf};
-			return true;
-		}
+		return webuiV1KeepSession(await resp.json());
 	} catch (e) { /* no session then */ }
 	return false;
 }

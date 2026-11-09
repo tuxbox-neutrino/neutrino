@@ -99,8 +99,20 @@ httpd::Credentials credentialsOf(CyhookHandler *hh, const std::string &query)
 
 	c.csrf_header = header_value(hh->HeaderList, httpd::csrfHeaderName());
 	c.query_token = queryValue(query, httpd::queryTokenName());
+	c.start_ticket = queryValue(query, httpd::startTicketName());
 	c.forwarded_for = header_value(hh->HeaderList, "X-Forwarded-For");
 	return c;
+}
+
+// Where the request says it came from, against the Host the boundary accepted.
+httpd::Provenance provenanceOf(CyhookHandler *hh)
+{
+	httpd::Provenance p;
+	p.sec_fetch_site = header_value(hh->HeaderList, "Sec-Fetch-Site");
+	p.origin = header_value(hh->HeaderList, "Origin");
+	p.referer = header_value(hh->HeaderList, "Referer");
+	p.host = header_value(hh->HeaderList, "Host");
+	return p;
 }
 
 void takeProblem(CyhookHandler *hh, int code, coreapi::ErrorCode why, const char *detail)
@@ -417,7 +429,8 @@ THandleStatus CApiBridge::Hook_SendResponse(CyhookHandler *hh)
 		   the two refusals cannot be told apart. */
 		httpd::AuthLevel need = httpd::AuthLevel::Public;
 		bool query_token_ok = false;
-		const bool routed = httpd::routeLevelFor(m, path, &need, &query_token_ok);
+		bool starts_on_get = false;
+		const bool routed = httpd::routeLevelFor(m, path, &need, &query_token_ok, &starts_on_get);
 
 		const httpd::Credentials cred = credentialsOf(hh, query);
 		std::string scope;
@@ -430,6 +443,18 @@ THandleStatus CApiBridge::Hook_SendResponse(CyhookHandler *hh)
 			httpd::Response refusal;
 			if (!httpd::allowed(need, have, m, cred, &refusal))
 			{
+				httpd::addApiHeaders(refusal);
+				answerWith(hh, refusal);
+				noteSent(hh, m, path);
+				return hh->status;
+			}
+			/* A GET that starts something, before the route runs and so before
+			   anything is carried: a cookie alone is what a page of another site
+			   makes a browser send. */
+			if (starts_on_get && !httpd::mayStartWithGet(cred, provenanceOf(hh), path))
+			{
+				refusal = httpd::problemResponse(httpd::StatusForbidden, coreapi::ErrorCode::NotPermitted,
+				                                 httpd::startRefusedDetail());
 				httpd::addApiHeaders(refusal);
 				answerWith(hh, refusal);
 				noteSent(hh, m, path);

@@ -605,6 +605,33 @@ std::string withLength(const std::string &head, const std::string &body)
 
 } // namespace
 
+/* The ticket an audio element of the web interface carries in a stream's address,
+   in place of the session's second token (POST /api/v1/session/ticket): a secret by
+   its name, so neither the parser's lines, the request line, the address as a
+   Referer carries it, nor either record holds it. */
+TEST_CASE("a stream's ticket stays out of every line and record of the log", "[nhttpd]")
+{
+	CHECK(ylog::secretParam("ticket"));
+	CHECK(ylog::paramValue("ticket", "1900000060-c0ffeeS3NT1NEL") == "[redacted]");
+	CHECK(ylog::startLine("GET /api/v1/stream/browser/1?video=none&ticket=1900000060-c0ffeeS3NT1NEL HTTP/1.1")
+	      == "GET /api/v1/stream/browser/1?video=&ticket= HTTP/1.1");
+
+	const std::string request =
+		"GET /api/v1/stream/browser/ffffffffae1827a2?video=none&audio=aac&ticket=1900000060-c0ffeeS3NT1NEL HTTP/1.1\r\n"
+		"Host: box\r\n"
+		"Referer: http://box/api/v1/stream/browser/1?ticket=1900000060-c0ffeeS3NT1NEL\r\n\r\n";
+	std::string clf, elf;
+	const std::string log = parserLog(request, clf, elf);
+	INFO(log);
+	CHECK(log.find("ParseParams: name: ticket value: ") != std::string::npos);
+	CHECK(log.find("ticket=") != std::string::npos);
+	CHECK(log.find("S3NT1NEL") == std::string::npos);
+	CHECK(clf.find("ticket=") != std::string::npos);
+	CHECK(clf.find("S3NT1NEL") == std::string::npos);
+	CHECK(elf.find("ticket=") != std::string::npos);
+	CHECK(elf.find("S3NT1NEL") == std::string::npos);
+}
+
 TEST_CASE("the parser's debug lines carry no credential and no line of the request's own", "[nhttpd]")
 {
 	// shown is a line the case writes, which proves it was read at all;

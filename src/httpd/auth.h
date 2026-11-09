@@ -59,6 +59,12 @@ struct Credentials
 	   a log, which is the whole of what a cookie is meant to avoid. */
 	std::string query_token;
 
+	/* The ticket the request carried in its query under startTicketName(): what an
+	   element of a page of this box that cannot set a header presents in place of
+	   the second token, for the one GET that starts something it was handed out for
+	   (startTicket). Worth nothing anywhere else. */
+	std::string start_ticket;
+
 	/* The decoded "user:pass" out of an Authorization header carrying the Basic
 	   scheme, and empty for anything else. granted() never reads this member:
 	   Basic is accepted only on the legacy surface under /control/, which reads it
@@ -215,6 +221,61 @@ bool allowed(AuthLevel need, AuthLevel have, Method m, const Credentials &c,
 const char *notPermittedDetail();
 
 const char *csrfRefusedDetail();
+
+/* Where a request says it came from, as a browser writes it: the three headers a page
+   of another site cannot write for it, and the Host the request was sent to, as the
+   request boundary accepted it (authority.h). */
+struct Provenance
+{
+	std::string sec_fetch_site;
+	std::string origin;
+	std::string referer;
+	std::string host;
+};
+
+/* Whether the request came from a page of this box. Sec-Fetch-Site is set by the
+   browser and cannot be written by a page, so where it is present it decides alone;
+   Origin and Referer are the older ways of saying the same and are read only from a
+   browser that sends no Sec-Fetch-Site, which is every browser on a plain address
+   that is not the loopback. Each names this box when it is http or https, then
+   exactly the host, then nothing (Origin) or a path (Referer), compared without
+   regard to case. A request carrying none of the three says nothing about where it
+   came from and is not taken as coming from here. */
+bool fromPageOfThisBox(const Provenance &p);
+
+/* A ticket for one GET that starts something (routeLevelFor, starts_on_get), for an
+   element of a page of this box that cannot set a header, as an audio element cannot:
+   the page asks for it on a request that carried the session's second token, and the
+   element carries it in the GET's query under startTicketName(). It names the path it
+   was asked for and the moment it runs out, kStartTicketSeconds on, under a digest
+   keyed with that session's second token, so it stands for that path alone, for that
+   long, and only beside the cookie of that session, and it gives away nothing of the
+   token. It ends with the session and with the account the session stood under: a
+   sign-out, the session running out, and a change of the login, which gives the
+   session that made it new tokens or carries it to the new account, the digest naming
+   that account's revision as well. Empty for a session token that names no live
+   session: a GET without one is not held to the rule below. */
+const unsigned kStartTicketSeconds = 60;
+std::string startTicket(const std::string &session_token, const std::string &path);
+const char *startTicketName();
+
+/* For a GET that starts something on the box (routeLevelFor, starts_on_get): whether
+   this request may start it.
+
+   A GET is a safe method and asked for no second token, which is right for every GET
+   that only reads. One that starts a conversion and switches the picture is not one of
+   those: the browser attaches the cookie when it follows a link from a page of another
+   site to this one (SameSite=Lax lets it through on a top-level navigation), and to
+   whatever a page of the same site asks for. So a request
+   whose cookie names a live session has to show more, any one of: the second token of
+   that session in its header, which only a page of this box can read and only a
+   script can set, a cross-site one only after a preflight this server never grants;
+   a ticket of that session for path, the path of this request as written (startTicket);
+   or the evidence fromPageOfThisBox reads. A bearer token that resolved and carries no
+   scope answers for itself, as it does for a change. A request without a live session
+   was not granted anything by a cookie and is left to the level. */
+bool mayStartWithGet(const Credentials &c, const Provenance &p, const std::string &path);
+const char *startRefusedDetail();
 
 /* Opens a session and answers the cookie token to hand out, or empty when it could
    not draw one. Empty is no session rather than a short one: nothing is written

@@ -384,7 +384,8 @@ const RouteRefusal kStreamForBrowserRefusals[] = {
    is written for: it has the box run a converter, on one of its two seats
    and in its own CPU time, for whoever asks, so it answers a session or a
    token of the owner's that may write, and never a reader who presents
-   nothing. */
+   nothing. A session has to show where its GET came from as well
+   (router.h, startsWithGet). */
 const Endpoint kStreamEndpoints[] = {
 	{ Method::Get, "/api/v1/stream/playlist", AuthLevel::Read,
 	  "every visible user bouquet as one playlist a player opens",
@@ -456,6 +457,15 @@ const Endpoint kStreamEndpoints[] = {
 	  "requested result; otherwise the raw stream address is the only option "
 	  "(`GET /api/v1/stream/{id}`).\n\n"
 	  "**Refusals:**\n"
+	  "- `403 not-permitted`: the request is signed in with the session cookie and "
+	  "shows nothing saying it came from a page of this box: no `Sec-Fetch-Site: "
+	  "same-origin`, no `Origin` or `Referer` naming this host, not the "
+	  "session's `X-CSRF-Token` header, which the web interface's player sends, "
+	  "and no `ticket` of that session for this path in the query, which its "
+	  "audio element sends for radio (`POST /api/v1/session/ticket`). "
+	  "A page of another site can make a browser send the cookie, and this GET "
+	  "starts a conversion and may switch the TV picture. A bearer token needs "
+	  "none of this, and a HEAD, which starts nothing, is not asked.\n"
 	  "- `404 no-such-channel`: no channel has that id.\n"
 	  "- `501 not-playable-in-browser`: no browser plays what this channel "
 	  "carries, and this box will not re-encode a picture; use `GET "

@@ -1769,6 +1769,10 @@ void statedRefusals(const Endpoint &ep, std::vector<StatedRefusal> &out)
 	if (ep.method != Get && ep.method != Options)
 		state(out, StatusForbidden, coreapi::ErrorCode::NotPermitted, csrfRefusedDetail(), "token",
 		      "-without-token");
+	// Asked of a session holder on the GETs that start something.
+	if (startsWithGet(ep))
+		state(out, StatusForbidden, coreapi::ErrorCode::NotPermitted, startRefusedDetail(), "origin",
+		      "-from-another-page");
 
 	std::vector<std::pair<coreapi::ErrorCode, std::string> > checked;
 	parameterRefusals(ep, checked);

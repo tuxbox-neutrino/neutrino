@@ -3004,6 +3004,36 @@
 							"$ref": "#/components/schemas/problem"
 						},
 						"examples": {
+							"bad-string": {
+								"$ref": "#/components/examples/bad-string-9"
+							},
+							"no-such-parameter": {
+								"$ref": "#/components/examples/no-such-parameter"
+							},
+							"value-has-zero-byte": {
+								"$ref": "#/components/examples/value-has-zero-byte-21"
+							},
+							"value-too-long": {
+								"$ref": "#/components/examples/value-too-long-29"
+							},
+							"duplicate-parameter": {
+								"$ref": "#/components/examples/duplicate-parameter-22"
+							},
+							"missing-parameter": {
+								"$ref": "#/components/examples/missing-parameter-18"
+							}
+						}
+					}
+				}
+			},
+			"refused-400-51": {
+				"description": "Bad request",
+				"content": {
+					"application/problem+json": {
+						"schema": {
+							"$ref": "#/components/schemas/problem"
+						},
+						"examples": {
 							"not-a-listed-value": {
 								"$ref": "#/components/examples/not-a-listed-value-3"
 							},
@@ -3065,7 +3095,7 @@
 					}
 				}
 			},
-			"refused-400-51": {
+			"refused-400-52": {
 				"description": "Bad request",
 				"content": {
 					"application/problem+json": {
@@ -3167,7 +3197,7 @@
 					}
 				}
 			},
-			"refused-400-52": {
+			"refused-400-53": {
 				"description": "Bad request",
 				"content": {
 					"application/problem+json": {
@@ -3212,7 +3242,7 @@
 					}
 				}
 			},
-			"refused-400-53": {
+			"refused-400-54": {
 				"description": "Bad request",
 				"content": {
 					"application/problem+json": {
@@ -3230,7 +3260,7 @@
 								"$ref": "#/components/examples/value-has-zero-byte-27"
 							},
 							"value-too-long": {
-								"$ref": "#/components/examples/value-too-long-29"
+								"$ref": "#/components/examples/value-too-long-30"
 							},
 							"duplicate-parameter": {
 								"$ref": "#/components/examples/duplicate-parameter-30"
@@ -3243,39 +3273,6 @@
 							},
 							"out-of-range": {
 								"$ref": "#/components/examples/out-of-range-9"
-							}
-						}
-					}
-				}
-			},
-			"refused-400-54": {
-				"description": "Bad request",
-				"content": {
-					"application/problem+json": {
-						"schema": {
-							"$ref": "#/components/schemas/problem"
-						},
-						"examples": {
-							"no-such-parameter": {
-								"$ref": "#/components/examples/no-such-parameter"
-							},
-							"bad-string": {
-								"$ref": "#/components/examples/bad-string"
-							},
-							"value-has-zero-byte": {
-								"$ref": "#/components/examples/value-has-zero-byte-28"
-							},
-							"value-too-long": {
-								"$ref": "#/components/examples/value-too-long-30"
-							},
-							"duplicate-parameter": {
-								"$ref": "#/components/examples/duplicate-parameter-31"
-							},
-							"missing-parameter": {
-								"$ref": "#/components/examples/missing-parameter-25"
-							},
-							"bad-enum": {
-								"$ref": "#/components/examples/bad-enum-9"
 							}
 						}
 					}
@@ -3296,10 +3293,43 @@
 								"$ref": "#/components/examples/bad-string"
 							},
 							"value-has-zero-byte": {
-								"$ref": "#/components/examples/value-has-zero-byte-29"
+								"$ref": "#/components/examples/value-has-zero-byte-28"
 							},
 							"value-too-long": {
 								"$ref": "#/components/examples/value-too-long-31"
+							},
+							"duplicate-parameter": {
+								"$ref": "#/components/examples/duplicate-parameter-31"
+							},
+							"missing-parameter": {
+								"$ref": "#/components/examples/missing-parameter-25"
+							},
+							"bad-enum": {
+								"$ref": "#/components/examples/bad-enum-9"
+							}
+						}
+					}
+				}
+			},
+			"refused-400-56": {
+				"description": "Bad request",
+				"content": {
+					"application/problem+json": {
+						"schema": {
+							"$ref": "#/components/schemas/problem"
+						},
+						"examples": {
+							"no-such-parameter": {
+								"$ref": "#/components/examples/no-such-parameter"
+							},
+							"bad-string": {
+								"$ref": "#/components/examples/bad-string"
+							},
+							"value-has-zero-byte": {
+								"$ref": "#/components/examples/value-has-zero-byte-29"
+							},
+							"value-too-long": {
+								"$ref": "#/components/examples/value-too-long-32"
 							},
 							"duplicate-parameter": {
 								"$ref": "#/components/examples/duplicate-parameter-32"
@@ -3314,7 +3344,7 @@
 					}
 				}
 			},
-			"refused-400-56": {
+			"refused-400-57": {
 				"description": "Bad request",
 				"content": {
 					"application/problem+json": {
@@ -3335,7 +3365,7 @@
 								"$ref": "#/components/examples/value-has-zero-byte-5"
 							},
 							"value-too-long": {
-								"$ref": "#/components/examples/value-too-long-32"
+								"$ref": "#/components/examples/value-too-long-33"
 							},
 							"duplicate-parameter": {
 								"$ref": "#/components/examples/duplicate-parameter-4"
@@ -3347,7 +3377,7 @@
 					}
 				}
 			},
-			"refused-400-57": {
+			"refused-400-58": {
 				"description": "Bad request",
 				"content": {
 					"application/problem+json": {
@@ -3365,7 +3395,7 @@
 								"$ref": "#/components/examples/value-has-zero-byte-30"
 							},
 							"value-too-long": {
-								"$ref": "#/components/examples/value-too-long-33"
+								"$ref": "#/components/examples/value-too-long-34"
 							},
 							"duplicate-parameter": {
 								"$ref": "#/components/examples/duplicate-parameter-33"
@@ -3395,7 +3425,7 @@
 					}
 				}
 			},
-			"refused-400-58": {
+			"refused-400-59": {
 				"description": "Bad request",
 				"content": {
 					"application/problem+json": {
@@ -3413,7 +3443,7 @@
 								"$ref": "#/components/examples/value-has-zero-byte-31"
 							},
 							"value-too-long": {
-								"$ref": "#/components/examples/value-too-long-34"
+								"$ref": "#/components/examples/value-too-long-35"
 							},
 							"duplicate-parameter": {
 								"$ref": "#/components/examples/duplicate-parameter-34"
@@ -3464,7 +3494,7 @@
 					}
 				}
 			},
-			"refused-400-59": {
+			"refused-400-60": {
 				"description": "Bad request",
 				"content": {
 					"application/problem+json": {
@@ -3482,7 +3512,7 @@
 								"$ref": "#/components/examples/value-has-zero-byte-32"
 							},
 							"value-too-long": {
-								"$ref": "#/components/examples/value-too-long-35"
+								"$ref": "#/components/examples/value-too-long-36"
 							},
 							"duplicate-parameter": {
 								"$ref": "#/components/examples/duplicate-parameter-35"
@@ -3527,7 +3557,7 @@
 					}
 				}
 			},
-			"refused-400-60": {
+			"refused-400-61": {
 				"description": "Bad request",
 				"content": {
 					"application/problem+json": {
@@ -3545,7 +3575,7 @@
 								"$ref": "#/components/examples/value-has-zero-byte-5"
 							},
 							"value-too-long": {
-								"$ref": "#/components/examples/value-too-long-32"
+								"$ref": "#/components/examples/value-too-long-33"
 							},
 							"duplicate-parameter": {
 								"$ref": "#/components/examples/duplicate-parameter-35"
@@ -3578,7 +3608,7 @@
 					}
 				}
 			},
-			"refused-400-61": {
+			"refused-400-62": {
 				"description": "Bad request",
 				"content": {
 					"application/problem+json": {
@@ -3596,7 +3626,7 @@
 								"$ref": "#/components/examples/value-has-zero-byte-5"
 							},
 							"value-too-long": {
-								"$ref": "#/components/examples/value-too-long-36"
+								"$ref": "#/components/examples/value-too-long-37"
 							}
 						}
 					}
@@ -3662,7 +3692,7 @@
 					}
 				}
 			},
-			"refused-400-62": {
+			"refused-400-63": {
 				"description": "Bad request",
 				"content": {
 					"application/problem+json": {
@@ -3680,7 +3710,7 @@
 								"$ref": "#/components/examples/value-has-zero-byte-5"
 							},
 							"value-too-long": {
-								"$ref": "#/components/examples/value-too-long-36"
+								"$ref": "#/components/examples/value-too-long-37"
 							},
 							"duplicate-parameter": {
 								"$ref": "#/components/examples/duplicate-parameter-36"
@@ -3695,7 +3725,7 @@
 					}
 				}
 			},
-			"refused-400-63": {
+			"refused-400-64": {
 				"description": "Bad request",
 				"content": {
 					"application/problem+json": {
@@ -3716,7 +3746,7 @@
 								"$ref": "#/components/examples/value-has-zero-byte-5"
 							},
 							"value-too-long": {
-								"$ref": "#/components/examples/value-too-long-36"
+								"$ref": "#/components/examples/value-too-long-37"
 							},
 							"duplicate-parameter": {
 								"$ref": "#/components/examples/duplicate-parameter-37"
@@ -3755,7 +3785,7 @@
 					}
 				}
 			},
-			"refused-400-64": {
+			"refused-400-65": {
 				"description": "Bad request",
 				"content": {
 					"application/problem+json": {
@@ -3773,7 +3803,7 @@
 								"$ref": "#/components/examples/value-has-zero-byte-33"
 							},
 							"value-too-long": {
-								"$ref": "#/components/examples/value-too-long-37"
+								"$ref": "#/components/examples/value-too-long-38"
 							},
 							"bad-enum": {
 								"$ref": "#/components/examples/bad-enum-12"
@@ -3782,7 +3812,7 @@
 					}
 				}
 			},
-			"refused-400-65": {
+			"refused-400-66": {
 				"description": "Bad request",
 				"content": {
 					"application/problem+json": {
@@ -3815,7 +3845,7 @@
 					}
 				}
 			},
-			"refused-400-66": {
+			"refused-400-67": {
 				"description": "Bad request",
 				"content": {
 					"application/problem+json": {
@@ -3911,7 +3941,28 @@
 					}
 				}
 			},
-			"refused-400-67": {
+			"refused-403-6": {
+				"description": "Forbidden",
+				"content": {
+					"application/problem+json": {
+						"schema": {
+							"$ref": "#/components/schemas/problem"
+						},
+						"examples": {
+							"not-permitted": {
+								"$ref": "#/components/examples/not-permitted"
+							},
+							"password-change-required": {
+								"$ref": "#/components/examples/password-change-required"
+							},
+							"not-permitted-from-another-page": {
+								"$ref": "#/components/examples/not-permitted-from-another-page"
+							}
+						}
+					}
+				}
+			},
+			"refused-400-68": {
 				"description": "Bad request",
 				"content": {
 					"application/problem+json": {
@@ -3950,7 +4001,7 @@
 					}
 				}
 			},
-			"refused-403-6": {
+			"refused-403-7": {
 				"description": "Forbidden",
 				"content": {
 					"application/problem+json": {
@@ -4061,7 +4112,7 @@
 					}
 				}
 			},
-			"refused-400-68": {
+			"refused-400-69": {
 				"description": "Bad request",
 				"content": {
 					"application/problem+json": {
@@ -4079,7 +4130,7 @@
 								"$ref": "#/components/examples/value-has-zero-byte-34"
 							},
 							"value-too-long": {
-								"$ref": "#/components/examples/value-too-long-38"
+								"$ref": "#/components/examples/value-too-long-39"
 							},
 							"duplicate-parameter": {
 								"$ref": "#/components/examples/duplicate-parameter-39"
@@ -4121,7 +4172,7 @@
 					}
 				}
 			},
-			"refused-400-69": {
+			"refused-400-70": {
 				"description": "Bad request",
 				"content": {
 					"application/problem+json": {
@@ -4139,7 +4190,7 @@
 								"$ref": "#/components/examples/value-has-zero-byte-35"
 							},
 							"value-too-long": {
-								"$ref": "#/components/examples/value-too-long-39"
+								"$ref": "#/components/examples/value-too-long-40"
 							},
 							"duplicate-parameter": {
 								"$ref": "#/components/examples/duplicate-parameter-40"
@@ -4175,7 +4226,7 @@
 					}
 				}
 			},
-			"refused-400-70": {
+			"refused-400-71": {
 				"description": "Bad request",
 				"content": {
 					"application/problem+json": {
@@ -4193,7 +4244,7 @@
 								"$ref": "#/components/examples/value-has-zero-byte-2"
 							},
 							"value-too-long": {
-								"$ref": "#/components/examples/value-too-long-40"
+								"$ref": "#/components/examples/value-too-long-41"
 							}
 						}
 					}
@@ -4238,54 +4289,6 @@
 					}
 				}
 			},
-			"refused-400-71": {
-				"description": "Bad request",
-				"content": {
-					"application/problem+json": {
-						"schema": {
-							"$ref": "#/components/schemas/problem"
-						},
-						"examples": {
-							"no-such-parameter": {
-								"$ref": "#/components/examples/no-such-parameter"
-							},
-							"bad-string": {
-								"$ref": "#/components/examples/bad-string"
-							},
-							"value-has-zero-byte": {
-								"$ref": "#/components/examples/value-has-zero-byte-2"
-							},
-							"value-too-long": {
-								"$ref": "#/components/examples/value-too-long-40"
-							},
-							"duplicate-parameter": {
-								"$ref": "#/components/examples/duplicate-parameter-39"
-							},
-							"bad-bool": {
-								"$ref": "#/components/examples/bad-bool-2"
-							}
-						}
-					}
-				}
-			},
-			"refused-403-7": {
-				"description": "Forbidden",
-				"content": {
-					"application/problem+json": {
-						"schema": {
-							"$ref": "#/components/schemas/problem"
-						},
-						"examples": {
-							"not-permitted": {
-								"$ref": "#/components/examples/not-permitted-4"
-							},
-							"password-change-required": {
-								"$ref": "#/components/examples/password-change-required"
-							}
-						}
-					}
-				}
-			},
 			"refused-400-72": {
 				"description": "Bad request",
 				"content": {
@@ -4304,7 +4307,55 @@
 								"$ref": "#/components/examples/value-has-zero-byte-2"
 							},
 							"value-too-long": {
-								"$ref": "#/components/examples/value-too-long-40"
+								"$ref": "#/components/examples/value-too-long-41"
+							},
+							"duplicate-parameter": {
+								"$ref": "#/components/examples/duplicate-parameter-39"
+							},
+							"bad-bool": {
+								"$ref": "#/components/examples/bad-bool-2"
+							}
+						}
+					}
+				}
+			},
+			"refused-403-8": {
+				"description": "Forbidden",
+				"content": {
+					"application/problem+json": {
+						"schema": {
+							"$ref": "#/components/schemas/problem"
+						},
+						"examples": {
+							"not-permitted": {
+								"$ref": "#/components/examples/not-permitted-4"
+							},
+							"password-change-required": {
+								"$ref": "#/components/examples/password-change-required"
+							}
+						}
+					}
+				}
+			},
+			"refused-400-73": {
+				"description": "Bad request",
+				"content": {
+					"application/problem+json": {
+						"schema": {
+							"$ref": "#/components/schemas/problem"
+						},
+						"examples": {
+							"no-such-parameter": {
+								"$ref": "#/components/examples/no-such-parameter"
+							},
+							"bad-string": {
+								"$ref": "#/components/examples/bad-string"
+							},
+							"value-has-zero-byte": {
+								"$ref": "#/components/examples/value-has-zero-byte-2"
+							},
+							"value-too-long": {
+								"$ref": "#/components/examples/value-too-long-41"
 							},
 							"duplicate-parameter-query-token": {
 								"$ref": "#/components/examples/duplicate-parameter-query-token"
@@ -4313,7 +4364,7 @@
 					}
 				}
 			},
-			"refused-400-73": {
+			"refused-400-74": {
 				"description": "Bad request",
 				"content": {
 					"application/problem+json": {
@@ -4337,7 +4388,7 @@
 								"$ref": "#/components/examples/value-has-zero-byte-2"
 							},
 							"value-too-long": {
-								"$ref": "#/components/examples/value-too-long-40"
+								"$ref": "#/components/examples/value-too-long-41"
 							},
 							"duplicate-parameter-query-token": {
 								"$ref": "#/components/examples/duplicate-parameter-query-token"
@@ -4412,7 +4463,7 @@
 					}
 				}
 			},
-			"refused-400-74": {
+			"refused-400-75": {
 				"description": "Bad request",
 				"content": {
 					"application/problem+json": {
@@ -4430,7 +4481,7 @@
 								"$ref": "#/components/examples/value-has-zero-byte-2"
 							},
 							"value-too-long": {
-								"$ref": "#/components/examples/value-too-long-40"
+								"$ref": "#/components/examples/value-too-long-41"
 							},
 							"duplicate-parameter": {
 								"$ref": "#/components/examples/duplicate-parameter-13"
@@ -6577,6 +6628,22 @@
 					"detail": "parameter current is required"
 				}
 			},
+			"bad-string-9": {
+				"value": {
+					"type": "/errors/bad-string",
+					"title": "Bad request",
+					"status": 400,
+					"detail": "the path names no GET that starts something"
+				}
+			},
+			"value-too-long-29": {
+				"value": {
+					"type": "/errors/value-too-long",
+					"title": "Bad request",
+					"status": 400,
+					"detail": "parameter path is longer than 256 bytes"
+				}
+			},
 			"not-a-listed-value-3": {
 				"value": {
 					"type": "/errors/not-a-listed-value",
@@ -6729,7 +6796,7 @@
 					"detail": "parameter percent carries a zero byte"
 				}
 			},
-			"value-too-long-29": {
+			"value-too-long-30": {
 				"value": {
 					"type": "/errors/value-too-long",
 					"title": "Bad request",
@@ -6777,7 +6844,7 @@
 					"detail": "parameter text carries a zero byte"
 				}
 			},
-			"value-too-long-30": {
+			"value-too-long-31": {
 				"value": {
 					"type": "/errors/value-too-long",
 					"title": "Bad request",
@@ -6817,7 +6884,7 @@
 					"detail": "parameter locked carries a zero byte"
 				}
 			},
-			"value-too-long-31": {
+			"value-too-long-32": {
 				"value": {
 					"type": "/errors/value-too-long",
 					"title": "Bad request",
@@ -6857,7 +6924,7 @@
 					"detail": "the remote control has no key of that name"
 				}
 			},
-			"value-too-long-32": {
+			"value-too-long-33": {
 				"value": {
 					"type": "/errors/value-too-long",
 					"title": "Bad request",
@@ -6873,7 +6940,7 @@
 					"detail": "parameter state carries a zero byte"
 				}
 			},
-			"value-too-long-33": {
+			"value-too-long-34": {
 				"value": {
 					"type": "/errors/value-too-long",
 					"title": "Bad request",
@@ -6921,7 +6988,7 @@
 					"detail": "parameter osd carries a zero byte"
 				}
 			},
-			"value-too-long-34": {
+			"value-too-long-35": {
 				"value": {
 					"type": "/errors/value-too-long",
 					"title": "Bad request",
@@ -6993,7 +7060,7 @@
 					"detail": "parameter at carries a zero byte"
 				}
 			},
-			"value-too-long-35": {
+			"value-too-long-36": {
 				"value": {
 					"type": "/errors/value-too-long",
 					"title": "Bad request",
@@ -7041,7 +7108,7 @@
 					"detail": "this box does not carry samba"
 				}
 			},
-			"value-too-long-36": {
+			"value-too-long-37": {
 				"value": {
 					"type": "/errors/value-too-long",
 					"title": "Bad request",
@@ -7145,7 +7212,7 @@
 					"detail": "parameter document carries a zero byte"
 				}
 			},
-			"value-too-long-37": {
+			"value-too-long-38": {
 				"value": {
 					"type": "/errors/value-too-long",
 					"title": "Bad request",
@@ -7207,6 +7274,14 @@
 					"title": "Internal error",
 					"status": 500,
 					"detail": "this process discards what its children exit with, so a converter cannot be supervised"
+				}
+			},
+			"not-permitted-from-another-page": {
+				"value": {
+					"type": "/errors/not-permitted",
+					"title": "Forbidden",
+					"status": 403,
+					"detail": "this request starts something on the box and shows nothing saying it came from a page of this box"
 				}
 			},
 			"duplicate-parameter-38": {
@@ -7313,7 +7388,7 @@
 					"detail": "parameter wake carries a zero byte"
 				}
 			},
-			"value-too-long-38": {
+			"value-too-long-39": {
 				"value": {
 					"type": "/errors/value-too-long",
 					"title": "Bad request",
@@ -7353,7 +7428,7 @@
 					"detail": "parameter title carries a zero byte"
 				}
 			},
-			"value-too-long-39": {
+			"value-too-long-40": {
 				"value": {
 					"type": "/errors/value-too-long",
 					"title": "Bad request",
@@ -7401,7 +7476,7 @@
 					"detail": "no recording has that id"
 				}
 			},
-			"value-too-long-40": {
+			"value-too-long-41": {
 				"value": {
 					"type": "/errors/value-too-long",
 					"title": "Bad request",
@@ -10109,6 +10184,25 @@
 				"required": [
 					"token",
 					"scope",
+					"expires_in"
+				],
+				"additionalProperties": false
+			},
+			"start-ticket": {
+				"type": "object",
+				"properties": {
+					"ticket": {
+						"type": "string",
+						"description": "the ticket, to be put in the query of the GET it was asked for as ticket=...; empty for a request that holds no session, whose GET needs none"
+					},
+					"expires_in": {
+						"type": "integer",
+						"minimum": 0,
+						"description": "how many seconds the ticket has left, 0 for none"
+					}
+				},
+				"required": [
+					"ticket",
 					"expires_in"
 				],
 				"additionalProperties": false
@@ -16845,6 +16939,86 @@
 				}
 			}
 		},
+		"/api/v1/session/ticket": {
+			"post": {
+				"operationId": "post_api_v1_session_ticket",
+				"tags": [
+					"auth"
+				],
+				"summary": "hands a page a ticket that stands in for the session's second token on one GET that starts something, for an element that cannot send a header",
+				"description": "Answers a ticket for the GET that `path` names, which has to be one that starts something on the box, such as `GET /api/v1/stream/browser/{id}`. A request holding a session starts such a GET only where it shows it came from a page of this box, and the second token in its header is what shows it where the browser sends no `Referer`; an element that cannot set a header, as an audio element cannot, puts this ticket into the GET's query as `ticket=...` instead. It stands for that path alone, whatever the query, for 60 seconds, and only beside the cookie of the session it was handed to; it gives away nothing of the second token.\n\n**Preconditions:** a request that writes with its session cookie carries the second token in the header this server names, as every such request does; a request holding no session is answered an empty ticket, its GET needing none. The ticket stands in for that token alone: the GET still asks for its own level.\n\n**Side effects:** none; nothing is recorded, the ticket carrying what it stands for under a digest keyed with the session's second token.\n\n**Refusals:**\n- `400 bad-string`: `path` names no GET that starts something.\n\n**Related:** `GET /api/v1/stream/browser/{id}`, `GET /api/v1/session`.",
+				"x-auth-level": "write",
+				"security": [
+					{
+						"session": []
+					},
+					{
+						"token": []
+					}
+				],
+				"x-csrf-header": "X-CSRF-Token",
+				"parameters": [
+					{
+						"name": "X-CSRF-Token",
+						"in": "header",
+						"required": false,
+						"description": "the `csrf` value from `POST /api/v1/login` or `GET /api/v1/session`; required beside the session cookie on every request that changes something, and not needed with a bearer token. Without it such a request is refused with `403`",
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"type": "object",
+								"properties": {
+									"path": {
+										"type": "string",
+										"maxLength": 256,
+										"x-max-bytes": 256,
+										"description": "the path of the GET the ticket is for, as that GET writes it and without its query, such as /api/v1/stream/browser/{id}"
+									}
+								},
+								"required": [
+									"path"
+								],
+								"additionalProperties": false
+							},
+							"example": {
+								"path": "/api/v1/stream/browser/ffffffffae1827a2"
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "the answer",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/start-ticket"
+								}
+							}
+						}
+					},
+					"400": {
+						"$ref": "#/components/responses/refused-400-50"
+					},
+					"403": {
+						"$ref": "#/components/responses/refused-403-2"
+					},
+					"413": {
+						"$ref": "#/components/responses/refused-413"
+					},
+					"default": {
+						"$ref": "#/components/responses/problem"
+					}
+				}
+			}
+		},
 		"/api/v1/timers": {
 			"get": {
 				"operationId": "get_api_v1_timers",
@@ -17045,7 +17219,7 @@
 						}
 					},
 					"400": {
-						"$ref": "#/components/responses/refused-400-50"
+						"$ref": "#/components/responses/refused-400-51"
 					},
 					"403": {
 						"$ref": "#/components/responses/refused-403-2"
@@ -17166,7 +17340,7 @@
 						}
 					},
 					"400": {
-						"$ref": "#/components/responses/refused-400-51"
+						"$ref": "#/components/responses/refused-400-52"
 					},
 					"403": {
 						"$ref": "#/components/responses/refused-403-2"
@@ -17230,7 +17404,7 @@
 						"description": "done"
 					},
 					"400": {
-						"$ref": "#/components/responses/refused-400-52"
+						"$ref": "#/components/responses/refused-400-53"
 					},
 					"403": {
 						"$ref": "#/components/responses/refused-403-2"
@@ -17347,7 +17521,7 @@
 						"description": "taken, and carried out on the box's own loop"
 					},
 					"400": {
-						"$ref": "#/components/responses/refused-400-53"
+						"$ref": "#/components/responses/refused-400-54"
 					},
 					"403": {
 						"$ref": "#/components/responses/refused-403-2"
@@ -17504,7 +17678,7 @@
 						"description": "taken, and carried out on the box's own loop"
 					},
 					"400": {
-						"$ref": "#/components/responses/refused-400-54"
+						"$ref": "#/components/responses/refused-400-55"
 					},
 					"403": {
 						"$ref": "#/components/responses/refused-403-2"
@@ -17613,7 +17787,7 @@
 						"description": "taken, and carried out on the box's own loop"
 					},
 					"400": {
-						"$ref": "#/components/responses/refused-400-55"
+						"$ref": "#/components/responses/refused-400-56"
 					},
 					"403": {
 						"$ref": "#/components/responses/refused-403-2"
@@ -17726,7 +17900,7 @@
 						"description": "taken, and carried out on the box's own loop"
 					},
 					"400": {
-						"$ref": "#/components/responses/refused-400-56"
+						"$ref": "#/components/responses/refused-400-57"
 					},
 					"403": {
 						"$ref": "#/components/responses/refused-403-2"
@@ -17847,7 +18021,7 @@
 						"description": "done"
 					},
 					"400": {
-						"$ref": "#/components/responses/refused-400-57"
+						"$ref": "#/components/responses/refused-400-58"
 					},
 					"403": {
 						"$ref": "#/components/responses/refused-403-2"
@@ -17933,7 +18107,7 @@
 						"description": "the stretch of the file that was asked for"
 					},
 					"400": {
-						"$ref": "#/components/responses/refused-400-58"
+						"$ref": "#/components/responses/refused-400-59"
 					},
 					"403": {
 						"$ref": "#/components/responses/refused-403"
@@ -17987,7 +18161,7 @@
 						"description": "the stretch of the file that was asked for"
 					},
 					"400": {
-						"$ref": "#/components/responses/refused-400-59"
+						"$ref": "#/components/responses/refused-400-60"
 					},
 					"403": {
 						"$ref": "#/components/responses/refused-403"
@@ -18095,7 +18269,7 @@
 						"description": "the stretch of the file that was asked for"
 					},
 					"400": {
-						"$ref": "#/components/responses/refused-400-60"
+						"$ref": "#/components/responses/refused-400-61"
 					},
 					"403": {
 						"$ref": "#/components/responses/refused-403"
@@ -18178,7 +18352,7 @@
 						"description": "done"
 					},
 					"400": {
-						"$ref": "#/components/responses/refused-400-61"
+						"$ref": "#/components/responses/refused-400-62"
 					},
 					"403": {
 						"$ref": "#/components/responses/refused-403-2"
@@ -18255,7 +18429,7 @@
 						"description": "done"
 					},
 					"400": {
-						"$ref": "#/components/responses/refused-400-61"
+						"$ref": "#/components/responses/refused-400-62"
 					},
 					"403": {
 						"$ref": "#/components/responses/refused-403-2"
@@ -18329,7 +18503,7 @@
 						"description": "done"
 					},
 					"400": {
-						"$ref": "#/components/responses/refused-400-61"
+						"$ref": "#/components/responses/refused-400-62"
 					},
 					"403": {
 						"$ref": "#/components/responses/refused-403-2"
@@ -18565,7 +18739,7 @@
 						"description": "taken, and carried out on the box's own loop"
 					},
 					"400": {
-						"$ref": "#/components/responses/refused-400-61"
+						"$ref": "#/components/responses/refused-400-62"
 					},
 					"403": {
 						"$ref": "#/components/responses/refused-403-2"
@@ -18650,7 +18824,7 @@
 						"description": "done"
 					},
 					"400": {
-						"$ref": "#/components/responses/refused-400-62"
+						"$ref": "#/components/responses/refused-400-63"
 					},
 					"403": {
 						"$ref": "#/components/responses/refused-403-2"
@@ -18786,7 +18960,7 @@
 						}
 					},
 					"400": {
-						"$ref": "#/components/responses/refused-400-63"
+						"$ref": "#/components/responses/refused-400-64"
 					},
 					"403": {
 						"$ref": "#/components/responses/refused-403-2"
@@ -18850,7 +19024,7 @@
 						"description": "the stretch of the file that was asked for"
 					},
 					"400": {
-						"$ref": "#/components/responses/refused-400-64"
+						"$ref": "#/components/responses/refused-400-65"
 					},
 					"403": {
 						"$ref": "#/components/responses/refused-403"
@@ -18959,7 +19133,7 @@
 						"description": "the stretch of the file that was asked for"
 					},
 					"400": {
-						"$ref": "#/components/responses/refused-400-65"
+						"$ref": "#/components/responses/refused-400-66"
 					},
 					"403": {
 						"$ref": "#/components/responses/refused-403"
@@ -19017,7 +19191,7 @@
 						"description": "the stretch of the file that was asked for"
 					},
 					"400": {
-						"$ref": "#/components/responses/refused-400-65"
+						"$ref": "#/components/responses/refused-400-66"
 					},
 					"403": {
 						"$ref": "#/components/responses/refused-403"
@@ -19069,7 +19243,7 @@
 						"description": "the stretch of the file that was asked for"
 					},
 					"400": {
-						"$ref": "#/components/responses/refused-400-66"
+						"$ref": "#/components/responses/refused-400-67"
 					},
 					"403": {
 						"$ref": "#/components/responses/refused-403"
@@ -19128,7 +19302,7 @@
 						}
 					},
 					"400": {
-						"$ref": "#/components/responses/refused-400-66"
+						"$ref": "#/components/responses/refused-400-67"
 					},
 					"403": {
 						"$ref": "#/components/responses/refused-403"
@@ -19149,7 +19323,7 @@
 					"stream"
 				],
 				"summary": "one channel as a browser can play it, with the sound converted where it has to be",
-				"description": "Opens channel `id` and streams it straight into the response: an MPEG transport stream for a channel with a picture, or a raw ADTS stream for radio, so radio needs only an audio element and no demuxer in the page. The picture is never re-encoded, only copied; the box has no spare cycles to encode one. Depending on `video` and `audio`, the sound is either copied as well or converted to AAC so a browser's own media stack can decode it; `video` and `audio` are the codecs the channel route reports for this channel, and naming codecs the channel does not actually carry costs a stream that will not play and nothing else. `apid` picks which sound track to take where the channel carries several. The answer is sent `Cache-Control: no-store`, since it is a live stream and never the same stream twice.\n\n**Preconditions:** the box carries a converter able to produce the requested result; otherwise the raw stream address is the only option (`GET /api/v1/stream/{id}`).\n\n**Refusals:**\n- `404 no-such-channel`: no channel has that id.\n- `501 not-playable-in-browser`: no browser plays what this channel carries, and this box will not re-encode a picture; use `GET /api/v1/stream/{id}` for the raw address instead.\n- `409 no-free-tuner`: no tuner is free for this channel without changing what the box shows - the picture, a picture in picture, a recording and other streams keep theirs; a channel the box shows can be streamed from the picture's own tuner, a channel streamed already is shared, and a channel being recorded is refused, as on the streaming port. Where switching the TV picture to the channel would free the picture's tuner, the setting `streaming_switch_picture` decides: switched on, as it is by default, the stream is answered and the box switches the picture as it starts (only while it shows live television or radio of the channel's kind and records nothing); switched off, the refusal carries `depends_on: [\"streaming_switch_picture\"]`, and a HEAD as well as a GET the header `X-Depends-On: streaming_switch_picture`, so a client can offer that setting. The picture is never switched to or away from a channel the box would ask the PIN for, and such a refusal carries no `depends_on`; nor is it switched while the box holds it back for the PIN.\n- `503 too-many-conversions`: the box is already converting as many streams as it will, at most 2 at once; retry after the time named in the `Retry-After` header.\n- `503 upstream-unreachable`: the box could not say within two seconds whether a tuner is free, or the converter ended or stayed silent for 15 seconds before it sent anything, so the channel could not be read; a HEAD asked afterwards says what is in the way now.\n- `500 no-supervision`: the box's program discards what its children exit with at the moment, so it cannot run a converter it could stop again.\n\n**Related:** `GET /api/v1/stream/{id}`.",
+				"description": "Opens channel `id` and streams it straight into the response: an MPEG transport stream for a channel with a picture, or a raw ADTS stream for radio, so radio needs only an audio element and no demuxer in the page. The picture is never re-encoded, only copied; the box has no spare cycles to encode one. Depending on `video` and `audio`, the sound is either copied as well or converted to AAC so a browser's own media stack can decode it; `video` and `audio` are the codecs the channel route reports for this channel, and naming codecs the channel does not actually carry costs a stream that will not play and nothing else. `apid` picks which sound track to take where the channel carries several. The answer is sent `Cache-Control: no-store`, since it is a live stream and never the same stream twice.\n\n**Preconditions:** the box carries a converter able to produce the requested result; otherwise the raw stream address is the only option (`GET /api/v1/stream/{id}`).\n\n**Refusals:**\n- `403 not-permitted`: the request is signed in with the session cookie and shows nothing saying it came from a page of this box: no `Sec-Fetch-Site: same-origin`, no `Origin` or `Referer` naming this host, not the session's `X-CSRF-Token` header, which the web interface's player sends, and no `ticket` of that session for this path in the query, which its audio element sends for radio (`POST /api/v1/session/ticket`). A page of another site can make a browser send the cookie, and this GET starts a conversion and may switch the TV picture. A bearer token needs none of this, and a HEAD, which starts nothing, is not asked.\n- `404 no-such-channel`: no channel has that id.\n- `501 not-playable-in-browser`: no browser plays what this channel carries, and this box will not re-encode a picture; use `GET /api/v1/stream/{id}` for the raw address instead.\n- `409 no-free-tuner`: no tuner is free for this channel without changing what the box shows - the picture, a picture in picture, a recording and other streams keep theirs; a channel the box shows can be streamed from the picture's own tuner, a channel streamed already is shared, and a channel being recorded is refused, as on the streaming port. Where switching the TV picture to the channel would free the picture's tuner, the setting `streaming_switch_picture` decides: switched on, as it is by default, the stream is answered and the box switches the picture as it starts (only while it shows live television or radio of the channel's kind and records nothing); switched off, the refusal carries `depends_on: [\"streaming_switch_picture\"]`, and a HEAD as well as a GET the header `X-Depends-On: streaming_switch_picture`, so a client can offer that setting. The picture is never switched to or away from a channel the box would ask the PIN for, and such a refusal carries no `depends_on`; nor is it switched while the box holds it back for the PIN.\n- `503 too-many-conversions`: the box is already converting as many streams as it will, at most 2 at once; retry after the time named in the `Retry-After` header.\n- `503 upstream-unreachable`: the box could not say within two seconds whether a tuner is free, or the converter ended or stayed silent for 15 seconds before it sent anything, so the channel could not be read; a HEAD asked afterwards says what is in the way now.\n- `500 no-supervision`: the box's program discards what its children exit with at the moment, so it cannot run a converter it could stop again.\n\n**Related:** `GET /api/v1/stream/{id}`.",
 				"x-auth-level": "write",
 				"security": [
 					{
@@ -19246,10 +19420,10 @@
 						"description": "the answer"
 					},
 					"400": {
-						"$ref": "#/components/responses/refused-400-67"
+						"$ref": "#/components/responses/refused-400-68"
 					},
 					"403": {
-						"$ref": "#/components/responses/refused-403"
+						"$ref": "#/components/responses/refused-403-6"
 					},
 					"404": {
 						"$ref": "#/components/responses/refused-404-4"
@@ -19310,7 +19484,7 @@
 						"$ref": "#/components/responses/refused-400-4"
 					},
 					"403": {
-						"$ref": "#/components/responses/refused-403-6"
+						"$ref": "#/components/responses/refused-403-7"
 					},
 					"404": {
 						"$ref": "#/components/responses/refused-404-28"
@@ -19365,7 +19539,7 @@
 						"$ref": "#/components/responses/refused-400-4"
 					},
 					"403": {
-						"$ref": "#/components/responses/refused-403-6"
+						"$ref": "#/components/responses/refused-403-7"
 					},
 					"404": {
 						"$ref": "#/components/responses/refused-404-28"
@@ -19428,7 +19602,7 @@
 						"$ref": "#/components/responses/refused-400-4"
 					},
 					"403": {
-						"$ref": "#/components/responses/refused-403-6"
+						"$ref": "#/components/responses/refused-403-7"
 					},
 					"404": {
 						"$ref": "#/components/responses/refused-404-29"
@@ -19537,7 +19711,7 @@
 						"description": "taken, and carried out on the box's own loop"
 					},
 					"400": {
-						"$ref": "#/components/responses/refused-400-68"
+						"$ref": "#/components/responses/refused-400-69"
 					},
 					"403": {
 						"$ref": "#/components/responses/refused-403-2"
@@ -19734,7 +19908,7 @@
 						"description": "taken, and carried out on the box's own loop"
 					},
 					"400": {
-						"$ref": "#/components/responses/refused-400-52"
+						"$ref": "#/components/responses/refused-400-53"
 					},
 					"403": {
 						"$ref": "#/components/responses/refused-403-2"
@@ -19872,7 +20046,7 @@
 						}
 					},
 					"400": {
-						"$ref": "#/components/responses/refused-400-69"
+						"$ref": "#/components/responses/refused-400-70"
 					},
 					"403": {
 						"$ref": "#/components/responses/refused-403"
@@ -19925,7 +20099,7 @@
 						}
 					},
 					"400": {
-						"$ref": "#/components/responses/refused-400-70"
+						"$ref": "#/components/responses/refused-400-71"
 					},
 					"403": {
 						"$ref": "#/components/responses/refused-403"
@@ -19982,7 +20156,7 @@
 						"description": "done"
 					},
 					"400": {
-						"$ref": "#/components/responses/refused-400-70"
+						"$ref": "#/components/responses/refused-400-71"
 					},
 					"403": {
 						"$ref": "#/components/responses/refused-403-2"
@@ -20034,7 +20208,7 @@
 						"description": "the answer"
 					},
 					"400": {
-						"$ref": "#/components/responses/refused-400-70"
+						"$ref": "#/components/responses/refused-400-71"
 					},
 					"403": {
 						"$ref": "#/components/responses/refused-403"
@@ -20118,7 +20292,7 @@
 						"description": "taken, and carried out on the box's own loop"
 					},
 					"400": {
-						"$ref": "#/components/responses/refused-400-71"
+						"$ref": "#/components/responses/refused-400-72"
 					},
 					"403": {
 						"$ref": "#/components/responses/refused-403-2"
@@ -20179,10 +20353,10 @@
 						"description": "the stretch of the file that was asked for"
 					},
 					"400": {
-						"$ref": "#/components/responses/refused-400-72"
+						"$ref": "#/components/responses/refused-400-73"
 					},
 					"403": {
-						"$ref": "#/components/responses/refused-403-7"
+						"$ref": "#/components/responses/refused-403-8"
 					},
 					"404": {
 						"$ref": "#/components/responses/refused-404-31"
@@ -20234,10 +20408,10 @@
 						"description": "the answer"
 					},
 					"400": {
-						"$ref": "#/components/responses/refused-400-73"
+						"$ref": "#/components/responses/refused-400-74"
 					},
 					"403": {
-						"$ref": "#/components/responses/refused-403-7"
+						"$ref": "#/components/responses/refused-403-8"
 					},
 					"404": {
 						"$ref": "#/components/responses/refused-404-31"
@@ -20390,7 +20564,7 @@
 						"description": "done"
 					},
 					"400": {
-						"$ref": "#/components/responses/refused-400-74"
+						"$ref": "#/components/responses/refused-400-75"
 					},
 					"403": {
 						"$ref": "#/components/responses/refused-403-2"

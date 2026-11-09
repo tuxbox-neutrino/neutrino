@@ -141,6 +141,21 @@ here: it passes with a <code>User-Agent</code> of its own or an
 <code>Origin</code> header naming the box. Basic authentication from any
 other client counts as
 before.</li>
+<li>One GET of the layer starts something:
+<code>GET /api/v1/stream/browser/{id}</code> runs a converter and may switch
+the TV picture. Signed in with the session cookie, it needs the evidence of
+the rule above, the session's <code>X-CSRF-Token</code> header, which the
+web interface's player sends with the fetch of a picture, or a ticket of that
+session for its path in the query (<code>ticket=</code>), which the player's
+audio element carries for radio; otherwise it is answered
+<code>403 not-permitted</code> before anything starts. The page asks for the
+ticket with <code>POST /api/v1/session/ticket</code>, which carries the
+header as every change does; the ticket stands for that path alone, for 60
+seconds, and only beside the cookie of that session, and the router takes it
+out of the query before it compares names. It ends with that session and with
+a change of the user name or the password, also for the session that made the
+change and goes on under new tokens. A bearer token needs none of
+this, and a HEAD, which starts nothing, is not asked.</li>
 <li>A change to the account over <code>/control/config?config=nhttpd</code>
 (<code>mod_auth.username</code> or <code>mod_auth.password</code>, also
 written with <code>_dot_</code>) is taken only from a page of this box, by
