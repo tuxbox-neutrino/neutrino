@@ -45,10 +45,16 @@ THandleStatus CmAuth::Hook_PrepareResponse(CyhookHandler *hh) {
 
 	// local calls and NoAuthClient matches (a leading address
 	// prefix, e.g. "192.168.1." — the UIs have always advertised
-	// it as a prefix) never see the login
+	// it as a prefix) never see the login, unless a proxy is configured
+	// in front of this server: every request then arrives from the
+	// proxy's address, the loopback for one on the box, and the address
+	// says nothing about who asks. Configured is the REST layer's own
+	// reading (login_bridge::proxied): a trusted_proxies line that names
+	// proxies, is empty or cannot be read.
 	const std::string &clientaddr = hh->UrlData["clientaddr"];
-	bool exempt = (clientaddr.find(IADDR_LOCAL) == 0)
-		|| (!no_auth_client.empty() && clientaddr.compare(0, no_auth_client.length(), no_auth_client) == 0);
+	const bool exempt = !login_bridge::proxied()
+		&& ((clientaddr.find(IADDR_LOCAL) == 0)
+		|| (!no_auth_client.empty() && clientaddr.compare(0, no_auth_client.length(), no_auth_client) == 0));
 
 	const std::string &url = hh->UrlData["url"];
 

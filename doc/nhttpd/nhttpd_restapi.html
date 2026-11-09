@@ -115,9 +115,13 @@ two <code>Host</code> headers in two spellings.</li>
 access level, which the document states as <code>x-auth-level</code>.</li>
 <li>nhttpd's own login (<code>mod_auth</code>) leaves the API addresses
 alone. While <code>mod_auth.authenticate</code> is on, it guards the other
-paths, except for calls from the box itself, the addresses
-<code>mod_auth.no_auth_client</code> names, and the files the pages need
-before anyone signs in. It accepts the session that the API login opens,
+paths, except for the files the pages need before anyone signs in and,
+while no proxy is configured, calls from the box itself and the addresses
+<code>mod_auth.no_auth_client</code> names. A <code>trusted_proxies</code>
+line in <code>nhttpd-access.conf</code> counts as configured also when it is
+empty or cannot be read, and so does a file that cannot be read at all, as
+for the layer's reading without a password: behind a proxy every request
+arrives from the proxy's address. It accepts the session that the API login opens,
 and Basic authentication against the same account. The
 <code>nhttpd.conf</code> the image installs has it off, and then those
 paths answer without credentials, except for a change to the account

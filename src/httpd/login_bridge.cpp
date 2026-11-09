@@ -404,6 +404,18 @@ bool passwordSet()
 	}
 }
 
+bool proxied()
+{
+	try
+	{
+		return httpd::proxiesConfigured(httpd::config());
+	}
+	catch (...)
+	{
+		return true;
+	}
+}
+
 namespace
 {
 

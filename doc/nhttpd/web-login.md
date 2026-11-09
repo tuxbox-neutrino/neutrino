@@ -32,7 +32,10 @@ When the pages ask you to sign in depends on **Authentication** under
 - On: the pages ask you to sign in first. Calls from the box itself, and
   from the address range under **No-auth clients**, open the pages without
   a sign-in, and are asked at their first change, as with Authentication
-  off.
+  off. Once a proxy is entered in `nhttpd-access.conf` (`trusted_proxies`,
+  even an empty or unreadable line), or the file cannot be read, they are
+  asked like everybody else: behind a proxy every request comes from the
+  proxy's address.
 
 Sign in with the user and the first password. Because that password is shown
 on the TV, the first sign-in asks for a password of your own. Until you set
@@ -125,7 +128,8 @@ login now in effect.
 
 With Authentication on, `/control/` answers with HTTP Basic authentication,
 as before, also while the first password is in effect. Calls from the box
-itself, and from the address range under **No-auth clients**, are not asked.
+itself, and from the address range under **No-auth clients**, are not asked,
+unless a proxy is entered in `nhttpd-access.conf` (`trusted_proxies`).
 Apps that send the user name and password with every request work, and so
 do apps that wait for the server to ask for them first. An app that signs in
 with a password these boxes once shipped with stops working when the box

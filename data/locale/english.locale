@@ -1568,7 +1568,7 @@ menu.hint_net_httpd_auth On: every page of the web interface asks for the sign-i
 menu.hint_net_httpd_first_password Shows address, user and password for the first sign-in to the web interface; grey once it has a password of its own
 menu.hint_net_httpd_host Address the web interface answers on: empty or 0.0.0.0 for every network connection of the box
 menu.hint_net_httpd_loglevel How much the web server logs, for finding faults; off in daily use
-menu.hint_net_httpd_noauth Devices that need no sign-in: the start of their address, e.g. 192.168.1. for the whole home network; empty for none
+menu.hint_net_httpd_noauth Devices that need no sign-in: the start of their address, e.g. 192.168.1. for the whole home network; empty for none. Not while a proxy is entered in nhttpd-access.conf (trusted_proxies)
 menu.hint_net_httpd_pass A password of your own for the web interface and the API; left empty keeps the one there is. Forgotten? Reset it below
 menu.hint_net_httpd_port Port of the web interface: opened as http://box:port, for 80 http://box is enough
 menu.hint_net_httpd_reset_password Password forgotten? Resets the sign-in to root and a new first password and shows both; the next sign-in asks for one of your own

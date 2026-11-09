@@ -2367,6 +2367,25 @@ const std::string &serverPath()
 	return heldServerPath();
 }
 
+namespace
+{
+
+/* What a load that could not read the file leaves: what was in effect, and the
+   proxy line counted as named, until a load reads the file. What the file says
+   about a proxy is unknown then, and a box on its defaults is a box with nothing
+   in front of it, on which the home network reads without a password and the
+   loopback stands for the box itself. The least an unreadable proxy line can
+   mean is the same for an unreadable file. */
+bool unreadable()
+{
+	held().trusted_proxies_named = true;
+	complain("a proxy in front of the server counts as configured until the file can be read: "
+		 "nobody reads without a password, and the box itself is asked for the login");
+	return false;
+}
+
+} // namespace
+
 bool load(const std::string &path, const std::string &server_path)
 {
 	(void) serverFileLock();
@@ -2382,7 +2401,7 @@ bool load(const std::string &path, const std::string &server_path)
 	heldServerPath() = server_path;
 
 	if (!isReadableRegularFile(path, "configuration"))
-		return false;
+		return unreadable();
 
 	// Nothing is stored back through this object and no default is asked of
 	// it, so it is told not to keep any: its readers write the default they
@@ -2392,7 +2411,7 @@ bool load(const std::string &path, const std::string &server_path)
 	if (!file.loadConfig(path))
 	{
 		complain("cannot parse " + path);
-		return false;
+		return unreadable();
 	}
 
 	const Pairs m = file.getConfigDataMap();

@@ -238,6 +238,30 @@ TEST_CASE("a missing file leaves what was in effect standing", "[webconf]")
 	REQUIRE(anyProblemMentions("cannot read"));
 }
 
+TEST_CASE("a file that cannot be read counts a proxy as configured until one can", "[webconf]")
+{
+	Restore back;
+	Temp dir("dir"), conf("conf");
+	httpd::setConfigForTest(httpd::defaultWebConfig());
+	REQUIRE_FALSE(httpd::proxiesConfigured(httpd::config()));
+
+	// What the file says about a proxy is unknown: the exemptions are off.
+	REQUIRE_FALSE(httpd::load("/tmp/there-is-no-such-file-4712"));
+	REQUIRE(httpd::proxiesConfigured(httpd::config()));
+	REQUIRE(anyProblemMentions("counts as configured"));
+
+	// A file read again gives them back as it says.
+	writeFile(conf.path(), "lan_read=10.0.0.0/8\n");
+	REQUIRE(httpd::load(conf.path()));
+	REQUIRE_FALSE(httpd::proxiesConfigured(httpd::config()));
+
+	// The other ways a file cannot be read: not a regular file, no parse.
+	REQUIRE(::mkdir(dir.c_str(), 0755) == 0);
+	REQUIRE_FALSE(httpd::load(dir.path()));
+	REQUIRE(httpd::proxiesConfigured(httpd::config()));
+	::rmdir(dir.c_str());
+}
+
 TEST_CASE("the values a box that was never configured runs on", "[webconf]")
 {
 	const httpd::WebConfig c = httpd::defaultWebConfig();

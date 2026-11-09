@@ -1568,7 +1568,7 @@ menu.hint_net_httpd_auth Ein: Jede Seite der Weboberfläche verlangt die Anmeldu
 menu.hint_net_httpd_first_password Zeigt Adresse, Benutzer und Passwort für die erste Anmeldung an der Weboberfläche; grau, sobald sie ein eigenes Passwort hat
 menu.hint_net_httpd_host Adresse, auf der die Weboberfläche antwortet: leer oder 0.0.0.0 für alle Netzwerkverbindungen der Box
 menu.hint_net_httpd_loglevel Wie viel der Webserver protokolliert, für die Fehlersuche; im Alltag aus
-menu.hint_net_httpd_noauth Geräte, die ohne Anmeldung zugreifen: der Anfang ihrer Adresse, z. B. 192.168.1. für das ganze Heimnetz; leer für keines
+menu.hint_net_httpd_noauth Geräte, die ohne Anmeldung zugreifen: der Anfang ihrer Adresse, z. B. 192.168.1. für das ganze Heimnetz; leer für keines. Nicht, solange in nhttpd-access.conf ein Proxy eingetragen ist (trusted_proxies)
 menu.hint_net_httpd_pass Eigenes Passwort für Weboberfläche und API; leer lassen behält das bisherige. Vergessen? Unten zurücksetzen
 menu.hint_net_httpd_port Port der Weboberfläche: aufgerufen als http://Box:Port, bei 80 genügt http://Box
 menu.hint_net_httpd_reset_password Passwort vergessen? Setzt die Anmeldung auf root und ein neues Passwort für den ersten Zugang zurück und zeigt beides an; die nächste Anmeldung verlangt ein eigenes

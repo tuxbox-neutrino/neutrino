@@ -278,7 +278,7 @@ const FieldDesc kWebserverFields[] = {
 	HTTPD_MEMBER("page_login", FieldType::Bool,
 		"whether the pages ask for the login, a line of nhttpd.conf: with it off the pages are open, and a change made over this interface still asks for a sign in"),
 	HTTPD_MEMBER("no_login_prefix", FieldType::String,
-		"the start of an IPv4 address whose callers the pages never ask for the login, such as \"192.168.1.\", and empty for none; the box itself is never asked. It opens the pages and not this interface, whose reads without a password are lan_read"),
+		"the start of an IPv4 address whose callers the pages never ask for the login, such as \"192.168.1.\", and empty for none; the box itself is never asked. Neither holds while a proxy is configured (a trusted_proxies line, also an empty one or one that cannot be read): every caller is asked then. It opens the pages and not this interface, whose reads without a password are lan_read"),
 	HTTPD_LIST_OF_VALUES("lan_read", ElementType::String,
 		"the networks a caller may read from without presenting anything, as this box compares them and not as a file happened to write them, and empty where nobody may"),
 	HTTPD_LIST_OF_VALUES("trusted_proxies", ElementType::String,

@@ -484,8 +484,8 @@ var SETTINGS_REGISTRY = [
 					  hint: webuiL('set.pw_current_hint', 'needed to change the password or the user name: the password you sign in with') },
 					{ key: 'password', label: webuiL('set.mnt_pass', 'Password'), type: 'password' },
 					{ key: 'no_login_prefix', label: webuiL('reg.noauth_client', 'Without login (IP prefix)'), type: 'text',
-					  hint: webuiL('reg.noauth_client_hint', 'callers whose address begins with this see the pages without the login, and the box itself always does; a change made in the web interface still asks for the sign-in') },
-					// read only, like the proxy list beside it: kept in nhttpd-access.conf
+					  hint: webuiL('reg.noauth_client_hint', 'callers whose address begins with this see the pages without the login, and so does the box itself, unless a proxy is entered in nhttpd-access.conf (trusted_proxies); a change made in the web interface still asks for the sign-in') },
+					// read only, kept in nhttpd-access.conf beside trusted_proxies, which no row shows
 					{ key: 'allowed_hosts', label: webuiL('reg.allowed_hosts', 'Other names of the box'), type: 'info',
 					  hint: webuiL('reg.allowed_hosts_hint', 'besides its IP address and the names of the home network (without a dot, with .local or with the router\'s domain), the box answers only to these names, such as a DynDNS name or the name of a proxy; they are added to the line allowed_hosts in nhttpd-access.conf, names only and no comment on the line, and count within 10 seconds') },
 					{ key: 'port', label: 'Port', type: 'number', min: 1, max: 65535 }

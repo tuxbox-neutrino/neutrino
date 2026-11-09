@@ -805,11 +805,11 @@ TEST_CASE("the account changes over /control/ only for a signed-in caller or the
 		{ "an address the gate lets in unasked, and nothing else", "198.51.100.23", "", kNoCookie,
 		  "same-origin", "", kRequested, false, "", true, false, "sign-in" },
 		{ "the loopback behind a configured proxy", "127.0.0.1", "", kNoCookie,
-		  "same-origin", "", kRequested, false, "trusted_proxies=127.0.0.1/32\n", true, false, "sign-in" },
+		  "same-origin", "", kRequested, false, "trusted_proxies=127.0.0.1/32\n", false, false, "sign-in" },
 		{ "the loopback with a proxy line that names none", "127.0.0.1", "", kNoCookie,
-		  "same-origin", "", kRequested, false, "trusted_proxies=\n", true, false, "sign-in" },
+		  "same-origin", "", kRequested, false, "trusted_proxies=\n", false, false, "sign-in" },
 		{ "the loopback with a proxy line that cannot be read", "127.0.0.1", "", kNoCookie,
-		  "same-origin", "", kRequested, false, "trusted_proxies=127.0.0.1/32 # in front\n", true, false, "sign-in" },
+		  "same-origin", "", kRequested, false, "trusted_proxies=127.0.0.1/32 # in front\n", false, false, "sign-in" },
 	};
 	const bool page_login[] = { false, true };
 
@@ -1210,5 +1210,61 @@ TEST_CASE("a change over /control/ writes nothing once the box asks for a passwo
 
 	::unlink(path.c_str());
 	::unlink(server.c_str());
+	setConfigForTest(before);
+}
+
+TEST_CASE("behind a proxy the box itself and the addresses let in without a login are asked like anybody", "[login]")
+{
+	/* Behind a proxy every request arrives from the proxy's address, the loopback
+	   for one on the box, so the address says nothing about who asks. Configured is
+	   the REST layer's reading: a line that names a proxy, an empty one, and one
+	   that cannot be read. */
+	Account account;
+	const WebConfig before = config();
+	const char *const lines[] = {
+		"", "trusted_proxies=127.0.0.1/32\n", "trusted_proxies=\n", "trusted_proxies=127.0.0.1/32 # in front\n"
+	};
+	const char *const peers[] = { "127.0.0.1", "198.51.100.23" };
+
+	for (size_t l = 0; l < sizeof(lines) / sizeof(lines[0]); ++l)
+	{
+		for (size_t i = 0; i < sizeof(peers) / sizeof(peers[0]); ++i)
+		{
+			INFO("peer " << peers[i] << ", proxy line \"" << lines[l] << "\"");
+			const std::string path = controlAccount(std::string(), lines[l]);
+			REQUIRE(load(path));
+			REQUIRE(proxiesConfigured(config()) == (l != 0));
+
+			CyhookHandler hh;
+			hh.Method = M_GET;
+			hh.UrlData["url"] = "/control/info";
+			hh.UrlData["fullurl"] = "/control/info";
+			hh.UrlData["path"] = "/control/";
+			hh.UrlData["filename"] = "info";
+			hh.UrlData["clientaddr"] = peers[i];
+			hh.HeaderList["Host"] = "box.lan";
+
+			Gate gate(true, "198.51.100.");
+			const THandleStatus st = gate.Hook_PrepareResponse(&hh);
+			CHECK((st == HANDLED_CONTINUE) == (l == 0));
+			if (l != 0)
+				CHECK(hh.httpStatus == HTTP_UNAUTHORIZED);
+			::unlink(path.c_str());
+		}
+	}
+
+	// An access file that cannot be read may name a proxy: the same.
+	setConfigForTest(defaultWebConfig());
+	REQUIRE_FALSE(load("/tmp/login-no-such-access-file"));
+	CyhookHandler hh;
+	hh.Method = M_GET;
+	hh.UrlData["url"] = "/control/info";
+	hh.UrlData["path"] = "/control/";
+	hh.UrlData["filename"] = "info";
+	hh.UrlData["clientaddr"] = "127.0.0.1";
+	hh.HeaderList["Host"] = "box.lan";
+	Gate gate(true, "198.51.100.");
+	CHECK(gate.Hook_PrepareResponse(&hh) != HANDLED_CONTINUE);
+
 	setConfigForTest(before);
 }

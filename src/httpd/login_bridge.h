@@ -201,6 +201,13 @@ std::string forgetSessionCookie();
 std::string user();
 bool passwordSet();
 
+/* Whether a proxy is configured in front of this server, by the REST layer's
+   reading (httpd::proxiesConfigured): a trusted_proxies line that names proxies,
+   is empty or cannot be read. Behind one every request arrives from the proxy's
+   address, so no address stands for the box itself or for a caller let in
+   without the login. True where the answer cannot be had. */
+bool proxied();
+
 /* Whether the box still waits for a password of the owner's own: the stored one
    is one these boxes have shipped with, or the first password the box drew for
    itself (httpd::drawFirstPassword). Every place that asks the first login to

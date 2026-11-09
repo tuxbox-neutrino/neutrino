@@ -221,7 +221,10 @@ bool usernameAcceptable(const std::string &name, std::string *why);
 /* Reads path and installs what it holds.
 
    False when the file cannot be read at all, and then nothing is installed: a
-   reload of a file somebody deleted does not empty the policy.
+   reload of a file somebody deleted does not empty the policy. What is in
+   effect then counts a proxy as configured (proxiesConfigured) until a load
+   reads the file, as an unreadable trusted_proxies line does: the file may name
+   one, and the exemptions a box with nothing in front of it has are off.
 
    True when the file was read, whatever it did not hold and whatever in it could
    not be used. Every unusable value is named in configProblems below.
