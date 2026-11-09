@@ -74,6 +74,7 @@
 #include <map>
 #include <memory>
 #include <limits>
+#include <new>
 #include <string>
 #include <thread>
 #include <vector>
@@ -8621,6 +8622,48 @@ TEST_CASE("a full session table gives up another session than the one a change h
 	REQUIRE_FALSE(sessionIsLive(held));
 }
 
+/* A change committing with a session that runs out meanwhile, a logout of it
+   waiting for the write, and the walk of the table coming round in between: the
+   session stays until the change lets go of it, so the logout answers only once
+   the write is done, and the session answers for nothing all along. */
+TEST_CASE("a session a change is committing with stays through the walk until the change lets go", "[write][revision]")
+{
+	ShippedRoutes shipped;
+	ConfigFixture cfg;
+	WebConfig c = config();
+	c.session_lifetime_s = 60;
+	setConfigForTest(c);
+	SessionClock clock;
+
+	const std::string token = openSessionForTest(kUser);
+	REQUIRE_FALSE(token.empty());
+	REQUIRE(commitSession(token, accountRevision()));
+
+	std::atomic<bool> logged_out(false);
+	std::thread logout([&token, &logged_out]() {
+		(void) closeSession(token);
+		logged_out = true;
+	});
+	usleep(200 * 1000);
+	REQUIRE_FALSE(logged_out);
+
+	// the session runs out, and the walk comes round; a logout that found it gone
+	// would answer at its next look, a second at most
+	clock.move(10 * 60);
+	expireSessions(clock.at);
+	usleep(1500 * 1000);
+	const bool waited = !logged_out;
+	const bool answers = sessionIsLive(token);
+
+	// the change lets go: the logout answers
+	releaseSession(token);
+	logout.join();
+	CHECK(waited);
+	CHECK_FALSE(answers);
+	CHECK(logged_out);
+	CHECK_FALSE(sessionIsLive(token));
+}
+
 TEST_CASE("a new password over /api/v1 signs every other session out and keeps the one that asked", "[write][revision]")
 {
 	ShippedRoutes shipped;
@@ -9375,4 +9418,257 @@ TEST_CASE("a walk of the sessions between a change's publication and its new tok
 	REQUIRE(verifySecret("another pass phrase", loginInEffect().password_hash));
 	REQUIRE(cookieAlone(successor) == AuthLevel::System);
 	REQUIRE(changesThrough(successor, successor_csrf));
+}
+
+namespace
+{
+
+// The session a probe signs out, as a logout from another tab of the same browser does.
+std::string &signedOutBetween()
+{
+	static std::string token;
+	return token;
+}
+
+void signOutBetween()
+{
+	(void) closeSession(signedOutBetween());
+}
+
+/* A logout from another thread once the change is writing, past its go-ahead: what it
+   answered, whether it had answered by the time the write went on, a tenth of a second
+   after the session read as signed out. */
+struct LogoutAtTheWrite
+{
+	std::thread       *logout;
+	std::atomic<bool>  done;
+	bool               closed;
+	bool               done_during_write;
+	// whether the session read as signed out while the logout waited
+	bool               seen_out;
+};
+
+LogoutAtTheWrite &atTheWrite()
+{
+	static LogoutAtTheWrite w;
+	return w;
+}
+
+void signOutAtTheWrite(const std::string &)
+{
+	setBeforeReplaceForTest(NULL);
+	LogoutAtTheWrite &w = atTheWrite();
+	w.done = false;
+	w.closed = false;
+	w.logout = new std::thread([&w]() {
+		w.closed = closeSession(signedOutBetween());
+		w.done = true;
+	});
+	for (int i = 0; i < 300 && sessionIsLive(signedOutBetween()); ++i)
+		usleep(10 * 1000);
+	w.seen_out = !sessionIsLive(signedOutBetween());
+	usleep(100 * 1000);
+	w.done_during_write = w.done;
+}
+
+// The logout started at the write, ended: true where it answered after the write.
+bool loggedOutAfterTheWrite()
+{
+	LogoutAtTheWrite &w = atTheWrite();
+	if (w.logout == NULL)
+		return false;
+	w.logout->join();
+	delete w.logout;
+	w.logout = NULL;
+	return w.closed && w.seen_out && !w.done_during_write;
+}
+
+struct SignOutProbesCleared
+{
+	~SignOutProbesCleared()
+	{
+		setCheckedProbeForTest(NULL);
+		login_bridge::setAdmittedProbeForTest(NULL);
+		setBeforeReplaceForTest(NULL);
+		setHashedProbeForTest(NULL);
+		if (atTheWrite().logout != NULL)
+			(void) loggedOutAfterTheWrite();
+	}
+};
+
+// A change sent as the transport sends it: the gate let it in by this session.
+Response changeBy(const std::string &path, const std::string &body, const std::string &session)
+{
+	return dispatch(Put, path, "", body, "192.0.2.7", AuthLevel::System, std::string(), session,
+	                "box.example:8081", std::string(), std::string(), &session);
+}
+
+} // namespace
+
+namespace
+{
+
+// A save whose memory runs out while it writes, past the go-ahead.
+void throwAtTheWrite(const std::string &)
+{
+	setBeforeReplaceForTest(NULL);
+	throw std::bad_alloc();
+}
+
+// The change sent, whether it answers or the exception leaves the route.
+void changeThrowing(const std::string &path, const std::string &body, const std::string &session)
+{
+	setBeforeReplaceForTest(&throwAtTheWrite);
+	try
+	{
+		(void) changeBy(path, body, session);
+	}
+	catch (...)
+	{
+	}
+	setBeforeReplaceForTest(NULL);
+}
+
+} // namespace
+
+/* A change that fails past its go-ahead, an exception leaving it, lets go of the
+   session it committed with however it is left: the session answers as before, a
+   logout of it answers at once rather than waiting for a write that is not coming,
+   and it runs out as any session does. On both routes. */
+TEST_CASE("a change that fails past its go-ahead lets go of the session it committed with", "[write][transaction]")
+{
+	ShippedRoutes shipped;
+	ConfigFixture cfg;
+	SignOutProbesCleared cleared;
+	const std::string own = std::string(kWebFileHead) + "password_hash=" + hashSecret(kPassword, 2000) + "\n";
+	WebFile file("thrown", own);
+	const std::string access = wholeOf(file.path);
+	const std::string server = wholeOf(file.server);
+	/* The password alone, so the exception leaves the write of the access store
+	   itself: a port would be written to nhttpd.conf first, through a writer that
+	   answers an exception as a failure. */
+	const char *const routes[] = { "/api/v1/account/password", "/api/v1/system/webserver" };
+	const std::string bodies[] = {
+		std::string("{\"current\":\"") + kPassword + "\",\"password\":\"a new pass phrase\"}",
+		std::string("{\"current\":\"") + kPassword + "\",\"password\":\"another pass phrase\"}"
+	};
+	for (size_t i = 0; i < sizeof(routes) / sizeof(routes[0]); ++i)
+	{
+		INFO(routes[i]);
+		const std::string token = tokenOf(login(kUser, kPassword));
+		REQUIRE_FALSE(token.empty());
+		changeThrowing(routes[i], bodies[i], token);
+		CHECK(wholeOf(file.path) == access);
+		CHECK(wholeOf(file.server) == server);
+		CHECK(sessionIsLive(token));
+		const time_t began = time(NULL);
+		CHECK(closeSession(token));
+		CHECK(time(NULL) - began < 2);
+		CHECK_FALSE(sessionIsLive(token));
+
+		const std::string other = tokenOf(login(kUser, kPassword));
+		REQUIRE_FALSE(other.empty());
+		changeThrowing(routes[i], bodies[i], other);
+		expireSessions(time(NULL) + 10 * 365 * 24 * 60 * 60);
+		CHECK(sessionCount() == 0u);
+	}
+	::unlink(workingFile(file.path).c_str());
+	::unlink(workingFile(file.server).c_str());
+}
+
+TEST_CASE("a logout and a change to the account are ordered at the change's write", "[write][transaction]")
+{
+	/* A logout from another tab while the change is under way: while the current password
+	   is checked, after the second look under the account's lock, or while the new
+	   password is derived, the change writes nothing and both files stay as they were.
+	   Once the change has its go-ahead and writes, the logout waits for it: the change
+	   stands, the logout answers after the write, and the caller comes away signed out. */
+	ShippedRoutes shipped;
+	ConfigFixture cfg;
+	SignOutProbesCleared cleared;
+	const std::string own = std::string(kWebFileHead) + "password_hash=" + hashSecret(kPassword, 2000) + "\n";
+	WebFile file("logout", own);
+	const std::string to_new = std::string("{\"current\":\"") + kPassword + "\",\"password\":\"a new pass phrase\"}";
+	const std::string access = wholeOf(file.path);
+	const std::string server = wholeOf(file.server);
+
+	signedOutBetween() = tokenOf(login(kUser, kPassword));
+	setCheckedProbeForTest(&signOutBetween);
+	const Response checking = changeBy("/api/v1/account/password", to_new, signedOutBetween());
+	REQUIRE(checking.code == 403);
+	REQUIRE(checking.body.find("not-permitted") != std::string::npos);
+	REQUIRE(wholeOf(file.path) == access);
+	REQUIRE(wholeOf(file.server) == server);
+	REQUIRE(verifySecret(kPassword, loginInEffect().password_hash));
+
+	signedOutBetween() = tokenOf(login(kUser, kPassword));
+	login_bridge::setAdmittedProbeForTest(&signOutBetween);
+	const Response admitted = changeBy("/api/v1/account/password", to_new, signedOutBetween());
+	REQUIRE(admitted.code == 403);
+	REQUIRE(admitted.body.find("ended while it was being checked") != std::string::npos);
+	REQUIRE(wholeOf(file.path) == access);
+	REQUIRE(wholeOf(file.server) == server);
+	REQUIRE(verifySecret(kPassword, loginInEffect().password_hash));
+
+	signedOutBetween() = tokenOf(login(kUser, kPassword));
+	setHashedProbeForTest(&signOutBetween);
+	const Response hashing = changeBy("/api/v1/account/password", to_new, signedOutBetween());
+	REQUIRE(hashing.code == 403);
+	REQUIRE(hashing.body.find("ended while it was being checked") != std::string::npos);
+	REQUIRE(wholeOf(file.path) == access);
+	REQUIRE(wholeOf(file.server) == server);
+	REQUIRE(verifySecret(kPassword, loginInEffect().password_hash));
+
+	signedOutBetween() = tokenOf(login(kUser, kPassword));
+	setBeforeReplaceForTest(&signOutAtTheWrite);
+	const Response writing = changeBy("/api/v1/account/password", to_new, signedOutBetween());
+	REQUIRE(loggedOutAfterTheWrite());
+	REQUIRE(writing.code == 200);
+	REQUIRE(headerOf(replyOf(writing), "Set-Cookie").empty());
+	REQUIRE_FALSE(parsed(replyOf(writing).body)["authenticated"].asBool());
+	REQUIRE(verifySecret("a new pass phrase", loginInEffect().password_hash));
+	REQUIRE(cookieAlone(signedOutBetween()) == AuthLevel::Public);
+
+	// The webserver route the same way.
+	WebFile::put(file.path, own);
+	REQUIRE(load(file.path, file.server));
+	const std::string ws_access = wholeOf(file.path);
+	const std::string ws_server = wholeOf(file.server);
+	const std::string to_other = std::string("{\"current\":\"") + kPassword +
+	                             "\",\"password\":\"another pass phrase\",\"port\":8090}";
+
+	signedOutBetween() = tokenOf(login(kUser, kPassword));
+	setCheckedProbeForTest(&signOutBetween);
+	const Response ws_checking = changeBy("/api/v1/system/webserver", to_other, signedOutBetween());
+	REQUIRE(ws_checking.code == 403);
+	REQUIRE(ws_checking.reload_after.empty());
+	REQUIRE(wholeOf(file.path) == ws_access);
+	REQUIRE(wholeOf(file.server) == ws_server);
+
+	signedOutBetween() = tokenOf(login(kUser, kPassword));
+	login_bridge::setAdmittedProbeForTest(&signOutBetween);
+	const Response ws_admitted = changeBy("/api/v1/system/webserver", to_other, signedOutBetween());
+	REQUIRE(ws_admitted.code == 403);
+	REQUIRE(ws_admitted.reload_after.empty());
+	REQUIRE(wholeOf(file.path) == ws_access);
+	REQUIRE(wholeOf(file.server) == ws_server);
+
+	signedOutBetween() = tokenOf(login(kUser, kPassword));
+	setHashedProbeForTest(&signOutBetween);
+	const Response ws_hashing = changeBy("/api/v1/system/webserver", to_other, signedOutBetween());
+	REQUIRE(ws_hashing.code == 403);
+	REQUIRE(ws_hashing.reload_after.empty());
+	REQUIRE(wholeOf(file.path) == ws_access);
+	REQUIRE(wholeOf(file.server) == ws_server);
+
+	signedOutBetween() = tokenOf(login(kUser, kPassword));
+	setBeforeReplaceForTest(&signOutAtTheWrite);
+	const Response ws_writing = changeBy("/api/v1/system/webserver", to_other, signedOutBetween());
+	REQUIRE(loggedOutAfterTheWrite());
+	REQUIRE(ws_writing.code == 200);
+	REQUIRE(headerOf(replyOf(ws_writing), "Set-Cookie").empty());
+	REQUIRE(parsed(replyOf(ws_writing).body)["caller"]["csrf"].asString().empty());
+	REQUIRE(load(file.path, file.server));
+	REQUIRE(verifySecret("another pass phrase", loginInEffect().password_hash));
+	REQUIRE(cookieAlone(signedOutBetween()) == AuthLevel::Public);
 }

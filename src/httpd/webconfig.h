@@ -694,9 +694,30 @@ void keepSessionAtLoad(const std::string &token);
    else, whatever the mode of the file it replaces.
 
    A box with no file at that name gets one, with the same head the migration
-   writes. */
+   writes.
+
+   commit, where given, is asked once everything that takes time is done (a new
+   password derived, the new content of both files built) and right before the first
+   file is written: false and nothing is written, the answer false as well, and the
+   caller knows why. A change to the account made with a session takes the session's
+   go-ahead there (httpd::commitSession), so a logout during the derivation leaves both
+   files as they were. */
+struct SaveCommit
+{
+	virtual ~SaveCommit() {}
+	virtual bool commit() = 0;
+};
 bool saveWebSettings(const std::string &path, const WebSettings &s,
-                     std::string *stored_hash = NULL, const WebSettings *from = NULL);
+                     std::string *stored_hash = NULL, const WebSettings *from = NULL,
+                     SaveCommit *commit = NULL);
+
+/* Called once by the next save that derived a stored form, right after the derivation
+   and before anything is written or committed, and forgotten as it is called; NULL
+   forgets one not yet called. For a case that signs a session out while its new
+   password is derived, a moment no request can be made to stop at. Nothing in the
+   product installs one. */
+typedef void (*HashedProbe)();
+void setHashedProbeForTest(HashedProbe p);
 
 /* Reads path and nhttpd.conf (serverPath) again and puts the running server on
    what they now say.

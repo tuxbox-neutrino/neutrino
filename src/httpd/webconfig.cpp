@@ -2794,8 +2794,16 @@ bool usernameAcceptable(const std::string &name, std::string *why)
 	return false;
 }
 
+// Set by setHashedProbeForTest and taken back by the save it runs in.
+static HashedProbe hashed_probe = NULL;
+
+void setHashedProbeForTest(HashedProbe p)
+{
+	hashed_probe = p;
+}
+
 bool saveWebSettings(const std::string &path, const WebSettings &s, std::string *stored_hash,
-                     const WebSettings *from)
+                     const WebSettings *from, SaveCommit *commit)
 {
 	clearProblems();
 	// settings put back from an archive wait for the restart that reads them
@@ -2989,6 +2997,12 @@ bool saveWebSettings(const std::string &path, const WebSettings &s, std::string 
 		}
 		if (stored_hash != NULL)
 			*stored_hash = hash;
+		if (hashed_probe != NULL)
+		{
+			const HashedProbe p = hashed_probe;
+			hashed_probe = NULL;
+			p();
+		}
 	}
 
 	std::vector<OwnedLine> owned;
@@ -3116,6 +3130,14 @@ bool saveWebSettings(const std::string &path, const WebSettings &s, std::string 
 	}
 	for (size_t i = 0; i < owned.size(); ++i)
 		forget(owned[i].value);
+
+	/* Everything that takes time is done: the go-ahead of whoever the change is made
+	   for, right before the first file is written. */
+	if (commit != NULL && !commit->commit())
+	{
+		forget(out);
+		return false;
+	}
 
 	/* nhttpd's file first and this one after, and the first put back when the
 	   second cannot be written, so a save answered false has not moved the port

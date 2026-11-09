@@ -199,6 +199,13 @@ nobody out.
   the login writes nothing: `PUT /api/v1/account/password` answers
   `403 not-permitted`, and so does `PUT /api/v1/system/webserver` for a
   session that ended meanwhile.
+- A sign-out of the session a change is made with, from another tab say,
+  that comes before the change is written, also while the current password
+  is checked or the new one prepared, keeps it from being written: both routes
+  answer `403 not-permitted` and nothing changes. One that comes once the
+  change is being written waits for it: the change is in effect, and the
+  browser is signed out, with no new cookie, the answer saying the caller
+  holds no session.
 - `PUT /api/v1/system/webserver` holds a new `password` to the same rules,
   except that it may be the current one. It sets a new `password` or a new
   `user` only together with `current`, the password in effect, checked and

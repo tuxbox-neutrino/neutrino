@@ -41,6 +41,7 @@
 #include <arpa/inet.h>
 #include <sys/socket.h>
 
+#include <OpenThreads/Condition>
 #include <OpenThreads/Mutex>
 #include <OpenThreads/ScopedLock>
 
@@ -87,8 +88,12 @@ struct Session
 
 	// kept out of the walk by a change to the account that goes on with it (holdSession)
 	bool held;
+	// a change to the account commits with it, which a logout waits for (commitSession)
+	bool committing;
+	// signed out while a change committed with it: it ends when the change lets go
+	bool closing;
 
-	Session() : opened(0), expires(0), revision(0), held(false) {}
+	Session() : opened(0), expires(0), revision(0), held(false), committing(false), closing(false) {}
 };
 
 /* The longest a session lasts however busy it is, which is also the longest
@@ -98,6 +103,10 @@ struct Session
    soonest. */
 const time_t kSessionCeiling = 30 * 24 * 60 * 60;
 const size_t kMaxSessions    = 64;
+
+/* How many seconds a logout waits at most for a change committing with its session
+   (closeSession); a change takes moments. */
+const unsigned kLogoutWaitSteps = 30;
 
 /* One minted token: the first characters of it, the stored form of the whole of it, what
    it was minted at, what part of the box it stands for, and when it stops. The token
@@ -207,12 +216,19 @@ OpenThreads::Mutex &lock()
 	return m;
 }
 
+// Woken whenever a change lets go of a session it committed with (letGoLocked).
+OpenThreads::Condition &letGo()
+{
+	static OpenThreads::Condition *c = new OpenThreads::Condition;
+	return *c;
+}
+
 /* Whether a session answers for anything at now: opened under the account in effect
    and not run out. account is accountRevision(), which every caller reads before it
    takes the lock above, the account having a lock of its own. */
 bool standing(const Session &s, time_t now, unsigned long long account)
 {
-	return s.revision == account && s.expires > now;
+	return s.revision == account && s.expires > now && !s.closing;
 }
 
 /* Whether a token drawn from a session still stands: drawn under the account in
@@ -354,7 +370,11 @@ void dropTokensOfLocked(const std::string &session)
    stands again.
 
    A session a change holds (holdSession) is dropped only once it has run out: that
-   change has published the account it moves the session to, and is about to. */
+   change has published the account it moves the session to, and is about to. One a
+   change is committing with (commitSession) is not dropped at all, run out or not:
+   a logout of it waits for the write to end, and finds the session gone only when the
+   change let go of it or the logout gave up waiting. It answers for nothing
+   meanwhile, the lookups asking about its end and its commit as before. */
 void expireLocked(time_t now, unsigned long long account)
 {
 	std::map<std::string, Session>::iterator i = table().sessions.begin();
@@ -362,6 +382,8 @@ void expireLocked(time_t now, unsigned long long account)
 	{
 		std::map<std::string, Session>::iterator here = i;
 		++i;
+		if (here->second.committing)
+			continue;
 		if (here->second.expires <= now || (here->second.revision < account && !here->second.held))
 		{
 			dropTokensOfLocked(here->first);
@@ -1042,6 +1064,38 @@ bool sessionIsLive(const std::string &token)
 	return liveSession(token, NULL);
 }
 
+/* The change that held a session is done with it: back into the walk, and a logout
+   waiting for the change woken. Where one came meanwhile the session ends here, in place
+   of whatever the change was about to do with it, and false says so. Called with the
+   lock held. */
+bool letGoLocked(std::map<std::string, Session>::iterator i)
+{
+	const bool closing = i->second.closing;
+	i->second.held = false;
+	i->second.committing = false;
+	if (closing)
+	{
+		dropTokensOfLocked(i->first);
+		table().sessions.erase(i);
+	}
+	letGo().broadcast();
+	return !closing;
+}
+
+bool commitSession(const std::string &token, unsigned long long revision)
+{
+	if (token.empty())
+		return false;
+
+	OpenThreads::ScopedLock<OpenThreads::Mutex> held(lock());
+	const std::map<std::string, Session>::iterator i = table().sessions.find(token);
+	if (i == table().sessions.end() || !standing(i->second, sessionNow(), revision))
+		return false;
+	i->second.held = true;
+	i->second.committing = true;
+	return true;
+}
+
 bool holdSession(const std::string &token, unsigned long long revision)
 {
 	if (token.empty())
@@ -1063,7 +1117,7 @@ void releaseSession(const std::string &token)
 	OpenThreads::ScopedLock<OpenThreads::Mutex> held(lock());
 	const std::map<std::string, Session>::iterator i = table().sessions.find(token);
 	if (i != table().sessions.end())
-		i->second.held = false;
+		(void) letGoLocked(i);
 }
 
 bool carrySession(const std::string &token, unsigned long long from, unsigned long long to)
@@ -1076,8 +1130,7 @@ bool carrySession(const std::string &token, unsigned long long from, unsigned lo
 	if (i == table().sessions.end())
 		return false;
 	// moved or not, the change that held it is done with it
-	i->second.held = false;
-	if (!standing(i->second, sessionNow(), from))
+	if (!letGoLocked(i) || !standing(i->second, sessionNow(), from))
 		return false;
 	i->second.revision = to;
 	return true;
@@ -1108,8 +1161,7 @@ std::string reissueSession(const std::string &token, unsigned long long from, un
 	if (i == table().sessions.end())
 		return std::string();
 	// given new tokens or not, the change that held it is done with it
-	i->second.held = false;
-	if (!standing(i->second, sessionNow(), from))
+	if (!letGoLocked(i) || !standing(i->second, sessionNow(), from))
 		return std::string();
 	/* A token already in the table is not one to hand out twice; nothing is changed,
 	   and the session goes on under the old token until the change ends it. */
@@ -1145,8 +1197,33 @@ bool closeSession(const std::string &token)
 		return false;
 
 	OpenThreads::ScopedLock<OpenThreads::Mutex> held(lock());
+	std::map<std::string, Session>::iterator i = table().sessions.find(token);
+	if (i == table().sessions.end())
+		return false;
 	dropTokensOfLocked(token);
-	return table().sessions.erase(token) > 0;
+
+	/* A change to the account committing with this session has taken its go-ahead, and
+	   the change is written whatever happens now: the logout waits for it, so that it
+	   does not answer before a write it cannot stop, and the session ends as the change
+	   lets go of it, in place of its renewal. Waited for in steps, and no longer than
+	   the bound below: a change takes moments, and one that never let go would hold
+	   this request for good. */
+	if (i->second.committing)
+	{
+		i->second.closing = true;
+		for (unsigned waited = 0; waited < kLogoutWaitSteps; ++waited)
+		{
+			i = table().sessions.find(token);
+			if (i == table().sessions.end() || !i->second.committing)
+				break;
+			letGo().wait(&lock(), 1000);
+		}
+		i = table().sessions.find(token);
+		if (i == table().sessions.end())
+			return true;
+	}
+	table().sessions.erase(i);
+	return true;
 }
 
 std::string csrfFor(const std::string &token)

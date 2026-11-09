@@ -138,6 +138,15 @@ bool mayChange(const Ask &a, const std::string &user, const std::string &passwor
    nothing changed. Asked without admits it keeps nobody, which is the screen at the
    box, and session() is empty, as it is where no new token could be drawn.
 
+   The session admits found is the one the gate let the request in by, whatever became
+   of it since (Admitted::session, Request::admittingSession), and a logout is ordered
+   against the change at one moment: the save's go-ahead, taken once the new password
+   is derived and both files are built, right before the first write, where the session
+   still standing is held to its new tokens (httpd::commitSession). A logout before that
+   moment ended it, and change refuses with nothing written; sessionEnded() then says
+   so, to be answered as admits' refusal is. A logout after it waits for the change, the
+   change stands, the session ends in place of its renewal, and session() is empty.
+
    A writer of more than the account holds this across that write as well and makes it
    only once the account went through: the old configuration route writes the other
    keys of nhttpd.conf after it, taking httpd::ServerFileLock inside this one.
@@ -154,6 +163,7 @@ public:
 	bool change(const std::string &user, const std::string &password, std::string *why,
 	            const Ask *from = 0);
 	const std::string &session() const;
+	bool sessionEnded() const;
 
 private:
 	Transaction(const Transaction &);
@@ -162,7 +172,19 @@ private:
 	httpd::AccountLock *held_;
 	std::string         keep_;
 	bool                refused_;
+	bool                ended_;
 };
+
+/* Called once by the next second look that admitted a change to the account, with the
+   account's lock held, and forgotten as it is called; NULL forgets one not yet called.
+   Transaction::admits runs it before it returns, and a route that takes its own look
+   under the lock (PUT /api/v1/system/webserver) runs it by admitted() once that look
+   passed. For a case that signs the session out between the look and the write, a
+   moment no request can be made to stop at. Nothing in the product installs one, and
+   admitted() does nothing else. */
+typedef void (*AdmittedProbe)();
+void setAdmittedProbeForTest(AdmittedProbe p);
+void admitted();
 
 /* The Set-Cookie value that hands a session's token out, for the old configuration
    route to send the one Transaction::session names. */

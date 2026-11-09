@@ -387,16 +387,22 @@ Response changePassword(const Request &r)
 	/* The account's lock from here to the write, and under it a second look at what
 	   the check above found. A reset at the box or another change landing since then
 	   leaves the current password checked against an account that is gone, and this
-	   request writes nothing. */
+	   request writes nothing. The session is the one the gate let the request in by,
+	   signed out meanwhile or not: one that ended during the check, or after the look
+	   and before the write, is refused there as well, with nothing written. */
 	login_bridge::Admitted admitted;
 	admitted.revision = checked;
-	admitted.session = sessionIsLive(r.session()) ? r.session() : std::string();
+	admitted.session = r.admittingSession();
 	login_bridge::Transaction account;
 	if (!account.admits(admitted, &why))
 		return problemResponse(StatusForbidden, coreapi::ErrorCode::NotPermitted, why);
 	if (!account.change(std::string(), password, &why))
+	{
+		if (account.sessionEnded())
+			return problemResponse(StatusForbidden, coreapi::ErrorCode::NotPermitted, why);
 		return problemResponse(StatusInternalServerError, coreapi::ErrorCode::WebserverNotConfigured,
 		                       "the password could not be changed: " + why);
+	}
 
 	/* The session that asked goes on under new tokens, and this answer is the one way
 	   its browser learns them: the cookie in a header, the second token in the body, in
@@ -695,6 +701,9 @@ const Endpoint kAuthEndpoints[] = {
 
 } // namespace
 
+// Set by setCheckedProbeForTest and taken back by the check it runs after.
+static CheckedProbe checked_probe = NULL;
+
 bool currentPasswordHolds(const Request &r, const std::string &current, unsigned long long *revision,
                           Response *refusal)
 {
@@ -715,7 +724,18 @@ bool currentPasswordHolds(const Request &r, const std::string &current, unsigned
 	}
 	held.granted = true;
 	*revision = cfg.revision;
+	if (checked_probe != NULL)
+	{
+		const CheckedProbe p = checked_probe;
+		checked_probe = NULL;
+		p();
+	}
 	return true;
+}
+
+void setCheckedProbeForTest(CheckedProbe p)
+{
+	checked_probe = p;
 }
 
 extern const RouteTable authTable = {

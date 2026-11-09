@@ -262,6 +262,18 @@ std::string openSessionForTest(const std::string &user);
 bool holdSession(const std::string &token, unsigned long long revision);
 void releaseSession(const std::string &token);
 
+/* The go-ahead of a change to the account made with this session, taken once the change
+   has done everything that takes time (the derivation of a new password, the new content
+   of the files) and right before it writes: true where the session still stands under
+   revision, and the session is then held as holdSession holds it until the change lets
+   go of it. That moment orders the change and a logout of the session. A logout before
+   it ended the session and the change writes nothing; one after it waits for the change
+   to let go (reissueSession, carrySession, releaseSession) and the session ends then, in
+   place of its renewal, so the logout answers once the write it can no longer stop is
+   done and the caller holds nothing after it. From that moment the session answers for
+   nothing (a lookup finds it signed out). */
+bool commitSession(const std::string &token, unsigned long long revision);
+
 /* Keeps the session a change to the account was asked for by: moves it from the
    revision from, which it has to be live under, to the revision to, which the change
    published. False and nothing moved for a token naming no such session. What the
@@ -301,7 +313,9 @@ std::string sessionSetCookie(const std::string &token);
 
 // Whether there was a session under this token to drop. The next request
 // carrying it is a request carrying nothing, with no interval in between, and
-// so is the next one carrying a token that session drew.
+// so is the next one carrying a token that session drew. One a change to the
+// account is committing with (commitSession) is waited for: the change is
+// written, and the session ends as the change lets go of it.
 bool closeSession(const std::string &token);
 
 /* Whether this token still names a session that has not run out.

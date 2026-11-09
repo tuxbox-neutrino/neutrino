@@ -183,11 +183,18 @@ const char *mediaScopeName();
    login's gate (beginLoginAttempt), a wrong one counted against the address as a wrong
    login is. True with the revision of the account it was checked against in *revision;
    false with the answer to send in *refusal, 429 too-many-attempts while the gate is
-   closed and 403 not-permitted for a password that is not the one in effect. One check
-   for the two routes that set the password (PUT /api/v1/account/password,
+   closed and 403 wrong-current-password for a password that is not the one in effect.
+   One check for the two routes that set the password (PUT /api/v1/account/password,
    PUT /api/v1/system/webserver), so a password is never guessed faster at either. */
 bool currentPasswordHolds(const Request &r, const std::string &current, unsigned long long *revision,
                           Response *refusal);
+
+/* Called once by the next check above that found the password right, before it returns,
+   and forgotten as it is called; NULL forgets one not yet called. For a case that signs
+   the session out while its password is being checked, a moment no request can be made
+   to stop at. Nothing in the product installs one. */
+typedef void (*CheckedProbe)();
+void setCheckedProbeForTest(CheckedProbe p);
 
 /* Every table this server answers a request out of. Each is stated by the module that
    writes the handlers behind it, as the pair rather than as an array and a count: a

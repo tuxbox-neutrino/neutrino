@@ -96,6 +96,9 @@ const char kAccountMoved[] = "the account changed while the request was being ch
 const char kSessionEnded[] = "the session the request came with ended while it was being checked";
 const char kNotChanged[]   = "the account could not be changed";
 
+// Set by setAdmittedProbeForTest and taken back by the admission it runs after.
+AdmittedProbe admitted_probe = NULL;
+
 /* What a right Basic pair is remembered as: a digest keyed with a secret this
    process drew for itself, beside the stored form it was checked against. The
    pair itself is never kept, and a digest is worth nothing to anybody without
@@ -549,12 +552,45 @@ bool resetToFirstPassword(std::string *first, std::string *why)
 namespace
 {
 
+/* The go-ahead of the session a change is made with, asked by the save right before
+   it writes (httpd::SaveCommit): no session, no go-ahead to take. ended says the
+   session was gone by then. A session the go-ahead was taken with is let go of however
+   the change is left, an exception included, unless the change handed it on: held
+   for good, it would stay out of the walk of the table and a logout of it would wait
+   its whole allowance for a write that is not coming. */
+struct SessionCommit : public httpd::SaveCommit
+{
+	const std::string &token;
+	unsigned long long revision;
+	bool ended;
+	bool held;
+
+	SessionCommit(const std::string &t, unsigned long long r) : token(t), revision(r), ended(false), held(false) {}
+	~SessionCommit() { release(); }
+	bool commit()
+	{
+		ended = !token.empty() && !httpd::commitSession(token, revision);
+		held = !ended && !token.empty();
+		return !ended;
+	}
+	// the change is done with the session it did not move
+	void release()
+	{
+		if (!held)
+			return;
+		held = false;
+		httpd::releaseSession(token);
+	}
+	// moved to new tokens, which let go of it
+	void handedOn() { held = false; }
+};
+
 /* The change Transaction::change makes, with the account's lock held by the caller
    across reading what is in effect, writing the file and publishing: shared with load,
    a reload installing a configuration in between would otherwise leave the published
    account older than the file. */
 bool changeHeld(const std::string &user, const std::string &password, std::string *why,
-                const Ask *from, std::string &keep_session)
+                const Ask *from, std::string &keep_session, bool &ended)
 {
 	{
 		// the rules every writer of the password is held to
@@ -593,11 +629,27 @@ bool changeHeld(const std::string &user, const std::string &password, std::strin
 		if (s.username == base.username && !s.change_password)
 			return true;
 
+		/* The commit, and the one moment a logout and this change are ordered by, taken
+		   by the save once the new password is derived and both files are built, right
+		   before it writes: the session that asked still stands, and is held from there
+		   to its new tokens (httpd::commitSession). A logout before it, during the
+		   derivation as well, ended the session, and nothing is written; one after it
+		   waits for this change and ends the session it would have renewed, and the
+		   caller holds nothing once the change has gone through. */
+		SessionCommit go(keep_session, before.revision);
 		std::string stored;
-		const bool saved = httpd::saveWebSettings(path, s, &stored);
+		const bool saved = httpd::saveWebSettings(path, s, &stored, NULL, &go);
 		forget(s.password);
 		if (!saved)
 		{
+			if (go.ended)
+			{
+				ended = true;
+				if (why != NULL)
+					*why = kSessionEnded;
+				return false;
+			}
+			go.release();
 			sayWhyNotSaved(why);
 			return false;
 		}
@@ -614,22 +666,23 @@ bool changeHeld(const std::string &user, const std::string &password, std::strin
 		   the rest. Both under the account's lock, so no other change lands in between
 		   and moves the account on again. keep_session is left naming the token the
 		   caller holds now. */
-		/* Held from before the new account is in effect to its new tokens, so a walk of
-		   the session table on another connection between the two cannot drop it for
-		   having been opened under the old one. */
-		if (!keep_session.empty())
-			(void) httpd::holdSession(keep_session, before.revision);
 		const unsigned long long revision = httpd::publishLogin(now, first);
 		forget(first);
 		if (revision != before.revision && !keep_session.empty())
 		{
 			std::string fresh = httpd::reissueSession(keep_session, before.revision, revision);
+			go.handedOn();
 			forget(keep_session);
 			keep_session = fresh;
 			forget(fresh);
 		}
 		else if (!keep_session.empty())
-			httpd::releaseSession(keep_session);
+		{
+			// signed out meanwhile, it ends with this, and the caller holds nothing
+			go.release();
+			if (!httpd::sessionIsLive(keep_session))
+				forget(keep_session);
+		}
 		return true;
 	}
 }
@@ -639,6 +692,26 @@ bool changeHeld(const std::string &user, const std::string &password, std::strin
 const std::string &Transaction::session() const
 {
 	return keep_;
+}
+
+bool Transaction::sessionEnded() const
+{
+	return ended_;
+}
+
+void admitted()
+{
+	if (admitted_probe != NULL)
+	{
+		const AdmittedProbe p = admitted_probe;
+		admitted_probe = NULL;
+		p();
+	}
+}
+
+void setAdmittedProbeForTest(AdmittedProbe p)
+{
+	admitted_probe = p;
 }
 
 std::string sessionCookie(const std::string &token)
@@ -653,7 +726,7 @@ std::string sessionCookie(const std::string &token)
 	}
 }
 
-Transaction::Transaction() : held_(NULL), refused_(false)
+Transaction::Transaction() : held_(NULL), refused_(false), ended_(false)
 {
 	try
 	{
@@ -705,6 +778,7 @@ bool Transaction::admits(const Admitted &a, std::string *why)
 		}
 		keep_ = a.session;
 		refused_ = false;
+		admitted();
 		return true;
 	}
 	catch (...)
@@ -728,7 +802,7 @@ bool Transaction::change(const std::string &user, const std::string &password, s
 	}
 	try
 	{
-		return changeHeld(user, password, why, from, keep_);
+		return changeHeld(user, password, why, from, keep_, ended_);
 	}
 	catch (...)
 	{

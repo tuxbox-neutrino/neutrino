@@ -469,10 +469,13 @@ Response webserverWrite(const Request &r)
 	/* A change to the account from a caller the gate let in before this lock was
 	   taken. A reset at the box or another change landing in between ends the session
 	   the request came with, or leaves the box waiting for a password of the owner's
-	   own, and the request then writes nothing, answered as the gate answers either. */
+	   own, and the request then writes nothing, answered as the gate answers either.
+	   The session is the one the gate let the request in by, so one signed out while
+	   its password was checked is refused here too. */
+	const std::string &asking = r.admittingSession();
 	if (r.has("user") || r.has("password"))
 	{
-		if (!r.session().empty() && !sessionIsLive(r.session()))
+		if (!asking.empty() && !sessionIsLive(asking))
 			return problemResponse(StatusForbidden, coreapi::ErrorCode::NotPermitted, notPermittedDetail());
 		if (accountRevision() != checked)
 			return problemResponse(StatusForbidden, coreapi::ErrorCode::NotPermitted,
@@ -480,6 +483,7 @@ Response webserverWrite(const Request &r)
 		if (passwordChangeOwed())
 			return problemResponse(StatusForbidden, coreapi::ErrorCode::PasswordChangeRequired,
 			                       passwordChangeRequiredDetail());
+		login_bridge::admitted();
 	}
 
 	const WebSettings before = currentWebSettings();
@@ -561,9 +565,43 @@ Response webserverWrite(const Request &r)
 	/* What the save changes, read under the lock: a new password or user name that the
 	   look before it did not ask the password for, the name having moved meanwhile, is
 	   not written without it. */
-	if ((s.change_password || s.username != before.username) && !asks_current &&
-	    !loginInEffect().password_hash.empty())
+	const bool account_moves = s.change_password || s.username != before.username;
+	if (account_moves && !asks_current && !loginInEffect().password_hash.empty())
 		return problemResponse(StatusBadRequest, coreapi::ErrorCode::MissingParameter, kCurrentNeeded);
+
+	/* The commit, and the one moment a logout and this save are ordered by, taken by
+	   the save once the new password is derived and both files are built, right before
+	   it writes: a save that changes the account goes on with the session that asked
+	   only where it still stands, held to its new tokens below (commitSession). A logout
+	   before it, during the derivation as well, ended the session, and nothing is
+	   written; one after it waits for this save and ends the session it would have
+	   renewed, and nobody is kept across the restart. */
+	/* A session the go-ahead was taken with is let go of however this is left, an
+	   exception included, unless it was handed on to new tokens. */
+	struct AskingCommit : public SaveCommit
+	{
+		const std::string *token;
+		unsigned long long revision;
+		bool ended;
+		bool held;
+
+		AskingCommit(const std::string *t, unsigned long long r) : token(t), revision(r), ended(false), held(false) {}
+		~AskingCommit() { release(); }
+		bool commit()
+		{
+			ended = token != NULL && !token->empty() && !commitSession(*token, revision);
+			held = !ended && token != NULL && !token->empty();
+			return !ended;
+		}
+		void release()
+		{
+			if (!held)
+				return;
+			held = false;
+			releaseSession(*token);
+		}
+		void handedOn() { held = false; }
+	} go(account_moves ? &asking : NULL, accountRevision());
 
 	/* Every rule about these values is the save's, which is where the files
 	   they are written into are understood: what a port may be, what address
@@ -572,8 +610,11 @@ Response webserverWrite(const Request &r)
 	   can disagree with the one that decides. */
 	/* From what this request started from, so a value the menu at the box wrote
 	   into nhttpd.conf since then stays unless this request names it. */
-	if (!saveWebSettings(path, s, NULL, &before))
+	if (!saveWebSettings(path, s, NULL, &before, &go))
 	{
+		if (go.ended)
+			return problemResponse(StatusForbidden, coreapi::ErrorCode::NotPermitted, notPermittedDetail());
+		go.release();
 		/* Answered as the caller's request being wrong, because the values the
 		   save was handed all came out of this request and one of them is what
 		   it refused in every case but one. The exception is a file itself
@@ -591,12 +632,13 @@ Response webserverWrite(const Request &r)
 	   here on, so a copy of it is signed out at once. A caller let in by a token holds
 	   none, and then nobody's stays. */
 	std::string successor;
-	if (s.change_password || s.username != before.username)
+	if (account_moves)
 	{
-		if (sessionIsLive(r.session()))
+		if (!asking.empty())
 		{
 			const unsigned long long now = accountRevision();
-			successor = reissueSession(r.session(), now, now);
+			successor = reissueSession(asking, now, now);
+			go.handedOn();
 			/* Held until the restart's read carries it across: that read publishes the
 			   new account first, and a walk of the table in between would drop the
 			   session for being opened under the old one. */
