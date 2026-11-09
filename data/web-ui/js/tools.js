@@ -181,26 +181,29 @@ async function bcRecStart() {
 // Ends the recording of the channel the box shows, else the first that
 // is not its shift, as the old stop did; the recordings as a read at the
 // press finds them (webuiRecordingsRead), never as the pill showed them. A
-// read that fails, or none running, stops nothing. The button shows that
-// the press is under way, read and stop alike.
-async function bcRecStop() {
-	var busy = webuiWaitBegin(webuiWaitButton());
-	try {
+// read that fails, or none running, stops nothing ("Stop failed"); one whose
+// sign-in the user declined says nothing either. The button says that the
+// stop is under way from the press until the box has ended the recording
+// (webuiStopRecordingConfirmed: a record-stop event or the shared read
+// tells, which the pill follows). Called by the click. A stop under way takes
+// no press: the busy button stops a click or a tap but not Enter, and a
+// second stop would find the recording of another channel once the box has
+// ended this one.
+function bcRecStop() {
+	var btn = webuiWaitButton();
+	if (btn && btn._webuiStopRun)
+		return Promise.resolve(null);
+	return webuiStopRecordingConfirmed(async function() {
 		var got = await Promise.all([webuiRecordingsRead({signIn: true}),
 			webuiV1('GET', '/channels/current').catch(function() { return null; })]);
 		var view = got[0], live = got[1] && got[1].id ? webuiLegacyChannelId(got[1].id) : '';
-		var rec = view.stale ? null : view.items.find(function(it) {
+		if (view.stale)
+			return view.declined ? false : undefined;
+		var rec = view.items.find(function(it) {
 			return webuiLegacyChannelId(it.channel_id) === live;
 		}) || view.items[0];
-		if (!rec) {
-			webuiShowToast(webuiL('rec.stop_fail', 'Stop failed'), true);
-			return;
-		}
-		if (await webuiStopRecording(rec.id))
-			webuiRecordingsAfter();
-	} finally {
-		busy();
-	}
+		return rec ? {id: rec.id, title: rec.title || ''} : undefined;
+	});
 }
 
 // The video modes this box offers, from its settings schema, with the one
