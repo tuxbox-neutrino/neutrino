@@ -128,6 +128,13 @@
 			--pico-color: inherit;
 		}
 
+		/* the focus lands here when a row's own button goes: the ring every
+		   other button of the row has (the reset above took Pico's shadow) */
+		.webui-timer-more:focus-visible {
+			outline: 2px solid var(--webui-focus-color);
+			outline-offset: 2px;
+		}
+
 		@media (hover: hover) {
 			.webui-timer-more:hover {
 				background: var(--webui-bg-elevated);
@@ -222,6 +229,14 @@
 		.webui-timer-row.state-finished .webui-timer-row-title,
 		.webui-timer-row.state-finished .webui-timer-row-date {
 			color: var(--pico-muted-color);
+		}
+
+		/* where the buttons keep only their symbol, a stop under way shows only
+		   the spinner: its words would push the title out of the row */
+		@media (max-width: 799.98px) {
+			.webui-timer-stop.webui-busy-words::after {
+				content: none;
+			}
 		}
 
 		.webui-timer-row-hint {

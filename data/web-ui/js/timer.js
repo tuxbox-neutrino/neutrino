@@ -195,15 +195,22 @@ function renderTimerList() {
 	// a row drawn anew keeps its details open, and the focus on its button
 	const focused = document.activeElement && document.activeElement.closest('.webui-timer-row') ? document.activeElement : null;
 	const focusRow = focused ? focused.closest('.webui-timer-row').dataset.id : '';
-	const focusOnMore = !!(focused && focused.classList.contains('webui-timer-more'));
+	const focusClass = focused ? ['webui-timer-more', 'webui-timer-stop'].find(c => focused.classList.contains(c)) : '';
 	webuiSync(list, timers, t => String(t.id), timerRow);
+	// a row drawn anew has a new Stop button, which shows the stop under way
+	stopping.forEach(id => {
+		const btn = stopButton(id);
+		if (btn) webuiStopShownFor(btn, STOP_KEY + id);
+	});
 	const open = openDetail && list.querySelector('.webui-timer-row[data-id="' + CSS.escape(openDetail) + '"]');
 	if (open) {
 		open.classList.add('row-expanded');
 		open.querySelector('.webui-timer-more').setAttribute('aria-expanded', 'true');
 	}
-	if (focusOnMore && !document.contains(focused)) {
-		const again = list.querySelector('.webui-timer-row[data-id="' + CSS.escape(focusRow) + '"] .webui-timer-more');
+	if (focusClass && !document.contains(focused)) {
+		// a row that no longer has its Stop button keeps the focus on its details button
+		const row = list.querySelector('.webui-timer-row[data-id="' + CSS.escape(focusRow) + '"]');
+		const again = row && (row.querySelector('.' + focusClass) || row.querySelector('.webui-timer-more'));
 		if (again) again.focus();
 	}
 }
@@ -248,8 +255,8 @@ function timerRow(timer) {
 	// one main action, the others in the menu
 	const actions = [];
 	if (state === 2 && isRecording) {
-		actions.push(actionButton('webui-btn danger', SVG_STOP, webuiL('tm.stop', 'Stop'), webuiL('dash.record_stop', 'Stop recording') + ': ' + title,
-			() => stopRecording(timer.id, title)));
+		actions.push(actionButton('webui-btn danger webui-timer-stop', SVG_STOP, webuiL('tm.stop', 'Stop'), webuiL('dash.record_stop', 'Stop recording') + ': ' + title,
+			e => stopRecording(timer.id, title, e.currentTarget)));
 	} else if (state < 2) {
 		actions.push(actionButton('webui-btn', SVG_EDIT, webuiL('tm.edit', 'Edit'), webuiL('tm.edit_title', 'Edit timer') + ': ' + title, () => editTimer(timer.id)));
 		actions.push(webuiMenuButton(webuiL('bq.more', 'More for %s').replace('%s', title), [
@@ -331,9 +338,41 @@ function ask(heading, text, label, danger) {
 	});
 }
 
-async function stopRecording(id, title) {
-	if (await ask(webuiL('dash.record_stop', 'Stop recording'), webuiL('tm.stop_ask', 'Stop the recording "%s"?').replace('%s', title), webuiL('tm.stop', 'Stop'), true))
-		await webuiStopRecording(id);	// the timer event reads the list again
+// The recordings being stopped from this list, by the id of their timer. The
+// box confirms a stop (webuiStopRecordingConfirmed); the key tells one
+// timer's stop from another's, so a row drawn anew while it is under way
+// shows it on its new button (webuiStopShownFor).
+const STOP_KEY = 'timer:';
+const stopping = new Set();
+// The box's timer thread looks at its timers every 20 s and removes a finished
+// one in that pass: a page that hears of no timer event reads the list again
+// after that.
+const CLEANUP_WAIT = 22000;
+
+function stopButton(id) {
+	return document.querySelector('.webui-timer-row[data-id="' + CSS.escape(String(id)) + '"] .webui-timer-stop');
+}
+
+async function stopRecording(id, title, pressed) {
+	const key = String(id);
+	if (stopping.has(key)) return;	// the button says the stop is under way: nothing to ask
+	if (!await ask(webuiL('dash.record_stop', 'Stop recording'), webuiL('tm.stop_ask', 'Stop the recording "%s"?').replace('%s', title), webuiL('tm.stop', 'Stop'), true))
+		return;
+	stopping.add(key);
+	let result;
+	try {
+		// the row may have been drawn anew while the question was open
+		result = await webuiStopRecordingConfirmed(id, {button: stopButton(id) || pressed, title: title, channel: STOP_KEY + key});
+	} finally {
+		stopping.delete(key);
+	}
+	// With a stream the timer events read the list: that the timer is done,
+	// then that it is gone. Without one the page reads once now and once
+	// after the box's clean-up.
+	if ((result === 'stopped' || result === 'gone') && !webuiV1EventsLive()) {
+		loadTimers();
+		setTimeout(loadTimers, CLEANUP_WAIT);
+	}
 }
 
 async function deleteTimer(id, title) {
