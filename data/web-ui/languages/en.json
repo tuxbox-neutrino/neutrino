@@ -922,6 +922,7 @@
 	"msg.load_fail": "Loading failed",
 	"theme.toggle": "Toggle theme",
 	"hdr.logout": "Log out",
+	"hdr.signed_out": "Your sign-in has ended. Sign in again to make changes.",
 	"epg.nodata": "No EPG data available",
 	"rec.planned": "Recording scheduled",
 	"rec.stopped": "Recording stopped",

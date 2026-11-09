@@ -1928,21 +1928,118 @@ function webuiCheckDefaultPassword() {
 		.then(function(s) {
 			var code = document.getElementById('webui-lang-code');
 			if (code) code.textContent = ((s && s.language) || 'en').toUpperCase();
-			if (s && s.password_change_required) {
-				location.replace('/password.html?next=' + encodeURIComponent(location.pathname + location.search));
+			if (_webuiPasswordOwed(s))
 				return;
-			}
 			webuiUpdateLogoutBtn(!!(s && s.authenticated));
+			_webuiSessionFollow();
 		})
 		.catch(function() {});
 }
 
+// Sends the page to set a password where the session owes one
+function _webuiPasswordOwed(s) {
+	if (!(s && s.password_change_required))
+		return false;
+	location.replace('/password.html?next=' + encodeURIComponent(location.pathname + location.search));
+	return true;
+}
+
 // The button shows while a session of the one login is open (the page
 // login opens one too): what was signed into can be ended. Set from the
-// session document the password check above reads.
+// session document the password check above reads, after a sign-in and
+// from the session read again (_webuiSessionFollow).
+var _webuiSignedIn = false;	// a session of the page's is known to be open
+var _webuiSessionSaid = 0;	// counts what told the page about its session
 function webuiUpdateLogoutBtn(show) {
+	++_webuiSessionSaid;
+	_webuiSignedIn = !!show;
 	var btn = document.getElementById('webui-logout-btn');
 	if (btn) btn.hidden = !show;
+}
+
+/* The session ends without the page taking part: a restart of the GUI
+   drops every session, one runs out or is pushed out by newer ones, and a
+   sign-out in another tab ends it for this one too. A restart always
+   breaks the event stream, so the session is read again after the stream
+   came back after a gap and, without a live stream, when the page comes
+   back into view (webuiFollow). One that is open now shows the button; one
+   that ended takes it away and says so, and where the box lets the page be
+   loaded only after a sign-in (its page login), the page goes to the
+   sign-in, as loading it again would. */
+var _webuiSessionFollowed = false;
+function _webuiSessionFollow() {
+	if (_webuiSessionFollowed || typeof webuiFollow !== 'function')
+		return;
+	_webuiSessionFollowed = true;
+	webuiFollow({first: false, reread: _webuiSessionReread});
+	webuiV1Watch('refused', _webuiSessionRefused);
+}
+
+/* A stream that needs the session itself (a caller outside the networks
+   that may read without one, or any caller once the box names proxies) is
+   refused after a restart instead of coming back, and no opening reads the
+   session then: a refusal for want of a sign-in reads it once, while the
+   page is in view (a hidden page reads it when it is shown again). A
+   refusal at load finds no session the page knew of and changes nothing. */
+function _webuiSessionRefused() {
+	if (!document.hidden)
+		_webuiSessionReread();
+}
+
+async function _webuiSessionReread() {
+	var said = ++_webuiSessionSaid;
+	var s = null;
+	try {
+		var resp = await webuiFetchBox('/api/v1/session', {credentials: 'same-origin', cache: 'no-store'});
+		if (!resp.ok)
+			return false;
+		s = await resp.json();
+	} catch (e) {
+		return false;
+	}
+	if (said !== _webuiSessionSaid || !s || _webuiPasswordOwed(s))
+		return;
+	if (s.authenticated)
+		webuiUpdateLogoutBtn(true);
+	else if (_webuiSignedIn)
+		return _webuiSessionEnded(said);
+}
+
+// A sign-in dialog of the page's own is open: what it brings decides, and
+// the next read looks again if it is cancelled
+function _webuiSignInOpen() {
+	return typeof webuiV1SignInOpen === 'function' && webuiV1SignInOpen();
+}
+
+async function _webuiSessionEnded(said) {
+	if (_webuiSignInOpen())
+		return false;
+	var gated;
+	try {
+		gated = await _webuiPageGated();
+	} catch (e) {
+		return false;	// asked again with the next read
+	}
+	if (said !== _webuiSessionSaid)
+		return;
+	if (_webuiSignInOpen())
+		return false;
+	if (gated) {
+		location.replace('/login.html?out=1&next=' + encodeURIComponent(location.pathname + location.search + location.hash));
+		return;
+	}
+	webuiUpdateLogoutBtn(false);
+	webuiShowToast(webuiL('hdr.signed_out', 'Your sign-in has ended. Sign in again to make changes.'), 'note');
+}
+
+/* Whether the box hands this page out only after a sign-in: asked as a
+   load of the page asks (accepting HTML), with HEAD and without following
+   a redirect. The page login sends such a request to the sign-in page;
+   a caller it exempts, or a box without it, gets the page. */
+async function _webuiPageGated() {
+	var resp = await webuiFetchBox(location.pathname + location.search, {method: 'HEAD',
+		headers: {Accept: 'text/html'}, redirect: 'manual', credentials: 'same-origin', cache: 'no-store'});
+	return resp.type === 'opaqueredirect' || (resp.status >= 300 && resp.status < 400);
 }
 
 // /logout ends the session and tells the browser to forget its cookie.

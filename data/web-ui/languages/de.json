@@ -922,6 +922,7 @@
 	"msg.load_fail": "Fehler beim Laden",
 	"theme.toggle": "Theme wechseln",
 	"hdr.logout": "Abmelden",
+	"hdr.signed_out": "Die Anmeldung ist beendet. Für Änderungen erneut anmelden.",
 	"epg.nodata": "Keine EPG-Daten verfügbar",
 	"rec.planned": "Aufnahme geplant",
 	"rec.stopped": "Aufnahme beendet",
