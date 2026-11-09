@@ -237,16 +237,21 @@ Kernpunkte:
   nach `webuiV1Events` macht), liest genau einmal nach, wenn der Strom
   nach einer Ablehnung, einem Fehler oder einer versteckten Seite
   wiederkommt, und ohne Strom, wenn die Seite sichtbar wird und alle
-  `every` ms. Es öffnet keinen eigenen Strom; eine Seite, die keinen
-  braucht, belegt also keinen der wenigen Plätze der Box. Eine versteckte
-  Seite gibt ihren Strom sofort ab; eine Box, die den Strom mit 501
-  beantwortet, trägt keine, und die Seite lebt bis zum Neuladen von ihren
-  Lesungen. Eine Aktion, deren Ergebnis die Seite als Zustand der Box
-  zeigt, gilt als erledigt, wenn die Box es bestätigt (Ereignis oder
-  Lesen), nicht schon bei 202, das nur sagt, dass die Box sie angenommen
-  hat; ist ihr Ziel schon weg, gilt sie als erledigt, entschieden am
-  `code` der Ablehnung (`no-such-timer`, `no-such-recording`), nicht am
-  404 allein.
+  `every` ms; solange das letzte Lesen des Teils scheiterte (es lieferte
+  `false` oder warf), alle `every` ms auch mit Strom, bis eines antwortet.
+  Ein Lesen, das die Box auf Dauer ablehnt, oder eine abgebrochene
+  Anmeldung meldet man besser nicht als gescheitert. Solange ein Lesen
+  des Teils läuft, beginnt im Takt kein weiteres; eines, das nicht binnen
+  10 s antwortet, gilt als gescheitert. Es öffnet keinen eigenen Strom;
+  eine Seite, die keinen braucht, belegt also keinen der wenigen Plätze
+  der Box. Eine versteckte Seite gibt ihren Strom sofort ab; eine Box, die
+  den Strom mit 501 beantwortet, trägt keine, und die Seite lebt bis zum
+  Neuladen von ihren Lesungen. Eine Aktion, deren Ergebnis die Seite als
+  Zustand der Box zeigt, gilt als erledigt, wenn die Box es bestätigt
+  (Ereignis oder Lesen), nicht schon bei 202, das nur sagt, dass die Box
+  sie angenommen hat; ist ihr Ziel schon weg, gilt sie als erledigt,
+  entschieden am `code` der Ablehnung (`no-such-timer`,
+  `no-such-recording`), nicht am 404 allein.
 
 ## 4. Aktivieren
 

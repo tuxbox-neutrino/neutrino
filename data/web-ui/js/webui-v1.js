@@ -74,9 +74,20 @@
 // What a page shows of the box follows the stream with webuiFollow: read
 // again exactly once after a reconnect (an opening after a refusal, a
 // failure or the page being hidden) and, without a live stream, when the
-// page comes into view and on a timer; it opens no stream itself. The head,
-// which is not a page, listens to the same stream through
-// webuiV1Watch(name, fn).
+// page comes into view and on a timer, on which a read that failed is made
+// again with a live stream too; it opens no stream itself. The head, which
+// is not a page, listens to the same stream through webuiV1Watch(name, fn).
+//
+// webuiStopRecordingConfirmed(what, {button, title, channel}) ends a
+// recording and webuiPlayRecordingConfirmed(id, {button}) plays one on the
+// TV; each says so once the box confirms it (an event or a read), not on the
+// 202, and keeps its button busy meanwhile. opts.channel is a key for what a
+// stop was pressed for, which the helpers give no other meaning: the guide
+// dialog passes the channel it shows, a page any string of its own (a
+// timer's, say). A second stop of the same recording waits for the first:
+// by its id where the page passes one, else (a stop that finds its
+// recording at the press) by the key. A button that serves several keys
+// shows the stop only while it serves that one (webuiStopShownFor).
 //
 // webuiV1Offers('POST', '/playback/stop') says whether the box has a route,
 // from its description of the interface, so a page offers a newer route
@@ -1182,15 +1193,25 @@ function _webuiV1SetUpDone() {
      is under way, whose opening reads; nothing while the page is hidden;
    - the first read, first() or else reread(), once the page's stream has
      opened or been refused (or after WEBUI_V1_SETUP: a page without a
-     stream, or one whose stream hangs). A first read made before that, or
-     one that failed (it resolved false or threw), is made once more when
-     the stream first opens. first: false leaves the first read to the
-     page.
+     stream, or one whose stream hangs). A first read made before that is
+     made once more when the stream first opens. first: false leaves the
+     first read to the page;
+   - while the part's last read failed (it resolved false or threw),
+     fallback() every `every` ms while the page is shown, with a live
+     stream as well, until one answers. A read the box refuses for good,
+     or whose sign-in the user declined, is better not reported as failed:
+     it would be made again every `every` ms;
+   - no fallback() while a read of the part is under way, with or without
+     a stream; one that has not answered within WEBUI_V1_FOLLOW_WAIT is
+     taken as failed and no longer as under way, so a box that holds a
+     request open gets at most one more per `every` ms.
    It opens no stream: it follows the one the page opens with
    webuiV1Events, through webuiV1Watch. */
+var WEBUI_V1_FOLLOW_WAIT = 10000;
 function webuiFollow(opts) {
-	var f = {reread: opts.reread, fallback: opts.fallback || opts.reread,
-		before: false, failed: false, pending: false, early: false};
+	var f = {before: false, failed: false, made: 0, busy: 0};
+	f.reread = function() { return _webuiV1FollowRead(f, opts.reread); };
+	f.fallback = function() { return _webuiV1FollowRead(f, opts.fallback || opts.reread); };
 	(opts.events || []).forEach(function(name) {
 		webuiV1Watch(name, function() { f.reread(); });
 	});
@@ -1198,52 +1219,63 @@ function webuiFollow(opts) {
 	webuiV1Watch('late', function() { _webuiV1FollowBack(f); });
 	document.addEventListener('visibilitychange', function() { _webuiV1FollowBack(f); });
 	if (opts.every)
-		setInterval(function() { _webuiV1FollowBack(f); }, opts.every);
+		setInterval(function() { _webuiV1FollowBack(f, true); }, opts.every);
 	var first = opts.first === false ? null : opts.first || opts.reread;
 	if (first)
-		_webuiV1WhenSetUp(function() { _webuiV1FollowFirst(f, first); });
+		_webuiV1WhenSetUp(function() {
+			f.before = !_webuiV1Settled && !!window.EventSource;
+			_webuiV1FollowRead(f, first);
+		});
 	return f;
 }
 
-function _webuiV1FollowFirst(f, first) {
-	f.before = !_webuiV1Settled && !!window.EventSource;
-	f.pending = true;
+// One read of the part; unless a later one was made meanwhile, its outcome
+// is whether the part's last read failed, and not answering within
+// WEBUI_V1_FOLLOW_WAIT counts as failing (an answer after that still counts)
+function _webuiV1FollowRead(f, read) {
+	var n = ++f.made;
+	var under = true;
+	f.busy++;
+	var limit = setTimeout(function() {
+		under = false;
+		f.busy--;
+		if (n === f.made)
+			f.failed = true;
+	}, WEBUI_V1_FOLLOW_WAIT);
 	var made;
 	try {
-		made = first();
+		made = read();
 	} catch (e) {
 		console.error(e);
 		made = false;
 	}
 	Promise.resolve(made).then(function(v) { return v !== false; }, function() { return false; }).then(function(ok) {
-		f.pending = false;
-		f.failed = !ok;
-		// the stream opened while it was under way: made once more if it failed
-		if (f.early) {
-			f.early = false;
-			f.failed = false;
-			if (!ok)
-				f.reread();
+		clearTimeout(limit);
+		if (under) {
+			under = false;
+			f.busy--;
 		}
+		if (n === f.made)
+			f.failed = !ok;
 	});
+	return made;
 }
 
 function _webuiV1FollowOpen(f) {
-	if (_webuiV1Stream && _webuiV1Stream.reconnect) {
-		f.before = f.failed = f.early = false;
+	if ((_webuiV1Stream && _webuiV1Stream.reconnect) || f.before) {
+		f.before = false;
 		f.reread();
-	} else if (f.before || f.failed) {
-		f.before = f.failed = false;
-		f.reread();
-	} else if (f.pending) {
-		f.early = true;
 	}
 }
 
-function _webuiV1FollowBack(f) {
-	if (document.hidden || webuiV1EventsLive() || _webuiV1Reopening())
+// Without a live stream when the page comes into view and on the part's
+// timer; on the timer with a live stream too while the last read failed;
+// never while a read of the part is under way
+function _webuiV1FollowBack(f, timer) {
+	if (document.hidden || _webuiV1Reopening() || f.busy)
 		return;
-	f.fallback();
+	if (!webuiV1EventsLive() || (timer && f.failed))
+		f.fallback();
 }
 
 // ---- EPG dialog, recording and streaming over /api/v1 -------------------
@@ -2063,11 +2095,11 @@ async function webuiStopRecording(recordingId) {
      (Stop failed);
    - the button (opts.button, else the one pressed) says "Stopping…" with a
      spinner from the press on and keeps its width; a second press for the
-     same recording, or for the same opts.channel, waits for the first and
-     sends nothing;
-   - opts.channel names the channel a press was for on a button that serves
-     several (the guide dialog's), which shows the stop only while it shows
-     that channel (webuiStopShownFor);
+     same recording waits for the first and sends nothing, told by its id
+     where one is given, else by opts.channel;
+   - opts.channel is a key for what the press was for, a channel (the guide
+     dialog's) or any string the page chooses: a button that serves several
+     keys shows the stop only while it serves that one (webuiStopShownFor);
    - the box confirms with a record-stop event naming the recording, or with
      a shared read of the recordings, made after the 202, that no longer
      lists it (webuiOnRecordings); without a live stream nothing brings such
@@ -2256,10 +2288,11 @@ function _webuiStopUnmark(stop) {
 	}
 }
 
-/* A button that serves several channels (the guide dialog's Record) shows a
-   stop only while it shows the channel the stop was pressed for: it gives
-   the stop up when it shows another channel and takes it up again when it
-   shows that one once more. */
+/* A button that serves several keys (opts.channel of
+   webuiStopRecordingConfirmed: the channels of the guide dialog's Record,
+   or a page's own) shows a stop only while it serves the key the stop was
+   pressed for: it gives the stop up when it serves another, or '' (none),
+   and takes it up again when it serves that one once more. */
 function webuiStopShownFor(btn, channel) {
 	const run = _webuiStopsRunning.find(function(s) { return !!s.channel && s.channel === channel; });
 	if (run)

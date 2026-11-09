@@ -233,8 +233,13 @@ Key points:
   which then makes it after `webuiV1Events`), reads again exactly once
   when the stream comes back after a refusal, a failure or the page being
   hidden, and without a stream when the page comes into view and every
-  `every` ms. It opens no stream of its own, so a page that needs
-  none holds none of the box's few places. A hidden page lets its
+  `every` ms; while the part's last read failed (it resolved `false` or
+  threw), every `every` ms with a stream too, until one answers. A read
+  the box refuses for good, or a sign-in the user declined, is better not
+  reported as failed. While a read of the part is under way, the timer
+  starts no other; one that has not answered within 10 s counts as
+  failed. It opens no stream of its own, so a page that needs none holds
+  none of the box's few places. A hidden page lets its
   stream go at once; a box that answers the stream with 501 carries none,
   and the page lives on its reads until it is loaded again. An action whose
   result the page shows as the box's state says it is done when the box
