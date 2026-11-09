@@ -536,14 +536,22 @@ function lockRecent() {
 	});
 }
 
-// a press while it waits says why and starts nothing
+// a press while it waits says why and starts nothing; one that goes out
+// keeps its button busy until the TV plays the recording, which the box
+// says by a playback event or a read (webuiPlayRecordingConfirmed), and
+// only then is "Playback started" said
 function playRecent(id) {
 	const why = recentLock();
 	if (why) {
-		webuiShowToast(why);
+		webuiShowToast(why, 'note');
 		return;
 	}
-	webuiPlayRecording(id);
+	webuiPlayRecordingConfirmed(id).then(function(started) {
+		// the card and the lock show what plays now, which a confirmation
+		// by a read, not by the event, did not bring
+		if (started)
+			refreshPlayback();
+	});
 }
 
 // What the box records, from the page's shared read of GET
