@@ -408,10 +408,13 @@ async function stopRecording(id, title, pressed) {
 	}
 	// With a stream the timer events read the list: that the timer is done,
 	// then that it is gone. Without one the page reads once now and once
-	// after the box's clean-up.
-	if ((result === 'stopped' || result === 'gone') && !webuiV1EventsLive()) {
+	// after the box's clean-up. A recording that was gone already shows that
+	// the list is behind, with a stream or without.
+	const live = webuiV1EventsLive();
+	if (result === 'gone' || (result === 'stopped' && !live)) {
 		loadTimers();
-		setTimeout(loadTimers, CLEANUP_WAIT);
+		if (!live)
+			setTimeout(loadTimers, CLEANUP_WAIT);
 	}
 }
 
