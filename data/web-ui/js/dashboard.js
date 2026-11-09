@@ -82,6 +82,9 @@ const dash = {
 	systemShown: false,		// the gauges showed values once
 	tunerShown: false,		// and the reception tile
 	recentShown: false,		// and the latest recordings
+	recentRead: 0,			// counts reads of them, so an older answer arriving last is dropped
+	recentDrawn: null,		// what they showed as drawn, so a list that did not change is left as it is
+	running: null,			// the ids of the recordings the last read that answered listed, for the one that ends
 	standbyRead: 0,			// counts standby reads, so an older answer arriving last is dropped
 	standby: null,			// the box is in standby: it has no mode to show; null until read
 	volume: {			// the sound tile, see refreshVolume
@@ -437,14 +440,35 @@ function loadSystemInfo() {
 
 // The latest recordings, from GET /api/v1/recordings/archive: the three
 // newest, each with Play on TV, which waits while the TV plays a recording
-// or a file; read again when a recording ends. A list that never showed
-// says why it is empty.
-async function refreshRecent() {
+// or a file. They have no clock, as each read makes the box scan its library
+// again: they are read when the page comes into view and when the stream
+// comes back after a gap (webuiFollow), when a recording ends (its event or,
+// without a stream, the shared read of the running ones: recordingsSeen)
+// and on a pull to refresh. A list that never showed says why it is empty.
+function refreshRecent() {
+	return readRecent(false);
+}
+
+// The same, for a read nobody asked for: it opens no sign-in, and a box that
+// refuses it leaves the list as it is
+function refreshRecentQuietly() {
+	return readRecent(true);
+}
+
+async function readRecent(quiet) {
 	const list = document.getElementById('recent-list');
 	if (!list) return;
-	const got = await dashRead('/recordings/archive', {limit: 3, sort: 'start', order: 'desc'});
+	const read = ++dash.recentRead;
+	let got;
+	if (quiet) {
+		const doc = await _webuiV1Read('/recordings/archive?limit=3&sort=start&order=desc').catch(function() { return null; });
+		got = doc ? {data: doc} : {error: new Error('not read')};
+	} else {
+		got = await dashRead('/recordings/archive', {limit: 3, sort: 'start', order: 'desc'});
+	}
+	if (read !== dash.recentRead) return;	// a later read was started: its answer counts
 	if (got.error) {
-		if (!dash.recentShown)
+		if (!dash.recentShown && !quiet)
 			list.replaceChildren(webuiEl('li', {}, webuiStateFor(got.error, {retry: refreshRecent})));
 		return;
 	}
@@ -453,21 +477,31 @@ async function refreshRecent() {
 	const items = page.items || [];
 	setText('recent-count', page.total ? String(page.total) : '');
 	if (!items.length) {
+		dash.recentDrawn = null;
 		list.replaceChildren(webuiEl('li', {}, webuiState('empty', webuiL('dash.recent_none', 'No recordings yet'), '')));
 		return;
 	}
-	// titles and channels come from the recordings and go in as text
-	webuiSync(list, items, function(r) { return r.id; }, function(r) {
-		const title = r.title || r.channel || r.id;
-		const len = r.duration ? Math.round(r.duration / 60) + ' min' : '';
-		return webuiEl('li', {className: 'webui-dash-row webui-recent-row'},
-			webuiEl('b', {}, r.start ? dayAndClock(r.start) : ''),
-			webuiEl('span', {}, title, webuiEl('small', {}, [r.channel, len].filter(Boolean).join(' · '))),
-			webuiEl('button', {type: 'button', className: 'webui-btn', title: webuiL('media.play', 'Play on TV'),
-				data: {play: r.id}, attrs: {'aria-label': webuiL('media.play', 'Play on TV') + ': ' + title},
-				on: {click: function() { playRecent(r.id); }}},
-				webuiMarkup('<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><polygon points="6 4 20 12 6 20"/></svg>')));
-	});
+	// A list as it was drawn is left alone: the rows carry the lock and a
+	// start under way on their buttons, which a row drawn anew would lose,
+	// and the focus.
+	const drawn = JSON.stringify(items.map(function(r) {
+		return [r.id, r.start ? dayAndClock(r.start) : '', r.title, r.channel, r.duration];
+	}));
+	if (drawn !== dash.recentDrawn) {
+		dash.recentDrawn = drawn;
+		// titles and channels come from the recordings and go in as text
+		webuiSync(list, items, function(r) { return r.id; }, function(r) {
+			const title = r.title || r.channel || r.id;
+			const len = r.duration ? Math.round(r.duration / 60) + ' min' : '';
+			return webuiEl('li', {className: 'webui-dash-row webui-recent-row'},
+				webuiEl('b', {}, r.start ? dayAndClock(r.start) : ''),
+				webuiEl('span', {}, title, webuiEl('small', {}, [r.channel, len].filter(Boolean).join(' · '))),
+				webuiEl('button', {type: 'button', className: 'webui-btn', title: webuiL('media.play', 'Play on TV'),
+					data: {play: r.id}, attrs: {'aria-label': webuiL('media.play', 'Play on TV') + ': ' + title},
+					on: {click: function() { playRecent(r.id); }}},
+					webuiMarkup('<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><polygon points="6 4 20 12 6 20"/></svg>')));
+		});
+	}
 	lockRecent();
 }
 
@@ -519,6 +553,15 @@ function playRecent(id) {
 function recordingsSeen(view) {
 	dash.recordings = view.items;
 	dash.recordingsStale = view.known && view.stale;
+	// Without a stream no record-stop says that a recording ended; this read
+	// does, by one of those it listed before being gone: the latest
+	// recordings are read once then. With a stream the event reads them.
+	if (view.known && !view.stale) {
+		const ids = view.items.map(function(it) { return String(it.id); });
+		if (dash.running && !webuiV1EventsLive() && dash.running.some(function(id) { return ids.indexOf(id) < 0; }))
+			refreshRecentQuietly();
+		dash.running = ids;
+	}
 	webuiEnsureNames(view.items.map(function(it) { return it.channel_id; })).then(function() {
 		showRecording();
 		showTimers();
@@ -1271,10 +1314,11 @@ webuiAfterTexts(function() {
 	// every 30 s while it is shown (webuiFollow); the recordings are the
 	// shared read's, which follows the stream itself
 	webuiFollow({reread: function() { refreshEvented(); }, every: 30000});
+	// the latest recordings: no clock (see refreshRecent)
+	webuiFollow({reread: refreshRecent});
 	loadSystemInfo();
 	loadTunerStatus();
 	loadStreamInfo();
-	refreshRecent();
 
 	// No event for these: asked on a timer, while visible
 	whileVisible(30000, loadSystemInfo);
