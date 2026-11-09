@@ -509,7 +509,7 @@ std::string yExecuteScript(std::string cmd) {
 	// Keep it a bare name so it cannot walk out of the plugin directories.
 	if (script.find('/') != std::string::npos) {
 		printf("%s: refused script name with a path separator: %s\n",
-			__func__, script.c_str());
+			__func__, ylog::text(script).c_str());
 		return "error";
 	}
 
@@ -566,7 +566,7 @@ std::string yExecuteScript(std::string cmd) {
 			// errno number rather than strerror(): nhttpd serves requests in
 			// threads, and strerror() hands out a shared static buffer
 			printf("%s: cannot start %s: errno %d\n", __func__,
-				fullfilename.c_str(), errno);
+				ylog::text(fullfilename).c_str(), errno);
 			launch_failed = true;
 			break;
 		}
@@ -578,9 +578,9 @@ std::string yExecuteScript(std::string cmd) {
 		// after a resource failure would send an operator hunting for a
 		// file that is not missing at all
 		if (!launch_failed) {
-			printf("%s: script %s not found in:\n", __func__, script.c_str());
+			printf("%s: script %s not found in:\n", __func__, ylog::text(script).c_str());
 			for (unsigned int i = 0; i < CControlAPI::PLUGIN_DIR_COUNT; i++) {
-				printf("\t%s\n", CControlAPI::PLUGIN_DIRS[i].c_str());
+				printf("\t%s\n", ylog::text(CControlAPI::PLUGIN_DIRS[i]).c_str());
 			}
 		}
 		result = "error";

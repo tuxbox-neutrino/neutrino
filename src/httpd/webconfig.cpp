@@ -1151,7 +1151,7 @@ bool writeNewFile(const std::string &path, const std::string &text)
 		}
 	}
 
-	const std::string working = path + ".new";
+	const std::string working = workingFile(path);
 	::unlink(working.c_str());
 
 	const int fd = ::open(working.c_str(), O_WRONLY | O_CREAT | O_EXCL | O_CLOEXEC, S_IRUSR | S_IWUSR);
@@ -1669,7 +1669,7 @@ bool writeFirstFile(const std::string &out_path, const std::string &old_path, bo
    said and answered true. */
 bool replaceFile(const std::string &path, const std::string &text, mode_t mode = S_IRUSR | S_IWUSR)
 {
-	const std::string working = path + ".new";
+	const std::string working = workingFile(path);
 	::unlink(working.c_str());
 
 	const int fd = ::open(working.c_str(), O_WRONLY | O_CREAT | O_EXCL | O_CLOEXEC, mode);
@@ -2394,6 +2394,19 @@ bool sameServerOptions(const ServerOptions &a, const ServerOptions &b)
 	return a.page_login == b.page_login && a.no_login_prefix == b.no_login_prefix &&
 	       a.threading == b.threading && a.override_directory == b.override_directory &&
 	       a.hosted_directory == b.hosted_directory && a.send_all_types == b.send_all_types;
+}
+
+// nhttpd, built without exceptions, calls this directly: nothing leaves it
+std::string workingFile(const std::string &path)
+{
+	try
+	{
+		return path + ".new";
+	}
+	catch (...)
+	{
+		return std::string();
+	}
 }
 
 /* nhttpd calls this directly and is built without exceptions, so nothing may

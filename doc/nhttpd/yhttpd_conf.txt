@@ -60,8 +60,16 @@ that still has them in this file drops them at the start that carries them
 into nhttpd-access.conf. A password these boxes shipped with is not carried:
 the box makes up a first password in its place and shows it on the TV.)
 
-mod_weblog.logfile	=/cygdrive/d/Work/y/ws/nhttpd30/build/cygwin/yhhtpd.log
+mod_weblog.logfile	=/tmp/yhttpd.log
 mod_weblog.log_format	=ELF|CLF|<empty>
+
+(The log is written only directly in /tmp, the directory of the default file
+above. A name anywhere else, a link, a file with a second name or of another
+user, and a file that holds who may reach the box (nhttpd-access.conf,
+nhttpd.conf and the files they are written through) leave the log off, and
+the server says why once. A record, like every line server.log.loglevel
+writes, leaves the values of a query out, shows a credential as [redacted]
+and escapes control characters, so one request is one line.)
 
 mod_cache.cache_directory=/tmp/.cache
 

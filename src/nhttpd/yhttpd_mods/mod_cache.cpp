@@ -28,7 +28,7 @@ THandleStatus CmodCache::Hook_PrepareResponse(CyhookHandler *hh) {
 	hh->status = HANDLED_NONE;
 
 	log_level_printf(4, "mod_cache prepare hook start url:%s\n",
-			hh->UrlData["fullurl"].c_str());
+			ylog::url(hh->UrlData["target"]).c_str());
 	std::string url = hh->UrlData["fullurl"];
 	// A request mod_auth let through without a login is answered from the
 	// file it opened and checked (PublicFd), never from a page cached under
@@ -87,7 +87,7 @@ THandleStatus CmodCache::Hook_PrepareResponse(CyhookHandler *hh) {
 THandleStatus CmodCache::Hook_SendResponse(CyhookHandler *hh) {
 	hh->status = HANDLED_NONE;
 	std::string url = hh->UrlData["fullurl"];
-	log_level_printf(4, "mod_cache hook start url:%s\n", url.c_str());
+	log_level_printf(4, "mod_cache hook start url:%s\n", ylog::url(hh->UrlData["target"]).c_str());
 
 	std::string category = hh->HookVarList["CacheCategory"];
 	if (!(hh->HookVarList["CacheCategory"]).empty()) // Category set = cache it

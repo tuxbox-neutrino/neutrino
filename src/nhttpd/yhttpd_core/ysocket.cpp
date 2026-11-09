@@ -130,23 +130,23 @@ bool CySocket::initSSL(void)
 	if(!SSL_CA_file.empty()) // have a CA?
 	if(SSL_CTX_load_verify_locations(SSL_ctx, SSL_CA_file.c_str(), NULL) != 1)
 	{
-		aprintf("ySocket:SSL Error: %s CA-File:%s\n",ERR_error_string(ERR_get_error(), NULL), SSL_CA_file.c_str());
+		aprintf("ySocket:SSL Error: %s CA-File:%s\n",ERR_error_string(ERR_get_error(), NULL), ylog::text(SSL_CA_file).c_str());
 		return false;
 	}
 	if(SSL_CTX_use_certificate_file(SSL_ctx, SSL_pemfile.c_str(), SSL_FILETYPE_PEM) < 0)
 	{
-		aprintf("ySocket:SSL Error: %s PEM-File:%s\n",ERR_error_string(ERR_get_error(), NULL), SSL_pemfile.c_str());
+		aprintf("ySocket:SSL Error: %s PEM-File:%s\n",ERR_error_string(ERR_get_error(), NULL), ylog::text(SSL_pemfile).c_str());
 		return false;
 	}
 
 	if(SSL_CTX_use_PrivateKey_file(SSL_ctx, SSL_pemfile.c_str(), SSL_FILETYPE_PEM) < 0)
 	{
-		aprintf("ySocket:SSL Error: Private Keys: %s PEM-File:%s\n",ERR_error_string(ERR_get_error(), NULL), SSL_pemfile.c_str());
+		aprintf("ySocket:SSL Error: Private Keys: %s PEM-File:%s\n",ERR_error_string(ERR_get_error(), NULL), ylog::text(SSL_pemfile).c_str());
 		return false;
 	}
 	if(SSL_CTX_check_private_key(SSL_ctx) != 1)
 	{
-		aprintf("ySocket:SSL Error: Private Keys not compatile to public keys: %s PEM-File:%s\n",ERR_error_string(ERR_get_error(), NULL), SSL_pemfile.c_str());
+		aprintf("ySocket:SSL Error: Private Keys not compatile to public keys: %s PEM-File:%s\n",ERR_error_string(ERR_get_error(), NULL), ylog::text(SSL_pemfile).c_str());
 		return false;
 	}
 	return true;
@@ -189,7 +189,7 @@ bool CySocket::listen(int port, int max_connections, const std::string &bindAddr
 				memcpy(&sai.sin_addr, he->h_addr_list[0], sizeof(custom_addr));
 				use_any = false;
 			} else {
-				fprintf(stderr, "[yhttpd] Invalid bind host '%s'. Falling back to 0.0.0.0.\n", bindAddress.c_str());
+				fprintf(stderr, "[yhttpd] Invalid bind host '%s'. Falling back to 0.0.0.0.\n", ylog::text(bindAddress).c_str());
 			}
 		}
 	}

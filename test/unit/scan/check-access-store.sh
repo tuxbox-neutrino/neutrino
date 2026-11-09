@@ -12,7 +12,9 @@
 #
 # So the names are held to their owner here. The storage layer cannot simply include
 # the header that states them: it drags the whole program's globals into a file that
-# has none.
+# has none. The web server, which never hands one of them out as a file nor writes a
+# log into one, is told the same files by the control API, held to the same macros
+# below.
 set -e
 LC_ALL=C
 export LC_ALL
@@ -94,5 +96,30 @@ if [ "$refused" != "$want" ]; then
 	printf '%s\n' "$want" | sed 's/^/  /' >&2
 	exit 1
 fi
+
+# The web server is told the same three files, each with the working file it is
+# written through, so that no static answer hands one out and no log is written
+# into one (yprotect). Named by the macros and not by their text, which leaves the
+# list nothing to drift from but the macros it names.
+CONTROL="$SRC/src/nhttpd/tuxboxapi/controlapi.cpp"
+[ -r "$CONTROL" ] || { echo "check-access-store.sh: cannot read $CONTROL" >&2; exit 1; }
+told=`grep -E 'stores\[\][[:blank:]]*=' "$CONTROL" || true`
+[ -n "$told" ] || {
+	echo "check-access-store.sh: $CONTROL no longer lists the stores it names to the web server" >&2
+	exit 1
+}
+for macro in HTTPD_ACCESS_FILE HTTPD_SERVER_FILE HTTPD_ACCESS_FORMER_FILE; do
+	printf '%s\n' "$told" | grep -qE "(^|[^A-Z_])$macro([^A-Z_]|$)" || {
+		echo "check-access-store.sh: the web server is not told about $macro," >&2
+		echo "  so a static answer could hand that file out and a log could be written into it" >&2
+		exit 1
+	}
+done
+grep -qF 'names.push_back(httpd::workingFile(stores[i]));' "$CONTROL" \
+	&& grep -qF 'yprotect::setFiles(accessFiles());' "$CONTROL" || {
+	echo "check-access-store.sh: $CONTROL no longer hands the stores and their working files" >&2
+	echo "  to yprotect::setFiles" >&2
+	exit 1
+}
 
 exit 0

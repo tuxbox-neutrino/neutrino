@@ -62,6 +62,7 @@ extern CPictureViewer *g_PicViewer;
 #include <ylogging.h>
 #include <helper.h>
 #include <ystatic.h>
+#include <yprotect.h>
 // nhttpd
 #include "neutrinoapi.h"
 #include "controlapi.h"
@@ -142,11 +143,28 @@ static bool boxRawPlace(const std::string &real)
 	return ystatic::rawPlaceAllowed(real, dirs);
 }
 
+/* The files the web servers of this box keep who may reach it in: the access
+   store, the name it had before (which a box may still carry), and nhttpd.conf,
+   which holds the old page login's password and the addresses let in without
+   one until the first start carries the account over. Each with the working
+   file a write puts its new content in first. */
+static std::vector<std::string> accessFiles()
+{
+	static const char *const stores[] = { HTTPD_ACCESS_FILE, HTTPD_SERVER_FILE, HTTPD_ACCESS_FORMER_FILE };
+	std::vector<std::string> names;
+	for (size_t i = 0; i < sizeof(stores) / sizeof(stores[0]); i++) {
+		names.push_back(stores[i]);
+		names.push_back(httpd::workingFile(stores[i]));
+	}
+	return names;
+}
+
 CControlAPI::CControlAPI(CNeutrinoAPI *_NeutrinoAPI)
 {
 	NeutrinoAPI = _NeutrinoAPI;
 	seedLegacyUsage();
 	ystatic::setRawPlaceTest(boxRawPlace);
+	yprotect::setFiles(accessFiles());
 }
 //-----------------------------------------------------------------------------
 /* The plugin folders only. The web folder, the override folder and the
@@ -215,7 +233,7 @@ THandleStatus CControlAPI::Hook_SendResponse(CyhookHandler *hh)
 //-------------------------------------------------------------------------
 void CControlAPI::compatibility_Timer(CyhookHandler *hh)
 {
-	log_level_printf(4,"CControlAPI Compatibility Timer Start url:%s\n",hh->UrlData["url"].c_str());
+	log_level_printf(4,"CControlAPI Compatibility Timer Start url:%s\n",ylog::text(hh->UrlData["url"]).c_str());
 	if(NeutrinoAPI->Timerd->isTimerdAvailable() && !hh->ParamList.empty() )
 	{
 		if(hh->ParamList["action"] == "remove")
@@ -472,7 +490,7 @@ void CControlAPI::Execute(CyhookHandler *hh)
 	int index = -1;
 	std::string filename = hh->UrlData["filename"];
 
-	log_level_printf(4,"ControlAPI.Execute filename:(%s)\n",filename.c_str());
+	log_level_printf(4,"ControlAPI.Execute filename:(%s)\n",ylog::text(filename).c_str());
 	// tolower(filename)
 	for(unsigned int i = 0; i < filename.length(); i++)
 		filename[i] = tolower(filename[i]);
@@ -487,9 +505,11 @@ void CControlAPI::Execute(CyhookHandler *hh)
 	// debugging informations
 	if(CLogging::getInstance()->getDebug())
 	{
-		dprintf("Execute CGI : %s\n", func_req.c_str());
+		dprintf("Execute CGI : %s\n", ylog::text(func_req).c_str());
 		for(CStringList::iterator it = hh->ParamList.begin(); it != hh->ParamList.end(); ++it)
-			dprintf("  Parameter %s : %s\n", it->first.c_str(), it->second.c_str());
+			// a value by its length only: these come off the query too
+			dprintf("  Parameter %s : %s\n", ylog::text(it->first).c_str(),
+				ylog::withheld(it->second).c_str());
 	}
 
 	// get function index
@@ -1870,7 +1890,7 @@ void CControlAPI::RCEmCGI(CyhookHandler *hh)
 	}
 
 	if (sendcode == -1) {
-		printf("[nhttpd] Key %s not found\n", _keyname.c_str());
+		printf("[nhttpd] Key %s not found\n", ylog::text(_keyname).c_str());
 		hh->SendError();
 		return;
 	}
@@ -5030,7 +5050,8 @@ void CControlAPI::logoCGI(CyhookHandler *hh)
 /* API keys, tokens, passwords and PINs are left out of what /control/config answers.
    A password or PIN can sit inside the name, as network_nfs_password_<n> and
    ci_pincode_<n> do; a key or an ID only at its end, so keyboard_layout and the
-   ac3_pass/dts_pass passthrough settings stay readable. */
+   ac3_pass/dts_pass passthrough settings stay readable. The password kept for
+   another box is timer_remotebox_pass_<n>: _pass_ followed by its number. */
 static bool config_key_is_secret(const std::string &key)
 {
 	const char *suffixes[] = { "_key", "_dev_id" };
@@ -5039,6 +5060,10 @@ static bool config_key_is_secret(const std::string &key)
 		if (key.size() >= n && key.compare(key.size() - n, n, suffixes[i]) == 0)
 			return true;
 	}
+	const size_t pass = key.rfind("_pass_");
+	if (pass != std::string::npos && pass + 6 < key.size()
+	    && key.find_first_not_of("0123456789", pass + 6) == std::string::npos)
+		return true;
 	return key.find("password") != std::string::npos
 		|| key.find("pincode") != std::string::npos
 		|| key.find("_token") != std::string::npos;

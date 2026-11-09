@@ -460,6 +460,12 @@ private:
    file as it was, where anything before the replacement failed. */
 bool saveServerFile(const std::string &path, const std::map<std::string, std::string> &lines);
 
+/* The name every write of this layer puts a file's new content under before it
+   takes the place of path: the access file and nhttpd.conf alike. While it is
+   there it holds what path is about to hold. Empty where not even that name can
+   be made; nhttpd calls it directly, so nothing leaves it as an exception. */
+std::string workingFile(const std::string &path);
+
 /* What nhttpd.conf (serverPath) says about the above now, and nhttpd's defaults
    where it says nothing, where there is no such file, or where none was named. */
 ServerOptions currentServerOptions();

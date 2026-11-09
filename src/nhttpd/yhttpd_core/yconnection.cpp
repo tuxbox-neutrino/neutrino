@@ -122,7 +122,7 @@ void CWebserverConnection::HandleConnection() {
 		// print production times			
 		log_level_printf(1, "enlapsed time request:%ld response:%ld url:%s\n",
 				enlapsed_request, enlapsed_response,
-				(Request.UrlData["fullurl"]).c_str());
+				ylog::url(Request.UrlData["target"]).c_str());
 
 	} else {
 		RequestCanceled = true;
@@ -138,7 +138,7 @@ void CWebserverConnection::ShowEnlapsedRequest(char *text) {
 
 	long enlapsed = GetEnlapsedRequestTime() / 1000;
 	log_level_printf(1, "enlapsed-f-start (%s) t:%ld url:%s\n", text, enlapsed,
-			(Request.UrlData["fullurl"]).c_str());
+			ylog::url(Request.UrlData["target"]).c_str());
 }
 //-------------------------------------------------------------------------
 // Time from creation of socket until now in microseconds!

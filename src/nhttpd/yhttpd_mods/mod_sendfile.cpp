@@ -72,7 +72,7 @@ CStringList CmodSendfile::sendfileTypes;
 THandleStatus CmodSendfile::Hook_PrepareResponse(CyhookHandler *hh) {
 	hh->status = HANDLED_NONE;
 
-	log_level_printf(4, "mod_sendfile prepare hook start url:%s\n", hh->UrlData["fullurl"].c_str());
+	log_level_printf(4, "mod_sendfile prepare hook start url:%s\n", ylog::url(hh->UrlData["target"]).c_str());
 
 #ifdef Y_CONFIG_USE_HOSTEDWEB
 	// for hosted webs: rewrite URL
@@ -194,7 +194,8 @@ THandleStatus CmodSendfile::Hook_PrepareResponse(CyhookHandler *hh) {
 					// handled here: without HANDLED_ERROR the next modules
 					// take the request on and it ends as 404
 					hh->SetError(HTTP_REQUEST_RANGE_NOT_SATISFIABLE, HANDLED_ERROR);
-					aprintf("mod_sendfile: Client requested range '%s' which is outside of [0,%lld]\n", range, hh->ContentLength - 1);
+					aprintf("mod_sendfile: Client requested range '%s' which is outside of [0,%lld]\n",
+						ylog::text(range ? range : "").c_str(), (long long) hh->ContentLength - 1);
 				} else {
 					// the name only for the header's sake (e.g. .gz):
 					// what goes out is this descriptor. The extension it
@@ -217,7 +218,7 @@ THandleStatus CmodSendfile::Hook_PrepareResponse(CyhookHandler *hh) {
 			}
 		} else {
 			aprintf("mod_sendfile: File not found. url:(%s) fullfilename:(%s)\n",
-					hh->UrlData["url"].c_str(), fullfilename.c_str());
+					ylog::text(hh->UrlData["url"]).c_str(), ylog::text(fullfilename).c_str());
 			hh->SetError(HTTP_NOT_FOUND);
 		}
 	} else if (filed >= 0)
@@ -267,7 +268,7 @@ int CmodSendfile::OpenFile(CyhookHandler *, std::string fullfilename) {
 	if (!fullfilename.empty()) {
 		fd = open(fullfilename.c_str(), O_RDONLY | O_LARGEFILE);
 		if (fd <= 0) {
-			aprintf("cannot open file %s: ", fullfilename.c_str());
+			aprintf("cannot open file %s: ", ylog::text(fullfilename).c_str());
 			dperror("");
 		}
 	}

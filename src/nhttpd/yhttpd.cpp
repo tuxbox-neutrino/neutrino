@@ -195,7 +195,7 @@ bool Cyhttpd::Configure() {
 		{
 			if((grp = getgrnam(groupname.c_str())) == NULL)
 			{
-				aprintf("Can not get Group-Information. Group: %s\n", groupname.c_str());
+				aprintf("Can not get Group-Information. Group: %s\n", ylog::text(groupname).c_str());
 				return false;
 			}
 		}
@@ -204,7 +204,7 @@ bool Cyhttpd::Configure() {
 #ifdef Y_CONFIG_FEATURE_CHROOT
 		if(!ConfigList["server.chroot"].empty())
 		{
-			log_level_printf(2, "do chroot to dir:%s\n", ConfigList["server.chroot"].c_str() );
+			log_level_printf(2, "do chroot to dir:%s\n", ylog::text(ConfigList["server.chroot"]).c_str() );
 			// do change Root
 			if(chroot(ConfigList["server.chroot"].c_str()) == -1)
 			{
@@ -561,7 +561,7 @@ int nhttpd_server_start(int port, const char *bind) {
 	}
 
 	aprintf("nhttpd_server_start: port %d at %s, as %s says\n", port,
-	        (bind != NULL) ? bind : "0.0.0.0", HTTPD_CONFIGFILE);
+	        ylog::text((bind != NULL) ? bind : "0.0.0.0").c_str(), HTTPD_CONFIGFILE);
 
 	const unsigned ended_before = __atomic_load_n(&server_runs_ended, __ATOMIC_SEQ_CST);
 	pthread_t nhttpd_thread;

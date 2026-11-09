@@ -98,7 +98,9 @@ THandleStatus CyhookHandler::Hooks_SendResponse() {
 			break;
 	}
 	log_level_printf(4, "Response Hook-List End\n");
-	log_level_printf(8, "Response Hook-List Result:\n%s\n", yresult.c_str());
+	// by its length: an answer can carry a credential (a session's CSRF
+	// token, a media token, configuration values)
+	log_level_printf(8, "Response Hook-List Result: %s\n", ylog::withheld(yresult).c_str());
 	status = _status;
 	return _status;
 }
@@ -124,8 +126,8 @@ THandleStatus CyhookHandler::Hooks_PrepareResponse() {
 			break;
 	}
 	log_level_printf(4, "PrepareResponse Hook-List End\n");
-	log_level_printf(8, "PrepareResponse Hook-List Result:\n%s\n",
-			yresult.c_str());
+	log_level_printf(8, "PrepareResponse Hook-List Result: %s\n",
+			ylog::withheld(yresult).c_str());
 	status = _status;
 	return _status;
 }
@@ -196,7 +198,7 @@ THandleStatus CyhookHandler::Hooks_EndConnection() {
 //-----------------------------------------------------------------------------
 THandleStatus CyhookHandler::Hooks_UploadSetFilename(std::string &Filename) {
 	log_level_printf(4, "UploadSetFilename Hook-List Start. Filename:(%s)\n",
-			Filename.c_str());
+			ylog::text(Filename).c_str());
 	THandleStatus _status = HANDLED_NONE;
 	THookList::iterator i = HookList.begin();
 	for (; i != HookList.end(); ++i) {
@@ -219,7 +221,7 @@ THandleStatus CyhookHandler::Hooks_UploadSetFilename(std::string &Filename) {
 //-----------------------------------------------------------------------------
 THandleStatus CyhookHandler::Hooks_UploadReady(const std::string& Filename) {
 	log_level_printf(4, "UploadReady Hook-List Start. Filename:(%s)\n",
-			Filename.c_str());
+			ylog::text(Filename).c_str());
 	THandleStatus _status = HANDLED_NONE;
 	THookList::iterator i = HookList.begin();
 	for (; i != HookList.end(); ++i) {
@@ -347,7 +349,7 @@ std::string CyhookHandler::BuildHeader(bool cache) {
 		}
 	// print Status-line
 	result = string_printf(HTTP_PROTOCOL " %d %s\r\nContent-Type: %s\r\n", httpStatus, responseString, ResponseMimeType.c_str());
-	log_level_printf(2, "Response: HTTP/1.1 %d %s\r\nContent-Type: %s\r\n", httpStatus, responseString, ResponseMimeType.c_str());
+	log_level_printf(2, "Response: HTTP/1.1 %d %s Content-Type: %s\n", httpStatus, responseString, ylog::text(ResponseMimeType).c_str());
 
 	// 401 must still run through the default arm below: it carries the
 	// header terminator, Connection and Content-Length — without them the

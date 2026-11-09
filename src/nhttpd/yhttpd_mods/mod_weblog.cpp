@@ -4,15 +4,19 @@
 //-----------------------------------------------------------------------------
 // Normally
 //=============================================================================
-#include <cstdarg>
+#include <cerrno>
+#include <cstdio>
 #include <cstring>
 #include <cstdlib>
-#include <stdio.h>
+#include <ctime>
+#include <fcntl.h>
+#include <sys/stat.h>
 #include <unistd.h>
 
 #include "mod_weblog.h"
 #include <helper.h>
-#include <system/helpers.h>
+#include <ylogging.h>
+#include <yprotect.h>
 
 //=============================================================================
 // Initialization of static variables
@@ -22,6 +26,7 @@
 	int CmWebLog::RefCounter = 0;
 	std::string CmWebLog::WebLogFilename=LOG_FILE;
 	std::string CmWebLog::LogFormat =LOG_FORMAT;
+	std::string CmWebLog::Refusal;
 //=============================================================================
 // Constructor & Destructor
 //=============================================================================
@@ -35,7 +40,7 @@ CmWebLog::~CmWebLog(void) {
 	pthread_mutex_lock(&WebLog_mutex); // yea, its mine
 	--RefCounter;
 	if (RefCounter <= 0)
-		CloseLogFile();
+		closeLocked();
 	pthread_mutex_unlock(&WebLog_mutex);
 }
 //=============================================================================
@@ -45,9 +50,12 @@ CmWebLog::~CmWebLog(void) {
 // HOOK: Hook_EndConnection
 //-----------------------------------------------------------------------------
 THandleStatus CmWebLog::Hook_EndConnection(CyhookHandler *hh) {
-	if (LogFormat == "CLF")
+	pthread_mutex_lock(&WebLog_mutex);
+	const std::string format = LogFormat;
+	pthread_mutex_unlock(&WebLog_mutex);
+	if (format == "CLF")
 		AddLogEntry_CLF(hh);
-	else if (LogFormat == "ELF")
+	else if (format == "ELF")
 		AddLogEntry_ELF(hh);
 	return HANDLED_CONTINUE; // even on Log-Error: continue
 }
@@ -57,60 +65,212 @@ THandleStatus CmWebLog::Hook_EndConnection(CyhookHandler *hh) {
 // This hook ist called from ReadConfig
 //-----------------------------------------------------------------------------
 THandleStatus CmWebLog::Hook_ReadConfig(CConfigFile *Config, CStringList &) {
+	pthread_mutex_lock(&WebLog_mutex);
 	LogFormat = Config->getString("mod_weblog.log_format", LOG_FORMAT);
 	WebLogFilename = Config->getString("mod_weblog.logfile", LOG_FILE);
+	// the file this reading names is decided on at the next record
+	closeLocked();
+	Refusal.clear();
+	pthread_mutex_unlock(&WebLog_mutex);
 	return HANDLED_CONTINUE;
 }
 //-----------------------------------------------------------------------------
-bool CmWebLog::OpenLogFile() {
-	if (WebLogFilename.empty())
+std::string CmWebLog::logDirectory() {
+	const std::string dflt = LOG_FILE;
+	const size_t slash = dflt.rfind('/');
+	if (slash == std::string::npos)
+		return ".";
+	return (slash == 0) ? std::string("/") : dflt.substr(0, slash);
+}
+//-----------------------------------------------------------------------------
+namespace {
+// errno by its number: strerror hands out a buffer every thread shares
+std::string errnoText(int err) {
+	char said[24];
+	snprintf(said, sizeof(said), "errno %d", err);
+	return said;
+}
+
+// a failure that passes by itself: no descriptor, no memory or no space left
+// for a moment, or a call interrupted
+bool passes(int err) {
+	return err == EMFILE || err == ENFILE || err == ENOMEM || err == EINTR
+		|| err == EAGAIN || err == ENOSPC;
+}
+
+// when the server last said that a record waits for a passing failure; with
+// WebLog_mutex held
+time_t passingSaid = 0;
+} // namespace
+
+int CmWebLog::openIn(const std::string &path, const std::string &dir, std::string &why, bool *passing) {
+	if (passing != NULL)
+		*passing = false;
+	const std::string named = ylog::text(path);
+	if (path.empty() || path[0] != '/') {
+		why = named + " is not an absolute name";
+		return -1;
+	}
+	const size_t slash = path.rfind('/');
+	const std::string parent = (slash == 0) ? std::string("/") : path.substr(0, slash);
+	const std::string base = path.substr(slash + 1);
+	if (base.empty() || base == "." || base == "..") {
+		why = named + " names no file";
+		return -1;
+	}
+
+	// The file is opened in the directory as this descriptor holds it, so a
+	// name naming another directory, or one changed after the look below,
+	// cannot carry the log out of it.
+	const int dirfd = open(dir.c_str(), O_RDONLY | O_DIRECTORY | O_CLOEXEC);
+	if (dirfd < 0) {
+		const int err = errno;
+		if (passing != NULL)
+			*passing = passes(err);
+		why = "the log directory " + ylog::text(dir) + " cannot be opened: " + errnoText(err);
+		return -1;
+	}
+	struct stat in, d;
+	const bool looked = stat(parent.c_str(), &in) == 0 && fstat(dirfd, &d) == 0;
+	const int lookErr = errno;
+	if (!looked && passes(lookErr)) {
+		close(dirfd);
+		if (passing != NULL)
+			*passing = true;
+		why = named + " cannot be looked at: " + errnoText(lookErr);
+		return -1;
+	}
+	if (!looked || in.st_dev != d.st_dev || in.st_ino != d.st_ino) {
+		close(dirfd);
+		why = named + " is not directly in " + ylog::text(dir) + ", the one directory a log is written in";
+		return -1;
+	}
+	// before the open, which would create a file that is not there yet
+	if (yprotect::namesProtected(path)) {
+		close(dirfd);
+		why = named + " is a file that holds who may reach this box";
+		return -1;
+	}
+	const int fd = openat(dirfd, base.c_str(),
+			O_WRONLY | O_APPEND | O_CREAT | O_NOFOLLOW | O_NOCTTY | O_NONBLOCK | O_CLOEXEC,
+			S_IRUSR | S_IWUSR);
+	const int err = errno;
+	close(dirfd);
+	if (fd < 0) {
+		if (passing != NULL)
+			*passing = passes(err);
+		why = (err == ELOOP) ? named + " is a link"
+			: named + " cannot be opened: " + errnoText(err);
+		return -1;
+	}
+
+	// what was opened, and not the name: a second name of a file, or a file
+	// put in its place by somebody else, is no log of this server
+	struct stat st;
+	const char *refused = NULL;
+	if (fstat(fd, &st) != 0) {
+		if (passing != NULL)
+			*passing = true;
+		refused = "cannot be looked at once opened";
+	} else if (yprotect::isProtected(fd))
+		refused = "is a file that holds who may reach this box";
+	else if (!S_ISREG(st.st_mode))
+		refused = "is not a regular file";
+	else if (st.st_nlink != 1)
+		refused = "has another name besides this one";
+	// not driven by the unit suite, which would need a file of a second user
+	else if (st.st_uid != geteuid())
+		refused = "belongs to another user";
+	if (refused != NULL) {
+		close(fd);
+		why = named + " " + refused;
+		return -1;
+	}
+	fcntl(fd, F_SETFL, fcntl(fd, F_GETFL) & ~O_NONBLOCK);
+	return fd;
+}
+//-----------------------------------------------------------------------------
+std::string CmWebLog::refusal() {
+	pthread_mutex_lock(&WebLog_mutex);
+	const std::string why = Refusal;
+	pthread_mutex_unlock(&WebLog_mutex);
+	return why;
+}
+//-----------------------------------------------------------------------------
+// With WebLog_mutex held. A file turned down is said once and not tried again
+// until the configuration is read anew. A failure that passes by itself (no
+// descriptor or memory for a moment) is tried again with the next record and
+// said at most once a minute.
+bool CmWebLog::openLocked() {
+	if (WebLogFile != NULL)
+		return true;
+	if (WebLogFilename.empty() || !Refusal.empty())
 		return false;
-	if (WebLogFile == NULL) {
-		bool isNew = false;
-		pthread_mutex_lock(&WebLog_mutex); // yeah, its mine
-		if (access(WebLogFilename, R_OK) != 0)
-			isNew = true;
-		WebLogFile = fopen(WebLogFilename.c_str(), "a");
-		if (isNew) {
-			if (LogFormat == "ELF") {
-				printf("#Version: 1.0\n");
-				printf("#Remarks: " WEBSERVERNAME "\n");
-				printf("#Fields: c-ip username date time x-request cs-uri sc-status cs-method bytes time-taken x-time-request x-time-response cached\n");
+	std::string why;
+	bool passing = false;
+	int fd = openIn(WebLogFilename, logDirectory(), why, &passing);
+	FILE *file = NULL;
+	if (fd >= 0) {
+		file = fdopen(fd, "a");
+		if (file == NULL) {
+			const int err = errno;
+			close(fd);
+			fd = -1;
+			passing = true;
+			why = ylog::text(WebLogFilename) + " cannot be written: " + errnoText(err);
+		}
+	}
+	if (fd < 0) {
+		if (!passing) {
+			Refusal = why;
+			aprintf("mod_weblog: no log is written: %s\n", why.c_str());
+		} else {
+			const time_t now = time(NULL);
+			if (passingSaid == 0 || now < passingSaid || now - passingSaid >= 60) {
+				passingSaid = now;
+				aprintf("mod_weblog: a record is not written, the next one tries again: %s\n",
+					why.c_str());
 			}
 		}
-		pthread_mutex_unlock(&WebLog_mutex);
-	}
-	return (WebLogFile != NULL);
-}
-//-----------------------------------------------------------------------------
-void CmWebLog::CloseLogFile() {
-	if (WebLogFile != NULL) {
-		pthread_mutex_lock(&WebLog_mutex); // yeah, its mine
-		fclose( WebLogFile);
-		WebLogFile = NULL;
-		pthread_mutex_unlock(&WebLog_mutex);
-	}
-}
-//-----------------------------------------------------------------------------
-#define bufferlen 1024*8
-bool CmWebLog::printf(const char *fmt, ...) {
-	if (!OpenLogFile())
 		return false;
-	bool success = false;
-	if (WebLogFile != NULL) {
-		char buffer[bufferlen]={0};
-		pthread_mutex_lock(&WebLog_mutex); // yeah, its mine
-		va_list arglist;
-		va_start(arglist, fmt);
-		vsnprintf(buffer, bufferlen, fmt, arglist);
-		va_end(arglist);
-		unsigned int len = strlen(buffer);
-		success = (fwrite(buffer, len, 1, WebLogFile) == len);
-		fflush( WebLogFile);
-		pthread_mutex_unlock(&WebLog_mutex);
 	}
+	struct stat st;
+	const bool fresh = (fstat(fd, &st) == 0 && st.st_size == 0);
+	WebLogFile = file;
+	if (fresh && LogFormat == "ELF") {
+		fputs("#Version: 1.0\n", WebLogFile);
+		fputs("#Remarks: " WEBSERVERNAME "\n", WebLogFile);
+		fputs("#Fields: c-ip username date time x-request cs-uri sc-status cs-method bytes time-taken x-time-request x-time-response cached\n", WebLogFile);
+		fflush(WebLogFile);
+	}
+	return true;
+}
+//-----------------------------------------------------------------------------
+void CmWebLog::closeLocked() {
+	if (WebLogFile != NULL) {
+		fclose(WebLogFile);
+		WebLogFile = NULL;
+	}
+}
+//-----------------------------------------------------------------------------
+bool CmWebLog::addRecord(const std::string &record) {
+	bool success = false;
+	pthread_mutex_lock(&WebLog_mutex); // yeah, its mine
+	if (openLocked()) {
+		success = fwrite(record.data(), 1, record.size(), WebLogFile) == record.size();
+		fflush(WebLogFile);
+	}
+	pthread_mutex_unlock(&WebLog_mutex);
 	return success;
 }
+
+namespace {
+std::string number(long long n) {
+	char buf[24];
+	snprintf(buf, sizeof(buf), "%lld", n);
+	return buf;
+}
+} // namespace
 
 //-----------------------------------------------------------------------------
 //	CLF - Common Logfile Format
@@ -124,44 +284,27 @@ bool CmWebLog::printf(const char *fmt, ...) {
 //	rfc931:		The remote logname of the user.
 //	authuser:	The username as which the user has authenticated himself.
 //	[date]:		Date and time of the request.
-//	"request":	The request line exactly as it came from the client.
+//	"request":	The request line as it came from the client, with the
+//			values of its query left out (ylog::startLine).
 //	status:		The HTTP status code returned to the client.
 //	bytes:		The content-length of the document transferred.
 //-----------------------------------------------------------------------------
+std::string CmWebLog::recordCLF(CyhookHandler *hh, time_t now)
+{
+	struct tm when;
+	localtime_r(&now, &when);
+	char request_time[80];
+	strftime(request_time, sizeof(request_time), "[%d/%b/%Y:%H:%M:%S]", &when);
+
+	return ylog::text(hh->UrlData["clientaddr"]) + " - - " + request_time
+		+ " \"" + ylog::startLine(hh->UrlData["startline"]) + "\" "
+		+ number(hh->httpStatus) + " "
+		+ number((long long) hh->GetContentLength()) + "\n";
+}
+
 void CmWebLog::AddLogEntry_CLF(CyhookHandler *hh)
 {
-#if 0
-//never used
-	std::string cs_method;
-	switch (hh->Method)
-	{
-		case M_GET:	cs_method = "GET";	break;
-		case M_POST:	cs_method = "POST";	break;
-		case M_HEAD:	cs_method = "HEAD";	break;
-
-		default:
-			cs_method = "unknown";
-			break;
-	}
-#endif
-	std::string c_ip = 			hh->UrlData["clientaddr"].c_str();
-	std::string request_startline = 	hh->UrlData["startline"].c_str();
-	int s_status = hh->httpStatus;
-	off_t bytes	= hh->GetContentLength();
-
-	struct tm *time_now;
-	time_t now = time(NULL);
-	char request_time[80];
-
-	time_now = localtime(&now);
-	strftime(request_time, 80, "[%d/%b/%Y:%H:%M:%S]", time_now);
-
-	printf("%s - - %s \"%s\" %d %lld\n",
-		c_ip.c_str(),
-		request_time,
-		request_startline.c_str(),
-		s_status,
-		(long long) bytes);
+	addRecord(recordCLF(hh, time(NULL)));
 }
 
 //-----------------------------------------------------------------------------
@@ -302,7 +445,8 @@ void CmWebLog::AddLogEntry_CLF(CyhookHandler *hh)
 		cached
 */
 
-void CmWebLog::AddLogEntry_ELF(CyhookHandler *hh)
+
+std::string CmWebLog::recordELF(CyhookHandler *hh, time_t now)
 {
 	std::string cs_method;
 	switch (hh->Method)
@@ -315,42 +459,36 @@ void CmWebLog::AddLogEntry_ELF(CyhookHandler *hh)
 			cs_method = "unknown";
 			break;
 	}
-	std::string c_ip = 			hh->UrlData["clientaddr"].c_str();
-	std::string request_startline = 	hh->UrlData["startline"].c_str();
-	std::string cs_uri			= hh->UrlData["fullurl"];
-	int sc_status = hh->httpStatus;
-	off_t bytes	= hh->GetContentLength();
 	int cached = (hh->HookVarList["CacheCategory"].empty()) ? 0 : 1;
 
-	struct tm *time_now;
-	time_t now = time(NULL);
-	time_now = localtime(&now);
-
-	char request_time[80];
-	strftime(request_time, 80, "[%d/%b/%Y:%H:%M:%S]", time_now);
+	struct tm when;
+	localtime_r(&now, &when);
 
 	char _date[11];
-	strftime(_date, 11, "%Y-%m-%d", time_now);
+	strftime(_date, sizeof(_date), "%Y-%m-%d", &when);
 
 	char _time[11];
-	strftime(_time, 11, "%H:%M:%S", time_now);
+	strftime(_time, sizeof(_time), "%H:%M:%S", &when);
 
 	std::string time_taken_request = hh->HookVarList["enlapsed_request"];
 	std::string time_taken_response = hh->HookVarList["enlapsed_response"];
 	long time_taken = atoi(time_taken_request.c_str()) + atoi(time_taken_response.c_str());
 
-	printf("%s %s %s \"%s\" %s %d %s %d %ld %s %s %lld\n",
-		c_ip.c_str(),
-		_date,
-		_time,
-		request_startline.c_str(),
-		cs_uri.c_str(),
-		sc_status,
-		cs_method.c_str(),
-		(long long) bytes,
-		time_taken,
-		time_taken_request.c_str(),
-		time_taken_response.c_str(),
-		cached
-		);
+	// cs-uri as the request line carries it, before any rewrite, with the
+	// names of its query and none of their values
+	return ylog::text(hh->UrlData["clientaddr"]) + " " + _date + " " + _time
+		+ " \"" + ylog::startLine(hh->UrlData["startline"]) + "\" "
+		+ ylog::url(hh->UrlData["target"]) + " "
+		+ number(hh->httpStatus) + " "
+		+ cs_method + " "
+		+ number((long long) hh->GetContentLength()) + " "
+		+ number(time_taken) + " "
+		+ ylog::text(time_taken_request) + " "
+		+ ylog::text(time_taken_response) + " "
+		+ number(cached) + "\n";
+}
+
+void CmWebLog::AddLogEntry_ELF(CyhookHandler *hh)
+{
+	addRecord(recordELF(hh, time(NULL)));
 }
