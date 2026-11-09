@@ -64,6 +64,7 @@
 
 #include "jsoncpp/json/json.h"
 
+#include <atomic>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -6362,6 +6363,57 @@ TEST_CASE("a picture is refused with its own code while the television shows a p
 	const Reply taken = authedGet("/api/v1/osd/screenshot?format=jpeg");
 	REQUIRE(taken.code == 200);
 	REQUIRE(taken.content_type == "image/jpeg");
+}
+
+/* A capture that stays inside the box until it is let go, so that a second
+   request arrives while the first is still running. A ceiling and not a wait
+   for a signal: a build that queued the second capture behind the first
+   would leave this case waiting on itself. */
+struct HeldScreenshot : public FakeScreenshotSource
+{
+	std::atomic<bool> inside;
+	std::atomic<bool> let_go;
+
+	HeldScreenshot() : inside(false), let_go(false) {}
+
+	coreapi::Status captureScreen(bool osd, bool video, coreapi::PictureFormat format,
+				      const std::string &path)
+	{
+		const coreapi::Status s =
+			FakeScreenshotSource::captureScreen(osd, video, format, path);
+		inside = true;
+		for (int waited = 0; waited < 3000 && !let_go; waited += 10)
+			usleep(10 * 1000);
+		return s;
+	}
+};
+
+TEST_CASE("the screenshot route answers every refusal it declares", "[write][refusals]")
+{
+	ShippedRoutes shipped;
+	BoxFixture box;
+	HeldScreenshot screen;
+	InstalledScreenshotSource installed_screen(&screen);
+
+	// One capture inside the box, and a second asked for meanwhile.
+	Reply first;
+	std::thread taking([&first]() { first = authedGet("/api/v1/osd/screenshot"); });
+	for (int waited = 0; waited < 3000 && !screen.inside; waited += 10)
+		usleep(10 * 1000);
+	const bool held = screen.inside;
+	const Reply second = authedGet("/api/v1/osd/screenshot");
+	screen.let_go = true;
+	taking.join();
+	REQUIRE(held);
+	REQUIRE(second.code == 409);
+	REQUIRE(second.body.find("/errors/screen-not-captured") != std::string::npos);
+	REQUIRE(first.code == 200);
+
+	// A capture that came to nothing is a fault, not a conflict.
+	screen.screen_status = coreapi::Status::Internal;
+	const Reply failed = authedGet("/api/v1/osd/screenshot");
+	REQUIRE(failed.code == 500);
+	REQUIRE(failed.body.find("/errors/screen-not-captured") != std::string::npos);
 }
 
 /* GraphLCD can mirror the television's menus, so its picture is refused the

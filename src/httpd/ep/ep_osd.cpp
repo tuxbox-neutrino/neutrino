@@ -505,6 +505,10 @@ const RouteRefusal kSendKeyRefusals[] = {
 const RouteRefusal kGetScreenshotRefusals[] = {
 	HTTPD_REFUSES(NotSupported, ScreenNotCaptured,
 		"the box could not take a picture of its screen"),
+	HTTPD_REFUSES(Busy, ScreenNotCaptured,
+		"the box is already taking a picture of its screen"),
+	HTTPD_REFUSES(Internal, ScreenNotCaptured,
+		"the picture of the screen could not be taken, put in place or read back"),
 	HTTPD_REFUSES(Conflict, PasswordOnScreen,
 		"the television is showing a password, and no picture of the screen is taken while it does"),
 };
@@ -647,6 +651,10 @@ const Endpoint kOsdEndpoints[] = {
 	  "**Refusals:**\n"
 	  "- `501 screen-not-captured`: this build or this box has no way of reading "
 	  "its own screen.\n"
+	  "- `409 screen-not-captured`: another capture of the screen is still "
+	  "running; ask again once it has answered.\n"
+	  "- `500 screen-not-captured`: the picture could not be taken, put in place "
+	  "or read back.\n"
 	  "- `409 password-on-screen`: the television is showing a password, such as "
 	  "the box's first password for the web interface, and no picture of the "
 	  "screen is taken while it does; a capture that was under way when the "

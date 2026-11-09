@@ -3418,8 +3418,26 @@
 							"$ref": "#/components/schemas/problem"
 						},
 						"examples": {
+							"screen-not-captured": {
+								"$ref": "#/components/examples/screen-not-captured-2"
+							},
 							"password-on-screen": {
 								"$ref": "#/components/examples/password-on-screen"
+							}
+						}
+					}
+				}
+			},
+			"refused-500-20": {
+				"description": "Internal error",
+				"content": {
+					"application/problem+json": {
+						"schema": {
+							"$ref": "#/components/schemas/problem"
+						},
+						"examples": {
+							"screen-not-captured": {
+								"$ref": "#/components/examples/screen-not-captured-3"
 							}
 						}
 					}
@@ -3479,7 +3497,7 @@
 					}
 				}
 			},
-			"refused-500-20": {
+			"refused-500-21": {
 				"description": "Internal error",
 				"content": {
 					"application/problem+json": {
@@ -3665,7 +3683,7 @@
 					}
 				}
 			},
-			"refused-500-21": {
+			"refused-500-22": {
 				"description": "Internal error",
 				"content": {
 					"application/problem+json": {
@@ -3680,7 +3698,7 @@
 					}
 				}
 			},
-			"refused-500-22": {
+			"refused-500-23": {
 				"description": "Internal error",
 				"content": {
 					"application/problem+json": {
@@ -3965,7 +3983,7 @@
 					}
 				}
 			},
-			"refused-500-23": {
+			"refused-500-24": {
 				"description": "Internal error",
 				"content": {
 					"application/problem+json": {
@@ -4454,7 +4472,7 @@
 					}
 				}
 			},
-			"refused-500-24": {
+			"refused-500-25": {
 				"description": "Internal error",
 				"content": {
 					"application/problem+json": {
@@ -4484,7 +4502,7 @@
 					}
 				}
 			},
-			"refused-500-25": {
+			"refused-500-26": {
 				"description": "Internal error",
 				"content": {
 					"application/problem+json": {
@@ -6998,6 +7016,22 @@
 					"title": "Not implemented",
 					"status": 501,
 					"detail": "the box could not take a picture of its screen"
+				}
+			},
+			"screen-not-captured-2": {
+				"value": {
+					"type": "/errors/screen-not-captured",
+					"title": "Conflict",
+					"status": 409,
+					"detail": "the box is already taking a picture of its screen"
+				}
+			},
+			"screen-not-captured-3": {
+				"value": {
+					"type": "/errors/screen-not-captured",
+					"title": "Internal error",
+					"status": 500,
+					"detail": "the picture of the screen could not be taken, put in place or read back"
 				}
 			},
 			"password-on-screen": {
@@ -17977,7 +18011,7 @@
 					"osd"
 				],
 				"summary": "a picture of what the television is showing",
-				"description": "Takes a picture of the live screen and returns it as an image, in the format `format` names. `osd` and `video` each default to true and say whether the box's own OSD graphics and the live video are each drawn into the picture; leaving both at their default gives the same picture the television shows. The `at` parameter is never read; it exists only so that 2 requests for a fresh picture use 2 different addresses, which keeps a browser from answering a second `<img>` out of its own cache.\n\n**Preconditions:** only one capture of the screen runs at a time; a request that arrives while another is still running is refused with a conflict rather than waiting for it.\n\n**Refusals:**\n- `501 screen-not-captured`: this build or this box has no way of reading its own screen.\n- `409 password-on-screen`: the television is showing a password, such as the box's first password for the web interface, and no picture of the screen is taken while it does; a capture that was under way when the password came on is refused the same way. Ask again once the message is gone.",
+				"description": "Takes a picture of the live screen and returns it as an image, in the format `format` names. `osd` and `video` each default to true and say whether the box's own OSD graphics and the live video are each drawn into the picture; leaving both at their default gives the same picture the television shows. The `at` parameter is never read; it exists only so that 2 requests for a fresh picture use 2 different addresses, which keeps a browser from answering a second `<img>` out of its own cache.\n\n**Preconditions:** only one capture of the screen runs at a time; a request that arrives while another is still running is refused with a conflict rather than waiting for it.\n\n**Refusals:**\n- `501 screen-not-captured`: this build or this box has no way of reading its own screen.\n- `409 screen-not-captured`: another capture of the screen is still running; ask again once it has answered.\n- `500 screen-not-captured`: the picture could not be taken, put in place or read back.\n- `409 password-on-screen`: the television is showing a password, such as the box's first password for the web interface, and no picture of the screen is taken while it does; a capture that was under way when the password came on is refused the same way. Ask again once the message is gone.",
 				"x-auth-level": "read",
 				"security": [
 					{
@@ -18056,6 +18090,9 @@
 					"416": {
 						"$ref": "#/components/responses/refused-416"
 					},
+					"500": {
+						"$ref": "#/components/responses/refused-500-20"
+					},
 					"501": {
 						"$ref": "#/components/responses/refused-501-7"
 					},
@@ -18117,7 +18154,7 @@
 						"$ref": "#/components/responses/refused-416"
 					},
 					"500": {
-						"$ref": "#/components/responses/refused-500-20"
+						"$ref": "#/components/responses/refused-500-21"
 					},
 					"501": {
 						"$ref": "#/components/responses/refused-501-8"
@@ -18231,7 +18268,7 @@
 						"$ref": "#/components/responses/refused-416"
 					},
 					"500": {
-						"$ref": "#/components/responses/refused-500-20"
+						"$ref": "#/components/responses/refused-500-21"
 					},
 					"501": {
 						"$ref": "#/components/responses/refused-501-9"
@@ -18545,7 +18582,7 @@
 						"$ref": "#/components/responses/refused-403"
 					},
 					"500": {
-						"$ref": "#/components/responses/refused-500-21"
+						"$ref": "#/components/responses/refused-500-22"
 					},
 					"default": {
 						"$ref": "#/components/responses/problem"
@@ -18596,7 +18633,7 @@
 						"$ref": "#/components/responses/refused-413"
 					},
 					"500": {
-						"$ref": "#/components/responses/refused-500-22"
+						"$ref": "#/components/responses/refused-500-23"
 					},
 					"default": {
 						"$ref": "#/components/responses/problem"
@@ -19388,7 +19425,7 @@
 						"$ref": "#/components/responses/refused-409-25"
 					},
 					"500": {
-						"$ref": "#/components/responses/refused-500-23"
+						"$ref": "#/components/responses/refused-500-24"
 					},
 					"501": {
 						"$ref": "#/components/responses/refused-501-11"
@@ -20413,7 +20450,7 @@
 						"$ref": "#/components/responses/refused-403"
 					},
 					"500": {
-						"$ref": "#/components/responses/refused-500-24"
+						"$ref": "#/components/responses/refused-500-25"
 					},
 					"default": {
 						"$ref": "#/components/responses/problem"
@@ -20532,7 +20569,7 @@
 						"$ref": "#/components/responses/refused-413"
 					},
 					"500": {
-						"$ref": "#/components/responses/refused-500-25"
+						"$ref": "#/components/responses/refused-500-26"
 					},
 					"default": {
 						"$ref": "#/components/responses/problem"
