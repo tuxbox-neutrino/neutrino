@@ -1687,6 +1687,9 @@
 							"missing-parameter": {
 								"$ref": "#/components/examples/missing-parameter-13"
 							},
+							"bad-path": {
+								"$ref": "#/components/examples/bad-path"
+							},
 							"webserver-not-configured": {
 								"$ref": "#/components/examples/webserver-not-configured"
 							},
@@ -5752,6 +5755,14 @@
 					"title": "Bad request",
 					"status": 400,
 					"detail": "the body names nothing to change"
+				}
+			},
+			"bad-path": {
+				"value": {
+					"type": "/errors/bad-path",
+					"title": "Bad request",
+					"status": 400,
+					"detail": "override_directory may not be a web folder: it lies in /proc"
 				}
 			},
 			"wrong-current-password": {
@@ -14359,7 +14370,7 @@
 					"webserver"
 				],
 				"summary": "sets this server up, naming only what is to change, and answers what the change means for the caller before the server is put on it",
-				"description": "Changes how this HTTP server itself is set up, naming only the members to change; a member left out keeps its stored value, and so does one sent as an empty string, except `no_login_prefix`, where an empty string is the value that exempts nobody. A new `password` and a new `user` are set only together with `current`, the password in effect, the one the caller signs in with, checked as `PUT /api/v1/account/password` checks it and counted against the address like a wrong login when it is wrong; a box with no password at all needs none. The file is written first, then this answer is sent, and only after it has gone out does the server, if anything that needs one changed, restart on the new file; a caller that moved the port or the bind address therefore still receives this answer on the connection it asked over.\n\nThe answer carries `webserver`, the configuration as the file now reads, and `caller`, what the change means for whoever asked: `address` is where to reach the server afterward, built from the name this request reached the box under and the new port, and empty when the request named no host; `port_moved` says whether the port changed; `password_changed` says whether the next sign in needs a different password, and once the restart has put a new password or user name in effect every session opened before it ends, except the one this request arrived with, and so does every token drawn from a session; that session is given new tokens by this answer already, the cookie in `Set-Cookie` and the second token in `csrf`, and the cookie the request came with names nothing from then on, so a copy of it is signed out at once; `restarting` says whether anything changed enough to restart the server at all, since a request asking for what is already in effect changes nothing and restarts nothing.\n\n**Side effects:** rewrites this server's own configuration file, and `nhttpd.conf` where `port`, `bind` or another member kept there differs from what that file says, that file being where the server answers and how nhttpd serves. When any member actually changed, the server is restarted on the new files once the answer has been sent, which drops every connection it is holding, this one included. Where nothing comes up on a new port or address, it goes back to the one it answered on before.\n\n**Refusals:**\n- `400 missing-parameter`: the body names nothing to change, or it sets `password` or a new `user` without `current` while the box has a password.\n- `400 webserver-not-configured`: a value given could not be written, for instance a `bind` that is not an address literal of the first family, the only one this server listens on, a `no_login_prefix` that is not the start of an IPv4 address, a directory that is not an absolute path, or a configuration file itself could not be written; the detail names which.\n- `403 wrong-current-password`: `current` is not the password in effect.\n- `403 not-permitted`: the request names `user` or `password` and the session it came with ended after the gate let it in, by a reset at the box, another change of the login or a logout, or the account changed after the request was checked; nothing is written.\n- `403 password-change-required`: the request names `user` or `password`, and since the gate let it in the box has come to wait for a password of the owner's own, as after the reset at the box; nothing is written.\n- `429 too-many-attempts`: wrong current passwords were sent from this address too often, too many are being checked at once, or too many wrong ones came from every address together; `Retry-After` says how long to wait.\n\n**Related:** `GET /api/v1/system/webserver`, `GET /api/v1/system/legacy-usage`.",
+				"description": "Changes how this HTTP server itself is set up, naming only the members to change; a member left out keeps its stored value, and so does one sent as an empty string, except `no_login_prefix`, where an empty string is the value that exempts nobody. A new `password` and a new `user` are set only together with `current`, the password in effect, the one the caller signs in with, checked as `PUT /api/v1/account/password` checks it and counted against the address like a wrong login when it is wrong; a box with no password at all needs none. The file is written first, then this answer is sent, and only after it has gone out does the server, if anything that needs one changed, restart on the new file; a caller that moved the port or the bind address therefore still receives this answer on the connection it asked over.\n\nThe answer carries `webserver`, the configuration as the file now reads, and `caller`, what the change means for whoever asked: `address` is where to reach the server afterward, built from the name this request reached the box under and the new port, and empty when the request named no host; `port_moved` says whether the port changed; `password_changed` says whether the next sign in needs a different password, and once the restart has put a new password or user name in effect every session opened before it ends, except the one this request arrived with, and so does every token drawn from a session; that session is given new tokens by this answer already, the cookie in `Set-Cookie` and the second token in `csrf`, and the cookie the request came with names nothing from then on, so a copy of it is signed out at once; `restarting` says whether anything changed enough to restart the server at all, since a request asking for what is already in effect changes nothing and restarts nothing.\n\n**Side effects:** rewrites this server's own configuration file, and `nhttpd.conf` where `port`, `bind` or another member kept there differs from what that file says, that file being where the server answers and how nhttpd serves. When any member actually changed, the server is restarted on the new files once the answer has been sent, which drops every connection it is holding, this one included. Where nothing comes up on a new port or address, it goes back to the one it answered on before.\n\n**Refusals:**\n- `400 missing-parameter`: the body names nothing to change, or it sets `password` or a new `user` without `current` while the box has a password.\n- `400 bad-path`: `override_directory` or `hosted_directory` is no absolute path without a `..` part, or is, holds or lies in the configuration directory, /proc, /sys or /dev, which no web folder may (the old server puts such a folder back to the shipped one at its start); the detail names the member and why. Nothing is checked or written.\n- `400 webserver-not-configured`: a value given could not be written, for instance a `bind` that is not an address literal of the first family, the only one this server listens on, a `no_login_prefix` that is not the start of an IPv4 address, or a configuration file itself could not be written; the detail names which.\n- `403 wrong-current-password`: `current` is not the password in effect.\n- `403 not-permitted`: the request names `user` or `password` and the session it came with ended after the gate let it in, by a reset at the box, another change of the login or a logout, or the account changed after the request was checked; nothing is written.\n- `403 password-change-required`: the request names `user` or `password`, and since the gate let it in the box has come to wait for a password of the owner's own, as after the reset at the box; nothing is written.\n- `429 too-many-attempts`: wrong current passwords were sent from this address too often, too many are being checked at once, or too many wrong ones came from every address together; `Retry-After` says how long to wait.\n\n**Related:** `GET /api/v1/system/webserver`, `GET /api/v1/system/legacy-usage`.",
 				"x-auth-level": "system",
 				"security": [
 					{
@@ -14440,13 +14451,13 @@
 										"type": "string",
 										"maxLength": 255,
 										"x-max-bytes": 255,
-										"description": "an absolute path whose files are to be served in place of the pages' own of the same name"
+										"description": "an absolute path whose files are to be served in place of the pages' own of the same name; not one that is, holds or lies in the configuration directory, /proc, /sys or /dev"
 									},
 									"hosted_directory": {
 										"type": "string",
 										"maxLength": 255,
 										"x-max-bytes": 255,
-										"description": "an absolute path to serve under /hosted/"
+										"description": "an absolute path to serve under /hosted/; not one that is, holds or lies in the configuration directory, /proc, /sys or /dev"
 									},
 									"send_all_types": {
 										"type": "boolean",

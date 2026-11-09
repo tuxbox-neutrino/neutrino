@@ -30,6 +30,7 @@
 #include "httpd/router.h"
 #include "httpd/schema.h"
 #include "httpd/server.h"
+#include "ystatic.h"
 #include "httpd/status.h"
 #include "httpd/webconfig.h"
 
@@ -437,6 +438,24 @@ Response webserverWrite(const Request &r)
 				       "this server was never told which file its configuration is kept in, so there is none to write");
 	}
 
+	/* A web folder the old server would refuse at its next start (ystatic::rootRefused:
+	   one that is, holds or lies in the configuration directory, /proc, /sys or /dev) is
+	   refused here, before anything is checked or written, rather than saved to be put
+	   back to the shipped one at that start. */
+	{
+		static const char *const folders[] = { "override_directory", "hosted_directory" };
+		const std::vector<std::string> kept = ystatic::keptPlaces();
+		for (size_t i = 0; i < sizeof(folders) / sizeof(folders[0]); ++i)
+		{
+			if (!r.has(folders[i]))
+				continue;
+			const std::string why = ystatic::rootRefused(r.asString(folders[i]), kept);
+			if (!why.empty())
+				return problemResponse(StatusBadRequest, coreapi::ErrorCode::BadPath,
+				                       std::string(folders[i]) + " may not be a web folder: " + why);
+		}
+	}
+
 	/* A new password or a new user name is set only by a caller that says the password
 	   in effect, as PUT /api/v1/account/password asks for it: a session left open on
 	   somebody else's screen is not a way of taking the box's login, and the same check
@@ -742,8 +761,8 @@ const Param kWriteParams[] = {
 	HTTPD_BODY_TEXT_CLEARABLE("no_login_prefix", "the start of an IPv4 address in dotted decimal whose callers the pages are never to ask for the login, such as \"192.168.1.\", and empty for nobody", 15),
 	HTTPD_BODY("threading", ParamType::Bool,
 		"whether nhttpd is to answer each request on a thread of its own"),
-	HTTPD_BODY_TEXT("override_directory", "an absolute path whose files are to be served in place of the pages' own of the same name", 255),
-	HTTPD_BODY_TEXT("hosted_directory", "an absolute path to serve under /hosted/", 255),
+	HTTPD_BODY_TEXT("override_directory", "an absolute path whose files are to be served in place of the pages' own of the same name; not one that is, holds or lies in the configuration directory, /proc, /sys or /dev", 255),
+	HTTPD_BODY_TEXT("hosted_directory", "an absolute path to serve under /hosted/; not one that is, holds or lies in the configuration directory, /proc, /sys or /dev", 255),
 	HTTPD_BODY("send_all_types", ParamType::Bool,
 		"whether a file of a type nhttpd has no name for is to be sent all the same"),
 };
@@ -751,6 +770,8 @@ const Param kWriteParams[] = {
 const RouteRefusal kWebserverWriteRefusals[] = {
 	HTTPD_REFUSES(InvalidArgument, MissingParameter,
 		"the body names nothing to change"),
+	HTTPD_REFUSES_AS(400, BadPath,
+		"override_directory may not be a web folder: it lies in /proc"),
 	HTTPD_REFUSES_AS(403, WrongCurrentPassword,
 		"the current password is not the one in effect"),
 	HTTPD_REFUSES_AS(403, NotPermitted,
@@ -813,9 +834,13 @@ const Endpoint kWebserverEndpoints[] = {
 	  "**Refusals:**\n"
 	  "- `400 missing-parameter`: the body names nothing to change, or it sets `password` or a new "
 	  "`user` without `current` while the box has a password.\n"
+	  "- `400 bad-path`: `override_directory` or `hosted_directory` is no absolute path without a "
+	  "`..` part, or is, holds or lies in the configuration directory, /proc, /sys or /dev, which no "
+	  "web folder may (the old server puts such a folder back to the shipped one at its start); the "
+	  "detail names the member and why. Nothing is checked or written.\n"
 	  "- `400 webserver-not-configured`: a value given could not be written, for instance a `bind` "
 	  "that is not an address literal of the first family, the only one this server listens on, a "
-	  "`no_login_prefix` that is not the start of an IPv4 address, a directory that is not an absolute path, or a "
+	  "`no_login_prefix` that is not the start of an IPv4 address, or a "
 	  "configuration file itself could not be written; the detail names which.\n"
 	  "- `403 wrong-current-password`: `current` is not the password in effect.\n"
 	  "- `403 not-permitted`: the request names `user` or `password` and the session it came with "

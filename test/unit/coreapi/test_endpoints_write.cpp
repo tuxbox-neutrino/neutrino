@@ -4116,6 +4116,40 @@ TEST_CASE("an option nhttpd could not use as written is turned down", "[write]")
 	}
 }
 
+TEST_CASE("a web folder the old server would refuse at its start is refused at the save", "[write]")
+{
+	/* The rule the old server applies at its start to the folders it serves
+	   (ystatic::rootRefused), asked by the save: a folder that is, holds or lies in a
+	   place no web folder may is answered 400 bad-path, naming the member, and nothing
+	   is written; one the rule lets through is saved. */
+	ShippedRoutes shipped;
+	WebFile file("rootrule", kWebFileHead);
+
+	const std::string before = wholeOf(file.server);
+	const char *const refused[][2] = {
+		{ "override_directory", "/proc" },
+		{ "override_directory", "/" },
+		{ "hosted_directory", "/sys/kernel" },
+		{ "hosted_directory", "/dev" },
+		{ "override_directory", "web" },
+	};
+	for (size_t i = 0; i < sizeof(refused) / sizeof(refused[0]); ++i)
+	{
+		const std::string body = std::string("{\"") + refused[i][0] + "\":\"" + refused[i][1] + "\"}";
+		INFO(body);
+		const Response r = putWebserver(body);
+		REQUIRE(r.code == 400);
+		REQUIRE(r.body.find("/errors/bad-path") != std::string::npos);
+		REQUIRE(r.body.find(refused[i][0]) != std::string::npos);
+		REQUIRE(r.reload_after.empty());
+		REQUIRE(wholeOf(file.server) == before);
+	}
+
+	const Response ok = putWebserver("{\"override_directory\":\"/srv/web-own\"}");
+	REQUIRE(ok.code == 200);
+	REQUIRE(wholeOf(file.server).find("WebsiteMain.override_directory=/srv/web-own\n") != std::string::npos);
+}
+
 TEST_CASE("a change that could not be saved does not move the server", "[write]")
 {
 	/* Otherwise the box runs until its next start on something its file does not

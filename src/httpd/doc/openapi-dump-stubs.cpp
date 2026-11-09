@@ -32,6 +32,7 @@
 
 #include <cstddef>
 #include <string>
+#include <vector>
 
 enum neutrino_locale_t { LOCALE_LINK_STUB };
 
@@ -110,3 +111,13 @@ class CyhookHandler
 CyhookHandler::CyhookHandler() {}
 CyhookHandler::~CyhookHandler() {}
 std::string CyhookHandler::BuildHeader(bool) { return std::string(); }
+
+/* PUT /api/v1/system/webserver holds the web folders it saves to the old server's
+   rule for them (ystatic.cpp); the dump answers no request and links no nhttpd. */
+namespace ystatic
+{
+std::vector<std::string> keptPlaces();
+std::vector<std::string> keptPlaces() { return std::vector<std::string>(); }
+std::string rootRefused(const std::string &, const std::vector<std::string> &);
+std::string rootRefused(const std::string &, const std::vector<std::string> &) { return std::string(); }
+}
