@@ -211,16 +211,35 @@ async function loadList(more, quiet, pages) {
 		showBeside(null);
 	}
 
-	// a directory still being read the first time: asked again a few
-	// times, further apart each time, while only the first page is shown
-	document.getElementById('mediaPartial').hidden = !(page && page.partial);
-	if (!(page && page.partial)) partialTries = 0;
-	else if (!partialRetry && partialTries < 5 && pagesShown === 1) {
-		partialRetry = setTimeout(() => {
-			partialRetry = null;
-			if (pagesShown === 1) loadList(false);	// "more" was pressed meanwhile: keep its pages
-		}, 3000 * ++partialTries);
+	// a directory still being read the first time (askAgain)
+	if (page && page.partial) {
+		document.getElementById('mediaPartial').hidden = !askAgain();
+	} else {
+		partialTries = 0;
+		document.getElementById('mediaPartial').hidden = true;
 	}
+	return true;
+}
+
+/* A directory still being read the first time: the box answers with a
+   partial list, and the page asks again after 3, 6, 9, 12 and 15 s, further
+   apart each time and calmly, as the list is on screen and may be scrolled,
+   while only the first page is shown. A read that fails leaves the list
+   partial and is asked again in turn. Says whether a try is waiting; where
+   none is, the note that the list fills in shortly goes, for nobody is
+   asking any more. */
+function askAgain() {
+	if (partialRetry)
+		return true;
+	if (partialTries >= 5 || pagesShown !== 1)
+		return false;
+	partialRetry = setTimeout(async () => {
+		partialRetry = null;
+		if (pagesShown !== 1)		// "more" was pressed meanwhile: keep its pages
+			return;
+		if (!await loadList(false, true) && !askAgain())
+			document.getElementById('mediaPartial').hidden = true;
+	}, 3000 * ++partialTries);
 	return true;
 }
 
