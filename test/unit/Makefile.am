@@ -80,6 +80,7 @@ coreapi_tests_SOURCES = \
 	driver/test_recordtuner.cpp \
 	driver/test_scanpause.cpp \
 	driver/test_tsgrid.cpp \
+	driver/test_captureguard.cpp \
 	coreapi/test_eventbus.cpp \
 	coreapi/test_messagebridge.cpp \
 	coreapi/test_channels.cpp \
@@ -156,7 +157,8 @@ coreapi_tests_SOURCES = \
 # the EPG scan pauses for a stream, likewise.
 # tsgrid.o is how the stream server keeps every client on the packet grid,
 # plain code over a send seam, linked so the cases drive the object the
-# program runs.
+# program runs. captureguard.o, whether a picture of the screen may be taken
+# while a password is shown, is plain code over a lock and is linked likewise.
 # rcinput.o carries the message queue under test; abstime.o is the only object it
 # needs besides the stubs in test_postmsg.cpp. commandsink_real.o comes out of the
 # archive with it, which is why that adapter lives in a file of its own.
@@ -218,6 +220,7 @@ coreapi_tests_LDADD = \
 	$(top_builddir)/src/driver/recordtuner.o \
 	$(top_builddir)/src/driver/scanpause.o \
 	$(top_builddir)/src/driver/tsgrid.o \
+	$(top_builddir)/src/driver/captureguard.o \
 	$(top_builddir)/lib/libmd5sum/libmd5sum.a \
 	$(top_builddir)/lib/libconfigfile/libconfigfile.a \
 	$(top_builddir)/lib/timerdclient/libtimerdclient.a \
@@ -318,6 +321,7 @@ EXTRA_DIST = interop/peer/README support/catch.hpp support/run-tests.sh support/
 	scan/check-stream-send.sh \
 	scan/check-live-displaced.sh \
 	scan/check-timer-epgid.sh \
+	scan/check-capture-exclusion.sh \
 	scan/strip-comments.awk scan/blank-if0.awk scan/bounds.awk scan/pairs.awk scan/fields.awk \
 	scan/keyvals.awk scan/choices.awk scan/enums.awk scan/labels.awk scan/branches.awk \
 	scan/settingstext.awk scan/channel-holds.awk \
@@ -488,5 +492,6 @@ check-local: check-TESTS
 	@$(SHELL) $(srcdir)/scan/check-stream-send.sh $(top_srcdir)
 	@$(SHELL) $(srcdir)/scan/check-live-displaced.sh $(top_srcdir)
 	@$(SHELL) $(srcdir)/scan/check-timer-epgid.sh $(top_srcdir)
+	@$(SHELL) $(srcdir)/scan/check-capture-exclusion.sh $(top_srcdir)
 	@$(MAKE) $(AM_MAKEFLAGS) check-api-types
 	@$(MAKE) $(AM_MAKEFLAGS) -C $(top_builddir)/src/httpd check-api-doc

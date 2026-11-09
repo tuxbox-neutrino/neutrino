@@ -505,6 +505,8 @@ const RouteRefusal kSendKeyRefusals[] = {
 const RouteRefusal kGetScreenshotRefusals[] = {
 	HTTPD_REFUSES(NotSupported, ScreenNotCaptured,
 		"the box could not take a picture of its screen"),
+	HTTPD_REFUSES(Conflict, PasswordOnScreen,
+		"the television is showing a password, and no picture of the screen is taken while it does"),
 };
 
 const RouteRefusal kGetDisplayScreenshotRefusals[] = {
@@ -514,6 +516,8 @@ const RouteRefusal kGetDisplayScreenshotRefusals[] = {
 		"the display is not running, or the box could not take a picture of it"),
 	HTTPD_REFUSES(Internal, DisplayNotCaptured,
 		"the picture of the display could not be written"),
+	HTTPD_REFUSES(Conflict, PasswordOnScreen,
+		"the television is showing a password, and no picture of a display that can mirror it is taken while it does"),
 };
 
 const RouteRefusal kGetFirstDisplayScreenshotRefusals[] = {
@@ -521,6 +525,8 @@ const RouteRefusal kGetFirstDisplayScreenshotRefusals[] = {
 		"no display is drawing, or the box could not take a picture of it"),
 	HTTPD_REFUSES(Internal, DisplayNotCaptured,
 		"the picture of the display could not be written"),
+	HTTPD_REFUSES(Conflict, PasswordOnScreen,
+		"the television is showing a password, and no picture of a display that can mirror it is taken while it does"),
 };
 
 const Endpoint kOsdEndpoints[] = {
@@ -640,7 +646,12 @@ const Endpoint kOsdEndpoints[] = {
 	  "rather than waiting for it.\n\n"
 	  "**Refusals:**\n"
 	  "- `501 screen-not-captured`: this build or this box has no way of reading "
-	  "its own screen.",
+	  "its own screen.\n"
+	  "- `409 password-on-screen`: the television is showing a password, such as "
+	  "the box's first password for the web interface, and no picture of the "
+	  "screen is taken while it does; a capture that was under way when the "
+	  "password came on is refused the same way. Ask again once the message is "
+	  "gone.",
 	  HTTPD_PARAMS(kPictureParams), NULL, &getScreenshot, false,
 	  Answers200 | Answers206, HTTPD_REFUSALS(kGetScreenshotRefusals) },
 	{ Method::Get, "/api/v1/osd/display/screenshot", AuthLevel::Read,
@@ -654,7 +665,10 @@ const Endpoint kOsdEndpoints[] = {
 	  "**Refusals:**\n"
 	  "- `501 display-not-captured`: no display is drawing on this box, or this build "
 	  "was made without support for it.\n"
-	  "- `500 display-not-captured`: the picture could not be copied or written.\n\n"
+	  "- `500 display-not-captured`: the picture could not be copied or written.\n"
+	  "- `409 password-on-screen`: the display is GraphLCD, which can mirror the "
+	  "television's menus, and the television is showing a password; no picture "
+	  "of it is taken until the message is gone.\n\n"
 	  "**Related:** `GET /api/v1/osd/displays/{name}/screenshot` names the display.",
 	  HTTPD_PARAMS(kFirstDisplayPictureParams), NULL, &getFirstDisplayScreenshot, false,
 	  Answers200 | Answers206, HTTPD_REFUSALS(kGetFirstDisplayScreenshotRefusals) },
@@ -678,7 +692,10 @@ const Endpoint kOsdEndpoints[] = {
 	  "`GET /api/v1/osd/displays`.\n"
 	  "- `501 display-not-captured`: this display is not running on this box, or "
 	  "this build was made without support for it.\n"
-	  "- `500 display-not-captured`: the picture could not be copied or written.\n\n"
+	  "- `500 display-not-captured`: the picture could not be copied or written.\n"
+	  "- `409 password-on-screen`: the display is GraphLCD, which can mirror the "
+	  "television's menus, and the television is showing a password; no picture "
+	  "of it is taken until the message is gone.\n\n"
 	  "**Related:** `GET /api/v1/osd/displays`.",
 	  HTTPD_PARAMS(kDisplayPictureParams), NULL, &getDisplayScreenshot, false,
 	  Answers200 | Answers206, HTTPD_REFUSALS(kGetDisplayScreenshotRefusals) },

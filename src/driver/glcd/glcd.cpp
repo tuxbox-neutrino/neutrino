@@ -31,6 +31,7 @@
 #include <system/helpers.h>
 #include <system/set_threadname.h>
 #include <driver/audioplay.h>
+#include <driver/captureguard.h>
 #include <gui/infoviewer.h>
 #include <gui/movieplayer.h>
 #include <driver/pictureviewer/pictureviewer.h>
@@ -990,15 +991,33 @@ void cGLCD::Run(void)
 					static uint32_t *fbp = fb->getFrameBufferPointer();
 					int lcd_width = bitmap->Width();
 					int lcd_height = bitmap->Height();
+					/* The OSD is read like any picture of the screen
+					   (captureguard): not while it shows a password, and the
+					   drawing is checked and, where a password came into it,
+					   cleared, all under the lock dumpBuffer reads the bitmap
+					   under, so a picture of this display never holds a
+					   drawing before it was checked. The display stays dark
+					   meanwhile. */
+					struct BitmapLock
+					{
+						void lock() { cGLCD::Lock(); }
+						void unlock() { cGLCD::Unlock(); }
+					} held;
+					bool admitted = false;
+					const bool drawn = captureguard::drawShared(held,
+						[&]() -> bool {
 #if BOXMODEL_VUSOLO4K || BOXMODEL_VUDUO4K || BOXMODEL_VUDUO4KSE || BOXMODEL_VUULTIMO4K || BOXMODEL_VUUNO4KSE
-					unsigned int fb_stride = fb->getStride() / 4;
-					if (!showImage(fbp, fb_stride, fb_height, 0, 0, lcd_width, lcd_height, false, false))
-					{
+							unsigned int fb_stride = fb->getStride() / 4;
+							return showImage(fbp, fb_stride, fb_height, 0, 0, lcd_width, lcd_height, false, false);
 #else
-					static int fb_width = fb->getScreenWidth(true);
-					if (!showImage(fbp, fb_width, fb_height, 0, 0, lcd_width, lcd_height, false, true))
-					{
+							static int fb_width = fb->getScreenWidth(true);
+							return showImage(fbp, fb_width, fb_height, 0, 0, lcd_width, lcd_height, false, true);
 #endif
+						},
+						[&]() { bitmap->Clear(GLCD::cColor::Black); },
+						&admitted);
+					if (admitted && !drawn)
+					{
 						usleep(500000);
 					}
 					else

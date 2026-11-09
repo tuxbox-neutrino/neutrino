@@ -51,6 +51,7 @@ class CScreenShot
 		bool get_osd;
 		bool get_video;
 		bool scale_to_video;
+		bool excluded;
 
 #if SCREENSHOT_INTERNAL
 		unsigned char * pixel_data;
@@ -87,6 +88,10 @@ class CScreenShot
 		void ScaleToVideo(bool enable) { scale_to_video = enable; }
 		bool Start();
 		bool StartSync();
+		/* After StartSync() answered false: the screen showed a password
+		   (captureguard), so nothing was read or nothing read was kept, and
+		   no file was written. */
+		bool Excluded() const { return excluded; }
 };
 
 #endif

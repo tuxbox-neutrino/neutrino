@@ -212,6 +212,48 @@ TEST_CASE("the name holds the last whole picture while the next is taken", "[scr
 	REQUIRE(during == "the picture before");
 	REQUIRE(readPath(path) == "the picture after");
 }
+
+/* What the box's capture answers when the television shows a password, here
+   after it has already put something under the name it was given, as a
+   capture that was reading when the password came on may have. */
+struct PasswordShown : public FakeScreenshotSource
+{
+	bool shown;
+
+	PasswordShown() : shown(false) {}
+
+	coreapi::Status captureScreen(bool osd, bool video, coreapi::PictureFormat format,
+				      const std::string &path)
+	{
+		const coreapi::Status s =
+			FakeScreenshotSource::captureScreen(osd, video, format, path);
+		return shown ? coreapi::Status::Conflict : s;
+	}
+};
+
+TEST_CASE("while the television shows a password nothing is kept and the last picture stays", "[screenshot]")
+{
+	PasswordShown source;
+	source.content = "the picture before";
+	InstalledScreenshotSource installed(&source);
+	const std::string path = osd::screenshot(true, true, PictureFormat::Png).value();
+
+	source.shown = true;
+	source.content = "the password";
+	Result<std::string> refused = osd::screenshot(true, true, PictureFormat::Png);
+	REQUIRE_FALSE(refused.ok());
+	REQUIRE(refused.error().status == Status::Conflict);
+	REQUIRE(refused.error().code == ErrorCode::PasswordOnScreen);
+	REQUIRE(readPath(path) == "the picture before");
+	// Nor is it left beside the name.
+	REQUIRE(source.last_path != path);
+	REQUIRE_FALSE(exists(source.last_path));
+
+	source.shown = false;
+	source.content = "the picture after";
+	REQUIRE(osd::screenshot(true, true, PictureFormat::Png).value() == path);
+	REQUIRE(readPath(path) == "the picture after");
+}
 /* The two drivers run side by side, so the list is built from what each says
    and the settings of the one that has them. */
 struct DisplaysOn
@@ -455,6 +497,25 @@ TEST_CASE("the display is a capture of its own", "[screenshot]")
 	Result<std::string> second = osd::displayScreenshot("lcd4linux");
 	REQUIRE(second.ok());
 	REQUIRE(second.value() != taken.value());
+}
+
+TEST_CASE("a display that can mirror the OSD is refused while the television shows a password", "[screenshot]")
+{
+	DisplaysOn on;
+	on.source.live_displays.insert("graphlcd");
+	on.source.display_status = Status::Conflict;
+
+	Result<std::string> taken = osd::displayScreenshot("graphlcd");
+	REQUIRE_FALSE(taken.ok());
+	REQUIRE(taken.error().status == Status::Conflict);
+	REQUIRE(taken.error().code == ErrorCode::PasswordOnScreen);
+	// The older route that names none answers the same.
+	taken = osd::displayScreenshot();
+	REQUIRE_FALSE(taken.ok());
+	REQUIRE(taken.error().code == ErrorCode::PasswordOnScreen);
+
+	on.source.display_status = Status::Ok;
+	REQUIRE(osd::displayScreenshot("graphlcd").ok());
 }
 
 TEST_CASE("a display that is not running says so rather than failing", "[screenshot]")

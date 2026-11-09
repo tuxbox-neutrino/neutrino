@@ -37,6 +37,7 @@
 #endif
 
 #ifdef ENABLE_GRAPHLCD
+#include <driver/captureguard.h>
 #include <driver/glcd/glcd.h>
 #endif
 
@@ -77,9 +78,14 @@ class RealScreenshotSource : public ScreenshotSource
 			CScreenShot shot(path, encoderFor(format));
 			shot.EnableOSD(osd);
 			shot.EnableVideo(video);
+			if (shot.StartSync())
+				return Status::Ok;
+			// The screen showed a password, so nothing was kept.
+			if (shot.Excluded())
+				return Status::Conflict;
 			// A capture that failed wrote no file, or wrote one that is not a
 			// picture; either way there is nothing at that name to hand on.
-			return shot.StartSync() ? Status::Ok : Status::Internal;
+			return Status::Internal;
 #else
 			// A box whose platform has no way of reading its own screen. It is
 			// an answer about the box rather than a fault.
@@ -118,9 +124,20 @@ class RealScreenshotSource : public ScreenshotSource
 				cGLCD *display = cGLCD::peekInstance();
 				if (display == NULL || display->bitmap == NULL)
 					return Status::NotSupported;
-				return display->dumpBuffer((fb_pixel_t *) display->bitmap->Data(),
-							   cGLCD::PNG, path.c_str())
-					? Status::Ok : Status::Internal;
+				/* The display can mirror the OSD, so it is pictured like the
+				   screen (captureguard): the bitmap is written into a file no
+				   name reaches, and that is given the name only once
+				   captureguard still agrees. */
+				captureguard::Capture capture;
+				if (!capture.admitted())
+					return Status::Conflict;
+				captureguard::Staging staging;
+				if (!staging.ok() || !display->dumpBuffer((fb_pixel_t *) display->bitmap->Data(),
+									 cGLCD::PNG, staging.path().c_str()))
+					return Status::Internal;
+				if (!capture.clean())
+					return Status::Conflict;
+				return staging.publish(path) ? Status::Ok : Status::Internal;
 			}
 #endif
 			// A build made without the driver has no such display, which is the

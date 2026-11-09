@@ -6344,6 +6344,51 @@ TEST_CASE("a picture this box cannot take is refused as not captured", "[write][
 	REQUIRE(display.body.find("display-not-captured") != std::string::npos);
 }
 
+TEST_CASE("a picture is refused with its own code while the television shows a password", "[write][refusals]")
+{
+	ShippedRoutes shipped;
+	BoxFixture box;
+	FakeScreenshotSource screen;
+	InstalledScreenshotSource installed_screen(&screen);
+	screen.screen_status = coreapi::Status::Conflict;
+
+	const Reply refused = authedGet("/api/v1/osd/screenshot?format=jpeg");
+	REQUIRE(refused.code == 409);
+	REQUIRE(refused.body.find("/errors/password-on-screen") != std::string::npos);
+	REQUIRE(refused.body.find("screen-not-captured") == std::string::npos);
+
+	// Once the message is gone, a picture as before.
+	screen.screen_status = coreapi::Status::Ok;
+	const Reply taken = authedGet("/api/v1/osd/screenshot?format=jpeg");
+	REQUIRE(taken.code == 200);
+	REQUIRE(taken.content_type == "image/jpeg");
+}
+
+/* GraphLCD can mirror the television's menus, so its picture is refused the
+   same way, on the route that names it and on the one that names none. */
+TEST_CASE("a display that can mirror the OSD is refused with the same code while the television shows a password", "[write][refusals]")
+{
+	ShippedRoutes shipped;
+	BoxFixture box;
+	FakeScreenshotSource screen;
+	InstalledScreenshotSource installed_screen(&screen);
+	box.store.ints["glcd_enable"] = 1;
+	screen.live_displays.insert("graphlcd");
+	screen.display_status = coreapi::Status::Conflict;
+
+	Reply r = authedGet("/api/v1/osd/displays/graphlcd/screenshot");
+	REQUIRE(r.code == 409);
+	REQUIRE(r.body.find("/errors/password-on-screen") != std::string::npos);
+	r = authedGet("/api/v1/osd/display/screenshot");
+	REQUIRE(r.code == 409);
+	REQUIRE(r.body.find("/errors/password-on-screen") != std::string::npos);
+
+	screen.display_status = coreapi::Status::Ok;
+	r = authedGet("/api/v1/osd/display/screenshot");
+	REQUIRE(r.code == 200);
+	REQUIRE(r.content_type == "image/png");
+}
+
 TEST_CASE("the display routes list, refuse and tell unknown from off", "[write][refusals]")
 {
 	ShippedRoutes shipped;

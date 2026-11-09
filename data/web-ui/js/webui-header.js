@@ -2713,6 +2713,7 @@ var WEBUI_ERR_TEXTS = {
 	'box-in-standby': 'The box is in standby',
 	'recording-holds-tuner': 'A recording holds the tuner',
 	'plugin-running': 'A plugin is still running on the box',
+	'password-on-screen': 'No screenshot while the TV shows a password',
 	'no-running-channel': 'No channel is running',
 	'timer-exists': 'This timer exists already',
 	'timer-in-the-past': 'The time lies in the past',

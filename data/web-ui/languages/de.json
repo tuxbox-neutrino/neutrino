@@ -161,6 +161,7 @@
 	"err.box-in-standby": "Die Box ist im Standby",
 	"err.recording-holds-tuner": "Eine Aufnahme belegt den Tuner",
 	"err.plugin-running": "Auf der Box läuft noch ein Plugin",
+	"err.password-on-screen": "Kein Screenshot, solange der Fernseher ein Passwort zeigt",
 	"err.no-running-channel": "Es läuft kein Sender",
 	"err.timer-exists": "Diesen Timer gibt es schon",
 	"err.timer-in-the-past": "Die Zeit liegt in der Vergangenheit",

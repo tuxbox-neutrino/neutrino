@@ -272,6 +272,12 @@ Result<std::string> screenshot(bool osd, bool video, PictureFormat format)
 	   a rename leaves that answer its own file. */
 	const std::string taking = screenTakingFor(format);
 	const Status s = screenshotSource().captureScreen(osd, video, format, taking);
+	if (s == Status::Conflict)
+	{
+		std::remove(taking.c_str());
+		return fail(Status::Conflict, ErrorCode::PasswordOnScreen,
+			    "the television is showing a password, and no picture of the screen is taken while it does");
+	}
 	if (s != Status::Ok)
 	{
 		std::remove(taking.c_str());
@@ -363,6 +369,10 @@ Result<std::string> displayScreenshot(const std::string &name)
 	   moment. A refusal would cost that press a picture and buy nothing. */
 	OpenThreads::ScopedLock<OpenThreads::Mutex> held(displayGuard());
 	const Status s = screenshotSource().captureDisplay(name, path);
+	// A display that mirrors the OSD is not pictured while it shows a password.
+	if (s == Status::Conflict)
+		return fail(Status::Conflict, ErrorCode::PasswordOnScreen,
+			    "the television is showing a password, and no picture of a display that can mirror it is taken while it does");
 	if (s != Status::Ok)
 		return fail(s, ErrorCode::DisplayNotCaptured,
 			    "the box could not take a picture of its display");

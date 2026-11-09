@@ -5,6 +5,7 @@ let shotUrl = null;		// object URL of the picture shown, freed when replaced
 let shotBusy = false;		// one capture at a time: the box refuses a second one
 let displayProbe = null;	// 'shown', 'none', 'again' after a failure, or 'signin' while a sign-in is missing
 let displayTries = 0;		// probes that failed for a moment; three, and it is none
+let shotRefused = false;	// the TV showed a password at the last capture, and the page said so
 
 // Inject shared remote template; registering via the host keeps
 // this instance replaceable by a late-loaded skin renderer
@@ -84,8 +85,11 @@ async function capture(path, query) {
 	return true;
 }
 
-async function doSnapshot() {
+// asked: from the button, which hears a refusal again; the repeat and the
+// remote's keys say nothing new while the TV shows a password
+async function doSnapshot(asked) {
 	if (!checkEnable()) return;
+	if (asked === true) shotRefused = false;
 
 	// Mobile: show screenshot card
 	selectCard('card-screenshot');
@@ -99,14 +103,20 @@ async function doSnapshot() {
 	loading.style.display = had ? 'none' : 'flex';
 
 	try {
-		await capture('/osd/screenshot', {
+		if (await capture('/osd/screenshot', {
 			osd: document.getElementById('checkOSD').checked,
 			video: document.getElementById('checkVideo').checked,
 			format: 'png'
-		});
+		}))
+			shotRefused = false;
 	} catch (e) {
-		// another capture still running keeps the picture there is
-		if (e.status !== 409)
+		// the TV shows a password: said once, in its own words and without
+		// "Error", however often the repeat asks while it stands; another
+		// capture still running keeps the picture there is
+		if (e.code === 'password-on-screen') {
+			if (!shotRefused) webuiToastError('', e);
+			shotRefused = true;
+		} else if (e.status !== 409)
 			webuiToastError(webuiL('msg.error', 'Error'), e);
 		if (!had) placeholder.style.display = 'flex';
 	}
@@ -114,14 +124,16 @@ async function doSnapshot() {
 }
 
 // The front display only where the box can read it: 501 says it cannot,
-// and any other failure is asked about again with the next capture
+// and any other failure is asked about again with the next capture; a
+// password on the TV is a display that is there and does not count
 async function probeDisplay() {
 	try {
 		await webuiV1Blob('/osd/display/screenshot', {at: captureMark()}, {quiet: true});
 		document.getElementById('btnGlcd').style.display = '';
 		displayProbe = 'shown';
 	} catch (e) {
-		displayProbe = e.status === 403 ? 'signin' : (e.status === 501 || e.status === 404 || ++displayTries >= 3) ? 'none' : 'again';
+		displayProbe = e.status === 403 ? 'signin' : e.code === 'password-on-screen' ? 'again'
+			: (e.status === 501 || e.status === 404 || ++displayTries >= 3) ? 'none' : 'again';
 	}
 }
 webuiExtTexts('screenshot').then(probeDisplay);

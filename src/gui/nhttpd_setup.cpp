@@ -33,6 +33,8 @@
 #include <gui/widget/msgbox.h>
 #include <gui/widget/stringinput_ext.h>
 
+#include <driver/captureguard.h>
+
 #include <global.h>
 #include <neutrino.h>
 #include <neutrino_menue.h>
@@ -103,7 +105,10 @@ static std::string webAddress()
 /* The one message with the first password, at the start that drew it, from the
    menu and after a reset: where the web interface answers, the user, the
    password, that the first sign-in asks for one of one's own, and where the
-   message is found again. Every copy of the password is wiped afterwards. */
+   message is found again. Every copy of the password is wiped afterwards.
+   No picture of the screen is taken while the message stands: the exclusion
+   is begun before it is drawn and ends once ShowMsg has taken it off again,
+   and a capture already reading the screen when it begins keeps nothing. */
 static void showFirstPasswordText(std::string &first)
 {
 	std::string text = g_Locale->getText(LOCALE_NETWORKMENU_HTTPD_FIRST_PASSWORD_SHOWN);
@@ -112,7 +117,10 @@ static void showFirstPasswordText(std::string &first)
 	fillIn(text, login_bridge::user(), at);
 	fillIn(text, first, at);
 	first.assign(first.size(), '\0');
-	ShowMsg(LOCALE_NETWORKMENU_HTTPD, text, CMsgBox::mbrOk, CMsgBox::mbOk, NEUTRINO_ICON_INFO, MSGBOX_MIN_WIDTH, kFirstPasswordShown);
+	{
+		captureguard::Exclusion no_capture;
+		ShowMsg(LOCALE_NETWORKMENU_HTTPD, text, CMsgBox::mbrOk, CMsgBox::mbOk, NEUTRINO_ICON_INFO, MSGBOX_MIN_WIDTH, kFirstPasswordShown);
+	}
 	text.assign(text.size(), '\0');
 }
 

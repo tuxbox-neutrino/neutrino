@@ -113,7 +113,11 @@ Result<void> setLocked(bool on);
    family whose capture shells out to a program. Asking for fewer bytes is what
    the format is for instead: the second throws detail away, which makes a
    picture of moving video a fraction of the size and a screen of flat colour
-   larger than the first. */
+   larger than the first.
+
+   Refused with PasswordOnScreen, a conflict, while the television shows a
+   password: the capture is refused or lets go of what it read, and the name
+   keeps the picture it held. */
 Result<std::string> screenshot(bool osd, bool video, PictureFormat format);
 
 // One of the displays on the front of the box that can be pictured.
@@ -131,7 +135,9 @@ Result<std::vector<Display> > displays();
 
 /* The same picture for one display of that list. NoSuchDisplay for a name this
    box has never had; NotSupported for one it has and that is not running, which
-   a caller tells apart from the first by the status. */
+   a caller tells apart from the first by the status. PasswordOnScreen, a
+   conflict, for a display that can mirror the OSD while the television shows a
+   password, the name keeping the picture it held. */
 Result<std::string> displayScreenshot(const std::string &name);
 
 // The first display of that list, for the older route that names none.

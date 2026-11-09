@@ -3410,6 +3410,21 @@
 					}
 				}
 			},
+			"refused-409-22": {
+				"description": "Conflict",
+				"content": {
+					"application/problem+json": {
+						"schema": {
+							"$ref": "#/components/schemas/problem"
+						},
+						"examples": {
+							"password-on-screen": {
+								"$ref": "#/components/examples/password-on-screen"
+							}
+						}
+					}
+				}
+			},
 			"refused-400-58": {
 				"description": "Bad request",
 				"content": {
@@ -3474,6 +3489,21 @@
 						"examples": {
 							"display-not-captured": {
 								"$ref": "#/components/examples/display-not-captured-2"
+							}
+						}
+					}
+				}
+			},
+			"refused-409-23": {
+				"description": "Conflict",
+				"content": {
+					"application/problem+json": {
+						"schema": {
+							"$ref": "#/components/schemas/problem"
+						},
+						"examples": {
+							"password-on-screen": {
+								"$ref": "#/components/examples/password-on-screen-2"
 							}
 						}
 					}
@@ -3665,7 +3695,7 @@
 					}
 				}
 			},
-			"refused-409-22": {
+			"refused-409-24": {
 				"description": "Conflict",
 				"content": {
 					"application/problem+json": {
@@ -3899,7 +3929,7 @@
 					}
 				}
 			},
-			"refused-409-23": {
+			"refused-409-25": {
 				"description": "Conflict",
 				"content": {
 					"application/problem+json": {
@@ -4082,7 +4112,7 @@
 					}
 				}
 			},
-			"refused-409-24": {
+			"refused-409-26": {
 				"description": "Conflict",
 				"content": {
 					"application/problem+json": {
@@ -4130,7 +4160,7 @@
 					}
 				}
 			},
-			"refused-409-25": {
+			"refused-409-27": {
 				"description": "Conflict",
 				"content": {
 					"application/problem+json": {
@@ -4253,7 +4283,7 @@
 					}
 				}
 			},
-			"refused-409-26": {
+			"refused-409-28": {
 				"description": "Conflict",
 				"content": {
 					"application/problem+json": {
@@ -4403,7 +4433,7 @@
 					}
 				}
 			},
-			"refused-409-27": {
+			"refused-409-29": {
 				"description": "Conflict",
 				"content": {
 					"application/problem+json": {
@@ -4439,7 +4469,7 @@
 					}
 				}
 			},
-			"refused-409-28": {
+			"refused-409-30": {
 				"description": "Conflict",
 				"content": {
 					"application/problem+json": {
@@ -6970,6 +7000,14 @@
 					"detail": "the box could not take a picture of its screen"
 				}
 			},
+			"password-on-screen": {
+				"value": {
+					"type": "/errors/password-on-screen",
+					"title": "Conflict",
+					"status": 409,
+					"detail": "the television is showing a password, and no picture of the screen is taken while it does"
+				}
+			},
 			"value-has-zero-byte-31": {
 				"value": {
 					"type": "/errors/value-has-zero-byte",
@@ -7040,6 +7078,14 @@
 					"title": "Internal error",
 					"status": 500,
 					"detail": "the picture of the display could not be written"
+				}
+			},
+			"password-on-screen-2": {
+				"value": {
+					"type": "/errors/password-on-screen",
+					"title": "Conflict",
+					"status": 409,
+					"detail": "the television is showing a password, and no picture of a display that can mirror it is taken while it does"
 				}
 			},
 			"value-has-zero-byte-32": {
@@ -17931,7 +17977,7 @@
 					"osd"
 				],
 				"summary": "a picture of what the television is showing",
-				"description": "Takes a picture of the live screen and returns it as an image, in the format `format` names. `osd` and `video` each default to true and say whether the box's own OSD graphics and the live video are each drawn into the picture; leaving both at their default gives the same picture the television shows. The `at` parameter is never read; it exists only so that 2 requests for a fresh picture use 2 different addresses, which keeps a browser from answering a second `<img>` out of its own cache.\n\n**Preconditions:** only one capture of the screen runs at a time; a request that arrives while another is still running is refused with a conflict rather than waiting for it.\n\n**Refusals:**\n- `501 screen-not-captured`: this build or this box has no way of reading its own screen.",
+				"description": "Takes a picture of the live screen and returns it as an image, in the format `format` names. `osd` and `video` each default to true and say whether the box's own OSD graphics and the live video are each drawn into the picture; leaving both at their default gives the same picture the television shows. The `at` parameter is never read; it exists only so that 2 requests for a fresh picture use 2 different addresses, which keeps a browser from answering a second `<img>` out of its own cache.\n\n**Preconditions:** only one capture of the screen runs at a time; a request that arrives while another is still running is refused with a conflict rather than waiting for it.\n\n**Refusals:**\n- `501 screen-not-captured`: this build or this box has no way of reading its own screen.\n- `409 password-on-screen`: the television is showing a password, such as the box's first password for the web interface, and no picture of the screen is taken while it does; a capture that was under way when the password came on is refused the same way. Ask again once the message is gone.",
 				"x-auth-level": "read",
 				"security": [
 					{
@@ -18004,6 +18050,9 @@
 					"404": {
 						"$ref": "#/components/responses/refused-404-10"
 					},
+					"409": {
+						"$ref": "#/components/responses/refused-409-22"
+					},
 					"416": {
 						"$ref": "#/components/responses/refused-416"
 					},
@@ -18023,7 +18072,7 @@
 					"osd"
 				],
 				"summary": "a picture of the first display on the front of the box",
-				"description": "Takes a picture of the first display `GET /api/v1/osd/displays` lists and returns it as a PNG image. Most boxes have no such display; this answers a refusal rather than a picture for them, and `format` is not offered because this is written in one form only. The `at` parameter is never read; it exists only so that 2 requests for a fresh picture use 2 different addresses, which keeps a browser from answering a second `<img>` out of its own cache.\n\n**Refusals:**\n- `501 display-not-captured`: no display is drawing on this box, or this build was made without support for it.\n- `500 display-not-captured`: the picture could not be copied or written.\n\n**Related:** `GET /api/v1/osd/displays/{name}/screenshot` names the display.",
+				"description": "Takes a picture of the first display `GET /api/v1/osd/displays` lists and returns it as a PNG image. Most boxes have no such display; this answers a refusal rather than a picture for them, and `format` is not offered because this is written in one form only. The `at` parameter is never read; it exists only so that 2 requests for a fresh picture use 2 different addresses, which keeps a browser from answering a second `<img>` out of its own cache.\n\n**Refusals:**\n- `501 display-not-captured`: no display is drawing on this box, or this build was made without support for it.\n- `500 display-not-captured`: the picture could not be copied or written.\n- `409 password-on-screen`: the display is GraphLCD, which can mirror the television's menus, and the television is showing a password; no picture of it is taken until the message is gone.\n\n**Related:** `GET /api/v1/osd/displays/{name}/screenshot` names the display.",
 				"x-auth-level": "read",
 				"security": [
 					{
@@ -18060,6 +18109,9 @@
 					},
 					"404": {
 						"$ref": "#/components/responses/refused-404-10"
+					},
+					"409": {
+						"$ref": "#/components/responses/refused-409-23"
 					},
 					"416": {
 						"$ref": "#/components/responses/refused-416"
@@ -18123,7 +18175,7 @@
 					"osd"
 				],
 				"summary": "a picture of one display on the front of the box",
-				"description": "Takes a picture of the named display and returns it as a PNG image; `format` is not offered because this is written in one form only. The `at` parameter is never read; it exists only so that 2 requests for a fresh picture use 2 different addresses, which keeps a browser from answering a second `<img>` out of its own cache.\n\n**Refusals:**\n- `404 no-such-display`: no display has that name. Take names from `GET /api/v1/osd/displays`.\n- `501 display-not-captured`: this display is not running on this box, or this build was made without support for it.\n- `500 display-not-captured`: the picture could not be copied or written.\n\n**Related:** `GET /api/v1/osd/displays`.",
+				"description": "Takes a picture of the named display and returns it as a PNG image; `format` is not offered because this is written in one form only. The `at` parameter is never read; it exists only so that 2 requests for a fresh picture use 2 different addresses, which keeps a browser from answering a second `<img>` out of its own cache.\n\n**Refusals:**\n- `404 no-such-display`: no display has that name. Take names from `GET /api/v1/osd/displays`.\n- `501 display-not-captured`: this display is not running on this box, or this build was made without support for it.\n- `500 display-not-captured`: the picture could not be copied or written.\n- `409 password-on-screen`: the display is GraphLCD, which can mirror the television's menus, and the television is showing a password; no picture of it is taken until the message is gone.\n\n**Related:** `GET /api/v1/osd/displays`.",
 				"x-auth-level": "read",
 				"security": [
 					{
@@ -18171,6 +18223,9 @@
 					},
 					"404": {
 						"$ref": "#/components/responses/refused-404-25"
+					},
+					"409": {
+						"$ref": "#/components/responses/refused-409-23"
 					},
 					"416": {
 						"$ref": "#/components/responses/refused-416"
@@ -18640,7 +18695,7 @@
 						"$ref": "#/components/responses/refused-403-2"
 					},
 					"409": {
-						"$ref": "#/components/responses/refused-409-22"
+						"$ref": "#/components/responses/refused-409-24"
 					},
 					"413": {
 						"$ref": "#/components/responses/refused-413"
@@ -19330,7 +19385,7 @@
 						"$ref": "#/components/responses/refused-404-4"
 					},
 					"409": {
-						"$ref": "#/components/responses/refused-409-23"
+						"$ref": "#/components/responses/refused-409-25"
 					},
 					"500": {
 						"$ref": "#/components/responses/refused-500-23"
@@ -19618,7 +19673,7 @@
 						"$ref": "#/components/responses/refused-403-2"
 					},
 					"409": {
-						"$ref": "#/components/responses/refused-409-24"
+						"$ref": "#/components/responses/refused-409-26"
 					},
 					"413": {
 						"$ref": "#/components/responses/refused-413"
@@ -19709,7 +19764,7 @@
 						"$ref": "#/components/responses/refused-403-2"
 					},
 					"409": {
-						"$ref": "#/components/responses/refused-409-25"
+						"$ref": "#/components/responses/refused-409-27"
 					},
 					"413": {
 						"$ref": "#/components/responses/refused-413"
@@ -20066,7 +20121,7 @@
 						"$ref": "#/components/responses/refused-404-33"
 					},
 					"409": {
-						"$ref": "#/components/responses/refused-409-27"
+						"$ref": "#/components/responses/refused-409-29"
 					},
 					"default": {
 						"$ref": "#/components/responses/problem"
@@ -20202,7 +20257,7 @@
 						"$ref": "#/components/responses/refused-404-33"
 					},
 					"409": {
-						"$ref": "#/components/responses/refused-409-26"
+						"$ref": "#/components/responses/refused-409-28"
 					},
 					"413": {
 						"$ref": "#/components/responses/refused-413"
@@ -20471,7 +20526,7 @@
 						"$ref": "#/components/responses/refused-403-2"
 					},
 					"409": {
-						"$ref": "#/components/responses/refused-409-28"
+						"$ref": "#/components/responses/refused-409-30"
 					},
 					"413": {
 						"$ref": "#/components/responses/refused-413"

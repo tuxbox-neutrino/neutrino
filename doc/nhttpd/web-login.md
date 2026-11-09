@@ -13,6 +13,14 @@ standby or for a timer. To see it later, or if it was not shown, choose
 **System settings → Network → Web server (nhttpd) → Show the first password**.
 The sign-in page points there as well.
 
+While the message with the password is on the TV, the box software takes
+no screenshot: none with the remote control's key, none for the screenshot
+page of the web interface, which says so, and none for remote tools (see
+below). A screenshot that was being taken when the message came up is not
+kept either. A GraphLCD front display that mirrors the TV's menus stays
+dark meanwhile, and no picture of it is taken. A program that reads the
+screen by itself, outside the box software, is not held back.
+
 The user is `root`, unless the box already had another user name.
 
 When the pages ask you to sign in depends on **Authentication** under
@@ -110,3 +118,10 @@ The next sign-in over the web asks for a password of your own again.
 - `PUT /api/v1/system/webserver` holds a new `password` to the same rules,
   except that it may be the current one. Only the reset at the box sets a
   first password again.
+- While the TV shows the message with the first password,
+  `GET /api/v1/osd/screenshot` answers `409 password-on-screen`, and so do
+  `GET /api/v1/osd/display/screenshot` and
+  `GET /api/v1/osd/displays/graphlcd/screenshot`, because GraphLCD can
+  mirror the TV's menus. The older `/control/screenshot` and
+  `/control/glcdscreenshot` answer their error form with
+  `the screen shows a password`. Ask again once the message is gone.

@@ -30,6 +30,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <stdio.h>
+#include <sys/wait.h>
 #include <png.h>
 #include <zlib.h>
 
@@ -45,6 +46,7 @@
 
 #include <hardware/video.h>
 #include <cs_api.h>
+#include <driver/captureguard.h>
 #include <driver/screenshot.h>
 #include <system/helpers.h>
 #include <system/set_threadname.h>
@@ -65,6 +67,7 @@ CScreenShot::CScreenShot(const std::string &fname, screenshot_format_t fmt)
 	get_video = g_settings.screenshot_video;
 	get_osd = g_settings.screenshot_mode;
 	scale_to_video = g_settings.screenshot_scale;
+	excluded = false;
 #if SCREENSHOT_INTERNAL
 	pixel_data = NULL;
 	fd = NULL;
@@ -88,6 +91,20 @@ bool CScreenShot::Start()
 	std::string cmd = find_executable("grab");
 
 	if (cmd.empty())
+		return false;
+
+	/* Taken before the program reads the screen and asked again before its
+	   picture gets the name. The program writes into a file no name reaches
+	   (captureguard::Staging), so a picture that may hold a password, or one
+	   the program did not finish, is never where a reader finds it. */
+	captureguard::Capture capture;
+	if (!capture.admitted()) {
+		excluded = true;
+		printf("[CScreenShot::%s:%d] not taken: the screen shows a password\n", __func__, __LINE__);
+		return false;
+	}
+	captureguard::Staging staging;
+	if (!staging.ok())
 		return false;
 
 	cmd += " ";
@@ -118,13 +135,24 @@ bool CScreenShot::Start()
 		cmd += "-w " + to_string(xres) + " ";
 
 	cmd += "'";
-	cmd += filename;
+	cmd += staging.path();
 	cmd += "'";
 
 	printf("[CScreenShot::%s:%d] Running %s\n", __func__, __LINE__, cmd.c_str());
-	system(cmd.c_str());
+	const int ran = system(cmd.c_str());
 
-	return (access(filename.c_str(), F_OK) == 0);
+	if (!capture.clean()) {
+		excluded = true;
+		printf("[CScreenShot::%s:%d] not kept: a password came on the screen while it was taken\n", __func__, __LINE__);
+		return false;
+	}
+	/* The exit status is reported and not relied on: what grab leaves is the
+	   answer, and a picture that is empty is not one. */
+	if (ran == -1 || !WIFEXITED(ran) || WEXITSTATUS(ran) != 0)
+		printf("[CScreenShot::%s:%d] grab ended with status %d\n", __func__, __LINE__, ran);
+	if (!staging.written())
+		return false;
+	return staging.publish(filename);
 }
 
 bool CScreenShot::StartSync()
@@ -177,6 +205,16 @@ bool CScreenShot::GetData()
 	   guarded nothing. What two captures at once do share is the framebuffer,
 	   and the lock for that is the framebuffer's own, taken below where its flag
 	   is put down. */
+
+	/* Taken before anything of the screen is read and asked again once all
+	   of it has been. What was read while a password stood on the screen,
+	   or came onto it, is let go here and never reaches a file. */
+	captureguard::Capture capture;
+	if (!capture.admitted()) {
+		excluded = true;
+		printf("[CScreenShot::%s:%d] not taken: the screen shows a password\n", __func__, __LINE__);
+		return false;
+	}
 #ifdef BOXMODEL_CST_HD2
 	/* Workaround for broken osd screenshot with new fb driver and 1280x720 resolution */
 	CFrameBuffer* frameBuffer = CFrameBuffer::getInstance();
@@ -253,6 +291,17 @@ bool CScreenShot::GetData()
 		printf(" done.\n \n");
 	}
 #endif
+	if (!capture.clean()) {
+		if (pixel_data) {
+			// wiped first: four bytes a pixel, as the encoders below read it
+			memset(pixel_data, 0, (size_t) xres * yres * 4);
+			cs_free_uncached((void *) pixel_data);
+			pixel_data = NULL;
+		}
+		excluded = true;
+		printf("[CScreenShot::%s:%d] not kept: a password came on the screen while it was read\n", __func__, __LINE__);
+		return false;
+	}
 	printf("[CScreenShot::%s:%d] data: %p %d x %d\n", __func__, __LINE__, pixel_data, xres, yres);
 	return true;
 }

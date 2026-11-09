@@ -159,6 +159,7 @@ const Walked kWalked[] = {
 	CODE(NoFreeTuner),
 	CODE(PlaybackRunning),
 	CODE(PluginRunning),
+	CODE(PasswordOnScreen),
 	CODE(MediumReadOnly),
 	CODE(BadScript),
 	CODE(BadTable),

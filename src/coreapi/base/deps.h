@@ -711,7 +711,10 @@ bool remoteControlLocked();
    could not be told apart.
 
    Where the picture goes is handed down so it is settled in one place; an Ok
-   says there is a readable file of that name. */
+   says there is a readable file of that name. Conflict from either capture
+   says the television is showing a password and the capture took no picture
+   of it: refused before reading, or what it read let go, and nothing written
+   under the name. A display answers it where it can mirror the OSD. */
 struct ScreenshotSource
 {
 	virtual ~ScreenshotSource() {}
