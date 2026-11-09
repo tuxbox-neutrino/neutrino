@@ -221,8 +221,21 @@ Outside the API addresses, nhttpd takes no uploads: a POST with a
 answered 415 right after its header, and none of its body is read. Files go
 to the box through the API (<code>PUT</code> and <code>PATCH
 /api/v1/storage/file</code>, in pieces), as the web interface sends them.
-<code>100 Continue</code> goes out only once the header has passed this
-check and the <code>Host</code> check above.
+A form is read into memory before any hook looks at the request, so its
+length is settled first: one <code>Content-Length</code> of at most 1 MiB,
+read as on an API address. A longer one is answered 413, one framed otherwise
+(a second <code>Content-Length</code>, a length that is not a number, any
+<code>Transfer-Encoding</code>, a chunked body among them) 400, and one
+without a <code>Content-Length</code> 411, each before any of the body is
+read. Then exactly that many bytes are read and no more, within the 10
+seconds an API body has, and a body that does not arrive in that time is
+answered 408. Only a <code>Content-Type</code> of exactly
+<code>application/x-www-form-urlencoded</code>, under that header name as
+written and without a parameter such as <code>; charset=</code>, is read as
+a form; the body of any other POST outside the API addresses is not read at
+all. <code>100 Continue</code> goes out, here also without
+<code>Expect</code>, once the header has passed these checks and the
+<code>Host</code> check above, and not before.
 </p>
 
 <h2>Answers</h2>
@@ -233,8 +246,10 @@ A refusal the layer writes is a problem document
 refusals on an API address under <a href="#requests">Requests</a>, all except
 the 413 come from nhttpd's request reader before the layer sees the request:
 the 400 for the header or the body framing, the 408 and the 501. They are a
-status line and headers, with no body, as is the reader's refusal of a
-multipart POST outside the API. Every answer the layer writes carries
+status line and headers, with no body, as are its 400, 408, 411, 413 and 415
+for a POST outside the API; the 400 for a <code>Host</code> that names
+another box is the page described under <a href="#access">Access</a>. Every
+answer the layer writes carries
 <code>X-Content-Type-Options: nosniff</code>, a <code>Vary</code> header that
 names <code>Cookie</code> and <code>Authorization</code>, and
 <code>Cache-Control: no-store</code> unless the route sets its own. The

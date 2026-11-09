@@ -270,6 +270,12 @@ void CWebserverRequest::analyzeURL(std::string url) {
 }
 
 //-----------------------------------------------------------------------------
+// How long a body has to arrive once its header is in: on an API address, and
+// for a form outside the API alike.
+//-----------------------------------------------------------------------------
+#define API_BODY_TIMEOUT_MS	10000
+
+//-----------------------------------------------------------------------------
 // Handle Post (a form; no upload)
 //-----------------------------------------------------------------------------
 bool CWebserverRequest::HandlePost() {
@@ -321,8 +327,35 @@ bool CWebserverRequest::HandlePost() {
 
 	// read meesage body
 	unsigned int content_len = 0;
-	if (!HeaderList["Content-Length"].empty())
-		content_len = atoi(HeaderList["Content-Length"].c_str());
+	const bool form = HeaderList["Content-Type"].compare("application/x-www-form-urlencoded") == 0;
+	if (form) {
+		// A form is read into memory before any hook looks at the request,
+		// so its length is settled first: one number of at most
+		// POST_FORM_MAX_LENGTH, read the way an API body's is, so that a
+		// negative or second length cannot pass for a short one. A form
+		// without one is not read: only the end of the connection could say
+		// where it ends.
+		long long declared = 0;
+		const ApiBody framing = apiContentLength(raw_header, declared);
+		HttpResponseType refused = HTTP_OK;
+		if (framing == BODY_BAD)
+			refused = HTTP_BAD_REQUEST;
+		else if (framing == BODY_NONE)
+			refused = HTTP_LENGTH_REQUIRED;
+		else if (declared > POST_FORM_MAX_LENGTH)
+			refused = HTTP_REQUEST_ENTITY_TOO_LARGE;
+		if (refused != HTTP_OK) {
+			if (framing == BODY_OK)
+				log_level_printf(1, "HandlePost: form of %lld bytes refused unread (%d)\n", declared, (int) refused);
+			else
+				log_level_printf(1, "HandlePost: form refused unread (%d)\n", (int) refused);
+			Connection->Response.SendError(refused);
+			// the body is still on its way in
+			Connection->sock->linger_on_close = true;
+			return false;
+		}
+		content_len = (unsigned int) declared;
+	}
 
 	// Get Rest of Request from Socket
 	log_level_printf(2, "Connection->Method Post !\n");
@@ -334,33 +367,20 @@ bool CWebserverRequest::HandlePost() {
 	// sends nothing of a body refused there
 	Connection->Response.Write("HTTP/1.1 100 Continue\r\n\r\n");
 
-	if (HeaderList["Content-Type"].compare(
-			"application/x-www-form-urlencoded") == 0) //this is a normal POST with form-data (no upload)
+	if (form) //this is a normal POST with form-data (no upload)
 	{
 		// handle normal form POST
 		log_level_printf(6, "Handle POST application/x-www-form-urlencoded\n");
 
-		// get message-body
-		std::string post_header = Connection->sock->ReceiveBlock();
-		while (post_header.length() < content_len) {
-			std::string more = Connection->sock->ReceiveBlock();
-			if (more.empty()) {
-				// Nothing waiting: wait for the next byte instead of asking
-				// again at once. A caller that went away ends the body here,
-				// short of what it announced.
-				char next;
-				int got = Connection->sock->Read(&next, 1);
-				if (got < 0 && errno == EINTR)
-					continue;
-				if (got != 1) {
-					Connection->sock->isValid = false;
-					aprintf("POST form less data then expected\n");
-					Connection->Response.SendError(HTTP_INTERNAL_SERVER_ERROR);
-					return false;
-				}
-				more.assign(1, next);
-			}
-			post_header += more;
+		// The declared length and not a byte more, read as an API body is:
+		// within the deadline, so a caller that stops sending, or went away
+		// short of what it announced, ends the request instead of holding a
+		// thread of the server.
+		std::string post_header;
+		if (!Connection->sock->ReceiveExact(post_header, content_len, API_BODY_TIMEOUT_MS)) {
+			log_level_printf(1, "HandlePost: form of %u bytes did not arrive\n", content_len);
+			Connection->Response.SendError(HTTP_REQUEST_TIMEOUT);
+			return false;
 		}
 		// parse the params in post_header (message-body) an add them to ParameterList
 		ParseParams(post_header);
@@ -375,11 +395,14 @@ bool CWebserverRequest::HandlePost() {
 // 413; one that stops arriving ends at the deadline with 408.
 //-----------------------------------------------------------------------------
 #define API_BODY_LIMIT		(1024 * 1024)
+// a form outside the API takes as much as an API body does (yconfig.h)
+#if POST_FORM_MAX_LENGTH != API_BODY_LIMIT
+#error "POST_FORM_MAX_LENGTH and API_BODY_LIMIT are one ceiling"
+#endif
 #define API_HEADER_LIMIT	(64 * 1024)
 // How much of a refused body is still read and dropped, so the 413 reaches
 // the caller instead of a reset. Past this the caller is left with the reset.
 #define API_DRAIN_CAP		(16 * 1024 * 1024)
-#define API_BODY_TIMEOUT_MS	10000
 
 bool CWebserverRequest::HandleApiRequest() {
 	RawBody.clear();

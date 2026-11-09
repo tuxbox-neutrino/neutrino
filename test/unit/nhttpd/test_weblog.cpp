@@ -544,7 +544,10 @@ std::string parserLog(const std::string &request, std::string &clf, std::string 
 	s->isOpened = true;
 	s->isValid = true;
 	REQUIRE(write(fd[1], request.data(), request.size()) == (ssize_t) request.size());
-	close(fd[1]);
+	// the far end stops sending and stays to read the answer, as a client does: one
+	// gone altogether refuses the interim answer a POST is sent, and the reader ends
+	// the request there
+	shutdown(fd[1], SHUT_WR);
 
 	char out[] = "/tmp/test_weblog_out_XXXXXX";
 	const int captured = mkstemp(out);
@@ -589,6 +592,7 @@ std::string parserLog(const std::string &request, std::string &clf, std::string 
 	delete con;
 	s->close();
 	delete s;
+	close(fd[1]);
 
 	close(captured);
 	const std::string text = readFile(out);

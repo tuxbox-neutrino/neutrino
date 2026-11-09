@@ -92,6 +92,11 @@
 #define LOG_FILE			"/tmp/yhttpd.log"
 #define LOG_FORMAT			""
 #define CACHE_DIR			"/tmp/.cache"
+// The longest form body (application/x-www-form-urlencoded) a POST outside the
+// API may declare; it is read into memory before any hook looks at the
+// request. A longer one is refused unread. As much as the API takes:
+// yrequest.cpp does not build where this and its API_BODY_LIMIT differ.
+#define POST_FORM_MAX_LENGTH		(1024 * 1024)
 #define HTTPD_SENDFILE_EXT		"htm:text/html,html:text/html,xml:application/xml,txt:text/plain,jpg:image/jpeg,jpeg:image/jpeg,gif:image/gif,png:image/png,bmp:image/x-ms-bmp,css:text/css,js:application/javascript,mjs:application/javascript,json:application/json,svg:image/svg+xml,webp:image/webp,woff:font/woff,woff2:font/woff2,webmanifest:application/manifest+json,yjs:text/plain,img:application/octet-stream,ico:image/x-icon,m3u:audio/x-mpegURL,m3u8:application/x-mpegURL,tar:application/x-tar,gz:application/gzip,ts:video/MP2T,mkv:video/x-matroska,avi:video/x-msvideo,mp3:audio/mpeg,ogg:audio/ogg"
 #define HTTPD_SENDFILE_ALL		"false"
 #define HTTPD_LANGUAGEDIR		"languages"

@@ -1197,9 +1197,12 @@ struct NamedSources
 	}
 };
 
-/* A legacy POST handed whole to HandleRequest() over a socket pair, the
-   caller's end shut for writing behind it. What the reader answered, the
-   bytes of the request it left unread, and what it parsed. */
+/* A legacy POST handed whole to HandleRequest() over a socket pair, written
+   from a thread of its own, the caller's end shut for writing behind it. What
+   the reader answered, the bytes of the request it left unread, and what it
+   parsed. The reader's end is shut for reading once it is done, so a refused
+   request larger than the pair holds ends the writer with EPIPE and fails the
+   case on CHECK(sent) instead of keeping the writer in send(). */
 struct Posted
 {
 	bool handled;
@@ -1223,8 +1226,18 @@ Posted postWhole(const std::string &request)
 	CySocket *s = new CySocket(fd[0]);
 	s->isOpened = true;
 	s->isValid = true;
-	REQUIRE(write(fd[1], request.data(), request.size()) == (ssize_t) request.size());
-	shutdown(fd[1], SHUT_WR);
+	std::atomic<bool> sent(false);
+	std::thread writer([&fd, &request, &sent]() {
+		size_t at = 0;
+		while (at < request.size()) {
+			ssize_t n = send(fd[1], request.data() + at, request.size() - at, MSG_NOSIGNAL);
+			if (n <= 0)
+				break;
+			at += (size_t) n;
+		}
+		sent = at == request.size();
+		shutdown(fd[1], SHUT_WR);
+	});
 
 	std::atomic<bool> done(false);
 	std::thread watchdog([&done]() {
@@ -1242,8 +1255,11 @@ Posted postWhole(const std::string &request)
 	con->Request.UrlData["localaddr"] = "192.168.1.5:80";
 	con->sock = s;
 	out.handled = con->Request.HandleRequest();
+	shutdown(fd[0], SHUT_RD);
+	writer.join();
 	done = true;
 	watchdog.join();
+	CHECK(sent.load());
 	ioctl(fd[0], FIONREAD, &out.unread);
 	out.params = con->Request.ParameterList;
 	out.lingered = s->linger_on_close;
@@ -1356,6 +1372,110 @@ TEST_CASE("a multipart POST outside the API is refused before a byte of its body
 			CHECK(p.lingered);
 			CHECK(p.params.empty());
 		}
+}
+
+TEST_CASE("a form POST outside the API is read only by one length of at most 1 MiB", "[nhttpd]")
+{
+	/* A form is read into memory before any hook, the login among them,
+	   looks at the request, and its length was taken as the caller wrote it:
+	   up to 4 GB, or a negative one read as that. Settled before a byte of
+	   it is read, as on an API address. */
+	CHECK(POST_FORM_MAX_LENGTH == 1024 * 1024);
+	NamedSources names;
+	struct Refused
+	{
+		std::string length_lines;
+		const char *status;
+	};
+	const Refused cases[] = {
+		{ "Content-Length: " + std::to_string(POST_FORM_MAX_LENGTH + 1) + "\r\n", "HTTP/1.0 413" },
+		{ "Content-Length: 4294967296\r\n", "HTTP/1.0 413" },
+		{ "Content-Length: -1\r\n", "HTTP/1.0 400" },
+		{ "Content-Length: 3, 3\r\n", "HTTP/1.0 400" },
+		{ "Content-Length: 3\r\nContent-Length: 3\r\n", "HTTP/1.0 400" },
+		{ "Transfer-Encoding: chunked\r\n", "HTTP/1.0 400" },
+		// without a length only the end of the connection would say where it ends
+		{ "", "HTTP/1.0 411" },
+	};
+	for (size_t i = 0; i < sizeof(cases) / sizeof(cases[0]); ++i)
+	{
+		INFO(cases[i].length_lines);
+		const Posted p = postWhole("POST /control/x HTTP/1.1\r\nHost: 192.168.1.5\r\n"
+			"Content-Type: application/x-www-form-urlencoded\r\n" + cases[i].length_lines + "\r\na=b");
+		CHECK_FALSE(p.handled);
+		CHECK(p.answer.find(cases[i].status) == 0);
+		CHECK(p.answer.find("100 Continue") == std::string::npos);
+		CHECK(p.unread == 3);
+		// the body is still on its way in: a plain close could reset the answer away
+		CHECK(p.lingered);
+		CHECK(p.params.find("a") == p.params.end());
+	}
+
+	// a form of the whole 1 MiB is read and parsed
+	const std::string body = "a=" + std::string(POST_FORM_MAX_LENGTH - 2, 'x');
+	Posted whole = postWhole(postRequest("Host: 192.168.1.5\r\n", "application/x-www-form-urlencoded", body));
+	CHECK(whole.handled);
+	CHECK_FALSE(whole.lingered);
+	CHECK(whole.params["a"].size() == (size_t) POST_FORM_MAX_LENGTH - 2);
+	CHECK(whole.unread == 0);
+
+	// and of a longer one exactly its length, whatever else came with it
+	Posted shorter = postWhole("POST /control/x HTTP/1.1\r\nHost: 192.168.1.5\r\n"
+		"Content-Type: application/x-www-form-urlencoded\r\nContent-Length: 3\r\n\r\na=b&c=d");
+	CHECK(shorter.handled);
+	CHECK(shorter.params["a"] == "b");
+	CHECK(shorter.params.find("c") == shorter.params.end());
+	CHECK(shorter.unread == 4);
+}
+
+TEST_CASE("a form POST outside the API that stops arriving ends at the deadline", "[nhttpd]")
+{
+	/* Its body was read until it was all there or the caller went away, so a
+	   caller that sent part of it and then nothing held a thread of the
+	   server, before the login, for as long as it kept the connection open.
+	   Read as an API body is, it ends with 408 after 10 seconds. */
+	NamedSources names;
+	int fd[2];
+	REQUIRE(socketpair(AF_UNIX, SOCK_STREAM, 0, fd) == 0);
+	const std::string request = "POST /control/x HTTP/1.1\r\nHost: 192.168.1.5\r\n"
+		"Content-Type: application/x-www-form-urlencoded\r\nContent-Length: 100\r\n\r\na=b";
+	REQUIRE(write(fd[1], request.data(), request.size()) == (ssize_t) request.size());
+	// the caller stays for 13 s and then goes, which the reader must not wait for
+	std::thread caller([&fd]() {
+		usleep(13 * 1000 * 1000);
+		shutdown(fd[1], SHUT_WR);
+	});
+
+	CySocket *s = new CySocket(fd[0]);
+	s->isOpened = true;
+	s->isValid = true;
+	CWebserver ws;
+	CWebserverConnection *con = new CWebserverConnection(&ws);
+	con->Request.UrlData["clientaddr"] = "192.168.1.20";
+	con->Request.UrlData["localaddr"] = "192.168.1.5:80";
+	con->sock = s;
+	struct timespec t0, t1;
+	clock_gettime(CLOCK_MONOTONIC, &t0);
+	const bool handled = con->Request.HandleRequest();
+	clock_gettime(CLOCK_MONOTONIC, &t1);
+	caller.join();
+	const double took = (double) (t1.tv_sec - t0.tv_sec) + (double) (t1.tv_nsec - t0.tv_nsec) / 1e9;
+	CHECK_FALSE(handled);
+	CHECK(took >= 9.5);
+	CHECK(took < 12.0);
+	CHECK(con->Request.ParameterList.find("a") == con->Request.ParameterList.end());
+	delete con;
+	s->close();
+	delete s;
+
+	fcntl(fd[1], F_SETFL, O_NONBLOCK);
+	std::string answer;
+	char buf[4096];
+	ssize_t n;
+	while ((n = read(fd[1], buf, sizeof(buf))) > 0)
+		answer.append(buf, (size_t) n);
+	close(fd[1]);
+	CHECK(answer.find("HTTP/1.0 408") != std::string::npos);
 }
 
 TEST_CASE("a form POST whose caller sends less than it announced ends the request", "[nhttpd]")
