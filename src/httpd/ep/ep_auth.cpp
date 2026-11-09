@@ -204,9 +204,11 @@ struct AttemptHeld
 {
 	std::string peer;
 	bool        granted;
+	// whether the attempt took one from the budget, which a right answer gives back
+	bool        debited;
 
-	explicit AttemptHeld(const std::string &p) : peer(p), granted(false) {}
-	~AttemptHeld() { endLoginAttempt(peer, granted); }
+	AttemptHeld(const std::string &p, bool d) : peer(p), granted(false), debited(d) {}
+	~AttemptHeld() { endLoginAttempt(peer, granted, debited); }
 
 	private:
 		AttemptHeld(const AttemptHeld &);
@@ -221,9 +223,10 @@ Response login(const Request &r)
 	   one a proxy header reports, or a caller could empty its own record between
 	   guesses. */
 	unsigned retry_after = 0;
-	if (beginLoginAttempt(r.peer(), &retry_after) != LoginAttempt::Open)
+	bool debited = false;
+	if (beginLoginAttempt(r.peer(), &retry_after, &debited) != LoginAttempt::Open)
 		return tooManyAttempts(retry_after);
-	AttemptHeld held(r.peer());
+	AttemptHeld held(r.peer(), debited);
 
 	const Login cfg = loginInEffect();
 
@@ -708,12 +711,13 @@ bool currentPasswordHolds(const Request &r, const std::string &current, unsigned
                           Response *refusal)
 {
 	unsigned retry_after = 0;
-	if (beginLoginAttempt(r.peer(), &retry_after) != LoginAttempt::Open)
+	bool debited = false;
+	if (beginLoginAttempt(r.peer(), &retry_after, &debited) != LoginAttempt::Open)
 	{
 		*refusal = tooManyAttempts(retry_after);
 		return false;
 	}
-	AttemptHeld held(r.peer());
+	AttemptHeld held(r.peer(), debited);
 
 	const Login cfg = loginInEffect();
 	if (!verifySecret(current, cfg.password_hash))

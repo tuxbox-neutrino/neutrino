@@ -255,7 +255,8 @@ bool basicAdmits(const Ask &a)
 		/* Through the login's own gate, ahead of the derivation for the reason it
 		   gives: the derivation is what an attempt costs. */
 		unsigned retry_after = 0;
-		if (httpd::beginLoginAttempt(a.peer, &retry_after) != httpd::LoginAttempt::Open)
+		bool debited = false;
+		if (httpd::beginLoginAttempt(a.peer, &retry_after, &debited) != httpd::LoginAttempt::Open)
 		{
 			forget(pair);
 			return false;
@@ -273,10 +274,10 @@ bool basicAdmits(const Ask &a)
 		}
 		catch (...)
 		{
-			httpd::endLoginAttempt(a.peer, false);
+			httpd::endLoginAttempt(a.peer, false, debited);
 			throw;
 		}
-		httpd::endLoginAttempt(a.peer, ok);
+		httpd::endLoginAttempt(a.peer, ok, debited);
 
 		if (ok)
 			remember(digest, l);

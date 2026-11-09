@@ -9672,3 +9672,46 @@ TEST_CASE("a logout and a change to the account are ordered at the change's writ
 	REQUIRE(verifySecret("another pass phrase", loginInEffect().password_hash));
 	REQUIRE(cookieAlone(signedOutBetween()) == AuthLevel::Public);
 }
+
+TEST_CASE("right answers being checked at once give back exactly what their attempts took", "[write][budget]")
+{
+	/* Four attempts at once from an address the box has not seen a right answer from:
+	   each takes one from the budget, and the first right answer makes the address
+	   known. Each of the four gives its own back, so the whole budget is there after
+	   them; and an attempt that took nothing, from an address known by then, gives
+	   nothing back. */
+	ShippedRoutes shipped;
+	ConfigFixture cfg;
+	setLoginClockForTest(1735689600);
+	unsigned retry = 0;
+	const char *const fresh = "198.51.100.77";
+	bool debited[4] = { false, false, false, false };
+	for (size_t i = 0; i < 4; ++i)
+	{
+		REQUIRE(beginLoginAttempt(fresh, &retry, &debited[i]) == LoginAttempt::Open);
+		REQUIRE(debited[i]);
+	}
+	for (size_t i = 0; i < 4; ++i)
+		endLoginAttempt(fresh, true, debited[i]);
+
+	// One wrong answer from a new address takes one; the known address's right answer,
+	// which took none, gives none back.
+	bool took = false;
+	REQUIRE(beginLoginAttempt("198.18.2.1", &retry, &took) == LoginAttempt::Open);
+	REQUIRE(took);
+	endLoginAttempt("198.18.2.1", false, took);
+	REQUIRE(beginLoginAttempt(fresh, &retry, &took) == LoginAttempt::Open);
+	REQUIRE_FALSE(took);
+	endLoginAttempt(fresh, true, took);
+
+	// What is left is the budget less that one wrong answer, and no more.
+	char peer[32];
+	for (unsigned i = 1; i < kLoginFailureBudget; ++i)
+	{
+		std::snprintf(peer, sizeof(peer), "198.18.3.%u", i);
+		INFO(peer);
+		REQUIRE(beginLoginAttempt(peer, &retry) == LoginAttempt::Open);
+		endLoginAttempt(peer, false);
+	}
+	REQUIRE(beginLoginAttempt("198.18.4.1", &retry) == LoginAttempt::TooManyWrong);
+}

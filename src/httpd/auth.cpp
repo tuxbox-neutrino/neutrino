@@ -1300,10 +1300,12 @@ unsigned loginDelayFor(unsigned failures)
 	return (unsigned) delay;
 }
 
-LoginAttempt beginLoginAttempt(const std::string &peer, unsigned *retry_after)
+LoginAttempt beginLoginAttempt(const std::string &peer, unsigned *retry_after, bool *debited)
 {
 	if (retry_after != NULL)
 		*retry_after = 0;
+	if (debited != NULL)
+		*debited = false;
 
 	const time_t now = nowFor();
 
@@ -1355,6 +1357,8 @@ LoginAttempt beginLoginAttempt(const std::string &peer, unsigned *retry_after)
 		if (table().budget == kLoginFailureBudget)
 			table().budget_since = now;
 		--table().budget;
+		if (debited != NULL)
+			*debited = true;
 	}
 
 	// Stamped now, so a second attempt from this address waits for this one.
@@ -1365,7 +1369,7 @@ LoginAttempt beginLoginAttempt(const std::string &peer, unsigned *retry_after)
 	return LoginAttempt::Open;
 }
 
-void endLoginAttempt(const std::string &peer, bool granted)
+void endLoginAttempt(const std::string &peer, bool granted, bool debited)
 {
 	const time_t now = nowFor();
 
@@ -1380,9 +1384,10 @@ void endLoginAttempt(const std::string &peer, bool granted)
 	{
 		// A right answer clears the record outright, which is half of why this
 		// cannot lock the only account out, and gives back to the budget what its
-		// attempt took from it.
+		// attempt took from it: that attempt's own, and not whatever the address is
+		// by now, the first right answer of several at once making it known.
 		table().attempts.erase(peer);
-		if (!knownLocked(peer, now) && table().budget < kLoginFailureBudget)
+		if (debited && table().budget < kLoginFailureBudget)
 			++table().budget;
 		noteKnownLocked(peer, now);
 		return;

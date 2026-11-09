@@ -415,7 +415,13 @@ time_t expiryForTest(time_t now, unsigned lifetime);
    proxy the delay is then shared by everyone behind it, which is the strict direction.
 
    retry_after, when it is not null, is left carrying how many seconds to wait, and nought
-   when the answer is Open. Every Open has to be answered by a call to endLoginAttempt. */
+   when the answer is Open. Every Open has to be answered by a call to endLoginAttempt.
+
+   debited, when it is not null, is left saying whether this attempt took one from the
+   budget, which is to be handed to endLoginAttempt: a right answer gives back exactly
+   what its own attempt took, and nothing where it took nothing. An address answering
+   right becomes known the moment the first of its attempts does, so whether the others
+   being answered took one is theirs to say and not the address's by then. */
 enum class LoginAttempt
 {
 	Open,
@@ -449,8 +455,8 @@ const unsigned kLoginBudgetRefill  = 15;
 const time_t   kKnownAddressFor    = 30 * 24 * 60 * 60;
 const size_t   kMaxKnownAddresses  = 16;
 
-LoginAttempt beginLoginAttempt(const std::string &peer, unsigned *retry_after);
-void endLoginAttempt(const std::string &peer, bool granted);
+LoginAttempt beginLoginAttempt(const std::string &peer, unsigned *retry_after, bool *debited = NULL);
+void endLoginAttempt(const std::string &peer, bool granted, bool debited = false);
 
 /* How long an attempt waits after this many wrong answers, which is the policy
    above written as one function so that a case can walk it rather than sleep
