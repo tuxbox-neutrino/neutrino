@@ -30,8 +30,7 @@
 		}
 
 		/* The bar stays at the top while the list scrolls under it (main
-		   scrolls, webui.css), on the page's ground, which also covers the
-		   strip of main's padding above it */
+		   scrolls, webui.css), on the page's ground */
 		.webui-media-bar {
 			position: sticky;
 			top: 0;
@@ -43,7 +42,25 @@
 			padding-bottom: 0.5rem;
 			margin-bottom: -0.5rem;
 			background: var(--pico-background-color);
-			box-shadow: 0 -1rem 0 var(--pico-background-color);
+		}
+
+		/* The ground reaches well above the bar: over the strip of main's
+		   padding that the list scrolls past, and beyond the top edge of
+		   main, which cuts it off. A bar that a browser sets a hair low
+		   (rounding to the screen's pixels, the scroll of a phone) would
+		   otherwise leave a line above it where the pictures show. It lies
+		   behind what the bar holds: the focus ring of the search field
+		   reaches above the bar and must stay whole. */
+		.webui-media-bar::before {
+			content: "";
+			position: absolute;
+			z-index: -1;
+			right: 0;
+			bottom: 100%;
+			left: 0;
+			height: 2rem;
+			background: var(--pico-background-color);
+			pointer-events: none;
 		}
 
 		.webui-media-bar input[type="search"] {
