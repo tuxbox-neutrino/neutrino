@@ -24,6 +24,7 @@
 #include "httpd/endpoints.h"
 #include "httpd/router.h"
 #include "coreapi/storage.h"
+#include "coreapi/box/storage_internal.h"
 #include "coreapi/system.h"
 #include "httpd/doc/openapi.h"
 #include "httpd/http.h"
@@ -628,21 +629,32 @@ TEST_CASE("a file answer hands the descriptor to the transport", "[bridge]")
 
 namespace {
 
-struct DirectoryBack
+struct StoreBack
 {
-	~DirectoryBack() { yprotect::setKeptPlacesForTest(std::vector<std::string>()); }
+	const char *was;
+	StoreBack() : was(coreapi::storage::internal::access_store_dir) {}
+	~StoreBack()
+	{
+		coreapi::storage::internal::access_store_dir = was;
+		yprotect::setKeptPlacesForTest(std::vector<std::string>());
+		yprotect::setFiles(std::vector<std::string>());
+	}
 };
 
-// A file of the configuration directory answered the way a route answers it.
-int bridged(const std::string &path, bool box_document)
+void putFile(const std::string &path, const char *text)
 {
-	const int fd = open(path.c_str(), O_RDONLY | O_CLOEXEC);
-	REQUIRE(fd >= 0);
-	httpd::Response r;
-	REQUIRE((box_document ? httpd::answerFromBoxDocument(r, fd) : httpd::answerFromDescriptor(r, fd)));
-	r.code = 200;
-	r.content_type = "application/xml";
-	Handler h(M_GET, "/api/v1/config/bouquets");
+	FILE *f = fopen(path.c_str(), "w");
+	REQUIRE(f != NULL);
+	fputs(text, f);
+	fclose(f);
+}
+
+// GET /api/v1/storage/file for path as a System caller gets it, through the bridge.
+int storageAnswer(const std::string &path)
+{
+	httpd::Response r = httpd::dispatch(httpd::Get, "/api/v1/storage/file", "path=" + path, "",
+	                                    "127.0.0.1", httpd::AuthLevel::System);
+	Handler h(M_GET, "/api/v1/storage/file");
 	CApiBridge::answerWith(&h.hh, r);
 	if (h.hh.SendFd >= 0) {
 		close(h.hh.SendFd);
@@ -653,52 +665,55 @@ int bridged(const std::string &path, bool box_document)
 
 } // namespace
 
-/* A file in the configuration directory goes out of a REST answer only as one of
-   the box's own documents opened by its fixed name; a route whose caller names the
-   file, as the storage file route does, gets 404 for it. */
-TEST_CASE("only the box's own documents come out of the configuration directory", "[bridge]")
+/* The file manager downloads a file of the configuration directory as before; the
+   access store, its working file and a second name of the store stay held back,
+   by name in the storage layer and by inode at the bridge. */
+TEST_CASE("the file manager reads the configuration directory but for the files that hold who may reach the box", "[bridge]")
 {
 	Attached a;
-	DirectoryBack back;
+	StoreBack back;
 	char dir[] = "/tmp/test_bridge_config_XXXXXX";
 	REQUIRE(mkdtemp(dir) != NULL);
-	const std::string doc = std::string(dir) + "/bouquets.xml";
-	{
-		FILE *f = fopen(doc.c_str(), "w");
-		REQUIRE(f != NULL);
-		fputs("<zapit/>\n", f);
-		fclose(f);
-	}
+	const std::string config(dir);
+	const std::string plain = config + "/neutrino.conf";
+	const std::string store = config + "/nhttpd-access.conf";
+	const std::string working = store + ".new";
+	const std::string alias = config + "/copy.conf";
+	putFile(plain, "volume=7\n");
+	putFile(store, "password_hash=S3NT1NEL\n");
+	putFile(working, "password_hash=S3NT1NEL\n");
+	REQUIRE(link(store.c_str(), alias.c_str()) == 0);
+	coreapi::storage::internal::access_store_dir = dir;
 	std::vector<std::string> kept;
-	kept.push_back(dir);
+	kept.push_back(config);
 	kept.push_back("/proc");
 	kept.push_back("/sys");
 	kept.push_back("/dev");
 	yprotect::setKeptPlacesForTest(kept);
+	std::vector<std::string> names;
+	names.push_back(store);
+	names.push_back(working);
+	yprotect::setFiles(names);
 
-	CHECK(bridged(doc, true) == HTTP_OK);
-	CHECK(bridged(doc, false) == HTTP_NOT_FOUND);
+	CHECK(storageAnswer(plain) == HTTP_OK);
+	CHECK(storageAnswer(store) == HTTP_BAD_REQUEST);
+	CHECK(storageAnswer(working) == HTTP_BAD_REQUEST);
+	CHECK(storageAnswer(alias) == HTTP_NOT_FOUND);
 
-	// the document route answers with one of them
-	const std::string before = coreapi::config::configRoot();
-	coreapi::config::setConfigRoot(dir);
-	Handler h(M_GET, "/api/v1/config/bouquets");
-	(void) a.bridge.Hook_SendResponse(&h.hh);
-	coreapi::config::setConfigRoot(before);
-	CHECK(h.hh.httpStatus == HTTP_OK);
-	CHECK(h.hh.status == HANDLED_SENDFD);
-	if (h.hh.SendFd >= 0) {
-		close(h.hh.SendFd);
-		h.hh.SendFd = -1;
-	}
-
-	// a file of the kernel's trees goes out of neither
+	// a file of the kernel's trees goes out of no answer
 	const int proc = open("/proc/self/status", O_RDONLY | O_CLOEXEC);
 	REQUIRE(proc >= 0);
-	CHECK(nhttpd_bridge::heldBack(proc, false, true));
-	CHECK(nhttpd_bridge::heldBack(proc, false, false));
+	CHECK(nhttpd_bridge::heldBack(proc, false));
 	close(proc);
-	unlink(doc.c_str());
+	const int fd = open(plain.c_str(), O_RDONLY | O_CLOEXEC);
+	REQUIRE(fd >= 0);
+	CHECK_FALSE(nhttpd_bridge::heldBack(fd, false));
+	close(fd);
+
+	unlink(alias.c_str());
+	unlink(working.c_str());
+	unlink(store.c_str());
+	unlink(plain.c_str());
 	rmdir(dir);
 }
 

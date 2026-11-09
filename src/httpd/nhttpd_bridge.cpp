@@ -197,10 +197,10 @@ std::string noSuchRange(uint64_t length)
 namespace nhttpd_bridge
 {
 
-bool heldBack(int fd, bool own_unnamed, bool box_document)
+bool heldBack(int fd, bool own_unnamed)
 {
 	return yprotect::isProtected(fd, own_unnamed) ||
-	       (!own_unnamed && yprotect::inKeptPlace(fd, box_document));
+	       (!own_unnamed && yprotect::inKeptPlace(fd, true));
 }
 
 FdPlan planFdAnswer(int code, uint64_t file_length, const std::string &range_header)
@@ -653,10 +653,9 @@ void CApiBridge::answerWith(CyhookHandler *hh, const httpd::Response &r)
 		/* None of the files that hold who may reach the box goes out as a
 		   file answer, whichever route opened it and by whatever name: asked
 		   of the descriptor, by inode (yprotect). Nor does a file without a
-		   name, but one the route made for this answer itself, nor one in the
-		   configuration directory but the box's own documents by their names.
-		   held closes it. */
-		if (nhttpd_bridge::heldBack(fd, r.fd_own_unnamed, r.fd_box_document))
+		   name, but one the route made for this answer itself, nor one in
+		   /proc, /sys or /dev. held closes it. */
+		if (nhttpd_bridge::heldBack(fd, r.fd_own_unnamed))
 		{
 			takeProblem(hh, 404, coreapi::ErrorCode::NoSuchName, httpd::heldBackDetail());
 			return;

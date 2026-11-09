@@ -56,12 +56,4 @@ bool answerFromOwnUnnamed(Response &r, int fd)
 	return true;
 }
 
-bool answerFromBoxDocument(Response &r, int fd)
-{
-	if (!answerFromDescriptor(r, fd))
-		return false;
-	r.fd_box_document = true;
-	return true;
-}
-
 } // namespace httpd

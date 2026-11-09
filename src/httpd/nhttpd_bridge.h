@@ -51,9 +51,10 @@ FdPlan planFdAnswer(int code, uint64_t file_length, const std::string &range_hea
 /* Whether the file a route answers with (fd) is held back: one of the files
    that hold who may reach the box, by inode (yprotect); one without a name,
    but one the route made for this answer itself (own_unnamed); and one that
-   lies in the configuration directory, /proc, /sys or /dev, but one of the
-   box's own documents opened by its fixed name (box_document) in the first. */
-bool heldBack(int fd, bool own_unnamed, bool box_document);
+   lies in /proc, /sys or /dev. The other files of the configuration directory
+   go out of a route's answer, the storage file route's and the configuration
+   documents included, unless the start closed that directory. */
+bool heldBack(int fd, bool own_unnamed);
 }
 
 #include "httpd/server_control.h"
