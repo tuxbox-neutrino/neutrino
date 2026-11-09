@@ -31,8 +31,6 @@
 #endif
 
 //-----------------------------------------------------------------------------
-#define NON_BLOCKING_MAX_RETRIES 10	// Retries, if receive buffer is empty
-#define NON_BLOCKING_TRY_BYTES 	512	// try to catch min bytes .. else sleep
 #define RECEIVE_BLOCK_LEN 	1024	// receiving block length
 #define MAX_LINE_BUFFER 	1024*2	// Max length of one line
 
@@ -76,7 +74,6 @@ public:
 	// send & receive
 	bool 		SendFile(int filed, off_t start = 0, off_t size = -1); // Send a File
 	std::string 	ReceiveBlock();					// receive a Block. Look at length
-	unsigned int	ReceiveFileGivenLength(int filed, unsigned int _length); // Receive File of given length
 	std::string 	ReceiveLine();					// receive until "\n"
 	// Exactly length bytes into out, or false: the peer closed, an error, or
 	// timeout_ms passed without them. Bytes beyond length stay on the socket.

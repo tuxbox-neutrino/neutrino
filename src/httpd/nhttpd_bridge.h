@@ -66,10 +66,9 @@ bool heldBack(int fd, bool own_unnamed);
    (httpd/authority.h, hostHeaderAccepted), asked for every request before any
    other hook sees it, API and legacy alike. Attached first, ahead of the login.
    A hook sees a request once it has been read: the body of an API request, at
-   most 1 MiB, is in memory by then. A POST outside the API, which can carry an
-   upload that is written to a file as it arrives, is asked the same by the
-   request reader before a byte of its body is read, and refused there with the
-   same page (yrequest.cpp, HandlePost).
+   most 1 MiB, is in memory by then. A POST outside the API is asked the same
+   by the request reader before a byte of its body is read, and refused there
+   with the same page (yrequest.cpp, HandlePost).
 
    A request that names another box is answered 400: under the API addresses
    with the problem document no-authority, everywhere else with a short page in

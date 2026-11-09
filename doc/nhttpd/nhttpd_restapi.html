@@ -115,8 +115,7 @@ not: nhttpd's reader keeps the second line with the first as one list, which
 no name reads as. The hooks see a request once
 it has been read: the body of an API request, at most 1 MiB, is in memory by
 then. A POST outside the API addresses is asked the same right after its
-header and refused with the same page before any of its body is read, so an
-upload under another name is never written.</li>
+header and refused with the same page before any of its body is read.</li>
 <li>The layer's gate guards the API addresses. Every route declares an
 access level, which the document states as <code>x-auth-level</code>.</li>
 <li>nhttpd's own login (<code>mod_auth</code>) leaves the API addresses
@@ -217,25 +216,14 @@ caller instead of a reset.</li>
 with <code>Expect</code>.</li>
 </ul>
 <p>
-Outside the API addresses, a POST in <code>multipart/form-data</code>, the
-form that carries a file, writes the file to <code>/tmp/upload.tmp</code> as
-it arrives, before any hook, the login included, looks at the request. So its
-length is settled first, from the header alone:
+Outside the API addresses, nhttpd takes no uploads: a POST with a
+<code>multipart</code> body, such as <code>multipart/form-data</code>, is
+answered 415 right after its header, and none of its body is read. Files go
+to the box through the API (<code>PUT</code> and <code>PATCH
+/api/v1/storage/file</code>, in pieces), as the web interface sends them.
+<code>100 Continue</code> goes out only once the header has passed this
+check and the <code>Host</code> check above.
 </p>
-<ul>
-<li>It needs one <code>Content-Length</code> of at most 16 MiB
-(16777216 bytes), the framing of the parts included. That is the size of the
-largest channel list or extension archive the box takes; the web interface
-sends its own uploads through the API in pieces.</li>
-<li>A longer one is answered 413, one without a length 411, and one
-framed otherwise (a second <code>Content-Length</code>, a length that is not
-a number, any <code>Transfer-Encoding</code>) 400. Nothing of such a body is
-read or written, and the connection is closed.</li>
-<li>A body that goes on past its declared length is read no further than
-one line past it.</li>
-<li><code>100 Continue</code> goes out only once the header has passed
-these checks and the <code>Host</code> check above.</li>
-</ul>
 
 <h2>Answers</h2>
 <p>
@@ -245,8 +233,8 @@ A refusal the layer writes is a problem document
 refusals on an API address under <a href="#requests">Requests</a>, all except
 the 413 come from nhttpd's request reader before the layer sees the request:
 the 400 for the header or the body framing, the 408 and the 501. They are a
-status line and headers, with no body, as are the reader's refusals of an
-upload outside the API. Every answer the layer writes carries
+status line and headers, with no body, as is the reader's refusal of a
+multipart POST outside the API. Every answer the layer writes carries
 <code>X-Content-Type-Options: nosniff</code>, a <code>Vary</code> header that
 names <code>Cookie</code> and <code>Authorization</code>, and
 <code>Cache-Control: no-store</code> unless the route sets its own. The

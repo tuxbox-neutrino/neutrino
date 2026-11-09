@@ -41,9 +41,6 @@
 // - Hook_ReadConfig: Every Hook can read OWN Variables from the yhttpd-Configfile
 // - Hook_EndConnection: After Response is sent and before Connection Instance
 //   is deleted
-// - Hook_UploadSetFilename: this hook can set the filename for a file to upload
-//   via POST (before upload)
-// - Hook_UploadReady: this Hook is called after uploading a file
 //=============================================================================
 #ifndef __yhttpd_yhook_h__
 #define __yhttpd_yhook_h__
@@ -122,8 +119,6 @@ public:
 	// connection is spent.
 	virtual THandleStatus	Hook_SendStream(CyhookHandler *, CySocket *){return HANDLED_NONE;};
 	virtual THandleStatus	Hook_EndConnection(CyhookHandler *){return HANDLED_NONE;}
-	virtual THandleStatus	Hook_UploadSetFilename(CyhookHandler *, std::string &){return HANDLED_NONE;}
-	virtual THandleStatus	Hook_UploadReady(CyhookHandler *, std::string){return HANDLED_NONE;}
 	// Cyhttpd based hooks
 	virtual THandleStatus 	Hook_ReadConfig(CConfigFile *, CStringList &){return HANDLED_NONE;};
 };
@@ -241,8 +236,6 @@ public:
 	THandleStatus 		Hooks_SendResponse();	// Hook for Response.SendResonse Dispatching
 	THandleStatus		Hooks_SendStream(CySocket *sock); // Stream pass, after HANDLED_STREAM
 	THandleStatus 		Hooks_EndConnection();
-	THandleStatus		Hooks_UploadSetFilename(std::string &Filename);
-	THandleStatus		Hooks_UploadReady(const std::string& Filename);
 
 	// status handling
 	void SetHeader(HttpResponseType _httpStatus, std::string _ResponseMimeType)

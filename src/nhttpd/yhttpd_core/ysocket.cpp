@@ -425,62 +425,6 @@ bool CySocket::SendFile(int filed, off_t start, off_t size) {
 	return true;
 }
 //-----------------------------------------------------------------------------
-// Receive File over Socket for FILE* filed
-// read/write in small blocks (to save memory).
-// usind sleep for sync input
-// fd is an opened FILE-Descriptor
-//-----------------------------------------------------------------------------
-//TODO: Write upload Progress Informations into a file
-unsigned int CySocket::ReceiveFileGivenLength(int filed, unsigned int _length) {
-	unsigned int _readbytes = 0;
-	char buffer[RECEIVE_BLOCK_LEN];
-	int retries = 0;
-
-	do {
-		// check bytes in Socket buffer
-		u_long readarg = 0;
-#ifdef Y_CONFIG_USE_OPEN_SSL
-		if(isSSLSocket)
-			readarg = RECEIVE_BLOCK_LEN;
-		else
-#endif
-		{
-			if (ioctl(sock, FIONREAD, &readarg) != 0)// How many bytes avaiable on socket?
-				break;
-			if (readarg > RECEIVE_BLOCK_LEN) // enough bytes to read
-				readarg = RECEIVE_BLOCK_LEN; // read only given length
-		}
-		if (readarg == 0) // nothing to read: sleep
-		{
-			retries++;
-			if (retries > NON_BLOCKING_MAX_RETRIES)
-				break;
-			sleep(1);
-		} else {
-			int bytes_gotten = Read(buffer, readarg);
-
-			if (bytes_gotten == -1 && errno == EINTR)// non-blocking
-				continue;
-			if (bytes_gotten <= 0) // ERROR Code gotten or Conection closed by peer
-			{
-				isValid = false;
-				break;
-			}
-			_readbytes += bytes_gotten;
-			if (write(filed, buffer, bytes_gotten) != bytes_gotten) {
-				perror("write file failed\n");
-				return 0;
-			}
-			retries = 0;
-			if (bytes_gotten < NON_BLOCKING_TRY_BYTES) // to few bytes gotten: sleep
-				sleep(1);
-		}
-		log_level_printf(8, "Receive Block length:%d all:%d\n", _readbytes,
-				_length);
-	} while (_readbytes + RECEIVE_BLOCK_LEN < _length);
-	return _readbytes;
-}
-//-----------------------------------------------------------------------------
 // read all data avaiable on Socket
 //-----------------------------------------------------------------------------
 std::string CySocket::ReceiveBlock() {

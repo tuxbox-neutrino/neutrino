@@ -23,7 +23,6 @@ class CWebserverRequest
 {
 private:
 	bool HandlePost();
-	unsigned int HandlePostBoundary(std::string boundary, unsigned int content_len);
 	bool ParseStartLine(std::string start_line);
 	bool ParseParams(std::string param_string);
 	bool ParseHeader(std::string header);

@@ -193,51 +193,6 @@ THandleStatus CyhookHandler::Hooks_EndConnection() {
 	status = _status;
 	return _status;
 }
-//-----------------------------------------------------------------------------
-// Hook Dispatcher for UploadSetFilename
-//-----------------------------------------------------------------------------
-THandleStatus CyhookHandler::Hooks_UploadSetFilename(std::string &Filename) {
-	log_level_printf(4, "UploadSetFilename Hook-List Start. Filename:(%s)\n",
-			ylog::text(Filename).c_str());
-	THandleStatus _status = HANDLED_NONE;
-	THookList::iterator i = HookList.begin();
-	for (; i != HookList.end(); ++i) {
-		log_level_printf(4, "UploadSetFilename Hook-List (%s) Start\n",
-				((*i)->getHookName()).c_str());
-		// response Hook
-		_status = (*i)->Hook_UploadSetFilename(this, Filename);
-		log_level_printf(4,
-				"UploadSetFilename Hook-List (%s) End. Status (%d)\n",
-				((*i)->getHookName()).c_str(), _status);
-		if ((_status != HANDLED_NONE) && (_status != HANDLED_CONTINUE))
-			break;
-	}
-	log_level_printf(4, "UploadSetFilename Hook-List End\n");
-	status = _status;
-	return _status;
-}
-//-----------------------------------------------------------------------------
-// Hook Dispatcher for UploadSetFilename
-//-----------------------------------------------------------------------------
-THandleStatus CyhookHandler::Hooks_UploadReady(const std::string& Filename) {
-	log_level_printf(4, "UploadReady Hook-List Start. Filename:(%s)\n",
-			ylog::text(Filename).c_str());
-	THandleStatus _status = HANDLED_NONE;
-	THookList::iterator i = HookList.begin();
-	for (; i != HookList.end(); ++i) {
-		log_level_printf(4, "UploadReady Hook-List (%s) Start\n",
-				((*i)->getHookName()).c_str());
-		// response Hook
-		_status = (*i)->Hook_UploadReady(this, Filename);
-		log_level_printf(4, "UploadReady Hook-List (%s) End. Status (%d)\n",
-				((*i)->getHookName()).c_str(), _status);
-		if ((_status != HANDLED_NONE) && (_status != HANDLED_CONTINUE))
-			break;
-	}
-	log_level_printf(4, "UploadReady Hook-List End\n");
-	status = _status;
-	return _status;
-}
 
 //=============================================================================
 // Output helpers

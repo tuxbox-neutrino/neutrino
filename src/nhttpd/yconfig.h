@@ -51,7 +51,6 @@
 //-----------------------------------------------------------------------------
 #define Y_CONFIG_FEATURE_CHECK_PORT_AUTORITY y		// System: Port < 1024 need Admin-Privileges-Check
 #define Y_CONFIG_HAVE_SENDFILE y			// System: Have *IX SendFile
-#define Y_CONFIG_FEATURE_UPLOAD y			// Add Feature: File Upload POST Command
 #define Y_CONFIG_USE_HOSTEDWEB y			// Add Feature: Use HOSTED Web
 //#define Y_CONFIG_USE_OPEN_SSL y			// Add Feature: use openSSL
 //#define Y_CONFIG_FEATURE_KEEP_ALIVE y			// Add Feature: Keep-alive //FIXME: does not work correctly now
@@ -68,11 +67,11 @@
 //#endif
 
 #ifdef CONFIG_SYSTEM_TUXBOX
-#define Y_CONFIG_FEATURE_UPLOAD y
 #define Y_CONFIG_USE_AUTHHOOK y
 #endif
 
 #ifdef Y_CONFIG_FEATURE_KEEP_ALIVE
+#error "Y_CONFIG_FEATURE_KEEP_ALIVE: a POST body the reader leaves unread would be read as the next request"
 #define HTTP_PROTOCOL "HTTP/1.1"
 #else
 #define HTTP_PROTOCOL "HTTP/1.0"
@@ -92,11 +91,6 @@
 #define HTTPD_REQUEST_LOG		"/tmp/httpd_log"
 #define LOG_FILE			"/tmp/yhttpd.log"
 #define LOG_FORMAT			""
-#define UPLOAD_TMP_FILE			"/tmp/upload.tmp"
-// The longest body, multipart framing included, that a POST with a file
-// (multipart/form-data) may declare; a longer one is refused unread. The
-// size of the largest channel list or extension archive the box takes.
-#define UPLOAD_MAX_LENGTH		(16 * 1024 * 1024)
 #define CACHE_DIR			"/tmp/.cache"
 #define HTTPD_SENDFILE_EXT		"htm:text/html,html:text/html,xml:application/xml,txt:text/plain,jpg:image/jpeg,jpeg:image/jpeg,gif:image/gif,png:image/png,bmp:image/x-ms-bmp,css:text/css,js:application/javascript,mjs:application/javascript,json:application/json,svg:image/svg+xml,webp:image/webp,woff:font/woff,woff2:font/woff2,webmanifest:application/manifest+json,yjs:text/plain,img:application/octet-stream,ico:image/x-icon,m3u:audio/x-mpegURL,m3u8:application/x-mpegURL,tar:application/x-tar,gz:application/gzip,ts:video/MP2T,mkv:video/x-matroska,avi:video/x-msvideo,mp3:audio/mpeg,ogg:audio/ogg"
 #define HTTPD_SENDFILE_ALL		"false"

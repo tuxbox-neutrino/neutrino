@@ -659,21 +659,21 @@ TEST_CASE("the parser's debug lines carry no credential and no line of the reque
 		{ "a query's values, whatever their names",
 		  "GET /control/x?plain=V1S1BLE&current=S3NT1NEL HTTP/1.1\r\nHost: box\r\n\r\n",
 		  "ParseParams: name: plain value: 7 bytes" },
-		{ "a multipart field holding the current password",
+		{ "a multipart field holding the current password, refused unread",
 		  withLength("POST /control/y HTTP/1.1\r\nHost: box\r\n"
 			     "Content-Type: multipart/form-data; boundary=b\r\n",
 			     "--b\r\nContent-Disposition: form-data; name=\"current\"\r\n\r\nS3NT1NEL\r\n--b--\r\n"),
-		  "Parameter found. name:(current) value:([redacted])" },
+		  "HandlePost: multipart body refused unread" },
 		{ "a header longer than a log line",
 		  "GET /index.html HTTP/1.1\r\nHost: box\r\n"
 		  "X-Long: " + std::string(9000, 'x') + "\r\n"
 		  "X-After: z\r\n\r\n",
 		  "\n[yhttpd#8] ParseHeader: name: X-After value:  z\n" },
-		{ "a multipart form",
+		{ "a multipart form, refused unread",
 		  withLength("POST /control/y HTTP/1.1\r\nHost: box\r\n"
 			     "Content-Type: multipart/form-data; boundary=b\r\n",
 			     "--b\r\nContent-Disposition: form-data; name=\"password\"\r\n\r\nS3NT1NEL\r\n--b--\r\n"),
-		  "Parameter found. name:(password) value:([redacted])" },
+		  "HandlePost: multipart body refused unread" },
 	};
 	for (size_t i = 0; i < sizeof(cases) / sizeof(cases[0]); i++) {
 		INFO(cases[i].what);
@@ -691,16 +691,12 @@ TEST_CASE("the parser's debug lines carry no credential and no line of the reque
 	}
 }
 
-/* A file part names its field and its file on one line. The line is said by
-   its length only, and the file's name as its field's value, redacted where
-   the field's name says it holds a secret: here the password /control/config
-   reads, sent as a file. */
-TEST_CASE("a multipart file part is in the parser's debug lines without its secret", "[nhttpd]")
+/* A file part names its field and its file on one line. The server takes no
+   uploads, so the body is refused before a byte of it is read, and neither
+   the line nor the file's name reaches a log: here the password
+   /control/config reads, sent as a file. */
+TEST_CASE("a multipart file part is refused unread, and its secret is in no line", "[nhttpd]")
 {
-	// the reader writes the file where the box's upload goes; a file already
-	// there is somebody else's, and the case leaves it alone
-	if (access(UPLOAD_TMP_FILE, F_OK) == 0)
-		return;
 	const std::string body =
 		"--b\r\nContent-Disposition: form-data; name=\"mod_auth_dot_password\"; filename=\"S3NT1NEL\"\r\n"
 		"Content-Type: text/plain\r\n\r\nthe file\r\n--b--\r\n";
@@ -708,10 +704,9 @@ TEST_CASE("a multipart file part is in the parser's debug lines without its secr
 					       "Content-Type: multipart/form-data; boundary=b\r\n", body);
 	std::string clf, elf;
 	const std::string log = parserLog(request, clf, elf);
-	unlink(UPLOAD_TMP_FILE);
 	INFO(log);
-	CHECK(log.find("filename found. name:(mod_auth_dot_password) value:([redacted])") != std::string::npos);
-	CHECK(log.find("this is a file!! found. line of ") != std::string::npos);
+	CHECK(log.find("HandlePost: multipart body refused unread") != std::string::npos);
+	CHECK(log.find("filename") == std::string::npos);
 	CHECK(log.find("S3NT1NEL") == std::string::npos);
 	CHECK(clf.find("S3NT1NEL") == std::string::npos);
 	CHECK(elf.find("S3NT1NEL") == std::string::npos);
