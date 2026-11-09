@@ -142,6 +142,18 @@ first password. The TV shows it in the same message as at the first start.
 Every browser and app signed in to the web interface is signed out. The next
 sign-in over the web asks for a password of your own again.
 
+## What a sign-in can do
+
+Signed in, a browser has full control over the box: it can change every
+setting, put settings back from a backup, install extensions and run
+scripts on the box. Sign out on a device that others use as well.
+
+Putting settings back from a backup in the web interface never changes the
+login. The user name, the password and the API tokens stay as the box has
+them, whatever the backup holds, also a backup of this box or of the box it
+replaces. The restore in the settings menu at the box puts back everything
+the backup holds, the login included.
+
 ## Signed out after a change of the login
 
 A new password or a new user name signs out everybody who signed in before

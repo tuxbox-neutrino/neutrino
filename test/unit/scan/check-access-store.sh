@@ -109,6 +109,36 @@ if [ "$refused" != "$want" ]; then
 	exit 1
 fi
 
+# The restore over the network keeps those files as the box has them and puts the
+# server's own file back with the box's account in it (restoreOf). It tells that
+# file from the stores by one more name, which has to be the server file's; and
+# the lines it keeps are the ones the first start takes the account out of.
+server=`grep -E '^const char kServerFileName\[\] = "[^"]+";' "$STORAGE" | grep -oE '"[^"]+"' | tr -d '"' || true`
+[ "$server" = "$old" ] || {
+	echo "check-access-store.sh: kServerFileName in $STORAGE is '$server'," >&2
+	echo "  not the server file $old, so a restore would keep the wrong file's account" >&2
+	exit 1
+}
+BACKUP="$SRC/src/coreapi/backup.cpp"
+[ -r "$BACKUP" ] || { echo "check-access-store.sh: cannot read $BACKUP" >&2; exit 1; }
+keys=`grep -E '^const char \*const kAccountKeys\[\]' "$BACKUP" || true`
+[ -n "$keys" ] || {
+	echo "check-access-store.sh: no kAccountKeys array in $BACKUP" >&2
+	exit 1
+}
+for name in kOldUser kOldPassword; do
+	value=`grep -E "^const char $name\[\][[:blank:]]*=" "$WEBCONFIG" | grep -oE '"[^"]+"' || true`
+	[ -n "$value" ] && printf '%s\n' "$keys" | grep -qF "$value" || {
+		echo "check-access-store.sh: the restore does not keep the line $value ($name in $WEBCONFIG)," >&2
+		echo "  so an archive could bring that part of the account along" >&2
+		exit 1
+	}
+done
+grep -qF 'storage::restoreOf(dir, leaf)' "$BACKUP" || {
+	echo "check-access-store.sh: $BACKUP no longer asks restoreOf what to do with a file" >&2
+	exit 1
+}
+
 # The web server is told the same three files, each with the working file it is
 # written through, so that no static answer hands one out and no log is written
 # into one (yprotect). Named by the macros and not by their text, which leaves the
@@ -131,6 +161,24 @@ grep -qF 'names.push_back(httpd::workingFile(stores[i]));' "$CONTROL" \
 	&& grep -qF 'yprotect::setFiles(accessFiles())' "$CONTROL" || {
 	echo "check-access-store.sh: $CONTROL no longer hands the stores and their working files" >&2
 	echo "  to yprotect::setFiles" >&2
+	exit 1
+}
+
+# What a restore left in the store's directory when the program ended before it
+# was done, the copy of nhttpd.conf with the account lines among it, is kept by
+# nothing else across a start: the start keeps it and removes it before the first
+# start's migration can remove a working file, and so before the web server
+# answers anybody, and the web server is told what stays of it.
+MAIN="$SRC/src/neutrino.cpp"
+[ -r "$MAIN" ] || { echo "check-access-store.sh: cannot read $MAIN" >&2; exit 1; }
+kept=`grep -n 'coreapi::backup::keepLeftovers(' "$MAIN" | head -1 | cut -d: -f1`
+migrated=`grep -n 'httpd::ensureConfigFile(' "$MAIN" | head -1 | cut -d: -f1`
+[ -n "$kept" ] && [ -n "$migrated" ] && [ "$kept" -lt "$migrated" ] || {
+	echo "check-access-store.sh: $MAIN does not keep what a restore left before the migration" >&2
+	exit 1
+}
+grep -qF 'coreapi::backup::leftovers()' "$CONTROL" || {
+	echo "check-access-store.sh: $CONTROL no longer tells the web server what a restore left" >&2
 	exit 1
 }
 

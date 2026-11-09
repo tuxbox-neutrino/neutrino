@@ -56,6 +56,9 @@
 #include "coreapi/box/storage_internal.h"
 #include "coreapi/base/types.h"
 #include "coreapi/backup.h"
+#include "coreapi/base/accessfiles.h"
+#include "yprotect.h"
+#include "ystatic.h"
 #include "coreapi/channels.h"
 #include "coreapi/network.h"
 #include "coreapi/webui.h"
@@ -7820,6 +7823,414 @@ TEST_CASE("the box's settings go out as one archive and come back only where it 
 	REQUIRE(nobackup.code == 500);
 	REQUIRE(nobackup.body.find("backup-failed") != std::string::npos);
 	REQUIRE(b.leftovers().empty());
+}
+
+TEST_CASE("a restore over the network puts the settings back and never the login", "[write][backup]")
+{
+	/* An archive that carries an access store of its own, its working file, an
+	   nhttpd.conf naming another account in every spelling a reader takes, and the
+	   settings beside them: the settings come back, the login stays the box's. */
+	ShippedRoutes shipped;
+	BackupFixture b;
+	struct StoreDir
+	{
+		const char *was;
+		StoreDir() : was(coreapi::storage::internal::access_store_dir) {}
+		~StoreDir() { coreapi::storage::internal::access_store_dir = was; }
+	} store_dir;
+	coreapi::storage::internal::access_store_dir = b.config.c_str();
+
+	const std::string box_access = "password_hash=the box's own\napi_tokens=the box's token\n";
+	const std::string box_server = "WebsiteMain.port=80\nmod_auth.username=root\nmod_auth.password=the box's password\n";
+	std::vector<BackupFixture::RawEntry> raw;
+	const BackupFixture::RawEntry entries[] = {
+		{ "config/nhttpd-access.conf", '0', "password_hash=an intruder's\napi_tokens=an intruder's token\n" },
+		{ "config/nhttpd-access.conf.new", '0', "password_hash=an intruder's\n" },
+		{ "config/nhttpd.conf", '0', "WebsiteMain.port=8080\nmod_auth.username=intruder\n"
+		  "mod_auth.password=an intruder's password\n mod_auth.password = spaced\r\n"
+		  "AuthUser=old-style\nAuthPassword=old-style\nmod_auth.authenticate=true\n" },
+		{ "config/neutrino.conf", '0', "volume=7\n" },
+		// the same name in another directory is a file like any other
+		{ "config/sub/nhttpd-access.conf", '0', "not a store\n" },
+	};
+	for (size_t i = 0; i < sizeof(entries) / sizeof(entries[0]); ++i)
+		raw.push_back(entries[i]);
+
+	b.write(b.config + "/nhttpd-access.conf", box_access);
+	b.write(b.config + "/nhttpd.conf", box_server);
+	b.rawTarOf("keep.tar", raw);
+	REQUIRE(authedPost("/api/v1/system/restore", "{\"file\":\"keep.tar\"}").code == 202);
+	REQUIRE(rebootsStarted() == 1);
+	REQUIRE(b.read(b.config + "/nhttpd-access.conf") == box_access);
+	REQUIRE(access((b.config + "/nhttpd-access.conf.new").c_str(), F_OK) != 0);
+	REQUIRE(b.read(b.config + "/nhttpd.conf") ==
+	        "WebsiteMain.port=8080\nmod_auth.authenticate=true\n"
+	        "mod_auth.username=root\nmod_auth.password=the box's password\n");
+	REQUIRE(b.read(b.config + "/neutrino.conf") == "volume=7\n");
+	REQUIRE(b.read(b.config + "/sub/nhttpd-access.conf") == "not a store\n");
+	REQUIRE(b.leftovers().empty());
+
+	// A box without nhttpd.conf takes the archive's without any account, and one
+	// without an access store gets none from the archive.
+	REQUIRE(unlink((b.config + "/nhttpd.conf").c_str()) == 0);
+	REQUIRE(unlink((b.config + "/nhttpd-access.conf").c_str()) == 0);
+	b.rawTarOf("bare.tar", raw);
+	REQUIRE(authedPost("/api/v1/system/restore", "{\"file\":\"bare.tar\"}").code == 202);
+	REQUIRE(rebootsStarted() == 2);
+	REQUIRE(b.read(b.config + "/nhttpd.conf") == "WebsiteMain.port=8080\nmod_auth.authenticate=true\n");
+	REQUIRE(access((b.config + "/nhttpd-access.conf").c_str(), F_OK) != 0);
+	REQUIRE(access((b.config + "/nhttpd-access.conf.new").c_str(), F_OK) != 0);
+	REQUIRE(b.leftovers().empty());
+}
+
+namespace
+{
+
+// What the restore's copy of nhttpd.conf was while it stood beside its name.
+struct StagedSeen
+{
+	bool seen;
+	bool holds_password;
+	bool held_back;
+	bool sent;
+	StagedSeen() : seen(false), holds_password(false), held_back(false), sent(true) {}
+};
+StagedSeen *staged_seen = NULL;
+std::string staged_dir;
+
+void lookAtStaged(int dir, const std::string &working)
+{
+	StagedSeen &s = *staged_seen;
+	s.seen = true;
+	const int fd = openat(dir, working.c_str(), O_RDONLY | O_CLOEXEC);
+	if (fd < 0)
+		return;
+	std::string text;
+	char buf[512];
+	ssize_t n;
+	while ((n = read(fd, buf, sizeof(buf))) > 0)
+		text.append(buf, (size_t) n);
+	s.holds_password = text.find("the box's password") != std::string::npos;
+	// asked as every gate of the web server asks, while it has its name
+	s.held_back = yprotect::isProtected(fd);
+	close(fd);
+	struct stat st;
+	const int out = ystatic::openToSend(staged_dir + "/" + working, st);
+	s.sent = out >= 0;
+	if (out >= 0)
+		close(out);
+}
+
+} // namespace
+
+/* The restore's working copy of nhttpd.conf holds the box's account lines from
+   the moment they are put in until it takes its name, and the rest of the archive
+   is unpacked meanwhile. Under the name it has then, it is one of the files that
+   hold who may reach the box. */
+TEST_CASE("the restore's copy of the account lines goes out through no gate while it stands", "[write][backup]")
+{
+	ShippedRoutes shipped;
+	BackupFixture b;
+	struct Back
+	{
+		const char *was;
+		Back() : was(coreapi::storage::internal::access_store_dir) {}
+		~Back()
+		{
+			coreapi::storage::internal::access_store_dir = was;
+			coreapi::backup::internal::setAccountLinesSeenForTest(NULL);
+			staged_seen = NULL;
+		}
+	} back;
+	coreapi::storage::internal::access_store_dir = b.config.c_str();
+
+	b.write(b.config + "/nhttpd.conf", "WebsiteMain.port=80\nmod_auth.password=the box's password\n");
+	std::vector<BackupFixture::RawEntry> raw;
+	const BackupFixture::RawEntry entries[] = {
+		{ "config/nhttpd.conf", '0', "WebsiteMain.port=8080\n" },
+		// unpacked while the copy stands
+		{ "config/neutrino.conf", '0', "volume=7\n" },
+	};
+	for (size_t i = 0; i < sizeof(entries) / sizeof(entries[0]); ++i)
+		raw.push_back(entries[i]);
+	b.rawTarOf("staged.tar", raw);
+
+	StagedSeen seen;
+	staged_seen = &seen;
+	staged_dir = b.config;
+	coreapi::backup::internal::setAccountLinesSeenForTest(lookAtStaged);
+	REQUIRE(authedPost("/api/v1/system/restore", "{\"file\":\"staged.tar\"}").code == 202);
+	REQUIRE(seen.seen);
+	CHECK(seen.holds_password);
+	CHECK(seen.held_back);
+	CHECK_FALSE(seen.sent);
+	// and in place, as the box's nhttpd.conf
+	const int fd = open((b.config + "/nhttpd.conf").c_str(), O_RDONLY | O_CLOEXEC);
+	REQUIRE(fd >= 0);
+	CHECK(yprotect::isProtected(fd));
+	close(fd);
+}
+
+namespace
+{
+
+// What a reader made of the restore's copy by the name it was made under, while
+// it was being made.
+struct StagingRead
+{
+	int dir;
+	std::string name;
+	std::atomic<bool> done;
+	std::atomic<bool> asked;
+	bool opened;
+	bool refused;
+	bool done_in_window;
+	size_t names;
+	bool unnamed;
+	std::thread thread;
+	StagingRead() : dir(-1), done(false), asked(false), opened(false), refused(false), done_in_window(true), names(0),
+	                unnamed(false) {}
+};
+StagingRead *staging_read = NULL;
+
+// the reader has come as far as its question, the one a gate asks
+void stagingAsked()
+{
+	if (staging_read != NULL)
+		staging_read->asked = true;
+}
+
+size_t restoreNames(int dir)
+{
+	size_t n = 0;
+	const int again = dup(dir);
+	DIR *d = again >= 0 ? fdopendir(again) : NULL;
+	if (d == NULL)
+		return 0;
+	rewinddir(d);
+	struct dirent *e;
+	while ((e = readdir(d)) != NULL)
+		if (std::strncmp(e->d_name, ".restore-", 9) == 0)
+			n++;
+	closedir(d);
+	return n;
+}
+
+void countAtStaging(int dir, const std::string &name)
+{
+	staging_read->unnamed = name.empty();
+	staging_read->names = restoreNames(dir);
+}
+
+void readAtStaging(int dir, const std::string &name)
+{
+	StagingRead *r = staging_read;
+	r->dir = dir;
+	r->name = name;
+	coreapi::accessfiles::setAskingForTest(stagingAsked);
+	r->thread = std::thread([r]() {
+		const int fd = openat(r->dir, r->name.c_str(), O_RDONLY | O_CLOEXEC);
+		r->opened = fd >= 0;
+		if (fd >= 0)
+		{
+			r->refused = yprotect::isProtected(fd);
+			close(fd);
+		}
+		r->done = true;
+	});
+	// until the reader asks, which it does at once; a reader that is let
+	// through then would be done within the moment after
+	for (int waited = 0; waited < 10000 && !r->asked && !r->done; waited += 1)
+		usleep(1000);
+	for (int waited = 0; waited < 300 && !r->done; waited += 5)
+		usleep(5 * 1000);
+	r->done_in_window = r->done;
+}
+
+struct StagingBack
+{
+	const char *was;
+	StagingBack() : was(coreapi::storage::internal::access_store_dir) {}
+	~StagingBack()
+	{
+		coreapi::storage::internal::access_store_dir = was;
+		coreapi::backup::internal::setStagingMadeForTest(NULL, false);
+		coreapi::accessfiles::setFailForTest(coreapi::accessfiles::FailNone);
+		coreapi::accessfiles::setAskingForTest(NULL);
+		coreapi::accessfiles::closeTheirDirectory(false);
+		yprotect::setKeptPlacesForTest(std::vector<std::string>());
+		yprotect::setFiles(std::vector<std::string>());
+		staging_read = NULL;
+	}
+};
+
+std::vector<BackupFixture::RawEntry> stagedArchive()
+{
+	std::vector<BackupFixture::RawEntry> raw;
+	const BackupFixture::RawEntry entries[] = {
+		{ "config/nhttpd.conf", '0', "WebsiteMain.port=8080\n" },
+		{ "config/neutrino.conf", '0', "volume=7\n" },
+	};
+	for (size_t i = 0; i < sizeof(entries) / sizeof(entries[0]); ++i)
+		raw.push_back(entries[i]);
+	return raw;
+}
+
+} // namespace
+
+/* Where the configuration directory takes O_TMPFILE the copy has no name until it
+   is whole and kept; made under its name, a reader who opened it by that name in
+   the moment before it was kept is asked about it only once it is. */
+TEST_CASE("the restore's copy of the account lines is kept before any reader is asked about it", "[write][backup]")
+{
+	ShippedRoutes shipped;
+	BackupFixture b;
+	StagingBack back;
+	coreapi::storage::internal::access_store_dir = b.config.c_str();
+	const std::string box_server = "WebsiteMain.port=80\nmod_auth.password=the box's password\n";
+
+	// made without a name: nothing new in the directory at that moment
+	{
+		b.write(b.config + "/nhttpd.conf", box_server);
+		b.rawTarOf("unnamed.tar", stagedArchive());
+		StagingRead r;
+		staging_read = &r;
+		coreapi::backup::internal::setStagingMadeForTest(countAtStaging, false);
+		REQUIRE(authedPost("/api/v1/system/restore", "{\"file\":\"unnamed.tar\"}").code == 202);
+		// the case's directory lies in /tmp, which takes O_TMPFILE
+		CHECK(r.unnamed);
+		CHECK(r.names == 0u);
+		REQUIRE(b.leftovers().empty());
+	}
+
+	// made under its name: the reader waits until the copy is kept, and is refused
+	{
+		b.write(b.config + "/nhttpd.conf", box_server);
+		b.rawTarOf("named.tar", stagedArchive());
+		StagingRead r;
+		staging_read = &r;
+		coreapi::backup::internal::setStagingMadeForTest(readAtStaging, true);
+		REQUIRE(authedPost("/api/v1/system/restore", "{\"file\":\"named.tar\"}").code == 202);
+		if (r.thread.joinable())
+			r.thread.join();
+		coreapi::accessfiles::setAskingForTest(NULL);
+		REQUIRE(r.opened);
+		CHECK(r.asked);
+		CHECK_FALSE(r.done_in_window);
+		CHECK(r.refused);
+		REQUIRE(b.leftovers().empty());
+	}
+}
+
+/* A copy that cannot be kept, for want of a descriptor or of memory, is not
+   written: the restore is refused before the box's account lines go anywhere, and
+   nothing is left behind. */
+TEST_CASE("a restore whose copy of the account lines cannot be kept writes nothing", "[write][backup]")
+{
+	ShippedRoutes shipped;
+	BackupFixture b;
+	StagingBack back;
+	coreapi::storage::internal::access_store_dir = b.config.c_str();
+	const std::string box_server = "WebsiteMain.port=80\nmod_auth.password=the box's password\n";
+	/* No descriptor to duplicate for the copy; no memory at the first entry, the
+	   nhttpd.conf it replaces; and none at the second, the copy's own. */
+	const coreapi::accessfiles::Fail fails[] = { coreapi::accessfiles::FailDup, coreapi::accessfiles::FailAlloc,
+	                                             coreapi::accessfiles::FailAlloc };
+	const unsigned after[] = { 0, 0, 1 };
+	for (size_t i = 0; i < sizeof(fails) / sizeof(fails[0]); ++i)
+	{
+		INFO(i);
+		b.write(b.config + "/nhttpd.conf", box_server);
+		b.write(b.config + "/neutrino.conf", "volume=3\n");
+		b.rawTarOf("unkept.tar", stagedArchive());
+		coreapi::accessfiles::setFailForTest(fails[i], after[i]);
+		const Reply r = authedPost("/api/v1/system/restore", "{\"file\":\"unkept.tar\"}");
+		coreapi::accessfiles::setFailForTest(coreapi::accessfiles::FailNone);
+		CHECK(r.code == 500);
+		CHECK(r.body.find("restore-refused") != std::string::npos);
+		CHECK(b.read(b.config + "/nhttpd.conf") == box_server);
+		CHECK(b.read(b.config + "/neutrino.conf") == "volume=3\n");
+		CHECK(b.leftovers().empty());
+	}
+}
+
+/* What a restore left when the program ended before it was done: its copy of
+   nhttpd.conf with the box's account lines, with a second name elsewhere, which
+   nothing kept across the start. No file route hands the copy out by its name; the
+   start keeps it and removes it before the server answers, so the second name is
+   held back as well. One the start cannot keep stays, held back by its name, and
+   nothing of the configuration directory goes out, not its fixed names either. */
+TEST_CASE("what a restore left when the program ended goes out under no name after the start", "[write][backup]")
+{
+	ShippedRoutes shipped;
+	BackupFixture b;
+	StagingBack back;
+	coreapi::storage::internal::access_store_dir = b.config.c_str();
+	const std::string left = b.config + "/.restore-0123456789abcdef-0";
+	const std::string alias = b.box.at("other") + "/alias.conf";
+	const std::string lines = "WebsiteMain.port=80\nmod_auth.password=the box's password\n";
+	std::vector<std::string> kept;
+	kept.push_back(b.config);
+	kept.push_back("/proc");
+	kept.push_back("/sys");
+	kept.push_back("/dev");
+	yprotect::setKeptPlacesForTest(kept);
+
+	b.write(left, lines);
+	REQUIRE(link(left.c_str(), alias.c_str()) == 0);
+	coreapi::accessfiles::forgetAll();
+
+	// refused by its name as the store is
+	const Reply asked = authedGet("/api/v1/storage/file?path=" + left);
+	CHECK(asked.code == 400);
+	CHECK(asked.body.find("access-store") != std::string::npos);
+
+	// kept and removed at the start
+	std::string why;
+	CHECK(coreapi::backup::keepLeftovers(&why));
+	CHECK(why.empty());
+	CHECK(access(left.c_str(), F_OK) != 0);
+	CHECK(coreapi::backup::leftovers().empty());
+	CHECK_FALSE(coreapi::accessfiles::theirDirectoryClosed());
+	{
+		const int fd = open(alias.c_str(), O_RDONLY | O_CLOEXEC);
+		REQUIRE(fd >= 0);
+		CHECK(yprotect::isProtected(fd));
+		close(fd);
+	}
+
+	// one the start cannot keep
+	REQUIRE(unlink(alias.c_str()) == 0);
+	b.write(left, lines);
+	REQUIRE(link(left.c_str(), alias.c_str()) == 0);
+	coreapi::accessfiles::forgetAll();
+	coreapi::accessfiles::setFailForTest(coreapi::accessfiles::FailAlloc);
+	CHECK_FALSE(coreapi::backup::keepLeftovers(&why));
+	const std::vector<std::string> stays = coreapi::backup::leftovers();
+	CHECK_FALSE(yprotect::setFiles(stays));
+	coreapi::accessfiles::setFailForTest(coreapi::accessfiles::FailNone);
+	CHECK(why.find(left) != std::string::npos);
+	CHECK(access(left.c_str(), F_OK) == 0);
+	REQUIRE(stays.size() == 1u);
+	CHECK(stays[0] == left);
+	CHECK(coreapi::accessfiles::theirDirectoryClosed());
+	CHECK(coreapi::accessfiles::count() == 0u);
+	{
+		const int fd = open(alias.c_str(), O_RDONLY | O_CLOEXEC);
+		REQUIRE(fd >= 0);
+		CHECK(yprotect::isProtected(fd));
+		close(fd);
+	}
+	{
+		const int fd = open((b.config + "/neutrino.conf").c_str(), O_RDONLY | O_CLOEXEC);
+		REQUIRE(fd >= 0);
+		CHECK(yprotect::inKeptPlace(fd, true));
+		coreapi::accessfiles::closeTheirDirectory(false);
+		CHECK_FALSE(yprotect::inKeptPlace(fd, true));
+		close(fd);
+	}
+	unlink(left.c_str());
+	unlink(alias.c_str());
 }
 
 TEST_CASE("an uploaded channel or bouquet file takes the place of the box's own and is read in", "[write][channelfiles]")

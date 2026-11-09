@@ -56,6 +56,7 @@
 #include <driver/neutrinofonts.h>
 #include <driver/rcinput.h>
 #include <coreapi/archive.h>
+#include <coreapi/backup.h>
 #include <coreapi/channels.h>
 #include <coreapi/playback.h>
 #include <coreapi/system.h>
@@ -3377,6 +3378,17 @@ TIMER_START();
 	// The size the box draws at, which is kept beside the settings rather than
 	// in them: the save writes that copy and not the member.
 	installOsdResolutionSource();
+
+	/* Before the access file below, and before the web server answers
+	 * anybody: what a restore left in the configuration directory when the
+	 * program ended before it was done, its copy of nhttpd.conf with the
+	 * account lines among it, is kept by what it is and removed. Where one
+	 * cannot be kept, no file of that directory goes out of the web server. */
+	{
+		std::string why;
+		if (!coreapi::backup::keepLeftovers(&why))
+			printf("[neutrino] %s\n", why.c_str());
+	}
 
 	/* First, because the file read below is the one this writes. A box with
 	 * no file of its own gets one here on every start until it has one: the

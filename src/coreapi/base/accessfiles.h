@@ -94,6 +94,13 @@ void forgetAll();
 // How many are held, for the cases.
 size_t count();
 
+/* The directory the files lie in, the configuration directory, goes out
+   through no gate at all once closed, not under the names the program fixes
+   there either (yprotect::inKeptPlace): for a start that found a file there
+   it could not keep, which the names do not reach. */
+void closeTheirDirectory(bool closed);
+bool theirDirectoryClosed();
+
 /* Makes created fail where it duplicates the descriptor (FailDup), the way a
    full descriptor table does, or created and named fail where they make the
    entry (FailAlloc), the way memory that ran out does; for the cases. The

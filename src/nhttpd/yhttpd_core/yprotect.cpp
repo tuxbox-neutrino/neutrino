@@ -173,6 +173,10 @@ bool inKeptPlace(int fd, bool config_ok)
 	// a pipe, a socket or anything else that is no file of a directory
 	if (real.empty() || real[0] != '/')
 		return true;
+	/* Not even those names once a file in the configuration directory could
+	   not be kept (coreapi::accessfiles::closeTheirDirectory). */
+	if (config_ok && coreapi::accessfiles::theirDirectoryClosed())
+		config_ok = false;
 	const std::vector<std::string> kept = keptPlaces();
 	for (size_t i = 0; i < kept.size(); i++) {
 		if (config_ok && i == 0)

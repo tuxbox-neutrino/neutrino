@@ -14,6 +14,7 @@
 #include <stddef.h>
 
 #include <string>
+#include <vector>
 
 namespace coreapi
 {
@@ -79,6 +80,13 @@ Result<Archive> make();
    a restart and with writes held off until the box is restarted by hand, and the
    detail says so.
 
+   The login stays the box's, whatever the archive carries (storage::restoreOf): the
+   access store, the name it had before and the working files of the two stores are
+   not put back and stay as the box has them, and nhttpd.conf is put back with the
+   lines for the account taken out and the box's own put in. A caller who may restore
+   settings may not take the login over by it; the restore of the settings menu at the
+   box, through restore.sh, is not this and puts back what its archive holds.
+
    file is a plain name in the temporary directory, of letters, digits, dots,
    dashes and underscores, ending in .tar.gz, .tgz or .tar. InvalidArgument
    BadName for any other name, NotFound NoSuchName for a name with no file behind
@@ -111,6 +119,21 @@ bool restartWithoutSaving();
    off and leaves the writes held until the restart. Only the holder of the turn
    that froze them lets them go, so a restore that failed cannot let go of the
    hold of one that waits for its restart. */
+/* What a restore left in the directory of the access store when the program ended
+   before it was done: its working files, the copy of nhttpd.conf with the box's
+   account lines among them, which nothing kept across the start. Each is kept as one
+   of the files that hold who may reach the box (accessfiles), so a second name it has
+   elsewhere stays held back, and removed. At the start, before the web server
+   answers anybody. One that cannot be kept stays where it is, and the configuration
+   directory then goes out through no gate (accessfiles::closeTheirDirectory); false,
+   and why says so. */
+bool keepLeftovers(std::string *why);
+
+/* The working files of a restore that are in the directory of the access store now,
+   by their full names: for the web server, which holds back what such a name stands
+   for, as it does for the store's own names. */
+std::vector<std::string> leftovers();
+
 class MenuRestore
 {
 	public:
@@ -159,6 +182,22 @@ void setRestarterForTest(Restarter r);
 /* What the restart would have ended: the restore waiting for it, and the
    settings files left alone until then. */
 void restartedForTest();
+
+/* Called once the box's own account lines are in the working copy a restore
+   makes of nhttpd.conf, before the rest of the archive is unpacked, with the
+   directory it lies in and its name there; NULL, as the program runs, for
+   none. A case uses it to look at that copy while it stands. */
+typedef void (*AccountLinesSeen)(int dir, const std::string &working);
+void setAccountLinesSeenForTest(AccountLinesSeen seen);
+
+/* Called once that working copy is made, before it is kept and while no gate
+   asks about a descriptor, with the directory and the name it was made under,
+   empty where it was made without one; with_a_name makes it under its name even
+   where the filesystem could do without. NULL, as the program runs, for none. */
+typedef void (*StagingMade)(int dir, const std::string &name);
+void setStagingMadeForTest(StagingMade made, bool with_a_name);
+extern StagingMade stagingMade;
+extern bool stagingNamed;
 } // namespace internal
 
 } // namespace backup

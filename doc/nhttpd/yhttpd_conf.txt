@@ -63,7 +63,8 @@ through a folder link inside a web folder or named to the file routes of
 box goes out, by any name or link, while it is written or after it was
 replaced. Out of the configuration directory go only the documents the box
 names there itself, the channel lists and the configuration documents of
-/api/v1/config.)
+/api/v1/config, and not even those where the start found a working file of
+a restore that ended with the program and could not keep it.)
 
 <website name>.ssl
 <website name>.ssl_pemfile

@@ -49,7 +49,8 @@ void setKeptPlacesForTest(const std::vector<std::string> &places);
 // read or names no file of a directory. Asked of what was opened, so a link
 // into one of the places from any web folder goes nowhere. config_ok leaves
 // the configuration directory out, for an answer the program names there
-// itself (the channel lists, the configuration documents).
+// itself (the channel lists, the configuration documents), unless the start
+// closed that directory (coreapi::accessfiles::closeTheirDirectory).
 bool inKeptPlace(int fd, bool config_ok = false);
 
 // Called by isProtected once it has looked at the name of that position in

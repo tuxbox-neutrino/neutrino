@@ -227,6 +227,17 @@ Failure outside(const std::string &path)
    box. */
 const char *const kAccessStoreNames[] = { "nhttpd-access.conf", "nhttpd.conf", "ni-web.conf", "nhttpd-access.conf.new", "nhttpd.conf.new" };
 
+/* The one of those that is the web server's own file and not a store: it says how the
+   server runs as well, and a restore puts that back (restoreOf). One of the names above. */
+const char kServerFileName[] = "nhttpd.conf";
+
+} // namespace
+
+const char kRestoreWorkingPrefix[] = ".restore-";
+
+namespace
+{
+
 bool isAccessStore(const std::string &resolved)
 {
 	// Resolved rather than written down, for the reason the roots are: a
@@ -235,6 +246,12 @@ bool isAccessStore(const std::string &resolved)
 	if (realpath(internal::access_store_dir, dir) == NULL)
 		return false;
 	const std::string where(dir);
+
+	// a restore's working file beside the store, whatever follows the prefix
+	const std::string working = where + "/" + kRestoreWorkingPrefix;
+	if (resolved.compare(0, working.size(), working) == 0 &&
+	    resolved.find('/', working.size()) == std::string::npos)
+		return true;
 
 	for (size_t i = 0; i < sizeof(kAccessStoreNames) / sizeof(kAccessStoreNames[0]); i++)
 	{
@@ -433,6 +450,23 @@ std::string unescapeMountField(const std::string &field)
 }
 
 } // namespace
+
+InStore restoreOf(int dir, const std::string &leaf)
+{
+	/* The directory by what it is and not by how it is spelt: the restore reaches it
+	   by a path of its own, and the store's directory may be named through a link. */
+	struct stat here;
+	struct stat store;
+	if (fstat(dir, &here) != 0 || stat(internal::access_store_dir, &store) != 0 ||
+	    here.st_dev != store.st_dev || here.st_ino != store.st_ino)
+		return InStore::Restored;
+	if (leaf == kServerFileName)
+		return InStore::AccountKept;
+	for (size_t i = 0; i < sizeof(kAccessStoreNames) / sizeof(kAccessStoreNames[0]); i++)
+		if (leaf == kAccessStoreNames[i])
+			return InStore::Kept;
+	return InStore::Restored;
+}
 
 void setRoots(const std::string &colon_separated)
 {

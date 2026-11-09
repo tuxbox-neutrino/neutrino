@@ -50,6 +50,7 @@
 #include <gui/rc_lock.h>
 #include <httpd/login_bridge.h>
 #include <httpd/webconfig.h>
+#include <coreapi/backup.h>
 #include <coreapi/websources.h>
 #include <coreapi/webui.h>
 #include <mod_auth.h>
@@ -148,7 +149,8 @@ static bool boxRawPlace(const std::string &real)
    store, the name it had before (which a box may still carry), and nhttpd.conf,
    which holds the old page login's password and the addresses let in without
    one until the first start carries the account over. Each with the working
-   file a write puts its new content in first. */
+   file a write puts its new content in first; and what a restore left there
+   that the start could not keep (coreapi::backup::keepLeftovers). */
 static std::vector<std::string> accessFiles()
 {
 	static const char *const stores[] = { HTTPD_ACCESS_FILE, HTTPD_SERVER_FILE, HTTPD_ACCESS_FORMER_FILE };
@@ -157,6 +159,8 @@ static std::vector<std::string> accessFiles()
 		names.push_back(stores[i]);
 		names.push_back(httpd::workingFile(stores[i]));
 	}
+	const std::vector<std::string> left = coreapi::backup::leftovers();
+	names.insert(names.end(), left.begin(), left.end());
 	return names;
 }
 

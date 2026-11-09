@@ -61,6 +61,7 @@ pthread_rwlock_t &makingLock()
 Fail failing = FailNone;
 unsigned failingAfter = 0;
 void (*askingHook)() = NULL;
+bool closedDirectory = false;
 
 // whether the failure set up for the cases strikes this call
 bool fails(Fail f)
@@ -217,6 +218,18 @@ size_t count()
 {
 	Locked hold;
 	return kept().size();
+}
+
+void closeTheirDirectory(bool closed)
+{
+	Locked hold;
+	closedDirectory = closed;
+}
+
+bool theirDirectoryClosed()
+{
+	Locked hold;
+	return closedDirectory;
 }
 
 void setFailForTest(Fail f, unsigned after)

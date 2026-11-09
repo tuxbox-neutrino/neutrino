@@ -9,9 +9,13 @@
 #include <config.h>
 
 #include "coreapi/backup.h"
+#include "coreapi/box/storage_internal.h"
+
+#include "coreapi/base/accessfiles.h"
 
 #include "coreapi/base/errors.h"
 #include "coreapi/base/settingswrites.h"
+#include "coreapi/storage.h"
 #include "coreapi/tarfile.h"
 #include "coreapi/shellcontract.h"
 
@@ -55,6 +59,25 @@ bool restart_in_place = false;
 #endif
 size_t max_members = 20000;
 unsigned long long max_unpacked = 256ull * 1024 * 1024;
+
+namespace
+{
+AccountLinesSeen accountLinesSeen = NULL;
+} // anonymous namespace
+
+void setAccountLinesSeenForTest(AccountLinesSeen seen)
+{
+	accountLinesSeen = seen;
+}
+
+StagingMade stagingMade = NULL;
+bool stagingNamed = false;
+
+void setStagingMadeForTest(StagingMade made, bool with_a_name)
+{
+	stagingMade = made;
+	stagingNamed = with_a_name;
+}
 } // namespace internal
 
 namespace
@@ -315,7 +338,7 @@ bool linkOnTheWay(const std::string &base, const std::string &path)
 }
 
 // What a file of the archive is written under before it takes its place.
-const char kWorkingPrefix[] = ".restore-";
+const char *const kWorkingPrefix = storage::kRestoreWorkingPrefix;
 
 /* A name as the archive carries it, made into the path it is unpacked to: below
    the box's /var/tuxbox when any name begins with config/, the archives of the
@@ -654,6 +677,95 @@ int walkDown(const std::string &base, const std::string &path, bool directory,
 	return fd;
 }
 
+/* The keys of nhttpd.conf that name the account, as the two servers read them (up to
+   the first =): the user name and the password the first start takes over where the
+   box has no access store, and the two a file older than its first version carried
+   them under, which the old server's start turns into the first two. */
+const char *const kAccountKeys[] = { "mod_auth.username", "mod_auth.password", "AuthUser", "AuthPassword" };
+
+// More than nhttpd.conf comes to on any box; a larger one is not put back.
+const size_t kServerFileLimit = 1024 * 1024;
+
+/* Whether a line of nhttpd.conf names the account. The key as the readers take it, and
+   also with blanks around it, so that no spelling a reader might take is left in. */
+bool namesAccount(const std::string &line)
+{
+	const size_t eq = line.find('=');
+	if (eq == std::string::npos)
+		return false;
+	const std::string key = trimmed(line.substr(0, eq));
+	for (size_t i = 0; i < sizeof(kAccountKeys) / sizeof(kAccountKeys[0]); ++i)
+		if (key == kAccountKeys[i])
+			return true;
+	return false;
+}
+
+// What an open file holds from its start, no more than limit bytes of it.
+bool readFrom(int fd, size_t limit, std::string &out)
+{
+	out.clear();
+	if (lseek(fd, 0, SEEK_SET) != 0)
+		return false;
+	char buf[4096];
+	for (;;)
+	{
+		const ssize_t n = read(fd, buf, sizeof(buf));
+		if (n < 0)
+			return false;
+		if (n == 0)
+			return true;
+		out.append(buf, (size_t) n);
+		if (out.size() > limit)
+			return false;
+	}
+}
+
+/* nhttpd.conf as the archive has it, written to fd, with every line that names the
+   account taken out and the box's own such lines put in: an archive never brings a
+   login along, whoever made it. The box's file is read in dir under leaf; one the box
+   does not have leaves the archive's file without an account. False where either could
+   not be read or is larger than any such file. */
+bool keepAccountLines(int dir, const std::string &leaf, int fd)
+{
+	std::string own;
+	const int had = openat(dir, leaf.c_str(), O_RDONLY | O_NOFOLLOW | O_CLOEXEC);
+	if (had >= 0)
+	{
+		const bool read_own = readFrom(had, kServerFileLimit, own);
+		close(had);
+		if (!read_own)
+			return false;
+	}
+	else if (errno != ENOENT)
+		return false;
+
+	std::string archived;
+	if (!readFrom(fd, kServerFileLimit, archived))
+		return false;
+
+	std::string out;
+	const std::vector<std::string> put = linesOf(archived);
+	for (size_t i = 0; i < put.size(); ++i)
+		if (!namesAccount(put[i]))
+			out += put[i] + "\n";
+	const std::vector<std::string> kept = linesOf(own);
+	for (size_t i = 0; i < kept.size(); ++i)
+		if (namesAccount(kept[i]))
+			out += kept[i] + "\n";
+
+	if (ftruncate(fd, 0) != 0 || lseek(fd, 0, SEEK_SET) != 0)
+		return false;
+	size_t done = 0;
+	while (done < out.size())
+	{
+		const ssize_t n = write(fd, out.data() + done, out.size() - done);
+		if (n <= 0)
+			return false;
+		done += (size_t) n;
+	}
+	return true;
+}
+
 // A file of the archive written beside the name it is to take.
 struct Written
 {
@@ -723,17 +835,75 @@ bool unpack(const std::string &archive, const std::vector<tarfile::Member> &memb
 			ok = tar.skip(m);
 			continue;
 		}
+		/* The login stays the box's: the access store, the name it had before and the
+		   working files are not put back, and nhttpd.conf is, with the box's own lines
+		   for the account. Whoever can reach this route can restore settings; taking
+		   the login over is not among them. */
+		const storage::InStore store = storage::restoreOf(dir, leaf);
+		if (store == storage::InStore::Kept)
+		{
+			ok = tar.skip(m);
+			if (!ok)
+				why = "the archive could not be read again";
+			continue;
+		}
 		char temp[64];
 		std::snprintf(temp, sizeof(temp), "%s%s-%lu", kWorkingPrefix, word, (unsigned long) i);
-		const int fd = openat(dir, temp, O_WRONLY | O_CREAT | O_EXCL | O_NOFOLLOW | O_CLOEXEC, 0600);
+		const bool account = store == storage::InStore::AccountKept;
+		/* The copy of nhttpd.conf gets the box's own account lines, a
+		   password among them on a box whose login was never carried over:
+		   it is one of the files that hold who may reach the box from the
+		   moment it is made, before a byte is written (accessfiles), and
+		   the nhttpd.conf it replaces is kept before as well. Made without a
+		   name where the filesystem can (O_TMPFILE: Linux 3.11 on, ext4,
+		   tmpfs, ubifs from 4.9, not jffs2) and named only once it is
+		   whole; elsewhere made under its name while no gate asks about a
+		   descriptor (accessfiles::Making), so none opened on it before it
+		   was kept is let through. Not kept, nothing is written. */
+		int fd = -1;
+		bool unnamed = false;
+		if (account)
+		{
+			accessfiles::Making making;
+			if (!accessfiles::named(path))
+			{
+				why = path + " could not be kept as a file that holds who may reach the box";
+				ok = false;
+				break;
+			}
+#ifdef O_TMPFILE
+			if (!internal::stagingNamed)
+				fd = openat(dir, ".", O_TMPFILE | O_RDWR | O_CLOEXEC, 0600);
+			unnamed = fd >= 0;
+#endif
+			if (!unnamed)
+				fd = openat(dir, temp, O_RDWR | O_CREAT | O_EXCL | O_NOFOLLOW | O_CLOEXEC, 0600);
+			if (fd >= 0 && internal::stagingMade != NULL)
+				internal::stagingMade(dir, unnamed ? std::string() : std::string(temp));
+			if (fd >= 0 && !accessfiles::created(fd))
+			{
+				close(fd);
+				fd = -1;
+				if (!unnamed)
+					unlinkat(dir, temp, 0);
+				why = path + " could not be kept as a file that holds who may reach the box";
+				ok = false;
+				break;
+			}
+		}
+		else
+			fd = openat(dir, temp, O_WRONLY | O_CREAT | O_EXCL | O_NOFOLLOW | O_CLOEXEC, 0600);
 		if (fd < 0)
 		{
 			why = path + " could not be written";
 			ok = false;
 			break;
 		}
-		Written w = { dir, temp, leaf };
-		written.push_back(w);
+		if (!unnamed)
+		{
+			Written w = { dir, temp, leaf };
+			written.push_back(w);
+		}
 		/* A file the box has keeps its owner, a service's own file among them,
 		   which a restore by this program would otherwise hand to it; a new one
 		   is this program's. The owner first, the permissions after, as a
@@ -743,7 +913,24 @@ bool unpack(const std::string &archive, const std::vector<tarfile::Member> &memb
 		if (fstatat(dir, leaf.c_str(), &had, AT_SYMLINK_NOFOLLOW) == 0 &&
 		    (had.st_uid != geteuid() || had.st_gid != getegid()))
 			owned = fchown(fd, had.st_uid, had.st_gid) == 0 || geteuid() != 0;
-		ok = owned && tar.copy(m, fd) && fchmod(fd, (mode_t) (m.mode & 0777)) == 0;
+		ok = owned && tar.copy(m, fd) &&
+		     (!account || keepAccountLines(dir, leaf, fd)) &&
+		     fchmod(fd, (mode_t) (m.mode & 0777)) == 0;
+		// whole now: the copy made without a name gets its working name
+		if (ok && unnamed)
+		{
+			char own[64];
+			std::snprintf(own, sizeof(own), "/proc/self/fd/%d", fd);
+			ok = linkat(AT_FDCWD, own, dir, temp, AT_SYMLINK_FOLLOW) == 0 ||
+			     linkat(fd, "", dir, temp, AT_EMPTY_PATH) == 0;
+			if (ok)
+			{
+				Written w = { dir, temp, leaf };
+				written.push_back(w);
+			}
+		}
+		if (ok && account && internal::accountLinesSeen != NULL)
+			internal::accountLinesSeen(dir, temp);
 		ok = close(fd) == 0 && ok;
 		if (!ok)
 			why = path + " could not be written";
@@ -1077,6 +1264,81 @@ MenuRestore::MenuRestore() : taken_(false)
 		return;
 	}
 	taken_ = true;
+}
+
+namespace
+{
+// The restore's working files in the store's directory, by their leaf names.
+std::vector<std::string> leftoverLeaves(int dir)
+{
+	std::vector<std::string> out;
+	const int again = dup(dir);
+	DIR *d = again >= 0 ? fdopendir(again) : NULL;
+	if (d == NULL)
+	{
+		if (again >= 0)
+			close(again);
+		return out;
+	}
+	struct dirent *e;
+	while ((e = readdir(d)) != NULL)
+		if (startsWith(e->d_name, kWorkingPrefix))
+			out.push_back(e->d_name);
+	closedir(d);
+	return out;
+}
+} // namespace
+
+bool keepLeftovers(std::string *why)
+{
+	const std::string where = storage::internal::access_store_dir;
+	const int dir = open(where.c_str(), O_RDONLY | O_DIRECTORY | O_CLOEXEC);
+	if (dir < 0)
+		return true;
+	const std::vector<std::string> leaves = leftoverLeaves(dir);
+	std::string unkept;
+	for (size_t i = 0; i < leaves.size(); ++i)
+	{
+		const std::string path = where + "/" + leaves[i];
+		struct stat st;
+		if (fstatat(dir, leaves[i].c_str(), &st, AT_SYMLINK_NOFOLLOW) != 0)
+			continue;
+		/* A regular file is kept first, which holds back what it shares with a
+		   second name; a link is removed and leaves nothing, a directory is no
+		   file a restore made. */
+		if (S_ISDIR(st.st_mode))
+			continue;
+		if (S_ISREG(st.st_mode) && !accessfiles::named(path))
+		{
+			unkept += (unkept.empty() ? "" : ", ") + path;
+			continue;
+		}
+		if (unlinkat(dir, leaves[i].c_str(), 0) != 0 && errno != ENOENT)
+			std::fprintf(stderr, "[backup] %s, left by a restore that did not end, could not be removed: %s\n",
+				     path.c_str(), std::strerror(errno));
+	}
+	close(dir);
+	if (unkept.empty())
+		return true;
+	accessfiles::closeTheirDirectory(true);
+	if (why != NULL)
+		*why = unkept + ", left by a restore that did not end, could not be kept as a file that holds "
+		       "who may reach the box; it stays, and no file of " + where + " goes out of the web server";
+	return false;
+}
+
+std::vector<std::string> leftovers()
+{
+	std::vector<std::string> out;
+	const std::string where = storage::internal::access_store_dir;
+	const int dir = open(where.c_str(), O_RDONLY | O_DIRECTORY | O_CLOEXEC);
+	if (dir < 0)
+		return out;
+	const std::vector<std::string> leaves = leftoverLeaves(dir);
+	close(dir);
+	for (size_t i = 0; i < leaves.size(); ++i)
+		out.push_back(where + "/" + leaves[i]);
+	return out;
 }
 
 MenuRestore::~MenuRestore()

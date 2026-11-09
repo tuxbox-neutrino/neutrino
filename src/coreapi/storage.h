@@ -210,6 +210,28 @@ Result<void> appendFile(const std::string &path, uint64_t offset, const std::str
 // for.
 Result<FsUsage> stats(const std::string &path);
 
+/* What a restore of the settings over the network (backup::restore) does with a file of
+   the archive it would put into the directory a web server's access store is in, so that
+   no archive replaces the login: the files this layer refuses to hand out (the access
+   store, the name it had before and the working files both stores are written through)
+   stay as the box has them (Kept); nhttpd.conf, which also says how the server runs, is
+   put back with the box's own lines for the account in place of the archive's
+   (AccountKept); any other name, and any name in another directory, is put back
+   (Restored). dir is an open descriptor of the directory the file lands in, compared with
+   the store's by what the two are and not by how either is spelt. */
+enum class InStore
+{
+	Restored,
+	Kept,
+	AccountKept
+};
+InStore restoreOf(int dir, const std::string &leaf);
+
+/* What a restore writes a file of the archive under before it takes its place. In the
+   directory of the access store such a file may be the copy of nhttpd.conf with the
+   box's account lines, which a restart can leave behind: refused there as the store is. */
+extern const char kRestoreWorkingPrefix[];
+
 } // namespace storage
 } // namespace coreapi
 
