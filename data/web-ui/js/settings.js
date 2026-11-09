@@ -527,8 +527,12 @@ async function saveExtConfig(catId, cfgName, btn) {
 	try {
 		if (webui)
 			await webuiSettingsWrite(changes);
-		else if (webserver)
-			after = await webserverAfterWrite(await webuiV1('PUT', '/system/webserver', {body: changes}));
+		else if (webserver) {
+			var written = await webuiV1('PUT', '/system/webserver', {body: changes});
+			// a new login hands this page's session new tokens
+			webuiV1Renewed(written && written.caller && written.caller.csrf);
+			after = await webserverAfterWrite(written);
+		}
 		else {
 			// 207: some keys landed, the others name their refusal
 			var answer = await webuiV1('PATCH', '/settings/' + encodeURIComponent(section), {body: changes});

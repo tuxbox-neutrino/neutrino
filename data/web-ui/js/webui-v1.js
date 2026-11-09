@@ -79,6 +79,16 @@ async function webuiV1Session() {
 	return false;
 }
 
+/* A change of the login gives the page's session new tokens: the cookie the
+   browser keeps by itself from the answer, the second token the page carries
+   from the answer's csrf. Where the page held none yet, its next change reads
+   the session first, as it always does. */
+function webuiV1Renewed(csrf) {
+	if (!csrf) return;
+	if (_webuiV1Csrf)
+		_webuiV1Csrf = {header: _webuiV1Csrf.header, token: csrf};
+}
+
 /* The token a change has to carry, read before the page's first change goes
    out: without it every first change of a page was refused (403) and sent
    again, a failed request in the browser's console each time. A later 403

@@ -65,7 +65,8 @@ async function pwSubmit(e) {
 			method: 'PUT', credentials: 'same-origin', cache: 'no-store', headers: headers,
 			body: JSON.stringify({current: current, password: next})
 		});
-		if (resp.status === 204) {
+		// set: this browser goes on under the new cookie the answer carries
+		if (resp.ok) {
 			location.replace(pwNext);
 			return;
 		}
