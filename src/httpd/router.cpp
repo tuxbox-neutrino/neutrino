@@ -705,7 +705,7 @@ Response runEndpoint(const Endpoint &ep,
                      const std::string &peer, AuthLevel granted,
                      const std::string &reported, const std::string &session,
                      const std::string &host, const std::string &scope,
-                     const std::string &local_address)
+                     const std::string &local_address, const std::string *admitting)
 {
 	/* The sentence is the gate's and not written out again here, because two
 	   copies of one refusal are two answers a client can tell apart the moment
@@ -824,6 +824,8 @@ Response runEndpoint(const Endpoint &ep,
 	req.setReportedPeer(reported);
 	req.setGranted(granted);
 	req.setSession(session);
+	req.setAdmittingSession(admitting != NULL ? *admitting
+	                        : sessionLevel(session) != AuthLevel::Public ? session : std::string());
 	req.setHost(host);
 	req.setScope(scope);
 	req.setAddressToken(address_token);
@@ -1012,7 +1014,7 @@ Response dispatchTables(const RouteTable *const *tables, size_t table_count, Met
                         AuthLevel granted, const std::string &reported,
                         const std::string &session, const std::string &host,
                         const std::string &scope,
-                        const std::string &local_address)
+                        const std::string &local_address, const std::string *admitting)
 {
 	/* A method this server does not have is not a path it does not have. The
 	   answer says the verb is one nothing here implements, rather than sending a
@@ -1066,7 +1068,7 @@ Response dispatchTables(const RouteTable *const *tables, size_t table_count, Met
 		              coreapi::ErrorCode::BadTable, "two routes answer this request");
 
 	const Response r = runEndpoint(*best, found.binds, query, body, peer, granted, reported,
-	                               session, host, scope, local_address);
+	                               session, host, scope, local_address, admitting);
 	if (answer_watch != NULL)
 		answer_watch(*best, r);
 	return r;
@@ -1433,10 +1435,10 @@ Response dispatchIn(const RouteTable *const *tables, size_t table_count, Method 
                     const std::string &body, const std::string &peer, AuthLevel granted,
                     const std::string &reported, const std::string &session,
                     const std::string &host, const std::string &scope,
-                    const std::string &local_address)
+                    const std::string &local_address, const std::string *admitting)
 {
 	return dispatchTables(tables, table_count, m, path, query, body, peer, granted, reported,
-	                      session, host, scope, local_address);
+	                      session, host, scope, local_address, admitting);
 }
 
 Response dispatchIn(const RouteTable &t, Method m, const std::string &path,
@@ -1444,11 +1446,11 @@ Response dispatchIn(const RouteTable &t, Method m, const std::string &path,
                     const std::string &peer, AuthLevel granted,
                     const std::string &reported, const std::string &session,
                     const std::string &host, const std::string &scope,
-                    const std::string &local_address)
+                    const std::string &local_address, const std::string *admitting)
 {
 	const RouteTable *const one[] = { &t };
 	return dispatchTables(one, 1, m, path, query, body, peer, granted, reported, session, host,
-	                      scope, local_address);
+	                      scope, local_address, admitting);
 }
 
 Response dispatch(Method m, const std::string &path,
@@ -1456,12 +1458,12 @@ Response dispatch(Method m, const std::string &path,
                   const std::string &peer, AuthLevel granted,
                   const std::string &reported, const std::string &session,
                   const std::string &host, const std::string &scope,
-                  const std::string &local_address)
+                  const std::string &local_address, const std::string *admitting)
 {
 	size_t count = 0;
 	const RouteTable *const *tables = allRoutes(&count);
 	Response r = dispatchTables(tables, count, m, path, query, body, peer, granted, reported,
-	                            session, host, scope, local_address);
+	                            session, host, scope, local_address, admitting);
 
 	/* Here rather than at each handler and each refusal, because what these three say
 	   is true of every answer this API gives and a header written at each site is a

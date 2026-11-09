@@ -132,7 +132,13 @@ bool routesAreSane(std::string *why = NULL);
 
    local_address is the authority (address and port) the socket itself answered
    this request on, for a route that builds its own address rather than echo a
-   caller's; empty where the transport cannot say. */
+   caller's; empty where the transport cannot say.
+
+   admitting is what the gate found let the request in (granted(), its session
+   argument): the session token where a session did, empty where a token or the
+   address did. The transport always hands it on. NULL, as a case driving the router
+   without a gate passes, takes session for what let the request in where it names a
+   live session as the request is routed. */
 Response dispatchIn(const RouteTable *const *tables, size_t table_count, Method m,
                     const std::string &path, const std::string &query,
                     const std::string &body, const std::string &peer, AuthLevel granted,
@@ -140,7 +146,8 @@ Response dispatchIn(const RouteTable *const *tables, size_t table_count, Method 
                     const std::string &session = std::string(),
                     const std::string &host = std::string(),
                     const std::string &scope = std::string(),
-                    const std::string &local_address = std::string());
+                    const std::string &local_address = std::string(),
+                    const std::string *admitting = NULL);
 
 // One table, which is what most of what drives this needs.
 Response dispatchIn(const RouteTable &t, Method m, const std::string &path,
@@ -150,7 +157,8 @@ Response dispatchIn(const RouteTable &t, Method m, const std::string &path,
                     const std::string &session = std::string(),
                     const std::string &host = std::string(),
                     const std::string &scope = std::string(),
-                    const std::string &local_address = std::string());
+                    const std::string &local_address = std::string(),
+                    const std::string *admitting = NULL);
 
 // The same against every table the server ships.
 Response dispatch(Method m, const std::string &path,
@@ -160,7 +168,8 @@ Response dispatch(Method m, const std::string &path,
                   const std::string &session = std::string(),
                   const std::string &host = std::string(),
                   const std::string &scope = std::string(),
-                  const std::string &local_address = std::string());
+                  const std::string &local_address = std::string(),
+                  const std::string *admitting = NULL);
 
 /* The level the route that would answer a request declares, which the transport
    needs before the request is whole.

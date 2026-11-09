@@ -1123,6 +1123,48 @@ TEST_CASE("the gate: a session reads as the owner and a mutation asks for the se
 	CHECK(both.hh.httpStatus == HTTP_BAD_REQUEST);
 }
 
+TEST_CASE("the gate: the handler is held to the credential that let the request in", "[bridge][token]")
+{
+	/* A bearer token answers before the cookie beside it, so a media token drawn with
+	   both is not tied to that cookie's session; one drawn by the session alone is, and
+	   ends with it. */
+	Attached a;
+	const std::string bearer = "00112233445566778899aabbccddeeff";
+	httpd::addApiToken(httpd::tokenLookupPrefix(bearer), httpd::hashSecret(bearer),
+	                   httpd::AuthLevel::System, "", 0);
+	const std::string session = httpd::openSessionForTest("root");
+	REQUIRE(!session.empty());
+	const std::string cookie = std::string(httpd::sessionCookieName()) + "=" + session;
+	const auto holds = [](const std::string &yresult) {
+		const std::string key = "\"token\":\"";
+		const size_t at = yresult.find(key);
+		REQUIRE(at != std::string::npos);
+		httpd::Credentials player;
+		player.peer = "203.0.113.9";
+		player.query_token = yresult.substr(at + key.size(), yresult.find('"', at + key.size()) - at - key.size());
+		return httpd::granted(player, true);
+	};
+
+	Handler both(M_POST, "/api/v1/token/media");
+	both.hh.UrlData["clientaddr"] = "203.0.113.9";
+	both.hh.HeaderList["Authorization"] = "Bearer " + bearer;
+	both.hh.HeaderList["Cookie"] = cookie;
+	REQUIRE(a.bridge.Hook_SendResponse(&both.hh) == HANDLED_READY);
+	REQUIRE(both.hh.httpStatus == HTTP_OK);
+
+	Handler alone(M_POST, "/api/v1/token/media");
+	alone.hh.UrlData["clientaddr"] = "203.0.113.9";
+	alone.hh.HeaderList["Cookie"] = cookie;
+	alone.hh.HeaderList[httpd::csrfHeaderName()] = httpd::csrfFor(session);
+	REQUIRE(a.bridge.Hook_SendResponse(&alone.hh) == HANDLED_READY);
+	REQUIRE(alone.hh.httpStatus == HTTP_OK);
+
+	REQUIRE(httpd::closeSession(session));
+	CHECK(holds(both.hh.yresult) == httpd::AuthLevel::System);
+	CHECK(holds(alone.hh.yresult) == httpd::AuthLevel::Public);
+	httpd::forgetApiTokens();
+}
+
 TEST_CASE("the gate: the query token counts only where the route reads one, and only scoped", "[bridge]")
 {
 	Attached a;

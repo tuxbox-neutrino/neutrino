@@ -9221,3 +9221,53 @@ TEST_CASE("a box with no password sets one without the current one, but not over
 	REQUIRE(load(file.path, file.server));
 	REQUIRE(verifySecret("a new pass phrase", loginInEffect().password_hash));
 }
+
+TEST_CASE("a media token is drawn only for the session that let the request in, while it stands",
+          "[write][revision][token]")
+{
+	/* The gate let the request in by its session (what the transport hands the router), and
+	   before the handler draws the token the account changes or the session is signed out.
+	   Nothing comes out: no token tied to nothing, which no later change of the password
+	   would end either. */
+	ShippedRoutes shipped;
+	ConfigFixture cfg;
+	WebFile file("mint", std::string(kWebFileHead) + "password_hash=" + hashSecret(kPassword, 2000) + "\n");
+	const char *const later = "a password set at the box";
+	const size_t before = scopedTokenCountForTest();
+	const auto mint = [](const std::string &cookie, const std::string &admitting) {
+		return dispatch(Post, "/api/v1/token/media", "", "", "127.0.0.1", AuthLevel::System,
+		                std::string(), cookie, std::string(), std::string(), std::string(), &admitting);
+	};
+
+	const std::string asking = tokenOf(login(kUser, kPassword));
+	std::string why;
+	REQUIRE(login_bridge::change("", later, &why));
+	const Response changed = mint(asking, asking);
+	REQUIRE(changed.code == 403);
+	REQUIRE(changed.body.find("ended before the token was drawn") != std::string::npos);
+	REQUIRE(changed.body.find("\"token\"") == std::string::npos);
+	REQUIRE(scopedTokenCountForTest() == before);
+
+	const std::string out = tokenOf(login(kUser, later));
+	REQUIRE(closeSession(out));
+	REQUIRE(mint(out, out).code == 403);
+	REQUIRE(scopedTokenCountForTest() == before);
+
+	// A session that stands draws a token that ends with it.
+	const std::string standing = tokenOf(login(kUser, later));
+	const Response drawn = mint(standing, standing);
+	REQUIRE(drawn.code == 200);
+	const std::string media = stringField(replyOf(drawn).body, "token");
+	REQUIRE(playerHolding(media) == AuthLevel::System);
+	REQUIRE(closeSession(standing));
+	REQUIRE(playerHolding(media) == AuthLevel::Public);
+
+	// A caller a bearer token let in, a live cookie beside it: no session let it in, and
+	// the token it draws does not end with that cookie's session.
+	const std::string beside = tokenOf(login(kUser, later));
+	const Response bearer = mint(beside, std::string());
+	REQUIRE(bearer.code == 200);
+	const std::string free = stringField(replyOf(bearer).body, "token");
+	REQUIRE(closeSession(beside));
+	REQUIRE(playerHolding(free) == AuthLevel::System);
+}

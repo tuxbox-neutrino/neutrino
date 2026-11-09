@@ -161,6 +161,11 @@ const std::string &Request::session() const
 	return session_;
 }
 
+const std::string &Request::admittingSession() const
+{
+	return admitting_session_;
+}
+
 const std::string &Request::host() const
 {
 	return host_;
@@ -209,6 +214,11 @@ void Request::setAddressToken(const std::string &t)
 void Request::setGranted(AuthLevel a)
 {
 	granted_ = a;
+}
+
+void Request::setAdmittingSession(const std::string &t)
+{
+	admitting_session_ = t;
 }
 
 void Request::setSession(const std::string &t)

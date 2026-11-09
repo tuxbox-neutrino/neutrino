@@ -353,6 +353,14 @@ class Request
 		   or a log. */
 		const std::string &session() const;
 
+		/* The session that let this request in: the token of the cookie above where the
+		   gate found it a live session and no token answered before it, and empty where a
+		   token or the address let the request in. What the gate found, so a session that
+		   ended since then, signed out or replaced by a change of the account, is still the
+		   one the request came by, and a handler holding the request to it refuses rather
+		   than taking the request for one that came by nothing. */
+		const std::string &admittingSession() const;
+
 		/* The authority the request named: the name and port a caller reached this box
 		   under, as it wrote them. A box answers under as many of these as there are
 		   ways to reach it, and the only one right for an address handed back is the one
@@ -382,6 +390,7 @@ class Request
 		void setScope(const std::string &s);
 		void setAddressToken(const std::string &t);
 		void setSession(const std::string &t);
+		void setAdmittingSession(const std::string &t);
 		void setHost(const std::string &h);
 		void setLocalAddress(const std::string &a);
 
@@ -402,6 +411,7 @@ class Request
 		std::string        peer_;
 		std::string        reported_peer_;
 		std::string        session_;
+		std::string        admitting_session_;
 		std::string        host_;
 		std::string        local_address_;
 		std::string        scope_;

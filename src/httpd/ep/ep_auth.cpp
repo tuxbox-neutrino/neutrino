@@ -424,6 +424,9 @@ Response changePassword(const Request &r)
 	return out;
 }
 
+// What the media token route answers a session that ended after the gate with.
+const char kMintSessionEnded[] = "the session that let the request in ended before the token was drawn";
+
 /* A token that reaches the media this box holds and nothing else, for a program that can present a
    credential no other way.
 
@@ -446,17 +449,24 @@ Response changePassword(const Request &r)
    configuration for anyone to find one in. */
 Response mintRecordingsToken(const Request &r)
 {
-	/* Tied to the session the request arrived with, when that session is what let
-	   it in, so signing out ends what was handed to a player as well. A caller let in
-	   by a bearer token has no session for the token to end with, whatever cookie
-	   it also carried. */
-	const std::string owner = sessionIsLive(r.session()) ? r.session() : std::string();
+	/* Tied to the session that let the request in, when a session is what did, so
+	   signing out ends what was handed to a player as well. Held to that session
+	   whatever became of it after the gate: one signed out or replaced by a change of
+	   the account in between draws nothing, where taking it for a caller that came by
+	   nothing would hand out a token that ends with no session and no account. A
+	   caller let in by a bearer token has no session for the token to end with,
+	   whatever cookie it also carried. */
+	const std::string &owner = r.admittingSession();
 	const std::string token = openScopedToken(mediaScopeName(), AuthLevel::System, owner);
-	/* Nothing was written down, so there is no token to hand out. A fault and not a
-	   refusal: the caller was granted this and what failed is this server. */
 	if (token.empty())
+	{
+		if (!owner.empty() && !sessionIsLive(owner))
+			return problemResponse(StatusForbidden, coreapi::ErrorCode::NotPermitted, kMintSessionEnded);
+		/* Nothing was written down, so there is no token to hand out. A fault and not a
+		   refusal: the caller was granted this and what failed is this server. */
 		return problemResponse(StatusInternalServerError, coreapi::ErrorCode::SessionNotOpened,
 		                       "this server could not draw a token");
+	}
 
 	Response out = okJson();
 	Json j(out.body, 160);
@@ -500,6 +510,10 @@ const RouteRefusal kPasswordRefusals[] = {
 		"too many attempts are being made here; come back in a moment"),
 	HTTPD_REFUSES_AS(500, WebserverNotConfigured,
 		"the password could not be changed: nhttpd-access.conf could not be written"),
+};
+
+const RouteRefusal kMintRefusals[] = {
+	HTTPD_REFUSES_AS(403, NotPermitted, kMintSessionEnded),
 };
 
 const RouteRefusal kLoginRefusals[] = {
@@ -668,10 +682,15 @@ const Endpoint kAuthEndpoints[] = {
 	  "it is drawn, and a token drawn through a session ends earlier when that session ends, by "
 	  "logging out or by running out, and when the account's password or user name changes.\n"
 	  "\n"
+	  "**Refusals:**\n"
+	  "- `403 not-permitted`: the session the request came with ended between the sign-in check and "
+	  "the drawing, signed out or by a change of the account; no token is drawn then, and none that "
+	  "would outlive that session.\n"
+	  "\n"
 	  "**Related:** `POST /api/v1/login`, `GET /api/v1/storage/file`, "
 	  "`GET /api/v1/recordings/archive/{id}/file`, `GET /api/v1/recordings/archive/{id}/playlist.m3u`.",
 	  NULL, 0, &kScopedTokenSchema, &mintRecordingsToken, false,
-	  Answers200, HTTPD_NO_REFUSALS },
+	  Answers200, HTTPD_REFUSALS(kMintRefusals) },
 };
 
 } // namespace

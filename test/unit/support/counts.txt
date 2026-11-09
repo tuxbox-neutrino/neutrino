@@ -55,7 +55,7 @@ memory backed folders tried	1
 options an applier or its notifier branches on	50
 parameters the document describes	201
 refusals the document states against a route	1351
-refusals the routes declare of their own	274
+refusals the routes declare of their own	275
 refusals the shipped routes were seen to give	372
 routes the document describes	140
 rows an applier acts on	26

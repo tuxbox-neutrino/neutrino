@@ -3038,6 +3038,27 @@
 					}
 				}
 			},
+			"refused-403-7": {
+				"description": "Forbidden",
+				"content": {
+					"application/problem+json": {
+						"schema": {
+							"$ref": "#/components/schemas/problem"
+						},
+						"examples": {
+							"not-permitted": {
+								"$ref": "#/components/examples/not-permitted-4"
+							},
+							"password-change-required": {
+								"$ref": "#/components/examples/password-change-required"
+							},
+							"not-permitted-without-token": {
+								"$ref": "#/components/examples/not-permitted-without-token"
+							}
+						}
+					}
+				}
+			},
 			"refused-400-50": {
 				"description": "Bad request",
 				"content": {
@@ -4064,7 +4085,7 @@
 					}
 				}
 			},
-			"refused-403-7": {
+			"refused-403-8": {
 				"description": "Forbidden",
 				"content": {
 					"application/problem+json": {
@@ -4400,7 +4421,7 @@
 					}
 				}
 			},
-			"refused-403-8": {
+			"refused-403-9": {
 				"description": "Forbidden",
 				"content": {
 					"application/problem+json": {
@@ -4409,7 +4430,7 @@
 						},
 						"examples": {
 							"not-permitted": {
-								"$ref": "#/components/examples/not-permitted-4"
+								"$ref": "#/components/examples/not-permitted-5"
 							},
 							"password-change-required": {
 								"$ref": "#/components/examples/password-change-required"
@@ -6717,6 +6738,14 @@
 					"detail": "parameter current is required"
 				}
 			},
+			"not-permitted-4": {
+				"value": {
+					"type": "/errors/not-permitted",
+					"title": "Forbidden",
+					"status": 403,
+					"detail": "the session that let the request in ended before the token was drawn"
+				}
+			},
 			"not-a-listed-value-3": {
 				"value": {
 					"type": "/errors/not-a-listed-value",
@@ -7613,7 +7642,7 @@
 					"detail": "the box has not finished starting"
 				}
 			},
-			"not-permitted-4": {
+			"not-permitted-5": {
 				"value": {
 					"type": "/errors/not-permitted",
 					"title": "Forbidden",
@@ -16996,7 +17025,7 @@
 					"auth"
 				],
 				"summary": "draws a short lived token that reaches the media this box holds and nothing else, for a player that can carry a credential only in the address",
-				"description": "Mints a token scoped to the media this box holds, such as recordings, and answers it together with its scope and lifetime in seconds, for a player that can only carry a credential in the address and not in a header or a cookie. Append it as `?token=...` to `GET /api/v1/storage/file`, where it reaches only files under the media directories, or to the archive file and playlist routes.\n\nThe scope is always `media` and cannot be chosen. On every other route the token is not a credential at all, in the query or as a bearer header, so a leaked address exposes the media and nothing more.\n\n**Preconditions:** the caller must already be granted the system level, by a session or by a bearer token minted at that level, since this route requires it.\n\n**Side effects:** records the token's hash and expiry in memory only; nothing is written to disk, so the token stops working the moment the box restarts. It lives 6 hours from the moment it is drawn, and a token drawn through a session ends earlier when that session ends, by logging out or by running out, and when the account's password or user name changes.\n\n**Related:** `POST /api/v1/login`, `GET /api/v1/storage/file`, `GET /api/v1/recordings/archive/{id}/file`, `GET /api/v1/recordings/archive/{id}/playlist.m3u`.",
+				"description": "Mints a token scoped to the media this box holds, such as recordings, and answers it together with its scope and lifetime in seconds, for a player that can only carry a credential in the address and not in a header or a cookie. Append it as `?token=...` to `GET /api/v1/storage/file`, where it reaches only files under the media directories, or to the archive file and playlist routes.\n\nThe scope is always `media` and cannot be chosen. On every other route the token is not a credential at all, in the query or as a bearer header, so a leaked address exposes the media and nothing more.\n\n**Preconditions:** the caller must already be granted the system level, by a session or by a bearer token minted at that level, since this route requires it.\n\n**Side effects:** records the token's hash and expiry in memory only; nothing is written to disk, so the token stops working the moment the box restarts. It lives 6 hours from the moment it is drawn, and a token drawn through a session ends earlier when that session ends, by logging out or by running out, and when the account's password or user name changes.\n\n**Refusals:**\n- `403 not-permitted`: the session the request came with ended between the sign-in check and the drawing, signed out or by a change of the account; no token is drawn then, and none that would outlive that session.\n\n**Related:** `POST /api/v1/login`, `GET /api/v1/storage/file`, `GET /api/v1/recordings/archive/{id}/file`, `GET /api/v1/recordings/archive/{id}/playlist.m3u`.",
 				"x-auth-level": "system",
 				"security": [
 					{
@@ -17033,7 +17062,7 @@
 						"$ref": "#/components/responses/refused-400-2"
 					},
 					"403": {
-						"$ref": "#/components/responses/refused-403-2"
+						"$ref": "#/components/responses/refused-403-7"
 					},
 					"413": {
 						"$ref": "#/components/responses/refused-413"
@@ -19533,7 +19562,7 @@
 						"$ref": "#/components/responses/refused-400-4"
 					},
 					"403": {
-						"$ref": "#/components/responses/refused-403-7"
+						"$ref": "#/components/responses/refused-403-8"
 					},
 					"404": {
 						"$ref": "#/components/responses/refused-404-30"
@@ -19588,7 +19617,7 @@
 						"$ref": "#/components/responses/refused-400-4"
 					},
 					"403": {
-						"$ref": "#/components/responses/refused-403-7"
+						"$ref": "#/components/responses/refused-403-8"
 					},
 					"404": {
 						"$ref": "#/components/responses/refused-404-30"
@@ -19651,7 +19680,7 @@
 						"$ref": "#/components/responses/refused-400-4"
 					},
 					"403": {
-						"$ref": "#/components/responses/refused-403-7"
+						"$ref": "#/components/responses/refused-403-8"
 					},
 					"404": {
 						"$ref": "#/components/responses/refused-404-31"
@@ -20405,7 +20434,7 @@
 						"$ref": "#/components/responses/refused-400-72"
 					},
 					"403": {
-						"$ref": "#/components/responses/refused-403-8"
+						"$ref": "#/components/responses/refused-403-9"
 					},
 					"404": {
 						"$ref": "#/components/responses/refused-404-35"
@@ -20460,7 +20489,7 @@
 						"$ref": "#/components/responses/refused-400-73"
 					},
 					"403": {
-						"$ref": "#/components/responses/refused-403-8"
+						"$ref": "#/components/responses/refused-403-9"
 					},
 					"404": {
 						"$ref": "#/components/responses/refused-404-33"

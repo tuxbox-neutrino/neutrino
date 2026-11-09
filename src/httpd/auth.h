@@ -164,10 +164,16 @@ std::string clientAddress(const Credentials &c);
    left empty for every other way of arriving. A caller granted something without a scope
    is granted it for whatever the route does.
 
+   session, when it is not null, is left carrying the cookie's token where the session is
+   what let the request in, and left empty where a token or the address did or nothing
+   did: the credential the request is held to from here on (Request::admittingSession),
+   which the session ending afterwards, signed out or replaced by a change of the account,
+   does not turn into another one.
+
    Walks the session table for entries that have run out, at most once every interval
    below, which is the only thing that walks it in a running server. */
 AuthLevel granted(const Credentials &c, bool query_token_ok = false,
-                  std::string *scope = NULL);
+                  std::string *scope = NULL, std::string *session = NULL);
 
 /* The same question asked of a caller with the browser session taken off it.
 

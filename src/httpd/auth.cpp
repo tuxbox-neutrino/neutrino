@@ -861,12 +861,15 @@ AuthLevel sessionLevel(const std::string &token)
 	return AuthLevel::System;
 }
 
-AuthLevel granted(const Credentials &c, bool query_token_ok, std::string *scope)
+AuthLevel granted(const Credentials &c, bool query_token_ok, std::string *scope,
+                  std::string *session)
 {
 	sweepIfDue();
 
 	if (scope != NULL)
 		scope->clear();
+	if (session != NULL)
+		session->clear();
 
 	/* A token in a header, which is the way every caller that can set one presents
 	   one. A scope on it is honoured only where the route reads one; on every other
@@ -913,6 +916,8 @@ AuthLevel granted(const Credentials &c, bool query_token_ok, std::string *scope)
 	if (from_session != AuthLevel::Public)
 	{
 		slideSession(c.cookie_token);
+		if (session != NULL)
+			*session = c.cookie_token;
 		return from_session;
 	}
 

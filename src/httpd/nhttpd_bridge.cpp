@@ -354,7 +354,9 @@ THandleStatus CApiBridge::Hook_SendResponse(CyhookHandler *hh)
 
 		const httpd::Credentials cred = credentialsOf(hh, query);
 		std::string scope;
-		const httpd::AuthLevel have = httpd::granted(cred, query_token_ok, &scope);
+		// the session that let the request in, which the handler holds it to
+		std::string admitting;
+		const httpd::AuthLevel have = httpd::granted(cred, query_token_ok, &scope, &admitting);
 
 		if (routed)
 		{
@@ -372,7 +374,7 @@ THandleStatus CApiBridge::Hook_SendResponse(CyhookHandler *hh)
 		                                    cred.peer, have,
 		                                    httpd::clientAddress(cred), cred.cookie_token,
 		                                    header_value(hh->HeaderList, "Host"), scope,
-		                                    hh->UrlData["localaddr"]);
+		                                    hh->UrlData["localaddr"], &admitting);
 
 		if ((m == httpd::Get || m == httpd::Head) && httpd::openapi::isDocument(r))
 			r = httpd::openapi::withEncoding(r, header_value(hh->HeaderList, "Accept-Encoding"));
