@@ -377,10 +377,34 @@ function streamBack() {
 }
 
 // A programme in the shared dialog, the marks of the grid following a
-// timer set from it
+// timer set from it. The dialog gives the focus back to the cell it was
+// opened from; rows drawn anew while it was open (a timer set from it, news
+// of the guide, a return to the tab) took that cell away, so the cell of the
+// same programme takes the focus then.
+let programOpener = null;	// {channel, start} of the cell the dialog was opened from
+let programWatch = null;
 function showProgramDetail(channel, ev) {
+	programOpener = {channel: channel.id, start: String(ev.start)};
 	webuiShowEpgModal(channel.id, channel.name, {event: ev, number: channel.number, kind: channel.kind || '',
 		onTimer: () => { if (!webuiV1EventsLive()) timersChanged(); }});
+	const modal = document.getElementById('webuiEpgModal');
+	if (!modal || programWatch)
+		return;
+	programWatch = new MutationObserver(() => {
+		if (modal.classList.contains('open') || !programOpener)
+			return;
+		const from = programOpener;
+		programOpener = null;
+		// the dialog gave it back where it could; what is left is still in the hidden dialog, or nowhere
+		const at = document.activeElement;
+		if (at && at !== document.body && !modal.contains(at))
+			return;
+		const row = gridRows[from.channel];
+		const cell = row && row.el.querySelector('.webui-epg-program[data-start="' + CSS.escape(from.start) + '"]');
+		if (cell)
+			cell.focus({preventScroll: true});
+	});
+	programWatch.observe(modal, {attributes: true, attributeFilter: ['class']});
 }
 
 // Zap: a file the player plays, or a box in standby, is asked about first
