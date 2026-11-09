@@ -539,7 +539,7 @@ async function playOrStop(id, leave, btn) {
 		lockRead = null;
 		const lock = lockFor(id);
 		if (lock) {
-			webuiShowToast(lock);
+			webuiShowToast(lock, 'note');
 			return;
 		}
 	}
