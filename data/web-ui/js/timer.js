@@ -341,10 +341,18 @@ async function deleteTimer(id, title) {
 		return;
 	try {
 		await webuiV1('DELETE', '/timers/' + encodeURIComponent(id));
-		await loadTimers();
 	} catch (e) {
-		webuiToastError(webuiL('tm.delete_title', 'Delete timer'), e);
+		// The box had removed it already, as it does a finished timer by
+		// itself: what was asked for is done, so say it and read again. Any
+		// other refusal, a 404 of another kind too (a box without the
+		// route), is one.
+		if (e.code !== 'no-such-timer') {
+			webuiToastError(webuiL('tm.delete_title', 'Delete timer'), e);
+			return;
+		}
+		webuiShowToast(webuiL('tm.gone', 'The timer had already been removed.'), 'note');
 	}
+	await loadTimers();
 }
 
 // Initialize: the list follows the timer events, which also say when a

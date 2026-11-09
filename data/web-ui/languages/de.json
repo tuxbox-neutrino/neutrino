@@ -530,6 +530,7 @@
 	"tm.timer_id": "Timer-ID",
 	"tm.stop_ask": "Die Aufnahme „%s“ beenden?",
 	"tm.delete_ask": "Den Timer „%s“ löschen?",
+	"tm.gone": "Der Timer war schon entfernt.",
 	"tm.finished_hint": "Die Box entfernt erledigte Timer nach wenigen Sekunden selbst.",
 	"set.loading": "Lade Einstellungen...",
 	"set.load_fail": "Fehler beim Laden der Einstellungen",
