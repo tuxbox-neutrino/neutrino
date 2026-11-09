@@ -32,6 +32,7 @@
 #include "coreapi/recordings_internal.h"
 
 #include "httpd/auth.h"
+#include "httpd/authority.h"
 #include "httpd/credentials.h"
 #include "httpd/endpoint.h"
 #include "httpd/endpoints.h"
@@ -1307,12 +1308,32 @@ TEST_CASE("a forged host never reaches the playlist, the box's own names do", "[
 	REQUIRE(named.code == 200);
 	REQUIRE(named.body.find(std::string("http://") + hostname + ":8081/") != std::string::npos);
 
-	// Under a domain this box never configured, the way a router's own DNS or mDNS names it.
+	/* The request boundary's rule decides what counts as this box: one label under a
+	   domain the resolver searches, the way a router names the devices of its
+	   network, and not under another domain, which somebody can register. */
+	char resolv[96];
+	std::snprintf(resolv, sizeof(resolv), "/tmp/archive-resolv-%d", (int) getpid());
+	{
+		std::FILE *f = std::fopen(resolv, "w");
+		REQUIRE(f != NULL);
+		std::fputs("search fritz.box\n", f);
+		REQUIRE(std::fclose(f) == 0);
+	}
+	httpd::setNameSourcesForTest(hostname, resolv);
 	httpd::Response aliased = httpd::dispatch(httpd::Get, path, "", std::string(), "192.168.1.9",
 	                                          httpd::AuthLevel::Read, std::string(), std::string(),
-	                                          std::string(hostname) + ".fritz.box:8081");
+	                                          "wohnzimmer.fritz.box:8081", std::string(), "10.0.0.5:8081");
+	httpd::Response elsewhere = httpd::dispatch(httpd::Get, path, "", std::string(), "192.168.1.9",
+	                                            httpd::AuthLevel::Read, std::string(), std::string(),
+	                                            std::string(hostname) + ".evil.example:8081", std::string(),
+	                                            "10.0.0.5:8081");
+	httpd::setNameSourcesForTest("", "");
+	::unlink(resolv);
 	REQUIRE(aliased.code == 200);
-	REQUIRE(aliased.body.find(std::string("http://") + hostname + ".fritz.box:8081/") != std::string::npos);
+	REQUIRE(aliased.body.find("http://wohnzimmer.fritz.box:8081/") != std::string::npos);
+	REQUIRE(elsewhere.code == 200);
+	REQUIRE(elsewhere.body.find("evil.example") == std::string::npos);
+	REQUIRE(elsewhere.body.find("http://10.0.0.5:8081/") != std::string::npos);
 
 	// An interface address, and not the loopback one the box always accepts anyway.
 	struct ifaddrs *list = NULL;

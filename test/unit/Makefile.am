@@ -132,6 +132,7 @@ coreapi_tests_SOURCES = \
 	httpd/test_credentials.cpp \
 	httpd/test_legacy_usage.cpp \
 	httpd/test_login_bridge.cpp \
+	httpd/test_authority.cpp \
 	httpd/test_netmatch.cpp \
 	httpd/test_webconfig.cpp \
 	httpd/test_size_param.cpp \

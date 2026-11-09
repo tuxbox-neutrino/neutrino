@@ -77,7 +77,9 @@ bool CWebserverResponse::SendResponse() {
 				|| Connection->HookHandler.status == HANDLED_ABORT) {
 			log_level_printf(2, "Response Prepare Hook found but Error\n");
 			Write(Connection->HookHandler.BuildHeader());
-			Write(Connection->HookHandler.yresult);
+			// a refusal to a HEAD is its head alone, as every other answer to one
+			if (Connection->Method != M_HEAD)
+				Write(Connection->HookHandler.yresult);
 			return false;
 		}
 		// URL has new value. Analyze new URL for SendFile

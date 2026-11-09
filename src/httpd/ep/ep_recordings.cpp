@@ -22,6 +22,7 @@
 #include "httpd/endpoints.h"
 
 #include "httpd/auth.h"
+#include "httpd/authority.h"
 #include "httpd/endpoint.h"
 #include "httpd/http.h"
 #include "httpd/json.h"
@@ -44,7 +45,6 @@
 
 #include <arpa/inet.h>
 #include <fcntl.h>
-#include <ifaddrs.h>
 #include <sys/socket.h>
 #include <sys/stat.h>
 #include <unistd.h>
@@ -571,105 +571,6 @@ bool plainAuthority(const std::string &host)
 	return true;
 }
 
-std::string loweredAscii(const std::string &s)
-{
-	std::string out(s);
-	for (size_t i = 0; i < out.size(); ++i)
-	{
-		if (out[i] >= 'A' && out[i] <= 'Z')
-			out[i] = (char) (out[i] - 'A' + 'a');
-	}
-	return out;
-}
-
-// The name without a trailing ":port"; unchanged where that is not unambiguous, which
-// for a bracketed or plain spelling alike is never a name this box answers to.
-std::string withoutPort(const std::string &host)
-{
-	if (!host.empty() && host[0] == '[')
-	{
-		const size_t close = host.find(']');
-		if (close == std::string::npos)
-			return host;
-		if (close + 1 < host.size())
-		{
-			if (host[close + 1] != ':' || host.find_first_not_of("0123456789", close + 2) != std::string::npos)
-				return host;
-		}
-		return host.substr(1, close - 1);
-	}
-	const size_t first = host.find(':');
-	if (first == std::string::npos)
-		return host;
-	if (first != host.rfind(':'))
-		return host;
-	const std::string port = host.substr(first + 1);
-	if (port.empty() || port.find_first_not_of("0123456789") != std::string::npos)
-		return host;
-	return host.substr(0, first);
-}
-
-// Every address this box answers an interface by, in whatever family it has one.
-void boxAddresses(std::vector<std::string> &out)
-{
-	struct ifaddrs *list = NULL;
-	if (getifaddrs(&list) != 0)
-		return;
-	for (struct ifaddrs *i = list; i != NULL; i = i->ifa_next)
-	{
-		if (i->ifa_addr == NULL)
-			continue;
-		char text[INET6_ADDRSTRLEN];
-		if (i->ifa_addr->sa_family == AF_INET)
-		{
-			const struct sockaddr_in *a = (const struct sockaddr_in *) i->ifa_addr;
-			if (inet_ntop(AF_INET, &a->sin_addr, text, sizeof(text)) != NULL)
-				out.push_back(text);
-		}
-		else if (i->ifa_addr->sa_family == AF_INET6)
-		{
-			const struct sockaddr_in6 *a = (const struct sockaddr_in6 *) i->ifa_addr;
-			if (inet_ntop(AF_INET6, &a->sin6_addr, text, sizeof(text)) != NULL)
-				out.push_back(loweredAscii(text));
-		}
-	}
-	freeifaddrs(list);
-}
-
-// Whether a name is this box: an interface address, a name whose first label is this
-// box's own (any domain after it, a router or mDNS alias included), localhost or a
-// loopback address. A port or a trailing dot is read and ignored either way.
-bool hostNamesThisBox(const std::string &host)
-{
-	std::string stripped = withoutPort(host);
-	if (!stripped.empty() && stripped[stripped.size() - 1] == '.')
-		stripped.resize(stripped.size() - 1);
-	const std::string name = loweredAscii(stripped);
-	if (name.empty())
-		return false;
-	if (name == "localhost" || name == "127.0.0.1" || name == "::1")
-		return true;
-
-	char hostname[256];
-	if (gethostname(hostname, sizeof(hostname)) == 0)
-	{
-		hostname[sizeof(hostname) - 1] = 0;
-		const std::string box_host = loweredAscii(hostname);
-		const std::string box_label = box_host.substr(0, box_host.find('.'));
-		if (!box_label.empty() && name.substr(0, name.find('.')) == box_label)
-			return true;
-	}
-
-	std::vector<std::string> addresses;
-	boxAddresses(addresses);
-	for (size_t i = 0; i < addresses.size(); ++i)
-	{
-		if (name == addresses[i])
-			return true;
-	}
-	return false;
-}
-
 std::string oneLine(const std::string &s)
 {
 	std::string out;
@@ -725,8 +626,10 @@ Response archivedPlaylist(const Request &r)
 	if (!plainAuthority(r.host()))
 		return problemResponse(StatusBadRequest, coreapi::ErrorCode::NoAuthority,
 		                       "the request named no host this box can be reached under");
-	// A Host that is not this box is never echoed; the box's own address stands in for it.
-	const std::string authority = hostNamesThisBox(r.host()) ? r.host() : r.localAddress();
+	/* A Host that is not this box is never echoed; the box's own address stands in for
+	   it. This box is what the request boundary takes (authority.h), so a name the gate
+	   let through is the name written. */
+	const std::string authority = hostAccepted(r.host()) ? r.host() : r.localAddress();
 	if (authority.empty())
 		return problemResponse(StatusBadRequest, coreapi::ErrorCode::NoAuthority,
 		                       "the request named no host this box can be reached under");
@@ -995,9 +898,8 @@ const Endpoint kRecordingEndpoints[] = {
 	  "network fetches it without a token and the entry carries none. Fetched with the media token of "
 	  "`POST /api/v1/token/media` in the query, the entry carries that very token, so the playlist lasts "
 	  "exactly as long as it does; no token is ever drawn here. Meant for the home network. The entry's "
-	  "address is the `Host` only when it names this box itself (an interface address, its hostname under "
-	  "any domain or localhost, a port or a trailing dot either carried or not); anything else is replaced "
-	  "by the address "
+	  "address is the `Host` only when it is a name the box answers to (see Host in the introduction), "
+	  "a port or a trailing dot either carried or not; anything else is replaced by the address "
 	  "the box itself answered the request on, never echoed.\n\n"
 	  "**Refusals:**\n"
 	  "- `400 missing-parameter`: the token in the address is not a media token this box drew, or is not "

@@ -178,8 +178,10 @@ enum class ErrorCode
 	   the wrong requests because the caller acts on it the same way, by sending
 	   a credential or a different one. */
 	NotPermitted,
-	/* A request for an address of a stream that named no authority to build one
-	   under. The caller says under which name it reached this box. */
+	/* A request that names no authority this box can be reached under: a Host
+	   that is not one of the box's own names, or, where an address of a stream
+	   is to be built, no Host at all. The caller says under which name it
+	   reached this box, or uses the box's address. */
 	NoAuthority,
 	/* The channel is one the box tunes to rather than one it plays from an
 	   address, so there is nothing here to fetch and pass on. Not

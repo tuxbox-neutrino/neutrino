@@ -19,6 +19,7 @@
 
 #include "httpd/nhttpd_bridge.h"
 #include "httpd/auth.h"
+#include "httpd/authority.h"
 #include "httpd/carry.h"
 #include "httpd/credentials.h"
 #include "httpd/endpoints.h"
@@ -29,6 +30,7 @@
 #include "httpd/doc/openapi.h"
 #include "httpd/http.h"
 #include "httpd/status.h"
+#include "httpd/webconfig.h"
 #include "coreapi/base/errors.h"
 
 #include "yhook.h"
@@ -39,6 +41,7 @@
 
 #include "support/fakes.h"
 
+#include <cstdio>
 #include <cstdlib>
 #include <cstring>
 #include <string>
@@ -1330,4 +1333,109 @@ TEST_CASE("without connection threads an event stream is carried like the other 
 	CHECK(p.hh.Carried != NULL);
 	sock.close();
 	close(sp[1]);
+}
+
+namespace
+{
+
+/* The box's own names for the boundary cases: h7, searching fritz.box, and
+   whatever the access file lists, put back when the case ends. */
+struct NamedBox
+{
+	httpd::WebConfig before;
+	std::string      resolv;
+
+	explicit NamedBox(const char *allowed = "")
+		: before(httpd::config())
+	{
+		char name[96];
+		std::snprintf(name, sizeof(name), "/tmp/bridge-resolv-%d", (int) getpid());
+		resolv = name;
+		std::FILE *f = std::fopen(name, "w");
+		REQUIRE(f != NULL);
+		std::fputs("nameserver 192.168.1.1\nsearch fritz.box\n", f);
+		REQUIRE(std::fclose(f) == 0);
+		httpd::setNameSourcesForTest("h7", resolv);
+
+		httpd::WebConfig c = before;
+		if (allowed[0] != '\0')
+			c.allowed_hosts.push_back(allowed);
+		httpd::setConfigForTest(c);
+	}
+
+	~NamedBox()
+	{
+		httpd::setNameSourcesForTest("", "");
+		httpd::setConfigForTest(before);
+		::unlink(resolv.c_str());
+	}
+};
+
+} // namespace
+
+TEST_CASE("the boundary: a request under another name is refused before any hook, API and page alike", "[bridge][authority]")
+{
+	Attached a;
+	NamedBox box("proxy.example.org");
+	CAuthorityGate gate;
+
+	// A peer on the lan, which reads without presenting anything, under a name
+	// another page chose: refused before the lan's read is reached.
+	Handler api(M_GET, "/api/v1/system/legacy-usage");
+	api.hh.HeaderList["Host"] = "evil.example";
+	REQUIRE(gate.Hook_PrepareResponse(&api.hh) == HANDLED_ERROR);
+	CHECK(api.hh.httpStatus == HTTP_BAD_REQUEST);
+	CHECK(api.hh.ResponseMimeType == "application/problem+json");
+	CHECK(api.hh.yresult.find("\"type\":\"/errors/no-authority\"") != std::string::npos);
+	CHECK(api.hh.yresult.find("allowed_hosts") != std::string::npos);
+	CHECK(headerOf(api.hh, "Cache-Control") == "no-store");
+
+	// Every other target gets the page, which names the address the box was
+	// reached on and where a name is added, in both languages.
+	Handler page(M_GET, "/control/info");
+	page.hh.UrlData["localaddr"] = "192.168.1.5:80";
+	page.hh.HeaderList["Host"] = "h7.evil.example:80";
+	REQUIRE(gate.Hook_PrepareResponse(&page.hh) == HANDLED_ERROR);
+	CHECK(page.hh.httpStatus == HTTP_BAD_REQUEST);
+	CHECK(page.hh.ResponseMimeType == "text/plain; charset=UTF-8");
+	CHECK(page.hh.yresult.find("http://192.168.1.5/") != std::string::npos);
+	CHECK(page.hh.yresult.find("allowed_hosts") != std::string::npos);
+	CHECK(page.hh.yresult.find("Diese Box") != std::string::npos);
+	CHECK(page.hh.yresult.find("evil") == std::string::npos);
+	CHECK(headerOf(page.hh, "X-Content-Type-Options") == "nosniff");
+
+	// The header twice in two spellings is two names, and refused, whichever of
+	// the two a reader would come to first.
+	const char *const spellings[][2] = { { "Host", "host" }, { "host", "Host" }, { "HOST", "Host" } };
+	for (size_t i = 0; i < sizeof(spellings) / sizeof(spellings[0]); ++i)
+	{
+		INFO(spellings[i][0] << " beside " << spellings[i][1]);
+		Handler twice(M_GET, "/api/v1/system/legacy-usage");
+		twice.hh.HeaderList.erase("Host");
+		twice.hh.HeaderList[spellings[i][0]] = "evil.example";
+		twice.hh.HeaderList[spellings[i][1]] = "192.168.1.5";
+		CHECK(gate.Hook_PrepareResponse(&twice.hh) == HANDLED_ERROR);
+		CHECK(twice.hh.httpStatus == HTTP_BAD_REQUEST);
+	}
+
+	// The names the box goes by pass, and the lan reads as before.
+	const char *const taken[] = {
+		"192.168.1.5", "192.168.1.5:80", "[fe80::1]:80", "[::1]", "localhost:8080",
+		"h7", "h7.local", "H7.fritz.box", "wohnzimmer.fritz.box", "hd51-2",
+		"proxy.example.org", "proxy.example.org:8443",
+	};
+	for (size_t i = 0; i < sizeof(taken) / sizeof(taken[0]); ++i)
+	{
+		INFO(taken[i]);
+		Handler ok(M_GET, "/api/v1/system/legacy-usage");
+		ok.hh.HeaderList["Host"] = taken[i];
+		REQUIRE(gate.Hook_PrepareResponse(&ok.hh) == HANDLED_CONTINUE);
+		REQUIRE(a.bridge.Hook_SendResponse(&ok.hh) == HANDLED_READY);
+		CHECK(ok.hh.httpStatus == HTTP_OK);
+	}
+
+	// A request without the header at all, as an old script sends it.
+	Handler bare(M_GET, "/control/info");
+	bare.hh.HeaderList.erase("Host");
+	CHECK(gate.Hook_PrepareResponse(&bare.hh) == HANDLED_CONTINUE);
 }

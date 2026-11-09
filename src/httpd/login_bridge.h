@@ -40,7 +40,7 @@ struct Ask
 	std::string sec_fetch_site; // the Sec-Fetch-Site header
 	std::string origin;         // the Origin header
 	std::string referer;        // the Referer header
-	std::string host;           // the Host header
+	std::string host;           // the Host header, as the request boundary accepted it (authority.h)
 
 	/* Whether the request carries a template command for the old server's
 	   parser (an `execute` parameter), which any .yhtm page runs before it

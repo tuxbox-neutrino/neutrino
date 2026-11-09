@@ -730,6 +730,8 @@
 	"reg.mute_until_lock": "Stumm bis Lock",
 	"reg.noauth_client": "Ohne Login (IP-Prefix)",
 	"reg.noauth_client_hint": "Aufrufer, deren Adresse so beginnt, sehen die Seiten ohne Login, die Box selbst immer; eine Änderung in der Weboberfläche verlangt trotzdem die Anmeldung",
+	"reg.allowed_hosts": "Weitere Namen der Box",
+	"reg.allowed_hosts_hint": "außer auf ihre IP-Adresse und die Namen im Heimnetz (ohne Punkt, mit .local oder mit der Domäne des Routers) antwortet die Box nur auf diese Namen, etwa einen DynDNS-Namen oder den Namen eines Proxys; eingetragen werden sie in nhttpd-access.conf in der Zeile allowed_hosts, nur Namen und kein Kommentar in der Zeile, und gelten nach spätestens 10 Sekunden",
 	"reg.off": "Aus",
 	"reg.on": "Ein",
 	"reg.output": "Ausgabe",

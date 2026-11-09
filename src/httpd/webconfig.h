@@ -92,6 +92,14 @@ struct WebConfig
 	   uses. */
 	bool trusted_proxies_named;
 
+	/* Names besides its own that the box answers to (authority.h), such as a
+	   DynDNS name or the name of a proxy in front of it, lowered and without a
+	   dot at the end. Empty by default: the box's own names are read off the
+	   system and need no line. Read and not written over the network, like the
+	   proxy list beside it, because what it decides is who reaches the box at
+	   all. */
+	std::vector<std::string> allowed_hosts;
+
 	/* Where the pages are served from, and empty means none are. Named by default
 	   to this server's own directory (defaultWebConfig, PRIVATE_HTTPDDIR in
 	   webconfig.cpp); a file this cannot read at that key falls back to empty and
@@ -135,6 +143,13 @@ struct WebConfig
 
 // The values a box that has never been configured runs on.
 WebConfig defaultWebConfig();
+
+/* The allowed_hosts line of the file at path, read by the rule load reads it with
+   and saying nothing about it: empty for a file without the line. False where the
+   file cannot be read, and out is then left alone. The request boundary reads it
+   again while the server runs (authority.h), so a name added to the file counts
+   without a restart. */
+bool readAllowedHosts(const std::string &path, std::vector<std::string> &out);
 
 /* Whether something in front of this server is configured, which is the switch
    that turns the read exemption off.
@@ -235,6 +250,7 @@ bool usernameAcceptable(const std::string &name, std::string *why);
      lan_read            the empty list, which admits nobody
      trusted_proxies     the empty list, which believes nobody, and the read
                          exemption stays off because the key was named
+     allowed_hosts       the empty list, which leaves the box's own names
      username            empty, which takes password_hash with it
      password_hash       empty, which verifies against nothing
      docroot             empty, which serves nothing

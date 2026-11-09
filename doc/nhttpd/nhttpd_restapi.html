@@ -90,7 +90,7 @@ the answer goes back the same way. Every other path, <code>/control/</code>
 included, stays with nhttpd's own handlers.
 </p>
 
-<h2>Access</h2>
+<h2 id="access">Access</h2>
 <p>
 The box has one account, kept in <code>nhttpd-access.conf</code> as a name
 and a stored form of the password. Two gates use it. The layer reads it
@@ -99,6 +99,18 @@ directly, and nhttpd's own login asks for it through
 for both at once.
 </p>
 <ul>
+<li>Before either gate, a hook attached ahead of every other
+(<code>CAuthorityGate</code> in <code>src/httpd/nhttpd_bridge.cpp</code>,
+the rule in <code>src/httpd/authority.cpp</code>) asks whether the
+<code>Host</code> header names this box: an IP address, a name of a single
+label (<code>localhost</code> among them), one label under <code>.local</code>
+or under a domain <code>/etc/resolv.conf</code> searches, the box's host
+name, or a name in the <code>allowed_hosts</code> line of
+<code>nhttpd-access.conf</code>. A request
+without the header passes. Any other name is answered 400 before anything
+else looks at the request: on an API address with the problem document
+<code>no-authority</code>, elsewhere with a short page in plain text. So are
+two <code>Host</code> headers in two spellings.</li>
 <li>The layer's gate guards the API addresses. Every route declares an
 access level, which the document states as <code>x-auth-level</code>.</li>
 <li>nhttpd's own login (<code>mod_auth</code>) leaves the API addresses
@@ -169,7 +181,10 @@ header or the body framing, the 408 and the 501. They are a status line and
 headers, with no body. Every answer the layer writes carries
 <code>X-Content-Type-Options: nosniff</code>, a <code>Vary</code> header that
 names <code>Cookie</code> and <code>Authorization</code>, and
-<code>Cache-Control: no-store</code> unless the route sets its own. nhttpd
+<code>Cache-Control: no-store</code> unless the route sets its own. The
+refusal of a <code>Host</code> that names another box (see
+<a href="#access">Access</a>) is written the same way, also where it is the
+page in plain text. nhttpd
 answers in HTTP/1.0 with <code>Connection: close</code>, one request per
 connection.
 </p>
@@ -222,8 +237,9 @@ socket.
 <dt><code>src/httpd/ep/</code></dt><dd>the route tables and their handlers, one file per group</dd>
 <dt><code>src/httpd/router.cpp</code></dt><dd>matching, the access check, binding and checking the parameters, the check of the tables</dd>
 <dt><code>src/httpd/auth.cpp</code>, <code>webconfig.cpp</code>, <code>login_bridge.cpp</code></dt><dd>sessions and tokens, the layer's configuration with the account, and the way nhttpd's own login asks for it</dd>
+<dt><code>src/httpd/authority.cpp</code></dt><dd>the names a request may reach the box under, which the first hook asks</dd>
 <dt><code>src/httpd/doc/</code></dt><dd>the document's writer and the <code>openapi_dump</code> program</dd>
-<dt><code>src/httpd/nhttpd_bridge.cpp</code></dt><dd>the hook that hands nhttpd's requests to the layer and its answers back</dd>
+<dt><code>src/httpd/nhttpd_bridge.cpp</code></dt><dd>the hook that refuses a request under another name, and the hook that hands nhttpd's requests to the layer and its answers back</dd>
 <dt><code>src/httpd/carry.cpp</code>, <code>livestream.cpp</code>, <code>webtv.cpp</code></dt><dd>answers that stay open: a program's output, a relayed stream</dd>
 <dt><code>src/httpd/events.cpp</code></dt><dd>the event stream</dd>
 <dt><code>src/httpd/stubs/</code></dt><dd>what the layer asks of a web server (<code>server.h</code>, <code>static.h</code>), answered for nhttpd</dd>

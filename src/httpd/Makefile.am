@@ -46,6 +46,7 @@ noinst_LIBRARIES = libhttpd.a
 
 libhttpd_a_SOURCES = \
 	auth.cpp \
+	authority.cpp \
 	ep/ep_auth.cpp \
 	ep/ep_channels.cpp \
 	ep/ep_config.cpp \
@@ -91,6 +92,7 @@ libhttpd_a_SOURCES = \
 
 noinst_HEADERS = \
 	auth.h \
+	authority.h \
 	byterange.h \
 	carry.h \
 	compat/mount.h \

@@ -1,5 +1,5 @@
 /*
- * wireserver.cpp - nhttpd on a loopback port, with the bridge attached
+ * wireserver.cpp - nhttpd on a loopback port, with the boundary and the bridge attached
  *
  * Copyright (C) 2026 NI-Team
  * Copyright (C) 2026 Tuxbox-Project (serial mode, bridge hook, tests)
@@ -101,6 +101,7 @@ WireServer::WireServer(unsigned max_streams, unsigned beat_ms, Mode m, Cyhook *f
 
 	CyhookHandler::clearApiPrefixes();
 	CApiBridge::registerPrefixes();
+	CyhookHandler::attach(&gate);
 	if (front != NULL)
 		CyhookHandler::attach(front);
 	CyhookHandler::attach(&bridge);
@@ -193,6 +194,7 @@ WireServer::~WireServer()
 	CyhookHandler::detach(&bridge);
 	if (front != NULL)
 		CyhookHandler::detach(front);
+	CyhookHandler::detach(&gate);
 	CyhookHandler::clearApiPrefixes();
 	setConfigForTest(defaultWebConfig());
 	events::setHeartbeatMs(kShippedHeartbeatMs);

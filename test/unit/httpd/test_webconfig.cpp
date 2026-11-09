@@ -599,7 +599,7 @@ TEST_CASE("the written file names every key it does not write and none of them t
 
 	static const char *const named[] =
 	{
-		"lan_read", "trusted_proxies", "docroot", "session_lifetime_s",
+		"lan_read", "trusted_proxies", "allowed_hosts", "docroot", "session_lifetime_s",
 		"sse_max_streams", "legacy_enabled", "channel_logos", "api_tokens"
 	};
 	for (size_t i = 0; i < sizeof(named) / sizeof(named[0]); ++i)
@@ -617,6 +617,7 @@ TEST_CASE("the written file names every key it does not write and none of them t
 	REQUIRE(httpd::config().lan_read.size() == d.lan_read.size());
 	REQUIRE(httpd::config().trusted_proxies.empty());
 	REQUIRE_FALSE(httpd::proxiesConfigured(httpd::config()));
+	REQUIRE(httpd::config().allowed_hosts.empty());
 	REQUIRE(httpd::config().docroot == d.docroot);
 	REQUIRE(httpd::config().session_lifetime_s == d.session_lifetime_s);
 	REQUIRE(httpd::config().sse_max_streams == d.sse_max_streams);
@@ -1285,6 +1286,45 @@ TEST_CASE("a proxy list is read the same way and is empty when unwritten", "[web
 	REQUIRE(httpd::config().trusted_proxies.size() == 1);
 	REQUIRE(httpd::addressInAnyPrefix("10.0.0.1", httpd::config().trusted_proxies));
 	REQUIRE(anyProblemMentions("trusted_proxies"));
+}
+
+TEST_CASE("the names the box answers to besides its own are read as names, and none when unwritten", "[webconf]")
+{
+	Restore back;
+	Temp conf("conf");
+
+	// Lowered, without the dot at the end and without a port, a space beside an
+	// entry taken off, each once; what is not a host name is dropped and named.
+	writeFile(conf.path(), "allowed_hosts=Dyn.Example.net, proxy.example.org.,not a name,dyn.example.net:8443,"
+	                       "tv.example.org:443,box:123456,box:x\n");
+	REQUIRE(httpd::load(conf.path()));
+	REQUIRE(httpd::config().allowed_hosts.size() == 3);
+	REQUIRE(httpd::config().allowed_hosts[0] == "dyn.example.net");
+	REQUIRE(httpd::config().allowed_hosts[1] == "proxy.example.org");
+	REQUIRE(httpd::config().allowed_hosts[2] == "tv.example.org");
+	REQUIRE(anyProblemMentions("not a name"));
+	REQUIRE(anyProblemMentions("box:123456"));
+	REQUIRE(anyProblemMentions("box:x"));
+
+	// A line this cannot read adds no name, which is the least it can mean.
+	writeFile(conf.path(), "allowed_hosts=dyn.example.net # the DynDNS name\n");
+	REQUIRE(httpd::load(conf.path()));
+	REQUIRE(httpd::config().allowed_hosts.empty());
+	REQUIRE(anyProblemMentions("allowed_hosts"));
+
+	writeFile(conf.path(), "Allowed_Hosts=dyn.example.net\n");
+	REQUIRE(httpd::load(conf.path()));
+	REQUIRE(httpd::config().allowed_hosts.empty());
+	REQUIRE(anyProblemMentions("allowed_hosts"));
+
+	writeFile(conf.path(), "allowed_hosts=\n");
+	REQUIRE(httpd::load(conf.path()));
+	REQUIRE(httpd::config().allowed_hosts.empty());
+	REQUIRE_FALSE(anyProblemMentions("allowed_hosts"));
+
+	writeFile(conf.path(), "lan_read=10.0.0.0/8\n");
+	REQUIRE(httpd::load(conf.path()));
+	REQUIRE(httpd::config().allowed_hosts.empty());
 }
 
 TEST_CASE("where the server answers is read out of nhttpd.conf as nhttpd reads it", "[webconf]")

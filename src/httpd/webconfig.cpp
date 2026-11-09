@@ -27,6 +27,7 @@
 #include <config.h>
 
 #include "auth.h"
+#include "authority.h"
 #include "credentials.h"
 #include "randomsource.h"
 #include "coreapi/base/accessfiles.h"
@@ -67,6 +68,7 @@ const char kKeyHash[]            = "password_hash";
 const char kKeyFirst[]           = "first_password";
 const char kKeyLanRead[]         = "lan_read";
 const char kKeyTrustedProxies[]  = "trusted_proxies";
+const char kKeyAllowedHosts[]    = "allowed_hosts";
 const char kKeyDocroot[]         = "docroot";
 const char kKeySessionLifetime[] = "session_lifetime_s";
 const char kKeySseMaxStreams[]   = "sse_max_streams";
@@ -79,7 +81,7 @@ const char kKeyApiTokens[]       = "api_tokens";
 const char *const kKnownKeys[] =
 {
 	kKeyUser, kKeyHash, kKeyFirst, kKeyLanRead,
-	kKeyTrustedProxies, kKeyDocroot, kKeySessionLifetime,
+	kKeyTrustedProxies, kKeyAllowedHosts, kKeyDocroot, kKeySessionLifetime,
 	kKeySseMaxStreams, kKeyLegacy, kKeyLogos, kKeyApiTokens
 };
 
@@ -843,6 +845,54 @@ Reading readPrefixList(const Pairs &m, const CutShort &cut, const char *key,
 	return r;
 }
 
+/* Reads the names a request may reach the box under besides its own.
+
+   An entry that is not a host name is dropped and named, and the rest of the list
+   stands. A space beside an entry is taken off: it cannot make a name mean another one.
+   A line that cannot be read at all is the empty list, because what the key adds is who
+   reaches the box, and the least it can mean is nobody besides the box's own names. */
+void readHostList(const Pairs &m, const CutShort &cut, const char *key, std::vector<std::string> &out,
+		  bool say = true)
+{
+	std::string raw;
+	const Reading r = reading(m, cut, key, raw);
+	if (r == KeyAbsent)
+		return;
+
+	out.clear();
+	if (r == KeyUnreadable)
+	{
+		if (say)
+			complain(std::string(key) + ": the line names hosts this cannot read, so the box answers "
+				 "to its own names only");
+		return;
+	}
+
+	const std::vector<std::string> parts = splitOnComma(raw);
+	for (size_t i = 0; i < parts.size(); ++i)
+	{
+		std::string entry = trimmed(parts[i]);
+		/* A port after the name, the way the name stands in an address bar behind a
+		   forwarded port, is left out: the boundary takes a name under any port. */
+		const size_t colon = entry.rfind(':');
+		if (colon != std::string::npos && colon + 1 < entry.size() && entry.size() - colon <= 6 &&
+		    entry.find_first_not_of("0123456789", colon + 1) == std::string::npos)
+			entry.erase(colon);
+		if (!isHostName(entry))
+		{
+			if (say)
+				complain(std::string(key) + ": " + quoted(parts[i]) + " is not a host name, and it is dropped");
+			continue;
+		}
+		const std::string name = comparableName(entry);
+		bool seen = false;
+		for (size_t k = 0; k < out.size() && !seen; ++k)
+			seen = out[k] == name;
+		if (!seen)
+			out.push_back(name);
+	}
+}
+
 // closed is what the key means least, which is what a value this cannot use
 // falls back to. The default is not that, and is only what a key nobody wrote
 // falls back to.
@@ -1544,6 +1594,12 @@ void appendKeyDocs(std::string &text)
 	appendKeyDoc(text, kKeyTrustedProxies, "which networks a forwarded caller address is believed "
 		     "from, separated by commas. Naming any of them turns the reading above off",
 		     "none");
+	appendKeyDoc(text, kKeyAllowedHosts, "names the box answers to besides its addresses and the names of "
+		     "the home network, such as a DynDNS name or the name of a proxy in front of it, "
+		     "separated by commas. Names only: a port after a name is left out, and a number sign "
+		     "makes the whole line unreadable, so no comment may stand on it. A request under any "
+		     "other name is refused. The line is read again within 10 seconds while the box runs",
+		     "none");
 	appendKeyDoc(text, kKeyDocroot, "where the pages are read from", d.docroot);
 	appendKeyDoc(text, kKeySessionLifetime, "how long a login stands, in seconds, from " +
 		     decimal(kSessionLifetimeMin) + " to " + decimal(kSessionLifetimeMax),
@@ -2017,6 +2073,7 @@ WebConfig defaultWebConfig()
 	c.lan_read = defaultLanPrefixes();
 	c.trusted_proxies.clear();
 	c.trusted_proxies_named = false;
+	c.allowed_hosts.clear();
 	/* This server's own directory, under its own name rather than at
 	   PRIVATE_HTTPDDIR itself: that directory is also where the old server's
 	   pages land, and naming it here would serve those out of this one as
@@ -2027,6 +2084,24 @@ WebConfig defaultWebConfig()
 	c.legacy_enabled = true;
 	c.channel_logos = true;
 	return c;
+}
+
+bool readAllowedHosts(const std::string &path, std::vector<std::string> &out)
+{
+	struct stat st;
+	if (path.empty() || stat(path.c_str(), &st) != 0 || !S_ISREG(st.st_mode) ||
+	    st.st_size < 0 || st.st_size > kMaxFileBytes)
+		return false;
+
+	CConfigFile file(',', false);
+	if (!file.loadConfig(path))
+		return false;
+	const LineFaults faults = scanLines(path, true);
+
+	std::vector<std::string> read;
+	readHostList(file.getConfigDataMap(), faults.unreadable, kKeyAllowedHosts, read, false);
+	out = read;
+	return true;
 }
 
 bool proxiesConfigured(const WebConfig &c)
@@ -2426,6 +2501,8 @@ bool load(const std::string &path, const std::string &server_path)
 				       c.trusted_proxies);
 		c.trusted_proxies_named = (r != KeyAbsent);
 	}
+
+	readHostList(m, cut, kKeyAllowedHosts, c.allowed_hosts);
 
 	readUnsignedField(m, cut, kKeySessionLifetime, kSessionLifetimeMin, kSessionLifetimeMax,
 			  kSessionLifetimeMin, c.session_lifetime_s);

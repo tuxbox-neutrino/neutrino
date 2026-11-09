@@ -132,7 +132,8 @@ function renderField(f, opts) {
 	if (f.type === 'info') {
 		var text = (f.text !== undefined) ? f.text : val;
 		return row + '<label>' + labelHtml + '</label>' +
-			'<span id="' + id + '" style="color:var(--pico-muted-color)">' + escapeHtml(text || '--') + '</span></div>';
+			(hintId ? '<span id="' + hintId + '" hidden>' + escapeHtml(f.hint) + '</span>' : '') +
+			'<span id="' + id + '"' + described + ' style="color:var(--pico-muted-color)">' + escapeHtml(text || '--') + '</span></div>';
 	}
 	if (f.type === 'action') {
 		// Einzel-Action oder Button-Gruppe (f.actions) in einer Zeile
@@ -371,6 +372,7 @@ function webuiSettingsWrite(changes) {
 // the form shows it, and what a changed one is sent as.
 function webserverFieldValue(cfg, key) {
 	var v = cfg[key];
+	if (Array.isArray(v)) return v.join(', ');
 	return (v === undefined || v === null) ? '' : String(v);
 }
 

@@ -63,6 +63,8 @@ struct WireServer
 		Serial
 	};
 
+	// the request boundary first, as the server attaches it (yhttpd.cpp)
+	CAuthorityGate gate;
 	CApiBridge  bridge;
 	CWebserver  ws;
 	CySocket   *listener;

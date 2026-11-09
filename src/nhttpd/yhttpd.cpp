@@ -36,6 +36,7 @@ CStringList Cyhttpd::ConfigList;
 // HOOKS: Definition & Instance for Hooks, attach/detach Hooks
 //=============================================================================
 
+static CAuthorityGate *authority_gate = NULL;
 #ifdef Y_CONFIG_USE_AUTHHOOK
 #include <mod_auth.h>
 static CmAuth *auth = NULL;
@@ -294,6 +295,11 @@ void Cyhttpd::stop_webserver() {
 // Attach hooks (use hook order carefully)
 //-----------------------------------------------------------------------------
 void Cyhttpd::hooks_attach() {
+	// The name the request was sent to, before anything else looks at it:
+	// the login, the API and every page answer only a request for this box.
+	authority_gate = new CAuthorityGate();
+	CyhookHandler::attach(authority_gate);
+
 #ifdef Y_CONFIG_USE_AUTHHOOK
 	// First Check Authentication
 	auth = new CmAuth();
@@ -342,6 +348,12 @@ void Cyhttpd::hooks_attach() {
 // Detach hooks & Destroy
 //-----------------------------------------------------------------------------
 void Cyhttpd::hooks_detach() {
+	if (authority_gate) {
+		CyhookHandler::detach(authority_gate);
+		delete authority_gate;
+		authority_gate = NULL;
+	}
+
 #ifdef Y_CONFIG_USE_AUTHHOOK
 	CyhookHandler::detach(auth);
 	delete auth;

@@ -22,6 +22,7 @@
 #include "httpd/endpoints.h"
 
 #include "httpd/auth.h"
+#include "httpd/authority.h"
 #include "httpd/endpoint.h"
 #include "httpd/http.h"
 #include "httpd/login_bridge.h"
@@ -97,6 +98,11 @@
                                   than the caller, every unauthenticated reader on the
                                   network at once, and because a line of a file is
                                   owned by the save that writes it.
+
+     allowed_hosts                read and not written, for the same reasons: it
+                                  decides under which names the box is reached at
+                                  all, and a name taken off it shuts out whoever
+                                  used it, the caller among them.
 
      legacy_enabled               read and not written, and the one that was argued
                                   over. Its own header calls it the switch a running
@@ -233,6 +239,13 @@ void writeWebserver(Json &j, int port, const std::string &bind,
 	j.value(o.no_login_prefix);
 	writePrefixes(j, "lan_read", c.lan_read);
 	writePrefixes(j, "trusted_proxies", c.trusted_proxies);
+	// the list the request boundary judges by, which follows the file while the box runs
+	const std::vector<std::string> extra = boxNames().extra;
+	j.key("allowed_hosts");
+	j.beginArray();
+	for (size_t i = 0; i < extra.size(); ++i)
+		j.value(extra[i]);
+	j.endArray();
 	j.key("legacy_enabled");
 	j.value(c.legacy_enabled);
 	j.key("channel_logos");
@@ -270,6 +283,8 @@ const FieldDesc kWebserverFields[] = {
 		"the networks a caller may read from without presenting anything, as this box compares them and not as a file happened to write them, and empty where nobody may"),
 	HTTPD_LIST_OF_VALUES("trusted_proxies", ElementType::String,
 		"the networks whose forwarded address is believed, as this box read them; empty where the file has no trusted_proxies line, and also where the line is empty or none of its entries is a network, which still keeps reading without a password off"),
+	HTTPD_LIST_OF_VALUES("allowed_hosts", ElementType::String,
+		"the names the box answers to besides its addresses, single labels such as localhost, one label under .local or under a domain its resolver searches, and its own host name, as this box read them from the allowed_hosts line of nhttpd-access.conf, which it reads again within 10 seconds of a change; a request under any other name is refused with 400 no-authority"),
 	HTTPD_MEMBER("legacy_enabled", FieldType::Bool,
 		"the line of the file meant to say whether the surface under /control/ is answered; nothing acts on it, so that surface is answered whatever it says, and this route does not write it"),
 	HTTPD_MEMBER("channel_logos", FieldType::Bool,

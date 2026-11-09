@@ -1622,3 +1622,29 @@ TEST_CASE("no switch is weighed away from a picture the GUI would ask the PIN fo
 	REQUIRE(coreapi::streaming::tunerFor(0x1001).value() == coreapi::StreamTuner::NoneFree);
 	REQUIRE(fx.deps.channels.tuner_asked_switch.back() == false);
 }
+
+TEST_CASE("on the wire the boundary answers before the bridge, and a name the box goes by passes", "[streaming][wire][authority]")
+{
+	StreamBox box;
+
+	// Under a name somebody can register: refused by the first hook, whoever asks.
+	WireStream foreign(box.port(), "GET /api/v1/session HTTP/1.0\r\nHost: evil.example\r\n"
+	                               "Authorization: Bearer 0123456789abcdef0123456789abcdef\r\n\r\n");
+	REQUIRE(foreign.ok());
+	const std::string body = foreign.readToEof(5000);
+	CHECK(foreign.code() == 400);
+	CHECK(problemCodeOf(body) == "no-authority");
+
+	// To a HEAD the refusal is its head alone, the length of the GET's body beside it.
+	WireStream head(box.port(), "HEAD /api/v1/session HTTP/1.0\r\nHost: evil.example\r\n\r\n");
+	REQUIRE(head.ok());
+	CHECK(head.readToEof(5000).empty());
+	CHECK(head.code() == 400);
+	CHECK(head.headerOf("Content-Length") == std::to_string(body.size()));
+
+	// Under the box's name, a single label, the route answers.
+	WireStream own(box.port(), "GET /api/v1/session HTTP/1.0\r\nHost: box\r\n\r\n");
+	REQUIRE(own.ok());
+	own.readToEof(5000);
+	CHECK(own.code() == 200);
+}

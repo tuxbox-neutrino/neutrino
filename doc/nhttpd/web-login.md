@@ -71,6 +71,37 @@ removes it from there.
   updated from a version without it, has no password that signs in until a
   later start can write the file.
 
+## Names the box answers to
+
+The web interface, `/control/` and `/api/v1` answer only a request that names
+the box. These names work:
+
+- an IP address, such as `http://192.168.1.5/`;
+- a name without a dot, such as `localhost`, `h7` or a name your router
+  gives the box (`wohnzimmer`);
+- such a name with `.local`, or with a domain the box's name lookup searches
+  (`search` or `domain` in `/etc/resolv.conf`), such as `h7.fritz.box` or
+  `wohnzimmer.fritz.box`;
+- the host name of the box, also where it carries a domain of its own;
+- a name listed in `nhttpd-access.conf` in the line `allowed_hosts`,
+  separated by commas, such as a DynDNS name or the name of a proxy in front
+  of the box. Names only: a port after a name is left out, and the line
+  takes no comment (a `#` makes the whole line unreadable).
+
+Only your home network answers for the first kinds of name, so nobody
+outside can make one of them lead to the box.
+
+Any other name gets a short page in English and German that says how to
+reach the box by its IP address, naming the address to a device on the home
+network. To use the name, add it to `allowed_hosts`;
+the box reads the line again within 10 seconds, without a restart. The web
+interface shows the list under **Settings → Webserver**, but cannot change
+it. A request without a `Host`
+header, as some old scripts send it, is answered as before.
+
+This keeps out a page of another site that has its own name lead to the
+box's address: a browser would treat the box's answers as that page's own.
+
 ## Remote control apps and scripts
 
 The old `/control/` interface asks for a login only while

@@ -5,8 +5,10 @@
  *
  * License: GPL-2.0-or-later
  *
- * One hook, attached behind nhttpd's authentication and before every hook
- * that claims a URL by its file extension. It claims the API namespace in
+ * Two hooks. The first, attached ahead of every other, refuses a request
+ * that names another box. The second, attached behind nhttpd's
+ * authentication and before every hook that claims a URL by its file
+ * extension, answers the API. It claims the API namespace in
  * the prepare pass, so no legacy hook sees the request, and answers in the
  * send pass by handing the request to httpd::dispatch() and the Response
  * back into the hook handler in api mode.
@@ -59,6 +61,24 @@ bool heldBack(int fd, bool own_unnamed);
 }
 
 #include "httpd/server_control.h"
+
+/* The request boundary: whether the request names this box in its Host header
+   (httpd/authority.h), asked once for every request before any other hook
+   sees it, API and legacy alike. Attached first, ahead of the login.
+
+   A request that names another box is answered 400: under the API addresses
+   with the problem document no-authority, everywhere else with a short page in
+   plain text that says how to reach the box by its address and where a name is
+   added. A request carrying the header twice in two spellings is refused the
+   same way, so every later reader of the header reads the one that was
+   checked. */
+class CAuthorityGate : public Cyhook
+{
+public:
+	virtual std::string getHookName(void) { return "authority"; }
+	virtual std::string getHookVersion(void) { return "1.0.0"; }
+	virtual THandleStatus Hook_PrepareResponse(CyhookHandler *hh);
+};
 
 class CApiBridge : public Cyhook
 {

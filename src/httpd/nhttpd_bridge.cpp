@@ -9,6 +9,7 @@
 #include "nhttpd_bridge.h"
 
 #include "httpd/auth.h"
+#include "httpd/authority.h"
 #include "httpd/byterange.h"
 #include "httpd/carry.h"
 #include "httpd/endpoint.h"
@@ -33,6 +34,7 @@
 #include <exception>
 #include <string>
 
+#include <strings.h>
 #include <unistd.h>
 
 namespace
@@ -235,6 +237,68 @@ FdPlan planFdAnswer(int code, uint64_t file_length, const std::string &range_hea
 }
 
 } // namespace nhttpd_bridge
+
+namespace
+{
+
+// A refusal of the boundary on the handler, through the API's header writer
+// for both kinds, so the page in plain text carries nosniff and no-store too.
+void refuseAtBoundary(CyhookHandler *hh, httpd::Response r)
+{
+	httpd::addApiHeaders(r);
+	hh->api_mode = true;
+	hh->httpStatus = (HttpResponseType) r.code;
+	hh->ResponseMimeType = r.content_type;
+	hh->ResponseHeaders = r.headers;
+	hh->yresult = r.body;
+}
+
+} // namespace
+
+THandleStatus CAuthorityGate::Hook_PrepareResponse(CyhookHandler *hh)
+{
+	try
+	{
+		size_t named = 0;
+		std::string host;
+		for (CStringList::const_iterator it = hh->HeaderList.begin(); it != hh->HeaderList.end(); ++it)
+		{
+			if (strcasecmp(it->first.c_str(), "Host") != 0)
+				continue;
+			++named;
+			host = it->second;
+		}
+		if (named <= 1 && httpd::hostAccepted(host))
+			return HANDLED_CONTINUE;
+
+		if (CyhookHandler::isApiTarget(hh->UrlData["url"]))
+		{
+			refuseAtBoundary(hh, httpd::problemResponse(httpd::StatusBadRequest,
+			                                            coreapi::ErrorCode::NoAuthority,
+			                                            httpd::unknownHostDetail()));
+		}
+		else
+		{
+			httpd::Response page;
+			page.code = httpd::StatusBadRequest;
+			page.content_type = "text/plain; charset=UTF-8";
+			page.body = httpd::unknownHostPage(hh->UrlData["localaddr"], hh->UrlData["clientaddr"],
+			                                   hh->WebserverConfigList["SSL"] == "true");
+			refuseAtBoundary(hh, page);
+		}
+		return HANDLED_ERROR;
+	}
+	catch (const std::exception &e)
+	{
+		log_level_printf(1, "authority gate: %s\n", e.what());
+	}
+	catch (...)
+	{
+	}
+	// a failure here lets nothing through
+	takeFixedFailure(hh);
+	return (hh->status == HANDLED_ABORT) ? HANDLED_ABORT : HANDLED_ERROR;
+}
 
 CApiBridge::CApiBridge()
 {

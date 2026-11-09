@@ -55,7 +55,8 @@ CApiBridge::routesOk src/httpd/nhttpd_bridge.cpp
 CApiBridge::startStreams src/httpd/nhttpd_bridge.cpp
 CApiBridge::stopStreams src/httpd/nhttpd_bridge.cpp
 CApiBridge::Hook_SendResponse src/httpd/nhttpd_bridge.cpp
-CApiBridge::Hook_SendStream src/httpd/nhttpd_bridge.cpp'
+CApiBridge::Hook_SendStream src/httpd/nhttpd_bridge.cpp
+CAuthorityGate::Hook_PrepareResponse src/httpd/nhttpd_bridge.cpp'
 
 tmp=`mktemp -d`
 trap 'rm -rf "$tmp"' EXIT
