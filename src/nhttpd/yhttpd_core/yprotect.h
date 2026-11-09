@@ -48,8 +48,8 @@ void setKeptPlacesForTest(const std::vector<std::string> &places);
 // /proc/self/fd gives it after every link, or where that name cannot be
 // read or names no file of a directory. Asked of what was opened, so a link
 // into one of the places from any web folder goes nowhere. config_ok leaves
-// the configuration directory out, for an answer the program names there
-// itself (the channel lists, the configuration documents), unless the start
+// the configuration directory out, for the files the old pages' handlers name
+// there (the channel lists) and the API's file answers, unless the start
 // closed that directory (coreapi::accessfiles::closeTheirDirectory).
 bool inKeptPlace(int fd, bool config_ok = false);
 

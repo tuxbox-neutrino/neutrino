@@ -57,14 +57,15 @@ relative folder, or one with a .. in it, is refused the same way.
 
 Whatever the folders are, no file goes out of a descriptor whose file has
 no name left, such as one opened through /proc/<pid>/fd/, nor one that
-really lies in the configuration directory, /proc, /sys or /dev, reached
-through a folder link inside a web folder or named to the file routes of
-/api/v1/storage included, and none of the files that hold who may reach the
-box goes out, by any name or link, while it is written or after it was
-replaced. Out of the configuration directory go only the documents the box
-names there itself, the channel lists and the configuration documents of
-/api/v1/config, and not even those where the start found a working file of
-a restore that ended with the program and could not keep it.)
+really lies in /proc, /sys or /dev, and none of the files that hold who may
+reach the box goes out, by any name or link, while it is written or after
+it was replaced. Out of the configuration directory a static answer sends
+only the files the old pages' handlers name there (the channel lists), so
+a folder link from a web folder into it reaches nothing; the API sends its
+other files as before (GET /api/v1/storage/file, the documents of
+/api/v1/config). None of its files goes out at all where the start found a
+working file of a restore that ended with the program and could not keep
+it.)
 
 <website name>.ssl
 <website name>.ssl_pemfile
