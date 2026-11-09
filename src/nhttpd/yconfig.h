@@ -93,6 +93,10 @@
 #define LOG_FILE			"/tmp/yhttpd.log"
 #define LOG_FORMAT			""
 #define UPLOAD_TMP_FILE			"/tmp/upload.tmp"
+// The longest body, multipart framing included, that a POST with a file
+// (multipart/form-data) may declare; a longer one is refused unread. The
+// size of the largest channel list or extension archive the box takes.
+#define UPLOAD_MAX_LENGTH		(16 * 1024 * 1024)
 #define CACHE_DIR			"/tmp/.cache"
 #define HTTPD_SENDFILE_EXT		"htm:text/html,html:text/html,xml:application/xml,txt:text/plain,jpg:image/jpeg,jpeg:image/jpeg,gif:image/gif,png:image/png,bmp:image/x-ms-bmp,css:text/css,js:application/javascript,mjs:application/javascript,json:application/json,svg:image/svg+xml,webp:image/webp,woff:font/woff,woff2:font/woff2,webmanifest:application/manifest+json,yjs:text/plain,img:application/octet-stream,ico:image/x-icon,m3u:audio/x-mpegURL,m3u8:application/x-mpegURL,tar:application/x-tar,gz:application/gzip,ts:video/MP2T,mkv:video/x-matroska,avi:video/x-msvideo,mp3:audio/mpeg,ogg:audio/ogg"
 #define HTTPD_SENDFILE_ALL		"false"

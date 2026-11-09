@@ -16,6 +16,7 @@
 #include <string>
 #include <vector>
 
+#include <strings.h>
 #include <time.h>
 #include <unistd.h>
 
@@ -376,6 +377,27 @@ bool hostAccepted(const std::string &host)
 		if (authorityAccepted(host, BoxNames()))
 			return true;
 		return authorityAccepted(host, boxNames());
+	}
+	catch (...)
+	{
+		return false;
+	}
+}
+
+bool hostHeaderAccepted(const std::map<std::string, std::string> &headers)
+{
+	try
+	{
+		size_t named = 0;
+		std::string host;
+		for (std::map<std::string, std::string>::const_iterator it = headers.begin(); it != headers.end(); ++it)
+		{
+			if (strcasecmp(it->first.c_str(), "Host") != 0)
+				continue;
+			++named;
+			host = it->second;
+		}
+		return named <= 1 && hostAccepted(host);
 	}
 	catch (...)
 	{

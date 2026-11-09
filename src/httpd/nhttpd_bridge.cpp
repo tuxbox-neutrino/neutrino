@@ -271,18 +271,20 @@ THandleStatus CAuthorityGate::Hook_PrepareResponse(CyhookHandler *hh)
 {
 	try
 	{
-		size_t named = 0;
-		std::string host;
-		for (CStringList::const_iterator it = hh->HeaderList.begin(); it != hh->HeaderList.end(); ++it)
-		{
-			if (strcasecmp(it->first.c_str(), "Host") != 0)
-				continue;
-			++named;
-			host = it->second;
-		}
-		if (named <= 1 && httpd::hostAccepted(host))
+		if (httpd::hostHeaderAccepted(hh->HeaderList))
 			return HANDLED_CONTINUE;
+	}
+	catch (...)
+	{
+		// refused below, like a name the box does not go by
+	}
+	return refuse(hh);
+}
 
+THandleStatus CAuthorityGate::refuse(CyhookHandler *hh)
+{
+	try
+	{
 		if (CyhookHandler::isApiTarget(hh->UrlData["url"]))
 		{
 			refuseAtBoundary(hh, httpd::problemResponse(httpd::StatusBadRequest,

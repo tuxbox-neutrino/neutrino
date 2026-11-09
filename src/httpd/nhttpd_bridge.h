@@ -63,8 +63,13 @@ bool heldBack(int fd, bool own_unnamed);
 #include "httpd/server_control.h"
 
 /* The request boundary: whether the request names this box in its Host header
-   (httpd/authority.h), asked once for every request before any other hook
-   sees it, API and legacy alike. Attached first, ahead of the login.
+   (httpd/authority.h, hostHeaderAccepted), asked for every request before any
+   other hook sees it, API and legacy alike. Attached first, ahead of the login.
+   A hook sees a request once it has been read: the body of an API request, at
+   most 1 MiB, is in memory by then. A POST outside the API, which can carry an
+   upload that is written to a file as it arrives, is asked the same by the
+   request reader before a byte of its body is read, and refused there with the
+   same page (yrequest.cpp, HandlePost).
 
    A request that names another box is answered 400: under the API addresses
    with the problem document no-authority, everywhere else with a short page in
@@ -78,6 +83,11 @@ public:
 	virtual std::string getHookName(void) { return "authority"; }
 	virtual std::string getHookVersion(void) { return "1.0.0"; }
 	virtual THandleStatus Hook_PrepareResponse(CyhookHandler *hh);
+	/* The refusal into the handler, filled as session_init fills it: what
+	   Hook_PrepareResponse answers such a request with, and what the request
+	   reader sends for a POST it refuses before the body. HANDLED_ERROR, or
+	   HANDLED_ABORT where not even the fixed failure could be made. */
+	static THandleStatus refuse(CyhookHandler *hh);
 };
 
 class CApiBridge : public Cyhook

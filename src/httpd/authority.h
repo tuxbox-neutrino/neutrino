@@ -21,6 +21,7 @@
 #ifndef __httpd_authority_h__
 #define __httpd_authority_h__
 
+#include <map>
 #include <string>
 #include <vector>
 
@@ -73,6 +74,14 @@ BoxNames boxNames();
 
 /* authorityAccepted against boxNames(). False where anything inside fails. */
 bool hostAccepted(const std::string &host);
+
+/* hostAccepted over the headers of a request as nhttpd's reader keeps them, one
+   entry per spelling of a name, the later of two equal spellings in it: the Host
+   header named in more than one spelling is refused, so every later reader of
+   it reads the value checked here. The request boundary asks this of every
+   request (CAuthorityGate), and the reader once more of a POST before its body
+   is read. */
+bool hostHeaderAccepted(const std::map<std::string, std::string> &headers);
 
 /* The domains a resolver configuration names under search and domain, in
    the order written, each once, lowered and without a dot at the end. */

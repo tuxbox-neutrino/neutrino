@@ -21,9 +21,11 @@
 #include "ysocket.h"
 #include "ytypes_globals.h"
 #include "ywebserver.h"
+#include <httpd/authority.h>
 #include <httpd/server_control.h>
 
 #include <atomic>
+#include <cstdio>
 #include <cstdlib>
 #include <cstring>
 #include <string>
@@ -32,7 +34,9 @@
 
 #include <fcntl.h>
 #include <poll.h>
+#include <sys/ioctl.h>
 #include <sys/socket.h>
+#include <sys/stat.h>
 #include <netinet/in.h>
 #include <netinet/tcp.h>
 #include <sys/time.h>
@@ -1179,6 +1183,283 @@ TEST_CASE("a multipart POST whose caller goes away before a boundary ends the re
 			"Content-Type: multipart/form-data; boundary=b\r\n"
 			"Content-Length: 300\r\n\r\n"
 			"--b\r\nContent-Disposition: form-data; name=\"v\"\r\n\r\none\r\n"));
+}
+
+namespace {
+
+/* Where an upload goes during a case: a file of the case's own in place of
+   UPLOAD_TMP_FILE, named by the hook that names upload files, and the box's
+   names read from a resolver file of the case's own, so a name is refused
+   the same way on every host. Both put back at the end. */
+struct UploadPlace : public Cyhook
+{
+	std::string dir, file, resolv;
+	int ready;
+
+	UploadPlace() : ready(0)
+	{
+		char d[] = "/tmp/test_upload_XXXXXX";
+		REQUIRE(mkdtemp(d) != NULL);
+		dir = d;
+		file = dir + "/upload.part";
+		resolv = dir + "/resolv.conf";
+		std::FILE *f = std::fopen(resolv.c_str(), "w");
+		REQUIRE(f != NULL);
+		std::fputs("nameserver 192.168.1.1\nsearch fritz.box\n", f);
+		REQUIRE(std::fclose(f) == 0);
+		httpd::setNameSourcesForTest("h7", resolv);
+		CyhookHandler::attach(this);
+	}
+	~UploadPlace()
+	{
+		CyhookHandler::detach(this);
+		httpd::setNameSourcesForTest("", "");
+		::unlink(file.c_str());
+		::unlink(resolv.c_str());
+		::rmdir(dir.c_str());
+	}
+	virtual THandleStatus Hook_UploadSetFilename(CyhookHandler *, std::string &name)
+	{
+		name = file;
+		return HANDLED_CONTINUE;
+	}
+	virtual THandleStatus Hook_UploadReady(CyhookHandler *, std::string)
+	{
+		ready++;
+		return HANDLED_CONTINUE;
+	}
+	bool written() const
+	{
+		struct stat st;
+		return ::stat(file.c_str(), &st) == 0;
+	}
+	long long size() const
+	{
+		struct stat st;
+		return ::stat(file.c_str(), &st) == 0 ? (long long) st.st_size : -1;
+	}
+	std::string text() const
+	{
+		std::string out;
+		std::FILE *f = std::fopen(file.c_str(), "r");
+		if (f == NULL)
+			return out;
+		char buf[4096];
+		size_t n;
+		while ((n = std::fread(buf, 1, sizeof(buf), f)) > 0)
+			out.append(buf, n);
+		std::fclose(f);
+		return out;
+	}
+};
+
+/* A legacy POST handed whole to HandleRequest() over a socket pair, the
+   caller's end shut for writing behind it. What the reader answered, the
+   bytes of the request it left unread, and the request with what it parsed. */
+struct Posted
+{
+	bool handled;
+	std::string answer;
+	int unread;
+	CStringList params;
+};
+
+Posted postWhole(const std::string &request)
+{
+	Posted out;
+	out.handled = false;
+	out.unread = -1;
+	int fd[2];
+	REQUIRE(socketpair(AF_UNIX, SOCK_STREAM, 0, fd) == 0);
+	int big = 1 << 20;
+	setsockopt(fd[1], SOL_SOCKET, SO_SNDBUF, &big, sizeof(big));
+	CySocket *s = new CySocket(fd[0]);
+	s->isOpened = true;
+	s->isValid = true;
+	REQUIRE(write(fd[1], request.data(), request.size()) == (ssize_t) request.size());
+	shutdown(fd[1], SHUT_WR);
+
+	std::atomic<bool> done(false);
+	std::thread watchdog([&done]() {
+		for (int i = 0; i < 3000 && !done; i++)
+			usleep(10 * 1000);
+		if (!done) {
+			fprintf(stderr, "a POST handed whole did not end in 30 s\n");
+			_exit(1);
+		}
+	});
+
+	CWebserver ws;
+	CWebserverConnection *con = new CWebserverConnection(&ws);
+	con->Request.UrlData["clientaddr"] = "192.168.1.20";
+	con->Request.UrlData["localaddr"] = "192.168.1.5:80";
+	con->sock = s;
+	out.handled = con->Request.HandleRequest();
+	done = true;
+	watchdog.join();
+	ioctl(fd[0], FIONREAD, &out.unread);
+	out.params = con->Request.ParameterList;
+	delete con;
+	s->close();
+	delete s;
+
+	fcntl(fd[1], F_SETFL, O_NONBLOCK);
+	char buf[4096];
+	ssize_t n;
+	while ((n = read(fd[1], buf, sizeof(buf))) > 0)
+		out.answer.append(buf, (size_t) n);
+	close(fd[1]);
+	return out;
+}
+
+const char kUploadBody[] =
+	"--b\r\n"
+	"Content-Disposition: form-data; name=\"f\"; filename=\"services.xml\"\r\n"
+	"Content-Type: text/xml\r\n"
+	"\r\n"
+	"<zapit>\r\n</zapit>\r\n"
+	"--b--\r\n";
+
+// A POST of kUploadBody, with its length, to /control/upload under the given header lines.
+std::string uploadRequest(const std::string &headers)
+{
+	return "POST /control/upload HTTP/1.1\r\n" + headers +
+		"Content-Type: multipart/form-data; boundary=b\r\n"
+		"Content-Length: " + std::to_string(sizeof(kUploadBody) - 1) + "\r\n\r\n" + kUploadBody;
+}
+
+} // namespace
+
+TEST_CASE("an upload under a name that is not this box is refused before a byte of it is written", "[nhttpd][authority]")
+{
+	/* The hooks see a request once it has been read, and an upload is written
+	   to a file on its way in: the request boundary has to be asked before the
+	   body. Refused with the boundary's own page, the body left unread. */
+	{
+		UploadPlace place;
+		const Posted ok = postWhole(uploadRequest("Host: h7\r\n"));
+		CHECK(ok.handled);
+		CHECK(ok.answer == "HTTP/1.1 100 Continue\r\n\r\n");
+		CHECK(place.text() == "<zapit>\r\n</zapit>");
+		CHECK(place.ready == 1);
+	}
+
+	const char *const refused[] = {
+		"Host: evil.example\r\n",
+		"Host: h7.evil.example:80\r\n",
+		"Host: h7\r\nhost: h7\r\n",
+		"host: evil.example\r\nHost: h7\r\n",
+	};
+	for (size_t i = 0; i < sizeof(refused) / sizeof(refused[0]); ++i)
+	{
+		INFO(refused[i]);
+		UploadPlace place;
+		const Posted p = postWhole(uploadRequest(refused[i]));
+		CHECK_FALSE(p.handled);
+		CHECK(p.answer.find("HTTP/1.0 400") == 0);
+		CHECK(p.answer.find("Content-Type: text/plain; charset=UTF-8\r\n") != std::string::npos);
+		CHECK(p.answer.find("X-Content-Type-Options: nosniff\r\n") != std::string::npos);
+		CHECK(p.answer.find("allowed_hosts") != std::string::npos);
+		CHECK(p.answer.find("http://192.168.1.5/") != std::string::npos);
+		CHECK(p.answer.find("100 Continue") == std::string::npos);
+		CHECK_FALSE(place.written());
+		CHECK(place.ready == 0);
+		CHECK(p.unread == (int) (sizeof(kUploadBody) - 1));
+	}
+
+	// a form POST under such a name keeps its body unread too
+	{
+		UploadPlace place;
+		const Posted p = postWhole("POST /control/x HTTP/1.1\r\nHost: evil.example\r\n"
+			"Content-Type: application/x-www-form-urlencoded\r\nContent-Length: 3\r\n\r\na=b");
+		CHECK_FALSE(p.handled);
+		CHECK(p.answer.find("HTTP/1.0 400") == 0);
+		CHECK(p.unread == 3);
+		CHECK(p.params.find("a") == p.params.end());
+	}
+}
+
+TEST_CASE("an upload is read only by one length of at most 16 MiB", "[nhttpd]")
+{
+	/* An upload goes to a file as it arrives. Its length is settled before a
+	   byte of it is read: a longer one, one without a length and one framed
+	   otherwise are refused with nothing read or written. */
+	CHECK(UPLOAD_MAX_LENGTH == 16 * 1024 * 1024);
+	struct Refused
+	{
+		std::string length_lines;
+		const char *status;
+	};
+	const Refused cases[] = {
+		{ "Content-Length: " + std::to_string(UPLOAD_MAX_LENGTH + 1) + "\r\n", "HTTP/1.0 413" },
+		{ "Content-Length: 4294967296\r\n", "HTTP/1.0 413" },
+		{ "", "HTTP/1.0 411" },
+		{ "Content-Length: -1\r\n", "HTTP/1.0 400" },
+		{ "Content-Length: 99, 99\r\n", "HTTP/1.0 400" },
+		{ "Content-Length: 99\r\nContent-Length: 99\r\n", "HTTP/1.0 400" },
+		{ "Transfer-Encoding: chunked\r\n", "HTTP/1.0 400" },
+	};
+	for (size_t i = 0; i < sizeof(cases) / sizeof(cases[0]); ++i)
+	{
+		INFO(cases[i].length_lines);
+		UploadPlace place;
+		const std::string request = "POST /control/upload HTTP/1.1\r\nHost: 192.168.1.5\r\n"
+			"Content-Type: multipart/form-data; boundary=b\r\n" + cases[i].length_lines + "\r\n" + kUploadBody;
+		const Posted p = postWhole(request);
+		CHECK_FALSE(p.handled);
+		CHECK(p.answer.find(cases[i].status) == 0);
+		CHECK(p.answer.find("100 Continue") == std::string::npos);
+		CHECK_FALSE(place.written());
+		CHECK(p.unread == (int) (sizeof(kUploadBody) - 1));
+	}
+}
+
+TEST_CASE("a multipart body that runs on past its declared length is read no further than a line past it", "[nhttpd]")
+{
+	/* What is left of the declared length is counted down by every line read.
+	   Counted below nought, it wrapped round to four gigabytes, and a caller
+	   that declared a few bytes could write as much as it liked into the
+	   upload file. */
+	{
+		UploadPlace place;
+		std::string body = "--b\r\nContent-Disposition: form-data; name=\"f\"; filename=\"x.bin\"\r\n"
+			"Content-Type: application/octet-stream\r\n\r\n";
+		for (int i = 0; i < 64; i++)
+			body += std::string(1000, 'x') + "\r\n";
+		body += "--b--\r\n";
+		const Posted p = postWhole("POST /control/upload HTTP/1.1\r\nHost: h7\r\n"
+			"Content-Type: multipart/form-data; boundary=b\r\nContent-Length: 50\r\n\r\n" + body);
+		CHECK(place.size() >= 0);
+		CHECK(place.size() <= 2048);
+		CHECK(place.ready == 0);
+	}
+
+	/* A value line counts what it is long. It used to count as the empty line
+	   before it, and a caller sent forty times what it declared. */
+	{
+		UploadPlace place;
+		std::string body;
+		std::string first_two;
+		for (int i = 0; i < 42; i++)
+		{
+			const std::string part = "--b\r\nContent-Disposition: form-data; name=\"v" + std::to_string(i) +
+				"\"\r\n\r\n" + std::string(1000, 'y') + "\r\n";
+			body += part;
+			if (i < 2)
+				first_two += part;
+		}
+		body += "--b--\r\n";
+		const Posted p = postWhole("POST /control/upload HTTP/1.1\r\nHost: h7\r\n"
+			"Content-Type: multipart/form-data; boundary=b\r\nContent-Length: " +
+			std::to_string(first_two.size()) + "\r\n\r\n" + body);
+		size_t values = 0;
+		for (CStringList::const_iterator it = p.params.begin(); it != p.params.end(); ++it)
+			if (it->first.compare(0, 1, "v") == 0)
+				values++;
+		CHECK(values >= 2);
+		CHECK(values <= 3);
+		CHECK_FALSE(place.written());
+	}
 }
 
 TEST_CASE("a form POST whose caller sends less than it announced ends the request", "[nhttpd]")

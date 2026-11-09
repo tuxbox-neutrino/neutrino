@@ -34,6 +34,9 @@
 #include "helper.h"
 #include "yhook.h"
 #include "ysocket.h"
+#include <yhttpd.h>
+#include <httpd/authority.h>
+#include <httpd/nhttpd_bridge.h>
 
 //=============================================================================
 // Constructor & Destructor
@@ -114,10 +117,8 @@ bool CWebserverRequest::HandleRequest(void) {
 		return false;
 	}
 	// handle POST (read header & body)
-	if (Connection->Method == M_POST) {
-		Connection->Response.Write("HTTP/1.1 100 Continue\r\n\r\n"); // POST Requests requires CONTINUE in HTTP/1.1
+	if (Connection->Method == M_POST)
 		return HandlePost();
-	}
 	// if you are here, something went wrong
 
 	return true;
@@ -290,9 +291,55 @@ bool CWebserverRequest::HandlePost() {
 	} while (tmp_line != "\r\n"); // header ends with first empty line
 	ParseHeader(raw_header);
 
+	// The request boundary's question (CAuthorityGate), asked before the body
+	// and not only by the hook: the hooks see a request once it has been read,
+	// and an upload is written to a file on its way in. Answered with the
+	// boundary's own refusal.
+	if (!httpd::hostHeaderAccepted(HeaderList)) {
+		log_level_printf(1, "HandlePost: Host names another box, body left unread\n");
+		CyhookHandler &hh = Connection->HookHandler;
+		hh.session_init(ParameterList, UrlData, HeaderList, Cyhttpd::ConfigList, Connection->Method, false);
+		if (CAuthorityGate::refuse(&hh) == HANDLED_ERROR) {
+			Connection->Response.Write(hh.BuildHeader());
+			Connection->Response.Write(hh.yresult);
+		}
+		// the body is still on its way in
+		Connection->sock->linger_on_close = true;
+		return false;
+	}
+
 	// read meesage body
 	unsigned int content_len = 0;
-	if (!HeaderList["Content-Length"].empty())
+	static const std::string t = "multipart/form-data; boundary=";
+	const bool multipart = HeaderList["Content-Type"].compare(0, t.length(), t) == 0;
+	if (multipart) {
+#ifdef Y_CONFIG_FEATURE_UPLOAD
+		// An upload goes to a file as it arrives, so its length is settled
+		// before a byte of it is read: one Content-Length, a number of at most
+		// UPLOAD_MAX_LENGTH. Without one it would be read until the caller
+		// stops, and any other framing is one this reader does not follow.
+		long long declared = 0;
+		const ApiBody framing = apiContentLength(raw_header, declared);
+		HttpResponseType refused = HTTP_OK;
+		if (framing == BODY_BAD)
+			refused = HTTP_BAD_REQUEST;
+		else if (framing == BODY_NONE)
+			refused = HTTP_LENGTH_REQUIRED;
+		else if (declared > UPLOAD_MAX_LENGTH)
+			refused = HTTP_REQUEST_ENTITY_TOO_LARGE;
+		if (refused != HTTP_OK) {
+			log_level_printf(1, "HandlePost: upload of %lld bytes refused unread (%d)\n", declared, (int) refused);
+			Connection->Response.SendError(refused);
+			// the body is still on its way in
+			Connection->sock->linger_on_close = true;
+			return false;
+		}
+		content_len = (unsigned int) declared;
+#else
+		Connection->Response.SendError(HTTP_NOT_IMPLEMENTED);
+		return false;
+#endif
+	} else if (!HeaderList["Content-Length"].empty())
 		content_len = atoi(HeaderList["Content-Length"].c_str());
 
 	// Get Rest of Request from Socket
@@ -300,8 +347,12 @@ bool CWebserverRequest::HandlePost() {
 	log_level_printf(9, "Conntent Type:%s\n", ylog::headerValue("Content-Type", HeaderList["Content-Type"]).c_str());
 	log_level_printf(8, "Post Content-Length:%d as string:(%s)\n", content_len, ylog::headerValue("Content-Length", HeaderList["Content-Length"]).c_str());
 
-	static const std::string t = "multipart/form-data; boundary=";
-	if (HeaderList["Content-Type"].compare(0, t.length(), t) == 0) // this a a multpart POST, normallly: file upload
+	// POST Requests requires CONTINUE in HTTP/1.1: sent once the header has
+	// passed the checks above, so a caller that waits for it before the body
+	// sends nothing of a body refused there
+	Connection->Response.Write("HTTP/1.1 100 Continue\r\n\r\n");
+
+	if (multipart) // this a a multpart POST, normallly: file upload
 	{
 #ifdef Y_CONFIG_FEATURE_UPLOAD
 		std::string boundary = "--" + HeaderList["Content-Type"].substr(t.length(),HeaderList["Content-Type"].length() - t.length());
@@ -318,9 +369,6 @@ bool CWebserverRequest::HandlePost() {
 			Connection->Response.SendError(HTTP_INTERNAL_SERVER_ERROR);
 			return false;
 		}
-#else
-		Connection->Response.SendError(HTTP_NOT_IMPLEMENTED);
-		return false;
 #endif
 	} else if (HeaderList["Content-Type"].compare(
 			"application/x-www-form-urlencoded") == 0) //this is a normal POST with form-data (no upload)
@@ -355,6 +403,15 @@ bool CWebserverRequest::HandlePost() {
 	}
 	return true;
 }
+//-----------------------------------------------------------------------------
+// What is left of a declared body length once n more bytes of it were read:
+// never less than nothing, so a body that runs on past the length it declared
+// is read no further than one line past it, whatever it goes on sending.
+//-----------------------------------------------------------------------------
+static unsigned int lengthLeft(unsigned int left, size_t n) {
+	return n >= left ? 0 : left - (unsigned int) n;
+}
+
 //-----------------------------------------------------------------------------
 // POST multipart ! FILE UPLOAD!
 //
@@ -442,7 +499,7 @@ unsigned int CWebserverRequest::HandlePostBoundary(std::string boundary,
 
 	// read boundary
 	std::string tmp_line = Connection->sock->ReceiveLine();
-	content_len -= tmp_line.length();
+	content_len = lengthLeft(content_len, tmp_line.length());
 
 	log_level_printf(2, "<POST Boundary> Start\n");
 	if (tmp_line.find(boundary) != std::string::npos) {
@@ -455,7 +512,7 @@ unsigned int CWebserverRequest::HandlePostBoundary(std::string boundary,
 
 		// read content-disposition: ...
 		tmp_line = Connection->sock->ReceiveLine();
-		content_len -= tmp_line.length();
+		content_len = lengthLeft(content_len, tmp_line.length());
 		if (tmp_line.find("Content-Disposition:") == std::string::npos) {
 			log_level_printf(7, "<POST Boundary> no content-disposition found. line of %s\n", ylog::withheld(tmp_line).c_str());
 			return 0;
@@ -495,7 +552,7 @@ unsigned int CWebserverRequest::HandlePostBoundary(std::string boundary,
 
 			//read 'Content-Type: <mime>'
 			tmp_line = Connection->sock->ReceiveLine();
-			content_len -= tmp_line.length();
+			content_len = lengthLeft(content_len, tmp_line.length());
 			// Get Content-Type: put it to ParameterList["<name>_mime"]="<mime>"
 			if(!ySplitStringExact(tmp_line, "Content-Type:", left, right))
 			{
@@ -508,7 +565,7 @@ unsigned int CWebserverRequest::HandlePostBoundary(std::string boundary,
 
 			//read empty line as separator
 			tmp_line = Connection->sock->ReceiveLine();
-			content_len -= tmp_line.length();
+			content_len = lengthLeft(content_len, tmp_line.length());
 			if(tmp_line != "\r\n")
 			{
 				log_level_printf(7,"<POST Boundary> no empty line found. line of %s\n", ylog::withheld(tmp_line).c_str());
@@ -541,7 +598,7 @@ unsigned int CWebserverRequest::HandlePostBoundary(std::string boundary,
 			if((int)content_len - SEARCH_BOUNDARY_LEN >0)
 			{
 				_readbytes = Connection->sock->ReceiveFileGivenLength(fd, content_len - SEARCH_BOUNDARY_LEN);
-				content_len -= _readbytes;
+				content_len = lengthLeft(content_len, _readbytes);
 				log_level_printf(8,"<POST Boundary> read block (already:%d all:%d)\n", _readbytes, content_len);
 			}
 
@@ -584,7 +641,7 @@ unsigned int CWebserverRequest::HandlePostBoundary(std::string boundary,
 				log_level_printf(2,"<POST Boundary> read file (already:%d all:%d)\n", _readbytes, content_len);
 			}
 			while((_readbytes < content_len) && (!tmp_line.empty()));
-			content_len -= _readbytes;
+			content_len = lengthLeft(content_len, _readbytes);
 			close(fd);
 			log_level_printf(2,"<POST Boundary> read file End\n");
 			if(found_end_boundary) // upload ok?
@@ -610,7 +667,7 @@ unsigned int CWebserverRequest::HandlePostBoundary(std::string boundary,
 
 			//read empty line as separator
 			tmp_line = Connection->sock->ReceiveLine();
-			content_len -= tmp_line.length();
+			content_len = lengthLeft(content_len, tmp_line.length());
 			if (tmp_line != "\r\n") {
 				log_level_printf(7, "<POST Boundary> no empty line found. line of %s\n", ylog::withheld(tmp_line).c_str());
 				return 0;
@@ -620,7 +677,7 @@ unsigned int CWebserverRequest::HandlePostBoundary(std::string boundary,
 			// ASSUMPTION!!!! Only one Line for value, new line is a boundary again
 			// ATTENTION!! var_name must not be unique. So Parameters are store by number too.
 			var_value = Connection->sock->ReceiveLine();
-			content_len -= tmp_line.length();
+			content_len = lengthLeft(content_len, var_value.length());
 			var_value = trim(decodeString(var_value));
 			ParameterList[var_name] = var_value;
 			log_level_printf(7, "<POST Boundary> Parameter found. name:(%s) value:(%s)\n", ylog::text(var_name).c_str(), ylog::paramValue(var_name, var_value).c_str());

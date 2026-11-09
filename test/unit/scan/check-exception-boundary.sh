@@ -42,7 +42,7 @@ for f in "$STRIP" "$BLANK"; do
 	[ -r "$f" ] || { echo "check-exception-boundary.sh: cannot read $f" >&2; exit 1; }
 done
 
-ALLOWED='httpd::compat::knowName httpd::compat::record httpd::setBoundPortFromBridge httpd::boundPort httpd::scheduleReloadAndRestart httpd::saveServerFile httpd::workingFile CApiBridge::routesOk CApiBridge::registerPrefixes CApiBridge::startStreams CApiBridge::stopStreams'
+ALLOWED='httpd::compat::knowName httpd::compat::record httpd::setBoundPortFromBridge httpd::boundPort httpd::scheduleReloadAndRestart httpd::saveServerFile httpd::workingFile httpd::hostHeaderAccepted CApiBridge::routesOk CApiBridge::registerPrefixes CApiBridge::startStreams CApiBridge::stopStreams CAuthorityGate::refuse'
 
 # name, file that defines it; each of these opens with try
 GUARDED='knowName src/httpd/stubs/legacy_usage.cpp
@@ -51,12 +51,14 @@ scheduleReloadAndRestart src/httpd/stubs/server_nhttpd.cpp
 reloadRunner src/httpd/stubs/server_nhttpd.cpp
 saveServerFile src/httpd/webconfig.cpp
 workingFile src/httpd/webconfig.cpp
+hostHeaderAccepted src/httpd/authority.cpp
 CApiBridge::routesOk src/httpd/nhttpd_bridge.cpp
 CApiBridge::startStreams src/httpd/nhttpd_bridge.cpp
 CApiBridge::stopStreams src/httpd/nhttpd_bridge.cpp
 CApiBridge::Hook_SendResponse src/httpd/nhttpd_bridge.cpp
 CApiBridge::Hook_SendStream src/httpd/nhttpd_bridge.cpp
-CAuthorityGate::Hook_PrepareResponse src/httpd/nhttpd_bridge.cpp'
+CAuthorityGate::Hook_PrepareResponse src/httpd/nhttpd_bridge.cpp
+CAuthorityGate::refuse src/httpd/nhttpd_bridge.cpp'
 
 tmp=`mktemp -d`
 trap 'rm -rf "$tmp"' EXIT
@@ -69,7 +71,7 @@ prepare() {
 : > "$tmp/calls"
 find "$SRC/src/nhttpd" \( -name '*.cpp' -o -name '*.h' \) | sort | while read -r f; do
 	# a name of its own, not the tail of one: Cyhttpd:: is nhttpd's
-	prepare "$f" | grep -o -E '(^|[^A-Za-z_0-9:])(httpd::[A-Za-z_:]*[A-Za-z_]|CApiBridge::[A-Za-z_]+)[ \t]*\(' \
+	prepare "$f" | grep -o -E '(^|[^A-Za-z_0-9:])(httpd::[A-Za-z_:]*[A-Za-z_]|CApiBridge::[A-Za-z_]+|CAuthorityGate::[A-Za-z_]+)[ \t]*\(' \
 		| sed -E 's/^[^A-Za-z_]//; s/[ \t]*\($//' >> "$tmp/calls" || true
 done
 sort -u "$tmp/calls" > "$tmp/called"
