@@ -289,9 +289,11 @@ function _webuiKeeper(path, keep) {
 }
 
 // What a listener gets: the list (empty while none is known), whether one
-// is known, and whether the last read failed
+// is known, whether the last read failed and whether that was a sign-in
+// the user declined, and seq, the number of the read it came from (a read
+// started later has a higher one)
 function _webuiKeeperView(k) {
-	return {items: k.items || [], known: k.items !== null, stale: k.stale};
+	return {items: k.items || [], known: k.items !== null, stale: k.stale, declined: !!k.declined, seq: k.read};
 }
 
 // A list (an array) replaces the one kept, a failed read (null) keeps it as
@@ -300,6 +302,7 @@ function _webuiKeeperTake(k, items) {
 	if (Array.isArray(items)) {
 		k.items = k.keep ? items.filter(k.keep) : items.slice();
 		k.stale = false;
+		k.declined = false;
 	} else {
 		k.stale = true;
 	}
@@ -334,14 +337,21 @@ function _webuiKeeperRead(k, mode) {
 			var ask = k.ask;
 			k.ask = false;
 			var items = null;
+			var declined = false;
 			try {
 				var r = ask ? await webuiV1('GET', k.path) : await _webuiV1Read(k.path);
 				if (r && Array.isArray(r.items))
 					items = r.items;
-			} catch (e) { /* items stays null: the read failed */ }
+			} catch (e) {
+				// items stays null: the read failed, or its sign-in was declined
+				declined = !!(e && e.cancelled);
+			}
 			// a list handed in meanwhile is newer than this answer
-			if (read === k.read)
+			if (read === k.read) {
+				if (!items)
+					k.declined = declined;
 				_webuiKeeperTake(k, items);
+			}
 		} while (k.again);
 		k.reading = null;
 		return _webuiKeeperView(k);

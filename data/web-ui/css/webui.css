@@ -882,6 +882,33 @@ html.webui-side-narrow .webui-side .webui-side-toggle {
 	animation: webui-spin 0.8s linear infinite;
 }
 
+/* A press the box takes a while to carry out (a recording stopped): the
+   button says what is under way (its data-busy-words) beside a spinner in
+   the colour of its words, in place of what it holds. Pico's own spinner
+   for aria-busy is white on every button, so it is not drawn here. */
+.webui-busy-words > * {
+	display: none !important;
+}
+
+.webui-busy-words::after {
+	content: attr(data-busy-words);
+}
+
+.webui-busy-words.webui-busy-words[aria-busy="true"]::before {
+	content: "";
+	display: inline-block;
+	flex: none;
+	width: 0.9em;
+	height: 0.9em;
+	margin: 0;
+	background: none !important;
+	filter: none !important;
+	border: 2px solid currentColor;
+	border-right-color: transparent;
+	border-radius: 50%;
+	animation: webui-spin 0.8s linear infinite;
+}
+
 /* the tab bar, on a phone only, and what "More" opens above it */
 .webui-tabbar {
 	display: none;

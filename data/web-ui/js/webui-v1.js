@@ -612,20 +612,145 @@ function webuiV1Zap(channelId) {
 	});
 }
 
+// The questions of playing a recording on the TV (webuiV1Lifting)
+function _webuiPlayTexts() {
+	return {
+		title: webuiL('media.ask_title', 'Play recording'),
+		ok: webuiL('media.play', 'Play on TV'),
+		stop: webuiL('media.ask_stop', 'The player is playing a file. Stop it and play this recording?'),
+		wake: webuiL('media.ask_wake', 'The box is in standby. Switch it on and play this recording?')
+	};
+}
+
 // Plays a finished recording on the TV through POST
 // /api/v1/recordings/archive/{id}/play, asking as above, and says so.
 async function webuiPlayRecording(id) {
 	try {
-		const ok = await webuiV1Lifting('/recordings/archive/' + encodeURIComponent(id) + '/play', {}, {
-			title: webuiL('media.ask_title', 'Play recording'),
-			ok: webuiL('media.play', 'Play on TV'),
-			stop: webuiL('media.ask_stop', 'The player is playing a file. Stop it and play this recording?'),
-			wake: webuiL('media.ask_wake', 'The box is in standby. Switch it on and play this recording?')
-		});
+		const ok = await webuiV1Lifting('/recordings/archive/' + encodeURIComponent(id) + '/play', {}, _webuiPlayTexts());
 		if (ok) webuiShowToast(webuiL('media.played', 'Playback started'));
 	} catch (e) {
 		webuiToastError('', e);
 	}
+}
+
+/* The same, said once the TV plays it: the 202 says no more than that the
+   box took the request on. The button (opts.button, else the one pressed)
+   stays busy from the 202 on; a playback event naming the recording
+   confirms it, else a read of what plays after 2 s and, where that does
+   not show it, after 6 s. Then "Playback started", or the warning that the
+   box has not started it yet, or that this could not be checked when that
+   last read fails or gives no answer within WEBUI_PLAY_CHECK; a disk that
+   spins up may take longer, so a playback event naming it within
+   WEBUI_PLAY_LATE after that still says "Playback started". A second call
+   for the recording meanwhile waits for the first; one after the warning
+   starts again. Resolves true once the TV plays it, false otherwise
+   (declined, refused, not started in time). */
+var WEBUI_PLAY_CHECKS = [2000, 6000];
+var WEBUI_PLAY_CHECK = 10000;
+var WEBUI_PLAY_LATE = 30000;
+var _webuiPlays = Object.create(null);	// the starts under way or warned of, by recording id
+var _webuiPlaysHeard = false;		// whether the starts follow the playback events yet
+
+function webuiPlayRecordingConfirmed(id, opts) {
+	opts = opts || {};
+	const key = String(id);
+	const was = _webuiPlays[key];
+	if (was && !was.over)
+		return was.done;
+	if (was)
+		_webuiPlayForget(was);
+	const play = {id: key, btn: opts.button || webuiWaitButton(), over: false, marked: false, timers: []};
+	play.done = new Promise(function(resolve) { play.resolve = resolve; });
+	_webuiPlays[key] = play;
+	if (!_webuiPlaysHeard) {
+		_webuiPlaysHeard = true;
+		webuiV1Watch('playback', function(d) {
+			const ev = webuiPlaybackEvent(d);
+			const p = ev && !ev.stopped && ev.source === 'recording' ? _webuiPlays[ev.id] : null;
+			if (!p)
+				return;
+			if (!p.over) {
+				_webuiPlayEnd(p, true);
+			} else {
+				// warned of already: it started late after all
+				_webuiPlayForget(p);
+				webuiShowToast(webuiL('media.played', 'Playback started'));
+			}
+		});
+	}
+	_webuiPlayRun(play);
+	return play.done;
+}
+
+async function _webuiPlayRun(play) {
+	try {
+		if (!await webuiV1Lifting('/recordings/archive/' + encodeURIComponent(play.id) + '/play', {}, _webuiPlayTexts())) {
+			_webuiPlayEnd(play, false, true);
+			return;
+		}
+	} catch (e) {
+		webuiToastError('', e);
+		_webuiPlayEnd(play, false, true);
+		return;
+	}
+	// the event may have come before the answer
+	if (play.over)
+		return;
+	if (play.btn) {
+		_webuiWaitMark(play.btn, true);
+		play.marked = true;
+	}
+	WEBUI_PLAY_CHECKS.forEach(function(at, i) {
+		play.timers.push(setTimeout(function() { _webuiPlayCheck(play, i === WEBUI_PLAY_CHECKS.length - 1); }, at));
+	});
+}
+
+// The last read decides; not answering within WEBUI_PLAY_CHECK counts as
+// a failed read
+async function _webuiPlayCheck(play, last) {
+	if (play.over)
+		return;
+	const read = _webuiV1Read('/playback').catch(function() { return null; });
+	let limit = null;
+	const doc = !last ? await read : await Promise.race([read,
+		new Promise(function(done) { limit = setTimeout(function() { done(null); }, WEBUI_PLAY_CHECK); })]);
+	clearTimeout(limit);
+	if (play.over)
+		return;
+	const now = webuiPlaybackOf(doc);
+	if (now && now.source === 'recording' && now.id === play.id) {
+		_webuiPlayEnd(play, true);
+	} else if (last) {
+		webuiShowToast(doc ? webuiL('media.not_played', 'The box has not started the playback yet.')
+			: webuiL('media.play_unchecked', 'Could not check whether the playback started.'), 'warn');
+		_webuiPlayEnd(play, false, true, true);
+	}
+}
+
+// late: warned of, and still listened for until WEBUI_PLAY_LATE has passed
+function _webuiPlayEnd(play, ok, quiet, late) {
+	if (play.over)
+		return;
+	play.over = true;
+	play.timers.forEach(clearTimeout);
+	play.timers = [];
+	if (late)
+		play.timers.push(setTimeout(function() { _webuiPlayForget(play); }, WEBUI_PLAY_LATE));
+	else if (_webuiPlays[play.id] === play)
+		delete _webuiPlays[play.id];
+	if (play.marked)
+		_webuiWaitMark(play.btn, false);
+	play.marked = false;
+	if (ok && !quiet)
+		webuiShowToast(webuiL('media.played', 'Playback started'));
+	play.resolve(ok);
+}
+
+function _webuiPlayForget(play) {
+	play.timers.forEach(clearTimeout);
+	play.timers = [];
+	if (_webuiPlays[play.id] === play)
+		delete _webuiPlays[play.id];
 }
 
 /* What the TV's player plays, as GET /api/v1/playback says it, while it
@@ -1442,6 +1567,8 @@ async function webuiShowEpgModal(channelId, channelName, opts) {
 	modal.querySelector('.webui-epg-modal').setAttribute('aria-labelledby', 'webuiEpgModalChannel webuiEpgCurrentTitle');
 
 	webuiEpgModalUpdateRecBtn(false);
+	// a stop pressed in this dialog belongs to the channel it showed then
+	webuiStopShownFor(recBtn, channelId);
 
 	try {
 		const ev = opts.event || await _webuiV1Maybe('/epg/current', {channel: channelId});
@@ -1454,6 +1581,10 @@ async function webuiShowEpgModal(channelId, channelName, opts) {
 		}
 		webuiEpgModalEvent = ev;
 		webuiEpgTimerMarks();
+		// a stop ends what runs now: a later or past programme of the
+		// channel does not show it
+		if (!_webuiEpgRuns(ev))
+			webuiStopShownFor(recBtn, '');
 		const end = ev.start + ev.duration;
 		const now = webuiBoxNow() / 1000;
 		titleEl.textContent = ev.title || '--';
@@ -1923,30 +2054,277 @@ async function webuiStopRecording(recordingId) {
 	}
 }
 
+/* The same, said once the box has ended the recording: its 202 says no
+   more than that it took the request on.
+   - what: the recording's id, or a function that finds it at the press as
+     a read then shows it and resolves {id, title}, null where none runs
+     (nothing is said), false where the user declined the sign-in the read
+     asked for (nothing is said or sent) or undefined where the read failed
+     (Stop failed);
+   - the button (opts.button, else the one pressed) says "Stopping…" with a
+     spinner from the press on and keeps its width; a second press for the
+     same recording, or for the same opts.channel, waits for the first and
+     sends nothing;
+   - opts.channel names the channel a press was for on a button that serves
+     several (the guide dialog's), which shows the stop only while it shows
+     that channel (webuiStopShownFor);
+   - the box confirms with a record-stop event naming the recording, or with
+     a shared read of the recordings, made after the 202, that no longer
+     lists it (webuiOnRecordings); without a live stream nothing brings such
+     a read, so one is made after each of WEBUI_STOP_READS. Then "Recording
+     stopped: <title>" (opts.title, else the title found), after the read
+     that the event brings, so the page shows the end before the word comes;
+   - without either within WEBUI_STOP_WAIT one more read decides, given at
+     most WEBUI_STOP_CHECK: ended, or a warning that the box has not ended
+     it yet, or that this could not be checked;
+   - a recording the box no longer has (no-such-recording) is said as a
+     note and read again; any other refusal is said at once.
+   Resolves 'stopped', 'gone', 'running', null (none found) or false
+   (refused, the read at the press failed or its sign-in was declined). */
+var WEBUI_STOP_READS = [1500, 4000];
+var WEBUI_STOP_WAIT = 8000;
+var WEBUI_STOP_CHECK = 10000;
+var _webuiStops = Object.create(null);	// the stops under way whose recording is known, by its id
+var _webuiStopsRunning = [];		// every stop under way, its recording found or not yet
+var _webuiStopsHeard = false;		// whether the stops follow the record events and the shared read yet
+
+function webuiStopRecordingConfirmed(what, opts) {
+	opts = opts || {};
+	const btn = opts.button || webuiWaitButton();
+	const id = typeof what === 'function' ? null : String(what);
+	const channel = opts.channel || '';
+	const same = _webuiStopsRunning.find(function(s) {
+		return id ? s.id === id : !!channel && s.channel === channel;
+	});
+	if (same)
+		return same.done;
+	const stop = {id: id, channel: channel, title: opts.title || '', btn: null, seq: null, heard: false, over: false, timers: []};
+	stop.done = new Promise(function(resolve) { stop.resolve = resolve; });
+	_webuiStopsRunning.push(stop);
+	if (btn)
+		_webuiStopMark(stop, btn);
+	_webuiStopsFollow();
+	_webuiStopRun(stop, what);
+	return stop.done;
+}
+
+async function _webuiStopRun(stop, what) {
+	if (typeof what === 'function') {
+		let found;
+		try {
+			found = await what();
+		} catch (e) {
+			found = undefined;
+		}
+		if (found === null) {
+			_webuiStopEnd(stop, null);
+			return;
+		}
+		if (found === false) {
+			_webuiStopEnd(stop, false);
+			return;
+		}
+		if (!found || found.id === undefined || found.id === null) {
+			webuiShowToast(webuiL('rec.stop_fail', 'Stop failed'), true);
+			_webuiStopEnd(stop, false);
+			return;
+		}
+		stop.title = stop.title || found.title || '';
+		stop.id = String(found.id);
+	}
+	const other = _webuiStops[stop.id];
+	if (other) {
+		// stopped from elsewhere on the page already: its outcome, said once
+		_webuiStopEnd(stop, await other.done, true);
+		return;
+	}
+	_webuiStops[stop.id] = stop;
+	try {
+		await webuiV1('DELETE', '/recordings/' + encodeURIComponent(stop.id), {mark: false});
+	} catch (e) {
+		if (e.code === 'no-such-recording') {
+			webuiShowToast(webuiL('rec.stop_gone', 'The recording had already ended.'), 'note');
+			webuiRecordingsRead();
+			_webuiStopEnd(stop, 'gone');
+		} else {
+			webuiToastError(webuiL('rec.stop_fail', 'Stop failed'), e);
+			_webuiStopEnd(stop, false);
+		}
+		return;
+	}
+	if (stop.over)
+		return;
+	stop.seq = webuiRecordingsNow().seq;
+	if (stop.heard)
+		_webuiStopHeard(stop);
+	if (!webuiV1EventsLive())
+		WEBUI_STOP_READS.forEach(function(at) {
+			stop.timers.push(setTimeout(function() { if (!stop.over) webuiRecordingsRead(); }, at));
+		});
+	stop.timers.push(setTimeout(function() { _webuiStopLate(stop); }, WEBUI_STOP_WAIT));
+}
+
+function _webuiStopsFollow() {
+	if (_webuiStopsHeard)
+		return;
+	_webuiStopsHeard = true;
+	webuiV1Watch('record-stop', function(d) {
+		const stop = d ? _webuiStops[String(d.value)] : null;
+		if (!stop || stop.heard)
+			return;
+		stop.heard = true;
+		if (stop.seq !== null)
+			_webuiStopHeard(stop);
+	});
+	webuiOnRecordings(function(view) {
+		Object.keys(_webuiStops).forEach(function(id) {
+			const stop = _webuiStops[id];
+			if (stop.seq === null || !(view.seq > stop.seq))
+				return;
+			if (stop.heard || (view.known && !view.stale && !_webuiListsRecording(view, id)))
+				_webuiStopEnd(stop, 'stopped');
+		});
+	});
+}
+
+// The box said it ended: done with the shared read that event brings, or
+// in a moment without one
+function _webuiStopHeard(stop) {
+	stop.timers.push(setTimeout(function() { _webuiStopEnd(stop, 'stopped'); }, 1500));
+}
+
+function _webuiListsRecording(view, id) {
+	return view.items.some(function(it) { return String(it.id) === id; });
+}
+
+// No word of the box in time: one more read decides, or not answering
+// within WEBUI_STOP_CHECK, says that it could not
+async function _webuiStopLate(stop) {
+	if (stop.over)
+		return;
+	let limit = null;
+	const view = await Promise.race([webuiRecordingsRead(),
+		new Promise(function(done) { limit = setTimeout(function() { done(null); }, WEBUI_STOP_CHECK); })]);
+	clearTimeout(limit);
+	if (stop.over)
+		return;
+	if (view && view.known && !view.stale && !_webuiListsRecording(view, stop.id)) {
+		_webuiStopEnd(stop, 'stopped');
+		return;
+	}
+	webuiShowToast(!view || view.stale ? webuiL('rec.stop_unchecked', 'Could not check whether the recording stopped.')
+		: webuiL('rec.stop_pending', 'The box has not stopped the recording yet.'), 'warn');
+	_webuiStopEnd(stop, 'running');
+}
+
+function _webuiStopEnd(stop, result, quiet) {
+	if (stop.over)
+		return;
+	stop.over = true;
+	stop.timers.forEach(clearTimeout);
+	if (stop.id !== null && _webuiStops[stop.id] === stop)
+		delete _webuiStops[stop.id];
+	const at = _webuiStopsRunning.indexOf(stop);
+	if (at >= 0)
+		_webuiStopsRunning.splice(at, 1);
+	_webuiStopUnmark(stop);
+	if (result === 'stopped' && !quiet)
+		webuiShowToast(stop.title ? webuiL('rec.stopped_title', 'Recording stopped: %s').replace('%s', stop.title)
+			: webuiL('rec.stopped', 'Recording stopped'));
+	stop.resolve(result);
+}
+
+// The button shows the stop: one that showed another stop gives that up,
+// and the button that showed this one before is free again
+function _webuiStopMark(stop, btn) {
+	const was = btn._webuiStopRun;
+	if (was && was !== stop)
+		was.btn = null;
+	if (stop.btn && stop.btn !== btn)
+		_webuiStopUnmark(stop);
+	stop.btn = btn;
+	btn._webuiStopRun = stop;
+	_webuiBusyWords(btn, webuiL('rec.stopping', 'Stopping…'));
+}
+
+function _webuiStopUnmark(stop) {
+	const btn = stop.btn;
+	stop.btn = null;
+	if (btn && btn._webuiStopRun === stop) {
+		btn._webuiStopRun = null;
+		_webuiBusyWords(btn, '');
+	}
+}
+
+/* A button that serves several channels (the guide dialog's Record) shows a
+   stop only while it shows the channel the stop was pressed for: it gives
+   the stop up when it shows another channel and takes it up again when it
+   shows that one once more. */
+function webuiStopShownFor(btn, channel) {
+	const run = _webuiStopsRunning.find(function(s) { return !!s.channel && s.channel === channel; });
+	if (run)
+		_webuiStopMark(run, btn);
+	else if (btn._webuiStopRun)
+		_webuiStopUnmark(btn._webuiStopRun);
+}
+
+/* A press the box takes a while to carry out, shown on its button: the
+   words say what is under way, beside a spinner in their colour, in place
+   of what the button holds (which the page may keep drawing meanwhile);
+   the button keeps its width, so a quick second click lands on it and not
+   on its neighbour, is busy and takes no press. '' ends it. */
+function _webuiBusyWords(btn, words) {
+	if (words) {
+		if (!btn.classList.contains('webui-busy-words')) {
+			const width = btn.getBoundingClientRect().width;
+			btn._webuiBusyWidth = btn.style.minWidth;
+			if (width)
+				btn.style.minWidth = width + 'px';
+		}
+		btn.setAttribute('data-busy-words', words);
+		btn.classList.add('webui-busy-words');
+		btn.setAttribute('aria-busy', 'true');
+	} else if (btn.classList.contains('webui-busy-words')) {
+		btn.classList.remove('webui-busy-words');
+		btn.removeAttribute('data-busy-words');
+		btn.removeAttribute('aria-busy');
+		btn.style.minWidth = btn._webuiBusyWidth || '';
+	}
+}
+
 // The dialog's Record: a recording of the programme it shows, or, for the
 // one running now while the box records it, the end of that recording
 async function webuiEpgModalToggleRec() {
 	const done = _webuiEpgModalOnTimer;
+	// a stop under way takes no press, not from the keyboard either (its
+	// label may still be the one of the programme before)
+	const btn = document.getElementById('webuiEpgRecBtn');
+	if (btn && btn._webuiStopRun)
+		return;
 	if (webuiEpgModalIsRecording) {
 		// this channel's recording and no other, as a read at the press finds
 		// it (with a sign-in where the box asks for one): one that ended since
 		// the dialog opened leaves nothing to stop here, and the button says
-		// Record again without a word; a read that fails stops nothing. The
-		// button shows that the press is under way, read and stop alike.
-		const busy = webuiWaitBegin(webuiWaitButton());
-		try {
-			const channelId = webuiEpgModalChannelId;
+		// Record again without a word; a read that fails stops nothing, and
+		// one whose sign-in the user declined says nothing either. The
+		// button says that the stop is under way until the box has ended it,
+		// then Record, unless the channel is being recorded once more.
+		const channelId = webuiEpgModalChannelId;
+		const channelName = webuiEpgModalChannelName;
+		let stopped = '';
+		const ended = await webuiStopRecordingConfirmed(async function() {
 			const view = await webuiRecordingsRead({signIn: true});
-			if (view.stale) {
-				webuiShowToast(webuiL('rec.stop_fail', 'Stop failed'), true);
-				return;
-			}
+			if (view.stale)
+				return view.declined ? false : undefined;
 			const rec = view.items.find(function(it) { return it.channel_id === channelId; });
-			if (!rec || await webuiStopRecording(rec.id))
-				webuiEpgModalUpdateRecBtn(false);
-		} finally {
-			busy();
-		}
+			stopped = rec ? String(rec.id) : '';
+			return rec ? {id: rec.id, title: rec.title || channelName} : null;
+		}, {channel: channelId});
+		if ((ended === null || ended === 'stopped' || ended === 'gone') && channelId === webuiEpgModalChannelId
+			&& (!webuiEpgModalEvent || _webuiEpgRuns(webuiEpgModalEvent)))
+			webuiEpgModalUpdateRecBtn(webuiRecordingsNow().items.some(function(it) {
+				return it.channel_id === channelId && String(it.id) !== stopped;
+			}));
 	} else if (await webuiRecordEvent()) {
 		if (done) done();
 		// the recording begins when the box fires the timer; its record-start
