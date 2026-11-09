@@ -89,22 +89,55 @@ function focusAgain(list, kept) {
 	if (el) el.focus({preventScroll: true});
 }
 
+// One page of the archive as the box has it. A calm read (see loadList) asks
+// for no sign-in, so a read the page makes of itself never brings the dialog,
+// and throws where the box does not answer it, or not within CALM_WAIT: a
+// read that never answers (a connection that died without a reset) must not
+// hold up the ones after it.
+const CALM_WAIT = 10000;
+async function readPage(query, calm) {
+	if (!calm)
+		return webuiV1('GET', '/recordings/archive', {query: query});
+	const q = Object.keys(query).map(k => encodeURIComponent(k) + '=' + encodeURIComponent(query[k])).join('&');
+	let limit = null;
+	const page = await Promise.race([_webuiV1Read('/recordings/archive?' + q).catch(() => null),
+		new Promise(done => { limit = setTimeout(() => done(null), CALM_WAIT); })]);
+	clearTimeout(limit);
+	if (!page) throw new Error('the box did not answer');
+	return page;
+}
+
+function showLoading(list) {
+	list.replaceChildren(webuiEl('li', {}, webuiState('loading', webuiL('media.loading', 'Loading recordings...'), '')));
+}
+
 /* One page of the list; more=true appends the next page. quiet, for a read
-   the page makes of itself (the player moved, a recording ended), keeps the
-   list shown until the answer comes and the focus where it was. */
-async function loadList(more, quiet) {
+   the page makes of itself (a recording ended, the page came back, a folder
+   is still being read) once the list has been drawn, whatever it holds (no
+   recordings, a search without hits, an error), makes it a calm one: what is
+   on screen stays until the answer comes, with the focus and the scroll
+   position where they were, no sign-in is asked for, and a read that fails
+   leaves it as it is. pages: how many pages a calm read brings, as
+   many as the list shows, so what "more" loaded stays; they are drawn
+   together. nextOffset, where "more" goes on, belongs to the list on screen:
+   a read that is not calm starts it afresh and hides "more" meanwhile, a
+   calm one leaves it alone until its answer is drawn, so "more" asks for the
+   right page during and after a calm read that failed or was overtaken.
+   Resolves false where the read failed. */
+async function loadList(more, quiet, pages) {
 	const token = ++listToken;
 	const known = stateSeq;
 	const list = document.getElementById('mediaList');
 	const moreBtn = document.getElementById('mediaMore');
-	if (!more) {
+	const calm = !!quiet && !more && sourcesShown !== null;
+	if (!more && !calm) {
 		nextOffset = 0;
-		if (!quiet || !shown.length)
-			list.replaceChildren(webuiEl('li', {}, webuiState('loading', webuiL('media.loading', 'Loading recordings...'), '')));
+		moreBtn.hidden = true;
+		showLoading(list);
 	}
-	if (nextOffset === null) return;
+	if (more && nextOffset === null) return true;
 
-	const query = {offset: nextOffset, limit: PAGE, sort: document.getElementById('mediaSort').value};
+	const query = {offset: more ? nextOffset : 0, limit: PAGE, sort: document.getElementById('mediaSort').value};
 	const order = document.getElementById('mediaOrder').value;
 	if (order) query.order = order;
 	const words = document.getElementById('mediaSearch').value.trim();
@@ -115,37 +148,37 @@ async function loadList(more, quiet) {
 	const cover = document.getElementById('mediaCover').value;
 	if (cover) query.cover = cover;
 
-	let page;
+	let page, got = 1;
 	try {
-		page = await webuiV1('GET', '/recordings/archive', {query: query});
+		page = await readPage(query, calm);
+		while (calm && got < (pages || 1) && typeof page.next_offset === 'number') {
+			const next = await readPage(Object.assign({}, query, {offset: page.next_offset}), calm);
+			page = Object.assign({}, next, {items: (page.items || []).concat(next.items || [])});
+			got++;
+		}
 	} catch (e) {
-		if (token !== listToken) return;
+		if (token !== listToken) return true;
+		if (calm) return false;
 		// "more" that fails keeps the pages shown and says so; a first page
 		// says why the list is empty, and the folders still offer "all"
 		if (more) {
 			webuiToastError(webuiL('msg.load_fail', 'Loading failed'), e);
-			return;
+			return false;
 		}
 		list.replaceChildren(webuiEl('li', {}, webuiStateFor(e, {retry: () => loadList(false)})));
 		moreBtn.hidden = true;
 		shown = [];
 		if (sourcesShown === null) showSources([]);
-		return;
+		return false;
 	}
-	if (token !== listToken) return;
+	if (token !== listToken) return true;
 
 	const items = (page && page.items) || [];
-	pagesShown = more ? pagesShown + 1 : 1;
+	pagesShown = more ? pagesShown + 1 : got;
 	sawPlaying(items, known);
 	const kept = more ? null : focusInList(list);
-	if (!more) {
-		list.replaceChildren();
-		shown = [];
-	}
-	items.forEach(rec => {
-		shown.push(rec);
-		list.appendChild(itemFor(rec));
-	});
+	shown = more ? shown.concat(items) : items.slice();
+	syncRows(list);
 	focusAgain(list, kept);
 	if (!more && items.length === 0) {
 		// the filter on the thumbnail named, as it is the likeliest reason
@@ -188,6 +221,7 @@ async function loadList(more, quiet) {
 			if (pagesShown === 1) loadList(false);	// "more" was pressed meanwhile: keep its pages
 		}, 3000 * ++partialTries);
 	}
+	return true;
 }
 
 function titleOf(rec) {
@@ -324,6 +358,22 @@ function itemFor(rec) {
 	return view === 'list' ? recordingRow(rec) : recordingTile(rec);
 }
 
+/* The rows of the list as `shown` has them, in place (webuiSync): a row that
+   is unchanged stays the node it was, so a tap that has begun on it, the
+   focus, and the node a closed menu or sheet gives the focus back to are
+   still there, and the scroll position holds against what comes in above; a
+   row that changed or is new is drawn, one that is gone is taken away. A row
+   with a menu open on it is not touched: the menu's button is where the
+   focus goes back to. */
+function syncRows(list) {
+	const open = new Map();
+	list.querySelectorAll('li[data-id] [aria-expanded="true"]').forEach(btn => {
+		const li = btn.closest('li');
+		open.set(li.dataset.id, li);
+	});
+	webuiSync(list, shown, rec => rec.id, rec => open.get(rec.id) || itemFor(rec));
+}
+
 // The title opens the recording's details: a button that reads as one. A
 // row's title line carries the mark of the recording that plays; a long
 // title is cut short, the mark is not.
@@ -428,6 +478,11 @@ function showPlay(btn) {
 		btn._busyMarked = busy;
 		_webuiWaitMark(btn, busy);
 	}
+	// taking the mark off leaves style="" behind, which a button drawn anew
+	// does not have: the row would differ from its fresh render for good, and
+	// webuiSync would draw it again on every reread
+	if (!busy && btn.getAttribute('style') === '')
+		btn.removeAttribute('style');
 }
 
 // Why Play on TV of a recording waits, '' where it does not: the TV plays
@@ -594,7 +649,7 @@ function setView(v) {
 	const list = document.getElementById('mediaList');
 	list.className = 'webui-media-list ' + (v === 'list' ? 'rows' : 'tiles');
 	if (shown.length)
-		list.replaceChildren.apply(list, shown.map(itemFor));
+		syncRows(list);
 }
 
 // The library's directories, as the answer names them: chips above the
@@ -799,12 +854,63 @@ document.getElementById('mediaSearch').addEventListener('input', () => {
 document.getElementById('mediaSort').addEventListener('change', () => loadList(false));
 document.getElementById('mediaOrder').addEventListener('change', () => loadList(false));
 document.getElementById('mediaCover').addEventListener('change', () => loadList(false));
-document.getElementById('mediaMore').addEventListener('click', () => loadList(true));
+document.getElementById('mediaMore').addEventListener('click', async () => {
+	// "more" goes on from where the list ends, which a calm reread under way
+	// moves: it is waited for (rereadRun), and asks from the offset it set
+	while (rereadRun) await rereadRun;
+	loadList(true);
+});
 document.getElementById('viewTiles').addEventListener('click', () => setView('tiles'));
 document.getElementById('viewList').addEventListener('click', () => setView('list'));
 
-// once the texts are in: a finished recording joins the library; a
-// playback moves the "playing" mark
+/* The list read again calmly, one read at a time: whatever asks while a read
+   is under way (a burst of record-stop events, a return to the page that
+   comes with a reconnect) is read once more after it, however many ask. A
+   read that the box does not answer counts as failed after CALM_WAIT, so
+   the queue goes on. rereadRun is the run under way, for "Load more" to
+   wait for. */
+let rereadRun = null;
+let rereadOwed = false;
+async function rereadList() {
+	if (rereadRun) {
+		rereadOwed = true;
+		return true;
+	}
+	let done;
+	rereadRun = new Promise(resolve => { done = resolve; });
+	let ok = true;
+	try {
+		do {
+			rereadOwed = false;
+			ok = await loadList(false, true, pagesShown);
+		} while (rereadOwed);
+	} finally {
+		rereadRun = null;
+		done();
+	}
+	return ok;
+}
+
+/* Without an event stream no record-stop comes. The head reads the
+   recordings the box is making all the same (webuiOnRecordings), when the
+   page comes into view and every minute while it is shown: one that has left
+   that list has ended, and the list is read again, calmly, once. With a stream
+   the event does that, and a page that comes back into view reads its list
+   anyway, so neither reads twice: a return forgets what was known. */
+let making = null;		// the ids of the recordings the box was making at the last shared read; null where that is not known
+function recordingsMaking(view) {
+	if (!view.known || view.stale)
+		return;
+	const now = new Set(view.items.map(it => String(it.id)));
+	const ended = !!making && Array.from(making).some(id => !now.has(id));
+	making = now;
+	if (ended && !webuiV1EventsLive() && !document.hidden)
+		rereadList();
+}
+document.addEventListener('visibilitychange', () => { making = null; });
+
+// once the texts are in: the list is read and follows the box (a finished
+// recording joins it, a playback moves the "playing" mark)
 webuiAfterTexts(function() {
 	setView(view);
 	// the recordings are one stop of Tab: the arrows go from tile to tile
@@ -814,15 +920,18 @@ webuiAfterTexts(function() {
 		{near: true, start: '.webui-media-open'});
 	// tiles or list: one stop, on the view shown
 	webuiArrowKeys(document.getElementById('viewTiles').parentElement, 'button');
-	webuiV1Events({
-		'record-stop': () => loadList(false, true),
-		playback: playbackEvent
-	});
-	loadList(false);
+	webuiV1Events({playback: playbackEvent});
+	showLoading(document.getElementById('mediaList'));
+	// the list: read once the page's event stream is set up, again, calmly
+	// and as far as it is shown, after each recording that ends and whenever
+	// the stream comes back after a gap, and without the stream (refused, or
+	// none in this browser) when the page comes into view; nothing says that
+	// the archive changed elsewhere, so it is not read on a clock (webuiFollow)
+	webuiFollow({reread: rereadList, events: ['record-stop'], first: () => loadList(false)});
+	webuiOnRecordings(recordingsMaking);
 	// what the TV plays: read now, again whenever the event stream comes
-	// back after a gap, and without the stream (refused, or none in this
-	// browser) when the page comes into view and every 30 s while it is
-	// shown (webuiFollow)
+	// back after a gap, and without the stream when the page comes into view
+	// and every 30 s while it is shown (webuiFollow)
 	webuiFollow({reread: readPlayback, every: 30000});
 });
 
