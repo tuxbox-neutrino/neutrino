@@ -216,8 +216,20 @@
 			border-left-color: var(--webui-accent);
 		}
 
-		.webui-timer-row.state-finished {
-			opacity: 0.5;
+		/* a timer the box has finished: the words of its title and date muted,
+		   nothing dimmed, so every text keeps its contrast; the pill and the
+		   sentence below say what it is and why it goes */
+		.webui-timer-row.state-finished .webui-timer-row-title,
+		.webui-timer-row.state-finished .webui-timer-row-date {
+			color: var(--pico-muted-color);
+		}
+
+		.webui-timer-row-hint {
+			margin: 0.3rem 0 0;
+			padding-left: calc(28px + 0.6rem);
+			color: var(--pico-muted-color);
+			font-size: var(--webui-font-sm);
+			line-height: 1.35;
 		}
 
 		.webui-timer-main {
@@ -397,6 +409,10 @@
 
 			.webui-timer-main {
 				gap: 0.4rem;
+			}
+
+			.webui-timer-row-hint {
+				padding-left: calc(28px + 0.4rem);
 			}
 
 			.webui-timer-actions {

@@ -3202,8 +3202,8 @@ function webuiFillTimerLabels() {
 	});
 	Object.assign(WEBUI_TIMER_STATE_LABELS, {
 		0: webuiL('timer.state.0', 'Scheduled'), 1: webuiL('timer.state.1', 'Announced'),
-		2: webuiL('timer.state.2', 'Active'), 3: webuiL('timer.state.3', 'Finished'),
-		4: webuiL('timer.state.4', 'Cancelled')
+		2: webuiL('timer.state.2', 'Active'), 3: webuiL('timer.state.3', 'Done'),
+		4: webuiL('timer.state.4', 'Being removed')
 	});
 	Object.assign(WEBUI_REPEAT_LABELS, {
 		'once': webuiL('timer.rep.once', 'Once'), 'daily': webuiL('timer.rep.daily', 'Daily'),

@@ -48,7 +48,7 @@ function filters() {
 		types: [['all', webuiL('tm.all', 'All')], ['type-5', TIMER_TYPE_LABELS[5]], ['type-3', TIMER_TYPE_LABELS[3]],
 			['type-4', TIMER_TYPE_LABELS[4]], ['type-6', TIMER_TYPE_LABELS[6]]],
 		states: [['state-scheduled', webuiL('tm.planned', 'Planned')], ['state-running', webuiL('tm.active', 'Active')],
-			['state-finished', webuiL('tm.expired', 'Expired')]]
+			['state-finished', webuiL('tm.expired', 'Done')]]
 	};
 }
 
@@ -212,9 +212,18 @@ function detail(label, value) {
 	return [webuiEl('dt', {}, label), webuiEl('dd', {}, value)];
 }
 
+// Whether the box schedules a timer again when it has finished, instead of
+// removing it: it repeats, and this run was not its last (a count of 1 is)
+function timerRepeats(t) {
+	return !!t.repeat && t.repeat_count !== 1;
+}
+
 function timerRow(timer) {
 	const typeNum = typeNumber(timer);
 	const state = timer.state || 0;
+	// a finished timer (3) that repeats is scheduled again, not removed: its
+	// row keeps Delete, which ends the series
+	const again = state === 3 && timerRepeats(timer);
 	const channel = webuiNames[channelOf(timer)] || '';
 	const typeLabel = TIMER_TYPE_LABELS[typeNum] || WEBUI_TIMER_TYPES[typeNum] || String(timer.kind);
 	const title = timer.title || channel || typeLabel;
@@ -245,10 +254,13 @@ function timerRow(timer) {
 		actions.push(actionButton('webui-btn', SVG_EDIT, webuiL('tm.edit', 'Edit'), webuiL('tm.edit_title', 'Edit timer') + ': ' + title, () => editTimer(timer.id)));
 		actions.push(webuiMenuButton(webuiL('bq.more', 'More for %s').replace('%s', title), [
 			{label: webuiL('tm.delete_title', 'Delete timer'), icon: SVG_DELETE, danger: true, onClick: () => deleteTimer(timer.id, title)}]));
-	} else {
+	} else if (state === 2 || again) {
 		actions.push(actionButton('webui-btn', SVG_DELETE, webuiL('fm.delete', 'Delete'), webuiL('tm.delete_title', 'Delete timer') + ': ' + title,
 			() => deleteTimer(timer.id, title)));
 	}
+	// no action for a timer the box has finished (3) or is removing (4) and
+	// does not schedule again: its timer thread removes it within one pass, so
+	// Delete would mostly find it gone
 
 	const details = [].concat(
 		detail(webuiL('tm.type', 'Type'), typeLabel),
@@ -282,6 +294,8 @@ function timerRow(timer) {
 				webuiEl('div', {className: 'webui-timer-row-hours'}, timeRange)),
 			webuiEl('div', {className: 'webui-timer-actions'}, actions),
 			more),
+		state >= 3 ? webuiEl('p', {className: 'webui-timer-row-hint'}, again ? webuiL('tm.repeat_hint', 'The box schedules the next repeat by itself.')
+			: webuiL('tm.finished_hint', 'The box removes done timers by itself after a few seconds.')) : null,
 		webuiEl('div', {className: 'webui-timer-detail', id: detailId},
 			webuiEl('dl', {className: 'webui-kv webui-timer-detail-grid'}, details)));
 }
