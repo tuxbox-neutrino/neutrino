@@ -10,6 +10,7 @@ var bqeShown = [];         // the bouquets the list shows, as it was drawn
 var bqeSel = null;         // {id, name} of the chosen bouquet
 var bqeChan = [];          // working copy of its channels [{id, name}]
 var bqeChanOf = null;      // {sel, mode} the working copy was read for
+var bqeChanBase = null;    // the channel ids the working copy was read as, before any edit
 var bqeChanReading = false;
 var bqeAllChan = [];       // every channel of the mode
 var bqeAllOf = null;       // the mode bqeAllChan was read for
@@ -114,6 +115,7 @@ function bqeEditable() {
 function bqeChanClear() {
 	bqeChan = [];
 	bqeChanOf = null;
+	bqeChanBase = null;
 	bqeChanReading = !!bqeSel;
 	setDirty(false);
 }
@@ -332,6 +334,7 @@ async function bqeLoadChannels() {
 	} else {
 		bqeChan = list;
 		bqeChanOf = sel ? {sel: sel, mode: mode} : null;
+		bqeChanBase = list.map(function(c) { return c.id; });
 		setDirty(false);
 	}
 	bqeRenderChannels();
@@ -813,6 +816,42 @@ function bqeBouquetsChanged() {
 	}, 300);
 }
 
+/* The stream came back after a gap (the page was out of view, the line
+   broke) or, without a stream, the page came back into view: a change made
+   meanwhile at the box or in another tab announced itself to nobody here.
+   Without unapplied edits the bouquets and the chosen bouquet's channels
+   are read again; the list of every channel changes only with a channel
+   scan, Reload and a change of mode read it. With edits the chosen
+   bouquet's channels are read and the banner comes up when they differ
+   from the list the edits started from, as "Apply" would overwrite them;
+   unchanged, nothing is said. */
+async function bqeStreamBack() {
+	if (!bqeChanDirty) {
+		await bqeLoadBouquets();
+		if (!bqeSel) bqeChanClear();
+		else if (!bqeChanDirty) await bqeLoadChannels();
+		bqeRenderBouquets();
+		bqeRenderChannels();
+		bqeRenderAll();
+		if (!bqeChanDirty) bqeShowStale(false);
+		return;
+	}
+	if (bqeApplying || !bqeChanReady() || !bqeChanBase)
+		return;
+	var sel = bqeSel, mode = bqeMode(), base = bqeChanBase;
+	var ids;
+	try {
+		ids = (await webuiV1All('/channels', {bouquet: sel.id, mode: mode})).map(function(c) { return c.id; });
+	} catch (e) {
+		return;
+	}
+	if (sel !== bqeSel || mode !== bqeMode() || base !== bqeChanBase || !bqeChanDirty || bqeApplying)
+		return;
+	var same = ids.length === base.length && ids.every(function(id, i) { return id === base[i]; });
+	if (!same)
+		bqeShowStale(true);
+}
+
 // Leaving the page would drop unapplied channel edits; the browser asks.
 window.addEventListener('beforeunload', function(e) {
 	if (!bqeChanDirty) return;
@@ -843,5 +882,6 @@ document.getElementById('bqeAll').addEventListener('dragstart', bqeAllEvent);
 // itself from its wrapper
 webuiExtTexts('bouquet-editor').then(function() {
 	webuiV1Events({'bouquets-changed': bqeBouquetsChanged});
+	webuiFollow({reread: bqeStreamBack, first: false});
 	bqeReloadAll(true);
 });
