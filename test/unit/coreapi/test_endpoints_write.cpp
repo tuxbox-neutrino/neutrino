@@ -8475,3 +8475,51 @@ TEST_CASE("an address waiting out its own delay spends nothing of the budget eve
 		REQUIRE(send(Post, "/api/v1/login", loginBody(kUser, "nope"), AuthLevel::Public, peer).code == 401);
 	}
 }
+
+TEST_CASE("the file routes leave the files the access stores are written through alone", "[write][refusals]")
+{
+	/* In a directory of the case's own, set as both the root and the place the stores
+	   are named under, so a refusal that broke writes there and nowhere else. */
+	ShippedRoutes shipped;
+	RootsFixture roots;
+	const char *const before = coreapi::storage::internal::access_store_dir;
+	struct PutBack
+	{
+		const char *was;
+		~PutBack() { coreapi::storage::internal::access_store_dir = was; }
+	} put_back = { before };
+	(void) put_back;
+	coreapi::storage::internal::access_store_dir = roots.box.dir.c_str();
+
+	const char *const working[] = { "nhttpd-access.conf.new", "nhttpd.conf.new" };
+	for (size_t i = 0; i < sizeof(working) / sizeof(working[0]); ++i)
+	{
+		INFO(working[i]);
+		const std::string name = roots.box.at(working[i]);
+
+		const Reply write = authedPut("/api/v1/storage/file?path=" + name, "x");
+		REQUIRE(write.code == 400);
+		REQUIRE(write.body.find("access-store") != std::string::npos);
+		REQUIRE(::access(name.c_str(), F_OK) != 0);
+
+		REQUIRE(writeText(roots.box.at("planted"), "username=root\n"));
+		const Reply renamed = authedPost("/api/v1/storage/rename", renameBody(roots.box.at("planted"), name));
+		REQUIRE(renamed.code == 400);
+		REQUIRE(renamed.body.find("access-store") != std::string::npos);
+		REQUIRE(::access(name.c_str(), F_OK) != 0);
+
+		// One that is there while a save is half done is not read either.
+		REQUIRE(writeText(name, "password_hash=pbkdf2-sha256$...\n"));
+		const Reply read = authedGet("/api/v1/storage/file?path=" + name);
+		REQUIRE(read.code == 400);
+		REQUIRE(read.body.find("access-store") != std::string::npos);
+		const Reply away = authedPost("/api/v1/storage/rename", renameBody(name, roots.box.at("taken")));
+		REQUIRE(away.code == 400);
+		REQUIRE(readText(name) == "password_hash=pbkdf2-sha256$...\n");
+		REQUIRE(::unlink(name.c_str()) == 0);
+	}
+
+	// A name beside them that no server writes through is a file like any other.
+	const Reply other = authedPut("/api/v1/storage/file?path=" + roots.box.at("nhttpd.conf.old"), "x");
+	REQUIRE(other.code / 100 == 2);
+}

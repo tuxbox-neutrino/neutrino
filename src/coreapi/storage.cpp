@@ -78,6 +78,8 @@ const char *default_roots = kShippedRoots;
 // the settings, so they are read where it writes them.
 const char *moviebrowser_config_path = CONFIGDIR "/moviebrowser.conf";
 
+const char *access_store_dir = CONFIGDIR;
+
 // Every kind a directory entry can carry, so that a reader can print back the
 // number it was given rather than the one kind this layer had a name for.
 FileKind kindOf(unsigned char d_type)
@@ -205,6 +207,13 @@ Failure outside(const std::string &path)
    start takes it over and removes it, but on a box where it could not be removed it still
    holds a hash and tokens, and it is no less a store for being one nothing reads.
 
+   The last two are the working files the first two are written through
+   (httpd::workingFile): a save puts the whole new content there, commits it and renames it
+   over the store. While one is there it holds what the store is about to hold, so reading
+   it hands over the same hash; and a file somebody put there first, or renamed there, is
+   the name a save writes through. So a write, a rename and a read of either are refused
+   like one of the store itself.
+
    Only these, and not the directory they sit in: everything else there is a configuration
    somebody has a good reason to fetch, to back up or to compare.
 
@@ -216,14 +225,14 @@ Failure outside(const std::string &path)
    What it cannot see is a second hard link to the same file, a hard link being a name of its
    own with nothing in the filesystem to say what it shares. Making one needs a shell on the
    box. */
-const char *const kAccessStoreNames[] = { "nhttpd-access.conf", "nhttpd.conf", "ni-web.conf" };
+const char *const kAccessStoreNames[] = { "nhttpd-access.conf", "nhttpd.conf", "ni-web.conf", "nhttpd-access.conf.new", "nhttpd.conf.new" };
 
 bool isAccessStore(const std::string &resolved)
 {
 	// Resolved rather than written down, for the reason the roots are: a
 	// directory that is a link answers differently later.
 	char dir[PATH_MAX];
-	if (realpath(CONFIGDIR, dir) == NULL)
+	if (realpath(internal::access_store_dir, dir) == NULL)
 		return false;
 	const std::string where(dir);
 

@@ -1,7 +1,8 @@
 #!/bin/sh
 # The files the storage layer refuses to read, write or remove are the ones a web
 # server on this box keeps its access store in, the name that store had before
-# included. Which files those are is stated by
+# and the working files the two it writes are written through included. Which
+# files those are is stated by
 # the programs that own them, and the storage layer works the names out a second time
 # from the same directory macro.
 #
@@ -47,7 +48,8 @@ printf '%s\n' "$line" | grep -q 'CONFIGDIR' && {
 	echo "  the directory belongs in the lookup, so that the two cannot disagree" >&2
 	exit 1
 }
-grep -qE 'realpath\(CONFIGDIR,' "$STORAGE" || {
+grep -qE 'realpath\(internal::access_store_dir,' "$STORAGE" \
+	&& grep -qE '^const char \*access_store_dir = CONFIGDIR;' "$STORAGE" || {
 	echo "check-access-store.sh: $STORAGE does not work the names out under CONFIGDIR" >&2
 	exit 1
 }
@@ -88,11 +90,21 @@ grep -qE '^#define[[:blank:]]+HTTPD_ACCESS_FORMER_FILE[[:blank:]]+CONFIGDIR' "$G
 	exit 1
 }
 
-want=`printf '%s\n%s\n%s\n' "$access" "$old" "$former" | LC_ALL=C sort`
+# And the working files the two it writes are written through, which is the name
+# with what httpd::workingFile appends.
+WEBCONFIG="$SRC/src/httpd/webconfig.cpp"
+[ -r "$WEBCONFIG" ] || { echo "check-access-store.sh: cannot read $WEBCONFIG" >&2; exit 1; }
+suffix=`sed -n '/^std::string workingFile(/,/^}/p' "$WEBCONFIG" | grep -oE 'return path \+ "[^"]+"' | grep -oE '"[^"]+"' | tr -d '"' || true`
+[ -n "$suffix" ] || {
+	echo "check-access-store.sh: $WEBCONFIG no longer says what httpd::workingFile appends" >&2
+	exit 1
+}
+
+want=`printf '%s\n%s\n%s\n%s\n%s\n' "$access" "$old" "$former" "$access$suffix" "$old$suffix" | LC_ALL=C sort`
 if [ "$refused" != "$want" ]; then
 	echo "check-access-store.sh: the storage layer refuses" >&2
 	printf '%s\n' "$refused" | sed 's/^/  /' >&2
-	echo "  and the two servers keep their access stores in" >&2
+	echo "  and the two servers keep their access stores and their working files in" >&2
 	printf '%s\n' "$want" | sed 's/^/  /' >&2
 	exit 1
 fi

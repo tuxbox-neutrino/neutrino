@@ -49,6 +49,12 @@ extern const char *default_roots;
 // the directory a box on the same machine keeps its own configuration in.
 extern const char *moviebrowser_config_path;
 
+// The directory the web servers keep their access stores in, CONFIGDIR. Named here
+// so the suite can point it at one it made: the shipped one is where a box on the
+// same machine keeps its configuration, and a case driving the refusal of a write
+// there would write into it on the day the refusal broke.
+extern const char *access_store_dir;
+
 // The number a directory puts beside a name, turned into what this layer calls
 // it. Named here so the suite can drive the two kinds no directory it can make
 // will ever report: the one a union filesystem uses to hide a name, and the one
