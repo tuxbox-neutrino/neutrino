@@ -532,6 +532,8 @@
 	"tm.delete_ask": "Delete the timer \"%s\"?",
 	"tm.gone": "The timer had already been removed.",
 	"tm.finished_hint": "The box removes done timers by itself after a few seconds.",
+	"tm.stale": "Out of date",
+	"tm.stale_why": "The timers could not be read again. The list may be out of date.",
 	"set.loading": "Loading settings...",
 	"set.load_fail": "Loading the settings failed",
 	"set.notavail": "Not available",

@@ -96,9 +96,16 @@
 		}
 
 		.webui-card-value {
+			display: inline-flex;
+			align-items: center;
 			margin-left: auto;
 			color: var(--pico-muted-color);
 			font-variant-numeric: tabular-nums;
+		}
+
+		/* the list drawn is from a read before the last one failed */
+		.webui-timer-stale .webui-pill {
+			margin-right: 0.5rem;
 		}
 
 		.webui-timer-list {
@@ -631,7 +638,10 @@
 					<label class="webui-filter-pick">
 						<select title="Show only the timers of a kind or a state" data-l-title="tip.timer_filter" id="filterSelect" aria-label="Filter" data-l-aria-label="tm.filter"></select>
 					</label>
-					<span class="webui-card-value" id="timerCount"></span>
+					<span class="webui-card-value">
+						<span class="webui-timer-stale" id="timerStale" role="status"></span>
+						<span id="timerCount"></span>
+					</span>
 					<button title="A timer for a recording, a switch, standby or a reminder" data-l-title="tip.timer_new" type="button" class="webui-btn primary webui-timer-new-small" onclick="openTimerModal()" data-l="timer.new">New timer</button>
 				</header>
 				<ul class="webui-timer-list" id="timerList"></ul>

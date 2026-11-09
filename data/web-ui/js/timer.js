@@ -96,8 +96,23 @@ function channelOf(t) {
 	return t.channel_id && t.channel_id !== '0' ? t.channel_id : '';
 }
 
+// The list drawn comes from a read that answered; a later read that fails
+// leaves it as it is and says that it may be out of date
+function markStale(stale) {
+	const mark = document.getElementById('timerStale');
+	// said once: a read that fails again leaves the mark as it is, so a
+	// screen reader is not told again
+	if (!mark || stale === mark.hasChildNodes()) return;
+	const why = webuiL('tm.stale_why', 'The timers could not be read again. The list may be out of date.');
+	mark.replaceChildren.apply(mark, stale ? [
+		webuiEl('span', {className: 'webui-pill warn', title: why}, webuiL('tm.stale', 'Out of date')),
+		webuiEl('span', {className: 'webui-visually-hidden'}, '. ' + why)] : []);
+}
+
 // A read that fails keeps a list drawn before; the first one says why
 let timersRead = 0;	// an older answer arriving after a newer one is dropped
+let timersBehind = false;	// the page's own last read failed and none has answered since: the list, or the error in its place, may be behind the box
+let headSeq = 0;	// the newest answer of the head's that the page took (view.seq)
 async function loadTimers() {
 	const read = ++timersRead;
 	const list = document.getElementById('timerList');
@@ -108,18 +123,43 @@ async function loadTimers() {
 		if (read !== timersRead) return;
 		allTimers = items;
 		timersShown = true;
+		timersBehind = false;
 		webuiTimersSeen(items);
 		updateFilterCounts();
 		renderTimerList();
+		markStale(false);
 	} catch (e) {
 		if (read !== timersRead) return;	// a newer read has the list
+		timersBehind = true;
 		webuiTimersSeen(null);
 		if (timersShown) {
 			console.warn('timers not read again:', e.message);
+			markStale(true);
 			return;
 		}
 		list.replaceChildren(webuiEl('li', {}, webuiStateFor(e, {title: webuiL('timer.unavail', 'Timers not available'), retry: loadTimers})));
 	}
+}
+
+// After a failed read of the page's own the head reads the list once more
+// (for its number). Its answers are the page's list while the page is
+// behind, so with a live stream the mark, or the error, does not wait for
+// the next timer event; the page makes no read for it. An answer counts only
+// if it was read after the last one taken (a second failed read of the page
+// makes the head read once more, and asking for names can reorder two
+// answers), and only a read of the page's own that answers ends being behind.
+async function takeHeadsList(view) {
+	if (!timersBehind || !view.known || view.stale) return;
+	const read = timersRead;
+	await webuiEnsureNames(view.items.map(channelOf));
+	// a read of the page's own started or answered meanwhile: that one counts
+	if (!timersBehind || read !== timersRead || view.seq <= headSeq) return;
+	headSeq = view.seq;
+	allTimers = view.items;
+	timersShown = true;
+	updateFilterCounts();
+	renderTimerList();
+	markStale(false);
 }
 
 function updateFilterCounts() {
@@ -408,6 +448,7 @@ webuiAfterTexts(function() {
 	// a running timer's recording is marked from the page's shared read,
 	// which follows the stream itself
 	webuiOnRecordings(() => { if (timersShown) renderTimerList(); });
+	webuiOnTimers(takeHeadsList);
 	webuiV1Events({'timer-changed': loadTimers});
 	webuiFollow({reread: loadTimers, every: 60000});
 });

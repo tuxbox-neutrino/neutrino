@@ -532,6 +532,8 @@
 	"tm.delete_ask": "Den Timer „%s“ löschen?",
 	"tm.gone": "Der Timer war schon entfernt.",
 	"tm.finished_hint": "Die Box entfernt erledigte Timer nach wenigen Sekunden selbst.",
+	"tm.stale": "Nicht aktuell",
+	"tm.stale_why": "Die Timer ließen sich nicht neu lesen. Die Liste ist womöglich nicht mehr aktuell.",
 	"set.loading": "Lade Einstellungen...",
 	"set.load_fail": "Fehler beim Laden der Einstellungen",
 	"set.notavail": "Nicht verfügbar",
