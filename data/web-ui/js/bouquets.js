@@ -447,28 +447,47 @@ function epgUpdated(d) {
 	}, 2000);
 }
 
+// The channel the box plays, read again: its row is marked, and where the
+// box switched between television and radio the lists change. A read that
+// failed leaves the mark and the lists as they are: it says nothing of what
+// the box plays. An answer that nothing plays (404 no-running-channel: the
+// box is in standby, or the player shows a recording or a file) takes the
+// mark off the last channel, so that its Zap is there again, and leaves the
+// lists: they would otherwise jump to television.
+let zapRead = 0;	// an older answer arriving after a newer one is dropped
+async function zapped() {
+	const read = ++zapRead;
+	const mode = currentMode;
+	let ch = null;
+	try {
+		ch = await webuiV1('GET', '/channels/current');
+	} catch (e) {
+		if (read === zapRead && e.code === 'no-running-channel') {
+			currentChannelId = null;
+			markCurrent();
+		}
+		return;
+	}
+	if (read !== zapRead || !ch || !ch.id) return;
+	currentChannelId = ch.id;
+	currentMode = ch.kind === 'radio' || ch.kind === 'webradio' ? 'radio' : 'tv';
+	if (currentMode !== mode) loadBouquets();	// the box switched lists
+	else markCurrent();
+}
+
 // Initialize once the texts are in; a zap from anywhere else (remote
 // control, timer) moves the mark, a recording that starts or stops marks
 // its row (the shared read follows the record events), and news of the
 // guide updates the rows it concerns
 webuiAfterTexts(() => {
 	webuiOnRecordings(recordingsSeen);
+	webuiV1Events({zap: zapped, 'epg-updated': epgUpdated});
+	// a zap the stream did not carry (it was gone, or the page hidden) is
+	// read once after the stream is back and, without one, when the page
+	// comes into view (webuiFollow); the read below makes the first
+	webuiFollow({reread: zapped, first: false});
 	return loadCurrentChannel().then(loadBouquets);
 });
-let zapRead = 0;	// an older answer arriving after a newer one is dropped
-webuiAfterTexts(() => webuiV1Events({
-	zap: async function() {
-		const read = ++zapRead;
-		const mode = currentMode;
-		const ch = await webuiV1('GET', '/channels/current').catch(() => null);
-		if (read !== zapRead) return;
-		currentChannelId = ch ? ch.id : null;
-		currentMode = ch && (ch.kind === 'radio' || ch.kind === 'webradio') ? 'radio' : 'tv';
-		if (currentMode !== mode) loadBouquets();	// the box switched lists
-		else markCurrent();
-	},
-	'epg-updated': epgUpdated
-}));
 
 if (typeof webuiSetRefreshCallback === 'function') {
 	webuiSetRefreshCallback(function() {
