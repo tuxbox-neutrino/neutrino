@@ -4526,9 +4526,11 @@ function webuiCreatePullIndicator() {
 	const indicator = document.createElement('div');
 	indicator.id = 'webui-pull-indicator';
 	indicator.className = 'webui-pull-indicator';
+	// what a finger pulls shows here; the page's content says what came of it
+	indicator.setAttribute('aria-hidden', 'true');
 	indicator.innerHTML = `
 		<div class="webui-pull-icon">
-			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" focusable="false">
 				<path d="M12 5v14M5 12l7 7 7-7"/>
 			</svg>
 		</div>
@@ -4554,7 +4556,8 @@ function webuiUpdatePullIndicator(distance) {
 	}
 
 	if (textEl) {
-		textEl.textContent = distance >= WEBUI_PULL_THRESHOLD ? 'Loslassen' : 'Ziehen...';
+		textEl.textContent = distance >= WEBUI_PULL_THRESHOLD
+			? webuiL('pull.release', 'Release to refresh') : webuiL('pull.pull', 'Pull to refresh');
 	}
 }
 
@@ -4567,7 +4570,7 @@ function webuiShowRefreshing() {
 	indicator.style.transform = 'translateY(10px)';
 
 	const textEl = indicator.querySelector('.webui-pull-text');
-	if (textEl) textEl.textContent = 'Aktualisiere...';
+	if (textEl) textEl.textContent = webuiL('pull.refreshing', 'Refreshing…');
 }
 
 function webuiHidePullIndicator() {
