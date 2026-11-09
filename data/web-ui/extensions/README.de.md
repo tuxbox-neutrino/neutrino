@@ -215,10 +215,9 @@ Kernpunkte:
   aus mehreren Anfragen markiert
   `var done = webuiWaitBegin(webuiWaitButton());` … `done();` aus dem
   Kopf-Skript, aufgerufen im Klick-Handler vor seinem ersten `await`
-  (danach gilt kein Knopf mehr als geklickt). Jede Route beschreibt das Dokument der Box
-  selbst, `/api/openapi.json`, durchsuchbar in der Erweiterung
-  API-Referenz (`api-docs`), wo das Paket Swagger UI installiert ist. Die alten Routen `/api/v4/`
-  und `/control/` gehören nicht zu diesem Vertrag.
+  (danach gilt kein Knopf mehr als geklickt). Jede Route beschreibt das
+  Dokument der Box selbst, `/api/openapi.json`. Die alten Routen
+  `/api/v4/` und `/control/` gehören nicht zu diesem Vertrag.
 - **Dem Nutzer sagen, warum** mit `webuiToastError(präfix, e)` aus dem
   Kopf-Skript: es nennt die Ablehnung in der Sprache der Seite
   (`webuiErrText(e)` liefert den Text für eine eigene Meldung) und
