@@ -69,6 +69,7 @@ libhttpd_a_SOURCES = \
 	ep/ep_webtv.cpp \
 	byterange.cpp \
 	carry.cpp \
+	control_ask.cpp \
 	credentials.cpp \
 	hlsrewrite.cpp \
 	http.cpp \
@@ -96,6 +97,7 @@ noinst_HEADERS = \
 	byterange.h \
 	carry.h \
 	compat/mount.h \
+	control_ask.h \
 	credentials.h \
 	endpoint.h \
 	endpoints.h \

@@ -624,7 +624,7 @@ TEST_CASE("the written file names every key it does not write and none of them t
 	static const char *const named[] =
 	{
 		"lan_read", "trusted_proxies", "allowed_hosts", "docroot", "session_lifetime_s",
-		"sse_max_streams", "legacy_enabled", "channel_logos", "api_tokens"
+		"sse_max_streams", "legacy_enabled", "channel_logos", "control_without_asking", "api_tokens"
 	};
 	for (size_t i = 0; i < sizeof(named) / sizeof(named[0]); ++i)
 	{
@@ -647,6 +647,7 @@ TEST_CASE("the written file names every key it does not write and none of them t
 	REQUIRE(httpd::config().sse_max_streams == d.sse_max_streams);
 	REQUIRE(httpd::config().legacy_enabled == d.legacy_enabled);
 	REQUIRE(httpd::config().channel_logos == d.channel_logos);
+	REQUIRE(httpd::config().control_without_asking == d.control_without_asking);
 }
 
 TEST_CASE("the first thing in a written file is the login", "[webconf]")
@@ -1349,6 +1350,44 @@ TEST_CASE("the names the box answers to besides its own are read as names, and n
 	writeFile(conf.path(), "lan_read=10.0.0.0/8\n");
 	REQUIRE(httpd::load(conf.path()));
 	REQUIRE(httpd::config().allowed_hosts.empty());
+}
+
+TEST_CASE("whether a browser runs a command without asking is read as a switch, and off when unwritten", "[webconf]")
+{
+	Restore back;
+	Temp conf("conf");
+
+	REQUIRE_FALSE(httpd::defaultWebConfig().control_without_asking);
+	const struct
+	{
+		const char *line;
+		bool on;
+		bool said;
+	} lines[] = {
+		{ "control_without_asking=true\n", true, false },
+		{ "control_without_asking=1\n", true, false },
+		{ "control_without_asking=false\n", false, false },
+		{ "control_without_asking=0\n", false, false },
+		{ "", false, false },
+		// what cannot be read is the least the switch can mean: the box asks
+		{ "control_without_asking=yes\n", false, true },
+		{ "control_without_asking=true # for now\n", false, true },
+		{ "Control_Without_Asking=true\n", false, true },
+	};
+	for (size_t i = 0; i < sizeof(lines) / sizeof(lines[0]); ++i)
+	{
+		INFO(lines[i].line);
+		writeFile(conf.path(), lines[i].line);
+		REQUIRE(httpd::load(conf.path()));
+		CHECK(httpd::config().control_without_asking == lines[i].on);
+		CHECK(anyProblemMentions("control_without_asking") == lines[i].said);
+		bool live = !lines[i].on;
+		REQUIRE(httpd::readControlWithoutAsking(conf.path(), live));
+		CHECK(live == lines[i].on);
+	}
+	bool untouched = true;
+	CHECK_FALSE(httpd::readControlWithoutAsking("/tmp/no-such-access-file-for-a-switch", untouched));
+	CHECK(untouched);
 }
 
 TEST_CASE("where the server answers is read out of nhttpd.conf as nhttpd reads it", "[webconf]")

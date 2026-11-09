@@ -42,7 +42,7 @@ for f in "$STRIP" "$BLANK"; do
 	[ -r "$f" ] || { echo "check-exception-boundary.sh: cannot read $f" >&2; exit 1; }
 done
 
-ALLOWED='httpd::compat::knowName httpd::compat::record httpd::setBoundPortFromBridge httpd::boundPort httpd::scheduleReloadAndRestart httpd::saveServerFile httpd::workingFile httpd::hostHeaderAccepted CApiBridge::routesOk CApiBridge::registerPrefixes CApiBridge::startStreams CApiBridge::stopStreams CAuthorityGate::refuse'
+ALLOWED='httpd::compat::knowName httpd::compat::record httpd::setBoundPortFromBridge httpd::boundPort httpd::scheduleReloadAndRestart httpd::saveServerFile httpd::workingFile httpd::hostHeaderAccepted httpd::asksBeforeRunning httpd::askingPage httpd::askingPagePolicy httpd::confirmedRun httpd::askRefusedText CApiBridge::routesOk CApiBridge::registerPrefixes CApiBridge::startStreams CApiBridge::stopStreams CAuthorityGate::refuse'
 
 # name, file that defines it; each of these opens with try
 GUARDED='knowName src/httpd/stubs/legacy_usage.cpp
@@ -52,6 +52,11 @@ reloadRunner src/httpd/stubs/server_nhttpd.cpp
 saveServerFile src/httpd/webconfig.cpp
 workingFile src/httpd/webconfig.cpp
 hostHeaderAccepted src/httpd/authority.cpp
+asksBeforeRunning src/httpd/control_ask.cpp
+askingPage src/httpd/control_ask.cpp
+askingPagePolicy src/httpd/control_ask.cpp
+confirmedRun src/httpd/control_ask.cpp
+askRefusedText src/httpd/control_ask.cpp
 CApiBridge::routesOk src/httpd/nhttpd_bridge.cpp
 CApiBridge::startStreams src/httpd/nhttpd_bridge.cpp
 CApiBridge::stopStreams src/httpd/nhttpd_bridge.cpp

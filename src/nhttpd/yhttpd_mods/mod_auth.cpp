@@ -9,8 +9,12 @@
 #include <unistd.h>
 #include "mod_auth.h"
 #include <helper.h>
+#include <httpd/control_ask.h>
 #include <httpd/webconfig.h>
 #include <ystatic.h>
+
+// What Confirmed leaves on a request it runs again, for AskOf (Ask::replayed).
+static const char kReplayed[] = "mod_auth.replayed";
 
 //-----------------------------------------------------------------------------
 // HOOK: response_hook
@@ -32,7 +36,8 @@ THandleStatus CmAuth::Hook_PrepareResponse(CyhookHandler *hh) {
 
 	// With the page login switched off the pages are open, yet a change
 	// through the REST layer still asks for a sign-in and opens a session.
-	// /logout ends that one too, and then has nothing else to do.
+	// /logout ends that one too, and then has nothing else to do. A
+	// browser's command of the old interface is asked about first.
 	if (!authenticate) {
 		if (hh->UrlData["url"] == "/logout") {
 			login_bridge::closeSessionOf(GetHeader(hh, "Cookie"));
@@ -40,7 +45,7 @@ THandleStatus CmAuth::Hook_PrepareResponse(CyhookHandler *hh) {
 			hh->SendRedirect("/");
 			return HANDLED_REDIRECTION;
 		}
-		return status;
+		return AskFirst(hh);
 	}
 
 	// local calls and NoAuthClient matches (a leading address
@@ -170,21 +175,13 @@ THandleStatus CmAuth::Hook_PrepareResponse(CyhookHandler *hh) {
 	{
 		const login_bridge::Ask ask = AskOf(hh);
 		if (!login_bridge::sessionAdmits(ask) && !login_bridge::basicAdmits(ask)) {
-			// a browser's Basic pair from another page: a 401 would
-			// have it ask for the login and send the same request again
-			if (login_bridge::basicHeldBack(ask)) {
-				// the head the boundary's page goes out with (nosniff, no-store)
-				hh->api_mode = true;
-				hh->httpStatus = HTTP_FORBIDDEN;
-				hh->ResponseMimeType = "text/plain; charset=UTF-8";
-				hh->ResponseHeaders.clear();
-				hh->ResponseHeaders.push_back(std::make_pair(std::string("X-Content-Type-Options"),
-					std::string("nosniff")));
-				hh->ResponseHeaders.push_back(std::make_pair(std::string("Cache-Control"),
-					std::string("no-store")));
-				hh->yresult = login_bridge::heldBackText();
-				return HANDLED_ERROR;
-			}
+			// A browser held back on a command for where it came from,
+			// by its Basic pair or by its session, is asked, as a
+			// browser let in without the login is: a 401 would have it
+			// ask for the pair and send the same request again, and the
+			// sign-in page would ask one that is signed in already.
+			if (login_bridge::basicHeldBack(ask) || login_bridge::sessionHeldBack(ask))
+				return AskBeforeRunning(hh);
 			// browsers get the styled login page; scripts and API
 			// clients keep the unchanged Basic-auth 401 path, and so
 			// do browsers where the web directory has no login page of
@@ -222,10 +219,101 @@ THandleStatus CmAuth::Hook_PrepareResponse(CyhookHandler *hh) {
 				"<h1>Login required &mdash; Anmeldung erforderlich</h1>"
 				"<p><a href=\"/\">Try again &mdash; Erneut versuchen</a></p>"
 				"</main></body></html>");
-			status = HANDLED_ERROR;
+			return HANDLED_ERROR;
 		}
 	}
-	return status;
+	// what goes on, signed in or let in without the login: a browser's
+	// command of the old interface is asked about first
+	return authfree ? status : AskFirst(hh);
+}
+
+//-----------------------------------------------------------------------------
+// A request the gate lets go on, before it does (httpd/control_ask.h). A POST
+// of the page that asks runs the request that page was handed out for, or is
+// refused; a browser's command that shows nothing saying it came from a page
+// of this box gets that page; anything else goes on.
+//-----------------------------------------------------------------------------
+THandleStatus CmAuth::AskFirst(CyhookHandler *hh) {
+	const login_bridge::Ask ask = AskOf(hh);
+	if (!login_bridge::needsOwnPage(ask))
+		return HANDLED_CONTINUE;
+	if (hh->Method == M_POST && hh->ParamList.find(httpd::kAskTokenField) != hh->ParamList.end())
+		return Confirmed(hh, ask);
+	if (!httpd::asksBeforeRunning(ask))
+		return HANDLED_CONTINUE;
+	return AskBeforeRunning(hh);
+}
+
+//-----------------------------------------------------------------------------
+// The page's confirmation: the request it asked about runs as it came, its
+// parameters and its method, without the form's fields; a refused one runs
+// nothing and says why the box did not run it.
+//-----------------------------------------------------------------------------
+THandleStatus CmAuth::Confirmed(CyhookHandler *hh, const login_bridge::Ask &ask) {
+	const CStringList::const_iterator remember = hh->ParamList.find(httpd::kAskRememberField);
+	const bool keep = remember != hh->ParamList.end() && remember->second == "true";
+	std::map<std::string, std::string> params;
+	std::string method, why;
+	if (httpd::confirmedRun(ask, hh->UrlData["target"], hh->ParamList[httpd::kAskTokenField], keep,
+			&params, &method, &why) && method == "GET") {
+		hh->ParamList = params;
+		hh->Method = M_GET;
+		// it carries the box's own headers, and is no request of a page of the box
+		hh->HookVarList[kReplayed] = "true";
+		return HANDLED_CONTINUE;
+	}
+	log_level_printf(1, "mod_auth: a confirmation was refused: %s\n", why.c_str());
+	AnswerAsked(hh, "text/plain; charset=UTF-8", httpd::askRefusedText(), false);
+	return HANDLED_ERROR;
+}
+
+//-----------------------------------------------------------------------------
+// A command the box asks about: the page that asks to a browser's navigation
+// of its window, and to anything else asked the text that says where to open
+// the address, with no token handed out. That is a picture, a frame, a fetch,
+// a form, a script's call or a HEAD, which could only take a token nobody
+// sees; a request naming a field of the page's own form, which a link could
+// fill in for the form; and a change to the account, which is taken only from
+// a page of the box that made it.
+//-----------------------------------------------------------------------------
+THandleStatus CmAuth::AskBeforeRunning(CyhookHandler *hh) {
+	const std::string dest = GetHeader(hh, "Sec-Fetch-Dest");
+	if (hh->Method == M_GET && IsBrowserNavigation(hh) && (dest.empty() || dest == "document")
+			&& hh->ParamList.find(httpd::kAskTokenField) == hh->ParamList.end()
+			&& hh->ParamList.find(httpd::kAskRememberField) == hh->ParamList.end()
+			&& !login_bridge::changesAccount(hh->UrlData["url"], hh->ParamList)) {
+		const std::string page = httpd::askingPage(hh->UrlData["target"], "GET", hh->UrlData["url"],
+			hh->UrlData["paramstring"], hh->ParamList);
+		if (!page.empty()) {
+			AnswerAsked(hh, "text/html; charset=UTF-8", page, true);
+			return HANDLED_ERROR;
+		}
+	}
+	AnswerAsked(hh, "text/plain; charset=UTF-8", login_bridge::heldBackText(), false);
+	return HANDLED_ERROR;
+}
+
+//-----------------------------------------------------------------------------
+// The answer in place of a command that did not run: 403 with the head the
+// boundary's page goes out with (nosniff, no-store), and for the page that
+// asks no frame of any page around it, as its policy says too.
+//-----------------------------------------------------------------------------
+void CmAuth::AnswerAsked(CyhookHandler *hh, const char *type, const std::string &body, bool page) {
+	hh->api_mode = true;
+	hh->httpStatus = HTTP_FORBIDDEN;
+	hh->ResponseMimeType = type;
+	hh->ResponseHeaders.clear();
+	hh->ResponseHeaders.push_back(std::make_pair(std::string("X-Content-Type-Options"),
+		std::string("nosniff")));
+	hh->ResponseHeaders.push_back(std::make_pair(std::string("Cache-Control"),
+		std::string("no-store")));
+	if (page) {
+		hh->ResponseHeaders.push_back(std::make_pair(std::string("X-Frame-Options"),
+			std::string("DENY")));
+		hh->ResponseHeaders.push_back(std::make_pair(std::string("Content-Security-Policy"),
+			httpd::askingPagePolicy()));
+	}
+	hh->yresult = body;
 }
 
 //-----------------------------------------------------------------------------
@@ -270,6 +358,8 @@ login_bridge::Ask CmAuth::AskOf(CyhookHandler *hh) {
 	a.user_agent = GetHeader(hh, "User-Agent");
 	CStringList::const_iterator execute = hh->ParamList.find("execute");
 	a.runs_commands = execute != hh->ParamList.end() && !execute->second.empty();
+	CStringList::const_iterator replayed = hh->HookVarList.find(kReplayed);
+	a.replayed = replayed != hh->HookVarList.end() && replayed->second == "true";
 	return a;
 }
 

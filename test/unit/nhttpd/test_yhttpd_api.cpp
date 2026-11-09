@@ -14,6 +14,7 @@
  */
 
 #include "support/catch.hpp"
+#include "support/wireserver.h"
 
 #include "yconnection.h"
 #include "yhook.h"
@@ -34,6 +35,9 @@
 
 #include <fcntl.h>
 #include <poll.h>
+#include <pthread.h>
+#include <signal.h>
+#include <stdint.h>
 #include <sys/ioctl.h>
 #include <sys/socket.h>
 #include <sys/stat.h>
@@ -1076,24 +1080,6 @@ TEST_CASE("a stop wakes the connection threads and waits for every one of them",
 	REQUIRE(drained_after_close);
 }
 
-TEST_CASE("a line cut short by the peer is what arrived and not one byte more", "[nhttpd]")
-{
-	int fd[2];
-	REQUIRE(socketpair(AF_UNIX, SOCK_STREAM, 0, fd) == 0);
-	CySocket s(fd[0]);
-	s.isOpened = true;
-	s.isValid = true;
-
-	REQUIRE(write(fd[1], "ab", 2) == 2);
-	close(fd[1]);
-
-	CHECK(s.ReceiveLine() == "ab");
-	CHECK_FALSE(s.isValid);
-	// and at the end of the connection, nothing at all
-	CHECK(s.ReceiveLine().empty());
-	s.close();
-}
-
 TEST_CASE("a POST whose caller closes inside the header ends the request", "[nhttpd]")
 {
 	/* The header of a legacy POST is read line by line up to the empty
@@ -1545,4 +1531,764 @@ TEST_CASE("an api answer without content states no length", "[nhttpd]")
 	CHECK(h.find("HTTP/1.0 204") == 0);
 	CHECK(h.find("Content-Length") == std::string::npos);
 	CHECK(h.substr(h.size() - 4) == "\r\n\r\n");
+}
+
+namespace
+{
+
+// A connection to the wire server, with what is to be sent at once.
+int headPeer(int port, const std::string &sent)
+{
+	const int fd = socket(AF_INET, SOCK_STREAM, 0);
+	REQUIRE(fd >= 0);
+	struct sockaddr_in a;
+	std::memset(&a, 0, sizeof(a));
+	a.sin_family = AF_INET;
+	a.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+	a.sin_port = htons((uint16_t) port);
+	REQUIRE(connect(fd, (struct sockaddr *) &a, sizeof(a)) == 0);
+	if (!sent.empty())
+		REQUIRE(send(fd, sent.data(), sent.size(), MSG_NOSIGNAL) == (ssize_t) sent.size());
+	return fd;
+}
+
+// Everything that comes back until the peer closes or the wait is over.
+std::string headAnswer(int fd, int wait_ms)
+{
+	std::string got;
+	const int64_t until = wireNowMs() + wait_ms;
+	for (;;)
+	{
+		const int64_t left = until - wireNowMs();
+		if (left <= 0)
+			break;
+		struct pollfd p;
+		p.fd = fd;
+		p.events = POLLIN;
+		p.revents = 0;
+		if (poll(&p, 1, (int) left) <= 0)
+			break;
+		char buf[4096];
+		const ssize_t n = recv(fd, buf, sizeof(buf), 0);
+		if (n <= 0)
+			break;
+		got.append(buf, (size_t) n);
+	}
+	return got;
+}
+
+} // namespace
+
+TEST_CASE("a peer that sends nothing is let go at the deadline, and the next request is answered", "[nhttpd][head]")
+{
+	/* Without connection threads, as a box serves by default: the accept thread
+	   serves one connection at a time, so a peer that connects and says nothing
+	   holds every other request until it is let go, at 10 seconds. */
+	WireServer serving(1, 5000, WireServer::Serial);
+	const int64_t t0 = wireNowMs();
+	const int silent = headPeer(serving.port, "");
+	const int next = headPeer(serving.port, "GET /api/v1/session HTTP/1.0\r\nHost: box\r\n\r\n");
+
+	const std::string answered = headAnswer(next, 15000);
+	const int64_t took = wireNowMs() - t0;
+	INFO(answered.substr(0, answered.find("\r\n")));
+	CHECK(answered.find(" 200 ") != std::string::npos);
+	CHECK(answered.find(" 200 ") < answered.find("\r\n"));
+	CHECK(took >= 9500);
+	CHECK(took < 12500);
+	const std::string dropped = headAnswer(silent, 3000);
+	CHECK(dropped.find(" 408 ") != std::string::npos);
+	close(silent);
+	close(next);
+}
+
+TEST_CASE("a POST whose header stops coming is let go at the deadline", "[nhttpd][head]")
+{
+	WireServer serving(1, 5000, WireServer::Threaded);
+	const int64_t t0 = wireNowMs();
+	const int stalled = headPeer(serving.port, "POST /control/info HTTP/1.1\r\nHost: box\r\n");
+	const std::string answered = headAnswer(stalled, 15000);
+	const int64_t took = wireNowMs() - t0;
+	CHECK(answered.find(" 408 ") != std::string::npos);
+	CHECK(took >= 9500);
+	CHECK(took < 13000);
+	close(stalled);
+}
+
+TEST_CASE("header lines without end are refused at the head's limit", "[nhttpd][head]")
+{
+	/* 64 KiB for the request line and the header together, whatever the method,
+	   reached here long before the deadline. */
+	WireServer serving(1, 5000, WireServer::Threaded);
+	const int64_t t0 = wireNowMs();
+	const int flood = headPeer(serving.port, "POST /control/info HTTP/1.1\r\nHost: box\r\n");
+	const std::string line = "X-Filler: " + std::string(54, 'x') + "\r\n";
+	std::thread writer([flood, &line]() {
+		for (int i = 0; i < 4096; ++i)
+			if (send(flood, line.data(), line.size(), MSG_NOSIGNAL) <= 0)
+				break;
+	});
+	const std::string answered = headAnswer(flood, 8000);
+	const int64_t took = wireNowMs() - t0;
+	shutdown(flood, SHUT_RDWR);
+	writer.join();
+	CHECK(answered.find(" 400 ") != std::string::npos);
+	CHECK(took < 8000);
+	close(flood);
+
+	// a request line longer than the limit, before any header
+	const int far = headPeer(serving.port, "GET /control/info?" + std::string(70 * 1024, 'a'));
+	CHECK(headAnswer(far, 8000).find(" 414 ") != std::string::npos);
+	close(far);
+}
+
+namespace
+{
+
+// What the reader made of a head sent in pieces, each after its pause.
+struct HeadRun
+{
+	bool        handled;
+	std::string answer;
+	// what was still on the socket after the reader was done: nothing of the
+	// head, everything after it
+	std::string left;
+	CStringList params;
+	CStringList headers;
+	long long   took_ms;
+};
+
+HeadRun runHead(const std::vector<std::pair<int, std::string> > &pieces)
+{
+	HeadRun out;
+	out.handled = false;
+	out.took_ms = 0;
+	int fd[2];
+	REQUIRE(socketpair(AF_UNIX, SOCK_STREAM, 0, fd) == 0);
+	int big = 1 << 20;
+	setsockopt(fd[1], SOL_SOCKET, SO_SNDBUF, &big, sizeof(big));
+	CySocket *s = new CySocket(fd[0]);
+	s->isOpened = true;
+	s->isValid = true;
+	std::atomic<bool> read_done(false);
+	std::thread writer([&fd, &pieces, &read_done]() {
+		for (size_t i = 0; i < pieces.size() && !read_done; i++) {
+			for (int waited = 0; waited < pieces[i].first && !read_done; waited += 10)
+				usleep(10 * 1000);
+			if (read_done)
+				break;
+			send(fd[1], pieces[i].second.data(), pieces[i].second.size(), MSG_NOSIGNAL);
+		}
+	});
+
+	CWebserver ws;
+	CWebserverConnection *con = new CWebserverConnection(&ws);
+	con->Request.UrlData["clientaddr"] = "192.168.1.20";
+	con->Request.UrlData["localaddr"] = "192.168.1.5:80";
+	con->sock = s;
+	const int64_t t0 = wireNowMs();
+	out.handled = con->Request.HandleRequest();
+	out.took_ms = wireNowMs() - t0;
+	read_done = true;
+	writer.join();
+	// what the reader left on the socket
+	char buf[4096];
+	ssize_t n;
+	while ((n = recv(fd[0], buf, sizeof(buf), MSG_DONTWAIT)) > 0)
+		out.left.append(buf, (size_t) n);
+	out.params = con->Request.ParameterList;
+	out.headers = con->Request.HeaderList;
+	delete con;
+	s->close();
+	delete s;
+	fcntl(fd[1], F_SETFL, O_NONBLOCK);
+	while ((n = read(fd[1], buf, sizeof(buf))) > 0)
+		out.answer.append(buf, (size_t) n);
+	close(fd[1]);
+	return out;
+}
+
+HeadRun runHead(const std::string &whole)
+{
+	return runHead(std::vector<std::pair<int, std::string> >(1, std::make_pair(0, whole)));
+}
+
+/* A head of exactly total bytes on the wire: lead (empty lines before the request
+   line), the request line with its padding, a filler header and the empty line,
+   every line ending in eol. */
+std::string headOf(size_t total, const std::string &eol, const std::string &lead, const std::string &target,
+                   size_t request_pad)
+{
+	const std::string line = "GET " + target + " HTTP/1.0" + std::string(request_pad, ' ') + eol;
+	const std::string name = "X-Fill: ";
+	const size_t fixed = lead.size() + line.size() + name.size() + eol.size() + eol.size();
+	REQUIRE(total > fixed);
+	return lead + line + name + std::string(total - fixed, 'a') + eol + eol;
+}
+
+} // namespace
+
+TEST_CASE("the head's 64 KiB are counted on the wire, empty lines, padding and line endings included", "[nhttpd][head]")
+{
+	RegisteredPrefixes api;
+	const size_t L = 64 * 1024;
+	struct Shape
+	{
+		const char *what;
+		const char *eol;
+		const char *lead;
+		const char *target;
+		size_t pad;
+	};
+	const Shape shapes[] = {
+		{ "CRLF", "\r\n", "", "/x", 0 },
+		{ "LF alone", "\n", "", "/x", 0 },
+		{ "empty lines before the request line", "\r\n", "\r\n\r\n\n\r\n", "/x", 0 },
+		{ "a request line padded with spaces", "\r\n", "", "/x", 3000 },
+		{ "an API target", "\r\n", "", "/api/v1/session", 0 },
+	};
+	for (size_t i = 0; i < sizeof(shapes) / sizeof(shapes[0]); ++i)
+	{
+		if (std::string(shapes[i].target).compare(0, 5, "/api/") == 0 && std::string(shapes[i].eol) == "\n")
+			continue;
+		for (int d = -1; d <= 1; ++d)
+		{
+			INFO(shapes[i].what << ", " << (L + d) << " bytes");
+			const std::string head = headOf(L + d, shapes[i].eol, shapes[i].lead, shapes[i].target, shapes[i].pad);
+			REQUIRE(head.size() == L + d);
+			// what follows the head stays where the next reader would look
+			HeadRun r = runHead(head + "SENTINEL");
+			if (d <= 0)
+			{
+				CHECK(r.handled);
+				CHECK(r.answer.empty());
+				CHECK(r.left == "SENTINEL");
+				CHECK(r.headers["X-Fill"].size() > 1000);
+			}
+			else
+			{
+				CHECK_FALSE(r.handled);
+				CHECK(r.answer.compare(0, 13, "HTTP/1.0 400 ") == 0);
+			}
+		}
+	}
+
+	// a request line longer than all of it
+	HeadRun far = runHead("GET /x?" + std::string(L, 'a') + " HTTP/1.0\r\n\r\n");
+	CHECK_FALSE(far.handled);
+	CHECK(far.answer.compare(0, 13, "HTTP/1.0 414 ") == 0);
+}
+
+TEST_CASE("line endings split across reads are read whole, and the body and what follows it stay as sent", "[nhttpd][head]")
+{
+	RegisteredPrefixes api;
+	struct Split
+	{
+		const char *what;
+		std::vector<std::string> parts;
+		const char *left;
+	};
+	const char sentinel[] = "GET /pipelined HTTP/1.1\r\n\r\n";
+	std::vector<Split> splits;
+	{
+		Split a;
+		a.what = "a form POST, CRLF split";
+		a.parts.push_back("POST /control/info HTTP/1.1\r");
+		a.parts.push_back("\nHost: box\r");
+		a.parts.push_back("\nContent-Type: application/x-www-form-urlencoded\r\nContent-Length: 3\r");
+		a.parts.push_back("\n\r");
+		a.parts.push_back(std::string("\na=b") + sentinel);
+		a.left = sentinel;
+		splits.push_back(a);
+		Split b;
+		b.what = "a form POST, LF alone";
+		b.parts.push_back("POST /control/info HTTP/1.1\n");
+		b.parts.push_back("Host: box\nContent-Type: application/x-www-form-urlencoded\n");
+		b.parts.push_back("Content-Length: 3\n");
+		b.parts.push_back("\n");
+		b.parts.push_back(std::string("a=b") + sentinel);
+		b.left = sentinel;
+		splits.push_back(b);
+		Split c;
+		c.what = "a GET";
+		c.parts.push_back("GET /x HTTP/1.0\r");
+		c.parts.push_back("\nHost: box\r");
+		c.parts.push_back("\n\r");
+		c.parts.push_back("\nSENTINEL\r\n");
+		c.left = "SENTINEL\r\n";
+		splits.push_back(c);
+		Split d;
+		d.what = "an API GET";
+		d.parts.push_back("GET /api/v1/session HTTP/1.0\r");
+		d.parts.push_back("\nHost: box\r\n\r");
+		d.parts.push_back("\nSENTINEL");
+		d.left = "SENTINEL";
+		splits.push_back(d);
+	}
+	for (size_t i = 0; i < splits.size(); ++i)
+	{
+		INFO(splits[i].what);
+		std::vector<std::pair<int, std::string> > pieces;
+		for (size_t k = 0; k < splits[i].parts.size(); ++k)
+			pieces.push_back(std::make_pair(k == 0 ? 0 : 60, splits[i].parts[k]));
+		HeadRun r = runHead(pieces);
+		CHECK(r.handled);
+		CHECK(r.left == splits[i].left);
+		CHECK(r.headers["Host"] == "box");
+		if (std::string(splits[i].what).find("POST") != std::string::npos)
+			CHECK(r.params["a"] == "b");
+	}
+}
+
+TEST_CASE("a head that comes in slowly has 10 seconds in all, not 10 for each line", "[nhttpd][head]")
+{
+	// the request line after 4 seconds, a header after 8 and the empty line after 12: too late
+	std::vector<std::pair<int, std::string> > late;
+	late.push_back(std::make_pair(4000, std::string("GET /x HTTP/1.0\r\n")));
+	late.push_back(std::make_pair(4000, std::string("X-A: b\r\n")));
+	late.push_back(std::make_pair(4000, std::string("\r\n")));
+	HeadRun r = runHead(late);
+	CHECK_FALSE(r.handled);
+	CHECK(r.answer.compare(0, 13, "HTTP/1.0 408 ") == 0);
+	CHECK(r.took_ms >= 9500);
+	CHECK(r.took_ms < 11500);
+
+	// the same within the 10 seconds, and on the API, where a head out of time is 408 as well
+	RegisteredPrefixes api;
+	std::vector<std::pair<int, std::string> > in_time;
+	in_time.push_back(std::make_pair(2000, std::string("GET /x HTTP/1.0\r\n")));
+	in_time.push_back(std::make_pair(2000, std::string("X-A: b\r\n")));
+	in_time.push_back(std::make_pair(2000, std::string("\r\n")));
+	HeadRun ok = runHead(in_time);
+	CHECK(ok.handled);
+	CHECK(ok.headers["X-A"] == "b");
+	std::vector<std::pair<int, std::string> > api_late;
+	api_late.push_back(std::make_pair(0, std::string("GET /api/v1/session HTTP/1.0\r\nHost: box\r\n")));
+	HeadRun a = runHead(api_late);
+	CHECK_FALSE(a.handled);
+	CHECK(a.answer.compare(0, 13, "HTTP/1.0 408 ") == 0);
+}
+
+namespace
+{
+
+// Answers /test/big with a body of many megabytes out of memory, and /test/bigfile
+// with as many out of a file, for a reader that stops taking them.
+struct BigAnswers : public Cyhook
+{
+	std::string body;
+	std::string file;
+	off_t       file_size;
+
+	BigAnswers() : file_size(0) {}
+	virtual std::string getHookName(void) { return "big answers"; }
+	virtual THandleStatus Hook_SendResponse(CyhookHandler *hh)
+	{
+		const std::string url = hh->UrlData["url"];
+		if (url == "/test/big") {
+			hh->SetHeader(HTTP_OK, "application/octet-stream");
+			hh->yresult = body;
+			hh->status = HANDLED_READY;
+			return HANDLED_READY;
+		}
+		if (url == "/test/bigfile") {
+			hh->SetHeader(HTTP_OK, "application/octet-stream");
+			hh->SendFd = ::open(file.c_str(), O_RDONLY | O_CLOEXEC);
+			hh->SendFdOffset = 0;
+			hh->SendFdLength = file_size;
+			hh->status = HANDLED_SENDFD;
+			return HANDLED_SENDFD;
+		}
+		return HANDLED_NONE;
+	}
+};
+
+// A connection that asks for target and takes almost nothing of the answer.
+int stalledReader(int port, const char *target)
+{
+	const int fd = socket(AF_INET, SOCK_STREAM, 0);
+	REQUIRE(fd >= 0);
+	int small = 4096;
+	setsockopt(fd, SOL_SOCKET, SO_RCVBUF, &small, sizeof(small));
+	struct sockaddr_in a;
+	std::memset(&a, 0, sizeof(a));
+	a.sin_family = AF_INET;
+	a.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+	a.sin_port = htons((uint16_t) port);
+	REQUIRE(connect(fd, (struct sockaddr *) &a, sizeof(a)) == 0);
+	const std::string req = std::string("GET ") + target + " HTTP/1.0\r\nHost: box\r\n\r\n";
+	REQUIRE(send(fd, req.data(), req.size(), MSG_NOSIGNAL) == (ssize_t) req.size());
+	return fd;
+}
+
+} // namespace
+
+TEST_CASE("a reader that takes nothing more of an answer is let go once nothing moved for the send limit", "[nhttpd][send]")
+{
+	/* Without connection threads: the accept thread writes the answer itself, so a
+	   reader that stops taking it used to hold every other request for as long as
+	   it stayed connected. With the limit at 2 seconds here, the next request is
+	   answered about 2 seconds after the writes stopped moving, for an answer out of
+	   memory and for one out of a file alike. */
+	CHECK(CySocket::sendIdleMs() == 30000);
+	CySocket::setSendIdleMsForTest(2000);
+	BigAnswers big;
+	big.body.assign(32u << 20, 'x');
+	char name[] = "/tmp/test_send_XXXXXX";
+	const int tmp = mkstemp(name);
+	REQUIRE(tmp >= 0);
+	big.file = name;
+	big.file_size = 32 << 20;
+	REQUIRE(ftruncate(tmp, big.file_size) == 0);
+	close(tmp);
+	{
+		WireServer serving(1, 5000, WireServer::Serial, &big);
+		const char *const targets[] = { "/test/big", "/test/bigfile" };
+		for (size_t i = 0; i < 2; ++i)
+		{
+			INFO(targets[i]);
+			const int64_t t0 = wireNowMs();
+			const int stalled = stalledReader(serving.port, targets[i]);
+			const int next = headPeer(serving.port, "GET /api/v1/session HTTP/1.0\r\nHost: box\r\n\r\n");
+			const std::string answered = headAnswer(next, 15000);
+			const int64_t took = wireNowMs() - t0;
+			CHECK(answered.find(" 200 ") != std::string::npos);
+			CHECK(took >= 1500);
+			CHECK(took < 6000);
+			close(next);
+			close(stalled);
+		}
+	}
+	::unlink(name);
+	CySocket::setSendIdleMsForTest(0);
+	CHECK(CySocket::sendIdleMs() == 30000);
+}
+
+namespace
+{
+
+/* The two ends of a TCP connection over the loopback: the writer's with send_buffer
+   bytes of buffer, the reader's with receive_buffer (0 leaves the kernel's own). A
+   reader with a buffer of its own also takes segments of a network's size: over the
+   loopback a segment may be 64 KiB, and a receive buffer below that is offered no
+   room until a timer probes for it, which takes longer the longer it waits. */
+void tcpPair(int &writer, int &reader, int send_buffer, int receive_buffer)
+{
+	const int l = socket(AF_INET, SOCK_STREAM, 0);
+	REQUIRE(l >= 0);
+	struct sockaddr_in a;
+	std::memset(&a, 0, sizeof(a));
+	a.sin_family = AF_INET;
+	a.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+	REQUIRE(bind(l, (struct sockaddr *) &a, sizeof(a)) == 0);
+	socklen_t alen = sizeof(a);
+	REQUIRE(getsockname(l, (struct sockaddr *) &a, &alen) == 0);
+	REQUIRE(listen(l, 1) == 0);
+	reader = socket(AF_INET, SOCK_STREAM, 0);
+	REQUIRE(reader >= 0);
+	if (receive_buffer > 0) {
+		setsockopt(reader, SOL_SOCKET, SO_RCVBUF, &receive_buffer, sizeof(receive_buffer));
+		const int segment = 1400;
+		setsockopt(reader, IPPROTO_TCP, TCP_MAXSEG, &segment, sizeof(segment));
+	}
+	REQUIRE(connect(reader, (struct sockaddr *) &a, sizeof(a)) == 0);
+	writer = accept(l, NULL, NULL);
+	REQUIRE(writer >= 0);
+	close(l);
+	setsockopt(writer, SOL_SOCKET, SO_SNDBUF, &send_buffer, sizeof(send_buffer));
+}
+
+// Bytes that differ from one place to the next, so a piece missing, doubled or out
+// of place shows in a comparison.
+std::string patterned(size_t n, uint32_t seed)
+{
+	std::string out(n, '\0');
+	uint32_t x = 2463534242u ^ seed;
+	for (size_t i = 0; i < n; ++i) {
+		x ^= x << 13;
+		x ^= x >> 17;
+		x ^= x << 5;
+		out[i] = (char) (x & 0xff);
+	}
+	return out;
+}
+
+// Where got first differs from expected, -1 where it is all of it; a missing tail
+// is a difference at its first byte.
+long long firstDifference(const std::string &got, const std::string &expected)
+{
+	const size_t n = std::min(got.size(), expected.size());
+	for (size_t i = 0; i < n; ++i)
+		if (got[i] != expected[i])
+			return (long long) i;
+	return got.size() == expected.size() ? -1 : (long long) n;
+}
+
+enum WrittenBy { BySendAll, BySendFile };
+
+// What one answer came to on both ends.
+struct Delivered
+{
+	bool        sent;
+	std::string got;
+	std::string expected;
+	int         flags_before;
+	int         flags_after;
+	int64_t     took;
+	bool        eof;
+};
+
+void noSignal(int) {}
+
+/* One answer of length bytes over a TCP connection on the loopback, written by
+   SendAll() out of memory or by SendFile() out of a file from offset, a stretch in
+   the middle of it. The reader follows plan, a list of (pause in ms, at most so many
+   bytes) taken in turn while the writer is busy, the last step held on; once the
+   writer is done it takes everything through EOF within 10 seconds. interrupt sends
+   the writer a signal that interrupts its waits every few milliseconds meanwhile. */
+Delivered deliver(WrittenBy how, size_t length, const std::vector<std::pair<int, size_t> > &plan,
+                  int send_buffer, int receive_buffer, bool interrupt = false)
+{
+	Delivered d;
+	d.sent = false;
+	d.flags_before = d.flags_after = -1;
+	d.took = 0;
+	d.eof = false;
+	int w = -1, r = -1;
+	tcpPair(w, r, send_buffer, receive_buffer);
+	CySocket s(w);
+	s.isOpened = true;
+	s.isValid = true;
+
+	const off_t offset = (how == BySendFile) ? 12345 : 0;
+	const std::string whole = patterned(length + (size_t) offset + 777, 7);
+	d.expected = whole.substr((size_t) offset, length);
+	char name[] = "/tmp/test_deliver_XXXXXX";
+	int file = -1;
+	if (how == BySendFile) {
+		file = mkstemp(name);
+		REQUIRE(file >= 0);
+		REQUIRE(write(file, whole.data(), whole.size()) == (ssize_t) whole.size());
+	}
+
+	struct sigaction quiet, was;
+	std::memset(&quiet, 0, sizeof(quiet));
+	quiet.sa_handler = &noSignal;
+	sigemptyset(&quiet.sa_mask);
+	quiet.sa_flags = 0;
+	if (interrupt)
+		REQUIRE(sigaction(SIGUSR1, &quiet, &was) == 0);
+
+	std::atomic<bool> done(false);
+	std::thread writer([&]() {
+		d.flags_before = fcntl(w, F_GETFL);
+		const int64_t t0 = wireNowMs();
+		if (how == BySendAll)
+			d.sent = s.SendAll(d.expected.data(), d.expected.size());
+		else
+			d.sent = s.SendFile(file, offset, (off_t) length);
+		d.took = wireNowMs() - t0;
+		d.flags_after = fcntl(w, F_GETFL);
+		shutdown(w, SHUT_WR);
+		done = true;
+	});
+	std::vector<char> buf(1 << 20);
+	size_t step = 0;
+	// a writer that would wait for good is ended from the far side after 20 seconds
+	const int64_t give_up = wireNowMs() + 20000;
+	while (!done) {
+		const std::pair<int, size_t> &at = plan[step < plan.size() ? step : plan.size() - 1];
+		for (int waited = 0; waited < at.first && !done && wireNowMs() < give_up; waited += 2) {
+			napMs(2);
+			if (interrupt)
+				pthread_kill(writer.native_handle(), SIGUSR1);
+		}
+		if (done)
+			break;
+		if (wireNowMs() >= give_up) {
+			close(r);
+			r = -1;
+			break;
+		}
+		struct pollfd p;
+		p.fd = r;
+		p.events = POLLIN;
+		p.revents = 0;
+		if (poll(&p, 1, 20) > 0) {
+			const ssize_t n = recv(r, &buf[0], std::min(at.second, buf.size()), MSG_DONTWAIT);
+			if (n > 0)
+				d.got.append(&buf[0], (size_t) n);
+		}
+		++step;
+	}
+	writer.join();
+	if (interrupt)
+		sigaction(SIGUSR1, &was, NULL);
+	const int64_t until = wireNowMs() + 10000;
+	while (r >= 0 && wireNowMs() < until) {
+		struct pollfd p;
+		p.fd = r;
+		p.events = POLLIN;
+		p.revents = 0;
+		if (poll(&p, 1, 500) <= 0)
+			continue;
+		const ssize_t n = recv(r, &buf[0], buf.size(), 0);
+		if (n == 0) {
+			d.eof = true;
+			break;
+		}
+		if (n < 0)
+			break;
+		d.got.append(&buf[0], (size_t) n);
+	}
+	s.close();
+	if (r >= 0)
+		close(r);
+	if (file >= 0) {
+		close(file);
+		::unlink(name);
+	}
+	return d;
+}
+
+// The reader takes bytes every pause_ms, held on for as long as the writer runs.
+std::vector<std::pair<int, size_t> > every(int pause_ms, size_t bytes)
+{
+	return std::vector<std::pair<int, size_t> >(1, std::make_pair(pause_ms, bytes));
+}
+
+} // namespace
+
+TEST_CASE("an answer a reader keeps taking is never cut, however long it runs", "[nhttpd][send]")
+{
+	/* The limit counts from the last byte the peer took, not from the start of the
+	   answer. A slow reader (a few KiB every 130 ms, through a small window) frees the
+	   writer's buffer in steps the socket answers with "takes more" only every two
+	   seconds or so, twice the limit here; the kernel's own count of what it still
+	   holds shows each step. A fast one keeps the writer busy for many times the
+	   limit. Both get every byte, in order, out of memory and out of a file stretch,
+	   and the socket blocks again afterwards as it did before. */
+	CySocket::setSendIdleMsForTest(1000);
+	const WrittenBy writers[] = { BySendAll, BySendFile };
+	for (size_t i = 0; i < 2; ++i)
+	{
+		INFO((writers[i] == BySendAll ? "SendAll" : "SendFile"));
+		Delivered slow = deliver(writers[i], 400 * 1024, every(130, 16 * 1024), 256 * 1024, 4096);
+		CHECK(slow.sent);
+		CHECK(slow.eof);
+		CHECK(slow.got.size() == slow.expected.size());
+		CHECK(firstDifference(slow.got, slow.expected) == -1);
+		CHECK(slow.took > 1500);
+		CHECK(slow.flags_after == slow.flags_before);
+		CHECK((slow.flags_after & O_NONBLOCK) == 0);
+
+		Delivered fast = deliver(writers[i], 32u << 20, every(4, 64 * 1024), 256 * 1024, 0);
+		CHECK(fast.sent);
+		CHECK(fast.eof);
+		CHECK(fast.got.size() == fast.expected.size());
+		CHECK(firstDifference(fast.got, fast.expected) == -1);
+		CHECK(fast.took > 1500);
+		CHECK(fast.flags_after == fast.flags_before);
+	}
+	CySocket::setSendIdleMsForTest(0);
+}
+
+TEST_CASE("what the peer takes in the first slice of a wait counts as moving", "[nhttpd][send]")
+{
+	/* The writer's buffer is full almost at once. The reader takes a little half a
+	   second in, well inside the first slice of the writer's wait (2 seconds here), and
+	   again 2.8 seconds in, past the limit of 2.4 seconds counted from the start but
+	   inside it counted from that first take. So the first take has to count, which it
+	   does only where the wait knew what the kernel held before that slice. */
+	CySocket::setSendIdleMsForTest(2400);
+	CySocket::setSendSliceMsForTest(2000);
+	std::vector<std::pair<int, size_t> > plan;
+	plan.push_back(std::make_pair(500, (size_t) 8192));
+	plan.push_back(std::make_pair(2300, (size_t) 8192));
+	plan.push_back(std::make_pair(0, (size_t) (1 << 20)));
+	Delivered d = deliver(BySendAll, 1 << 20, plan, 256 * 1024, 4096);
+	CHECK(d.sent);
+	CHECK(firstDifference(d.got, d.expected) == -1);
+	CHECK(d.took > 2800);
+	CySocket::setSendSliceMsForTest(0);
+	CySocket::setSendIdleMsForTest(0);
+}
+
+TEST_CASE("a writer interrupted by a signal goes on, and every byte arrives", "[nhttpd][send]")
+{
+	CySocket::setSendIdleMsForTest(1000);
+	const WrittenBy writers[] = { BySendAll, BySendFile };
+	for (size_t i = 0; i < 2; ++i)
+	{
+		INFO((writers[i] == BySendAll ? "SendAll" : "SendFile"));
+		Delivered d = deliver(writers[i], 2u << 20, every(20, 64 * 1024), 256 * 1024, 0, true);
+		CHECK(d.sent);
+		CHECK(firstDifference(d.got, d.expected) == -1);
+		CHECK(d.flags_after == d.flags_before);
+	}
+	CySocket::setSendIdleMsForTest(0);
+}
+
+TEST_CASE("a reader that stops taking is let go at the send limit, not before, and one that leaves at once", "[nhttpd][send]")
+{
+	CySocket::setSendIdleMsForTest(1500);
+	const WrittenBy writers[] = { BySendAll, BySendFile };
+	for (size_t i = 0; i < 2; ++i)
+	{
+		INFO((writers[i] == BySendAll ? "SendAll" : "SendFile"));
+		// takes 64 KiB and then nothing, staying connected
+		std::vector<std::pair<int, size_t> > stops;
+		stops.push_back(std::make_pair(0, (size_t) (64 * 1024)));
+		stops.push_back(std::make_pair(60000, (size_t) 0));
+		Delivered stopped = deliver(writers[i], 8u << 20, stops, 256 * 1024, 4096);
+		CHECK_FALSE(stopped.sent);
+		CHECK(stopped.took >= 1400);
+		CHECK(stopped.took < 4000);
+		// the socket blocks again after a timeout too
+		CHECK(stopped.flags_after == stopped.flags_before);
+		CHECK((stopped.flags_after & O_NONBLOCK) == 0);
+		// what arrived is the start of the answer, nothing else
+		CHECK(stopped.got.size() < stopped.expected.size());
+		CHECK(firstDifference(stopped.got, stopped.expected.substr(0, stopped.got.size())) == -1);
+	}
+
+	// a reader that closes with the answer unread: the writer ends at once, not at the limit
+	for (size_t i = 0; i < 2; ++i)
+	{
+		INFO((writers[i] == BySendAll ? "SendAll, the reader gone" : "SendFile, the reader gone"));
+		int w = -1, r = -1;
+		tcpPair(w, r, 256 * 1024, 4096);
+		CySocket s(w);
+		s.isOpened = true;
+		s.isValid = true;
+		const std::string body = patterned(8u << 20, 3);
+		char name[] = "/tmp/test_gone_XXXXXX";
+		int file = -1;
+		if (writers[i] == BySendFile) {
+			file = mkstemp(name);
+			REQUIRE(file >= 0);
+			REQUIRE(write(file, body.data(), body.size()) == (ssize_t) body.size());
+		}
+		const int flags = fcntl(w, F_GETFL);
+		bool sent = true;
+		int64_t took = 0;
+		std::thread writer([&]() {
+			const int64_t t0 = wireNowMs();
+			sent = (writers[i] == BySendAll) ? s.SendAll(body.data(), body.size())
+			                                 : s.SendFile(file, 0, (off_t) body.size());
+			took = wireNowMs() - t0;
+		});
+		napMs(200);
+		close(r);
+		writer.join();
+		CHECK_FALSE(sent);
+		CHECK(took < 1400);
+		CHECK(fcntl(w, F_GETFL) == flags);
+		s.close();
+		if (file >= 0) {
+			close(file);
+			::unlink(name);
+		}
+	}
+	CySocket::setSendIdleMsForTest(0);
 }

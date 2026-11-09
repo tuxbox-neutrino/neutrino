@@ -111,7 +111,8 @@ The old `/control/` interface asks for a login only while
 **Authentication** is on under **System settings → Network → Web server
 (nhttpd)**. The box ships with it off. Then `/control/` answers anybody who
 reaches the box, without a password, whatever an app sends, except for a
-change to the account. The user name and the password change over
+change to the account, and a browser is asked first (see below). The user
+name and the password change over
 `/control/` only for a request from a page of this box
 (`Sec-Fetch-Site: same-origin`, or an `Origin` or `Referer` naming the box)
 that signs in with HTTP Basic authentication, or that comes from the box
@@ -135,24 +136,76 @@ do apps that wait for the server to ask for them first. A browser that signs
 in this way is answered on `/control/` only when the request comes from a
 page of the box (`Sec-Fetch-Site: same-origin`, or an `Origin` or `Referer`
 naming the box), as for a sign-in in the web interface. Opened from a
-bookmark, the address bar or another site, `/control/` answers it with a
-short text saying to open the address from the web interface. Apps and
-scripts whose `User-Agent` does not start with `Mozilla/` are not affected.
-A script that sends a browser's `User-Agent`, such as PowerShell's
-`Invoke-WebRequest` or `Invoke-RestMethod`, is held to the browser rule:
-give it a `User-Agent` of its own (`-UserAgent`), or an `Origin` header
-naming the box. An app that signs in
+bookmark, the address bar or another site, the box asks before it runs the
+command (see below). Apps and scripts whose `User-Agent` does not start with
+`Mozilla/` are not affected. A script that sends a browser's `User-Agent`,
+such as PowerShell's `Invoke-WebRequest` or `Invoke-RestMethod`, is held to
+the browser rule and gets a short text saying so: give it a `User-Agent` of
+its own (`-UserAgent`), or an `Origin` header naming the box. An app that
+signs in
 with a password these boxes once shipped with stops working when the box
 replaces it. Enter the first password in the app. After you set your own
 password, enter that one.
 
-With Authentication on, a browser that opens a `/control/` address, or
-another command of the old interface, from a bookmark, the address bar or
-another site is sent to the sign-in page, also when it is signed in
-already. After the sign-in it lands on the start page, not on the command:
-a link on another site could otherwise have the box run it the moment you
-sign in. Use the command from the web interface instead. A page of the web
+With Authentication on, a browser that is not signed in and opens a
+`/control/` address, or another command of the old interface, from a
+bookmark, the address bar or another site is sent to the sign-in page.
+After the sign-in it lands on the start page, not on the command: a link on
+another site could otherwise have the box run it the moment you sign in.
+Open the address again, and the box asks as below. A page of the web
 interface opens after the sign-in as before.
+
+### The box asks before a browser runs a command
+
+A page on any site can have your browser open an address of the box, with a
+link, a picture or a form, and that address can be a command of the old
+interface: `/control/standby?on` puts the box in standby. So when a browser
+opens such a command (an address under `/control/`, `/cgi-bin/`, `/fb/`,
+`/api/v4/` or `/y/`, or one with an `execute` parameter) and nothing shows
+that the request came from a page of the box (`Sec-Fetch-Site: same-origin`,
+or an `Origin` or `Referer` naming the box), the box does not run it. It
+shows a short page that asks first, in the language of the web interface:
+
+- It says what the command does in plain words where it knows the command
+  (standby, wake, switch to a channel, a key of the remote control, restart,
+  shut down, the volume, a message on the TV, …), and shows its whole
+  address. A command it does not know stands as its address alone. The value
+  of a parameter whose name says it holds a password, a PIN, a token, a
+  ticket, a secret or a key is shown as `[hidden]`, and so are a user name
+  and password inside an address given as a value.
+- **Run** runs it. A command that only answers `ok` goes on to the start
+  page of the web interface; any other answer is shown, under a heading
+  that says whether the box ran the command. **Cancel**, or the Escape key,
+  goes to the start page without running anything.
+- **Run without asking from now on**: from then on the box runs such
+  commands without asking. A page on another site could then run them as
+  well. You can change this again under **Settings → Webserver → Access →
+  Run commands without asking**. Off as the box ships.
+
+The question holds for one answer and for 5 minutes. It is asked of a
+browser that would reach the command otherwise:
+
+- with Authentication off, every browser;
+- with Authentication on, a browser from the address range under
+  **No-auth clients** or on the box itself, and a browser that is signed in
+  or sends the user name and password with HTTP Basic authentication; Run
+  then signs in the same way.
+
+It is asked also for a command that only reads, such as `/control/info` or
+`/control/volume` without a value. Requests from the pages of the web
+interface, and apps and scripts whose `User-Agent` does not start with
+`Mozilla/`, are not asked. Every other request from a browser to such a
+command gets the short text above and runs nothing: a picture, a frame or a
+call from a page on another host, such as a dashboard that shows the box's
+screenshot, among them, until the switch is on. So does a change to the
+account (`/control/config` naming the user name or the password), which the
+box takes only from the web interface, and an address that names a field
+of the page that asks itself (`ask_token`, `control_without_asking`).
+
+The switch is the line `control_without_asking` in `nhttpd-access.conf`,
+`true` or `false`, read again while the box runs. A line the box cannot
+read counts as `false`, and so does a file that is gone or cannot be
+read.
 
 ## When many sign-ins fail
 
@@ -272,6 +325,11 @@ nobody out.
   `400 missing-parameter`, with a wrong one `403 wrong-current-password`. The
   user name sent back as it is needs none, and a box with no password at
   all needs none. Only the reset at the box sets a first password again.
+- `PUT /api/v1/system/webserver` also takes `control_without_asking`, `true`
+  or `false`, which `GET` answers beside the rest: whether a browser runs a
+  command of the old interface without being asked. It is in effect at once
+  and restarts nothing. Like every write of that route it needs level
+  `system`, and with a session the `X-CSRF-Token` header.
 - While the TV shows the message with the first password,
   `GET /api/v1/osd/screenshot` answers `409 password-on-screen`, and so do
   `GET /api/v1/osd/display/screenshot` and

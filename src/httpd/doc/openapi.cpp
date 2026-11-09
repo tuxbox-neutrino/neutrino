@@ -800,9 +800,10 @@ const char kIntroduction[] =
 	"Unix time in seconds (UTC); durations state their unit. Request bodies are JSON objects; "
 	"members a route does not declare are refused.\n\n"
 	"**Refusals** are `application/problem+json` objects whose `type` ends in a stable code such as "
-	"`box-in-standby`; each operation lists its own codes with an example. The exceptions are three "
+	"`box-in-standby`; each operation lists its own codes with an example. The exceptions are four "
 	"refusals the web server sends before a request reaches the API: `400` for a request it cannot "
-	"read, `408` for a body that does not arrive in time and `501` for a method it does not take. "
+	"read, `408` for a request or a body that does not arrive in time, `414` for a request line too "
+	"long to read and `501` for a method it does not take. "
 	"They come as a status line and headers, with no body.\n\n"
 	"**Changes** made by any client, or on the box itself, are announced on the event stream "
 	"`GET /api/v1/events`, so a client can follow the box without polling.";

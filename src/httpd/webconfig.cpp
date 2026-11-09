@@ -74,6 +74,7 @@ const char kKeySessionLifetime[] = "session_lifetime_s";
 const char kKeySseMaxStreams[]   = "sse_max_streams";
 const char kKeyLegacy[]          = "legacy_enabled";
 const char kKeyLogos[]           = "channel_logos";
+const char kKeyAsking[]          = "control_without_asking";
 const char kKeyApiTokens[]       = "api_tokens";
 
 // Read where a message would otherwise have to name a key it found in a file.
@@ -82,7 +83,7 @@ const char *const kKnownKeys[] =
 {
 	kKeyUser, kKeyHash, kKeyFirst, kKeyLanRead,
 	kKeyTrustedProxies, kKeyAllowedHosts, kKeyDocroot, kKeySessionLifetime,
-	kKeySseMaxStreams, kKeyLegacy, kKeyLogos, kKeyApiTokens
+	kKeySseMaxStreams, kKeyLegacy, kKeyLogos, kKeyAsking, kKeyApiTokens
 };
 
 /* Two keys this file held once and holds no longer. Where the server answers
@@ -893,6 +894,32 @@ void readHostList(const Pairs &m, const CutShort &cut, const char *key, std::vec
 	}
 }
 
+/* Reads whether a browser runs a command of the old interface without being asked:
+   true or 1, false or 0, the words channel_logos is read by. A line saying neither,
+   and one this cannot read, stand as off, the least the switch can mean: the box
+   asks. A key nobody wrote leaves out as it is. */
+void readAskingSwitch(const Pairs &m, const CutShort &cut, bool &out, bool say = true)
+{
+	std::string raw;
+	const Reading r = reading(m, cut, kKeyAsking, raw);
+	if (r == KeyAbsent)
+		return;
+	if (r == KeyPresent && (raw == "true" || raw == "1"))
+	{
+		out = true;
+		return;
+	}
+	out = false;
+	if (r == KeyPresent && (raw == "false" || raw == "0"))
+		return;
+	if (say)
+		complain(std::string(kKeyAsking) + ": " +
+			 (r == KeyUnreadable ? std::string("the line carries a word this cannot read")
+					     : quoted(raw) + " is neither true nor false") +
+			 ", and the box asks before a browser runs a command of the old interface, "
+			 "which is the least the switch can mean");
+}
+
 // closed is what the key means least, which is what a value this cannot use
 // falls back to. The default is not that, and is only what a key nobody wrote
 // falls back to.
@@ -1611,6 +1638,12 @@ void appendKeyDocs(std::string &text)
 		     d.legacy_enabled ? "true" : "false");
 	appendKeyDoc(text, kKeyLogos, "whether the pages show a picture beside a channel, true or false",
 		     d.channel_logos ? "true" : "false");
+	appendKeyDoc(text, kKeyAsking, "whether a browser runs a command of the old interface, such as "
+		     "an address under /control/, without the box asking first where nothing shows the "
+		     "request came from a page of the box, true or false. With true a page of another "
+		     "site can run such commands too. The web interface sets it under Settings, "
+		     "Webserver, and the line is read again while the box runs",
+		     d.control_without_asking ? "true" : "false");
 	appendKeyDoc(text, kKeyApiTokens, "tokens a program presents in place of a password, separated by "
 		     "commas, each one a level and a token with a colon between them, the level being "
 		     "read, write or system", "none");
@@ -2083,6 +2116,7 @@ WebConfig defaultWebConfig()
 	c.sse_max_streams = kSseMaxStreamsDefault;
 	c.legacy_enabled = true;
 	c.channel_logos = true;
+	c.control_without_asking = false;
 	return c;
 }
 
@@ -2102,6 +2136,92 @@ bool readAllowedHosts(const std::string &path, std::vector<std::string> &out)
 	readHostList(file.getConfigDataMap(), faults.unreadable, kKeyAllowedHosts, read, false);
 	out = read;
 	return true;
+}
+
+bool readControlWithoutAsking(const std::string &path, bool &out)
+{
+	struct stat st;
+	if (path.empty() || stat(path.c_str(), &st) != 0 || !S_ISREG(st.st_mode) ||
+	    st.st_size < 0 || st.st_size > kMaxFileBytes)
+		return false;
+
+	CConfigFile file(',', false);
+	if (!file.loadConfig(path))
+		return false;
+	const LineFaults faults = scanLines(path, true);
+
+	bool read = false;
+	readAskingSwitch(file.getConfigDataMap(), faults.unreadable, read, false);
+	out = read;
+	return true;
+}
+
+bool writeControlWithoutAsking(const std::string &path, bool on)
+{
+	// settings put back from an archive wait for the restart that reads them
+	coreapi::SettingsWrite may;
+	if (!may.allowed())
+	{
+		complain(path + ": settings are being put back, and nothing is written until the restart");
+		return false;
+	}
+
+	/* The rules saveWebSettings writes this file by: never through a link, and only
+	   into a file that is there, which every start makes sure of. */
+	struct stat st;
+	if (path.empty() || ::lstat(path.c_str(), &st) != 0)
+	{
+		complain(std::string("cannot look at the configuration ") + path + ": " +
+			 (path.empty() ? std::string("no file is in use") : std::string(std::strerror(errno))));
+		return false;
+	}
+	if (S_ISLNK(st.st_mode))
+	{
+		complain(path + " is a link, and a save would replace the link rather than the file "
+			 "it names, so nothing is written");
+		return false;
+	}
+	if (!isReadableRegularFile(path, "configuration"))
+		return false;
+
+	std::vector<OwnedLine> owned(1);
+	owned[0].key = kKeyAsking;
+	owned[0].value = on ? "true" : "false";
+	owned[0].written = false;
+	owned[0].drop = false;
+
+	// Every line as it stands but those naming the key: the first of them takes the
+	// value, as a save writes its own keys, and the others go.
+	std::string text = wholeFile(path);
+	std::string out;
+	out.reserve(text.size() + 32);
+	size_t at = 0;
+	while (at < text.size())
+	{
+		const size_t end = text.find('\n', at);
+		const bool last = (end == std::string::npos);
+		const std::string line = last ? text.substr(at) : text.substr(at, end - at);
+		at = last ? text.size() : end + 1;
+
+		if (ownedLineFor(line, owned) == owned.size())
+		{
+			out += line;
+			out += '\n';
+		}
+		else if (!owned[0].written)
+		{
+			appendPair(out, owned[0].key, owned[0].value);
+			owned[0].written = true;
+		}
+	}
+	if (!owned[0].written)
+		appendPair(out, owned[0].key, owned[0].value);
+
+	// the file holds the account's stored form and may hold a first password
+	forget(text);
+	const bool replaced = replaceFile(path, out);
+	forget(out);
+	return replaced;
 }
 
 bool proxiesConfigured(const WebConfig &c)
@@ -2577,6 +2697,8 @@ bool load(const std::string &path, const std::string &server_path)
 			}
 		}
 	}
+
+	readAskingSwitch(m, cut, c.control_without_asking);
 
 	/* Last, and not into the structure above: a token is a credential and
 	   goes where this server keeps the other ones, which is the table a bearer

@@ -9,6 +9,7 @@
 #include "login_bridge.h"
 
 #include "auth.h"
+#include "control_ask.h"
 #include "credentials.h"
 #include "router.h"
 #include "webconfig.h"
@@ -45,28 +46,11 @@ bool changesWithGet(const std::string &path)
 	return false;
 }
 
-// What every browser this server serves starts its User-Agent with, and no script that names itself.
-bool fromBrowser(const Ask &a)
-{
-	return a.user_agent.compare(0, 8, "Mozilla/") == 0;
-}
-
 // Whether the Authorization header names the Basic scheme, read without decoding the pair.
 bool carriesBasic(const std::string &authorization)
 {
 	return authorization.size() > 5 && strncasecmp(authorization.c_str(), "basic", 5) == 0 &&
 	       (authorization[5] == ' ' || authorization[5] == '\t');
-}
-
-// Whether the request came from a page of this box, by the REST layer's reading of it.
-bool fromThisBox(const Ask &a)
-{
-	httpd::Provenance p;
-	p.sec_fetch_site = a.sec_fetch_site;
-	p.origin = a.origin;
-	p.referer = a.referer;
-	p.host = a.host;
-	return httpd::fromPageOfThisBox(p);
 }
 
 // What a change to the account that fromThisBox refuses is answered with.
@@ -194,6 +178,30 @@ bool needsOwnPage(const Ask &a)
 	return changesWithGet(a.path) || a.runs_commands;
 }
 
+bool fromBrowser(const Ask &a)
+{
+	return a.user_agent.compare(0, 8, "Mozilla/") == 0;
+}
+
+bool fromThisBox(const Ask &a)
+{
+	try
+	{
+		if (a.replayed)
+			return false;
+		httpd::Provenance p;
+		p.sec_fetch_site = a.sec_fetch_site;
+		p.origin = a.origin;
+		p.referer = a.referer;
+		p.host = a.host;
+		return httpd::fromPageOfThisBox(p);
+	}
+	catch (...)
+	{
+		return false;
+	}
+}
+
 bool sessionAdmits(const Ask &a)
 {
 	try
@@ -201,7 +209,7 @@ bool sessionAdmits(const Ask &a)
 		const std::string token = httpd::cookieValue(a.cookie, httpd::sessionCookieName());
 		if (token.empty())
 			return false;
-		if (needsOwnPage(a) && !fromThisBox(a))
+		if (needsOwnPage(a) && !fromThisBox(a) && !httpd::controlWithoutAsking())
 			return false;
 
 		/* Asked of the REST gate with the cookie and nothing else, so the answer
@@ -218,11 +226,65 @@ bool sessionAdmits(const Ask &a)
 	}
 }
 
+bool changesAccount(const std::string &url, const std::map<std::string, std::string> &params)
+{
+	try
+	{
+		const size_t slash = url.rfind('/');
+		if (slash == std::string::npos)
+			return false;
+		const std::string dir = url.substr(0, slash + 1);
+		std::string name = url.substr(slash + 1);
+		for (size_t i = 0; i < name.size(); ++i)
+			if (name[i] >= 'A' && name[i] <= 'Z')
+				name[i] = (char) (name[i] - 'A' + 'a');
+		if ((dir != "/control/" && dir != "/cgi-bin/" && dir != "/api/v4/") || name != "config")
+			return false;
+		const std::map<std::string, std::string>::const_iterator config = params.find("config");
+		const std::map<std::string, std::string>::const_iterator action = params.find("action");
+		if (config == params.end() || config->second != "nhttpd" || action == params.end() ||
+		    action->second != "submit")
+			return false;
+		for (std::map<std::string, std::string>::const_iterator it = params.begin(); it != params.end(); ++it)
+		{
+			// the key as ConfigCGI reads it: "_dot_" for ".", "_bind_" for "-"
+			std::string key = it->first;
+			for (size_t at = key.find("_dot_"); at != std::string::npos; at = key.find("_dot_", at + 1))
+				key.replace(at, 5, ".");
+			for (size_t at = key.find("_bind_"); at != std::string::npos; at = key.find("_bind_", at + 1))
+				key.replace(at, 6, "-");
+			if ((key == "mod_auth.username" || key == "mod_auth.password") && !it->second.empty())
+				return true;
+		}
+		return false;
+	}
+	catch (...)
+	{
+		return true;
+	}
+}
+
+bool sessionHeldBack(const Ask &a)
+{
+	try
+	{
+		if (!needsOwnPage(a) || !fromBrowser(a) || fromThisBox(a) || httpd::controlWithoutAsking())
+			return false;
+		const std::string token = httpd::cookieValue(a.cookie, httpd::sessionCookieName());
+		return !token.empty() && httpd::sessionIsLive(token);
+	}
+	catch (...)
+	{
+		return false;
+	}
+}
+
 bool basicHeldBack(const Ask &a)
 {
 	try
 	{
-		return carriesBasic(a.authorization) && fromBrowser(a) && needsOwnPage(a) && !fromThisBox(a);
+		return carriesBasic(a.authorization) && fromBrowser(a) && needsOwnPage(a) && !fromThisBox(a) &&
+		       !httpd::controlWithoutAsking();
 	}
 	catch (...)
 	{
@@ -238,10 +300,10 @@ const char *heldBackText()
 	       "of its own (-UserAgent), or an Origin header naming the box.\n"
 	       "\n"
 	       "Diese Adresse kann die Box \xC3\xA4" "ndern, darum bekommt ein Browser nur eine Antwort, wenn "
-	       "die Anfrage von einer Seite der Box kommt. \xC3\x96" "ffne sie aus der Weboberfl\xC3\xA4" "che "
-	       "der Box heraus. Ein Skript, das die Kennung eines Browsers sendet, wie PowerShell, wird "
-	       "genauso behandelt: Gib ihm eine eigene Kennung (-UserAgent) oder einen Origin-Kopf, der die "
-	       "Box nennt.\n";
+	       "die Anfrage von einer Seite der Box kommt. Die Adresse daher aus der Weboberfl\xC3\xA4" "che "
+	       "der Box heraus \xC3\xB6" "ffnen. Ein Skript, das die Kennung eines Browsers sendet, wie "
+	       "PowerShell, wird genauso behandelt: Es braucht eine eigene Kennung (-UserAgent) oder einen "
+	       "Origin-Kopf, der die Box nennt.\n";
 }
 
 bool basicAdmits(const Ask &a)

@@ -139,6 +139,13 @@ struct WebConfig
 	   learnt it and went on drawing the pictures. So the refusal is at the route
 	   (GET /api/v1/channels/{id}/logo), where it holds for every caller. */
 	bool         channel_logos;
+
+	/* Whether a browser runs a command of the old interface without the box asking
+	   first, where nothing shows the request came from a page of this box
+	   (control_ask.h). Off: the box asks. Kept beside the lists that decide who may
+	   act, and read again while the box runs; this is what stands until the file
+	   could be read once. */
+	bool         control_without_asking;
 };
 
 // The values a box that has never been configured runs on.
@@ -150,6 +157,18 @@ WebConfig defaultWebConfig();
    again while the server runs (authority.h), so a name added to the file counts
    without a restart. */
 bool readAllowedHosts(const std::string &path, std::vector<std::string> &out);
+
+/* The control_without_asking line of the file at path, read by the rule load reads
+   it with and saying nothing about it: false for a file without the line and for
+   one this cannot read. False where the file cannot be read, and out is then left
+   alone. Read again while the server runs (control_ask.h). */
+bool readControlWithoutAsking(const std::string &path, bool &out);
+
+/* Writes control_without_asking into path as true or false, in place of every line
+   load reads as naming it, and leaves every other line where it stands. The caller
+   holds AccountLock, which every writer of this file holds. False, with the file as
+   it was and the reason in configProblems, where it could not be written. */
+bool writeControlWithoutAsking(const std::string &path, bool on);
 
 /* Whether something in front of this server is configured, which is the switch
    that turns the read exemption off.
@@ -262,6 +281,9 @@ bool usernameAcceptable(const std::string &name, std::string *why);
      legacy_enabled      off
      channel_logos       off, which is the least a switch that shows something
                          can mean
+     control_without_asking
+                         off, which is also what the key absent means: the box
+                         asks
      api_tokens          none, which is also what the key absent means
 
    port and bind_address are not keys of this file any more. Where the server

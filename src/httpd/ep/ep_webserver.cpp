@@ -23,6 +23,7 @@
 
 #include "httpd/auth.h"
 #include "httpd/authority.h"
+#include "httpd/control_ask.h"
 #include "httpd/endpoint.h"
 #include "httpd/http.h"
 #include "httpd/login_bridge.h"
@@ -103,6 +104,16 @@
                                   decides under which names the box is reached at
                                   all, and a name taken off it shuts out whoever
                                   used it, the caller among them.
+
+     control_without_asking       read and written, a line of this server's own file
+                                  beside the two above: whether a browser runs a
+                                  command of the old interface without the box
+                                  asking first (control_ask.h). Written where they
+                                  are not, because neither of its values shuts
+                                  anybody out: on, a page of another site can run
+                                  such commands as well; off, the box asks again.
+                                  It is read again while the box runs, so writing it
+                                  restarts nothing.
 
      legacy_enabled               read and not written, and the one that was argued
                                   over. Its own header calls it the switch a running
@@ -246,6 +257,9 @@ void writeWebserver(Json &j, int port, const std::string &bind,
 	for (size_t i = 0; i < extra.size(); ++i)
 		j.value(extra[i]);
 	j.endArray();
+	// as the gate reads it, which follows the file while the box runs
+	j.key("control_without_asking");
+	j.value(controlWithoutAsking());
 	j.key("legacy_enabled");
 	j.value(c.legacy_enabled);
 	j.key("channel_logos");
@@ -285,6 +299,8 @@ const FieldDesc kWebserverFields[] = {
 		"the networks whose forwarded address is believed, as this box read them; empty where the file has no trusted_proxies line, and also where the line is empty or none of its entries is a network, which still keeps reading without a password off"),
 	HTTPD_LIST_OF_VALUES("allowed_hosts", ElementType::String,
 		"the names the box answers to besides its addresses, single labels such as localhost, one label under .local or under a domain its resolver searches, and its own host name, as this box read them from the allowed_hosts line of nhttpd-access.conf, which it reads again within 10 seconds of a change; a request under any other name is refused with 400 no-authority"),
+	HTTPD_MEMBER("control_without_asking", FieldType::Bool,
+		"whether a browser runs a command of the old interface, such as an address under /control/, without the box asking first where nothing shows the request came from a page of the box; with it on a page of another site can run such commands too. A line of nhttpd-access.conf that the box reads again while it runs, and false where the line is missing or cannot be read, and where the file is gone or cannot be read: then the box asks"),
 	HTTPD_MEMBER("legacy_enabled", FieldType::Bool,
 		"the line of the file meant to say whether the surface under /control/ is answered; nothing acts on it, so that surface is answered whatever it says, and this route does not write it"),
 	HTTPD_MEMBER("channel_logos", FieldType::Bool,
@@ -587,10 +603,12 @@ Response webserverWrite(const Request &r)
 		named = true;
 	}
 
+	const bool asking_named = r.has("control_without_asking");
+
 	/* A body naming nothing is turned down rather than answered. It changes no
 	   value, so the only thing left for it to be is a way of asking the box to
 	   restart its own server, and that is not what this route is. */
-	if (!named)
+	if (!named && !asking_named)
 	{
 		return problemResponse(StatusBadRequest, coreapi::ErrorCode::MissingParameter,
 				       "the body names nothing to change");
@@ -602,6 +620,15 @@ Response webserverWrite(const Request &r)
 	const bool account_moves = s.change_password || s.username != before.username;
 	if (account_moves && !asks_current && !loginInEffect().password_hash.empty())
 		return problemResponse(StatusBadRequest, coreapi::ErrorCode::MissingParameter, kCurrentNeeded);
+
+	/* The switch is a line of this file that the gate reads again while the box
+	   runs (control_ask.h), so it is written on its own and restarts nothing. It
+	   goes first and is put back where the save below then refuses, so a request
+	   that is turned down has changed nothing. */
+	const bool asking_was = controlWithoutAsking();
+	if (asking_named && !writeControlWithoutAsking(path, r.asBool("control_without_asking")))
+		return problemResponse(StatusBadRequest, coreapi::ErrorCode::WebserverNotConfigured,
+				       whatWentWrong());
 
 	/* The commit, and the one moment a logout and this save are ordered by, taken by
 	   the save once the new password is derived and both files are built, right before
@@ -642,10 +669,17 @@ Response webserverWrite(const Request &r)
 	   nhttpd can listen on, what a name may carry, and what an empty password
 	   verifies against. A second copy of any of them here would be a rule that
 	   can disagree with the one that decides. */
+	/* A request naming the switch alone has nothing for the save below, which would
+	   rewrite both files, and nothing to restart. */
+	const bool asking_only = asking_named && !named;
+
 	/* From what this request started from, so a value the menu at the box wrote
 	   into nhttpd.conf since then stays unless this request names it. */
-	if (!saveWebSettings(path, s, NULL, &before, &go))
+	if (!asking_only && !saveWebSettings(path, s, NULL, &before, &go))
 	{
+		const std::string refused = whatWentWrong();
+		if (asking_named)
+			writeControlWithoutAsking(path, asking_was);
 		if (go.ended)
 			return problemResponse(StatusForbidden, coreapi::ErrorCode::NotPermitted, notPermittedDetail());
 		go.release();
@@ -655,8 +689,7 @@ Response webserverWrite(const Request &r)
 		   being unwritable, and the line carried back names the file when that
 		   is what happened, which is the one thing that tells a caller it is
 		   not its own fault. */
-		return problemResponse(StatusBadRequest, coreapi::ErrorCode::WebserverNotConfigured,
-				       whatWentWrong());
+		return problemResponse(StatusBadRequest, coreapi::ErrorCode::WebserverNotConfigured, refused);
 	}
 
 	/* A new name or password ends every session once the restart puts it in effect,
@@ -702,7 +735,8 @@ Response webserverWrite(const Request &r)
 		   layer does not hold for these: nhttpd reads them when it starts, and the
 		   menu puts its own changes in effect as it writes them. */
 		|| !sameServerOptions(s.options, before.options);
-	const bool restarting = moved || restartAwaitsLoad();
+	const bool moves = moved && !asking_only;
+	const bool restarting = moves || restartAwaitsLoad();
 
 	Response out = okJson();
 	Json j(out.body, 1280);
@@ -734,7 +768,7 @@ Response webserverWrite(const Request &r)
 		out.headers.push_back(std::make_pair(std::string("Set-Cookie"), sessionSetCookie(successor)));
 
 	// The last lines of the handler, and the only ones that arm anything.
-	if (moved)
+	if (moves)
 	{
 		out.reload_after = path;
 		armRestart();
@@ -780,6 +814,10 @@ const Param kWriteParams[] = {
 	HTTPD_BODY_TEXT("hosted_directory", "an absolute path to serve under /hosted/; not one that is, holds or lies in the configuration directory, /proc, /sys or /dev", 255),
 	HTTPD_BODY("send_all_types", ParamType::Bool,
 		"whether a file of a type nhttpd has no name for is to be sent all the same"),
+	/* Written on its own and in effect at once, without the restart the members
+	   above take. */
+	HTTPD_BODY("control_without_asking", ParamType::Bool,
+		"whether a browser is to run a command of the old interface without the box asking first, where nothing shows the request came from a page of the box; on lets a page of another site run such commands too"),
 };
 
 const RouteRefusal kWebserverWriteRefusals[] = {
@@ -806,7 +844,9 @@ const Endpoint kWebserverEndpoints[] = {
 	  "caller signs in under, whether a password is set at all and whether it still waits to be replaced "
 	  "(one the boxes shipped with, or the first password the box set for itself), whether the pages ask for the login and of which callers not, how nhttpd serves the pages "
 	  "(threads, the override and hosted directories, files of unknown type), the networks that may read without "
-	  "presenting anything and the proxies whose forwarded address is believed, the file's "
+	  "presenting anything and the proxies whose forwarded address is believed, whether a browser "
+	  "runs a command of the old interface without the box asking first (`control_without_asking`), "
+	  "the file's "
 	  "`legacy_enabled` line, which nothing acts on (the surface under `/control/` is answered whatever "
 	  "it says), and whether a channel picture is served at all. This is "
 	  "a different file from `neutrino.conf`, which `/api/v1/settings` reads and writes.\n"
@@ -844,7 +884,8 @@ const Endpoint kWebserverEndpoints[] = {
 	  "server answers and how nhttpd serves. When any member actually changed, the server is restarted "
 	  "on the new files once the answer has been sent, which drops every connection it is holding, this "
 	  "one included. Where nothing comes up on a new port or address, it goes back to the one it "
-	  "answered on before.\n"
+	  "answered on before. `control_without_asking` is written on its own and is in effect at once: "
+	  "it restarts nothing.\n"
 	  "\n"
 	  "**Refusals:**\n"
 	  "- `400 missing-parameter`: the body names nothing to change, or it sets `password` or a new "

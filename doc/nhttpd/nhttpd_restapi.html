@@ -139,13 +139,49 @@ this box: <code>Sec-Fetch-Site: same-origin</code>, or else an
 <code>Origin</code> or
 <code>Referer</code> naming this host. Basic authentication from a browser,
 a <code>User-Agent</code> that starts with <code>Mozilla/</code>, is held to
-the same rule: without that evidence the request is answered 403 with a
-short text saying to open the address from the web interface. A script that
-sends a browser's <code>User-Agent</code>, as PowerShell does, is a browser
-here: it passes with a <code>User-Agent</code> of its own or an
-<code>Origin</code> header naming the box. Basic authentication from any
-other client counts as
+the same rule. A browser held back this way, by its session or its Basic
+pair, is asked before the command runs (below). A script that sends a
+browser's <code>User-Agent</code>, as PowerShell does, is a browser here: it
+passes with a <code>User-Agent</code> of its own or an <code>Origin</code>
+header naming the box. Basic authentication from any other client counts as
 before.</li>
+<li>A browser's request for such a command that shows none of that evidence
+is not run but asked about (<code>src/httpd/control_ask.cpp</code>, called
+by <code>mod_auth</code> before it lets any such request go on): with the
+page login off, for the box itself and the addresses
+<code>mod_auth.no_auth_client</code> names, and in place of the hold-back
+above. A navigation of the window (a GET that accepts <code>text/html</code>,
+with <code>Sec-Fetch-Dest</code> missing or <code>document</code>) is answered
+403 with a page that names the command, in plain words where it knows it,
+and shows its whole address: the value of a parameter whose name says it
+holds a secret shown as <code>[hidden]</code>, of a value that is an address
+its user, password and query values left out as the web log leaves them
+out, and characters that show nothing or turn the text around removed; in
+the language of the pages. The page carries a token of 128 bits, held on
+the box with the request it was handed out for: the target as written, the
+method and the parameters, never a body, at most 32 of them at once, the
+oldest giving way. Its form posts the token back to the same address as
+<code>application/x-www-form-urlencoded</code>; that POST runs the stored
+request, its parameters and its method, only when it comes from a page of
+this box and the token was handed out for that target, has not been used
+and is younger than 5 minutes; the box to tick counts only where that
+address did not name it. The token is spent whatever the answer; a refused
+one gets a short text. The request run so never counts as coming from a
+page of this box itself (<code>login_bridge::Ask::replayed</code>), so a
+change to the account in it is refused. The page goes out with
+<code>X-Frame-Options: DENY</code> and a policy that allows its own style and
+script and no frame around it (<code>frame-ancestors 'none'</code>). Any
+other request so asked is answered 403 with the short text and no token: a
+picture, a frame, a fetch or a form of another site, a request naming
+<code>ask_token</code> or <code>control_without_asking</code>, and a change
+to the account (<code>/control/config</code> naming
+<code>mod_auth.username</code> or <code>mod_auth.password</code>). With
+<code>control_without_asking=true</code> in <code>nhttpd-access.conf</code>,
+read again while the box runs and written by <code>PUT
+/api/v1/system/webserver</code> or by the page's box to tick, nothing is
+asked, and a browser's session or Basic pair counts on these paths without
+the evidence, as a script's does; a file that is gone or cannot be read
+counts as <code>false</code>.</li>
 <li>A browser that <code>mod_auth</code> sends to the sign-in page is sent
 there with <code>next</code>, the address it asked for as it wrote it,
 escapes and all, only where that is a page: a folder or a name ending in
@@ -198,11 +234,37 @@ request. TRACE is answered 501 on every path. Outside the API addresses,
 PUT, PATCH and DELETE are answered 501 as well.
 </p>
 <p>
+The head of every request, its request line and its header lines, is read
+whole before anything is decided on it, and has to arrive within 10 seconds
+and 64 KiB of the wire together, whatever the method and the address: empty
+lines before the request line and every line's ending count as they were
+sent. A request line longer than that is answered 414, a header over the
+limit 400 and a head that has not arrived whole in time 408. A header that
+is not one is answered 400 as well, before any hook sees the request: a
+line that continues the one before it (a space or a tab first), a field
+name with a space before its colon or a character no name has, a line
+without a colon, a control character other than a tab in a value, and a
+field the rules about where a request came from read (<code>User-Agent</code>,
+<code>Origin</code>, <code>Referer</code>, <code>Sec-Fetch-*</code>) named
+twice, in any spelling. Outside the API addresses a line may also end in a
+LF alone.
+</p>
+<p>
+An answer is broken off once its reader has taken nothing of it for 30
+seconds, however long it ran before: a download or a stream that keeps
+moving is never cut. The carried answers and the event streams keep their
+own limit of the same 30 seconds. Without connection threads
+(<code>webserver.threading</code> off) a peer holds the server no longer than
+that: one that connects and sends nothing for the head's 10 seconds and up
+to 2 more while the refusal is let go, one that stops reading an answer for
+30 seconds.
+</p>
+<p>
 On an API address:
 </p>
 <ul>
-<li>Header lines that together pass 64 KiB, or that have not all arrived
-after 10 seconds, are answered 400.</li>
+<li>Header lines that pass the head's 64 KiB are answered 400, and ones that
+have not all arrived within its 10 seconds 408.</li>
 <li>A body is read only for POST, PUT and PATCH, by its
 <code>Content-Length</code>, up to 1 MiB. A larger one is answered 413.
 Up to 16 MiB of it is read and dropped first, so the answer reaches the
@@ -245,9 +307,10 @@ A refusal the layer writes is a problem document
 <code>title</code>, <code>status</code> and <code>detail</code>. Of the
 refusals on an API address under <a href="#requests">Requests</a>, all except
 the 413 come from nhttpd's request reader before the layer sees the request:
-the 400 for the header or the body framing, the 408 and the 501. They are a
-status line and headers, with no body, as are its 400, 408, 411, 413 and 415
-for a POST outside the API; the 400 for a <code>Host</code> that names
+the 400 for the header or the body framing, the 408, the 414 and the 501.
+They are a status line and headers, with no body, as are its 400, 408 and
+414 for a head outside the API and its 400, 408, 411, 413 and 415 for a POST
+there; the 400 for a <code>Host</code> that names
 another box is the page described under <a href="#access">Access</a>. Every
 answer the layer writes carries
 <code>X-Content-Type-Options: nosniff</code>, a <code>Vary</code> header that

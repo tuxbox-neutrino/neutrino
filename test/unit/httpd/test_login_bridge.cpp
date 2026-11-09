@@ -1364,11 +1364,14 @@ namespace
 void standbyAsked(CyhookHandler &hh, const char *authorization, const char *agent)
 {
 	hh.Method = M_GET;
+	hh.UrlData["target"] = "/control/standby?on";
 	hh.UrlData["url"] = "/control/standby";
 	hh.UrlData["fullurl"] = "/control/standby?on";
+	hh.UrlData["paramstring"] = "on";
 	hh.UrlData["path"] = "/control/";
 	hh.UrlData["filename"] = "standby";
 	hh.UrlData["clientaddr"] = "203.0.113.31";
+	hh.ParamList["1"] = "on";
 	hh.HeaderList["Host"] = "box.lan";
 	hh.HeaderList["Authorization"] = authorization;
 	hh.HeaderList["User-Agent"] = agent;
@@ -1382,8 +1385,11 @@ TEST_CASE("the gate tells a browser held back with its Basic pair where to open 
 	Account account;
 	Gate gate(true, "");
 
+	/* A call that is no navigation, as PowerShell's Invoke-WebRequest makes one,
+	   is told where to open the address and how a script passes. */
 	CyhookHandler hh;
 	standbyAsked(hh, kRightBasic, kBrowser);
+	hh.HeaderList["Accept"] = "*/*";
 	REQUIRE(gate.Hook_PrepareResponse(&hh) == HANDLED_ERROR);
 	// Not 401, which would have the browser ask for the login and send this again.
 	CHECK(hh.httpStatus == HTTP_FORBIDDEN);
@@ -1402,6 +1408,15 @@ TEST_CASE("the gate tells a browser held back with its Basic pair where to open 
 		nosniff = nosniff || (hh.ResponseHeaders[i].first == "X-Content-Type-Options" &&
 		                      hh.ResponseHeaders[i].second == "nosniff");
 	CHECK(nosniff);
+
+	// A navigation is asked whether the command is to run (control_ask.h).
+	CyhookHandler nav;
+	standbyAsked(nav, kRightBasic, kBrowser);
+	REQUIRE(gate.Hook_PrepareResponse(&nav) == HANDLED_ERROR);
+	CHECK(nav.httpStatus == HTTP_FORBIDDEN);
+	CHECK(nav.ResponseMimeType == "text/html; charset=UTF-8");
+	CHECK(nav.yresult.find("id=\"ask-form\"") != std::string::npos);
+	CHECK(nav.yresult.find("Switch the box to standby") != std::string::npos);
 
 	// The same from a page of the box goes on, and so does a script without one.
 	CyhookHandler own;

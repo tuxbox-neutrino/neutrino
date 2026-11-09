@@ -650,10 +650,17 @@ TEST_CASE("the parser's debug lines carry no credential and no line of the reque
 		  "Referer: http://box/page?token=S3NT1NEL\r\n"
 		  "Authorization: Basic S3NT1NEL\r\n"
 		  "Cookie: nhttpd-session=S3NT1NEL\r\n"
-		  "X-CSRF-Token: S3NT1NEL\r\n"
+		  "X-CSRF-Token: S3NT1NEL\r\n\r\n",
+		  "ParseHeader: name: Authorization value: [redacted]" },
+		// a line break inside a header: the head is refused before a line of
+		// it is parsed, so none of it reaches a log
+		{ "a header with a line break in it, refused",
+		  "GET /control/config?mod_auth_dot_password=S3NT1NEL HTTP/1.1\r\n"
+		  "Host: box\r\n"
+		  "Authorization: Basic S3NT1NEL\r\n"
 		  "X-Note: a\nINJECTED\r\n"
 		  "X-A\nINJECTED-NAME: z\r\n\r\n",
-		  "ParseHeader: name: Authorization value: [redacted]" },
+		  "HandleRequest: header not well formed, refused" },
 		{ "a form",
 		  withLength("POST /control/x HTTP/1.1\r\nHost: box\r\n"
 			     "Content-Type: application/x-www-form-urlencoded\r\n",

@@ -6,20 +6,21 @@
 #include <cstring>
 #include <cstdio>
 #include <algorithm>
+#include <atomic>
 
 // system
 #include <arpa/inet.h>
+#include <fcntl.h>
 #include <netinet/tcp.h>
+#include <sys/ioctl.h>
 #include <sys/socket.h>
 #include <poll.h>
 #include <time.h>
 #include <sys/time.h>
 #include <errno.h>
 #include <sys/types.h>
-#include <sys/ioctl.h>
 #include <sys/stat.h>
 #include <errno.h>
-#include <signal.h>
 #include <unistd.h>
 #include <netdb.h>
 
@@ -354,6 +355,80 @@ bool CySocket::CheckSocketOpen() {
 #endif
 }
 #endif
+//-----------------------------------------------------------------------------
+// A clock a stepped system time cannot move: deadlines are measured on it.
+//-----------------------------------------------------------------------------
+static long long monotonicMillis() {
+	struct timespec ts;
+	clock_gettime(CLOCK_MONOTONIC, &ts);
+	return (long long) ts.tv_sec * 1000 + ts.tv_nsec / 1000000;
+}
+//-----------------------------------------------------------------------------
+// How long a write may wait for a peer that takes nothing, counted from the
+// last byte it took, so a download or a stream that keeps moving is never cut,
+// however long it runs. The 30 seconds the carried answers give such a peer:
+// a player that pauses or a phone on a weak link takes something within them,
+// and without connection threads the server waits no longer for one that left.
+//-----------------------------------------------------------------------------
+static const unsigned kSendIdleDefaultMs = 30000;
+static std::atomic<unsigned> send_idle_ms(kSendIdleDefaultMs);
+// How often a wait looks at what the peer took.
+static const unsigned kSendSliceDefaultMs = 200;
+static std::atomic<unsigned> send_slice_ms(kSendSliceDefaultMs);
+
+unsigned CySocket::sendIdleMs() {
+	return send_idle_ms.load();
+}
+
+void CySocket::setSendIdleMsForTest(unsigned ms) {
+	send_idle_ms = (ms == 0) ? kSendIdleDefaultMs : ms;
+}
+
+void CySocket::setSendSliceMsForTest(unsigned ms) {
+	send_slice_ms = (ms == 0) ? kSendSliceDefaultMs : ms;
+}
+
+// A write that moved bytes: the wait for the next one counts from here.
+static void sentNow(long long &moved_at, int &queued_was) {
+	moved_at = monotonicMillis();
+	queued_was = -1;
+}
+
+/* The socket says it takes more only once a good part of its buffer is free
+   again, which a slow reader takes long to free; what the peer takes shows
+   sooner in how much the kernel still holds for it, looked at between slices
+   of the wait. Either counts as moving. What it holds is looked at before the
+   first slice too, so what the peer takes during that slice counts. */
+bool CySocket::waitToSend(long long &moved_at, int &queued_was) {
+	if (queued_was < 0) {
+		int queued = 0;
+		if (ioctl(sock, TIOCOUTQ, &queued) == 0)
+			queued_was = queued;
+	}
+	for (;;) {
+		const long long left = (long long) sendIdleMs() - (monotonicMillis() - moved_at);
+		if (left <= 0)
+			return false;
+		struct pollfd p;
+		p.fd = sock;
+		p.events = POLLOUT;
+		p.revents = 0;
+		const int ready = poll(&p, 1, (int) std::min(left, (long long) send_slice_ms.load()));
+		if (ready < 0 && errno == EINTR)
+			continue;
+		if (ready < 0)
+			return false;
+		// writable, or a fault the write then reports
+		if (ready > 0)
+			return true;
+		int queued = 0;
+		if (ioctl(sock, TIOCOUTQ, &queued) == 0) {
+			if (queued_was >= 0 && queued < queued_was)
+				moved_at = monotonicMillis();
+			queued_was = queued;
+		}
+	}
+}
 //=============================================================================
 // Aggregated Send- and Receive- Operations
 //=============================================================================
@@ -373,6 +448,23 @@ bool CySocket::SendFile(int filed, off_t start, off_t size) {
 	off_t written = 0;
 	if (size > -1 && size < left)
 		left = size;
+	/* The socket does not block while the file goes out, as sendfile() has no
+	   flag for that: a peer that takes nothing is waited for the way SendAll()
+	   waits for one, and the socket blocks again afterwards. */
+	struct NonBlocking {
+		int fd, was;
+		explicit NonBlocking(int f) : fd(f), was(fcntl(f, F_GETFL)) {
+			if (was >= 0)
+				fcntl(fd, F_SETFL, was | O_NONBLOCK);
+		}
+		~NonBlocking() {
+			if (was >= 0)
+				fcntl(fd, F_SETFL, was);
+		}
+	} nonblocking(sock);
+	long long moved_at = 0;
+	int queued_was = -1;
+	sentNow(moved_at, queued_was);
 #ifdef Y_CONFIG_HAVE_SENDFILE
 #ifdef Y_CONFIG_USE_OPEN_SSL
 	if(!isSSLSocket)
@@ -382,6 +474,12 @@ bool CySocket::SendFile(int filed, off_t start, off_t size) {
 		if((written = ::sendfile(sock, filed, &start, std::min((off_t) 0x8000000LL, left))) == -1) {
 			if (errno == EINTR)
 				continue;
+			if (errno == EAGAIN || errno == EWOULDBLOCK) {
+				if (waitToSend(moved_at, queued_was))
+					continue;
+				isValid = false;
+				return false;
+			}
 			if (errno != EPIPE)
 				perror("sendfile failed");
 			if (errno != EINVAL)
@@ -395,6 +493,7 @@ bool CySocket::SendFile(int filed, off_t start, off_t size) {
 				return false;
 			BytesSend += written;
 			left -= written;
+			sentNow(moved_at, queued_was);
 		}
 	}
 #endif // Y_CONFIG_HAVE_SENDFILE
@@ -423,100 +522,6 @@ bool CySocket::SendFile(int filed, off_t start, off_t size) {
 
 	log_level_printf(9, "<Sock:SendFile>: Bytes:%ld\n", BytesSend);
 	return true;
-}
-//-----------------------------------------------------------------------------
-// read all data avaiable on Socket
-//-----------------------------------------------------------------------------
-std::string CySocket::ReceiveBlock() {
-	std::string result = "";
-	char buffer[RECEIVE_BLOCK_LEN];
-
-	if (!isValid || !isOpened)
-		return "";
-	//	signal(SIGALRM, ytimeout);
-	alarm(1);
-
-	while (true) {
-		// check bytes in Socket buffer
-		u_long readarg = 0;
-#ifdef Y_CONFIG_USE_OPEN_SSL
-		if(isSSLSocket)
-		readarg = RECEIVE_BLOCK_LEN;
-		else
-#endif
-		// determine bytes that can be read
-		{
-			if (ioctl(sock, FIONREAD, &readarg) != 0)
-				break;
-			if (readarg == 0) // nothing to read
-				break;
-			if (readarg > RECEIVE_BLOCK_LEN) // need more loops
-				readarg = RECEIVE_BLOCK_LEN;
-		}
-		// Read data
-		int bytes_gotten = Read(buffer, readarg);
-
-		if (bytes_gotten == -1 && errno == EINTR)// non-blocking
-			continue;
-		if (bytes_gotten <= 0) // ERROR Code gotten or Conection closed by peer
-		{
-			isValid = false;
-			break;
-		}
-		result.append(buffer, bytes_gotten);
-		if ((u_long) bytes_gotten < readarg) // no more bytes
-			break;
-	}
-	alarm(0);
-	signal(SIGALRM, SIG_IGN);
-	return result;
-}
-
-//-----------------------------------------------------------------------------
-// Read on line (Ends with LF) or maximum MAX_LINE_BUFFER chars
-// Result Contains [CR]LF!
-//-----------------------------------------------------------------------------
-std::string CySocket::ReceiveLine() {
-	char buffer[MAX_LINE_BUFFER];
-	int bytes_gotten = 0;
-	std::string result = "";
-
-	bool failed = false;
-
-	while (true) {
-		// read one char
-		if (Read(buffer + bytes_gotten, 1) == 1) {
-			if (buffer[bytes_gotten] == '\n')
-				break;
-		} else {
-			isValid = false;
-			failed = true;
-			break;
-		}
-
-		if (bytes_gotten < MAX_LINE_BUFFER - 1)
-			bytes_gotten++;
-		else
-			break;
-	}
-	// A failed read put nothing at buffer[bytes_gotten]: the line is what
-	// arrived before it. Counting that slot in handed every caller one byte
-	// nobody sent, at the end of a connection on every call, and the POST
-	// header loop, waiting for an empty line, grew without end on it.
-	if (!failed && bytes_gotten < MAX_LINE_BUFFER - 1)
-		buffer[++bytes_gotten] = '\0';
-	result.assign(buffer, bytes_gotten);
-
-	return result;
-}
-
-//-----------------------------------------------------------------------------
-// A clock a stepped system time cannot move: deadlines are measured on it.
-//-----------------------------------------------------------------------------
-static long long monotonicMillis() {
-	struct timespec ts;
-	clock_gettime(CLOCK_MONOTONIC, &ts);
-	return (long long) ts.tv_sec * 1000 + ts.tv_nsec / 1000000;
 }
 //-----------------------------------------------------------------------------
 // Exactly length bytes, with a deadline. Read() rather than recv() so an SSL
@@ -569,13 +574,31 @@ bool CySocket::ReceiveExact(std::string &out, size_t length, int timeout_ms) {
 //-----------------------------------------------------------------------------
 bool CySocket::SendAll(const char *data, size_t length) {
 	size_t done = 0;
+	long long moved_at = 0;
+	int queued_was = -1;
+	sentNow(moved_at, queued_was);
 	while (done < length) {
 		size_t chunk = length - done;
 		if (chunk > (1u << 20))
 			chunk = (1u << 20);
-		int sent = Send(data + done, (unsigned int) chunk);
+		int sent;
+#ifdef Y_CONFIG_USE_OPEN_SSL
+		if (isSSLSocket)
+			sent = Send(data + done, (unsigned int) chunk);
+		else
+#endif
+		{
+			// what the socket takes now, the wait for more bounded above
+			if (!waitToSend(moved_at, queued_was)) {
+				isValid = false;
+				return false;
+			}
+			sent = (int) ::send(sock, data + done, chunk, MSG_NOSIGNAL | MSG_DONTWAIT);
+			if (sent > 0)
+				BytesSend += sent;
+		}
 		if (sent < 0) {
-			if (errno == EINTR)
+			if (errno == EINTR || errno == EAGAIN || errno == EWOULDBLOCK)
 				continue;
 			isValid = false;
 			return false;
@@ -585,6 +608,7 @@ bool CySocket::SendAll(const char *data, size_t length) {
 			return false;
 		}
 		done += (size_t) sent;
+		sentNow(moved_at, queued_was);
 	}
 	return true;
 }

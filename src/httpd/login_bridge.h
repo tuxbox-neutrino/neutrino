@@ -20,6 +20,7 @@
 #ifndef __httpd_login_bridge_h__
 #define __httpd_login_bridge_h__
 
+#include <map>
 #include <string>
 
 namespace httpd
@@ -49,7 +50,15 @@ struct Ask
 	   such a request is still held like a command, as a precaution. */
 	bool runs_commands;
 
-	Ask() : runs_commands(false) {}
+	/* Whether the request is one the box runs again on the confirmation of its
+	   page that asks (control_ask.h). It carries the headers of that page's POST,
+	   which say it came from a page of this box, while what it asks for came from
+	   wherever the request that was asked about did. So it never counts as coming
+	   from a page of this box (fromThisBox): a change to the account in it is
+	   refused as from another site. */
+	bool replayed;
+
+	Ask() : runs_commands(false), replayed(false) {}
 };
 
 /* Whether the request is one a credential the browser attaches by itself
@@ -61,6 +70,27 @@ struct Ask
    page of this box, it would pass. */
 bool needsOwnPage(const Ask &a);
 
+/* Whether the request comes from a browser: a User-Agent that starts with
+   "Mozilla/", as every browser this server serves sends it and no script that names
+   itself. A script that calls itself Mozilla, as PowerShell does, is a browser here. */
+bool fromBrowser(const Ask &a);
+
+/* Whether the request shows it came from a page of this box, by the REST layer's
+   reading (httpd::fromPageOfThisBox): Sec-Fetch-Site same-origin or, from a browser
+   that does not send that header, an Origin or else a Referer naming the host the
+   request was sent to, as the request boundary accepted it. Never for a request
+   run again on a confirmation (Ask::replayed). */
+bool fromThisBox(const Ask &a);
+
+/* Whether the request changes the account over the old server: a submit of
+   nhttpd's configuration (config=nhttpd, action=submit) to the config command
+   under /control/, /cgi-bin/ or /api/v4/, naming a user name or a password
+   (mod_auth.username, mod_auth.password, also written with _dot_ for the dot),
+   read as ConfigCGI reads it. url is the decoded path, params the parameters as
+   nhttpd's reader parsed them. Such a change is taken only from a page of this
+   box that made it (mayChange), so the box does not ask about it either. */
+bool changesAccount(const std::string &url, const std::map<std::string, std::string> &params);
+
 /* Whether a session of the one login stands for this request.
 
    On the targets that change the box with a GET (/control/, /cgi-bin/, /fb/,
@@ -71,11 +101,21 @@ bool needsOwnPage(const Ask &a);
    another site carries the cookie too, SameSite=Lax letting it through on a
    top-level navigation, and on those targets that link would be the whole of
    the credential. Everywhere else, the pages, a session is enough. A browser's
-   Basic pair is held to the same rule (basicHeldBack).
+   Basic pair is held to the same rule (basicHeldBack). Where the owner lets such
+   commands run without asking (httpd::controlWithoutAsking, control_ask.h), the
+   rule is off and a session is enough there too.
 
    A session that answers is moved on, as a request through the REST gate moves
    it. */
 bool sessionAdmits(const Ask &a);
+
+/* Whether a browser's session is held back for where the request came from:
+   the request comes from a browser (fromBrowser), its cookie names a live
+   session, and sessionAdmits refuses it on a target that needs a page of this
+   box only because nothing shows it came from one. The old server's gate asks
+   such a browser before the command runs (control_ask.h) rather than sending it
+   to sign in again. The session is looked up, not moved on. */
+bool sessionHeldBack(const Ask &a);
 
 /* Whether the Authorization header carries the Basic pair of the one account,
    checked against the stored form.
@@ -91,18 +131,21 @@ bool basicAdmits(const Ask &a);
    from a browser, one whose User-Agent starts with "Mozilla/"; it asks one of
    the targets a session counts on only from a page of this box, by the rule
    and the list sessionAdmits applies; and it shows nothing saying it came from
-   one. A browser keeps a Basic pair it was given and sends it with whatever
-   another site makes it ask for, as it sends a cookie. A script or an app,
-   which calls itself something else, sends the pair because it was written to
-   and is not held back; one that calls itself Mozilla, as PowerShell does, is
-   a browser here. */
+   one; and the owner has not let such commands run without asking
+   (httpd::controlWithoutAsking, control_ask.h), which takes the rule off. A
+   browser keeps a Basic pair it was given and sends it with whatever another
+   site makes it ask for, as it sends a cookie. A script or an app, which calls
+   itself something else, sends the pair because it was written to and is not
+   held back; one that calls itself Mozilla, as PowerShell does, is a browser
+   here. The old server's gate answers a browser's navigation held back this way
+   with the page that asks before the command runs (control_ask.h). */
 bool basicHeldBack(const Ask &a);
 
-/* What such a request is told instead of being asked for the login again,
-   which would only bring the same request back: open the address from the
-   box's web interface, and for a script that sends a browser's User-Agent,
-   as PowerShell does, how it passes: a User-Agent of its own or an Origin
-   header naming the box. Plain text, English and German. */
+/* What a request held back for where it came from is told where no page that asks
+   fits it, such as an image or a script's call: open the address from the box's
+   web interface, and for a script that sends a browser's User-Agent, as
+   PowerShell does, how it passes: a User-Agent of its own or an Origin header
+   naming the box. Plain text, English and German. */
 const char *heldBackText();
 
 /* Whether a request over the old server may change the account, and why not where it

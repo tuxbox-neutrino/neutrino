@@ -16,6 +16,7 @@
 //=============================================================================
 
 // c++
+#include <algorithm>
 #include <cstdarg>
 #include <cstdio>
 #include <cstring>
@@ -23,6 +24,7 @@
 #include <errno.h>
 #include <time.h>
 #include <unistd.h>
+#include <vector>
 
 // system
 #include <fcntl.h>
@@ -38,14 +40,132 @@
 #include <httpd/authority.h>
 #include <httpd/nhttpd_bridge.h>
 
+//-----------------------------------------------------------------------------
+// The head of a request, its request line and its header together: how long it
+// may take to arrive and how many bytes of the wire it may take, empty lines
+// before the request line and every line's ending as sent included, whatever
+// the method and the target. A peer that connects and sends nothing, stops
+// halfway through its header, or sends header lines without end is answered
+// and let go at one of these, so it holds a connection thread, and without
+// connection threads the server, no longer than this.
+//-----------------------------------------------------------------------------
+#define HEAD_TIMEOUT_MS		10000
+#define HEAD_LIMIT		(64 * 1024)
+
+// A clock a stepped system time cannot move: the head's deadline is kept on it.
+static long long headClockMs() {
+	struct timespec t;
+	clock_gettime(CLOCK_MONOTONIC, &t);
+	return (long long) t.tv_sec * 1000 + t.tv_nsec / 1000000;
+}
+
 //=============================================================================
 // Constructor & Destructor
 //=============================================================================
 CWebserverRequest::CWebserverRequest(CWebserver *pWebserver) {
 	RawBodyTooLarge = false;
+	HeadStarted = 0;
+	HeadBytes = 0;
 	Webserver = pWebserver;
 	CWebserverRequest();
 	Connection=NULL;
+}
+
+// What is left of the head's deadline, in milliseconds; 0 once it has passed.
+int CWebserverRequest::headTimeLeft() const {
+	const long long left = (long long) HEAD_TIMEOUT_MS - (headClockMs() - HeadStarted);
+	return left > 0 ? (int) left : 0;
+}
+
+//-----------------------------------------------------------------------------
+// A head that did not arrive whole. A peer that went away is answered nothing;
+// one still there gets 408 at the deadline and over_limit past the limit, and
+// is let go by lingering, more of what it sends perhaps still coming.
+//-----------------------------------------------------------------------------
+bool CWebserverRequest::headRefused(HttpResponseType over_limit) {
+	if (!Connection->sock->isValid)
+		return false;
+	log_level_printf(1, "HandleRequest: no whole request head within %d ms and %d bytes\n",
+			HEAD_TIMEOUT_MS, HEAD_LIMIT);
+	Connection->Response.SendError(headTimeLeft() > 0 ? over_limit : HTTP_REQUEST_TIMEOUT);
+	Connection->sock->linger_on_close = true;
+	Connection->RequestCanceled = true;
+	return false;
+}
+
+//-----------------------------------------------------------------------------
+// A header that arrived whole and is not one: answered 400 before any hook
+// sees the request, and let go by lingering.
+//-----------------------------------------------------------------------------
+bool CWebserverRequest::headerRefused() {
+	log_level_printf(1, "HandleRequest: header not well formed, refused\n");
+	Connection->Response.SendError(HTTP_BAD_REQUEST);
+	Connection->sock->linger_on_close = true;
+	Connection->RequestCanceled = true;
+	return false;
+}
+
+// A character a field name may carry (RFC 9110, 5.6.2: tchar).
+static bool nameChar(unsigned char c) {
+	if ((c >= '0' && c <= '9') || (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z'))
+		return true;
+	switch (c) {
+	case '!': case '#': case '$': case '%': case '&': case '\'': case '*': case '+':
+	case '-': case '.': case '^': case '_': case '`': case '|': case '~':
+		return true;
+	default:
+		return false;
+	}
+}
+
+// The fields the rules about where a request came from read, each one value a
+// request has (User-Agent, Origin, Referer, Sec-Fetch-*), lower-cased.
+static bool provenanceField(const std::string &lower) {
+	return lower == "user-agent" || lower == "origin" || lower == "referer" ||
+	       lower.compare(0, 10, "sec-fetch-") == 0;
+}
+
+//-----------------------------------------------------------------------------
+// Whether a header as read (every line ending in CRLF, the empty line last) is
+// one: each line a field name of token characters, a colon right after it, and
+// a value without a control character but the tab. So a line that continues
+// the one before it (obs-fold, a space or a tab first), a space before the
+// colon and a line without a colon are refused, as HTTP asks of a server
+// (RFC 9112, 5.1 and 5.2), rather than read as something the line does not say.
+// A field the rules about a request's origin read is one value: named twice,
+// in any spelling, the header is refused too, as the reader keeps only one of
+// them and a proxy in front may keep the other.
+//-----------------------------------------------------------------------------
+bool CWebserverRequest::headerWellFormed(const std::string &raw_header) {
+	std::vector<std::string> named;
+	size_t at = 0;
+	while (at < raw_header.size()) {
+		const size_t eol = raw_header.find("\r\n", at);
+		if (eol == std::string::npos)
+			return false;
+		const size_t from = at;
+		at = eol + 2;
+		if (eol == from)
+			return at == raw_header.size();
+		const size_t colon = raw_header.find(':', from);
+		if (colon == std::string::npos || colon >= eol || colon == from)
+			return false;
+		for (size_t i = from; i < colon; i++)
+			if (!nameChar((unsigned char) raw_header[i]))
+				return false;
+		for (size_t i = colon + 1; i < eol; i++) {
+			const unsigned char c = (unsigned char) raw_header[i];
+			if ((c < 0x20 && c != '\t') || c == 0x7f)
+				return false;
+		}
+		const std::string name = string_tolower(raw_header.substr(from, colon - from));
+		if (provenanceField(name)) {
+			if (std::find(named.begin(), named.end(), name) != named.end())
+				return false;
+			named.push_back(name);
+		}
+	}
+	return false;
 }
 
 //=============================================================================
@@ -61,20 +181,15 @@ CWebserverRequest::CWebserverRequest(CWebserver *pWebserver) {
 //	start-line      = Request-Line | Status-Line
 //-----------------------------------------------------------------------------
 bool CWebserverRequest::HandleRequest(void) {
+	HeadStarted = headClockMs();
+	HeadBytes = 0;
 	std::string start_line = "";
-	// read first line
+	// read first line: up to its LF, empty lines before it skipped and counted
 	do {
-		start_line = Connection->sock->ReceiveLine();
-		if (!Connection->sock->isValid)
-			return false;
-		if (start_line.empty()) // Socket empty
-		{
-			log_level_printf(1, "HandleRequest: End of line not found\n");
-			Connection->Response.SendError(HTTP_INTERNAL_SERVER_ERROR);
-			Connection->RequestCanceled = true;
-			return false;
-		}
-	} while (start_line == "\r\n"); // ignore empty lines at begin on start-line
+		if (!Connection->sock->ReceiveUntil("\n", start_line, HEAD_LIMIT - HeadBytes, headTimeLeft()))
+			return headRefused(HTTP_REQUEST_URI_TOO_LARGE);
+		HeadBytes += start_line.size();
+	} while (start_line == "\r\n" || start_line == "\n");
 
 	start_line = trim(start_line);
 	log_level_printf(1, "Request: %s\n", ylog::startLine(start_line).c_str());
@@ -92,18 +207,16 @@ bool CWebserverRequest::HandleRequest(void) {
 		return HandleApiRequest();
 
 	if (Connection->Method == M_GET || Connection->Method == M_HEAD) {
-		//read header (speed up: read rest of request in blockmode)
-		std::string tmp_line = Connection->sock->ReceiveBlock();
-		if (!Connection->sock->isValid) {
-			Connection->Response.SendError(HTTP_INTERNAL_SERVER_ERROR);
-			return false;
-		}
-
-		if (tmp_line.empty()) {
-			Connection->Response.SendError(HTTP_INTERNAL_SERVER_ERROR);
-			return false;
-		}
-		ParseHeader(tmp_line);
+		/* The whole header, up to its empty line, before anything is decided on
+		   it: the Host check, the sign-in and the rule that asks a browser first
+		   read headers a request may carry anywhere in it, and a header read as
+		   far as it had arrived could leave one of them out. */
+		std::string raw_header;
+		if (!readLegacyHeader(*Connection->sock, raw_header, HEAD_LIMIT - HeadBytes, headTimeLeft()))
+			return headRefused(HTTP_BAD_REQUEST);
+		if (!headerWellFormed(raw_header))
+			return headerRefused();
+		ParseHeader(raw_header);
 	}
 	// Other Methods. PATCH sits here with PUT: outside the API it is refused
 	// the way PUT always was, and the API branch above never reaches this.
@@ -279,22 +392,12 @@ void CWebserverRequest::analyzeURL(std::string url) {
 // Handle Post (a form; no upload)
 //-----------------------------------------------------------------------------
 bool CWebserverRequest::HandlePost() {
-	//read header: line by line
-	std::string raw_header = "", tmp_line = "";
-	// A peer that closes before the empty line ends this loop: at the end of
-	// the connection ReceiveLine() hands back an empty line, answered below.
-	do {
-		tmp_line = Connection->sock->ReceiveLine();
-		if (tmp_line.empty()) // Socket empty
-		{
-			log_level_printf(1,
-					"HandleRequest: (Header) End of line not found: %s\n",
-					strerror(errno));
-			Connection->Response.SendError(HTTP_INTERNAL_SERVER_ERROR);
-			return false;
-		}
-		raw_header.append(tmp_line);
-	} while (tmp_line != "\r\n"); // header ends with first empty line
+	// the whole header, under the head's one deadline and one limit
+	std::string raw_header;
+	if (!readLegacyHeader(*Connection->sock, raw_header, HEAD_LIMIT - HeadBytes, headTimeLeft()))
+		return headRefused(HTTP_BAD_REQUEST);
+	if (!headerWellFormed(raw_header))
+		return headerRefused();
 	ParseHeader(raw_header);
 
 	// The request boundary's question (CAuthorityGate), asked before the body
@@ -399,7 +502,6 @@ bool CWebserverRequest::HandlePost() {
 #if POST_FORM_MAX_LENGTH != API_BODY_LIMIT
 #error "POST_FORM_MAX_LENGTH and API_BODY_LIMIT are one ceiling"
 #endif
-#define API_HEADER_LIMIT	(64 * 1024)
 // How much of a refused body is still read and dropped, so the 413 reaches
 // the caller instead of a reset. Past this the caller is left with the reset.
 #define API_DRAIN_CAP		(16 * 1024 * 1024)
@@ -415,13 +517,11 @@ bool CWebserverRequest::HandleApiRequest() {
 	}
 
 	std::string raw_header;
-	if (!readApiHeader(*Connection->sock, raw_header, API_HEADER_LIMIT, API_BODY_TIMEOUT_MS)) {
-		log_level_printf(1, "HandleApiRequest: header not read whole: %s\n", strerror(errno));
-		Connection->Response.SendError(HTTP_BAD_REQUEST);
-		Connection->sock->linger_on_close = true;
-		Connection->RequestCanceled = true;
-		return false;
-	}
+	// within what the request line left of the head's deadline and limit
+	if (!readApiHeader(*Connection->sock, raw_header, HEAD_LIMIT - HeadBytes, headTimeLeft()))
+		return headRefused(HTTP_BAD_REQUEST);
+	if (!headerWellFormed(raw_header))
+		return headerRefused();
 	ParseHeader(raw_header);
 
 	long long length = 0;
@@ -527,6 +627,33 @@ bool CWebserverRequest::readApiHeader(CySocket &sock, std::string &raw_header, s
 			return false;
 		// the reader's contract is "each line, the empty one last", which is
 		// what the line-by-line legacy path produced
+		raw_header += line;
+		if (line == "\r\n")
+			return true;
+	}
+}
+
+//-----------------------------------------------------------------------------
+// The header of a request to the old interface, the same way: one limit and one
+// deadline for all its lines, nothing past the empty line. A line may also end
+// in a LF alone, as the old interface always took it, and is kept with the
+// CRLF the header's reader splits on.
+//-----------------------------------------------------------------------------
+bool CWebserverRequest::readLegacyHeader(CySocket &sock, std::string &raw_header, size_t limit, int timeout_ms) {
+	raw_header.clear();
+	const long long started = headClockMs();
+	// the bytes as they came off the wire, before a LF alone is made a CRLF
+	size_t taken = 0;
+	for (;;) {
+		const long long left = (long long) timeout_ms - (headClockMs() - started);
+		if (left <= 0 || taken >= limit)
+			return false;
+		std::string line;
+		if (!sock.ReceiveUntil("\n", line, limit - taken, (int) left))
+			return false;
+		taken += line.size();
+		if (line.size() < 2 || line[line.size() - 2] != '\r')
+			line.insert(line.size() - 1, "\r");
 		raw_header += line;
 		if (line == "\r\n")
 			return true;

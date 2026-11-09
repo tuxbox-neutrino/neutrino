@@ -121,3 +121,12 @@ std::vector<std::string> keptPlaces() { return std::vector<std::string>(); }
 std::string rootRefused(const std::string &, const std::vector<std::string> &);
 std::string rootRefused(const std::string &, const std::vector<std::string> &) { return std::string(); }
 }
+
+/* The page that asks before a command of the old interface runs hides a value by the
+   rule the web log reads parameter names by (ylogging.cpp); the dump builds no such
+   page, and here every name counts as one that holds a secret. */
+namespace ylog
+{
+bool secretParam(const std::string &);
+bool secretParam(const std::string &) { return true; }
+}

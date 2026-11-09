@@ -170,11 +170,12 @@ own login box; <code>401</code> only means that a login did not match.</p>
 <h2 id="errors-h">When a request is refused</h2>
 <div class="prose">
 <p>A refusal from the API is a problem document as defined by RFC 9457, sent
-as <code>application/problem+json</code>. The exceptions are three refusals
+as <code>application/problem+json</code>. The exceptions are four refusals
 the web server sends before a request reaches the API: <code>400</code> for
-a request it cannot read, <code>408</code> for a body that does not arrive
-in time, and <code>501</code> for a method it does not take. They come as a
-status line and headers, with no body.</p>
+a request it cannot read, <code>408</code> for a request or a body that does
+not arrive in time, <code>414</code> for a request line too long to read, and
+<code>501</code> for a method it does not take. They come as a status line
+and headers, with no body.</p>
 <p>A problem document looks like this:</p>
 </div>
 <pre><code>HTTP/1.0 409 Conflict

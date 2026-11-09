@@ -32,6 +32,13 @@ public:
 protected:
 	std::string no_auth_client;
 
+	// The box asks before a browser runs a command of the old interface
+	// (httpd/control_ask.h).
+	static THandleStatus AskFirst(CyhookHandler *hh);
+	static THandleStatus Confirmed(CyhookHandler *hh, const login_bridge::Ask &ask);
+	static THandleStatus AskBeforeRunning(CyhookHandler *hh);
+	static void AnswerAsked(CyhookHandler *hh, const char *type, const std::string &body, bool page);
+
 	static std::string GetHeader(CyhookHandler *hh, const std::string &name);
 	static bool IsBrowserNavigation(CyhookHandler *hh);
 	static bool ReturnsToPage(const std::string &url);

@@ -27,6 +27,15 @@ private:
 	bool ParseParams(std::string param_string);
 	bool ParseHeader(std::string header);
 
+	// When the request's head, its request line and header, began to be read,
+	// and how many bytes of the wire it took so far: one deadline and one limit
+	// hold for all of it.
+	long long HeadStarted;
+	size_t HeadBytes;
+	int headTimeLeft() const;
+	bool headRefused(HttpResponseType over_limit);
+	bool headerRefused();
+
 protected:
 	std::string rawbuffer;
 
@@ -66,8 +75,18 @@ public:
 	static bool readApiHeader(class CySocket &sock, std::string &raw_header, size_t limit, int timeout_ms);
 	bool HandleApiRequest(void);
 
+	// The header of a request to the old interface, likewise whole and bounded,
+	// where a line may also end in a LF alone; it is kept with a CRLF. limit
+	// counts the bytes as they came, before that.
+	static bool readLegacyHeader(class CySocket &sock, std::string &raw_header, size_t limit, int timeout_ms);
+
+	// Whether a header as read is one: field names of token characters with
+	// the colon right after them, no line continuing the one before, and no
+	// control character but the tab in a value.
+	static bool headerWellFormed(const std::string &raw_header);
+
 	// constructor & destructor
-	CWebserverRequest() : RawBodyTooLarge(false) {};
+	CWebserverRequest() : HeadStarted(0), HeadBytes(0), RawBodyTooLarge(false) {};
 	CWebserverRequest(CWebserver *pWebserver);
 	// Handler
 	bool HandleRequest(void);

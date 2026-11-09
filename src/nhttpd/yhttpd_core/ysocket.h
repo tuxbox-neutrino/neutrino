@@ -31,10 +31,6 @@
 #endif
 
 //-----------------------------------------------------------------------------
-#define RECEIVE_BLOCK_LEN 	1024	// receiving block length
-#define MAX_LINE_BUFFER 	1024*2	// Max length of one line
-
-//-----------------------------------------------------------------------------
 class CySocket
 {
 public:
@@ -73,8 +69,6 @@ public:
 #endif
 	// send & receive
 	bool 		SendFile(int filed, off_t start = 0, off_t size = -1); // Send a File
-	std::string 	ReceiveBlock();					// receive a Block. Look at length
-	std::string 	ReceiveLine();					// receive until "\n"
 	// Exactly length bytes into out, or false: the peer closed, an error, or
 	// timeout_ms passed without them. Bytes beyond length stay on the socket.
 	bool		ReceiveExact(std::string &out, size_t length, int timeout_ms);
@@ -86,9 +80,18 @@ public:
 	// timeout_ms passed first. A refusal that closes on unread bytes turns
 	// into a reset on the way to the peer; this is what makes it readable.
 	bool		Discard(size_t length, int timeout_ms);
-	// Every byte of data, or false after the peer went away. Send() alone
-	// reports a partial write as success.
+	// Every byte of data, or false after the peer went away, or after it
+	// took nothing for sendIdleMs(). Send() alone reports a partial write as
+	// success.
 	bool		SendAll(const char *data, size_t length);
+	/* How long a write waits for a peer that takes nothing, counted from the
+	   last byte it took: 30 seconds, the limit the carried answers give a
+	   peer that takes nothing (carry.h). A case sets another; 0 puts the
+	   shipped one back. */
+	static unsigned	sendIdleMs();
+	static void	setSendIdleMsForTest(unsigned ms);
+	// How often such a wait looks at what the peer took: 200 ms; 0 puts that back.
+	static void	setSendSliceMsForTest(unsigned ms);
 	// The close a server owes a caller whose request it refused without
 	// reading the body: the answer leaves behind a FIN, and whatever the
 	// caller still sends is read and dropped until it closes, timeout_ms
@@ -114,6 +117,9 @@ protected:
 	SSL		*ssl;						// ssl habdler for this socket
 #endif
 private:
+	// Until the socket takes more, or false once the peer took nothing since
+	// moved_at for sendIdleMs(); what it takes meanwhile moves moved_at on.
+	bool		waitToSend(long long &moved_at, int &queued_was);
 	std::string	receive_buffer;					// buffer for receive from socket 
 	sockaddr_in	addr;						// "slave" Client Socket Data
 	socklen_t	addr_len;					// Length of addr struct
