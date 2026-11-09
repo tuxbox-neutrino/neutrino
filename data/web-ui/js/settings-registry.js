@@ -488,6 +488,9 @@ var SETTINGS_REGISTRY = [
 					// read only, kept in nhttpd-access.conf beside trusted_proxies, which no row shows
 					{ key: 'allowed_hosts', label: webuiL('reg.allowed_hosts', 'Other names of the box'), type: 'info',
 					  hint: webuiL('reg.allowed_hosts_hint', 'besides its IP address and the names of the home network (without a dot, with .local or with the router\'s domain), the box answers only to these names, such as a DynDNS name or the name of a proxy; they are added to the line allowed_hosts in nhttpd-access.conf, names only and no comment on the line, and count within 10 seconds') },
+					// kept in nhttpd-access.conf beside allowed_hosts, and in effect at once
+					{ key: 'control_without_asking', label: webuiL('reg.control_without_asking', 'Run commands without asking'), type: 'bool',
+					  hint: webuiL('reg.control_without_asking_hint', 'a browser that opens a command of the old interface (an address under /control/ and the like) from a bookmark, a link or another site runs it without the box asking first; a page on another site could then run such commands too. Off, the box asks each time') },
 					{ key: 'port', label: 'Port', type: 'number', min: 1, max: 65535 }
 				]
 			},

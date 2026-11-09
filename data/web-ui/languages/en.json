@@ -732,6 +732,8 @@
 	"reg.noauth_client_hint": "callers whose address begins with this see the pages without the login, and so does the box itself, unless a proxy is entered in nhttpd-access.conf (trusted_proxies); a change made in the web interface still asks for the sign-in",
 	"reg.allowed_hosts": "Other names of the box",
 	"reg.allowed_hosts_hint": "besides its IP address and the names of the home network (without a dot, with .local or with the router's domain), the box answers only to these names, such as a DynDNS name or the name of a proxy; they are added to the line allowed_hosts in nhttpd-access.conf, names only and no comment on the line, and count within 10 seconds",
+	"reg.control_without_asking": "Run commands without asking",
+	"reg.control_without_asking_hint": "a browser that opens a command of the old interface (an address under /control/ and the like) from a bookmark, a link or another site runs it without the box asking first; a page on another site could then run such commands too. Off, the box asks each time",
 	"reg.off": "Off",
 	"reg.on": "On",
 	"reg.output": "Output",
