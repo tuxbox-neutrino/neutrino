@@ -1113,7 +1113,19 @@ function followTheBox() {
 			refreshChannel(false);
 			loadStreamInfo();
 		},
-		standby: function() { refreshStandby(); refreshChannel(false); refreshPlayback(); webuiPowerRead(); },
+		// the value says the state (1 in standby, 0 awake), as it does for
+		// the head's power key; one without it is read
+		standby: function(d) {
+			if (d && (d.value === 0 || d.value === 1)) {
+				dash.standbyRead++;	// a read begun before this is out of date
+				dash.standby = d.value === 1;
+				updateModeUI();
+			} else {
+				refreshStandby();
+			}
+			refreshChannel(false);
+			refreshPlayback();
+		},
 		// a timer's change of state when a recording begins or ends comes as
 		// timer-changed as well, so the record events read no timers; the
 		// recordings themselves are the shared read's (webuiOnRecordings)

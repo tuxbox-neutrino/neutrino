@@ -1636,9 +1636,12 @@ function webuiUpdateClock() {
 
 /* The power key in the head. Its colour says whether the box is in standby;
    going to standby is asked first, waking is not. The box can also be
-   switched with its own remote control and no event says so on every page,
-   so the state is read when the page opens, when it comes back into view,
-   every half minute while it is shown and after the key was pressed. */
+   switched with its own remote control. The key takes the state from the
+   standby event of the stream the page opens (its value: 1 in standby, 0
+   awake) and reads it when the page opens, after the stream came back
+   after a gap and after the key was pressed; without a live stream (a page
+   that opens none, a box that carries none) also when the page comes back
+   into view and every half minute while it is shown (webuiFollow). */
 function _webuiPowerShow(awake) {
 	var btn = document.getElementById('webui-power-btn');
 	if (!btn) return;
@@ -1649,16 +1652,38 @@ function _webuiPowerShow(awake) {
 	btn.setAttribute('aria-label', text);
 }
 
+// Counts what told the key its state, a read begun or an event: the answer
+// of a read is shown only if nothing told the key anything since it began
+var _webuiPowerSaid = 0;
+var WEBUI_POWER_POLL = 30000;
+
+async function _webuiPowerLook() {
+	var said = ++_webuiPowerSaid;
+	var st = await _webuiV1Read('/system/standby');
+	if (st && said === _webuiPowerSaid) _webuiPowerShow(!st.on);
+	return st;
+}
+
 /* The state read without a sign-in, as the head's other reads are: a caller
    the box lets read nothing gets no sign-in dialog from the key's own
-   reading, only from a press. Also for a page that learned of a change (the
-   dashboard's standby event). */
+   reading, only from a press. Resolves false when the box did not answer. */
 async function webuiPowerRead() {
 	if (document.hidden) return;
 	try {
-		var st = await _webuiV1Read('/system/standby');
-		if (st) _webuiPowerShow(!st.on);
-	} catch (e) { /* the key keeps what it showed */ }
+		await _webuiPowerLook();
+	} catch (e) {
+		return false;	// the key keeps what it showed
+	}
+}
+
+// The standby event says the state itself; one without a value is read
+function _webuiPowerEvent(d) {
+	if (!d || (d.value !== 0 && d.value !== 1)) {
+		webuiPowerRead();
+		return;
+	}
+	++_webuiPowerSaid;
+	_webuiPowerShow(d.value !== 1);
 }
 
 /* After a press: the box takes the request at once and switches a moment
@@ -1669,14 +1694,14 @@ function _webuiPowerSettle(standby) {
 	var tries = 0;
 	var look = async function() {
 		var st = null;
-		try { st = await _webuiV1Read('/system/standby'); } catch (e) { /* read again */ }
-		if (st) _webuiPowerShow(!st.on);
+		try { st = await _webuiPowerLook(); } catch (e) { /* read again */ }
 		var done = standby === null ? tries >= 2 : (st && !!st.on === standby);
 		if (!done && ++tries < 6) setTimeout(look, 2000);
 	};
 	setTimeout(look, 2000);
 }
 
+var _webuiPowerFollowed = false;
 function _webuiPowerInit() {
 	var btn = document.getElementById('webui-power-btn');
 	if (!btn) return;
@@ -1685,11 +1710,10 @@ function _webuiPowerInit() {
 		btn.hidden = true;
 		return;
 	}
-	webuiPowerRead();
-	setInterval(webuiPowerRead, 30000);
-	document.addEventListener('visibilitychange', function() {
-		if (!document.hidden) webuiPowerRead();
-	});
+	if (_webuiPowerFollowed) return;
+	_webuiPowerFollowed = true;
+	webuiV1Watch('standby', _webuiPowerEvent);
+	webuiFollow({every: WEBUI_POWER_POLL, reread: webuiPowerRead});
 }
 
 // Standby after asking, waking without; for the head and the dashboard
