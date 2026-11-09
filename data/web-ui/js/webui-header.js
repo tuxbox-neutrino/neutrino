@@ -1684,21 +1684,94 @@ function _webuiPowerEvent(d) {
 	}
 	++_webuiPowerSaid;
 	_webuiPowerShow(d.value !== 1);
+	var press = _webuiPowerPress;
+	if (press && !press.over && (press.want === null || press.want === (d.value === 1)))
+		_webuiPowerEnd(press);
 }
 
-/* After a press: the box takes the request at once and switches a moment
-   later, so the state is read every 2 s until it is the one asked for
-   (standby true or false), at most six times; with nothing asked for
-   (null) three times. */
-function _webuiPowerSettle(standby) {
-	var tries = 0;
-	var look = async function() {
-		var st = null;
-		try { st = await _webuiPowerLook(); } catch (e) { /* read again */ }
-		var done = standby === null ? tries >= 2 : (st && !!st.on === standby);
-		if (!done && ++tries < 6) setTimeout(look, 2000);
-	};
-	setTimeout(look, 2000);
+/* A press of the user's that switches the box (the key, the dashboard's
+   Standby, the power key of the remote control) waits for the box: the 202
+   says no more than that it took the request on. The key, and the button
+   pressed where that is another, stay busy (a spinner, aria-busy) and take
+   no second press until a standby event or a read says the box is in the
+   state asked for (want: true standby, false awake); the key shows nothing
+   the box has not said. With a live stream the event confirms it, and a
+   read after 6 s and at WEBUI_POWER_LIMIT stands in for an event missed;
+   without one the state is read every 2 s. A box that has not switched by
+   the last read is shown as it is, with a warning; a last read that fails,
+   or gives no answer within WEBUI_POWER_CHECK, warns that this could not
+   be checked. A press of the remote's toggle whose state could not be read
+   first (want null) ends with any standby event or the last read, without
+   a word. The press counts in _webuiPowerSaid: a read begun before it shows
+   nothing. */
+var WEBUI_POWER_LIMIT = 12000;
+var WEBUI_POWER_CHECK = 10000;
+var _webuiPowerPress = null;	// the press under way
+
+function _webuiPowerBusy() {
+	return !!(_webuiPowerPress && !_webuiPowerPress.over);
+}
+
+function _webuiPowerBegin(want, btn) {
+	++_webuiPowerSaid;
+	var press = {want: want, btns: [], timers: [], over: false};
+	[document.getElementById('webui-power-btn'), btn].forEach(function(b) {
+		if (b && press.btns.indexOf(b) < 0) {
+			_webuiWaitMark(b, true);
+			press.btns.push(b);
+		}
+	});
+	_webuiPowerPress = press;
+	return press;
+}
+
+// The box took the request on: the reads that stand in for the event
+function _webuiPowerSent(press) {
+	if (press.over)
+		return;
+	var live = typeof webuiV1EventsLive === 'function' && webuiV1EventsLive();
+	var at = live ? [6000, WEBUI_POWER_LIMIT] : [2000, 4000, 6000, 8000, 10000, WEBUI_POWER_LIMIT];
+	at.forEach(function(ms, i) {
+		press.timers.push(setTimeout(function() { _webuiPowerCheck(press, i === at.length - 1); }, ms));
+	});
+}
+
+async function _webuiPowerCheck(press, last) {
+	if (press.over)
+		return;
+	var limit = null;
+	var read = _webuiPowerLook().catch(function() { return null; });
+	var st = !last ? await read : await Promise.race([read,
+		new Promise(function(done) { limit = setTimeout(function() { done(null); }, WEBUI_POWER_CHECK); })]);
+	clearTimeout(limit);
+	if (press.over)
+		return;
+	if (st && press.want !== null && !!st.on === press.want) {
+		_webuiPowerEnd(press);
+		return;
+	}
+	if (!last)
+		return;
+	_webuiPowerEnd(press);
+	if (st) {
+		++_webuiPowerSaid;
+		_webuiPowerShow(!st.on);
+	}
+	if (press.want === null)
+		return;
+	webuiShowToast(!st ? webuiL('sb.unchecked', 'Could not check whether the box switched.')
+		: press.want ? webuiL('sb.not_asleep', 'The box has not gone to standby yet.')
+		: webuiL('sb.not_awake', 'The box has not woken up yet.'), 'warn');
+}
+
+function _webuiPowerEnd(press) {
+	if (press.over)
+		return;
+	press.over = true;
+	press.timers.forEach(clearTimeout);
+	press.btns.forEach(function(b) { _webuiWaitMark(b, false); });
+	if (_webuiPowerPress === press)
+		_webuiPowerPress = null;
 }
 
 var _webuiPowerFollowed = false;
@@ -1716,13 +1789,26 @@ function _webuiPowerInit() {
 	webuiFollow({every: WEBUI_POWER_POLL, reread: webuiPowerRead});
 }
 
-// Standby after asking, waking without; for the head and the dashboard
+// Standby after asking, waking without; for the head and the dashboard.
+// A press while one is under way does nothing (_webuiPowerBegin).
 async function webuiPowerKey() {
+	if (_webuiPowerBusy())
+		return;
+	var origin = webuiWaitButton();
 	var send = async function(on) {
-		await webuiV1('POST', '/system/standby', {body: {on: on}});
-		webuiShowToast(on ? webuiL('sb.sleep', 'Box goes to standby') : webuiL('sb.wake', 'Waking the box'));
-		_webuiPowerShow(!on);
-		_webuiPowerSettle(on);
+		if (_webuiPowerBusy())
+			return;
+		var press = _webuiPowerBegin(on, origin);
+		try {
+			await webuiV1('POST', '/system/standby', {body: {on: on}});
+		} catch (e) {
+			_webuiPowerEnd(press);
+			throw e;
+		}
+		// under way, not done (a note); the event may have come before the answer
+		if (!press.over)
+			webuiShowToast(on ? webuiL('sb.sleep', 'Box goes to standby') : webuiL('sb.wake', 'Waking the box'), 'note');
+		_webuiPowerSent(press);
 	};
 	try {
 		var st = await webuiV1('GET', '/system/standby');
@@ -2158,16 +2244,28 @@ async function webuiSendKey(key) {
 		? function() { return webuiV1('POST', '/osd/remote/key', {body: {name: key}, mark: false}); }
 		: function() { return webuiApi('rcem', key, {raw: true}); };
 	if (key === 'KEY_POWER') {
-		var press = send;
+		// one press of the box's power at a time, as the head's key
+		if (_webuiPowerBusy())
+			return;
+		var origin = webuiWaitButton();
+		var sendKey = send;
 		var awake = null;
-		/* the power key in the head follows what this key did: it toggles, so
-		   a box that was awake goes to standby (true) and one in standby
+		/* the power key in the head waits for what this key did: it toggles,
+		   so a box that was awake goes to standby (true) and one in standby
 		   wakes (false); unknown where the state could not be read */
-		send = function() {
-			return press().then(function(r) {
-				_webuiPowerSettle(awake);
-				return r;
-			});
+		send = async function() {
+			if (_webuiPowerBusy())
+				return;
+			var power = _webuiPowerBegin(awake, origin);
+			var r;
+			try {
+				r = await sendKey();
+			} catch (e) {
+				_webuiPowerEnd(power);
+				throw e;
+			}
+			_webuiPowerSent(power);
+			return r;
 		};
 		try {
 			awake = v1
