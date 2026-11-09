@@ -498,7 +498,7 @@ async function readRecent(quiet) {
 				webuiEl('span', {}, title, webuiEl('small', {}, [r.channel, len].filter(Boolean).join(' · '))),
 				webuiEl('button', {type: 'button', className: 'webui-btn', title: webuiL('media.play', 'Play on TV'),
 					data: {play: r.id}, attrs: {'aria-label': webuiL('media.play', 'Play on TV') + ': ' + title},
-					on: {click: function() { playRecent(r.id); }}},
+					on: {click: function() { playRecent(r.id, title); }}},
 					webuiMarkup('<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><polygon points="6 4 20 12 6 20"/></svg>')));
 		});
 	}
@@ -529,28 +529,59 @@ function recentLock() {
 	return can === false ? '' : webuiPlayLockText(p);
 }
 
+/* The start under way, {id, title}, from the press of Play on TV until the
+   box has said whether the TV plays the recording: the other Plays of the
+   card wait meanwhile, so no second start goes out beside it (a box without
+   the route to stop a playback would meet its question twice). */
+let starting = null;
+
+// Why Play on TV of one recording of the card waits, '' where it does not:
+// the TV plays something (recentLock), else another recording is starting
+function recentLockFor(id) {
+	if (starting && starting.id === id)
+		return '';
+	return recentLock() || (starting
+		? webuiL('media.lock_starting', '“%s” is starting on the TV. Wait a moment.').replace('%s', function() { return starting.title; })
+		: '');
+}
+
 function lockRecent() {
-	const why = recentLock();
 	document.querySelectorAll('#recent-list button[data-play]').forEach(function(b) {
-		webuiPlayLock(b, why, webuiL('media.play', 'Play on TV'));
+		const id = b.dataset.play;
+		webuiPlayLock(b, recentLockFor(id), webuiL('media.play', 'Play on TV'));
+		// busy from the press until the box has said, also a button the
+		// list drew anew meanwhile
+		const busy = !!starting && starting.id === id;
+		if (busy !== !!b._busyMarked) {
+			b._busyMarked = busy;
+			_webuiWaitMark(b, busy);
+		}
 	});
 }
 
 // a press while it waits says why and starts nothing; one that goes out
 // keeps its button busy until the TV plays the recording, which the box
 // says by a playback event or a read (webuiPlayRecordingConfirmed), and
-// only then is "Playback started" said
-function playRecent(id) {
-	const why = recentLock();
+// only then is "Playback started" said; the other Plays wait meanwhile
+function playRecent(id, title) {
+	if (starting && starting.id === id)
+		return;
+	const why = recentLockFor(id);
 	if (why) {
 		webuiShowToast(why, 'note');
 		return;
 	}
-	webuiPlayRecordingConfirmed(id).then(function(started) {
+	const mine = starting = {id: id, title: title};
+	lockRecent();
+	webuiPlayRecordingConfirmed(id).then(async function(started) {
 		// the card and the lock show what plays now, which a confirmation
-		// by a read, not by the event, did not bring
+		// by a read, not by the event, did not bring; the others wait until
+		// they do
 		if (started)
-			refreshPlayback();
+			await refreshPlayback();
+		if (starting === mine)
+			starting = null;
+		lockRecent();
 	});
 }
 
