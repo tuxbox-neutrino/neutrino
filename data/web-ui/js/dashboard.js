@@ -603,36 +603,42 @@ function showRecording() {
 async function toggleRecording() {
 	const btn = document.getElementById('rec-btn');
 	if (!btn) return;
-	if (btn.classList.contains('recording'))
+	// a stop under way takes no press: the busy button stops a click or a
+	// tap but not Enter, and the band may say "not recording" by now, which
+	// would start one
+	if (btn._webuiStopRun) return;
+	if (btn.classList.contains('recording')) {
+		// the reads that wait for the box to end it are the helper's: none
+		// is made on the side
 		await stopShownRecording();
-	else if (dash.channel)
+		return;
+	}
+	if (dash.channel)
 		webuiRecordEvent(dash.channel.id, dash.channel.name, dash.now);
-	// without the event stream nothing would say so
+	// without the event stream nothing would say that it began
 	setTimeout(function() { if (!webuiV1EventsLive()) refreshEvented(true); }, 1500);
 }
 
 // The recording the band shows, as a read at the press finds it
 // (webuiRecordingsRead), and no other: one that ended since leaves nothing
 // to stop, and the band follows that read without a word; a read that
-// fails stops nothing. Called by the click before its first await, so the
-// button shows that the press is under way, read and stop alike.
-async function stopShownRecording() {
-	const busy = webuiWaitBegin(webuiWaitButton());
-	try {
-		const shown = dash.recordings[0] ? dash.recordings[0].id : null;
+// fails stops nothing, and one whose sign-in the user declined says nothing
+// either. The button says that the stop is under way from the press until
+// the box has ended the recording (webuiStopRecordingConfirmed:
+// a record-stop event or the shared read tells), and stays on this button:
+// no opts.channel is passed, the key a page chooses for a press, by which a
+// button that serves several keys takes the stop over (the programme
+// dialog's Record serves channel ids): this button would be left busy for
+// good when that dialog opens. Called by the click.
+function stopShownRecording() {
+	const shown = dash.recordings[0] || null;
+	return webuiStopRecordingConfirmed(async function() {
 		const view = await webuiRecordingsRead({signIn: true});
-		if (view.stale) {
-			webuiShowToast(webuiL('rec.stop_fail', 'Stop failed'), true);
-			return;
-		}
-		const rec = shown === null ? null : view.items.find(function(it) { return it.id === shown; });
-		if (rec)
-			await webuiStopRecording(rec.id);
-		else
-			showRecording();
-	} finally {
-		busy();
-	}
+		if (view.stale)
+			return view.declined ? false : undefined;
+		const rec = shown && view.items.find(function(it) { return it.id === shown.id; });
+		return rec ? {id: rec.id, title: rec.title || webuiNames[rec.channel_id] || ''} : null;
+	}, {button: document.getElementById('rec-btn')});
 }
 
 // Standby: wake a sleeping box, put an awake one to sleep after asking,
