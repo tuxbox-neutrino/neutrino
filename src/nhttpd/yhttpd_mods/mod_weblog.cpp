@@ -240,7 +240,8 @@ bool CmWebLog::openLocked() {
 	if (fresh && LogFormat == "ELF") {
 		fputs("#Version: 1.0\n", WebLogFile);
 		fputs("#Remarks: " WEBSERVERNAME "\n", WebLogFile);
-		fputs("#Fields: c-ip username date time x-request cs-uri sc-status cs-method bytes time-taken x-time-request x-time-response cached\n", WebLogFile);
+		// one name for each field recordELF writes, in its order
+		fputs("#Fields: c-ip date time x-request cs-uri sc-status cs-method bytes time-taken x-time-request x-time-response cached\n", WebLogFile);
 		fflush(WebLogFile);
 	}
 	return true;

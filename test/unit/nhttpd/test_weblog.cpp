@@ -338,6 +338,76 @@ TEST_CASE("a log named anew is written from the next record on, the old one left
 	unlink(second);
 }
 
+namespace {
+// the fields of an extended log line: separated by blanks, a quoted one whole
+size_t fieldsOf(const std::string &line)
+{
+	size_t n = 0;
+	bool quoted = false, inside = false;
+	for (size_t i = 0; i < line.size(); i++) {
+		const char c = line[i];
+		if (c == '"')
+			quoted = !quoted;
+		if ((c == ' ' || c == '\n') && !quoted) {
+			inside = false;
+			continue;
+		}
+		if (!inside)
+			n++;
+		inside = true;
+	}
+	return n;
+}
+} // namespace
+
+TEST_CASE("the extended log names every field its records carry, in their order", "[nhttpd]")
+{
+	char name[] = "/tmp/test_weblog_log_XXXXXX";
+	const int made = mkstemp(name);
+	REQUIRE(made >= 0);
+	close(made);
+	CyhookHandler hh;
+	hh.UrlData["clientaddr"] = "192.0.2.1";
+	hh.UrlData["startline"] = "GET /a b HTTP/1.1";
+	hh.UrlData["target"] = "/a";
+	hh.HookVarList["enlapsed_request"] = "1";
+	hh.HookVarList["enlapsed_response"] = "2";
+	hh.Method = M_GET;
+	hh.httpStatus = HTTP_OK;
+
+	CmWebLog weblog;
+	CStringList list;
+	CConfigFile config(',');
+	config.setString("mod_weblog.log_format", "ELF");
+	config.setString("mod_weblog.logfile", name);
+	weblog.Hook_ReadConfig(&config, list);
+	weblog.Hook_EndConnection(&hh);
+	const std::string written = readFile(name);
+
+	std::string fields, record;
+	size_t start = 0;
+	while (start < written.size()) {
+		size_t end = written.find('\n', start);
+		if (end == std::string::npos)
+			end = written.size();
+		const std::string line = written.substr(start, end - start);
+		if (line.compare(0, 9, "#Fields: ") == 0)
+			fields = line.substr(9);
+		else if (!line.empty() && line[0] != '#')
+			record = line;
+		start = end + 1;
+	}
+	REQUIRE_FALSE(fields.empty());
+	REQUIRE_FALSE(record.empty());
+	CHECK(fieldsOf(fields) == fieldsOf(record));
+	CHECK(fields.compare(0, 13, "c-ip date tim") == 0);
+
+	config.setString("mod_weblog.log_format", "");
+	config.setString("mod_weblog.logfile", LOG_FILE);
+	weblog.Hook_ReadConfig(&config, list);
+	unlink(name);
+}
+
 TEST_CASE("a log that cannot be opened for a moment is tried again with the next record", "[nhttpd]")
 {
 	char name[] = "/tmp/test_weblog_log_XXXXXX";
