@@ -1471,7 +1471,7 @@ function webuiPlayInBrowser(channelId, channelName, kind) {
 	if (!channelId) return;
 	const codec = webuiUnplayableVideo(channelId);
 	if (codec) {
-		webuiShowToast(webuiUnplayableText(channelName, codec, true));
+		webuiShowToast(webuiUnplayableText(channelName, codec, true), 'note');
 		return;
 	}
 	if (!_webuiPlayerLoad)

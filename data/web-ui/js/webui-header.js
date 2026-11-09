@@ -3788,17 +3788,25 @@ function _webuiToastHost() {
 	return host;
 }
 
-// Toast notification: one at a time, at the bottom and above the phone's
-// tab bar; an error stays twice as long, and a click takes a message away.
+/* Toast notification: one at a time, at the bottom and above the phone's
+   tab bar. kind says what it is: 'ok' (done; also false or left out),
+   'note' (worth knowing, nothing went wrong: neutral), 'warn' (not done, or
+   not yet) and 'error' (also true, or anything else that is not false). A
+   note, a warning or an error stays twice as long as a success, as each
+   asks to be read; an error is announced at once, and a click takes a
+   message away. */
 var _webuiToastSeq = 0;	// counts the messages, so only the newest is shown
-function webuiShowToast(message, isError) {
+var WEBUI_TOAST_KINDS = {ok: true, note: true, warn: true, error: true};
+function webuiShowToast(message, kind) {
+	if (typeof kind !== 'string' || !Object.prototype.hasOwnProperty.call(WEBUI_TOAST_KINDS, kind))
+		kind = kind ? 'error' : 'ok';
 	const existing = document.getElementById('webui-toast');
 	if (existing) existing.remove();
 
 	const toast = document.createElement('div');
 	toast.id = 'webui-toast';
-	toast.className = 'webui-toast ' + (isError ? 'error' : 'ok');
-	if (isError) toast.setAttribute('role', 'alert');
+	toast.className = 'webui-toast ' + kind;
+	if (kind === 'error') toast.setAttribute('role', 'alert');
 	toast.textContent = message;
 	toast.addEventListener('click', function() { toast.remove(); });
 	const host = _webuiToastHost() || document.body;
@@ -3812,7 +3820,7 @@ function webuiShowToast(message, isError) {
 	} else {
 		host.appendChild(toast);
 	}
-	const shown = isError ? 6000 : 3000;
+	const shown = kind === 'ok' ? 3000 : 6000;
 	setTimeout(() => { toast.classList.add('leaving'); }, shown - 500);
 	setTimeout(() => { toast.remove(); }, shown);
 }

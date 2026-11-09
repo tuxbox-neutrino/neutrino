@@ -800,6 +800,16 @@ html.webui-side-narrow .webui-side .webui-side-toggle {
 	background: #b42318;
 }
 
+/* a note (worth knowing, nothing went wrong) in a neutral slate, a warning
+   (not done, or not yet) in amber; white on both keeps AA in either theme */
+.webui-toast.note {
+	background: #475569;
+}
+
+.webui-toast.warn {
+	background: #9a4a06;
+}
+
 .webui-toast.leaving {
 	opacity: 0;
 }
