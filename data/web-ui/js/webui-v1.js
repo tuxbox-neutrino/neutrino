@@ -55,15 +55,28 @@
 // (the bar alone), for a button pressed again and again, such as a key of
 // the remote control.
 //
-// webuiV1Events({name: function(data) {...}}) opens one EventSource on
-// /api/v1/events and calls the handler of each event that arrives with its
-// data ({channel_id, value, text}). The browser reconnects by itself, except
-// after a refusal: a stream the box refused for want of a sign-in is opened
-// again once the sign-in went through. A handler named `open` is called with
-// null each time the stream (re)connects, which is when a page rereads what
-// it may have missed. webuiV1EventsLive() says whether the stream is open
-// right now; a page polls what it follows while it is not. The head, which
-// is not a page, listens to the same stream through webuiV1Watch(name, fn).
+// webuiV1Events({name: function(data) {...}}) opens the page's one
+// EventSource on /api/v1/events and calls the handler of each event that
+// arrives with its data ({channel_id, value, text}); a second call adds its
+// handlers to the same stream. The stream is let go at once when the page is
+// hidden or left, and taken up again when it is shown. The browser reconnects
+// by itself after a broken line. A refusal, which an EventSource does not
+// explain, is asked about once with a plain GET of the stream: 501 says the
+// box carries no event streams, and none is asked for again until the page
+// loads anew; 503 is tried again after its Retry-After, 401 and 403 once a
+// sign-in went through, anything else after a wait that grows from 15 s to
+// 2 min; every wait is spread by 30 to 50 %, so the tabs a box turned away do
+// not all come back at once. A handler named `open` is called with null at
+// each opening, one named `drop` when a stream that was open is lost (the box
+// went away), one named `refused` when the box refuses it for want of a
+// sign-in (401, 403). webuiV1EventsLive() says whether the stream is open
+// right now, webuiV1SignInOpen() whether the page's sign-in dialog is open.
+// What a page shows of the box follows the stream with webuiFollow: read
+// again exactly once after a reconnect (an opening after a refusal, a
+// failure or the page being hidden) and, without a live stream, when the
+// page comes into view and on a timer; it opens no stream itself. The head,
+// which is not a page, listens to the same stream through
+// webuiV1Watch(name, fn).
 //
 // webuiV1Offers('POST', '/playback/stop') says whether the box has a route,
 // from its description of the interface, so a page offers a newer route
@@ -71,7 +84,7 @@
 
 var _webuiV1Csrf = null;	// {header, token} of the open session, if any
 var _webuiV1SignInPending = null;	// the one sign-in dialog of the page, while open
-var _webuiV1Stream = null;	// {handlers, es, closed} of webuiV1Events
+var _webuiV1Stream = null;	// the page's stream (webuiV1Events), see _webuiV1NewStream
 var _webuiV1Watchers = [];	// [name, fn] pairs of webuiV1Watch
 
 function _webuiV1Url(path, query) {
@@ -439,11 +452,16 @@ function webuiV1Gone(method, path) {
 
 // The sign-in dialog; resolves true once signed in, false when cancelled.
 // Requests refused at the same time share the one dialog.
+// Whether the page's sign-in dialog is open
+function webuiV1SignInOpen() {
+	return !!_webuiV1SignInPending;
+}
+
 function webuiV1SignIn() {
 	if (_webuiV1SignInPending) return _webuiV1SignInPending;
 	_webuiV1SignInPending = _webuiV1SignInDialog().then(function(ok) {
 		_webuiV1SignInPending = null;
-		if (ok && _webuiV1Stream && _webuiV1Stream.closed) _webuiV1Open();
+		if (ok) _webuiV1SignedIn();
 		return ok;
 	});
 	return _webuiV1SignInPending;
@@ -690,11 +708,66 @@ function _webuiV1Ask(text, title, ok) {
 	});
 }
 
-// One EventSource for the page; handlers keyed by event name.
+// ---- the event stream ---------------------------------------------------
+
+// The waits before a refused stream is asked for again: they grow with each
+// refusal in a row and start small again once a stream stayed open a minute.
+var WEBUI_V1_WAITS = [15000, 30000, 60000, 120000];
+var WEBUI_V1_STAYED = 60000;
+// A reopen of the page's own that has not opened by then leaves the reads
+// it holds back to the page again ('late').
+var WEBUI_V1_BACK = 3000;
+// How long a first read of webuiFollow waits for the page's stream to open
+// or be refused: a read made once the box has taken the stream on cannot
+// miss a change made before that.
+var WEBUI_V1_SETUP = 1000;
+// Events of the stream itself, told by this file, not sent by the box.
+var WEBUI_V1_OWN = {drop: true, late: true, refused: true};
+
+/* The stream's state: state says what it does now ('connecting', 'open',
+   'asking' why it was refused, 'waiting' to ask again, 'paused' while the
+   page is hidden, 'refused' until a sign-in, 'off' for good); off is set
+   once the box said it carries no streams. gap: the next opening comes back
+   after a refusal, a failure or a pause, which reconnect says to the
+   handlers of that opening. closed: the last EventSource failed for good. */
+function _webuiV1NewStream() {
+	return {on: [], es: null, state: 'connecting', off: false, closed: false, gap: false,
+		reconnect: false, opens: 0, wasOpen: false, step: 0, asked: 0, timer: null,
+		back: null, stayed: null, reopening: false};
+}
+
+// A wait spread by 30 to 50 %
+function _webuiV1Spread(ms) {
+	return Math.round(ms * (1.3 + Math.random() * 0.2));
+}
+
+// The page's one EventSource; handlers keyed by event name. A second call
+// adds its handlers to the same stream. A page loaded out of view opens it
+// once it is shown.
 function webuiV1Events(handlers) {
-	if (!window.EventSource) return null;
-	_webuiV1Stream = {handlers: handlers, es: null, closed: false};
-	return _webuiV1Open();
+	if (!window.EventSource) {
+		_webuiV1SetUpDone();
+		return null;
+	}
+	var stream = _webuiV1Stream;
+	var fresh = !stream;
+	if (fresh)
+		stream = _webuiV1Stream = _webuiV1NewStream();
+	Object.keys(handlers || {}).forEach(function(name) {
+		stream.on.push([name, handlers[name]]);
+		if (!fresh && stream.es)
+			_webuiV1Listen(stream.es, name, handlers[name]);
+	});
+	if (fresh) {
+		if (document.hidden) {
+			stream.state = 'paused';
+			stream.gap = true;
+			_webuiV1SetUpDone();
+		} else {
+			_webuiV1Open();
+		}
+	}
+	return stream.es;
 }
 
 function webuiV1EventsLive() {
@@ -703,6 +776,8 @@ function webuiV1EventsLive() {
 }
 
 function _webuiV1Listen(es, name, fn) {
+	if (WEBUI_V1_OWN[name])
+		return;
 	es.addEventListener(name, function(e) {
 		var data = null;
 		try { data = JSON.parse(e.data); } catch (ignore) { /* keep null */ }
@@ -712,27 +787,338 @@ function _webuiV1Listen(es, name, fn) {
 
 // webuiV1Watch(name, fn): fn also gets the event `name` on whatever stream
 // a page opens, beside the page's own handler of it (the head follows the
-// timers this way). Called at once on a stream that is open already.
+// timers this way), from the stream there now on.
 function webuiV1Watch(name, fn) {
 	_webuiV1Watchers.push([name, fn]);
 	if (_webuiV1Stream && _webuiV1Stream.es)
 		_webuiV1Listen(_webuiV1Stream.es, name, fn);
 }
 
+// An event of the stream itself to whoever listens for it by that name
+function _webuiV1Tell(name) {
+	var stream = _webuiV1Stream;
+	(stream ? stream.on : []).concat(_webuiV1Watchers).forEach(function(h) {
+		if (h[0] !== name)
+			return;
+		try {
+			h[1](null);
+		} catch (e) {
+			console.error(e);
+		}
+	});
+}
+
+/* Opens the stream unless one is open or opening: a wait running out, a
+   sign-in and the page coming into view all come here, so there is never
+   more than one. A new EventSource after an earlier one reconnects. */
 function _webuiV1Open() {
 	var stream = _webuiV1Stream;
+	if (!stream)
+		return null;
+	clearTimeout(stream.timer);
+	stream.timer = null;
+	var old = stream.es;
+	if (old && old.readyState !== EventSource.CLOSED)
+		return old;
+	if (old)
+		stream.gap = true;
 	var es = new EventSource('/api/v1/events');
 	stream.es = es;
 	stream.closed = false;
-	Object.keys(stream.handlers).forEach(function(name) {
-		_webuiV1Listen(es, name, stream.handlers[name]);
-	});
+	stream.wasOpen = false;
+	stream.state = 'connecting';
+	// first, so the page's handlers of an opening find whether it reconnects
+	es.addEventListener('open', function() { if (stream.es === es) _webuiV1Opened(stream, es); });
+	stream.on.forEach(function(h) { _webuiV1Listen(es, h[0], h[1]); });
 	_webuiV1Watchers.forEach(function(w) { _webuiV1Listen(es, w[0], w[1]); });
-	// a refused stream is not retried by the browser; a sign-in reopens it
-	es.addEventListener('error', function() {
-		if (es.readyState === EventSource.CLOSED) stream.closed = true;
-	});
+	es.addEventListener('error', function() { if (stream.es === es) _webuiV1Failed(stream, es); });
 	return es;
+}
+
+// An EventSource opens once more only after it lost its connection, so a
+// later opening of the same one reconnects even where no error was seen.
+function _webuiV1Opened(stream, es) {
+	stream.reconnect = stream.gap || !!es._webuiOpened;
+	es._webuiOpened = true;
+	stream.gap = false;
+	stream.opens++;
+	stream.wasOpen = true;
+	stream.state = 'open';
+	_webuiV1BackDone(stream);
+	clearTimeout(stream.stayed);
+	stream.stayed = setTimeout(function() { stream.step = 0; }, WEBUI_V1_STAYED);
+	_webuiV1Settled = true;
+	_webuiV1SetUpDone();
+}
+
+/* A stream that was open and is lost is a drop ('drop': the box went away,
+   or restarts). The browser comes back by itself from a broken line; a
+   refusal it gives up on, and the box is asked why. */
+function _webuiV1Failed(stream, es) {
+	stream.gap = true;
+	clearTimeout(stream.stayed);
+	if (stream.wasOpen) {
+		stream.wasOpen = false;
+		_webuiV1Tell('drop');
+	}
+	if (es.readyState !== EventSource.CLOSED) {
+		stream.state = 'connecting';
+		return;
+	}
+	stream.closed = true;
+	_webuiV1Settled = true;
+	_webuiV1SetUpDone();
+	if (stream.off)
+		stream.state = 'off';
+	else
+		_webuiV1Probe(stream);
+}
+
+/* Why the box refused: the stream's own GET, let go as soon as its head is
+   in (a stream it hands out would hold one of the box's places). Asked once
+   per refusal, and never once the box said it carries no streams. */
+function _webuiV1Probe(stream) {
+	if (stream.off || stream.state === 'asking')
+		return;
+	stream.state = 'asking';
+	stream.asked++;
+	var ctl = typeof AbortController === 'function' ? new AbortController() : null;
+	var limit = ctl ? setTimeout(function() { ctl.abort(); }, 10000) : null;
+	webuiFetchBox('/api/v1/events', {credentials: 'same-origin', cache: 'no-store', signal: ctl ? ctl.signal : undefined})
+		.then(function(resp) {
+			var got = {status: resp.status, after: resp.headers.get('Retry-After')};
+			if (ctl)
+				ctl.abort();
+			return got;
+		}, function() {
+			return {status: 0, after: null};
+		})
+		.then(function(got) {
+			clearTimeout(limit);
+			_webuiV1Judge(stream, got);
+		});
+}
+
+/* 501: the box carries no streams, none until the page loads anew, and the
+   page lives on its reads; 401 and 403 wait for a sign-in; 503 for its
+   Retry-After; anything else, a stream the box handed out that failed in
+   the browser among it, for a wait that grows. */
+function _webuiV1Judge(stream, got) {
+	if (stream.es && stream.es.readyState !== EventSource.CLOSED)
+		return;
+	var s = got.status;
+	if (s === 501) {
+		stream.off = true;
+		stream.state = 'off';
+		return;
+	}
+	if (s === 401 || s === 403) {
+		stream.state = 'refused';
+		_webuiV1Tell('refused');
+		return;
+	}
+	var after = s === 503 ? parseInt(got.after, 10) : NaN;
+	if (after > 0) {
+		_webuiV1Later(stream, _webuiV1Spread(after * 1000));
+		return;
+	}
+	var wait = WEBUI_V1_WAITS[Math.min(stream.step, WEBUI_V1_WAITS.length - 1)];
+	stream.step++;
+	_webuiV1Later(stream, _webuiV1Spread(wait));
+}
+
+function _webuiV1Later(stream, ms) {
+	clearTimeout(stream.timer);
+	stream.timer = null;
+	if (document.hidden) {
+		stream.state = 'paused';
+		return;
+	}
+	stream.state = 'waiting';
+	stream.timer = setTimeout(function() {
+		stream.timer = null;
+		_webuiV1Reopen(stream);
+	}, ms);
+}
+
+/* A reopen of the page's own (a wait run out, a sign-in, the page shown
+   again): its opening reads what the page shows (webuiFollow), and the
+   reads the page would make without a stream wait for it, up to
+   WEBUI_V1_BACK. */
+function _webuiV1Reopen(stream) {
+	if (document.hidden) {
+		clearTimeout(stream.timer);
+		stream.timer = null;
+		stream.state = 'paused';
+		return;
+	}
+	stream.reopening = true;
+	clearTimeout(stream.back);
+	stream.back = setTimeout(function() {
+		_webuiV1BackDone(stream);
+		_webuiV1Tell('late');
+	}, WEBUI_V1_BACK);
+	_webuiV1Open();
+}
+
+function _webuiV1BackDone(stream) {
+	stream.reopening = false;
+	clearTimeout(stream.back);
+	stream.back = null;
+}
+
+// Whether a reopen of the page's own is under way
+function _webuiV1Reopening() {
+	return !!(_webuiV1Stream && _webuiV1Stream.reopening);
+}
+
+// A sign-in went through: a stream the box refused is asked for again
+function _webuiV1SignedIn() {
+	var stream = _webuiV1Stream;
+	if (stream && stream.closed && !stream.off)
+		_webuiV1Reopen(stream);
+}
+
+/* A page out of view lets its stream go at once, as a timer started then
+   may never run on a phone, and a hidden tab would keep one of the few
+   streams the box and the browser allow; shown again, it takes it up. */
+function _webuiV1Release(stream) {
+	if (stream.off || stream.state === 'refused')
+		return;
+	clearTimeout(stream.timer);
+	stream.timer = null;
+	_webuiV1BackDone(stream);
+	clearTimeout(stream.stayed);
+	if (stream.es && stream.es.readyState !== EventSource.CLOSED) {
+		stream.es.close();
+		stream.wasOpen = false;
+	}
+	stream.gap = true;
+	stream.state = 'paused';
+}
+
+function _webuiV1Shown() {
+	var stream = _webuiV1Stream;
+	if (!stream)
+		return;
+	if (document.hidden)
+		_webuiV1Release(stream);
+	else if (stream.state === 'paused')
+		_webuiV1Reopen(stream);
+}
+
+// before any part of a page follows the box, so a reopen is under way when
+// the parts hear that the page is shown again
+document.addEventListener('visibilitychange', _webuiV1Shown);
+window.addEventListener('pagehide', function() { if (_webuiV1Stream) _webuiV1Release(_webuiV1Stream); });
+window.addEventListener('pageshow', function(e) { if (e.persisted) _webuiV1Shown(); });
+
+/* The first reads of webuiFollow, which wait until the page's stream has
+   opened or been refused, or WEBUI_V1_SETUP has passed: a page without a
+   stream, or one whose stream hangs, reads a moment later. _webuiV1Settled:
+   the stream has opened or been refused once. */
+var _webuiV1SetUpWaits = null;
+var _webuiV1SetUpOver = false;
+var _webuiV1Settled = false;
+
+function _webuiV1WhenSetUp(fn) {
+	if (_webuiV1SetUpOver || !window.EventSource) {
+		fn();
+		return;
+	}
+	if (!_webuiV1SetUpWaits) {
+		_webuiV1SetUpWaits = [];
+		setTimeout(_webuiV1SetUpDone, WEBUI_V1_SETUP);
+	}
+	_webuiV1SetUpWaits.push(fn);
+}
+
+function _webuiV1SetUpDone() {
+	_webuiV1SetUpOver = true;
+	var waits = _webuiV1SetUpWaits || [];
+	_webuiV1SetUpWaits = null;
+	waits.forEach(function(fn) {
+		try {
+			fn();
+		} catch (e) {
+			console.error(e);
+		}
+	});
+}
+
+/* webuiFollow({reread, events, every, fallback, first}): what a part of
+   the page shows of the box, kept current.
+   - reread() once each time the page's stream comes back after a gap (a
+     refusal, a failure, the page hidden) and after each of the events
+     named;
+   - without a live stream (none on the page, or the box refused it):
+     fallback(), else reread(), when the page comes into view and every
+     `every` ms while it is shown, though not while a reopen of the stream
+     is under way, whose opening reads; nothing while the page is hidden;
+   - the first read, first() or else reread(), once the page's stream has
+     opened or been refused (or after WEBUI_V1_SETUP: a page without a
+     stream, or one whose stream hangs). A first read made before that, or
+     one that failed (it resolved false or threw), is made once more when
+     the stream first opens. first: false leaves the first read to the
+     page.
+   It opens no stream: it follows the one the page opens with
+   webuiV1Events, through webuiV1Watch. */
+function webuiFollow(opts) {
+	var f = {reread: opts.reread, fallback: opts.fallback || opts.reread,
+		before: false, failed: false, pending: false, early: false};
+	(opts.events || []).forEach(function(name) {
+		webuiV1Watch(name, function() { f.reread(); });
+	});
+	webuiV1Watch('open', function() { _webuiV1FollowOpen(f); });
+	webuiV1Watch('late', function() { _webuiV1FollowBack(f); });
+	document.addEventListener('visibilitychange', function() { _webuiV1FollowBack(f); });
+	if (opts.every)
+		setInterval(function() { _webuiV1FollowBack(f); }, opts.every);
+	var first = opts.first === false ? null : opts.first || opts.reread;
+	if (first)
+		_webuiV1WhenSetUp(function() { _webuiV1FollowFirst(f, first); });
+	return f;
+}
+
+function _webuiV1FollowFirst(f, first) {
+	f.before = !_webuiV1Settled && !!window.EventSource;
+	f.pending = true;
+	var made;
+	try {
+		made = first();
+	} catch (e) {
+		console.error(e);
+		made = false;
+	}
+	Promise.resolve(made).then(function(v) { return v !== false; }, function() { return false; }).then(function(ok) {
+		f.pending = false;
+		f.failed = !ok;
+		// the stream opened while it was under way: made once more if it failed
+		if (f.early) {
+			f.early = false;
+			f.failed = false;
+			if (!ok)
+				f.reread();
+		}
+	});
+}
+
+function _webuiV1FollowOpen(f) {
+	if (_webuiV1Stream && _webuiV1Stream.reconnect) {
+		f.before = f.failed = f.early = false;
+		f.reread();
+	} else if (f.before || f.failed) {
+		f.before = f.failed = false;
+		f.reread();
+	} else if (f.pending) {
+		f.early = true;
+	}
+}
+
+function _webuiV1FollowBack(f) {
+	if (document.hidden || webuiV1EventsLive() || _webuiV1Reopening())
+		return;
+	f.fallback();
 }
 
 // ---- EPG dialog, recording and streaming over /api/v1 -------------------

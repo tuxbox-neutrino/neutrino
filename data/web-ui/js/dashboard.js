@@ -1017,11 +1017,7 @@ function refreshEvented(fresh) {
 }
 
 function followTheBox() {
-	let opened = 0;
 	webuiV1Events({
-		// the stream's own open event: the first one is the page loading,
-		// every later one a reconnect after a gap
-		open: function() { if (opened++) refreshEvented(); },
 		zap: function() { refreshChannel(true); refreshPlayback(); loadStreamInfo(); },
 		mode: function(d) {
 			if (d && d.value === 1) setMode('tv');
@@ -1269,8 +1265,12 @@ webuiAfterTexts(function() {
 	initVolume();
 
 	webuiOnRecordings(recordingsSeen);
-	refreshEvented();
 	followTheBox();
+	// what the stream keeps current: read now, again when the stream comes
+	// back after a gap and, without it, when the page comes into view and
+	// every 30 s while it is shown (webuiFollow); the recordings are the
+	// shared read's, which follows the stream itself
+	webuiFollow({reread: function() { refreshEvented(); }, every: 30000});
 	loadSystemInfo();
 	loadTunerStatus();
 	loadStreamInfo();
@@ -1280,9 +1280,6 @@ webuiAfterTexts(function() {
 	whileVisible(30000, loadSystemInfo);
 	whileVisible(5000, loadTunerStatus);
 	whileVisible(30000, loadStreamInfo);
-	// Without an open event stream the evented tiles are asked as well; the
-	// recordings without the stream the shared read reads itself
-	whileVisible(30000, function() { if (!webuiV1EventsLive()) refreshEvented(); });
 	// Counted here between events: guide progress, time left, playback position
 	setInterval(tickGuide, 15000);
 	setInterval(function() { showTimers(); showRecording(); }, 30000);
@@ -1290,7 +1287,8 @@ webuiAfterTexts(function() {
 	document.addEventListener('visibilitychange', function() {
 		if (document.visibilityState !== 'visible') return;
 		dashPolls.forEach(function(fn) { fn(); });
-		// the sound once more as well; without the stream the poll above has read it
+		// the sound once more as well; without the stream, or while it comes
+		// back, webuiFollow reads it with the rest
 		if (webuiV1EventsLive()) refreshVolume();
 	});
 

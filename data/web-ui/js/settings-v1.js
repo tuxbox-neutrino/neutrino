@@ -41,7 +41,6 @@ var V1SET = {
 	unavailable: Object.create(null),	// keys the box declares and does not have
 	saving: false,
 	rereadDue: false,
-	opened: false,
 	reads: 0,		// reads of the values started
 	applied: 0,		// the read whose values the page holds, by its start
 	saves: 0,		// saves started
@@ -1381,14 +1380,6 @@ function v1setChanged() {
 	}
 	clearTimeout(_v1setRereadTimer);
 	_v1setRereadTimer = setTimeout(v1setReread, 400);
-}
-
-// the stream (re)connected: the first time is the page load, which read
-// everything already
-function v1setStreamOpen() {
-	if (V1SET.opened)
-		v1setChanged();
-	V1SET.opened = true;
 }
 
 async function v1setReread() {

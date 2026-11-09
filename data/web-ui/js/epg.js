@@ -361,15 +361,15 @@ document.getElementById('timeSelect').addEventListener('change', loadEpg);
 // once the texts are in, which the grid is drawn with
 webuiAfterTexts(function() {
 	initTimeSelect();
-	let opened = 0;
 	webuiV1Events({
-		// the first open is the page loading, every later one a reconnect
-		// after a gap, which may have missed a timer set or taken away
-		open: function() { if (opened++) timersChanged(); },
 		'epg-updated': epgUpdated,
 		'timer-changed': timersChanged,
 		zap: zapped
 	});
+	// the timer marks again after a reconnect, which may have missed a
+	// timer set or taken away, and without the stream when the page comes
+	// into view (webuiFollow); the guide's first read below brings them
+	webuiFollow({reread: timersChanged, first: false});
 	setInterval(tickNow, 60000);
 	window.addEventListener('resize', () => placeNow(webuiBoxSec()));
 	return loadBouquets().then(loadEpg);

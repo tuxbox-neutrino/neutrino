@@ -2337,8 +2337,11 @@ webuiAfterTexts(async function() {
 				{retry: function() { location.reload(); }}));
 		return;
 	}
-	// Was anderswo gespeichert wird (am Geraet, von einer zweiten Seite),
-	// liest die Seite nach
-	webuiV1Events({'settings-changed': v1setChanged, open: v1setStreamOpen});
+	// what is saved elsewhere (at the box, from a second page) is read
+	// again, as after a reconnect and, without the stream, when the page
+	// comes into view (webuiFollow); the stream is set up before the first
+	// read
+	webuiV1Events({'settings-changed': v1setChanged});
+	webuiFollow({reread: v1setChanged, first: false});
 	loadSettings();
 });

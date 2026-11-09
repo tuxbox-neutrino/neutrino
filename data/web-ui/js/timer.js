@@ -334,26 +334,21 @@ async function deleteTimer(id, title) {
 }
 
 // Initialize: the list follows the timer events, which also say when a
-// recording a timer carries begins or ends; without an open stream it is
-// read every minute
+// recording a timer carries begins or ends; it is read again when the
+// stream comes back after a gap and, without one, when the page comes into
+// view and every minute (webuiFollow, which makes the first read once the
+// stream is set up)
 webuiAfterTexts(function() {
 	renderFilters();
 	document.getElementById('timerList').replaceChildren(webuiEl('li', {}, webuiState('loading', webuiL('tm.loading', 'Loading timers...'), '')));
 	// the timers are one stop of Tab: Up and Down go from row to row, Left
 	// and Right to the buttons of a row (Edit, More, Details)
 	webuiArrowKeys(document.getElementById('timerList'), '.webui-timer-actions button, .webui-timer-more', '', {near: true});
-	// a running timer's recording is marked from the page's shared read
+	// a running timer's recording is marked from the page's shared read,
+	// which follows the stream itself
 	webuiOnRecordings(() => { if (timersShown) renderTimerList(); });
-	loadTimers();
-	let opened = 0;
-	webuiV1Events({
-		// the first open is the page loading, every later one a reconnect
-		// after a gap, which may have missed a change
-		open: function() { if (opened++) loadTimers(); },
-		'timer-changed': loadTimers
-	});
-	// the recordings: without the stream the shared read reads them itself
-	setInterval(() => { if (!webuiV1EventsLive()) loadTimers(); }, 60000);
+	webuiV1Events({'timer-changed': loadTimers});
+	webuiFollow({reread: loadTimers, every: 60000});
 });
 webuiV1('GET', '/channels/current').then(ch => {
 	currentMode = ch && (ch.kind === 'radio' || ch.kind === 'webradio') ? 'radio' : 'tv';

@@ -753,21 +753,16 @@ webuiAfterTexts(function() {
 		{near: true, start: '.webui-media-open'});
 	// tiles or list: one stop, on the view shown
 	webuiArrowKeys(document.getElementById('viewTiles').parentElement, 'button');
-	loadList(false);
-	// what the TV plays: read now, and again whenever the event stream
-	// comes back after a gap
-	readPlayback();
-	let opened = 0;
 	webuiV1Events({
-		open: () => { if (opened++) readPlayback(); },
 		'record-stop': () => loadList(false, true),
 		playback: playbackEvent
 	});
-	// without the event stream (refused, or none in this browser) what plays
-	// is read every 30 s while the page is visible
-	setInterval(() => {
-		if (!webuiV1EventsLive() && document.visibilityState === 'visible') readPlayback();
-	}, 30000);
+	loadList(false);
+	// what the TV plays: read now, again whenever the event stream comes
+	// back after a gap, and without the stream (refused, or none in this
+	// browser) when the page comes into view and every 30 s while it is
+	// shown (webuiFollow)
+	webuiFollow({reread: readPlayback, every: 30000});
 });
 
 if (typeof webuiSetRefreshCallback === 'function') {

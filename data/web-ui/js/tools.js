@@ -46,7 +46,9 @@ function bcRestart(kind) {
 
 /* The event stream goes down with the web server, which runs inside
    Neutrino: a restart of the GUI too quick for the polls below to find the
-   box away, and which leaves the box's uptime as it was, is seen there. */
+   box away, and which leaves the box's uptime as it was, is seen there.
+   Counted are the streams lost while open ('drop'), not the refusals of a
+   box that carries none or is full. */
 var bcStreamDrops = 0;
 
 // How long the box has been up, or null where it does not say
@@ -257,5 +259,5 @@ webuiAfterTexts(function() {
 	webuiOnRecordings(bcRecState);
 	bcVideoLoad();
 	// the stream the shared read follows the record events on
-	webuiV1Events({error: function() { bcStreamDrops++; }});
+	webuiV1Events({drop: function() { bcStreamDrops++; }});
 });
