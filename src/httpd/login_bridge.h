@@ -43,18 +43,28 @@ struct Ask
 	std::string host;           // the Host header, as the request boundary accepted it (authority.h)
 	std::string user_agent;     // the User-Agent header
 
-	/* Whether the request carries a template command for the old server's
-	   parser (an `execute` parameter), which any .yhtm page runs before it
-	   renders: such a request changes the box with a GET wherever it goes. */
+	/* Whether the request carries a non-empty `execute` parameter, the
+	   command the old server's template parser ran on any .yhtm page before
+	   it rendered it. That parser is gone and nothing runs the parameter now;
+	   such a request is still held like a command, as a precaution. */
 	bool runs_commands;
 
 	Ask() : runs_commands(false) {}
 };
 
+/* Whether the request is one a credential the browser attaches by itself
+   counts for only from a page of this box: a target that changes the box with
+   a GET (/control/, /cgi-bin/, /fb/, /api/v4/, /y/) or a request carrying an
+   `execute` parameter (runs_commands, kept as a precaution). sessionAdmits and
+   basicHeldBack hold such a request to that rule, and the old server's gate
+   sends no browser back to one after the sign-in: from the sign-in page, a
+   page of this box, it would pass. */
+bool needsOwnPage(const Ask &a);
+
 /* Whether a session of the one login stands for this request.
 
    On the targets that change the box with a GET (/control/, /cgi-bin/, /fb/,
-   /api/v4/, /y/, and any request carrying a template command) only when the
+   /api/v4/, /y/, and any request carrying an `execute` parameter) only when the
    request shows it came from a page of this box:
    Sec-Fetch-Site same-origin or, from a browser that does not send that header,
    an Origin or else a Referer naming the host the request was sent to. A link on

@@ -147,6 +147,20 @@ here: it passes with a <code>User-Agent</code> of its own or an
 <code>Origin</code> header naming the box. Basic authentication from any
 other client counts as
 before.</li>
+<li>A browser that <code>mod_auth</code> sends to the sign-in page is sent
+there with <code>next</code>, the address it asked for as it wrote it,
+escapes and all, only where that is a page: a folder or a name ending in
+<code>.html</code> or <code>.htm</code>, its decoded path in parts of letters,
+digits and <code>. _ ~ -</code> none of which is empty or starts with a dot,
+not on the paths above and without an <code>execute</code> parameter. After
+the sign-in the page opens <code>next</code> from a page of this box, which
+is all the rule above asks for. So a link on another site to
+<code>/control/standby?on</code>, or to <code>/control/standby%3Fon%23/</code>,
+leads to the sign-in and then to the start page, and the command does not
+run. The sign-in page holds <code>next</code> to a stricter form of the same
+rule itself (<code>signinSafeNext</code> in
+<code>data/web-ui/js/webui-signin.js</code>), for every other way a link can
+name it.</li>
 <li>One GET of the layer starts something:
 <code>GET /api/v1/stream/browser/{id}</code> runs a converter and may switch
 the TV picture. Signed in with the session cookie, it needs the evidence of

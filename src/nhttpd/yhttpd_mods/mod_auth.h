@@ -34,6 +34,7 @@ protected:
 
 	static std::string GetHeader(CyhookHandler *hh, const std::string &name);
 	static bool IsBrowserNavigation(CyhookHandler *hh);
+	static bool ReturnsToPage(const std::string &url);
 	static std::string UrlEncode(const std::string &s);
 };
 #endif // __yhttpd_mod_auth_h__

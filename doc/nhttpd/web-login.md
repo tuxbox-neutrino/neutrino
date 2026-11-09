@@ -146,6 +146,14 @@ with a password these boxes once shipped with stops working when the box
 replaces it. Enter the first password in the app. After you set your own
 password, enter that one.
 
+With Authentication on, a browser that opens a `/control/` address, or
+another command of the old interface, from a bookmark, the address bar or
+another site is sent to the sign-in page, also when it is signed in
+already. After the sign-in it lands on the start page, not on the command:
+a link on another site could otherwise have the box run it the moment you
+sign in. Use the command from the web interface instead. A page of the web
+interface opens after the sign-in as before.
+
 ## When many sign-ins fail
 
 A wrong password slows the next sign-in down, so that nobody can try

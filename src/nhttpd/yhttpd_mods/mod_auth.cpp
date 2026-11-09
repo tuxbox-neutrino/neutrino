@@ -65,10 +65,11 @@ THandleStatus CmAuth::Hook_PrepareResponse(CyhookHandler *hh) {
 	// page, while its other pages wait for the login (pageNeedsLogin), as
 	// they did while they were templates. Never through a traversal: analyzeURL
 	// matches the percent-decoded URL and mod_sendfile does not sanitize
-	// "..". The template parser runs an `execute` parameter (and prints
-	// its trace for `debug`) before it renders a page, and before it even
-	// looks whether the file exists: a request carrying either is never
-	// open. Which file a request ends up at, and whether that file may go
+	// "..". A request carrying an `execute` or a `debug` parameter is never
+	// open either: the template parser ran the one and printed its trace
+	// for the other before it even looked whether the file existed. That
+	// parser is gone and nothing reads either parameter now; the rule
+	// stays as a precaution. Which file a request ends up at, and whether that file may go
 	// out, is ystatic's: the override and hosted directories, the raw
 	// path, templates, scripts, extensions and the spaces other hooks
 	// answer stay behind the login. The file checked is the file sent
@@ -188,10 +189,22 @@ THandleStatus CmAuth::Hook_PrepareResponse(CyhookHandler *hh) {
 			// clients keep the unchanged Basic-auth 401 path, and so
 			// do browsers where the web directory has no login page of
 			// its own: sent to a missing or overridden one, they would
-			// be sent on to it again and again
+			// be sent on to it again and again.
+			// Once signed in, the sign-in page opens next, and that request
+			// comes from a page of this box, which is all the needsOwnPage
+			// rule asks for. So next names a page and never such a target:
+			// a link to /control/standby?on that sent the browser here does
+			// not run when its user signs in. next is the target as the
+			// browser wrote it, escapes and all, so the browser comes back
+			// to the request judged here and not to one a decoded %3F or
+			// %2F turns into another. The sign-in page checks next again
+			// itself (signinSafeNext).
 			if (IsBrowserNavigation(hh) && ystatic::ownLoginPage(hh)) {
-				hh->SendRedirect("/login.html?next="
-					+ UrlEncode(hh->UrlData["fullurl"]));
+				if (!login_bridge::needsOwnPage(ask) && ReturnsToPage(url))
+					hh->SendRedirect("/login.html?next="
+						+ UrlEncode(hh->UrlData["target"]));
+				else
+					hh->SendRedirect("/login.html");
 				return HANDLED_REDIRECTION;
 			}
 			// minimal body against the blank-page dead end for the
@@ -281,6 +294,45 @@ bool CmAuth::IsBrowserNavigation(CyhookHandler *hh) {
 	if (GetHeader(hh, "Accept").find("text/html") == std::string::npos)
 		return false;
 	return GetHeader(hh, "X-Requested-With") != "XMLHttpRequest";
+}
+
+//-----------------------------------------------------------------------------
+// Whether a browser may be sent back to url (the decoded path, without the
+// query) once it has signed in: a folder, or a name ending in .html or .htm
+// in any case, in parts of letters, digits and . _ ~ -, none of them empty or
+// starting with a dot, the rule the sign-in page holds next to
+// (signinSafeNext). So nothing in it is a step up, a second slash, a
+// backslash or an escape the browser would read as another path.
+//-----------------------------------------------------------------------------
+bool CmAuth::ReturnsToPage(const std::string &url) {
+	if (url.empty() || url[0] != '/')
+		return false;
+	std::string::size_type start = 1;
+	while (start < url.length()) {
+		const std::string::size_type end = url.find('/', start);
+		const std::string part = url.substr(start, end == std::string::npos ? std::string::npos : end - start);
+		if (part.empty() || part[0] == '.')
+			return false;
+		// spelled out, so a locale cannot add letters to it
+		for (std::string::size_type i = 0; i < part.length(); i++) {
+			const char c = part[i];
+			if (!(c >= 'a' && c <= 'z') && !(c >= 'A' && c <= 'Z') && !(c >= '0' && c <= '9')
+					&& c != '.' && c != '_' && c != '~' && c != '-')
+				return false;
+		}
+		if (end == std::string::npos) {
+			std::string name = part;
+			for (std::string::size_type i = 0; i < name.length(); i++)
+				name[i] = (char) tolower((unsigned char) name[i]);
+			const std::string::size_type dot = name.rfind('.');
+			if (dot == std::string::npos)
+				return false;
+			const std::string ext = name.substr(dot);
+			return ext == ".html" || ext == ".htm";
+		}
+		start = end + 1;
+	}
+	return true;
 }
 
 //-----------------------------------------------------------------------------

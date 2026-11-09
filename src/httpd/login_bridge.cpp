@@ -34,7 +34,7 @@ namespace
 {
 
 /* The old server's targets that change the box with a GET: ControlAPI under its
-   four prefixes and the template commands under /y/. */
+   four prefixes and the page cache's commands under /y/ (mod_cache). */
 const char *const kChangesWithGet[] = { "/control/", "/cgi-bin/", "/fb/", "/api/v4/", "/y/" };
 
 bool changesWithGet(const std::string &path)
@@ -43,12 +43,6 @@ bool changesWithGet(const std::string &path)
 		if (path == kChangesWithGet[i])
 			return true;
 	return false;
-}
-
-// The requests a credential a browser attaches by itself counts for only from a page of this box.
-bool needsOwnPage(const Ask &a)
-{
-	return changesWithGet(a.path) || a.runs_commands;
 }
 
 // What every browser this server serves starts its User-Agent with, and no script that names itself.
@@ -194,6 +188,11 @@ void forget(std::string &secret)
 }
 
 } // namespace
+
+bool needsOwnPage(const Ask &a)
+{
+	return changesWithGet(a.path) || a.runs_commands;
+}
 
 bool sessionAdmits(const Ask &a)
 {

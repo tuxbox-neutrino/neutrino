@@ -16,12 +16,15 @@
 #include "httpd/server_control.h"
 #include "httpd/webconfig.h"
 #include "yhook.h"
+#include "yrequest.h"
 #include "yhttpd_mods/mod_auth.h"
 
 #include <cstdio>
 #include <string>
 #include <vector>
 
+#include <fcntl.h>
+#include <ftw.h>
 #include <sys/stat.h>
 #include <unistd.h>
 
@@ -1416,4 +1419,125 @@ TEST_CASE("the gate tells a browser held back with its Basic pair where to open 
 	standbyAsked(wrong, kWrongBasic, kBrowser);
 	CHECK(gate.Hook_PrepareResponse(&wrong) == HANDLED_ERROR);
 	CHECK(wrong.httpStatus == HTTP_FORBIDDEN);
+}
+
+namespace
+{
+
+int removeEntry(const char *path, const struct stat *, int, struct FTW *)
+{
+	return remove(path);
+}
+
+/* A web directory with a sign-in page of its own, as this interface installs
+   one, and pages, a script and an extension in it. */
+struct WebDir
+{
+	std::string root, core;
+
+	WebDir()
+	{
+		char dir[] = "/tmp/test_signin_next_XXXXXX";
+		REQUIRE(mkdtemp(dir) != NULL);
+		root = dir;
+		core = root + "/core";
+		const char *const files[] = {
+			"/login.html", "/index.html", "/dashboard.html", "/OLD.HTM", "/js/app.js",
+			"/extensions/files/index.html", "/extensions/files/files.js",
+		};
+		REQUIRE(mkdir(core.c_str(), 0755) == 0);
+		REQUIRE(mkdir((core + "/js").c_str(), 0755) == 0);
+		REQUIRE(mkdir((core + "/extensions").c_str(), 0755) == 0);
+		REQUIRE(mkdir((core + "/extensions/files").c_str(), 0755) == 0);
+		for (size_t i = 0; i < sizeof(files) / sizeof(files[0]); ++i)
+		{
+			const int fd = open((core + files[i]).c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0644);
+			REQUIRE(fd >= 0);
+			REQUIRE(write(fd, "x", 1) == 1);
+			close(fd);
+		}
+	}
+	~WebDir()
+	{
+		nftw(root.c_str(), removeEntry, 16, FTW_DEPTH | FTW_PHYS);
+	}
+};
+
+/* Where the gate sends a browser that opens target without a login, the
+   address as nhttpd's reader parses it. Empty where it sends it nowhere. */
+std::string signInFor(CmAuth &gate, const WebDir &web, const std::string &target)
+{
+	CWebserverRequest r;
+	r.analyzeURL(target);
+	// as ParseStartLine keeps it: the target as written, escapes and all
+	r.UrlData["target"] = target;
+	CStringList headers, config;
+	headers["Host"] = "box.lan";
+	headers["Accept"] = "text/html,application/xhtml+xml";
+	headers["User-Agent"] = kBrowser;
+	config["WebsiteMain.directory"] = web.core;
+	config["WebsiteMain.override_directory"] = web.root + "/override";
+	r.UrlData["clientaddr"] = "203.0.113.40";
+	CyhookHandler hh;
+	hh.session_init(r.ParameterList, r.UrlData, headers, config, M_GET, false);
+	if (gate.Hook_PrepareResponse(&hh) != HANDLED_REDIRECTION)
+		return std::string();
+	return hh.NewURL;
+}
+
+} // namespace
+
+TEST_CASE("a browser sent to sign in is sent back to a page only, never to a command", "[login]")
+{
+	/* Once signed in, the sign-in page opens where the browser was going, and
+	   that request comes from a page of this box: the one thing a command of
+	   the old server asks of a session. So a link to /control/standby?on on
+	   another site would have the box go to standby when its user signs in.
+	   The sign-in page is given no target then, and starts at the start page. */
+	Account account;
+	Gate gate(true, "");
+	WebDir web;
+
+	struct Case
+	{
+		const char *target;
+		const char *sent_to;
+	};
+	const Case cases[] = {
+		// the pages, with what they were asked with
+		{ "/", "/login.html?next=/" },
+		{ "/dashboard.html", "/login.html?next=/dashboard.html" },
+		{ "/dashboard.html?tab=a", "/login.html?next=/dashboard.html%3Ftab%3Da" },
+		{ "/OLD.HTM", "/login.html?next=/OLD.HTM" },
+		{ "/extensions/files/", "/login.html?next=/extensions/files/" },
+		{ "/extensions/files/index.html", "/login.html?next=/extensions/files/index.html" },
+		// the old server's commands, under each of its prefixes and as a template command
+		{ "/control/standby?on", "/login.html" },
+		{ "/control/", "/login.html" },
+		{ "/control/exec.html?x", "/login.html" },
+		{ "/cgi-bin/zapTo?path=1", "/login.html" },
+		{ "/fb/remote.html", "/login.html" },
+		{ "/api/v4/standby", "/login.html" },
+		{ "/y/cgi?x", "/login.html" },
+		{ "/dashboard.html?execute=script:anything", "/login.html" },
+		// what is not a page, and a path the browser reads as another one
+		{ "/extensions/files/files.js", "/login.html" },
+		{ "/logout.sh", "/login.html" },
+		{ "/x/../control/standby.html", "/login.html" },
+		{ "/x/%2E%2E/control/standby.html", "/login.html" },
+		/* an escaped ? or # in the path, decoded into it: a folder or a page
+		   by the decoded name, a command once the browser reads it afresh */
+		{ "/control/standby%3Fon%23/", "/login.html" },
+		{ "/control/standby%3Fon%26a=/x.html", "/login.html" },
+		// an escaped slash or backslash, another site once decoded
+		{ "/%2Fevil.example/", "/login.html" },
+		{ "/%5Cevil.example/", "/login.html" },
+		// a page's query comes back as it was written, its escapes kept
+		{ "/dashboard.html?path=%2Fmedia%26x", "/login.html?next=/dashboard.html%3Fpath%3D%252Fmedia%2526x" },
+	};
+	for (size_t i = 0; i < sizeof(cases) / sizeof(cases[0]); ++i)
+	{
+		INFO(cases[i].target);
+		CHECK(signInFor(gate, web, cases[i].target) == cases[i].sent_to);
+	}
 }

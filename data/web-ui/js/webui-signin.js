@@ -15,19 +15,43 @@ function loginTogglePw(id, btn) {
 	btn.innerHTML = show ? LOGIN_EYE : LOGIN_EYEOFF;
 }
 
-// Where to go once signed in or once the password is set: a path on this
-// box and nothing else - one leading slash, no second one, no backslash,
-// no control byte or space anywhere (a browser drops tabs and line ends
-// before it reads an address, so "/<tab>/host" would become "//host"), and
-// the address as the browser reads it still on this box.
+// Where to go once signed in or once the password is set. The page opened
+// then is opened from this page, a page of the box, so it gets what only
+// the box's own pages get: a command of the old server (/control/standby?on)
+// would run. So only a page of this interface is taken, and anything else
+// goes to the start page:
+// - a path on this box: one leading slash, no second one, no backslash, no
+//   control byte or space anywhere (a browser drops tabs and line ends
+//   before it reads an address, so "/<tab>/host" would become "//host"),
+//   and the address as the browser reads it still on this box;
+// - a page: a folder ("/", "/extensions/files/") or a file whose name ends
+//   in .html or .htm, in parts of letters, digits and . _ ~ - with none
+//   starting with a dot, so nothing in it is escaped or a step up;
+// - nothing under /control/, /cgi-bin/, /fb/, /api/ or /y/, in any case;
+// - no query naming execute, the old server's command parameter, also
+//   escaped;
+// with its query and the place on the page kept. The box sends a browser
+// here with a page only (mod_auth); this holds for every other way in.
+var SIGNIN_PAGE = /^\/(?:[A-Za-z0-9_~-][A-Za-z0-9._~-]*\/)*(?:[A-Za-z0-9_~-][A-Za-z0-9._~-]*\.html?)?$/i;
+var SIGNIN_COMMANDS = /^\/(?:control|cgi-bin|fb|api|y)(?:\/|$)/i;
+function signinRunsCommand(search) {
+	var text = search.replace(/\+/g, ' ');
+	try {
+		text = decodeURIComponent(text);
+	} catch (e) {
+		return true;
+	}
+	return /execute/i.test(text);
+}
 function signinSafeNext(next) {
 	if (!next || /[\u0000- \u007f\\]/.test(next) || next.charAt(0) !== '/' || next.charAt(1) === '/')
 		return '/';
 	try {
 		var u = new URL(next, location.origin);
-		var path = u.pathname + u.search + u.hash;
-		// "/x/..//host" reads as the path "//host": an address of its own
-		return u.origin === location.origin && path.charAt(1) !== '/' ? path : '/';
+		if (u.origin !== location.origin || !SIGNIN_PAGE.test(u.pathname) || SIGNIN_COMMANDS.test(u.pathname)
+				|| signinRunsCommand(u.search))
+			return '/';
+		return u.pathname + u.search + u.hash;
 	} catch (e) {
 		return '/';
 	}
