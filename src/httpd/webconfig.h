@@ -256,8 +256,9 @@ bool usernameAcceptable(const std::string &name, std::string *why);
 
    api_tokens is the one key whose value does not end up in the structure above. A
    token is a credential, so load hands it to the table a bearer header is
-   answered out of (auth.h), and the table is emptied first so reading the file
-   twice leaves the tokens it names rather than two of each. It is also the one
+   answered out of (auth.h), and the tokens a file named are taken out of it first
+   so reading the file twice leaves the tokens it names rather than two of each;
+   those drawn while the program runs stay. It is also the one
    key where the least it can mean and the default are the same thing, so its two
    failing readings are told apart only by what is said.
 
@@ -334,9 +335,23 @@ struct Login
 {
 	std::string username;
 	std::string password_hash;
+
+	/* Which account this is: publishLogin counts one up each time the name or the
+	   stored form differs from what it published before, and keeps the count where a
+	   reload publishes the account as it stood. A session and every token drawn from
+	   one hold the revision they were opened under (auth.h), so a changed account ends
+	   them and a reload does not. Set by publishLogin; what a Login handed to it says
+	   here is not read. */
+	unsigned long long revision;
+
+	Login() : revision(0) {}
 };
 
 Login loginInEffect();
+
+/* The revision of the account in effect, which is loginInEffect().revision without
+   copying the account: the gate asks it of every request that carries a session. */
+unsigned long long accountRevision();
 
 /* The first password in effect, in plain: what the screen at the box shows when
    asked, and empty unless the stored form in effect is that password. The file
@@ -346,10 +361,15 @@ Login loginInEffect();
    Not a member of Login, which every login check copies: this is the one
    password the program holds as it stands, and it is held once. Published
    together with the account by publishLogin, which drops it unless it is handed
-   one, under the same lock; a replaced one is wiped and not merely freed. */
+   one, under the same lock; a replaced one is wiped and not merely freed.
+
+   publishLogin answers the revision now in effect: one more than before where the
+   name or the stored form changed, and the one before otherwise. A writer that keeps
+   the session which asked for the change carries it across (httpd::carrySession)
+   from the revision it read before to this one. */
 std::string firstPasswordInEffect();
 bool firstPasswordStands();
-void publishLogin(const Login &l, const std::string &first_password = std::string());
+unsigned long long publishLogin(const Login &l, const std::string &first_password = std::string());
 
 /* Whether this run of the program wrote a first password into the file the
    server reads: on a start that found no file, or one holding a password these
@@ -600,6 +620,14 @@ WebSettings settingsInEffect();
 bool newPasswordAwaitsLoad();
 bool restartAwaitsLoad();
 void armRestart();
+
+/* The session that stays signed in when the load putting the waiting saves in effect
+   changes the account: the one of the caller whose save changed the name or the
+   password, and empty for a caller holding none. Every other session ends with that
+   change, as with a change at the box (login_bridge::change). A later save changing
+   neither leaves it standing; a later one changing either replaces it. Called by the
+   route that saves, after a save went through and under the account's lock. */
+void keepSessionAtLoad(const std::string &token);
 
 /* Writes the values above: the name, a new password's stored form and the logo
    switch into path, leaving every other line of it where it stands, comments

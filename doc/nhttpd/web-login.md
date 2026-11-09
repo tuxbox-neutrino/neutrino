@@ -43,7 +43,9 @@ one, a signed-in browser can do nothing else:
 - The new password needs at least 8 characters and no control characters.
   It may not be the current one, and it may not be one of the passwords
   these boxes have shipped with.
-- The new password is in effect at once. Your session stays open.
+- The new password is in effect at once. This browser stays signed in.
+  Every other browser and app signed in to the web interface is signed out
+  and has to sign in again with the new password.
 
 Until you set your own password, the box also keeps the first password in
 `nhttpd-access.conf` in its configuration folder (usually
@@ -96,7 +98,19 @@ Reset it at the box itself:
 
 After a confirmation, the user is `root` again and the box makes up a new
 first password. The TV shows it in the same message as at the first start.
-The next sign-in over the web asks for a password of your own again.
+Every browser and app signed in to the web interface is signed out. The next
+sign-in over the web asks for a password of your own again.
+
+## Signed out after a change of the login
+
+A new password or a new user name signs out everybody who signed in before
+it, wherever it was set: in the web interface, over `/control/`, in the menu
+at the box or with the reset at the box. A browser signed in to the web
+interface that made the change stays signed in, also over `/control/`. An app
+that signs in with HTTP Basic holds no sign-in to keep and sends the new
+password from then on. A change in the menu at the box keeps nobody signed
+in. Saving the settings without changing the user name or the password signs
+nobody out.
 
 ## For programs using `/api/v1`
 
@@ -115,6 +129,12 @@ The next sign-in over the web asks for a password of your own again.
   from the home network (`lan_read`), are not affected.
 - `PUT /api/v1/account/password` takes `{"current": "...", "password": "..."}`
   and answers `204` once the new password is in effect.
+- A new password or user name ends every session opened before it, and every
+  token drawn through a session (`POST /api/v1/token/media`), also one the
+  asking session drew. The session the change was made with stays signed in
+  with its cookie and its `csrf` token. With `PUT /api/v1/system/webserver`
+  this happens when the restart puts the change in effect. API tokens named
+  in `nhttpd-access.conf` (`api_tokens`) are not affected.
 - `PUT /api/v1/system/webserver` holds a new `password` to the same rules,
   except that it may be the current one. Only the reset at the box sets a
   first password again.

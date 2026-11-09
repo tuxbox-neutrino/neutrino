@@ -37,6 +37,7 @@
 #include "httpd/endpoints.h"
 #include "httpd/http.h"
 #include "httpd/router.h"
+#include "httpd/webconfig.h"
 
 #include "jsoncpp/json/json.h"
 
@@ -1486,6 +1487,44 @@ TEST_CASE("the soonest to expire is the scoped token the ceiling drops", "[archi
 	std::string old_scope;
 	REQUIRE(httpd::granted(old_c, true, &old_scope) == httpd::AuthLevel::System);
 	REQUIRE(old_scope == "media");
+	httpd::forgetApiTokens();
+}
+
+TEST_CASE("the ceiling drops a token that no longer stands before one that does", "[archive][token]")
+{
+	httpd::forgetApiTokens();
+	const httpd::WebConfig before = httpd::config();
+	const time_t now = time(NULL);
+
+	// One that stands and runs out soonest of all.
+	const std::string live = httpd::randomToken();
+	REQUIRE(httpd::addApiToken(httpd::tokenLookupPrefix(live), httpd::hashSecret(live),
+	                           httpd::AuthLevel::System, httpd::mediaScopeName(), now + 50));
+
+	// The rest drawn by a session the next change of the account ends.
+	const std::string session = httpd::openSession("owner");
+	REQUIRE_FALSE(session.empty());
+	for (size_t i = 0; i + 1 < httpd::kMaxScopedTokens; ++i)
+	{
+		const std::string filler = httpd::randomToken();
+		REQUIRE(httpd::addApiToken(httpd::tokenLookupPrefix(filler), httpd::hashSecret(filler),
+		                           httpd::AuthLevel::System, httpd::mediaScopeName(), now + 100000,
+		                           session));
+	}
+	REQUIRE(httpd::scopedTokenCountForTest() == httpd::kMaxScopedTokens);
+	httpd::WebConfig moved = before;
+	moved.username = "owner";
+	moved.password_hash = httpd::hashSecret("another-one", 1000);
+	httpd::setConfigForTest(moved);
+
+	// Before the walk of the table took them away, a new one pushes out one of those.
+	REQUIRE_FALSE(httpd::openScopedToken(httpd::mediaScopeName(), httpd::AuthLevel::System).empty());
+	REQUIRE(httpd::scopedTokenCountForTest() == httpd::kMaxScopedTokens);
+	httpd::Credentials c;
+	c.query_token = live;
+	REQUIRE(httpd::granted(c, true) == httpd::AuthLevel::System);
+
+	httpd::setConfigForTest(before);
 	httpd::forgetApiTokens();
 }
 

@@ -10,6 +10,7 @@
 
 #include "httpd/auth.h"
 #include "httpd/credentials.h"
+#include "httpd/endpoints.h"
 #include "httpd/login_bridge.h"
 #include "httpd/server.h"
 #include "httpd/server_control.h"
@@ -874,5 +875,102 @@ TEST_CASE("the account changes over /control/ only for a signed-in caller or the
 		::unlink(path.c_str());
 	}
 
+	setConfigForTest(before);
+}
+
+namespace
+{
+
+// What a player holding this token for the media is granted: System while it stands.
+AuthLevel playerWith(const std::string &token)
+{
+	Credentials player;
+	player.peer = "203.0.113.30";
+	player.query_token = token;
+	return granted(player, true);
+}
+
+} // namespace
+
+TEST_CASE("a change of the account signs everybody else out and what they drew, and keeps the session that asked",
+          "[login][revision]")
+{
+	Account account;
+	const WebConfig before = config();
+	const std::string path = controlAccount(std::string(), "");
+	REQUIRE(load(path));
+
+	// Three browsers signed in, and a player holding a token one of the others drew.
+	const std::string asking = openSession(kUser);
+	const std::string other = openSession(kUser);
+	const std::string third = openSession(kUser);
+	const std::string drawn = openScopedToken(mediaScopeName(), AuthLevel::System, other);
+	const std::string drawn_by_asking = openScopedToken(mediaScopeName(), AuthLevel::System, asking);
+	REQUIRE_FALSE(drawn.empty());
+	REQUIRE_FALSE(drawn_by_asking.empty());
+	const std::string asking_csrf = csrfFor(asking);
+	REQUIRE_FALSE(asking_csrf.empty());
+
+	// The file read again as it stands is no change: nobody is signed out.
+	const unsigned long long revision = accountRevision();
+	REQUIRE(load(path));
+	REQUIRE(accountRevision() == revision);
+	REQUIRE(sessionIsLive(asking));
+	REQUIRE(sessionIsLive(other));
+	REQUIRE(sessionIsLive(third));
+	REQUIRE(playerWith(drawn) == AuthLevel::System);
+
+	// A new password over /control/, from a page of this box, signed in with one of them.
+	login_bridge::Ask from = askFor("/control/", asking);
+	from.sec_fetch_site = "same-origin";
+	std::string why;
+	std::string keep;
+	REQUIRE(login_bridge::mayChange(from, "", kRequested, &why, &keep));
+	REQUIRE(keep == asking);
+	REQUIRE(login_bridge::change("", kRequested, &why, &from, keep));
+	REQUIRE(accountRevision() != revision);
+
+	// The one that asked goes on as it was, cookie and second token alike.
+	REQUIRE(sessionIsLive(asking));
+	REQUIRE(csrfFor(asking) == asking_csrf);
+	REQUIRE(login_bridge::sessionAdmits(from));
+	// Everybody else is out, and so is every token drawn before, its own included.
+	REQUIRE_FALSE(sessionIsLive(other));
+	REQUIRE_FALSE(sessionIsLive(third));
+	REQUIRE(playerWith(drawn) == AuthLevel::Public);
+	REQUIRE(playerWith(drawn_by_asking) == AuthLevel::Public);
+	// What it draws now stands.
+	const std::string drawn_after = openScopedToken(mediaScopeName(), AuthLevel::System, asking);
+	REQUIRE(playerWith(drawn_after) == AuthLevel::System);
+
+	// A new name at the box keeps nobody signed in.
+	const std::string later = openSession(kUser);
+	REQUIRE(login_bridge::change("admin", "", &why));
+	REQUIRE_FALSE(sessionIsLive(asking));
+	REQUIRE_FALSE(sessionIsLive(later));
+	REQUIRE(playerWith(drawn_after) == AuthLevel::Public);
+
+	/* A walk of the table that read the account just before a change and takes the
+	   table just after it: a session the change carried across already holds the
+	   newer revision, and the walk leaves it. */
+	const std::string carried = openSession("admin");
+	const unsigned long long reading = accountRevision();
+	REQUIRE(carrySession(carried, reading, reading + 1));
+	expireSessions(time(NULL));
+	REQUIRE(login_bridge::change("", "after-the-walk", &why));
+	REQUIRE(accountRevision() == reading + 1);
+	REQUIRE(sessionIsLive(carried));
+
+	// The reset at the box ends every session, and one checked against the account
+	// before it opens nothing after it.
+	const unsigned long long before_reset = accountRevision();
+	const std::string again = openSession("admin");
+	std::string first;
+	REQUIRE(login_bridge::resetToFirstPassword(&first, &why));
+	REQUIRE_FALSE(sessionIsLive(again));
+	REQUIRE(openSession("root", before_reset).empty());
+	REQUIRE(sessionIsLive(openSession("root", accountRevision())));
+
+	::unlink(path.c_str());
 	setConfigForTest(before);
 }

@@ -21,6 +21,7 @@
 
 #include "httpd/endpoints.h"
 
+#include "httpd/auth.h"
 #include "httpd/endpoint.h"
 #include "httpd/http.h"
 #include "httpd/login_bridge.h"
@@ -378,7 +379,7 @@ const FieldDesc kCallerFields[] = {
 	HTTPD_MEMBER("port_moved", FieldType::Bool,
 		"whether the port changed, which is what decides whether an address already in a caller's hands is still one"),
 	HTTPD_MEMBER("password_changed", FieldType::Bool,
-		"whether the next sign in needs a different password; a session already open is not ended by it, the program not being restarted"),
+		"whether the next sign in needs a different password; once the restart has put a new password or user name in effect, every session opened before it ends except the one this request arrived with"),
 	HTTPD_MEMBER("restarting", FieldType::Bool,
 		"whether the server is being put on what the file now says, which ends every connection it is holding, this one included, and false where the request asked for what was already in effect"),
 };
@@ -531,6 +532,12 @@ Response webserverWrite(const Request &r)
 				       whatWentWrong());
 	}
 
+	/* A new name or password ends every session once the restart puts it in effect,
+	   except the one of the caller that asked, which the page goes on with. A caller
+	   let in by a token holds none, and then nobody's stays. */
+	if (s.change_password || s.username != before.username)
+		keepSessionAtLoad(sessionIsLive(r.session()) ? r.session() : std::string());
+
 	/* Measured against the server as it runs and not against `before`, which is
 	   where a save waiting for its restart left the file: the caller is told what
 	   the coming restart does to it, that earlier save's part included. */
@@ -662,7 +669,9 @@ const Endpoint kWebserverEndpoints[] = {
 	  "change means for whoever asked: `address` is where to reach the server afterward, built from "
 	  "the name this request reached the box under and the new port, and empty when the request named "
 	  "no host; `port_moved` says whether the port changed; `password_changed` says whether the next "
-	  "sign in needs a different password, a session already open not being ended by it; `restarting` "
+	  "sign in needs a different password, and once the restart has put a new password or user name in "
+	  "effect every session opened before it ends, except the one this request arrived with, and so does "
+	  "every token drawn from a session; `restarting` "
 	  "says whether anything changed enough to restart the server at all, since a request asking for "
 	  "what is already in effect changes nothing and restarts nothing.\n"
 	  "\n"

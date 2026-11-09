@@ -8100,3 +8100,124 @@ TEST_CASE("the current password is guessed no faster here than at the login, and
 	REQUIRE(fault.body.find("webserver-not-configured") != std::string::npos);
 	REQUIRE(verifySecret(kShippedPassword, loginInEffect().password_hash));
 }
+
+namespace
+{
+
+// What a request carrying this cookie and nothing else is granted, from an address
+// no network rule lets read.
+AuthLevel cookieAlone(const std::string &token)
+{
+	Credentials page;
+	page.peer = "203.0.113.40";
+	page.cookie_token = token;
+	return granted(page);
+}
+
+AuthLevel playerHolding(const std::string &token)
+{
+	Credentials player;
+	player.peer = "203.0.113.41";
+	player.query_token = token;
+	return granted(player, true);
+}
+
+// A media token drawn over the route by the session given.
+std::string mediaTokenOf(const std::string &session)
+{
+	const Response out = dispatch(Post, "/api/v1/token/media", "", "", "127.0.0.1",
+	                              AuthLevel::System, std::string(), session);
+	REQUIRE(out.code == 200);
+	return stringField(replyOf(out).body, "token");
+}
+
+} // namespace
+
+TEST_CASE("a new password over /api/v1 signs every other session out and keeps the one that asked", "[write][revision]")
+{
+	ShippedRoutes shipped;
+	ConfigFixture cfg;
+	WebFile file("revision", std::string(kWebFileHead) + "password_hash=" + hashSecret(kPassword, 2000) + "\n");
+
+	const std::string asking = tokenOf(login(kUser, kPassword));
+	const std::string other = tokenOf(login(kUser, kPassword));
+	const std::string third = tokenOf(login(kUser, kPassword));
+	const std::string drawn = mediaTokenOf(other);
+	const std::string asking_csrf = csrfFor(asking);
+	REQUIRE(playerHolding(drawn) == AuthLevel::System);
+	// and one drawn by a caller a token let in, which no session stands behind
+	const std::string drawn_bare = openScopedToken(mediaScopeName(), AuthLevel::System);
+	REQUIRE(playerHolding(drawn_bare) == AuthLevel::System);
+
+	// The restart after a save that changed something else reads the account as it
+	// stands, and signs nobody out.
+	REQUIRE(load(file.path, file.server));
+	REQUIRE(cookieAlone(asking) == AuthLevel::System);
+	REQUIRE(cookieAlone(other) == AuthLevel::System);
+	REQUIRE(cookieAlone(third) == AuthLevel::System);
+	REQUIRE(playerHolding(drawn) == AuthLevel::System);
+	// The bare one ends with the read, as the line that let its caller in may have.
+	REQUIRE(playerHolding(drawn_bare) == AuthLevel::Public);
+
+	const Response put = dispatch(Put, "/api/v1/account/password", "",
+	                              std::string("{\"current\":\"") + kPassword + "\",\"password\":\"a new pass phrase\"}",
+	                              "127.0.0.1", AuthLevel::System, std::string(), asking);
+	REQUIRE(put.code == 204);
+
+	// The page that asked goes on without signing in again.
+	REQUIRE(cookieAlone(asking) == AuthLevel::System);
+	REQUIRE(csrfFor(asking) == asking_csrf);
+	// Every other browser is a caller presenting nothing, and the player's token is
+	// worth nothing.
+	REQUIRE(cookieAlone(other) == AuthLevel::Public);
+	REQUIRE(cookieAlone(third) == AuthLevel::Public);
+	REQUIRE(playerHolding(drawn) == AuthLevel::Public);
+	// The old password opens nothing, the new one opens a session as before.
+	REQUIRE(login(kUser, kPassword).code == 401);
+	REQUIRE(cookieAlone(tokenOf(login(kUser, "a new pass phrase"))) == AuthLevel::System);
+}
+
+TEST_CASE("a new password over the webserver route signs the others out once the restart puts it in effect", "[write][revision]")
+{
+	ShippedRoutes shipped;
+	ConfigFixture cfg;
+	WebFile file("revision-put", std::string(kWebFileHead) + "password_hash=" + hashSecret(kPassword, 2000) + "\n");
+
+	const std::string asking = tokenOf(login(kUser, kPassword));
+	const std::string other = tokenOf(login(kUser, kPassword));
+	const std::string drawn = mediaTokenOf(asking);
+
+	const Response put = dispatch(Put, "/api/v1/system/webserver", "", "{\"password\":\"a new pass phrase\"}",
+	                              "192.0.2.7", AuthLevel::System, std::string(), asking, "box.example:8081");
+	REQUIRE(put.code == 200);
+	REQUIRE(put.reload_after == file.path);
+
+	// Until the restart reads the file the old password is the one in effect, and so
+	// is everybody's session.
+	REQUIRE(cookieAlone(asking) == AuthLevel::System);
+	REQUIRE(cookieAlone(other) == AuthLevel::System);
+
+	// Another caller saving something else meanwhile does not take the place of the
+	// one that changed the password.
+	const Response meanwhile = dispatch(Put, "/api/v1/system/webserver", "", "{\"port\":8083}",
+	                                    "192.0.2.7", AuthLevel::System, std::string(), other,
+	                                    "box.example:8081");
+	REQUIRE(meanwhile.code == 200);
+
+	// The restart's read: the caller that asked stays, the other is out, and what was
+	// drawn before is worth nothing.
+	REQUIRE(load(file.path, file.server));
+	REQUIRE(verifySecret("a new pass phrase", loginInEffect().password_hash));
+	REQUIRE(cookieAlone(asking) == AuthLevel::System);
+	REQUIRE(cookieAlone(other) == AuthLevel::Public);
+	REQUIRE(playerHolding(drawn) == AuthLevel::Public);
+
+	// A save that moves the port alone signs nobody out at its restart.
+	const std::string later = tokenOf(login(kUser, "a new pass phrase"));
+	const Response port = dispatch(Put, "/api/v1/system/webserver", "", "{\"port\":8082}",
+	                               "192.0.2.7", AuthLevel::System, std::string(), later, "box.example:8081");
+	REQUIRE(port.code == 200);
+	REQUIRE(load(file.path, file.server));
+	REQUIRE(cookieAlone(asking) == AuthLevel::System);
+	REQUIRE(cookieAlone(later) == AuthLevel::System);
+}

@@ -220,8 +220,27 @@ const char *csrfRefusedDetail();
    A session runs out after the configured lifetime without a request, and every
    request it carries through the gate starts that lifetime again, up to thirty days
    after it was opened. The table holds sixty four; a full one gives up the session
-   that would run out soonest. */
+   that would run out soonest.
+
+   A session belongs to the account it was opened under, the revision of it
+   (webconfig.h, Login) the caller checked the password against. It answers for
+   nothing once the account in effect is another one: a new password, a new name, the
+   reset at the box or a first password put in place ends every session that was
+   opened before, and every token drawn from one, except the one session a change
+   carries across (carrySession). A reload that publishes the same account ends none.
+   A revision that is no longer the one in effect opens nothing, so a login whose
+   check raced a change to the account hands out no session.
+
+   The overload without a revision opens under the account in effect when it is
+   called, for a caller that checked nothing against it. */
+std::string openSession(const std::string &user, unsigned long long revision);
 std::string openSession(const std::string &user);
+
+/* Keeps the session a change to the account was asked for by: moves it from the
+   revision from, which it has to be live under, to the revision to, which the change
+   published. False and nothing moved for a token naming no such session. What the
+   session drew before stays with from and ends there; it draws again under to. */
+bool carrySession(const std::string &token, unsigned long long from, unsigned long long to);
 
 /* What the route that hands that token out sets on the cookie is written where that route
    is: this file mints a token and knows nothing about the answer it travels in.
@@ -358,8 +377,10 @@ void setSessionClockForTest(time_t now);
    out, which is the same set: a line in a file is taken away by editing the file.
 
    session, when it is not empty, is the cookie token of the session the token was drawn
-   from, and the token ends with that session. False and nothing written for a record
-   with nothing to find it by, and for a session that is no longer live. */
+   from, and the token ends with that session and with the account it was drawn under:
+   a change to the account ends it even where the session that drew it is carried
+   across. False and nothing written for a record with nothing to find it by, and for a
+   session that is no longer live. */
 bool addApiToken(const std::string &prefix, const std::string &hashed, AuthLevel level,
                  const std::string &scope = std::string(), time_t expires = 0,
                  const std::string &session = std::string());
@@ -379,7 +400,8 @@ const size_t kMaxScopedTokens = 256;
 
    It lives for the lifetime below and in memory, until it runs out or the daemon stops.
    Drawn with a session's cookie token it also ends when that session does, by signing
-   out or by running out. Nothing here writes a token into a file, so a token that leaked
+   out or by running out, and with any change to the account. Nothing here writes a
+   token into a file, so a token that leaked
    cannot outlive the box's uptime, and there is no line in a configuration for anyone to
    find one in. */
 const unsigned kScopedTokenLifetime = 6 * 60 * 60;
@@ -387,12 +409,19 @@ const unsigned kScopedTokenLifetime = 6 * 60 * 60;
 std::string openScopedToken(const std::string &scope, AuthLevel level,
                             const std::string &session = std::string());
 
-/* Empties that table. The thing that fills it from a file calls this first, so
-   reading the file twice leaves the tokens the file names rather than two of each.
-   There is no window in which a request could be answered out of an empty table:
-   that file is read before the daemon is started and nothing reloads it under a
-   running one. */
+// Empties that table, every token in it.
 void forgetApiTokens();
+
+/* Empties that table of every token not drawn from a session: those a configuration
+   named and those a caller let in by one of them drew. The thing that fills it from a
+   file calls this first, so reading the file twice leaves the tokens the file names
+   rather than two of each, and a token drawn by a line the file no longer names ends
+   with the line. A token drawn from a session stays: a reload is no change to the
+   account, so a player handed one before it goes on, and it still ends with that
+   session or with a change to the account. There is no window in which a request
+   could be answered out of a table missing what the file names: that file is read
+   while the daemon is stopped. */
+void forgetConfiguredApiTokens();
 
 // How many scoped tokens the table currently holds, for a case to check the ceiling.
 size_t scopedTokenCountForTest();

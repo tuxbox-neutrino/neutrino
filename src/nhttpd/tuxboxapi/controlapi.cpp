@@ -5275,10 +5275,12 @@ void CControlAPI::ConfigCGI(CyhookHandler *hh)
 	}
 	const bool names_account = !login_user.empty() || !login_password.empty();
 	login_bridge::Ask from;
+	// the session that let the request in, which stays signed in across the change
+	std::string keep_session;
 	if (names_account) {
 		std::string why;
 		from = CmAuth::AskOf(hh);
-		if (!login_bridge::mayChange(from, login_user, login_password, &why))
+		if (!login_bridge::mayChange(from, login_user, login_password, &why, &keep_session))
 			error = "the settings were not written: " + why;
 	}
 	const bool refused = !error.empty();
@@ -5373,7 +5375,7 @@ void CControlAPI::ConfigCGI(CyhookHandler *hh)
 				server_lock = NULL;
 				if (names_account) {
 					std::string why;
-					if (!login_bridge::change(login_user, login_password, &why, &from))
+					if (!login_bridge::change(login_user, login_password, &why, &from, keep_session))
 						error = "the login was not changed: " + why;
 				}
 				// pick up new auth credentials without a restart,

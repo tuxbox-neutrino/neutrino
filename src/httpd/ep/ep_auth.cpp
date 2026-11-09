@@ -250,7 +250,9 @@ Response login(const Request &r)
 	   somebody to go on delaying because the pool the token comes out of was empty. */
 	held.granted = true;
 
-	const std::string token = openSession(cfg.username);
+	/* Under the account the password was checked against, so a change to the account
+	   landing between the check and this line opens nothing. */
+	const std::string token = openSession(cfg.username, cfg.revision);
 	/* Nothing was written into the table, so there is no session and no cookie
 	   to hand out. Answered as a fault here rather than as a refusal, because
 	   the credential was right and what failed is this server. */
@@ -370,8 +372,9 @@ bool acceptablePassword(const std::string &password, const std::string &current,
    logout. The password in effect is asked for again, and a wrong one is
    counted against the address as a wrong login is, so a session left open on
    somebody else's screen is not a way of setting the box's password. In
-   effect for every login when this answers; sessions already open stay open,
-   this one among them, which is how the page goes on from here. */
+   effect for every login when this answers. Every other session ends with it,
+   and every token drawn from one; the session this request arrived with stays
+   signed in, which is how the page goes on from here. */
 Response changePassword(const Request &r)
 {
 	unsigned retry_after = 0;
@@ -390,7 +393,8 @@ Response changePassword(const Request &r)
 	std::string why;
 	if (!acceptablePassword(password, current, why))
 		return problemResponse(StatusBadRequest, coreapi::ErrorCode::BadString, why);
-	if (!login_bridge::change(std::string(), password, &why, NULL))
+	const std::string keep = sessionIsLive(r.session()) ? r.session() : std::string();
+	if (!login_bridge::change(std::string(), password, &why, NULL, keep))
 		return problemResponse(StatusInternalServerError, coreapi::ErrorCode::WebserverNotConfigured,
 		                       "the password could not be changed: " + why);
 	return noContent();
@@ -507,7 +511,9 @@ const Endpoint kAuthEndpoints[] = {
 	  "request that changes something, and `expires_in` in seconds. The session itself travels in a "
 	  "`Set-Cookie` header (`HttpOnly`, `SameSite=Lax`, no expiry attribute, so the browser forgets it "
 	  "when it closes). A session runs out after the configured lifetime without a request; every "
-	  "request it carries starts that lifetime again, up to 30 days after the login.\n"
+	  "request it carries starts that lifetime again, up to 30 days after the login. It also ends when "
+	  "the account changes: a new password or user name, set anywhere, or the reset at the box, ends "
+	  "every session opened before it except the one of the caller that made the change.\n"
 	  "\n"
 	  "**Preconditions:** a username and a password hash must be configured on the box; a box with "
 	  "neither configured never matches whatever is sent, so login always fails.\n"
@@ -575,7 +581,9 @@ const Endpoint kAuthEndpoints[] = {
 	  "again in `current`; a wrong one is counted against the address like a wrong login. The new "
 	  "password has at least 8 characters, holds no control characters, is none of the passwords "
 	  "these boxes have shipped with and is not the one it replaces. It is in effect for every login "
-	  "when this answers; sessions already open stay open, the one asking among them.\n"
+	  "when this answers. Every other session ends with it, and so does every token drawn from a "
+	  "session, this one's included; the session this request arrived with stays signed in, its "
+	  "cookie and its second token unchanged.\n"
 	  "\n"
 	  "While the box still opens to a password it shipped with, or to the first password it set for "
 	  "itself and showed on its screen, this is the route a caller signed in with it is to use: every route but this one, `POST /api/v1/login`, `GET /api/v1/session` and "
@@ -616,7 +624,7 @@ const Endpoint kAuthEndpoints[] = {
 	  "**Side effects:** records the token's hash and expiry in memory only; nothing is written to "
 	  "disk, so the token stops working the moment the box restarts. It lives 6 hours from the moment "
 	  "it is drawn, and a token drawn through a session ends earlier when that session ends, by "
-	  "logging out or by running out.\n"
+	  "logging out or by running out, and when the account's password or user name changes.\n"
 	  "\n"
 	  "**Related:** `POST /api/v1/login`, `GET /api/v1/storage/file`, "
 	  "`GET /api/v1/recordings/archive/{id}/file`, `GET /api/v1/recordings/archive/{id}/playlist.m3u`.",

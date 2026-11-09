@@ -1017,7 +1017,7 @@ void takeApiToken(const std::string &entry, size_t at)
    from outside and are not the same mistake. */
 void readApiTokens(const Pairs &m, const CutShort &cut)
 {
-	forgetApiTokens();
+	forgetConfiguredApiTokens();
 
 	std::string raw;
 	const Reading r = reading(m, cut, kKeyApiTokens, raw);
@@ -2100,6 +2100,9 @@ struct Pending
 	bool        new_password;
 	bool        restart_due;
 
+	// the session keepSessionAtLoad named, carried across the change the load makes
+	std::string keep_session;
+
 	Pending() : held(false), new_password(false), restart_due(false) {}
 };
 
@@ -2112,7 +2115,15 @@ Pending &pending()
 void forgetPending()
 {
 	OpenThreads::ScopedLock<OpenThreads::Mutex> held_lock(loginLock());
+	forget(pending().keep_session);
 	pending() = Pending();
+}
+
+// The session keepSessionAtLoad named, and empty where none is named.
+std::string pendingKeep()
+{
+	OpenThreads::ScopedLock<OpenThreads::Mutex> held_lock(loginLock());
+	return pending().keep_session;
 }
 
 // A restart ran, whether or not its read went through: none is due any more.
@@ -2150,6 +2161,12 @@ Login loginInEffect()
 	return heldLogin();
 }
 
+unsigned long long accountRevision()
+{
+	OpenThreads::ScopedLock<OpenThreads::Mutex> held_lock(loginLock());
+	return heldLogin().revision;
+}
+
 std::string firstPasswordInEffect()
 {
 	OpenThreads::ScopedLock<OpenThreads::Mutex> held_lock(loginLock());
@@ -2162,12 +2179,28 @@ bool firstPasswordStands()
 	return !heldFirst().empty();
 }
 
-void publishLogin(const Login &l, const std::string &first_password)
+unsigned long long publishLogin(const Login &l, const std::string &first_password)
 {
 	OpenThreads::ScopedLock<OpenThreads::Mutex> held_lock(loginLock());
-	heldLogin() = l;
+	Login &in_effect = heldLogin();
+	/* A first password standing or gone alone is no new account: it goes with a stored
+	   form, and a stored form that changed is counted here already. */
+	const bool same = in_effect.username == l.username && in_effect.password_hash == l.password_hash;
+	const unsigned long long revision = same ? in_effect.revision : in_effect.revision + 1;
+	in_effect = l;
+	in_effect.revision = revision;
 	forget(heldFirst());
 	heldFirst() = first_password;
+	return revision;
+}
+
+void keepSessionAtLoad(const std::string &token)
+{
+	OpenThreads::ScopedLock<OpenThreads::Mutex> held_lock(loginLock());
+	if (!pending().held)
+		return;
+	forget(pending().keep_session);
+	pending().keep_session = token;
 }
 
 bool firstPasswordWrittenThisRun()
@@ -2400,11 +2433,20 @@ bool load(const std::string &path, const std::string &server_path)
 	readApiTokens(m, cut);
 
 	held() = c;
+	/* What changed the account since the last read is a save waiting for this one,
+	   and the session of the caller that asked for it stays signed in: carried from
+	   the account it was opened under to this one, while every other session ends.
+	   Under the account's lock, so nothing publishes in between. */
+	std::string keep = pendingKeep();
 	forgetPending();
 	Login l;
 	l.username = c.username;
 	l.password_hash = c.password_hash;
-	publishLogin(l, first);
+	const unsigned long long was = accountRevision();
+	const unsigned long long now = publishLogin(l, first);
+	if (now != was && !keep.empty())
+		(void) carrySession(keep, was, now);
+	forget(keep);
 	forget(first);
 	return true;
 }
@@ -3060,6 +3102,9 @@ bool saveWebSettings(const std::string &path, const WebSettings &s, std::string 
 			p.s.first_password = false;
 			p.new_password = s.change_password || (pending().held && pending().new_password);
 			p.restart_due = pending().held && pending().restart_due;
+			if (pending().held)
+				p.keep_session = pending().keep_session;
+			forget(pending().keep_session);
 			pending() = p;
 		}
 	}

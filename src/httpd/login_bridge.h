@@ -89,8 +89,13 @@ bool basicAdmits(const Ask &a);
    directly. Behind a proxy on the box every request arrives from the loopback, and a
    configured proxy is the only sign of one, so with one configured the loopback counts
    for nothing. An address the old server lets in without a login
-   (mod_auth.no_auth_client) is none of these. */
-bool mayChange(const Ask &a, const std::string &user, const std::string &password, std::string *why);
+   (mod_auth.no_auth_client) is none of these.
+
+   session, when it is not null, is left carrying the token of the session that lets
+   the request in where one does, and empty otherwise: the session change() keeps
+   signed in. */
+bool mayChange(const Ask &a, const std::string &user, const std::string &password, std::string *why,
+               std::string *session = 0);
 
 /* Closes the session the Cookie header names, and whether there was one. */
 bool closeSessionOf(const std::string &cookie_header);
@@ -125,7 +130,9 @@ bool replaceShippedPassword(std::string *why);
 /* The way back in from the menu at the box, for an owner who no longer knows
    the password: user root and a new first password, which the screen shows and
    the first login asks to replace. first is handed the password to show and is
-   empty on a refusal, which leaves the login as it was. */
+   empty on a refusal, which leaves the login as it was. Every session ends with it,
+   and every token drawn from one: whoever got in with the password that was lost is
+   out again. */
 bool resetToFirstPassword(std::string *first, std::string *why);
 
 /* A change to the account from the screen at the box or from a page.
@@ -133,8 +140,14 @@ bool resetToFirstPassword(std::string *first, std::string *why);
    An empty name or an empty password leaves that half as it is: a screen cannot
    show a stored form, so it opens the field empty, and an untouched field must not
    take the password off the box. Written to nhttpd-access.conf and in effect for every
-   login when this returns; sessions already open stay open, as they do when the
-   REST route changes the password.
+   login when this returns.
+
+   A new name or a new password ends every session opened before it, and every token
+   drawn from one, wherever it was opened: whoever else held the account is signed
+   out. keep_session, the session of the caller that asked, stays signed in under
+   the new account, its cookie and its second token as they were; what it drew before
+   ends with the rest. Empty keeps nobody, which is the screen at the box and a caller
+   that holds no session. A change that changes nothing ends nothing.
 
    from is the request that asked, for a change arriving over the old server, and
    NULL for the screen at the box. Such a change is taken only from a page of this
@@ -149,7 +162,7 @@ bool resetToFirstPassword(std::string *first, std::string *why);
    A first password standing goes with any password set here and stays with a
    name changed alone. */
 bool change(const std::string &user, const std::string &password, std::string *why,
-            const Ask *from = 0);
+            const Ask *from = 0, const std::string &keep_session = std::string());
 
 } // namespace login_bridge
 

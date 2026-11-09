@@ -82,7 +82,10 @@ struct Session
 	time_t      opened;
 	time_t      expires;
 
-	Session() : opened(0), expires(0) {}
+	// the account it answers for (webconfig.h, Login::revision)
+	unsigned long long revision;
+
+	Session() : opened(0), expires(0), revision(0) {}
 };
 
 /* The longest a session lasts however busy it is, which is also the longest
@@ -114,7 +117,14 @@ struct ApiToken
 	   ends what the page handed to a player as well. */
 	std::string session;
 
-	ApiToken() : level(AuthLevel::Public), expires(0) {}
+	/* The account the session was opened under when it drew this, read only where
+	   session is set. Kept apart from the session's own, which a change to the
+	   account can carry across: a token travels in addresses, and one handed to a
+	   player before the password changed is the credential most likely to have
+	   been seen by somebody else. */
+	unsigned long long revision;
+
+	ApiToken() : level(AuthLevel::Public), expires(0), revision(0) {}
 };
 
 /* What one address has been doing at the login route. Nothing about who it
@@ -183,6 +193,25 @@ OpenThreads::Mutex &lock()
 {
 	static OpenThreads::Mutex m;
 	return m;
+}
+
+/* Whether a session answers for anything at now: opened under the account in effect
+   and not run out. account is accountRevision(), which every caller reads before it
+   takes the lock above, the account having a lock of its own. */
+bool standing(const Session &s, time_t now, unsigned long long account)
+{
+	return s.revision == account && s.expires > now;
+}
+
+/* Whether a token drawn from a session still stands: drawn under the account in
+   effect, and the session it was drawn from standing. Called with the lock held, and
+   only for a token that names a session. */
+bool drawnTokenStandsLocked(const ApiToken &t, time_t now, unsigned long long account)
+{
+	if (t.revision != account)
+		return false;
+	const std::map<std::string, Session>::const_iterator owner = table().sessions.find(t.session);
+	return owner != table().sessions.end() && standing(owner->second, now, account);
 }
 
 /* Whether two secrets are the same, in a time that does not depend on how much of one
@@ -303,15 +332,22 @@ void dropTokensOfLocked(const std::string &session)
 	table().tokens.resize(kept);
 }
 
-// Drops what has run out. Called with the lock held.
-void expireLocked(time_t now)
+/* Drops what has run out, and what was opened under an account older than account.
+   Called with the lock held.
+
+   Older and not other: account was read before the lock was taken, and a change can
+   publish and carry a session across in between. Such a session holds a revision
+   newer than the reading, and dropping it would sign out the caller the change was
+   made to keep. Revisions only grow, so a session older than the reading never
+   stands again. */
+void expireLocked(time_t now, unsigned long long account)
 {
 	std::map<std::string, Session>::iterator i = table().sessions.begin();
 	while (i != table().sessions.end())
 	{
 		std::map<std::string, Session>::iterator here = i;
 		++i;
-		if (here->second.expires <= now)
+		if (here->second.expires <= now || here->second.revision < account)
 		{
 			dropTokensOfLocked(here->first);
 			table().sessions.erase(here);
@@ -322,11 +358,14 @@ void expireLocked(time_t now)
 	   that has run out is refused where it is looked up whether or not this has been
 	   round, so this is about giving memory back: a page that mints one per visit
 	   would otherwise leave the table as long as the daemon runs. Nought is a record
-	   with no end, which is every token a configuration named. */
+	   with no end, which is every token a configuration named. A token drawn under
+	   an older account goes as well, its session carried across or not. */
 	size_t kept = 0;
 	for (size_t k = 0; k < table().tokens.size(); ++k)
 	{
 		if (table().tokens[k].expires != 0 && table().tokens[k].expires <= now)
+			continue;
+		if (!table().tokens[k].session.empty() && table().tokens[k].revision < account)
 			continue;
 		if (kept != k)
 			table().tokens[kept] = table().tokens[k];
@@ -341,12 +380,13 @@ void expireLocked(time_t now)
    never walked again until the clock had caught up. */
 void sweepIfDue()
 {
+	const unsigned long long account = accountRevision();
 	OpenThreads::ScopedLock<OpenThreads::Mutex> held(lock());
 	const time_t now = time(NULL);
 	if (now >= table().swept && now - table().swept < sweep_every)
 		return;
 	table().swept = now;
-	expireLocked(now);
+	expireLocked(now, account);
 }
 
 /* The session a cookie token names, when there is one and it has not run out.
@@ -359,6 +399,7 @@ bool liveSession(const std::string &token, std::string *csrf,
 	if (token.empty())
 		return false;
 
+	const unsigned long long account = accountRevision();
 	OpenThreads::ScopedLock<OpenThreads::Mutex> held(lock());
 
 	/* This lookup is the one comparison in this file that is not constant time: a
@@ -370,7 +411,7 @@ bool liveSession(const std::string &token, std::string *csrf,
 	const std::map<std::string, Session>::const_iterator i = table().sessions.find(token);
 	if (i == table().sessions.end())
 		return false;
-	if (i->second.expires <= sessionNow())
+	if (!standing(i->second, sessionNow(), account))
 		return false;
 
 	if (csrf != NULL)
@@ -391,13 +432,14 @@ void slideSession(const std::string &token)
 	if (token.empty())
 		return;
 
+	const unsigned long long account = accountRevision();
 	OpenThreads::ScopedLock<OpenThreads::Mutex> held(lock());
 	const std::map<std::string, Session>::iterator i = table().sessions.find(token);
 	if (i == table().sessions.end())
 		return;
 
 	const time_t now = sessionNow();
-	if (i->second.expires <= now)
+	if (!standing(i->second, now, account))
 		return;
 
 	const time_t moved   = expiryFrom(now, config().session_lifetime_s);
@@ -432,6 +474,7 @@ bool tokenLevel(const std::string &token, AuthLevel *out, std::string *scope = N
 
 	std::vector<ApiToken> candidates;
 	{
+		const unsigned long long account = accountRevision();
 		OpenThreads::ScopedLock<OpenThreads::Mutex> held(lock());
 		const time_t now = time(NULL);
 		for (size_t i = 0; i < table().tokens.size(); ++i)
@@ -441,14 +484,11 @@ bool tokenLevel(const std::string &token, AuthLevel *out, std::string *scope = N
 			if (table().tokens[i].expires != 0 && table().tokens[i].expires <= now)
 				continue;
 			/* A token drawn from a session is refused once that session has run
-			   out, whether or not the walk has been round to take both away. */
-			if (!table().tokens[i].session.empty())
-			{
-				const std::map<std::string, Session>::const_iterator owner =
-					table().sessions.find(table().tokens[i].session);
-				if (owner == table().sessions.end() || owner->second.expires <= sessionNow())
-					continue;
-			}
+			   out or the account has changed, whether or not the walk has been
+			   round to take both away. */
+			if (!table().tokens[i].session.empty() &&
+			    !drawnTokenStandsLocked(table().tokens[i], sessionNow(), account))
+				continue;
 			candidates.push_back(table().tokens[i]);
 		}
 	}
@@ -874,6 +914,11 @@ bool allowed(AuthLevel need, AuthLevel have, Method m, const Credentials &c,
 
 std::string openSession(const std::string &user)
 {
+	return openSession(user, accountRevision());
+}
+
+std::string openSession(const std::string &user, unsigned long long revision)
+{
 	const std::string token = randomToken();
 	const std::string csrf  = randomToken();
 	if (token.empty() || csrf.empty())
@@ -882,6 +927,13 @@ std::string openSession(const std::string &user)
 	Session s;
 	s.user = user;
 	s.csrf = csrf;
+	s.revision = revision;
+
+	const unsigned long long account = accountRevision();
+	/* Checked against an account that has been replaced since: a session opened
+	   now would answer for an account that never had this password. */
+	if (revision != account)
+		return std::string();
 
 	OpenThreads::ScopedLock<OpenThreads::Mutex> held(lock());
 	s.opened  = sessionNow();
@@ -891,7 +943,7 @@ std::string openSession(const std::string &user)
 	   would run out soonest, with whatever it drew. A caller signing in over and
 	   over pushes out its own sessions before anybody else's busy one. */
 	if (table().sessions.size() >= kMaxSessions)
-		expireLocked(s.opened);
+		expireLocked(s.opened, account);
 	if (table().sessions.size() >= kMaxSessions)
 	{
 		std::map<std::string, Session>::iterator victim = table().sessions.begin();
@@ -914,6 +966,19 @@ std::string openSession(const std::string &user)
 bool sessionIsLive(const std::string &token)
 {
 	return liveSession(token, NULL);
+}
+
+bool carrySession(const std::string &token, unsigned long long from, unsigned long long to)
+{
+	if (token.empty())
+		return false;
+
+	OpenThreads::ScopedLock<OpenThreads::Mutex> held(lock());
+	const std::map<std::string, Session>::iterator i = table().sessions.find(token);
+	if (i == table().sessions.end() || !standing(i->second, sessionNow(), from))
+		return false;
+	i->second.revision = to;
+	return true;
 }
 
 bool closeSession(const std::string &token)
@@ -966,8 +1031,9 @@ size_t sessionCount()
 
 void expireSessions(time_t now)
 {
+	const unsigned long long account = accountRevision();
 	OpenThreads::ScopedLock<OpenThreads::Mutex> held(lock());
-	expireLocked(now);
+	expireLocked(now, account);
 }
 
 void setSweepIntervalForTest(time_t seconds)
@@ -1113,15 +1179,18 @@ bool addApiToken(const std::string &prefix, const std::string &hashed, AuthLevel
 	t.expires = expires;
 	t.session = session;
 
+	const unsigned long long account = accountRevision();
 	OpenThreads::ScopedLock<OpenThreads::Mutex> held(lock());
 
-	/* Drawn for a session that has run out or was closed in the meantime: nothing
-	   is written, or the token would outlive what it was drawn from after all. */
+	/* Drawn for a session that has run out, was closed or belongs to an account
+	   replaced in the meantime: nothing is written, or the token would outlive what
+	   it was drawn from after all. */
 	if (!session.empty())
 	{
 		const std::map<std::string, Session>::const_iterator owner = table().sessions.find(session);
-		if (owner == table().sessions.end() || owner->second.expires <= sessionNow())
+		if (owner == table().sessions.end() || !standing(owner->second, sessionNow(), account))
 			return false;
+		t.revision = owner->second.revision;
 	}
 
 	if (!scope.empty())
@@ -1131,15 +1200,27 @@ bool addApiToken(const std::string &prefix, const std::string &hashed, AuthLevel
 			if (!table().tokens[i].scope.empty())
 				++scoped;
 
+		/* What goes is a token that no longer stands, the walk of the table not having
+		   been round to it since the account changed or it ran out, and only where
+		   there is none, the one running out soonest. */
+		const time_t now = time(NULL);
 		while (scoped >= kMaxScopedTokens)
 		{
 			size_t victim = table().tokens.size();
+			bool victim_stands = true;
 			for (size_t i = 0; i < table().tokens.size(); ++i)
 			{
-				if (table().tokens[i].scope.empty())
+				const ApiToken &k = table().tokens[i];
+				if (k.scope.empty())
 					continue;
-				if (victim == table().tokens.size() || table().tokens[i].expires < table().tokens[victim].expires)
+				const bool stands = (k.expires == 0 || k.expires > now) &&
+				                    (k.session.empty() || drawnTokenStandsLocked(k, sessionNow(), account));
+				if (victim == table().tokens.size() || (victim_stands && !stands) ||
+				    (stands == victim_stands && k.expires < table().tokens[victim].expires))
+				{
 					victim = i;
+					victim_stands = stands;
+				}
 			}
 			if (victim == table().tokens.size())
 				break;
@@ -1193,6 +1274,21 @@ void forgetApiTokens()
 {
 	OpenThreads::ScopedLock<OpenThreads::Mutex> held(lock());
 	table().tokens.clear();
+}
+
+void forgetConfiguredApiTokens()
+{
+	OpenThreads::ScopedLock<OpenThreads::Mutex> held(lock());
+	size_t kept = 0;
+	for (size_t k = 0; k < table().tokens.size(); ++k)
+	{
+		if (table().tokens[k].session.empty())
+			continue;
+		if (kept != k)
+			table().tokens[kept] = table().tokens[k];
+		++kept;
+	}
+	table().tokens.resize(kept);
 }
 
 } // namespace httpd

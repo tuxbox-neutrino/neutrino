@@ -274,10 +274,13 @@ bool basicAdmits(const Ask &a)
 	}
 }
 
-bool mayChange(const Ask &a, const std::string &user, const std::string &password, std::string *why)
+bool mayChange(const Ask &a, const std::string &user, const std::string &password, std::string *why,
+               std::string *session)
 {
 	if (why != NULL)
 		why->clear();
+	if (session != NULL)
+		session->clear();
 	try
 	{
 		if (!fromThisBox(a))
@@ -287,9 +290,12 @@ bool mayChange(const Ask &a, const std::string &user, const std::string &passwor
 			return false;
 		}
 
-		// the loopback first, so a call from the box costs no derivation and no login attempt
+		/* The loopback and a session before the Basic pair, so a call from the box or
+		   from a signed-in page costs no derivation and no login attempt. A session is
+		   asked even of the box itself, since it is the one a change keeps. */
+		const bool by_session = sessionAdmits(a);
 		const bool here = !httpd::proxiesConfigured(httpd::config()) && httpd::isLoopbackPeer(a.peer);
-		if (!here && !sessionAdmits(a) && !basicAdmits(a))
+		if (!here && !by_session && !basicAdmits(a))
 		{
 			if (why != NULL)
 				*why = "changing the account needs a sign-in";
@@ -306,12 +312,18 @@ bool mayChange(const Ask &a, const std::string &user, const std::string &passwor
 
 		if (!user.empty() && !httpd::usernameAcceptable(user, why))
 			return false;
-		return password.empty() || httpd::passwordAcceptable(password, why);
+		if (!password.empty() && !httpd::passwordAcceptable(password, why))
+			return false;
+		if (by_session && session != NULL)
+			*session = httpd::cookieValue(a.cookie, httpd::sessionCookieName());
+		return true;
 	}
 	catch (...)
 	{
 		if (why != NULL)
 			*why = "the account could not be changed";
+		if (session != NULL)
+			session->clear();
 		return false;
 	}
 }
@@ -511,7 +523,7 @@ bool resetToFirstPassword(std::string *first, std::string *why)
 }
 
 bool change(const std::string &user, const std::string &password, std::string *why,
-            const Ask *from)
+            const Ask *from, const std::string &keep_session)
 {
 	if (why != NULL)
 		why->clear();
@@ -574,8 +586,13 @@ bool change(const std::string &user, const std::string &password, std::string *w
 		httpd::Login now;
 		now.username = s.username;
 		now.password_hash = s.change_password ? stored : before.password_hash;
-		httpd::publishLogin(now, first);
+		/* Every session of the account before ends here; the one that asked goes on
+		   under the account it set. Both under the account's lock, so no other change
+		   lands in between and moves the account on again. */
+		const unsigned long long revision = httpd::publishLogin(now, first);
 		forget(first);
+		if (revision != before.revision && !keep_session.empty())
+			(void) httpd::carrySession(keep_session, before.revision, revision);
 		return true;
 	}
 	catch (...)
