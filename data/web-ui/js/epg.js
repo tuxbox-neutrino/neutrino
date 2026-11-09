@@ -164,30 +164,7 @@ async function loadEpg() {
 		gridWindow = {start: startTime, stop: stopTime};
 		placeNow(now);
 
-		// the guide, a page of channels at a time
-		let cursor = null;
-		const filled = new Set();
-		do {
-			const query = {bouquet: currentBouquet, from: startTime, to: stopTime, limit: 20};
-			if (cursor) query.cursor = cursor;
-			const page = await webuiV1('GET', '/epg/grid', {query: query});
-			if (token !== gridToken) return;
-			((page && page.items) || []).forEach(row => {
-				const target = gridRows[row.channel_id];
-				if (!target) return;
-				target.events = row.events || [];
-				fillRow(target);
-				filled.add(row.channel_id);
-			});
-			cursor = page && page.next_cursor;
-		} while (cursor);
-		// a channel the guide gave no row for has nothing in the window
-		Object.keys(gridRows).forEach(id => {
-			if (!filled.has(id)) {
-				gridRows[id].events = [];
-				fillRow(gridRows[id]);
-			}
-		});
+		await fillGrid(token, currentBouquet, startTime, stopTime);
 	} catch (e) {
 		if (token !== gridToken) return;
 		// rows already drawn stay; the grid as a whole says why it could not
@@ -196,6 +173,50 @@ async function loadEpg() {
 		else
 			grid.replaceChildren(webuiStateFor(e, {retry: loadEpg}));
 	}
+}
+
+// The guide for the rows of the grid shown, a page of channels at a time,
+// each row drawn as its page arrives; a channel the guide gave no row for
+// has nothing in the window. Stops quietly once another grid was begun
+// (token) or, where it is given, once superseded() says that a newer read of
+// the same rows was.
+async function fillGrid(token, bouquet, startTime, stopTime, superseded) {
+	let cursor = null;
+	const filled = new Set();
+	do {
+		const query = {bouquet: bouquet, from: startTime, to: stopTime, limit: 20};
+		if (cursor) query.cursor = cursor;
+		const page = await webuiV1('GET', '/epg/grid', {query: query});
+		if (token !== gridToken || (superseded && superseded())) return;
+		((page && page.items) || []).forEach(row => {
+			const target = gridRows[row.channel_id];
+			if (!target) return;
+			target.events = row.events || [];
+			fillRow(target);
+			filled.add(row.channel_id);
+		});
+		cursor = page && page.next_cursor;
+	} while (cursor);
+	Object.keys(gridRows).forEach(id => {
+		if (!filled.has(id)) {
+			gridRows[id].events = [];
+			fillRow(gridRows[id]);
+		}
+	});
+}
+
+// The guide of the grid shown, read again in place: the rows keep what
+// they show until their page arrives, and a read that fails leaves them
+// as they are. Only the newest of such reads draws: an older one, still on
+// its way when a newer began, stops, so its pages cannot land last.
+let gridReread = 0;
+async function refreshGrid() {
+	const win = gridWindow;
+	if (!win) return;
+	const read = ++gridReread;
+	try {
+		await fillGrid(gridToken, currentBouquet, win.start, win.stop, () => read !== gridReread);
+	} catch (e) { /* the rows stay as they are */ }
 }
 
 // Enter or Space on a cell that acts as a button
@@ -320,11 +341,27 @@ async function timersChanged() {
 	Object.keys(gridRows).forEach(id => { if (gridRows[id].events) fillRow(gridRows[id]); });
 }
 
-// The channel the box plays, after a zap from anywhere
+// The channel the box plays, after a zap from anywhere. A read that failed,
+// or that names no channel (standby, a recording on the player, a zap under
+// way), leaves the mark as it is.
+let zapRead = 0;	// an older answer arriving after a newer one is dropped
 async function zapped() {
-	const ch = await webuiV1('GET', '/channels/current').catch(() => null);
-	currentChannelId = ch ? ch.id : null;
+	const read = ++zapRead;
+	let ch = null;
+	try {
+		ch = await webuiV1('GET', '/channels/current');
+	} catch (e) { /* kept */ }
+	if (read !== zapRead || !ch || !ch.id) return;
+	currentChannelId = ch.id;
 	document.querySelectorAll('.webui-epg-row').forEach(row => row.classList.toggle('playing', row.dataset.id === currentChannelId));
+}
+
+// Everything the events of the stream keep current, read again once: the
+// timer marks, the channel the box plays and the guide of the rows
+function streamBack() {
+	timersChanged();
+	zapped();
+	refreshGrid();
 }
 
 // A programme in the shared dialog, the marks of the grid following a
@@ -366,10 +403,10 @@ webuiAfterTexts(function() {
 		'timer-changed': timersChanged,
 		zap: zapped
 	});
-	// the timer marks again after a reconnect, which may have missed a
-	// timer set or taken away, and without the stream when the page comes
-	// into view (webuiFollow); the guide's first read below brings them
-	webuiFollow({reread: timersChanged, first: false});
+	// what a gap of the stream may have missed, read again once the stream
+	// is back and, without one, when the page comes into view (webuiFollow);
+	// the guide's first read below brings all of it
+	webuiFollow({reread: streamBack, first: false});
 	setInterval(tickNow, 60000);
 	window.addEventListener('resize', () => placeNow(webuiBoxSec()));
 	return loadBouquets().then(loadEpg);
