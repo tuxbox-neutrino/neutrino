@@ -44,6 +44,43 @@ static int cfg_national_subset;
 static int screen_x, screen_y, screen_w, screen_h;
 static CFrameBuffer *fbp;
 
+/* The rows of the screen the subtitle on it occupies: sub_y1 up to, but not
+ * including, sub_y2. No subtitle when sub_y2 <= sub_y1.
+ *
+ * A subtitle page is rendered into a back buffer the size of the screen, and
+ * nearly all of that buffer is transparent. Copying the whole of it to the
+ * screen took everything else off the screen as well, and the info clock,
+ * which only repaints the digits that change, stayed in pieces. So the copy
+ * and the clearing are held to these rows. */
+static int sub_y1 = 0, sub_y2 = 0;
+
+/* The rows of the back buffer that hold something other than transparent
+ * pixels, from the first such row to the last. False when there are none. */
+static bool FindSubtitleRows(int &y1, int &y2)
+{
+	const fb_pixel_t clear = argb[transp];
+	const int w = var_screeninfo.xres;
+	const int h = var_screeninfo.yres;
+	int top = -1, bottom = -1;
+
+	for (int y = 0; y < h; y++) {
+		const fb_pixel_t *row = lbb + y * w;
+		for (int x = 0; x < w; x++) {
+			if (row[x] != clear) {
+				if (top < 0)
+					top = y;
+				bottom = y;
+				break;
+			}
+		}
+	}
+	if (top < 0)
+		return false;
+	y1 = top;
+	y2 = bottom + 1;
+	return true;
+}
+
 fb_pixel_t *getFBp(int &y)
 {
 	if (y < (int)var_screeninfo.yres)
@@ -262,6 +299,13 @@ void ClearBB(fb_pixel_t color)
 
 void ClearFB(int /*color*/)
 {
+	/* subtitle: only its own rows, see sub_y1 */
+	if (!use_gui) {
+		if (sub_y2 > sub_y1)
+			fbp->paintBackgroundBoxRel(0, sub_y1, var_screeninfo.xres, sub_y2 - sub_y1);
+		sub_y1 = sub_y2 = 0;
+		return;
+	}
 	//memset(lfb,0, var_screeninfo.yres*var_screeninfo.xres);
 	fbp->paintBackground();
 }
@@ -5579,6 +5623,30 @@ void CopyBB2FB()
 		CreateLine25();
 
 	/* copy backbuffer to framebuffer */
+	if (!zoommode[boxed] && !use_gui)
+	{
+		/* subtitle: only the rows of this one and of the one it replaces,
+		 * see sub_y1 */
+		int y1 = sub_y1, y2 = sub_y2;
+		int new_y1 = 0, new_y2 = 0;
+		if (FindSubtitleRows(new_y1, new_y2)) {
+			if (y2 <= y1) {
+				y1 = new_y1;
+				y2 = new_y2;
+			} else {
+				if (new_y1 < y1)
+					y1 = new_y1;
+				if (new_y2 > y2)
+					y2 = new_y2;
+			}
+		}
+		if (y2 > y1)
+			fbp->blit2FB(lbb + y1 * var_screeninfo.xres, var_screeninfo.xres, y2 - y1, 0, y1, 0, 0, true);
+		sub_y1 = new_y1;
+		sub_y2 = new_y2;
+		clearbbcolor = -1;
+		return;
+	}
 	if (!zoommode[boxed])
 	{
 		fbp->blit2FB(lbb, var_screeninfo.xres, var_screeninfo.yres, 0, 0, 0, 0, true);
