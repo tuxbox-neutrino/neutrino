@@ -209,6 +209,44 @@ const SVG_EDIT = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" str
 const SVG_STOP = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="1"/></svg>';
 const SVG_DELETE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="3,6 5,6 21,6"/><path d="M19,6v14a2,2 0 0,1-2,2H7a2,2 0 0,1-2-2V6m3,0V4a2,2 0 0,1,2-2h4a2,2 0 0,1,2,2v2"/></svg>';
 
+// The focus is put back without scrolling (preventScroll): the list stays
+// where the user has it, and the next Tab starts from the new place.
+// The buttons of a row that keep the focus when the row is drawn anew
+const FOCUS_BUTTONS = ['webui-timer-more', 'webui-timer-stop', 'webui-timer-delete', 'webui-menu-btn'];
+
+// The list is empty and held the focus: its action (New timer) takes it,
+// else the filter that is on (the choice above the list on a phone)
+function focusEmpty(list) {
+	const target = list.querySelector('.webui-state button') ||
+		Array.from(document.querySelectorAll('#filterStates [aria-pressed="true"], #filterTypes [aria-pressed="true"], #filterSelect'))
+			.find(el => el.getClientRects().length > 0);
+	if (target) target.focus({preventScroll: true});
+}
+
+// The list was empty, its action (New timer) held the focus, and rows came:
+// the focus goes to the page's own New timer button that is shown (in the
+// filter card, on a phone in the list's header), which is the same action
+function focusNewTimer() {
+	const btn = Array.from(document.querySelectorAll('.webui-filter-new .webui-btn, .webui-timer-new-small'))
+		.find(el => el.getClientRects().length > 0);
+	if (btn) btn.focus({preventScroll: true});
+}
+
+// A question (a sheet) gives the focus back to the button that opened it,
+// which the list may have drawn anew while it was open: the focus goes to the
+// row's new button of that kind (kinds: the classes it may have now, the
+// first the row has wins), else to its details button; a row that is gone
+// gives it to the first row's details button, an empty list to its action
+function focusRowAgain(id, kinds) {
+	if (document.activeElement && document.activeElement !== document.body) return;
+	const list = document.getElementById('timerList');
+	const row = list.querySelector('.webui-timer-row[data-id="' + CSS.escape(String(id)) + '"]');
+	const btn = row ? kinds.map(c => row.querySelector('.' + c)).find(Boolean) || row.querySelector('.webui-timer-more')
+		: list.querySelector('.webui-timer-more');
+	if (btn) btn.focus({preventScroll: true});
+	else focusEmpty(list);
+}
+
 function renderTimerList() {
 	const list = document.getElementById('timerList');
 	const countEl = document.getElementById('timerCount');
@@ -222,20 +260,33 @@ function renderTimerList() {
 	});
 	countEl.textContent = String(timers.length);
 
+	// a row drawn anew keeps its details open, and the focus on its button
+	const active = document.activeElement;
+	const focused = active && active.closest('.webui-timer-row') ? active : null;
+	// the action of an empty list is drawn anew with the list
+	const action = active && active.closest('#timerList .webui-state.empty') ? active : null;
+	const focusRow = focused ? focused.closest('.webui-timer-row').dataset.id : '';
+	// the focus stays on the same kind of button; on any other (Edit) it
+	// stays on the row's details button
+	const focusClass = focused ? FOCUS_BUTTONS.find(c => focused.classList.contains(c)) || 'webui-timer-more' : '';
+	// where the focus goes when its row is gone: a neighbouring row, the next first
+	const near = focused ? [focused.closest('.webui-timer-row').nextElementSibling, focused.closest('.webui-timer-row').previousElementSibling]
+		.filter(Boolean).map(r => r.dataset.id) : [];
+
 	if (timers.length === 0) {
 		list.replaceChildren(webuiEl('li', {}, currentFilter === 'all'
 			? webuiState('empty', webuiL('dash.no_timers', 'No timers programmed'), webuiL('dash.no_timers_hint', 'Timers are set in the EPG or on the timer list.'),
 				{action: {label: webuiL('timer.new', 'New timer'), onClick: () => openTimerModal(),
 					tip: webuiL('tip.timer_new', 'A timer for a recording, a switch, standby or a reminder')}})
 			: webuiState('empty', webuiL('tm.none_found', 'No timers found'), '')));
+		// the last row went with the focus, or the list's action was drawn
+		// anew: the focus goes to the list's action, else to the filter
+		if ((focused || action) && !document.contains(focused || action))
+			focusEmpty(list);
 		return;
 	}
 	if (list.querySelector('.webui-state'))
 		list.replaceChildren();
-	// a row drawn anew keeps its details open, and the focus on its button
-	const focused = document.activeElement && document.activeElement.closest('.webui-timer-row') ? document.activeElement : null;
-	const focusRow = focused ? focused.closest('.webui-timer-row').dataset.id : '';
-	const focusClass = focused ? ['webui-timer-more', 'webui-timer-stop'].find(c => focused.classList.contains(c)) : '';
 	webuiSync(list, timers, t => String(t.id), timerRow);
 	// a row drawn anew has a new Stop button, which shows the stop under way
 	stopping.forEach(id => {
@@ -247,11 +298,16 @@ function renderTimerList() {
 		open.classList.add('row-expanded');
 		open.querySelector('.webui-timer-more').setAttribute('aria-expanded', 'true');
 	}
+	if (action) focusNewTimer();
 	if (focusClass && !document.contains(focused)) {
-		// a row that no longer has its Stop button keeps the focus on its details button
-		const row = list.querySelector('.webui-timer-row[data-id="' + CSS.escape(focusRow) + '"]');
-		const again = row && (row.querySelector('.' + focusClass) || row.querySelector('.webui-timer-more'));
-		if (again) again.focus();
+		const rowOf = id => list.querySelector('.webui-timer-row[data-id="' + CSS.escape(String(id)) + '"]');
+		// the same button of the row, else its details button (a row that no
+		// longer has its Stop button); a row that is gone gives the focus to a
+		// neighbour's details button, so it does not fall to the top of the page
+		const row = rowOf(focusRow);
+		const again = row ? row.querySelector('.' + focusClass) || row.querySelector('.webui-timer-more')
+			: near.map(rowOf).filter(Boolean).map(r => r.querySelector('.webui-timer-more'))[0];
+		if (again) again.focus({preventScroll: true});
 	}
 }
 
@@ -302,7 +358,7 @@ function timerRow(timer) {
 		actions.push(webuiMenuButton(webuiL('bq.more', 'More for %s').replace('%s', title), [
 			{label: webuiL('tm.delete_title', 'Delete timer'), icon: SVG_DELETE, danger: true, onClick: () => deleteTimer(timer.id, title)}]));
 	} else if (state === 2 || again) {
-		actions.push(actionButton('webui-btn', SVG_DELETE, webuiL('fm.delete', 'Delete'), webuiL('tm.delete_title', 'Delete timer') + ': ' + title,
+		actions.push(actionButton('webui-btn webui-timer-delete', SVG_DELETE, webuiL('fm.delete', 'Delete'), webuiL('tm.delete_title', 'Delete timer') + ': ' + title,
 			() => deleteTimer(timer.id, title)));
 	}
 	// no action for a timer the box has finished (3) or is removing (4) and
@@ -396,8 +452,9 @@ function stopButton(id) {
 async function stopRecording(id, title, pressed) {
 	const key = String(id);
 	if (stopping.has(key)) return;	// the button says the stop is under way: nothing to ask
-	if (!await ask(webuiL('dash.record_stop', 'Stop recording'), webuiL('tm.stop_ask', 'Stop the recording "%s"?').replace('%s', title), webuiL('tm.stop', 'Stop'), true))
-		return;
+	const sure = await ask(webuiL('dash.record_stop', 'Stop recording'), webuiL('tm.stop_ask', 'Stop the recording "%s"?').replace('%s', title), webuiL('tm.stop', 'Stop'), true);
+	focusRowAgain(id, ['webui-timer-stop']);
+	if (!sure) return;
 	stopping.add(key);
 	let result;
 	try {
@@ -419,8 +476,9 @@ async function stopRecording(id, title, pressed) {
 }
 
 async function deleteTimer(id, title) {
-	if (!await ask(webuiL('tm.delete_title', 'Delete timer'), webuiL('tm.delete_ask', 'Delete the timer "%s"?').replace('%s', title), webuiL('fm.delete', 'Delete'), true))
-		return;
+	const sure = await ask(webuiL('tm.delete_title', 'Delete timer'), webuiL('tm.delete_ask', 'Delete the timer "%s"?').replace('%s', title), webuiL('fm.delete', 'Delete'), true);
+	focusRowAgain(id, ['webui-timer-delete', 'webui-menu-btn']);
+	if (!sure) return;
 	try {
 		await webuiV1('DELETE', '/timers/' + encodeURIComponent(id));
 	} catch (e) {
