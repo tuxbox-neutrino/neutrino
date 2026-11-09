@@ -157,6 +157,9 @@ void setKeptPlacesForTest(const std::vector<std::string> &places)
 
 bool inKeptPlace(int fd, bool config_ok)
 {
+	// every file, where the start could not tell which are such files
+	if (coreapi::accessfiles::everyFileClosed())
+		return true;
 	char link[64];
 	snprintf(link, sizeof(link), "/proc/self/fd/%d", fd);
 	char buf[PATH_MAX];

@@ -72,6 +72,12 @@ void setAccountLinesSeenForTest(AccountLinesSeen seen)
 
 StagingMade stagingMade = NULL;
 bool stagingNamed = false;
+ScanFail scanFail = ScanFine;
+
+void setScanFailForTest(ScanFail f)
+{
+	scanFail = f;
+}
 
 void setStagingMadeForTest(StagingMade made, bool with_a_name)
 {
@@ -1268,34 +1274,61 @@ MenuRestore::MenuRestore() : taken_(false)
 
 namespace
 {
-// The restore's working files in the store's directory, by their leaf names.
-std::vector<std::string> leftoverLeaves(int dir)
+// The store's directory, or -1 and errno; ENOENT is a directory that holds nothing.
+int openStoreDir(const std::string &where)
 {
-	std::vector<std::string> out;
+	if (internal::scanFail == internal::ScanOpen)
+	{
+		errno = EIO;
+		return -1;
+	}
+	return open(where.c_str(), O_RDONLY | O_DIRECTORY | O_CLOEXEC);
+}
+
+/* The restore's working files in the store's directory, by their leaf names, into
+   out. False where the directory could not be read to its end: a listing that
+   cannot be opened, or an entry the system fails to read, is no end of it. */
+bool leftoverLeaves(int dir, std::vector<std::string> &out)
+{
 	const int again = dup(dir);
-	DIR *d = again >= 0 ? fdopendir(again) : NULL;
+	DIR *d = (again >= 0 && internal::scanFail != internal::ScanListing) ? fdopendir(again) : NULL;
 	if (d == NULL)
 	{
 		if (again >= 0)
 			close(again);
-		return out;
+		return false;
 	}
-	struct dirent *e;
-	while ((e = readdir(d)) != NULL)
+	bool whole = false;
+	size_t read_so_far = 0;
+	for (;;)
+	{
+		errno = 0;
+		struct dirent *e = readdir(d);
+		if (e != NULL && internal::scanFail == internal::ScanEntry && read_so_far > 0)
+		{
+			e = NULL;
+			errno = EIO;
+		}
+		if (e == NULL)
+		{
+			whole = errno == 0;
+			break;
+		}
+		read_so_far++;
 		if (startsWith(e->d_name, kWorkingPrefix))
 			out.push_back(e->d_name);
+	}
 	closedir(d);
-	return out;
+	return whole;
 }
 } // namespace
 
 bool keepLeftovers(std::string *why)
 {
 	const std::string where = storage::internal::access_store_dir;
-	const int dir = open(where.c_str(), O_RDONLY | O_DIRECTORY | O_CLOEXEC);
-	if (dir < 0)
-		return true;
-	const std::vector<std::string> leaves = leftoverLeaves(dir);
+	const int dir = openStoreDir(where);
+	std::vector<std::string> leaves;
+	const bool whole = dir >= 0 ? leftoverLeaves(dir, leaves) : errno == ENOENT;
 	std::string unkept;
 	for (size_t i = 0; i < leaves.size(); ++i)
 	{
@@ -1317,28 +1350,39 @@ bool keepLeftovers(std::string *why)
 			std::fprintf(stderr, "[backup] %s, left by a restore that did not end, could not be removed: %s\n",
 				     path.c_str(), std::strerror(errno));
 	}
-	close(dir);
-	if (unkept.empty())
+	if (dir >= 0)
+		close(dir);
+	accessfiles::closeTheirDirectory(!unkept.empty());
+	accessfiles::closeEveryFile(!whole);
+	if (whole && unkept.empty())
 		return true;
-	accessfiles::closeTheirDirectory(true);
 	if (why != NULL)
-		*why = unkept + ", left by a restore that did not end, could not be kept as a file that holds "
-		       "who may reach the box; it stays, and no file of " + where + " goes out of the web server";
+	{
+		why->clear();
+		if (!whole)
+			*why = where + " could not be read to its end, so what a restore left there is not known "
+			       "to be kept; the web server sends no file at all until a start reads it whole";
+		if (!unkept.empty())
+			*why += (why->empty() ? "" : "; ") + unkept + ", left by a restore that did not end, could not "
+				"be kept as a file that holds who may reach the box; it stays, and no file of " + where +
+				" goes out of the web server";
+	}
 	return false;
 }
 
-std::vector<std::string> leftovers()
+bool leftovers(std::vector<std::string> *out)
 {
-	std::vector<std::string> out;
+	out->clear();
 	const std::string where = storage::internal::access_store_dir;
-	const int dir = open(where.c_str(), O_RDONLY | O_DIRECTORY | O_CLOEXEC);
+	const int dir = openStoreDir(where);
 	if (dir < 0)
-		return out;
-	const std::vector<std::string> leaves = leftoverLeaves(dir);
+		return errno == ENOENT;
+	std::vector<std::string> leaves;
+	const bool whole = leftoverLeaves(dir, leaves);
 	close(dir);
 	for (size_t i = 0; i < leaves.size(); ++i)
-		out.push_back(where + "/" + leaves[i]);
-	return out;
+		out->push_back(where + "/" + leaves[i]);
+	return whole;
 }
 
 MenuRestore::~MenuRestore()

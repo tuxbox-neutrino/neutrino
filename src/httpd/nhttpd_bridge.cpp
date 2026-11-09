@@ -20,6 +20,7 @@
 #include "httpd/status.h"
 #include "httpd/doc/openapi.h"
 #include "coreapi/base/errors.h"
+#include "coreapi/base/accessfiles.h"
 
 #include "helper.h"
 #include "yprotect.h"
@@ -199,6 +200,9 @@ namespace nhttpd_bridge
 
 bool heldBack(int fd, bool own_unnamed)
 {
+	// a file the route made itself as well, while the start has closed every file
+	if (coreapi::accessfiles::everyFileClosed())
+		return true;
 	return yprotect::isProtected(fd, own_unnamed) ||
 	       (!own_unnamed && yprotect::inKeptPlace(fd, true));
 }

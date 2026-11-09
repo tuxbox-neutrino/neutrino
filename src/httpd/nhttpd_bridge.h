@@ -53,7 +53,8 @@ FdPlan planFdAnswer(int code, uint64_t file_length, const std::string &range_hea
    but one the route made for this answer itself (own_unnamed); and one that
    lies in /proc, /sys or /dev. The other files of the configuration directory
    go out of a route's answer, the storage file route's and the configuration
-   documents included, unless the start closed that directory. */
+   documents included, unless the start closed that directory; and none at all
+   while the start has closed every file (coreapi::accessfiles::closeEveryFile). */
 bool heldBack(int fd, bool own_unnamed);
 }
 

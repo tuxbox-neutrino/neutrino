@@ -125,14 +125,18 @@ bool restartWithoutSaving();
    of the files that hold who may reach the box (accessfiles), so a second name it has
    elsewhere stays held back, and removed. At the start, before the web server
    answers anybody. One that cannot be kept stays where it is, and the configuration
-   directory then goes out through no gate (accessfiles::closeTheirDirectory); false,
-   and why says so. */
+   directory then goes out through no gate (accessfiles::closeTheirDirectory). A
+   directory that cannot be read to its end may hide one, and a second name of it
+   anywhere: the web server then sends no file at all (accessfiles::closeEveryFile)
+   until a start reads it whole. False where either is so, and why says what the start
+   logs; a run that finds neither opens both again. */
 bool keepLeftovers(std::string *why);
 
 /* The working files of a restore that are in the directory of the access store now,
-   by their full names: for the web server, which holds back what such a name stands
-   for, as it does for the store's own names. */
-std::vector<std::string> leftovers();
+   by their full names, into out: for the web server, which holds back what such a
+   name stands for, as it does for the store's own names. False where the directory
+   could not be read to its end, and out may then miss one. */
+bool leftovers(std::vector<std::string> *out);
 
 class MenuRestore
 {
@@ -197,6 +201,18 @@ void setAccountLinesSeenForTest(AccountLinesSeen seen);
 typedef void (*StagingMade)(int dir, const std::string &name);
 void setStagingMadeForTest(StagingMade made, bool with_a_name);
 extern StagingMade stagingMade;
+
+/* Makes the read of the store's directory for what a restore left fail where it
+   opens the directory, where it opens the listing, or after the first entry it
+   read, as a directory the system cannot read does; for the cases. */
+enum ScanFail
+{
+	ScanFine,
+	ScanOpen,
+	ScanListing,
+	ScanEntry
+};
+void setScanFailForTest(ScanFail f);
 extern bool stagingNamed;
 } // namespace internal
 

@@ -62,6 +62,7 @@ Fail failing = FailNone;
 unsigned failingAfter = 0;
 void (*askingHook)() = NULL;
 bool closedDirectory = false;
+bool closedFiles = false;
 
 // whether the failure set up for the cases strikes this call
 bool fails(Fail f)
@@ -230,6 +231,18 @@ bool theirDirectoryClosed()
 {
 	Locked hold;
 	return closedDirectory;
+}
+
+void closeEveryFile(bool closed)
+{
+	Locked hold;
+	closedFiles = closed;
+}
+
+bool everyFileClosed()
+{
+	Locked hold;
+	return closedFiles;
 }
 
 void setFailForTest(Fail f, unsigned after)

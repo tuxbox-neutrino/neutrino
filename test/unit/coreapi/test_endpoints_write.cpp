@@ -58,6 +58,7 @@
 #include "coreapi/backup.h"
 #include "coreapi/base/accessfiles.h"
 #include "yprotect.h"
+#include "httpd/nhttpd_bridge.h"
 #include "ystatic.h"
 #include "coreapi/channels.h"
 #include "coreapi/network.h"
@@ -8093,6 +8094,8 @@ struct StagingBack
 		coreapi::accessfiles::setFailForTest(coreapi::accessfiles::FailNone);
 		coreapi::accessfiles::setAskingForTest(NULL);
 		coreapi::accessfiles::closeTheirDirectory(false);
+		coreapi::accessfiles::closeEveryFile(false);
+		coreapi::backup::internal::setScanFailForTest(coreapi::backup::internal::ScanFine);
 		yprotect::setKeptPlacesForTest(std::vector<std::string>());
 		yprotect::setFiles(std::vector<std::string>());
 		staging_read = NULL;
@@ -8225,7 +8228,9 @@ TEST_CASE("what a restore left when the program ended goes out under no name aft
 	CHECK(coreapi::backup::keepLeftovers(&why));
 	CHECK(why.empty());
 	CHECK(access(left.c_str(), F_OK) != 0);
-	CHECK(coreapi::backup::leftovers().empty());
+	std::vector<std::string> none;
+	CHECK(coreapi::backup::leftovers(&none));
+	CHECK(none.empty());
 	CHECK_FALSE(coreapi::accessfiles::theirDirectoryClosed());
 	{
 		const int fd = open(alias.c_str(), O_RDONLY | O_CLOEXEC);
@@ -8241,7 +8246,8 @@ TEST_CASE("what a restore left when the program ended goes out under no name aft
 	coreapi::accessfiles::forgetAll();
 	coreapi::accessfiles::setFailForTest(coreapi::accessfiles::FailAlloc);
 	CHECK_FALSE(coreapi::backup::keepLeftovers(&why));
-	const std::vector<std::string> stays = coreapi::backup::leftovers();
+	std::vector<std::string> stays;
+	CHECK(coreapi::backup::leftovers(&stays));
 	CHECK_FALSE(yprotect::setFiles(stays));
 	coreapi::accessfiles::setFailForTest(coreapi::accessfiles::FailNone);
 	CHECK(why.find(left) != std::string::npos);
@@ -8266,6 +8272,59 @@ TEST_CASE("what a restore left when the program ended goes out under no name aft
 	}
 	unlink(left.c_str());
 	unlink(alias.c_str());
+}
+
+/* A start that cannot read the store's directory to its end, at its open, at the
+   opening of its listing or at an entry in the middle, cannot know what a restore
+   left there, nor where a second name of it is: no file goes out of any gate, a
+   web folder's or an API route's, until a start reads the directory whole, and the
+   start says so. Answers that are no file go on. */
+TEST_CASE("a start that cannot read the configuration directory to its end sends no file until one can", "[write][backup]")
+{
+	ShippedRoutes shipped;
+	BackupFixture b;
+	StagingBack back;
+	coreapi::storage::internal::access_store_dir = b.config.c_str();
+	b.write(b.config + "/nhttpd.conf", "WebsiteMain.port=80\n");
+	const std::string plain = b.box.at("other") + "/x.conf";
+	const int fd = open(plain.c_str(), O_RDONLY | O_CLOEXEC);
+	REQUIRE(fd >= 0);
+	REQUIRE_FALSE(nhttpd_bridge::heldBack(fd, false));
+
+	const coreapi::backup::internal::ScanFail fails[] = {
+		coreapi::backup::internal::ScanOpen, coreapi::backup::internal::ScanListing,
+		coreapi::backup::internal::ScanEntry
+	};
+	for (size_t i = 0; i < sizeof(fails) / sizeof(fails[0]); ++i)
+	{
+		INFO(i);
+		coreapi::backup::internal::setScanFailForTest(fails[i]);
+		std::string why;
+		CHECK_FALSE(coreapi::backup::keepLeftovers(&why));
+		CHECK(why.find("could not be read to its end") != std::string::npos);
+		CHECK(why.find("no file at all") != std::string::npos);
+		std::vector<std::string> names;
+		CHECK_FALSE(coreapi::backup::leftovers(&names));
+		coreapi::backup::internal::setScanFailForTest(coreapi::backup::internal::ScanFine);
+
+		// no file of any gate, made by the route itself either
+		CHECK(coreapi::accessfiles::everyFileClosed());
+		CHECK(yprotect::inKeptPlace(fd));
+		CHECK(nhttpd_bridge::heldBack(fd, false));
+		CHECK(nhttpd_bridge::heldBack(fd, true));
+		// an answer that is no file
+		CHECK(authedGet("/api/v1/storage/files?path=" + b.box.at("other")).code == 200);
+
+		// a start that reads it whole sends again
+		why.clear();
+		CHECK(coreapi::backup::keepLeftovers(&why));
+		CHECK(why.empty());
+		CHECK_FALSE(coreapi::accessfiles::everyFileClosed());
+		CHECK_FALSE(yprotect::inKeptPlace(fd));
+		CHECK_FALSE(nhttpd_bridge::heldBack(fd, false));
+		CHECK(coreapi::backup::leftovers(&names));
+	}
+	close(fd);
 }
 
 TEST_CASE("an uploaded channel or bouquet file takes the place of the box's own and is read in", "[write][channelfiles]")

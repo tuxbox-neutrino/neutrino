@@ -50,7 +50,9 @@ void setKeptPlacesForTest(const std::vector<std::string> &places);
 // into one of the places from any web folder goes nowhere. config_ok leaves
 // the configuration directory out, for the files the old pages' handlers name
 // there (the channel lists) and the API's file answers, unless the start
-// closed that directory (coreapi::accessfiles::closeTheirDirectory).
+// closed that directory (coreapi::accessfiles::closeTheirDirectory). Every
+// file is in one of them while the start has closed every file
+// (coreapi::accessfiles::closeEveryFile).
 bool inKeptPlace(int fd, bool config_ok = false);
 
 // Called by isProtected once it has looked at the name of that position in

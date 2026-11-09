@@ -177,8 +177,15 @@ migrated=`grep -n 'httpd::ensureConfigFile(' "$MAIN" | head -1 | cut -d: -f1`
 	echo "check-access-store.sh: $MAIN does not keep what a restore left before the migration" >&2
 	exit 1
 }
-grep -qF 'coreapi::backup::leftovers()' "$CONTROL" || {
+grep -qF 'coreapi::backup::leftovers(&left)' "$CONTROL" \
+	&& grep -qF 'names.insert(names.end(), left.begin(), left.end());' "$CONTROL" || {
 	echo "check-access-store.sh: $CONTROL no longer tells the web server what a restore left" >&2
+	exit 1
+}
+# and where that directory cannot be read to its end, no file goes out at all
+sed -n '/^static std::vector<std::string> accessFiles()/,/^}/p' "$CONTROL" | tr -d '\n\t' |
+	grep -qF 'if (!coreapi::backup::leftovers(&left)) {coreapi::accessfiles::closeEveryFile(true);' || {
+	echo "check-access-store.sh: $CONTROL sends files on when it could not read what a restore left" >&2
 	exit 1
 }
 

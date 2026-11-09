@@ -51,6 +51,7 @@
 #include <httpd/login_bridge.h>
 #include <httpd/webconfig.h>
 #include <coreapi/backup.h>
+#include <coreapi/base/accessfiles.h>
 #include <coreapi/websources.h>
 #include <coreapi/webui.h>
 #include <mod_auth.h>
@@ -150,7 +151,8 @@ static bool boxRawPlace(const std::string &real)
    which holds the old page login's password and the addresses let in without
    one until the first start carries the account over. Each with the working
    file a write puts its new content in first; and what a restore left there
-   that the start could not keep (coreapi::backup::keepLeftovers). */
+   that the start could not keep (coreapi::backup::keepLeftovers). Where that
+   directory cannot be read to its end, no file goes out at all. */
 static std::vector<std::string> accessFiles()
 {
 	static const char *const stores[] = { HTTPD_ACCESS_FILE, HTTPD_SERVER_FILE, HTTPD_ACCESS_FORMER_FILE };
@@ -159,7 +161,13 @@ static std::vector<std::string> accessFiles()
 		names.push_back(stores[i]);
 		names.push_back(httpd::workingFile(stores[i]));
 	}
-	const std::vector<std::string> left = coreapi::backup::leftovers();
+	std::vector<std::string> left;
+	if (!coreapi::backup::leftovers(&left)) {
+		coreapi::accessfiles::closeEveryFile(true);
+		aprintf("[controlapi] the configuration directory could not be read to its end, so what a restore "
+			"left there is not known to be held back; the web server sends no file at all until a start "
+			"reads it whole\n");
+	}
 	names.insert(names.end(), left.begin(), left.end());
 	return names;
 }

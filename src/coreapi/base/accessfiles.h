@@ -101,6 +101,14 @@ size_t count();
 void closeTheirDirectory(bool closed);
 bool theirDirectoryClosed();
 
+/* No file goes out of any gate at all once closed, a web folder's, a handler's
+   by its name, or an API route's file answer (yprotect::inKeptPlace,
+   nhttpd_bridge::heldBack); answers that are no file stay. For a start that
+   could not read the configuration directory to its end: a file there it did not
+   see may have a second name anywhere. */
+void closeEveryFile(bool closed);
+bool everyFileClosed();
+
 /* Makes created fail where it duplicates the descriptor (FailDup), the way a
    full descriptor table does, or created and named fail where they make the
    entry (FailAlloc), the way memory that ran out does; for the cases. The
