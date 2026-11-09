@@ -132,7 +132,15 @@ paths answer without credentials, except for a change to the account
 parameter, the session counts only when the request comes from a page of
 this box: <code>Sec-Fetch-Site: same-origin</code>, or else an
 <code>Origin</code> or
-<code>Referer</code> naming this host.</li>
+<code>Referer</code> naming this host. Basic authentication from a browser,
+a <code>User-Agent</code> that starts with <code>Mozilla/</code>, is held to
+the same rule: without that evidence the request is answered 403 with a
+short text saying to open the address from the web interface. A script that
+sends a browser's <code>User-Agent</code>, as PowerShell does, is a browser
+here: it passes with a <code>User-Agent</code> of its own or an
+<code>Origin</code> header naming the box. Basic authentication from any
+other client counts as
+before.</li>
 <li>A change to the account over <code>/control/config?config=nhttpd</code>
 (<code>mod_auth.username</code> or <code>mod_auth.password</code>, also
 written with <code>_dot_</code>) is taken only from a page of this box, by

@@ -41,6 +41,7 @@ struct Ask
 	std::string origin;         // the Origin header
 	std::string referer;        // the Referer header
 	std::string host;           // the Host header, as the request boundary accepted it (authority.h)
+	std::string user_agent;     // the User-Agent header
 
 	/* Whether the request carries a template command for the old server's
 	   parser (an `execute` parameter), which any .yhtm page runs before it
@@ -59,7 +60,8 @@ struct Ask
    an Origin or else a Referer naming the host the request was sent to. A link on
    another site carries the cookie too, SameSite=Lax letting it through on a
    top-level navigation, and on those targets that link would be the whole of
-   the credential. Everywhere else, the pages, a session is enough.
+   the credential. Everywhere else, the pages, a session is enough. A browser's
+   Basic pair is held to the same rule (basicHeldBack).
 
    A session that answers is moved on, as a request through the REST gate moves
    it. */
@@ -73,6 +75,25 @@ bool sessionAdmits(const Ask &a);
    every request pays for one derivation. A pair not remembered goes through the
    gate the REST login goes through, wrong answers counted against the address. */
 bool basicAdmits(const Ask &a);
+
+/* Whether a request carrying the Basic scheme is held back for where it came
+   from, which basicAdmits refuses it for before the pair is checked: it comes
+   from a browser, one whose User-Agent starts with "Mozilla/"; it asks one of
+   the targets a session counts on only from a page of this box, by the rule
+   and the list sessionAdmits applies; and it shows nothing saying it came from
+   one. A browser keeps a Basic pair it was given and sends it with whatever
+   another site makes it ask for, as it sends a cookie. A script or an app,
+   which calls itself something else, sends the pair because it was written to
+   and is not held back; one that calls itself Mozilla, as PowerShell does, is
+   a browser here. */
+bool basicHeldBack(const Ask &a);
+
+/* What such a request is told instead of being asked for the login again,
+   which would only bring the same request back: open the address from the
+   box's web interface, and for a script that sends a browser's User-Agent,
+   as PowerShell does, how it passes: a User-Agent of its own or an Origin
+   header naming the box. Plain text, English and German. */
+const char *heldBackText();
 
 /* Whether a request over the old server may change the account, and why not where it
    may not. The old configuration route asks this first, before anything of a request

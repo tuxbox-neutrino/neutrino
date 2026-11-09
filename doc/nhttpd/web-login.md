@@ -131,7 +131,17 @@ as before, also while the first password is in effect. Calls from the box
 itself, and from the address range under **No-auth clients**, are not asked,
 unless a proxy is entered in `nhttpd-access.conf` (`trusted_proxies`).
 Apps that send the user name and password with every request work, and so
-do apps that wait for the server to ask for them first. An app that signs in
+do apps that wait for the server to ask for them first. A browser that signs
+in this way is answered on `/control/` only when the request comes from a
+page of the box (`Sec-Fetch-Site: same-origin`, or an `Origin` or `Referer`
+naming the box), as for a sign-in in the web interface. Opened from a
+bookmark, the address bar or another site, `/control/` answers it with a
+short text saying to open the address from the web interface. Apps and
+scripts whose `User-Agent` does not start with `Mozilla/` are not affected.
+A script that sends a browser's `User-Agent`, such as PowerShell's
+`Invoke-WebRequest` or `Invoke-RestMethod`, is held to the browser rule:
+give it a `User-Agent` of its own (`-UserAgent`), or an `Origin` header
+naming the box. An app that signs in
 with a password these boxes once shipped with stops working when the box
 replaces it. Enter the first password in the app. After you set your own
 password, enter that one.

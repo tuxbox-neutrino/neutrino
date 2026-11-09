@@ -169,6 +169,21 @@ THandleStatus CmAuth::Hook_PrepareResponse(CyhookHandler *hh) {
 	{
 		const login_bridge::Ask ask = AskOf(hh);
 		if (!login_bridge::sessionAdmits(ask) && !login_bridge::basicAdmits(ask)) {
+			// a browser's Basic pair from another page: a 401 would
+			// have it ask for the login and send the same request again
+			if (login_bridge::basicHeldBack(ask)) {
+				// the head the boundary's page goes out with (nosniff, no-store)
+				hh->api_mode = true;
+				hh->httpStatus = HTTP_FORBIDDEN;
+				hh->ResponseMimeType = "text/plain; charset=UTF-8";
+				hh->ResponseHeaders.clear();
+				hh->ResponseHeaders.push_back(std::make_pair(std::string("X-Content-Type-Options"),
+					std::string("nosniff")));
+				hh->ResponseHeaders.push_back(std::make_pair(std::string("Cache-Control"),
+					std::string("no-store")));
+				hh->yresult = login_bridge::heldBackText();
+				return HANDLED_ERROR;
+			}
 			// browsers get the styled login page; scripts and API
 			// clients keep the unchanged Basic-auth 401 path, and so
 			// do browsers where the web directory has no login page of
@@ -239,6 +254,7 @@ login_bridge::Ask CmAuth::AskOf(CyhookHandler *hh) {
 	a.origin = GetHeader(hh, "Origin");
 	a.referer = GetHeader(hh, "Referer");
 	a.host = GetHeader(hh, "Host");
+	a.user_agent = GetHeader(hh, "User-Agent");
 	CStringList::const_iterator execute = hh->ParamList.find("execute");
 	a.runs_commands = execute != hh->ParamList.end() && !execute->second.empty();
 	return a;

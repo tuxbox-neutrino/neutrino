@@ -1268,3 +1268,152 @@ TEST_CASE("behind a proxy the box itself and the addresses let in without a logi
 
 	setConfigForTest(before);
 }
+
+namespace
+{
+
+const char kBrowser[] = "Mozilla/5.0 (X11; Linux x86_64; rv:140.0) Gecko/20100101 Firefox/140.0";
+
+} // namespace
+
+TEST_CASE("a browser's Basic pair counts on the targets that change the box only from the box's own page, a script's always",
+          "[login]")
+{
+	Account account;
+
+	login_bridge::Ask a;
+	a.path = "/control/";
+	a.peer = "203.0.113.30";
+	a.host = "box.lan";
+	a.authorization = kRightBasic;
+
+	// A script sends the pair because it was written to, from wherever it runs.
+	a.user_agent = "curl/8.5.0";
+	REQUIRE_FALSE(login_bridge::basicHeldBack(a));
+	REQUIRE(login_bridge::basicAdmits(a));
+	a.user_agent.clear();
+	REQUIRE(login_bridge::basicAdmits(a));
+
+	// A browser sends the pair it keeps with whatever another page makes it ask
+	// for, and the pair remembered from the script above does not change that.
+	a.user_agent = kBrowser;
+	REQUIRE(login_bridge::basicHeldBack(a));
+	REQUIRE_FALSE(login_bridge::basicAdmits(a));
+	a.sec_fetch_site = "cross-site";
+	a.referer = "http://box.lan/dashboard.html";
+	REQUIRE_FALSE(login_bridge::basicAdmits(a));
+	a.sec_fetch_site = "none";
+	REQUIRE_FALSE(login_bridge::basicAdmits(a));
+
+	// From a page of the box, by the session's own rule.
+	a.sec_fetch_site = "same-origin";
+	REQUIRE_FALSE(login_bridge::basicHeldBack(a));
+	REQUIRE(login_bridge::basicAdmits(a));
+	a.sec_fetch_site.clear();
+	a.referer = "http://box.lan/dashboard.html";
+	REQUIRE(login_bridge::basicAdmits(a));
+	a.referer = "http://evil.example/?http://box.lan/";
+	REQUIRE_FALSE(login_bridge::basicAdmits(a));
+	a.referer.clear();
+	a.origin = "http://box.lan";
+	REQUIRE(login_bridge::basicAdmits(a));
+	a.origin = "http://evil.example";
+	REQUIRE_FALSE(login_bridge::basicAdmits(a));
+	a.origin.clear();
+
+	// A page that only shows something asks nothing of where the request came from,
+	// and a page told to run a template command is held like the targets above.
+	login_bridge::Ask page = a;
+	page.path = "/";
+	REQUIRE(login_bridge::basicAdmits(page));
+	page.path = "/dashboard.html";
+	page.runs_commands = true;
+	REQUIRE(login_bridge::basicHeldBack(page));
+	REQUIRE_FALSE(login_bridge::basicAdmits(page));
+
+	/* PowerShell's Invoke-WebRequest calls itself Mozilla and is a browser here: held
+	   back as one, and through with an Origin header naming the box, the way its
+	   owner is told to send it. */
+	login_bridge::Ask shell;
+	shell.path = "/control/";
+	shell.peer = "203.0.113.32";
+	shell.host = "box.lan";
+	shell.authorization = kRightBasic;
+	shell.user_agent = "Mozilla/5.0 (Windows NT; Windows NT 10.0; de-DE) WindowsPowerShell/5.1.19041.4648";
+	REQUIRE(login_bridge::basicHeldBack(shell));
+	shell.origin = "http://box.lan";
+	REQUIRE(login_bridge::basicAdmits(shell));
+
+	// Held back before the pair is checked: a wrong one costs no login attempt.
+	forgetLoginAttemptsForTest();
+	a.authorization = kWrongBasic;
+	REQUIRE_FALSE(login_bridge::basicAdmits(a));
+	REQUIRE(loginAttemptCountForTest() == 0);
+	// And a request without the scheme is nothing this holds back.
+	a.authorization = "Bearer b3duZXI6cmlnaHQtb25l";
+	REQUIRE_FALSE(login_bridge::basicHeldBack(a));
+}
+
+namespace
+{
+
+// /control/standby?on as a browser's top-level navigation with the account's Basic pair.
+void standbyAsked(CyhookHandler &hh, const char *authorization, const char *agent)
+{
+	hh.Method = M_GET;
+	hh.UrlData["url"] = "/control/standby";
+	hh.UrlData["fullurl"] = "/control/standby?on";
+	hh.UrlData["path"] = "/control/";
+	hh.UrlData["filename"] = "standby";
+	hh.UrlData["clientaddr"] = "203.0.113.31";
+	hh.HeaderList["Host"] = "box.lan";
+	hh.HeaderList["Authorization"] = authorization;
+	hh.HeaderList["User-Agent"] = agent;
+	hh.HeaderList["Accept"] = "text/html";
+}
+
+} // namespace
+
+TEST_CASE("the gate tells a browser held back with its Basic pair where to open the address", "[login]")
+{
+	Account account;
+	Gate gate(true, "");
+
+	CyhookHandler hh;
+	standbyAsked(hh, kRightBasic, kBrowser);
+	REQUIRE(gate.Hook_PrepareResponse(&hh) == HANDLED_ERROR);
+	// Not 401, which would have the browser ask for the login and send this again.
+	CHECK(hh.httpStatus == HTTP_FORBIDDEN);
+	CHECK(hh.ResponseMimeType == "text/plain; charset=UTF-8");
+	CHECK(hh.yresult.find("web interface") != std::string::npos);
+	CHECK(hh.yresult.find("Weboberfl") != std::string::npos);
+	// A script with a browser's User-Agent is told how it passes, in both languages.
+	CHECK(hh.yresult.find("as PowerShell does") != std::string::npos);
+	CHECK(hh.yresult.find("wie PowerShell") != std::string::npos);
+	CHECK(hh.yresult.find("of its own (-UserAgent), or an Origin header naming the box") != std::string::npos);
+	CHECK(hh.yresult.find("eigene Kennung (-UserAgent) oder einen Origin-Kopf") != std::string::npos);
+	// The head the boundary's page goes out with.
+	CHECK(hh.api_mode);
+	bool nosniff = false;
+	for (size_t i = 0; i < hh.ResponseHeaders.size(); ++i)
+		nosniff = nosniff || (hh.ResponseHeaders[i].first == "X-Content-Type-Options" &&
+		                      hh.ResponseHeaders[i].second == "nosniff");
+	CHECK(nosniff);
+
+	// The same from a page of the box goes on, and so does a script without one.
+	CyhookHandler own;
+	standbyAsked(own, kRightBasic, kBrowser);
+	own.HeaderList["Sec-Fetch-Site"] = "same-origin";
+	CHECK(gate.Hook_PrepareResponse(&own) == HANDLED_CONTINUE);
+
+	CyhookHandler script;
+	standbyAsked(script, kRightBasic, "curl/8.5.0");
+	CHECK(gate.Hook_PrepareResponse(&script) == HANDLED_CONTINUE);
+
+	// A wrong pair from such a browser is held back the same way: asking it
+	// for the pair again would bring the same request back.
+	CyhookHandler wrong;
+	standbyAsked(wrong, kWrongBasic, kBrowser);
+	CHECK(gate.Hook_PrepareResponse(&wrong) == HANDLED_ERROR);
+	CHECK(wrong.httpStatus == HTTP_FORBIDDEN);
+}

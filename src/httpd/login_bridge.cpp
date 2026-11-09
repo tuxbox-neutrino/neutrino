@@ -45,6 +45,25 @@ bool changesWithGet(const std::string &path)
 	return false;
 }
 
+// The requests a credential a browser attaches by itself counts for only from a page of this box.
+bool needsOwnPage(const Ask &a)
+{
+	return changesWithGet(a.path) || a.runs_commands;
+}
+
+// What every browser this server serves starts its User-Agent with, and no script that names itself.
+bool fromBrowser(const Ask &a)
+{
+	return a.user_agent.compare(0, 8, "Mozilla/") == 0;
+}
+
+// Whether the Authorization header names the Basic scheme, read without decoding the pair.
+bool carriesBasic(const std::string &authorization)
+{
+	return authorization.size() > 5 && strncasecmp(authorization.c_str(), "basic", 5) == 0 &&
+	       (authorization[5] == ' ' || authorization[5] == '\t');
+}
+
 /* Whether an address names the host this request was sent to: http or https,
    then exactly that host, then nothing or a path. Compared without regard to
    case, a host name having none. */
@@ -209,7 +228,7 @@ bool sessionAdmits(const Ask &a)
 		const std::string token = httpd::cookieValue(a.cookie, httpd::sessionCookieName());
 		if (token.empty())
 			return false;
-		if ((changesWithGet(a.path) || a.runs_commands) && !fromThisBox(a))
+		if (needsOwnPage(a) && !fromThisBox(a))
 			return false;
 
 		/* Asked of the REST gate with the cookie and nothing else, so the answer
@@ -226,10 +245,40 @@ bool sessionAdmits(const Ask &a)
 	}
 }
 
+bool basicHeldBack(const Ask &a)
+{
+	try
+	{
+		return carriesBasic(a.authorization) && fromBrowser(a) && needsOwnPage(a) && !fromThisBox(a);
+	}
+	catch (...)
+	{
+		return true;
+	}
+}
+
+const char *heldBackText()
+{
+	return "This address can change the box, so a browser is answered only when the request comes "
+	       "from a page of the box. Open it from the box's web interface. A script that sends a "
+	       "browser's User-Agent, as PowerShell does, is held to the same rule: give it a User-Agent "
+	       "of its own (-UserAgent), or an Origin header naming the box.\n"
+	       "\n"
+	       "Diese Adresse kann die Box \xC3\xA4" "ndern, darum bekommt ein Browser nur eine Antwort, wenn "
+	       "die Anfrage von einer Seite der Box kommt. \xC3\x96" "ffne sie aus der Weboberfl\xC3\xA4" "che "
+	       "der Box heraus. Ein Skript, das die Kennung eines Browsers sendet, wie PowerShell, wird "
+	       "genauso behandelt: Gib ihm eine eigene Kennung (-UserAgent) oder einen Origin-Kopf, der die "
+	       "Box nennt.\n";
+}
+
 bool basicAdmits(const Ask &a)
 {
 	try
 	{
+		// before the pair is decoded or checked: the answer is no whatever it is
+		if (basicHeldBack(a))
+			return false;
+
 		std::string pair = httpd::basicCredential(a.authorization);
 		const size_t colon = pair.find(':');
 		if (colon == std::string::npos)
