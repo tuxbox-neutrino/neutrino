@@ -94,6 +94,37 @@ with a password these boxes once shipped with stops working when the box
 replaces it. Enter the first password in the app. After you set your own
 password, enter that one.
 
+## When many sign-ins fail
+
+A wrong password slows the next sign-in down, so that nobody can try
+passwords one after the other:
+
+- From one address, the first 2 wrong passwords cost nothing. After that,
+  each wrong one doubles the wait before the next try from there, up to one
+  minute. The box forgets the address after 10 minutes without a try.
+- All addresses together may get the password wrong 20 times in a short
+  while. After that the box takes one more try every 15 seconds. While none
+  is left, a sign-in waits, also one with the right password, for at most
+  15 seconds: the sign-in page asks you to try again in a moment.
+- While wrong passwords keep arriving, the sign-ins share the tries that
+  come back, so one may have to be tried again more than once, for as long
+  as the guessing goes on.
+- An address the box saw a right password from in the last 30 days is not
+  held up by this, only by its own wait: your own devices sign in as
+  usual. A new device, or one away for longer, waits with the rest.
+- The box remembers these addresses only while it runs. After it started
+  again, also after a deep standby or a power cut, it knows none of them,
+  and until a device has signed in once it waits with the rest.
+- Behind a proxy every caller comes from the address of the proxy. Once
+  somebody has signed in through it, every try through it is held back only
+  by the wait of that one address, not by the 20 tries shared by all.
+- Sessions already open and the menu at the box are not affected. Nobody is
+  locked out: a right password clears the wait of its address.
+
+Someone who mistypes a few times does not notice any of this. Over
+`/api/v1` such a wait is answered `429 too-many-attempts` with a
+`Retry-After` header in seconds.
+
 ## Forgot the password
 
 Reset it at the box itself:

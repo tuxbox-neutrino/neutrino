@@ -186,10 +186,10 @@ Response wrongCredential()
 	return r;
 }
 
-/* Says that too much is being asked and nothing else. One document for both things
-   that close the gate, because a caller does the same thing about either, and telling
-   them apart would say whether the box is loaded to somebody who has presented
-   nothing. Retry-After carries a wait the caller could work out by counting. */
+/* Says that too much is being asked and nothing else. One document for every thing
+   that closes the gate, because a caller does the same thing about each, and telling
+   them apart would say whether the box is loaded or being guessed at to somebody who
+   has presented nothing. Retry-After carries the wait. */
 Response tooManyAttempts(unsigned retry_after)
 {
 	Response r = problemResponse(StatusTooManyRequests, coreapi::ErrorCode::TooManyAttempts,
@@ -533,15 +533,23 @@ const Endpoint kAuthEndpoints[] = {
 	  "nothing extra, every one after that doubles the wait up to a ceiling of 60 seconds, and the "
 	  "record is forgotten after 10 minutes without another attempt from that address. At most 4 "
 	  "logins are checked at once across every address; a 5th caller arriving at the same moment is "
-	  "asked to retry rather than queued.\n"
+	  "asked to retry rather than queued. Wrong answers from every address together draw on one "
+	  "budget: 20 of them in a row, after which one more is taken every 15 seconds. While it is spent "
+	  "a login is asked to retry, the right one included, for at most 15 seconds at a time; while wrong "
+	  "answers keep arriving, the logins share what comes back, so one may be asked to retry again. An "
+	  "address this box saw a right answer from within the last 30 days, while the program has been "
+	  "running, draws nothing from the budget and is held only to its own delay; after a start of the "
+	  "program, a deep standby among them, no address is known until it has answered right once. "
+	  "Forgetting an address gives nothing back, only time does.\n"
 	  "\n"
 	  "**Refusals:**\n"
 	  "- `401 not-permitted`: the name and the password do not go together. An unknown name and the "
 	  "right name with the wrong password are answered the same way and cost the same time to check, "
 	  "so a caller cannot use the delay to learn which it was.\n"
-	  "- `429 too-many-attempts`: either this address is still inside its backoff delay, or 4 logins "
-	  "are already being checked at once; the `Retry-After` header carries how many seconds to wait "
-	  "before trying again.\n"
+	  "- `429 too-many-attempts`: this address is still inside its backoff delay, 4 logins are "
+	  "already being checked at once, or the budget of wrong answers from every address is spent "
+	  "for the moment; the `Retry-After` header carries how many seconds to wait before trying "
+	  "again.\n"
 	  "\n"
 	  "**Related:** `GET /api/v1/session`, `POST /api/v1/logout`.",
 	  HTTPD_PARAMS(kLoginParams), &kSessionStateSchema, &login, false,
@@ -609,8 +617,9 @@ const Endpoint kAuthEndpoints[] = {
 	  "boxes have shipped with, or is the one it replaces; the detail says which.\n"
 	  "- `403 not-permitted`: `current` is not the password in effect, or the account changed or the "
 	  "session asking ended while the request was being checked; nothing is written then.\n"
-	  "- `429 too-many-attempts`: wrong passwords were sent from this address too often, or too many "
-	  "are being checked at once; `Retry-After` says how long to wait.\n"
+	  "- `429 too-many-attempts`: wrong passwords were sent from this address too often, too many "
+	  "are being checked at once, or too many wrong ones came from every address together; "
+	  "`Retry-After` says how long to wait.\n"
 	  "- `500 webserver-not-configured`: the box could not write the new password; the old one stays "
 	  "in effect.\n"
 	  "\n"

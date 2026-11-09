@@ -8321,3 +8321,157 @@ TEST_CASE("a change to the account over /api/v1 that a reset made stale before i
 	REQUIRE(wholeOf(file.server) == resetBetween().server_after);
 	REQUIRE(loginInEffect().username == "root");
 }
+
+TEST_CASE("wrong answers from many addresses draw on one budget that only time gives back", "[write][budget]")
+{
+	ShippedRoutes shipped;
+	ConfigFixture cfg;
+
+	time_t now = 1735689600;
+	setLoginClockForTest(now);
+
+	// Every address guesses once, which no address's own delay ever sees.
+	char peer[32];
+	for (unsigned i = 0; i < kLoginFailureBudget; ++i)
+	{
+		std::snprintf(peer, sizeof(peer), "198.18.0.%u", i + 1);
+		INFO(peer);
+		REQUIRE(send(Post, "/api/v1/login", loginBody(kUser, "nope"), AuthLevel::Public, peer).code == 401);
+	}
+
+	/* Spent: an address that never guessed is turned away, the right password with it,
+	   in the words every other wait is answered in, and told when to come back. */
+	char wait[16];
+	std::snprintf(wait, sizeof(wait), "%u", kLoginBudgetRefill);
+	const Reply spent = send(Post, "/api/v1/login", loginBody(kUser, kPassword), AuthLevel::Public, "198.18.1.1");
+	REQUIRE(spent.code == 429);
+	REQUIRE(spent.body.find("too-many-attempts") != std::string::npos);
+	REQUIRE(headerOf(spent, "Retry-After") == wait);
+	unsigned retry = 0;
+	REQUIRE(beginLoginAttempt("198.18.1.2", &retry) == LoginAttempt::TooManyWrong);
+	REQUIRE(retry == kLoginBudgetRefill);
+
+	// The table of addresses overflowing and giving up the quietest gives nothing back.
+	for (int i = 0; i < 300; ++i)
+	{
+		std::snprintf(peer, sizeof(peer), "198.19.%d.%d", i / 200, i % 200 + 1);
+		endLoginAttempt(peer, false);
+	}
+	REQUIRE(beginLoginAttempt("198.18.1.3", &retry) == LoginAttempt::TooManyWrong);
+	REQUIRE(loginAttemptCountForTest() <= 256u);
+
+	// Time does, one at a time.
+	now += kLoginBudgetRefill - 1;
+	setLoginClockForTest(now);
+	REQUIRE(beginLoginAttempt("198.18.1.4", &retry) == LoginAttempt::TooManyWrong);
+	REQUIRE(retry == 1);
+	now += 1;
+	setLoginClockForTest(now);
+	const Reply in = send(Post, "/api/v1/login", loginBody(kUser, kPassword), AuthLevel::Public, "198.18.1.5");
+	REQUIRE(in.code == 200);
+	REQUIRE(closeSession(tokenOf(in)));
+	// The right answer gave back what it took, so one wrong one is still answered.
+	REQUIRE(send(Post, "/api/v1/login", loginBody(kUser, "nope"), AuthLevel::Public, "198.18.1.6").code == 401);
+	REQUIRE(send(Post, "/api/v1/login", loginBody(kUser, "nope"), AuthLevel::Public, "198.18.1.7").code == 429);
+
+	// And all of it after long enough, which is why nobody is ever locked out.
+	now += (time_t) kLoginFailureBudget * kLoginBudgetRefill;
+	setLoginClockForTest(now);
+	for (unsigned i = 0; i < kLoginFailureBudget; ++i)
+	{
+		std::snprintf(peer, sizeof(peer), "198.18.2.%u", i + 1);
+		INFO(peer);
+		REQUIRE(send(Post, "/api/v1/login", loginBody(kUser, "nope"), AuthLevel::Public, peer).code == 401);
+	}
+	REQUIRE(send(Post, "/api/v1/login", loginBody(kUser, kPassword), AuthLevel::Public, "198.18.3.1").code == 429);
+}
+
+TEST_CASE("an address answered right lately signs in while the budget is spent, and only that long", "[write][budget]")
+{
+	ShippedRoutes shipped;
+	ConfigFixture cfg;
+	time_t now = 1735689600;
+	setLoginClockForTest(now);
+
+	// The household's address signs in once.
+	const char home[] = "198.18.6.1";
+	Reply in = send(Post, "/api/v1/login", loginBody(kUser, kPassword), AuthLevel::Public, home);
+	REQUIRE(in.code == 200);
+	REQUIRE(closeSession(tokenOf(in)));
+
+	// Somebody spends the budget from fresh addresses.
+	char peer[32];
+	for (unsigned i = 0; i < kLoginFailureBudget; ++i)
+	{
+		std::snprintf(peer, sizeof(peer), "198.18.7.%u", i + 1);
+		REQUIRE(send(Post, "/api/v1/login", loginBody(kUser, "nope"), AuthLevel::Public, peer).code == 401);
+	}
+	REQUIRE(send(Post, "/api/v1/login", loginBody(kUser, kPassword), AuthLevel::Public, "198.18.8.1").code == 429);
+
+	// The household signs in as before, and is still held to its own delay.
+	in = send(Post, "/api/v1/login", loginBody(kUser, kPassword), AuthLevel::Public, home);
+	REQUIRE(in.code == 200);
+	REQUIRE(closeSession(tokenOf(in)));
+	for (int i = 0; i < 3; ++i)
+		REQUIRE(send(Post, "/api/v1/login", loginBody(kUser, "nope"), AuthLevel::Public, home).code == 401);
+	REQUIRE(send(Post, "/api/v1/login", loginBody(kUser, kPassword), AuthLevel::Public, home).code == 429);
+	now += 2;
+	setLoginClockForTest(now);
+	in = send(Post, "/api/v1/login", loginBody(kUser, kPassword), AuthLevel::Public, home);
+	REQUIRE(in.code == 200);
+	REQUIRE(closeSession(tokenOf(in)));
+
+	// Thirty days without a right answer, and it waits with the rest.
+	now += kKnownAddressFor;
+	setLoginClockForTest(now);
+	for (unsigned i = 0; i < kLoginFailureBudget; ++i)
+	{
+		std::snprintf(peer, sizeof(peer), "198.18.9.%u", i + 1);
+		REQUIRE(send(Post, "/api/v1/login", loginBody(kUser, "nope"), AuthLevel::Public, peer).code == 401);
+	}
+	REQUIRE(send(Post, "/api/v1/login", loginBody(kUser, kPassword), AuthLevel::Public, home).code == 429);
+
+	// Only so many are remembered: one more address answered right gives up the oldest.
+	forgetLoginAttemptsForTest();
+	for (size_t i = 0; i <= kMaxKnownAddresses; ++i)
+	{
+		std::snprintf(peer, sizeof(peer), "198.18.10.%u", (unsigned) i + 1);
+		in = send(Post, "/api/v1/login", loginBody(kUser, kPassword), AuthLevel::Public, peer);
+		REQUIRE(in.code == 200);
+		REQUIRE(closeSession(tokenOf(in)));
+		now += 1;
+		setLoginClockForTest(now);
+	}
+	for (unsigned i = 0; i < kLoginFailureBudget; ++i)
+	{
+		std::snprintf(peer, sizeof(peer), "198.18.11.%u", i + 1);
+		REQUIRE(send(Post, "/api/v1/login", loginBody(kUser, "nope"), AuthLevel::Public, peer).code == 401);
+	}
+	REQUIRE(send(Post, "/api/v1/login", loginBody(kUser, kPassword), AuthLevel::Public, "198.18.10.1").code == 429);
+	std::snprintf(peer, sizeof(peer), "198.18.10.%u", (unsigned) kMaxKnownAddresses + 1);
+	in = send(Post, "/api/v1/login", loginBody(kUser, kPassword), AuthLevel::Public, peer);
+	REQUIRE(in.code == 200);
+	REQUIRE(closeSession(tokenOf(in)));
+}
+
+TEST_CASE("an address waiting out its own delay spends nothing of the budget everybody shares", "[write][budget]")
+{
+	ShippedRoutes shipped;
+	ConfigFixture cfg;
+	setLoginClockForTest(1735689600);
+
+	// One address guessing on and on is held up by its own delay and leaves the
+	// budget to the others.
+	for (int i = 0; i < 40; ++i)
+		(void) send(Post, "/api/v1/login", loginBody(kUser, "nope"), AuthLevel::Public, "203.0.113.70");
+	const Reply in = send(Post, "/api/v1/login", loginBody(kUser, kPassword), AuthLevel::Public, "198.18.4.1");
+	REQUIRE(in.code == 200);
+	REQUIRE(closeSession(tokenOf(in)));
+	for (unsigned i = 0; i + 3 < kLoginFailureBudget; ++i)
+	{
+		char peer[32];
+		std::snprintf(peer, sizeof(peer), "198.18.5.%u", i + 1);
+		INFO(peer);
+		REQUIRE(send(Post, "/api/v1/login", loginBody(kUser, "nope"), AuthLevel::Public, peer).code == 401);
+	}
+}

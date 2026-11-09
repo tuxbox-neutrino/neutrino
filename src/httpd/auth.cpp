@@ -162,7 +162,16 @@ struct Table
 	std::map<std::string, Attempts> attempts;
 	unsigned                        in_flight;
 
-	Table() : swept(0), in_flight(0) {}
+	/* The wrong answers the box still takes (auth.h, kLoginFailureBudget), and the
+	   moment from which time counts what it gives back: when the budget was last
+	   whole, or when time last gave one back. */
+	unsigned                        budget;
+	time_t                          budget_since;
+
+	// The addresses answered right lately and when (auth.h, kKnownAddressFor).
+	std::map<std::string, time_t>   known;
+
+	Table() : swept(0), in_flight(0), budget(kLoginFailureBudget), budget_since(0) {}
 };
 
 // Nought is the real clock, which is what the product runs on.
@@ -602,6 +611,56 @@ void forgetQuietLocked(time_t now)
 		}
 		table().attempts.erase(oldest);
 	}
+}
+
+/* Whether an address answered right within kKnownAddressFor. A clock that went back
+   since reads as within, the table being bounded in any case. Held by the caller. */
+bool knownLocked(const std::string &peer, time_t now)
+{
+	const std::map<std::string, time_t>::const_iterator k = table().known.find(peer);
+	return k != table().known.end() && now - k->second < kKnownAddressFor;
+}
+
+// Notes a right answer from an address, giving up the oldest when full. Held by the caller.
+void noteKnownLocked(const std::string &peer, time_t now)
+{
+	std::map<std::string, time_t> &known = table().known;
+	if (known.find(peer) == known.end())
+	{
+		while (known.size() >= kMaxKnownAddresses)
+		{
+			std::map<std::string, time_t>::iterator oldest = known.begin();
+			for (std::map<std::string, time_t>::iterator k = known.begin(); k != known.end(); ++k)
+				if (k->second < oldest->second)
+					oldest = k;
+			known.erase(oldest);
+		}
+	}
+	known[peer] = now;
+}
+
+/* What time gave back to the budget since it was last counted, a whole one every
+   interval and never more than it holds. A clock that went backwards gives nothing back
+   and counts again from now, which turns nobody away for longer than one interval more.
+   Held by the caller. */
+void refillLocked(time_t now)
+{
+	Table &t = table();
+	if (t.budget >= kLoginFailureBudget)
+		return;
+	if (now < t.budget_since)
+	{
+		t.budget_since = now;
+		return;
+	}
+	const time_t back = (now - t.budget_since) / (time_t) kLoginBudgetRefill;
+	if (back >= (time_t) (kLoginFailureBudget - t.budget))
+	{
+		t.budget = kLoginFailureBudget;
+		return;
+	}
+	t.budget += (unsigned) back;
+	t.budget_since += back * (time_t) kLoginBudgetRefill;
 }
 
 // The value of one character of the base64 alphabet, or a negative number
@@ -1088,9 +1147,10 @@ LoginAttempt beginLoginAttempt(const std::string &peer, unsigned *retry_after)
 	forgetQuietLocked(now);
 
 	const std::map<std::string, Attempts>::iterator i = table().attempts.find(peer);
+	unsigned delay = 0;
 	if (i != table().attempts.end())
 	{
-		const unsigned delay = loginDelayFor(i->second.failures);
+		delay = loginDelayFor(i->second.failures);
 		/* A clock that went backwards under this leaves a moment in the future
 		   here, and the comparison is written so that such a record delays
 		   rather than being read as one whose delay has passed. It runs out
@@ -1101,10 +1161,29 @@ LoginAttempt beginLoginAttempt(const std::string &peer, unsigned *retry_after)
 				*retry_after = (unsigned)((i->second.last + (time_t) delay) - now);
 			return LoginAttempt::TooSoon;
 		}
-		// Stamped now, so a second attempt from this address waits for this one.
-		if (delay > 0)
-			i->second.last = now;
 	}
+
+	/* The budget every address draws on, after the address's own delay, so an
+	   address waiting out its own spends nothing of everybody's, and not at all for an
+	   address answered right lately. Taken now and given back by a right answer
+	   (endLoginAttempt), so attempts being answered count. */
+	if (!knownLocked(peer, now))
+	{
+		refillLocked(now);
+		if (table().budget == 0)
+		{
+			if (retry_after != NULL)
+				*retry_after = (unsigned) ((table().budget_since + (time_t) kLoginBudgetRefill) - now);
+			return LoginAttempt::TooManyWrong;
+		}
+		if (table().budget == kLoginFailureBudget)
+			table().budget_since = now;
+		--table().budget;
+	}
+
+	// Stamped now, so a second attempt from this address waits for this one.
+	if (delay > 0)
+		i->second.last = now;
 
 	++table().in_flight;
 	return LoginAttempt::Open;
@@ -1124,8 +1203,12 @@ void endLoginAttempt(const std::string &peer, bool granted)
 	if (granted)
 	{
 		// A right answer clears the record outright, which is half of why this
-		// cannot lock the only account out.
+		// cannot lock the only account out, and gives back to the budget what its
+		// attempt took from it.
 		table().attempts.erase(peer);
+		if (!knownLocked(peer, now) && table().budget < kLoginFailureBudget)
+			++table().budget;
+		noteKnownLocked(peer, now);
 		return;
 	}
 
@@ -1142,6 +1225,9 @@ void forgetLoginAttemptsForTest()
 	OpenThreads::ScopedLock<OpenThreads::Mutex> held(lock());
 	table().attempts.clear();
 	table().in_flight = 0;
+	table().budget = kLoginFailureBudget;
+	table().budget_since = 0;
+	table().known.clear();
 }
 
 size_t loginAttemptCountForTest()

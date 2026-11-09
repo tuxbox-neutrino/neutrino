@@ -325,13 +325,29 @@ time_t expiryForTest(time_t now, unsigned lifetime);
    is how a password is guessed. The two are one mechanism here, which is why this is a
    gate and not a counter somebody reads afterwards.
 
-   Two things close it. TooSoon is this caller having guessed wrong lately: the first few
+   Three things close it. TooSoon is this caller having guessed wrong lately: the first few
    are free, and after that each wrong answer doubles how long the next attempt waits.
-   TooBusy is the ceiling on how many are being answered at once.
+   TooBusy is the ceiling on how many are being answered at once. TooManyWrong is the box
+   as a whole having had too many wrong answers lately, from every address together: the
+   budget below. An address is cheap to come by and each new one starts on the free
+   attempts, and the table of addresses gives up the quietest when it is full; the budget
+   is one for all of them, and nothing gives it back but time.
+
+   The budget holds back the addresses this box has not seen a right answer from within
+   kKnownAddressFor, and only those. An address that answered right is one a person of the
+   household signs in from, and it is held to its own delay alone, so while the program
+   runs, guessing from fresh addresses does not shut the household out. The addresses are
+   remembered in memory and nowhere else: after a start of the program, a deep standby
+   or a power cut among them, no address is known, and every one waits with the rest
+   until it has answered right once.
 
    It cannot lock the only account out. There is one account and nobody to unlock it, so
    the delay has a ceiling of a minute however many wrong answers came before, a record is
-   forgotten after a quiet spell, and a right answer clears it.
+   forgotten after a quiet spell, a right answer clears it, and the budget comes back one
+   wrong answer every interval whatever happens. What it does not promise is a single
+   wait: spent, it turns an attempt away for one interval at most, and while wrong answers
+   keep arriving the attempts from addresses it holds back share what comes back, so one
+   of them may be turned away again. Sessions already open are not held up by any of it.
 
    Keyed on the address the transport observed and never on one a caller wrote. Behind a
    proxy the delay is then shared by everyone behind it, which is the strict direction.
@@ -342,8 +358,34 @@ enum class LoginAttempt
 {
 	Open,
 	TooSoon,
-	TooBusy
+	TooBusy,
+	TooManyWrong
 };
+
+/* The budget of wrong answers the box takes from every address together: this many in
+   a burst, and one more back every kLoginBudgetRefill seconds. An attempt takes one when
+   it is let through and a right answer gives it back, so a right answer costs nothing
+   and attempts being answered count as wrong ones until they are not.
+
+   Twenty, because a person who mistypes does so a few times, and a household is a few
+   people; a single address at its own delay's ceiling gets one attempt a minute and so
+   never spends it on its own. One back every fifteen seconds, which is four a minute
+   for anybody guessing from as many addresses as they like, and the longest one wait
+   lasts once it is spent.
+
+   An address answered right from within kKnownAddressFor seconds draws nothing from it,
+   which is thirty days, the longest a session on this box lasts: the devices of the
+   household come back whenever they are next used, after a change of the password
+   days later as well, and an address older than that is one no sign-in on this box can
+   still be open from. The last kMaxKnownAddresses of them are remembered while the
+   program runs, and none across a start of it; one more gives up the one answered
+   right longest ago. Behind a proxy every caller has the proxy's address, so one right
+   answer through it lets everybody behind it past the budget, each still held to the
+   delay that address shares. */
+const unsigned kLoginFailureBudget = 20;
+const unsigned kLoginBudgetRefill  = 15;
+const time_t   kKnownAddressFor    = 30 * 24 * 60 * 60;
+const size_t   kMaxKnownAddresses  = 16;
 
 LoginAttempt beginLoginAttempt(const std::string &peer, unsigned *retry_after);
 void endLoginAttempt(const std::string &peer, bool granted);
@@ -354,7 +396,8 @@ void endLoginAttempt(const std::string &peer, bool granted);
    the ceiling. */
 unsigned loginDelayFor(unsigned failures);
 
-// Empties the table of who has been guessing, and how many addresses it holds.
+// Empties the table of who has been guessing and fills the budget again, and how
+// many addresses it holds.
 void forgetLoginAttemptsForTest();
 size_t loginAttemptCountForTest();
 
