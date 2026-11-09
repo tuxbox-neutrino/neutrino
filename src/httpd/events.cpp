@@ -67,6 +67,7 @@
 
 #include "events.h"
 
+#include "auth.h"
 #include "carry.h"
 #include "webconfig.h"
 #include "http.h"
@@ -177,6 +178,10 @@ struct Stream
 	   beside this says it is: how long this stream may be silent. One clock for the
 	   server would send a comment down a stream that had just carried an event. */
 	int64_t     last_written;
+	/* The cookie token of the session the stream was opened under, and empty for one
+	   a token or the address let in. Set before the stream is registered and never
+	   changed, so the pump reads it without the lock. */
+	std::string session;
 
 	Stream() : fd(-1), overflowed(false), closing(false),
 	           suspended(false), shut(false), last_written(0)
@@ -711,7 +716,8 @@ Response noPlaceRefusal()
 
 } // namespace
 
-Opened openStream(int fd, StreamHandle &out, Response &refusal, bool placed)
+Opened openStream(int fd, StreamHandle &out, Response &refusal, bool placed,
+                  const std::string &session)
 {
 	out = NULL;
 
@@ -746,6 +752,7 @@ Opened openStream(int fd, StreamHandle &out, Response &refusal, bool placed)
 			Holder made(new Stream);
 			made.held->fd = fd;
 			made.held->last_written = monotonicMs();
+			made.held->session = session;
 
 			/* Seeded before the stream is registered, so the first thing the reader finds is
 			   bytes rather than nothing. That is what puts the head of the answer on the wire
@@ -807,6 +814,7 @@ void pumpStream(StreamHandle h, StreamWrite write, void *ctx)
 		{
 			bool end = false;
 			bool error = false;
+			bool ask = false;
 			block.clear();
 
 			{
@@ -848,11 +856,29 @@ void pumpStream(StreamHandle h, StreamWrite write, void *ctx)
 					s->suspended = true;
 					cond().wait(&lock(), 1000);
 					s->suspended = false;
+					/* A stream opened under a session goes back out after every
+					   wait, to ask after that session with this lock given up. */
+					if (!s->session.empty())
+					{
+						ask = true;
+						break;
+					}
 				}
 			}
 
 			if (end || error)
 				break;
+
+			/* The session the stream was opened under, asked before every block and
+			   at least once a second while there is none, outside this file's lock:
+			   the session table has a lock of its own. Signed out, run out, or ended
+			   or given new tokens by a change of the login, it answers for nothing
+			   more, and neither does the stream, whose client comes back with the
+			   cookie it holds now. */
+			if (!s->session.empty() && !sessionIsLive(s->session))
+				break;
+			if (ask)
+				continue;
 
 			/* Outside the lock, which is the point of the block: a peer that
 			   takes its time costs this stream's thread, not the delivery. */
@@ -925,7 +951,8 @@ void carryStream(carry::Job &job)
 
 	StreamHandle handle = NULL;
 	Response refusal;
-	const Opened got = openStream(fd, handle, refusal, carry::holdsPlace(job));
+	const Opened got = openStream(fd, handle, refusal, carry::holdsPlace(job),
+	                              carry::answerOf(job).event_session);
 	// the reserved place taken on by the stream, or given back with the refusal
 	carry::placeTaken(job);
 	if (got == StreamRefused)
@@ -1125,7 +1152,7 @@ size_t pendingCeiling()
 /* Named in the namespace and not in the unnamed one beside it, because the
    table below carries its address and that table is declared where the list of
    tables is read. */
-Response streamHandler(const Request &)
+Response streamHandler(const Request &r)
 {
 	/* Not the answer itself. What goes back from here says which media type the answer
 	   is and what has to be said around it, and the transport carries the stream on a
@@ -1135,6 +1162,8 @@ Response streamHandler(const Request &)
 	out.code = StatusOk;
 	out.content_type = streamContentType();
 	out.event_stream = true;
+	// the session the stream ends with, where one let the request in
+	out.event_session = r.admittingSession();
 
 	// Both of these are about what sits between this server and the browser.
 	// A cache that stored a stream would replay it, and a proxy that buffered
@@ -1159,6 +1188,10 @@ const Endpoint kEventsEndpoints[] = {
 	  "open; read it with `EventSource` or any SSE client. The stream begins with a `retry:` line of "
 	  "10 to 19 seconds, the time a client waits before it reconnects, and carries a comment line "
 	  "(`:`) as a heartbeat when nothing happens.\n\n"
+	  "A stream opened with the session cookie ends when that session does: a sign-out, the session "
+	  "running out, and a change of the user name or the password, the session that made it included, "
+	  "which goes on under new tokens. A client opens it again with the cookie it then holds. A stream a "
+	  "token or the network let in has no session to end with.\n\n"
 	  "Each event is an `event:` line with its name and a `data:` line with a JSON object "
 	  "`{\"channel_id\": hex string, \"value\": integer, \"text\": string}`. Events say what changed, "
 	  "not everything about it: reread the matching route.\n\n"

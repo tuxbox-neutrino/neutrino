@@ -274,6 +274,13 @@ password from then on. A change in the menu at the box keeps nobody signed
 in. Saving the settings without changing the user name or the password signs
 nobody out.
 
+The live updates an open page of the web interface receives (the event
+stream, `GET /api/v1/events`) end with the sign-in they were opened with:
+after a sign-out, once the sign-in has run out, and after a change of the
+login, also in the browser that made the change. The page opens them again
+with the sign-in it holds then. Updates an app opened with an API token, or
+that the box sends without a sign-in, are not affected.
+
 ## For programs using `/api/v1`
 
 - While the box still uses a password it shipped with, or a first password

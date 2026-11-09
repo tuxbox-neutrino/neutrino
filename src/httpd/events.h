@@ -140,13 +140,22 @@ typedef bool (*StreamWrite)(void *ctx, const char *bytes, size_t n);
    before its job was started (carry.h, Carrier::reserve), which the stream then
    takes on or, refused or failed, gives back; on a throw it is still the
    caller's. A caller without one is held to the ceiling here, counting such
-   places. */
-Opened openStream(int fd, StreamHandle &out, Response &refusal, bool placed = false);
+   places.
+
+   session is the cookie token of the session that let the request in
+   (Response::event_session), and empty where a token or the address did: the
+   stream ends with that session, signed out, run out, or ended or given new
+   tokens by a change of the login, and carries nothing more once it stands no
+   longer. A stream without one keeps its own rules. */
+Opened openStream(int fd, StreamHandle &out, Response &refusal, bool placed = false,
+                  const std::string &session = std::string());
 
 /* Runs the stream on the calling thread until it ends: waits beside the
    lock, draws what is pending in blocks, and hands each block to write. Ends
-   on a refused write, over the ceiling, or when the stream is closed, and
-   gives the registration back on every way out. */
+   on a refused write, over the ceiling, when the stream is closed, or when the
+   session it was opened under stands no longer, asked before every block and
+   at least once a second while there is none; gives the registration back on
+   every way out. */
 void pumpStream(StreamHandle h, StreamWrite write, void *ctx);
 
 // Gives back a registration that was never pumped.

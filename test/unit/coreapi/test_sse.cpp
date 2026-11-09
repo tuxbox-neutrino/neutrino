@@ -27,7 +27,9 @@
 #include "support/catch.hpp"
 #include "support/wireserver.h"
 
+#include "httpd/auth.h"
 #include "httpd/carry.h"
+#include "httpd/credentials.h"
 #include "httpd/endpoint.h"
 #include "httpd/events.h"
 #include "httpd/http.h"
@@ -989,4 +991,107 @@ TEST_CASE("the pump draws at most one block per turn", "[sse]")
 	events::setPendingCeiling(kShippedCeiling);
 	close(sp[0]);
 	close(sp[1]);
+}
+
+namespace
+{
+
+std::string eventsWith(const std::string &header)
+{
+	return "GET /api/v1/events HTTP/1.0\r\nHost: box\r\n" + header + "\r\n";
+}
+
+} // namespace
+
+TEST_CASE("a stream opened under a session ends with it, one a token or the network let in goes on", "[sse][session]")
+{
+	/* A beat of 100 ms wakes every stream, and the session is asked after at least
+	   once a second besides, so a stream that is to end ends well inside the wait. */
+	WireServer serving(8);
+	const WebConfig before = config();
+	const time_t t0 = 1900000000;
+	setSessionClockForTest(t0);
+	const std::string bearer = "3f4e5d6c7b8a99a83f4e5d6c7b8a99a8";
+	addApiToken(tokenLookupPrefix(bearer), hashSecret(bearer), AuthLevel::Read, "", 0);
+
+	enum Way { SignOut, RunOut, NewTokens, NewAccount };
+	const struct
+	{
+		Way         way;
+		const char *what;
+	} ways[] = {
+		{ SignOut, "a sign-out" },
+		{ RunOut, "the session running out" },
+		{ NewTokens, "a new password made by this session, which goes on under new tokens" },
+		{ NewAccount, "a new password made elsewhere, the reset at the box among them" },
+	};
+	for (size_t i = 0; i < sizeof(ways) / sizeof(ways[0]); ++i)
+	{
+		INFO(ways[i].what);
+		const std::string s = openSessionForTest("root");
+		REQUIRE(!s.empty());
+		const std::string cookie = std::string("Cookie: ") + sessionCookieName() + "=" + s + "\r\n";
+		const std::string mine_request = eventsWith(cookie);
+		const std::string token_request = eventsWith("Authorization: Bearer " + bearer + "\r\n");
+		WireStream mine(serving.port, mine_request.c_str());
+		WireStream network(serving.port);
+		WireStream token(serving.port, token_request.c_str());
+		REQUIRE(mine.ok());
+		REQUIRE(network.ok());
+		REQUIRE(token.ok());
+		REQUIRE(mine.code() == 200);
+		REQUIRE(network.code() == 200);
+		REQUIRE(token.code() == 200);
+		REQUIRE(mine.readFrame(2000).find("retry:") != std::string::npos);
+		REQUIRE(waitForStreams(3, 2000) == 3);
+		// open past a few beats and a check of its session: nothing ends it on its own
+		CHECK_FALSE(mine.closedWithin(1500));
+
+		std::string renewed;
+		const unsigned long long r = accountRevision();
+		WebConfig changed = config();
+		changed.password_hash = hashSecret("a-new-password", 1000);
+		switch (ways[i].way)
+		{
+		case SignOut:
+			REQUIRE(closeSession(s));
+			break;
+		case RunOut:
+			setSessionClockForTest(t0 + 40 * 24 * 60 * 60);
+			break;
+		case NewTokens:
+			setConfigForTest(changed);
+			renewed = reissueSession(s, r, r + 1);
+			REQUIRE(!renewed.empty());
+			break;
+		case NewAccount:
+			setConfigForTest(changed);
+			break;
+		}
+
+		CHECK(mine.closedWithin(3000));
+		CHECK(waitForStreams(2, 3000) == 2);
+		// the two the session did not let in go on, and carry what happens next
+		publish(coreapi::EventType::Volume, 0, 42);
+		const std::vector<std::string> volume(1, "event: volume");
+		CHECK(network.readUntilAll(volume, 2000).find("event: volume") != std::string::npos);
+		CHECK(token.readUntilAll(volume, 2000).find("event: volume") != std::string::npos);
+
+		// the session that went on under new tokens opens it again with its new cookie
+		if (!renewed.empty())
+		{
+			const std::string again_request =
+				eventsWith(std::string("Cookie: ") + sessionCookieName() + "=" + renewed + "\r\n");
+			WireStream again(serving.port, again_request.c_str());
+			REQUIRE(again.ok());
+			CHECK(again.code() == 200);
+			CHECK_FALSE(again.closedWithin(1500));
+			closeSession(renewed);
+		}
+		setSessionClockForTest(t0);
+		setConfigForTest(before);
+	}
+
+	forgetApiTokens();
+	setSessionClockForTest(0);
 }

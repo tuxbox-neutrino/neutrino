@@ -499,6 +499,10 @@ struct Response
 	   transport carries it on a thread of its own (carry.h), which reads it here and
 	   needs nothing of the module that keeps the streams to recognise it. */
 	bool        event_stream;
+	/* The session that let the request for the event stream in
+	   (Request::admittingSession), whose end ends the stream, and empty where a token
+	   or the address let it in and for every other answer. */
+	std::string event_session;
 
 	Response() : code(0), fd(-1), length(0), fd_own_unnamed(false), relay_kind(0), relay_channel(0), event_stream(false) {}
 };
