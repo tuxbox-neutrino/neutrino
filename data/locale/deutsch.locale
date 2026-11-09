@@ -725,7 +725,7 @@ flashupdate.fileselector Datei-Auswahl
 flashupdate.flashreadyreboot Das Image wurde erfolgreich geflasht.\nIhre Box wird jetzt neu gestartet.
 flashupdate.getinfofile lade Versioninfo
 flashupdate.getinfofileerror Kann Aktualisierungs-Info nicht laden!
-flashupdate.getupdatefile lade Update
+flashupdate.getupdatefile Lade Update
 flashupdate.getupdatefileerror Kann Aktualisierung nicht laden!
 flashupdate.head Aktualisierung
 flashupdate.install Installiere Update

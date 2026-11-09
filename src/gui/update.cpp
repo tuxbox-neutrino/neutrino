@@ -381,6 +381,7 @@ bool CFlashUpdate::selectHttpImage(void)
 
 	filename = urls[selected];
 	newVersion = versions[selected];
+	newVersionDescription = descriptions[selected];
 	file_md5 = md5s[selected];
 	fileType = fileTypes[selected];
 	gotImage = (fileType <= '9');
@@ -408,7 +409,7 @@ bool CFlashUpdate::selectHttpImage(void)
 	return true;
 }
 
-bool CFlashUpdate::getUpdateImage(const std::string &version)
+bool CFlashUpdate::getUpdateImage(const std::string &description)
 {
 	CHTTPTool httpTool;
 	char const *fname;
@@ -422,7 +423,7 @@ bool CFlashUpdate::getUpdateImage(const std::string &version)
 		return false;
 
 	sprintf(dest_name, "%s/%s", g_settings.update_dir.c_str(), fname);
-	showStatusMessageUTF(std::string(g_Locale->getText(LOCALE_FLASHUPDATE_GETUPDATEFILE)) + ' ' + version);
+	showStatusMessageUTF(std::string(g_Locale->getText(LOCALE_FLASHUPDATE_GETUPDATEFILE)) + ": " + description);
 
 	dprintf(DEBUG_NORMAL, "[update] get update (url): %s - %s\n", filename.c_str(), dest_name);
 	return httpTool.downloadFile(filename, dest_name, UPDATE_PROGRESS_IMAGE);
@@ -561,7 +562,7 @@ int CFlashUpdate::exec(CMenuTarget *parent, const std::string &actionKey)
 		char const *fname = rindex(filename.c_str(), '/') + 1;
 		char fullname[255];
 
-		if (!getUpdateImage(newVersion))
+		if (!getUpdateImage(newVersionDescription))
 		{
 			hide();
 			DisplayErrorMessage(g_Locale->getText(LOCALE_FLASHUPDATE_GETUPDATEFILEERROR));

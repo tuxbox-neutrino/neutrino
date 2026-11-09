@@ -56,12 +56,13 @@ class CFlashUpdate : public CProgressWindow
 		bool notify;
 
 		std::string newVersion;
+		std::string newVersionDescription;
 		int menu_ret;
 		int softupdate_mode;
 
 		void update_php(std::string &url, const char *type);
 		bool selectHttpImage(void);
-		bool getUpdateImage(const std::string &version);
+		bool getUpdateImage(const std::string &description);
 		bool checkVersion4Update();
 
 	public:
