@@ -262,8 +262,20 @@ function fillRow(target) {
 	});
 	if (!boxes.length)
 		boxes.push(webuiEl('div', {className: 'webui-epg-none'}, webuiL('epg.none', 'No programme data')));
+	// cells drawn anew take the focus away: it goes to the cell of the same
+	// programme, shown as before
+	const at = document.activeElement;
+	const kept = at && el.contains(at) && at.dataset ? at.dataset.start : undefined;
+	let shown = true;
+	if (kept !== undefined)
+		try { shown = at.matches(':focus-visible'); } catch (e) { /* an old browser: shown */ }
 	el.replaceChildren.apply(el, boxes);
 	markNow(el, now);
+	if (kept !== undefined) {
+		const again = el.querySelector('.webui-epg-program[data-start="' + CSS.escape(kept) + '"]');
+		if (again)
+			again.focus({preventScroll: true, focusVisible: shown});
+	}
 }
 
 // What runs now in a row: marked, with how far it has run
