@@ -85,6 +85,12 @@ bool fromThisBox(const Ask &a)
 // What a change to the account that fromThisBox refuses is answered with.
 const char kOnlyFromThisBox[] = "the account is changed only from a page of this box";
 
+// What a change to the account a session alone asks for is answered with.
+const char kNotWithSessionAlone[] =
+	"a browser signed in changes the password and the user name in the settings of the web "
+	"interface, which ask for the current password; this route takes them only with the Basic "
+	"pair of the account or from the box itself";
+
 // What a change Transaction::admits refuses is answered with.
 const char kAccountMoved[] = "the account changed while the request was being checked";
 const char kSessionEnded[] = "the session the request came with ended while it was being checked";
@@ -301,15 +307,17 @@ bool mayChange(const Ask &a, const std::string &user, const std::string &passwor
 			return false;
 		}
 
-		/* The loopback and a session before the Basic pair, so a call from the box or
-		   from a signed-in page costs no derivation and no login attempt. A session is
-		   asked even of the box itself, since it is the one a change keeps. */
+		/* The box itself, or the Basic pair, which carries the password in effect. A
+		   session says who signed in and not that the caller knows the password now, so
+		   it changes the account here no more than it does over the REST routes without
+		   the current password; a session alone is refused before any derivation. The
+		   session is asked all the same, being the one a change keeps signed in. */
 		const bool by_session = sessionAdmits(a);
 		const bool here = !httpd::proxiesConfigured(httpd::config()) && httpd::isLoopbackPeer(a.peer);
-		if (!here && !by_session && !basicAdmits(a))
+		if (!here && !basicAdmits(a))
 		{
 			if (why != NULL)
-				*why = "changing the account needs a sign-in";
+				*why = by_session ? kNotWithSessionAlone : "changing the account needs a sign-in";
 			return false;
 		}
 

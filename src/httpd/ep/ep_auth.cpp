@@ -373,17 +373,11 @@ bool acceptablePassword(const std::string &password, const std::string &current,
    signed in, which is how the page goes on from here. */
 Response changePassword(const Request &r)
 {
-	unsigned retry_after = 0;
-	if (beginLoginAttempt(r.peer(), &retry_after) != LoginAttempt::Open)
-		return tooManyAttempts(retry_after);
-	AttemptHeld held(r.peer());
-
-	const Login cfg = loginInEffect();
 	const std::string current = r.asString("current");
-	if (!verifySecret(current, cfg.password_hash))
-		return problemResponse(StatusForbidden, coreapi::ErrorCode::NotPermitted,
-		                       "the current password is not the one in effect");
-	held.granted = true;
+	unsigned long long checked = 0;
+	Response refusal;
+	if (!currentPasswordHolds(r, current, &checked, &refusal))
+		return refusal;
 
 	const std::string password = r.asString("password");
 	std::string why;
@@ -395,7 +389,7 @@ Response changePassword(const Request &r)
 	   leaves the current password checked against an account that is gone, and this
 	   request writes nothing. */
 	login_bridge::Admitted admitted;
-	admitted.revision = cfg.revision;
+	admitted.revision = checked;
 	admitted.session = sessionIsLive(r.session()) ? r.session() : std::string();
 	login_bridge::Transaction account;
 	if (!account.admits(admitted, &why))
@@ -498,8 +492,10 @@ const Param kPasswordParams[] = {
 const RouteRefusal kPasswordRefusals[] = {
 	HTTPD_REFUSES_AS(400, BadString,
 		"the new password has fewer than 8 characters"),
-	HTTPD_REFUSES_AS(403, NotPermitted,
+	HTTPD_REFUSES_AS(403, WrongCurrentPassword,
 		"the current password is not the one in effect"),
+	HTTPD_REFUSES_AS(403, NotPermitted,
+		"the account changed while the request was being checked"),
 	HTTPD_REFUSES_AS(429, TooManyAttempts,
 		"too many attempts are being made here; come back in a moment"),
 	HTTPD_REFUSES_AS(500, WebserverNotConfigured,
@@ -640,9 +636,9 @@ const Endpoint kAuthEndpoints[] = {
 	  "**Refusals:**\n"
 	  "- `400 bad-string`: the new password is too short, holds a control character, is one these "
 	  "boxes have shipped with, or is the one it replaces; the detail says which.\n"
-	  "- `403 not-permitted`: `current` is not the password in effect, or the account changed while "
-	  "the request was being checked, or the session asking ended after its password was checked; "
-	  "nothing is written then.\n"
+	  "- `403 wrong-current-password`: `current` is not the password in effect.\n"
+	  "- `403 not-permitted`: the account changed while the request was being checked, or the session "
+	  "asking ended after its password was checked; nothing is written then.\n"
 	  "- `429 too-many-attempts`: wrong passwords were sent from this address too often, too many "
 	  "are being checked at once, or too many wrong ones came from every address together; "
 	  "`Retry-After` says how long to wait.\n"
@@ -679,6 +675,29 @@ const Endpoint kAuthEndpoints[] = {
 };
 
 } // namespace
+
+bool currentPasswordHolds(const Request &r, const std::string &current, unsigned long long *revision,
+                          Response *refusal)
+{
+	unsigned retry_after = 0;
+	if (beginLoginAttempt(r.peer(), &retry_after) != LoginAttempt::Open)
+	{
+		*refusal = tooManyAttempts(retry_after);
+		return false;
+	}
+	AttemptHeld held(r.peer());
+
+	const Login cfg = loginInEffect();
+	if (!verifySecret(current, cfg.password_hash))
+	{
+		*refusal = problemResponse(StatusForbidden, coreapi::ErrorCode::WrongCurrentPassword,
+		                           "the current password is not the one in effect");
+		return false;
+	}
+	held.granted = true;
+	*revision = cfg.revision;
+	return true;
+}
 
 extern const RouteTable authTable = {
 	HTTPD_TABLE("auth", kAuthEndpoints)

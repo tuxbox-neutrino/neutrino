@@ -398,6 +398,9 @@ const FieldDesc kChangedFields[] = {
 
 const Schema kChangedSchema = { "webserver-change", HTTPD_FIELDS(kChangedFields) };
 
+// What a change of the login without the password in effect is answered with.
+const char kCurrentNeeded[] = "a new password or user name is set only with the current password, in current";
+
 /* THE ORDER IS WRITE, ANSWER, MOVE, AND IT IS THE POINT OF THIS ROUTE.
 
    Putting the server on a new configuration stops the daemon. Done inside this handler
@@ -434,6 +437,29 @@ Response webserverWrite(const Request &r)
 				       "this server was never told which file its configuration is kept in, so there is none to write");
 	}
 
+	/* A new password or a new user name is set only by a caller that says the password
+	   in effect, as PUT /api/v1/account/password asks for it: a session left open on
+	   somebody else's screen is not a way of taking the box's login, and the same check
+	   counts a wrong one against the address. Asked before the account's lock is
+	   taken, being a key derivation, against the account read with it; where nothing
+	   is asked the account is read here as well. Under the lock the request is refused
+	   where that account is gone since, whichever way it was decided here, and where
+	   what the save then changes needed the password after all. A box with no
+	   password in effect has none to say, and the caller, holding System without a
+	   sign-in, sets the first one. */
+	const unsigned long long seen = accountRevision();
+	const bool names_new_user = r.has("user") && r.asString("user") != currentWebSettings().username;
+	const bool asks_current = (r.has("password") || names_new_user) && !loginInEffect().password_hash.empty();
+	unsigned long long checked = seen;
+	if (asks_current)
+	{
+		if (!r.has("current"))
+			return problemResponse(StatusBadRequest, coreapi::ErrorCode::MissingParameter, kCurrentNeeded);
+		Response refusal;
+		if (!currentPasswordHolds(r, r.asString("current"), &checked, &refusal))
+			return refusal;
+	}
+
 	/* From reading what is in effect to the save, shared with a change to the
 	   account at the box and with load, so the two writers of this file cannot
 	   interleave. Held to the end of the answer and released before the restart,
@@ -448,6 +474,9 @@ Response webserverWrite(const Request &r)
 	{
 		if (!r.session().empty() && !sessionIsLive(r.session()))
 			return problemResponse(StatusForbidden, coreapi::ErrorCode::NotPermitted, notPermittedDetail());
+		if (accountRevision() != checked)
+			return problemResponse(StatusForbidden, coreapi::ErrorCode::NotPermitted,
+			                       "the account changed while the request was being checked");
 		if (passwordChangeOwed())
 			return problemResponse(StatusForbidden, coreapi::ErrorCode::PasswordChangeRequired,
 			                       passwordChangeRequiredDetail());
@@ -528,6 +557,13 @@ Response webserverWrite(const Request &r)
 		return problemResponse(StatusBadRequest, coreapi::ErrorCode::MissingParameter,
 				       "the body names nothing to change");
 	}
+
+	/* What the save changes, read under the lock: a new password or user name that the
+	   look before it did not ask the password for, the name having moved meanwhile, is
+	   not written without it. */
+	if ((s.change_password || s.username != before.username) && !asks_current &&
+	    !loginInEffect().password_hash.empty())
+		return problemResponse(StatusBadRequest, coreapi::ErrorCode::MissingParameter, kCurrentNeeded);
 
 	/* Every rule about these values is the save's, which is where the files
 	   they are written into are understood: what a port may be, what address
@@ -639,6 +675,7 @@ const Param kWriteParams[] = {
 		"the TCP port to answer on once the server restarts on this file, from 1 to 65535", 1, 65535),
 	HTTPD_BODY_TEXT("bind", "the address to listen on once the server restarts, a literal of the first family, and \"0.0.0.0\" for every one of them", 15),
 	HTTPD_BODY_TEXT("user", "the one name a password is presented under", 64),
+	HTTPD_BODY_TEXT("current", "the password in effect, the one the caller signs in with, as it is typed: a new password and a new user name are set only with it, unless the box has no password at all; read only together with password or a user that differs from the one there", 512),
 	/* The password as somebody types it, and never the form it is stored as.
 	   What becomes of it is credentials.h's, and a route taking a stored form
 	   would let whoever stole one put it back without ever knowing the password
@@ -668,8 +705,12 @@ const Param kWriteParams[] = {
 const RouteRefusal kWebserverWriteRefusals[] = {
 	HTTPD_REFUSES(InvalidArgument, MissingParameter,
 		"the body names nothing to change"),
+	HTTPD_REFUSES_AS(403, WrongCurrentPassword,
+		"the current password is not the one in effect"),
 	HTTPD_REFUSES_AS(403, NotPermitted,
-		"this endpoint is not open to this caller"),
+		"the account changed while the request was being checked"),
+	HTTPD_REFUSES_AS(429, TooManyAttempts,
+		"too many attempts are being made here; come back in a moment"),
 	HTTPD_REFUSES_AS(403, PasswordChangeRequired,
 		"this box still opens to a password it shipped with or to the first password it set for itself: set a password of your own first, with PUT /api/v1/account/password"),
 	HTTPD_REFUSES(InvalidArgument, WebserverNotConfigured,
@@ -695,7 +736,11 @@ const Endpoint kWebserverEndpoints[] = {
 	  "sets this server up, naming only what is to change, and answers what the change means for the caller before the server is put on it",
 	  "Changes how this HTTP server itself is set up, naming only the members to change; a member left "
 	  "out keeps its stored value, and so does one sent as an empty string, except `no_login_prefix`, "
-	  "where an empty string is the value that exempts nobody. The file is written first, then this "
+	  "where an empty string is the value that exempts nobody. A new `password` and a new `user` are "
+	  "set only together with `current`, the password in effect, the one the caller signs in with, "
+	  "checked as `PUT /api/v1/account/password` checks it and counted against the address like a "
+	  "wrong login when it is wrong; a box with no password at all needs none. The file "
+	  "is written first, then this "
 	  "answer is sent, and only after it has gone out does "
 	  "the server, if anything that needs one changed, restart on the new file; a caller that moved the "
 	  "port or the bind address therefore still receives this answer on the connection it asked over.\n"
@@ -720,17 +765,22 @@ const Endpoint kWebserverEndpoints[] = {
 	  "answered on before.\n"
 	  "\n"
 	  "**Refusals:**\n"
-	  "- `400 missing-parameter`: the body names nothing to change.\n"
+	  "- `400 missing-parameter`: the body names nothing to change, or it sets `password` or a new "
+	  "`user` without `current` while the box has a password.\n"
 	  "- `400 webserver-not-configured`: a value given could not be written, for instance a `bind` "
 	  "that is not an address literal of the first family, the only one this server listens on, a "
 	  "`no_login_prefix` that is not the start of an IPv4 address, a directory that is not an absolute path, or a "
 	  "configuration file itself could not be written; the detail names which.\n"
+	  "- `403 wrong-current-password`: `current` is not the password in effect.\n"
 	  "- `403 not-permitted`: the request names `user` or `password` and the session it came with "
 	  "ended after the gate let it in, by a reset at the box, another change of the login or a "
-	  "logout; nothing is written.\n"
+	  "logout, or the account changed after the request was checked; nothing is written.\n"
 	  "- `403 password-change-required`: the request names `user` or `password`, and since the gate "
 	  "let it in the box has come to wait for a password of the owner's own, as after the reset at "
 	  "the box; nothing is written.\n"
+	  "- `429 too-many-attempts`: wrong current passwords were sent from this address too often, too "
+	  "many are being checked at once, or too many wrong ones came from every address together; "
+	  "`Retry-After` says how long to wait.\n"
 	  "\n"
 	  "**Related:** `GET /api/v1/system/webserver`, `GET /api/v1/system/legacy-usage`.",
 	  HTTPD_PARAMS(kWriteParams), &kChangedSchema, &webserverWrite, false,

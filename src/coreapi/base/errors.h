@@ -453,6 +453,11 @@ enum class ErrorCode
 	/* The caller signed in while the box still opens to a password it shipped
 	   with; it reaches nothing but setting a password of its own until it has. */
 	PasswordChangeRequired,
+	/* The password a change of the login asks for again (current) is not the one in
+	   effect. A code of its own and not not-permitted, which a request with no live
+	   session or a stale second token is answered with as well: a page that says the
+	   password was wrong says it only for this one. */
+	WrongCurrentPassword,
 
 	/* A network share of the box's own slots (coreapi::shares) and its mount:
 	   the slot names nothing to mount, something is mounted where it lands,
@@ -667,6 +672,7 @@ inline const char *codeString(ErrorCode c)
 		case ErrorCode::ConfigDocumentUnreadable: return "config-document-unreadable";
 		case ErrorCode::WebserverNotConfigured: return "webserver-not-configured";
 		case ErrorCode::PasswordChangeRequired: return "password-change-required";
+		case ErrorCode::WrongCurrentPassword: return "wrong-current-password";
 		case ErrorCode::ShareNotConfigured: return "share-not-configured";
 		case ErrorCode::MountPointBusy: return "mount-point-busy";
 		case ErrorCode::FilesystemUnsupported: return "filesystem-unsupported";

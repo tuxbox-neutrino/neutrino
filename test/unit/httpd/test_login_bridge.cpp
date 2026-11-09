@@ -783,6 +783,10 @@ TEST_CASE("the account changes over /control/ only for a signed-in caller or the
 		{ "the Basic pair of the account, not from a page of this box", "203.0.113.26", kRightBasic, kNoCookie,
 		  "", "", kRequested, false, "", true, false, "page of this box" },
 		{ "a session, from a page of this box", "203.0.113.22", "", kLiveSession,
+		  "same-origin", "", kRequested, false, "", true, false, "settings of the web interface" },
+		{ "a session alone, naming a new user", "203.0.113.27", "", kLiveSession,
+		  "same-origin", "admin", "", false, "", true, false, "settings of the web interface" },
+		{ "a session beside the Basic pair of the account", "203.0.113.28", kRightBasic, kLiveSession,
 		  "same-origin", "", kRequested, false, "", true, true, "" },
 		{ "a session, from a page of another site", "203.0.113.23", "", kLiveSession,
 		  "cross-site", "", kRequested, false, "", false, false, "page of this box" },
@@ -937,6 +941,7 @@ TEST_CASE("a change of the account signs everybody else out and what they drew, 
 	// A new password over /control/, from a page of this box, signed in with one of them.
 	login_bridge::Ask from = askFor("/control/", asking);
 	from.sec_fetch_site = "same-origin";
+	from.authorization = kRightBasic;
 	std::string why;
 	login_bridge::Admitted admitted;
 	REQUIRE(login_bridge::mayChange(from, "", kRequested, &why, &admitted));
@@ -1103,7 +1108,7 @@ TEST_CASE("a change over /control/ that a reset made stale between its check and
 	ProbeCleared cleared;
 	const WebConfig before = config();
 
-	const char *const ways[] = { "the Basic pair", "a session", "the box itself" };
+	const char *const ways[] = { "the Basic pair", "a session beside the Basic pair", "the box itself" };
 	for (size_t w = 0; w < sizeof(ways) / sizeof(ways[0]); ++w)
 	{
 		INFO(ways[w]);
@@ -1112,9 +1117,9 @@ TEST_CASE("a change over /control/ that a reset made stale between its check and
 		const std::string path = stage(&server);
 
 		login_bridge::Ask from = controlFromThisBox(w == 2 ? "127.0.0.1" : "203.0.113.60");
-		if (w == 0)
+		if (w == 0 || w == 1)
 			from.authorization = kRightBasic;
-		else if (w == 1)
+		if (w == 1)
 			from.cookie = cookieFor(openSessionForTest(kUser));
 
 		std::string why;
@@ -1153,6 +1158,7 @@ TEST_CASE("a change over /control/ whose session ended between its check and its
 	const std::string session = openSessionForTest(kUser);
 	login_bridge::Ask from = controlFromThisBox("203.0.113.61");
 	from.cookie = cookieFor(session);
+	from.authorization = kRightBasic;
 	std::string why;
 	login_bridge::Admitted admitted;
 	REQUIRE(login_bridge::mayChange(from, "", kRequested, &why, &admitted));

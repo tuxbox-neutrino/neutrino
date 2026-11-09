@@ -1718,6 +1718,45 @@
 					}
 				}
 			},
+			"refused-403-3": {
+				"description": "Forbidden",
+				"content": {
+					"application/problem+json": {
+						"schema": {
+							"$ref": "#/components/schemas/problem"
+						},
+						"examples": {
+							"wrong-current-password": {
+								"$ref": "#/components/examples/wrong-current-password"
+							},
+							"not-permitted": {
+								"$ref": "#/components/examples/not-permitted-2"
+							},
+							"password-change-required": {
+								"$ref": "#/components/examples/password-change-required"
+							},
+							"not-permitted-without-token": {
+								"$ref": "#/components/examples/not-permitted-without-token"
+							}
+						}
+					}
+				}
+			},
+			"refused-429": {
+				"description": "Too many requests",
+				"content": {
+					"application/problem+json": {
+						"schema": {
+							"$ref": "#/components/schemas/problem"
+						},
+						"examples": {
+							"too-many-attempts": {
+								"$ref": "#/components/examples/too-many-attempts"
+							}
+						}
+					}
+				}
+			},
 			"refused-400-30": {
 				"description": "Bad request",
 				"content": {
@@ -2864,28 +2903,13 @@
 						},
 						"examples": {
 							"not-permitted": {
-								"$ref": "#/components/examples/not-permitted-2"
+								"$ref": "#/components/examples/not-permitted-3"
 							}
 						}
 					}
 				}
 			},
-			"refused-429": {
-				"description": "Too many requests",
-				"content": {
-					"application/problem+json": {
-						"schema": {
-							"$ref": "#/components/schemas/problem"
-						},
-						"examples": {
-							"too-many-attempts": {
-								"$ref": "#/components/examples/too-many-attempts"
-							}
-						}
-					}
-				}
-			},
-			"refused-403-3": {
+			"refused-403-4": {
 				"description": "Forbidden",
 				"content": {
 					"application/problem+json": {
@@ -2930,7 +2954,7 @@
 					}
 				}
 			},
-			"refused-403-4": {
+			"refused-403-5": {
 				"description": "Forbidden",
 				"content": {
 					"application/problem+json": {
@@ -2978,7 +3002,7 @@
 					}
 				}
 			},
-			"refused-403-5": {
+			"refused-403-6": {
 				"description": "Forbidden",
 				"content": {
 					"application/problem+json": {
@@ -2986,8 +3010,11 @@
 							"$ref": "#/components/schemas/problem"
 						},
 						"examples": {
+							"wrong-current-password": {
+								"$ref": "#/components/examples/wrong-current-password"
+							},
 							"not-permitted": {
-								"$ref": "#/components/examples/not-permitted-3"
+								"$ref": "#/components/examples/not-permitted-2"
 							},
 							"not-permitted-without-token": {
 								"$ref": "#/components/examples/not-permitted-without-token"
@@ -4037,7 +4064,7 @@
 					}
 				}
 			},
-			"refused-403-6": {
+			"refused-403-7": {
 				"description": "Forbidden",
 				"content": {
 					"application/problem+json": {
@@ -4373,7 +4400,7 @@
 					}
 				}
 			},
-			"refused-403-7": {
+			"refused-403-8": {
 				"description": "Forbidden",
 				"content": {
 					"application/problem+json": {
@@ -5706,6 +5733,30 @@
 					"detail": "the body names nothing to change"
 				}
 			},
+			"wrong-current-password": {
+				"value": {
+					"type": "/errors/wrong-current-password",
+					"title": "Forbidden",
+					"status": 403,
+					"detail": "the current password is not the one in effect"
+				}
+			},
+			"not-permitted-2": {
+				"value": {
+					"type": "/errors/not-permitted",
+					"title": "Forbidden",
+					"status": 403,
+					"detail": "the account changed while the request was being checked"
+				}
+			},
+			"too-many-attempts": {
+				"value": {
+					"type": "/errors/too-many-attempts",
+					"title": "Too many requests",
+					"status": 429,
+					"detail": "too many attempts are being made here; come back in a moment"
+				}
+			},
 			"webserver-not-configured": {
 				"value": {
 					"type": "/errors/webserver-not-configured",
@@ -6578,20 +6629,12 @@
 					"detail": "this server is already carrying as many event streams as it will"
 				}
 			},
-			"not-permitted-2": {
+			"not-permitted-3": {
 				"value": {
 					"type": "/errors/not-permitted",
 					"title": "Unauthorized",
 					"status": 401,
 					"detail": "the name and the password do not go together"
-				}
-			},
-			"too-many-attempts": {
-				"value": {
-					"type": "/errors/too-many-attempts",
-					"title": "Too many requests",
-					"status": 429,
-					"detail": "too many attempts are being made here; come back in a moment"
 				}
 			},
 			"value-has-zero-byte-25": {
@@ -6632,14 +6675,6 @@
 					"title": "Bad request",
 					"status": 400,
 					"detail": "the new password has fewer than 8 characters"
-				}
-			},
-			"not-permitted-3": {
-				"value": {
-					"type": "/errors/not-permitted",
-					"title": "Forbidden",
-					"status": 403,
-					"detail": "the current password is not the one in effect"
 				}
 			},
 			"webserver-not-configured-2": {
@@ -14295,7 +14330,7 @@
 					"webserver"
 				],
 				"summary": "sets this server up, naming only what is to change, and answers what the change means for the caller before the server is put on it",
-				"description": "Changes how this HTTP server itself is set up, naming only the members to change; a member left out keeps its stored value, and so does one sent as an empty string, except `no_login_prefix`, where an empty string is the value that exempts nobody. The file is written first, then this answer is sent, and only after it has gone out does the server, if anything that needs one changed, restart on the new file; a caller that moved the port or the bind address therefore still receives this answer on the connection it asked over.\n\nThe answer carries `webserver`, the configuration as the file now reads, and `caller`, what the change means for whoever asked: `address` is where to reach the server afterward, built from the name this request reached the box under and the new port, and empty when the request named no host; `port_moved` says whether the port changed; `password_changed` says whether the next sign in needs a different password, and once the restart has put a new password or user name in effect every session opened before it ends, except the one this request arrived with, and so does every token drawn from a session; that session is given new tokens by this answer already, the cookie in `Set-Cookie` and the second token in `csrf`, and the cookie the request came with names nothing from then on, so a copy of it is signed out at once; `restarting` says whether anything changed enough to restart the server at all, since a request asking for what is already in effect changes nothing and restarts nothing.\n\n**Side effects:** rewrites this server's own configuration file, and `nhttpd.conf` where `port`, `bind` or another member kept there differs from what that file says, that file being where the server answers and how nhttpd serves. When any member actually changed, the server is restarted on the new files once the answer has been sent, which drops every connection it is holding, this one included. Where nothing comes up on a new port or address, it goes back to the one it answered on before.\n\n**Refusals:**\n- `400 missing-parameter`: the body names nothing to change.\n- `400 webserver-not-configured`: a value given could not be written, for instance a `bind` that is not an address literal of the first family, the only one this server listens on, a `no_login_prefix` that is not the start of an IPv4 address, a directory that is not an absolute path, or a configuration file itself could not be written; the detail names which.\n- `403 not-permitted`: the request names `user` or `password` and the session it came with ended after the gate let it in, by a reset at the box, another change of the login or a logout; nothing is written.\n- `403 password-change-required`: the request names `user` or `password`, and since the gate let it in the box has come to wait for a password of the owner's own, as after the reset at the box; nothing is written.\n\n**Related:** `GET /api/v1/system/webserver`, `GET /api/v1/system/legacy-usage`.",
+				"description": "Changes how this HTTP server itself is set up, naming only the members to change; a member left out keeps its stored value, and so does one sent as an empty string, except `no_login_prefix`, where an empty string is the value that exempts nobody. A new `password` and a new `user` are set only together with `current`, the password in effect, the one the caller signs in with, checked as `PUT /api/v1/account/password` checks it and counted against the address like a wrong login when it is wrong; a box with no password at all needs none. The file is written first, then this answer is sent, and only after it has gone out does the server, if anything that needs one changed, restart on the new file; a caller that moved the port or the bind address therefore still receives this answer on the connection it asked over.\n\nThe answer carries `webserver`, the configuration as the file now reads, and `caller`, what the change means for whoever asked: `address` is where to reach the server afterward, built from the name this request reached the box under and the new port, and empty when the request named no host; `port_moved` says whether the port changed; `password_changed` says whether the next sign in needs a different password, and once the restart has put a new password or user name in effect every session opened before it ends, except the one this request arrived with, and so does every token drawn from a session; that session is given new tokens by this answer already, the cookie in `Set-Cookie` and the second token in `csrf`, and the cookie the request came with names nothing from then on, so a copy of it is signed out at once; `restarting` says whether anything changed enough to restart the server at all, since a request asking for what is already in effect changes nothing and restarts nothing.\n\n**Side effects:** rewrites this server's own configuration file, and `nhttpd.conf` where `port`, `bind` or another member kept there differs from what that file says, that file being where the server answers and how nhttpd serves. When any member actually changed, the server is restarted on the new files once the answer has been sent, which drops every connection it is holding, this one included. Where nothing comes up on a new port or address, it goes back to the one it answered on before.\n\n**Refusals:**\n- `400 missing-parameter`: the body names nothing to change, or it sets `password` or a new `user` without `current` while the box has a password.\n- `400 webserver-not-configured`: a value given could not be written, for instance a `bind` that is not an address literal of the first family, the only one this server listens on, a `no_login_prefix` that is not the start of an IPv4 address, a directory that is not an absolute path, or a configuration file itself could not be written; the detail names which.\n- `403 wrong-current-password`: `current` is not the password in effect.\n- `403 not-permitted`: the request names `user` or `password` and the session it came with ended after the gate let it in, by a reset at the box, another change of the login or a logout, or the account changed after the request was checked; nothing is written.\n- `403 password-change-required`: the request names `user` or `password`, and since the gate let it in the box has come to wait for a password of the owner's own, as after the reset at the box; nothing is written.\n- `429 too-many-attempts`: wrong current passwords were sent from this address too often, too many are being checked at once, or too many wrong ones came from every address together; `Retry-After` says how long to wait.\n\n**Related:** `GET /api/v1/system/webserver`, `GET /api/v1/system/legacy-usage`.",
 				"x-auth-level": "system",
 				"security": [
 					{
@@ -14341,6 +14376,12 @@
 										"maxLength": 64,
 										"x-max-bytes": 64,
 										"description": "the one name a password is presented under"
+									},
+									"current": {
+										"type": "string",
+										"maxLength": 512,
+										"x-max-bytes": 512,
+										"description": "the password in effect, the one the caller signs in with, as it is typed: a new password and a new user name are set only with it, unless the box has no password at all; read only together with password or a user that differs from the one there"
 									},
 									"password": {
 										"type": "string",
@@ -14408,10 +14449,13 @@
 						"$ref": "#/components/responses/refused-400-29"
 					},
 					"403": {
-						"$ref": "#/components/responses/refused-403-2"
+						"$ref": "#/components/responses/refused-403-3"
 					},
 					"413": {
 						"$ref": "#/components/responses/refused-413"
+					},
+					"429": {
+						"$ref": "#/components/responses/refused-429"
 					},
 					"default": {
 						"$ref": "#/components/responses/problem"
@@ -16759,7 +16803,7 @@
 						"$ref": "#/components/responses/refused-401"
 					},
 					"403": {
-						"$ref": "#/components/responses/refused-403-3"
+						"$ref": "#/components/responses/refused-403-4"
 					},
 					"413": {
 						"$ref": "#/components/responses/refused-413"
@@ -16840,7 +16884,7 @@
 						"$ref": "#/components/responses/refused-400-2"
 					},
 					"403": {
-						"$ref": "#/components/responses/refused-403-4"
+						"$ref": "#/components/responses/refused-403-5"
 					},
 					"413": {
 						"$ref": "#/components/responses/refused-413"
@@ -16858,7 +16902,7 @@
 					"auth"
 				],
 				"summary": "replaces the account's password with one of the owner's own",
-				"description": "Sets the password of the single account this box has. The password in effect is asked for again in `current`; a wrong one is counted against the address like a wrong login. The new password has at least 8 characters, holds no control characters, is none of the passwords these boxes have shipped with and is not the one it replaces. It is in effect for every login when this answers. Every other session ends with it, and so does every token drawn from a session, this one's included. The session this request arrived with stays signed in under a new cookie and a new second token: the answer sets the cookie with `Set-Cookie` and carries the session state the login answers with, the new `csrf` among it, and the cookie the request came with names nothing from then on, so a copy of it is signed out with the rest. A caller that came without a session is answered what it is granted, as `GET /api/v1/session` answers it; one whose session could not be given new tokens holds none any more and is answered as a caller presenting nothing, without `Set-Cookie`, and signs in with the new password.\n\nWhile the box still opens to a password it shipped with, or to the first password it set for itself and showed on its screen, this is the route a caller signed in with it is to use: every route but this one, `POST /api/v1/login`, `GET /api/v1/session` and `POST /api/v1/logout` refuses it with `403 password-change-required`, which `GET /api/v1/session` announces as `password_change_required`. The old `/control/` routes keep answering the box's login as they always did.\n\n**Side effects:** the stored form of the password is written to nhttpd-access.conf; the password itself is kept nowhere.\n\n**Refusals:**\n- `400 bad-string`: the new password is too short, holds a control character, is one these boxes have shipped with, or is the one it replaces; the detail says which.\n- `403 not-permitted`: `current` is not the password in effect, or the account changed while the request was being checked, or the session asking ended after its password was checked; nothing is written then.\n- `429 too-many-attempts`: wrong passwords were sent from this address too often, too many are being checked at once, or too many wrong ones came from every address together; `Retry-After` says how long to wait.\n- `500 webserver-not-configured`: the box could not write the new password; the old one stays in effect.\n\n**Related:** `POST /api/v1/login`, `GET /api/v1/session`.",
+				"description": "Sets the password of the single account this box has. The password in effect is asked for again in `current`; a wrong one is counted against the address like a wrong login. The new password has at least 8 characters, holds no control characters, is none of the passwords these boxes have shipped with and is not the one it replaces. It is in effect for every login when this answers. Every other session ends with it, and so does every token drawn from a session, this one's included. The session this request arrived with stays signed in under a new cookie and a new second token: the answer sets the cookie with `Set-Cookie` and carries the session state the login answers with, the new `csrf` among it, and the cookie the request came with names nothing from then on, so a copy of it is signed out with the rest. A caller that came without a session is answered what it is granted, as `GET /api/v1/session` answers it; one whose session could not be given new tokens holds none any more and is answered as a caller presenting nothing, without `Set-Cookie`, and signs in with the new password.\n\nWhile the box still opens to a password it shipped with, or to the first password it set for itself and showed on its screen, this is the route a caller signed in with it is to use: every route but this one, `POST /api/v1/login`, `GET /api/v1/session` and `POST /api/v1/logout` refuses it with `403 password-change-required`, which `GET /api/v1/session` announces as `password_change_required`. The old `/control/` routes keep answering the box's login as they always did.\n\n**Side effects:** the stored form of the password is written to nhttpd-access.conf; the password itself is kept nowhere.\n\n**Refusals:**\n- `400 bad-string`: the new password is too short, holds a control character, is one these boxes have shipped with, or is the one it replaces; the detail says which.\n- `403 wrong-current-password`: `current` is not the password in effect.\n- `403 not-permitted`: the account changed while the request was being checked, or the session asking ended after its password was checked; nothing is written then.\n- `429 too-many-attempts`: wrong passwords were sent from this address too often, too many are being checked at once, or too many wrong ones came from every address together; `Retry-After` says how long to wait.\n- `500 webserver-not-configured`: the box could not write the new password; the old one stays in effect.\n\n**Related:** `POST /api/v1/login`, `GET /api/v1/session`.",
 				"x-auth-level": "system",
 				"security": [
 					{
@@ -16928,7 +16972,7 @@
 						"$ref": "#/components/responses/refused-400-49"
 					},
 					"403": {
-						"$ref": "#/components/responses/refused-403-5"
+						"$ref": "#/components/responses/refused-403-6"
 					},
 					"413": {
 						"$ref": "#/components/responses/refused-413"
@@ -19489,7 +19533,7 @@
 						"$ref": "#/components/responses/refused-400-4"
 					},
 					"403": {
-						"$ref": "#/components/responses/refused-403-6"
+						"$ref": "#/components/responses/refused-403-7"
 					},
 					"404": {
 						"$ref": "#/components/responses/refused-404-30"
@@ -19544,7 +19588,7 @@
 						"$ref": "#/components/responses/refused-400-4"
 					},
 					"403": {
-						"$ref": "#/components/responses/refused-403-6"
+						"$ref": "#/components/responses/refused-403-7"
 					},
 					"404": {
 						"$ref": "#/components/responses/refused-404-30"
@@ -19607,7 +19651,7 @@
 						"$ref": "#/components/responses/refused-400-4"
 					},
 					"403": {
-						"$ref": "#/components/responses/refused-403-6"
+						"$ref": "#/components/responses/refused-403-7"
 					},
 					"404": {
 						"$ref": "#/components/responses/refused-404-31"
@@ -20361,7 +20405,7 @@
 						"$ref": "#/components/responses/refused-400-72"
 					},
 					"403": {
-						"$ref": "#/components/responses/refused-403-7"
+						"$ref": "#/components/responses/refused-403-8"
 					},
 					"404": {
 						"$ref": "#/components/responses/refused-404-35"
@@ -20416,7 +20460,7 @@
 						"$ref": "#/components/responses/refused-400-73"
 					},
 					"403": {
-						"$ref": "#/components/responses/refused-403-7"
+						"$ref": "#/components/responses/refused-403-8"
 					},
 					"404": {
 						"$ref": "#/components/responses/refused-404-33"

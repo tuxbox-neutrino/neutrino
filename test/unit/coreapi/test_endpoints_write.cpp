@@ -4004,7 +4004,8 @@ TEST_CASE("a password set over the webserver route takes the first password out 
 	REQUIRE(parsed(read.body)["password_shipped"].asBool());
 	REQUIRE(read.body.find(first) == std::string::npos);
 
-	const Response r = putWebserver("{\"password\":\"a password nobody guesses\"}");
+	// the first password as the current one, which only a box without the gate lets this route take
+	const Response r = putWebserver("{\"current\":\"" + first + "\",\"password\":\"a password nobody guesses\"}");
 	REQUIRE(r.code == 200);
 	REQUIRE(r.body.find(first) == std::string::npos);
 	const std::string written = wholeOf(file.path);
@@ -8318,7 +8319,8 @@ TEST_CASE("a new password over the webserver route signs the others out once the
 	const std::string other = tokenOf(login(kUser, kPassword));
 	const std::string drawn = mediaTokenOf(asking);
 
-	const Response put = dispatch(Put, "/api/v1/system/webserver", "", "{\"password\":\"a new pass phrase\"}",
+	const Response put = dispatch(Put, "/api/v1/system/webserver", "",
+	                              std::string("{\"current\":\"") + kPassword + "\",\"password\":\"a new pass phrase\"}",
 	                              "192.0.2.7", AuthLevel::System, std::string(), asking, "box.example:8081");
 	REQUIRE(put.code == 200);
 	REQUIRE(put.reload_after == file.path);
@@ -8394,12 +8396,49 @@ void resetBeforeTheWrite()
 	resetBetween().server_after = wholeOf(resetBetween().server);
 }
 
-void watchBoth(const WebFile &file)
+void lookAtBoth()
+{
+	resetBetween().access_after = wholeOf(resetBetween().access);
+	resetBetween().server_after = wholeOf(resetBetween().server);
+}
+
+/* The box coming to wait for a password of the owner's own while the account stays
+   the one it was: the file read again naming the stored password as its first. */
+void owedBeforeTheWrite()
+{
+	std::FILE *f = std::fopen(resetBetween().access.c_str(), "a");
+	REQUIRE(f != NULL);
+	std::fprintf(f, "first_password=%s\n", kPassword);
+	REQUIRE(std::fclose(f) == 0);
+	const unsigned long long revision = accountRevision();
+	resetBetween().ran = load(resetBetween().access, resetBetween().server) &&
+	                     accountRevision() == revision && login_bridge::passwordOwed();
+	lookAtBoth();
+}
+
+// A password set at the box while the request waited for the lock.
+void passwordAtTheBox()
+{
+	std::string why;
+	resetBetween().ran = login_bridge::change("", "set-at-the-box", &why);
+	lookAtBoth();
+}
+
+// A save naming another user, waiting for its restart, made while the request waited.
+void renameBeforeTheWrite()
+{
+	WebSettings put = currentWebSettings();
+	put.username = "someone-else";
+	resetBetween().ran = saveWebSettings(configPath(), put);
+	lookAtBoth();
+}
+
+void watchBoth(const WebFile &file, AccountLockProbe probe = &resetBeforeTheWrite)
 {
 	resetBetween() = ResetBetween();
 	resetBetween().access = file.path;
 	resetBetween().server = file.server;
-	setAccountLockProbeForTest(&resetBeforeTheWrite);
+	setAccountLockProbeForTest(probe);
 }
 
 struct ResetProbeCleared
@@ -8439,7 +8478,8 @@ TEST_CASE("a change to the account over /api/v1 that a reset made stale before i
 	const std::string again = tokenOf(login(kUser, kPassword));
 	watchBoth(file);
 	const Response ws = dispatch(Put, "/api/v1/system/webserver", "",
-	                             "{\"password\":\"a new pass phrase\",\"port\":8090}", "192.0.2.7",
+	                             std::string("{\"current\":\"") + kPassword +
+	                             "\",\"password\":\"a new pass phrase\",\"port\":8090}", "192.0.2.7",
 	                             AuthLevel::System, std::string(), again, "box.example:8081");
 	REQUIRE(resetBetween().ran);
 	REQUIRE(ws.code == 403);
@@ -8448,15 +8488,16 @@ TEST_CASE("a change to the account over /api/v1 that a reset made stale before i
 	REQUIRE(wholeOf(file.path) == resetBetween().access_after);
 	REQUIRE(wholeOf(file.server) == resetBetween().server_after);
 
-	// And without a session, a caller the reset leaves facing a box that asks for a
-	// password of the owner's own first, as the gate would have answered it.
+	/* And without a session, a caller the gate let in before the box came to wait for
+	   a password of the owner's own, the account staying the one it was: refused as
+	   the gate would have answered it. */
 	WebFile::put(file.path, own);
 	REQUIRE(load(file.path, file.server));
 	PasswordOwedInstalled owed;
-	watchBoth(file);
+	watchBoth(file, &owedBeforeTheWrite);
 	const Response bare = dispatch(Put, "/api/v1/system/webserver", "",
-	                               "{\"user\":\"admin\",\"port\":8090}", "192.0.2.7",
-	                               AuthLevel::System, std::string(), std::string(), "box.example:8081");
+	                               std::string("{\"current\":\"") + kPassword + "\",\"user\":\"admin\",\"port\":8090}",
+	                               "192.0.2.7", AuthLevel::System, std::string(), std::string(), "box.example:8081");
 	REQUIRE(resetBetween().ran);
 	REQUIRE(bare.code == 403);
 	REQUIRE(bare.body.find("password-change-required") != std::string::npos);
@@ -8665,4 +8706,107 @@ TEST_CASE("the file routes leave the files the access stores are written through
 	// A name beside them that no server writes through is a file like any other.
 	const Reply other = authedPut("/api/v1/storage/file?path=" + roots.box.at("nhttpd.conf.old"), "x");
 	REQUIRE(other.code / 100 == 2);
+}
+
+TEST_CASE("the webserver route sets a password only with the current one, checked as the password route checks it",
+          "[write][firstlogin]")
+{
+	ShippedRoutes shipped;
+	ConfigFixture cfg;
+	ResetProbeCleared cleared;
+	WebFile file("current", std::string(kWebFileHead) + "password_hash=" + hashSecret(kPassword, 2000) + "\n");
+	const std::string untouched = wholeOf(file.path);
+	const std::string untouched_server = wholeOf(file.server);
+	const std::string right = std::string("{\"current\":\"") + kPassword + "\",\"password\":\"a new pass phrase\",\"port\":8090}";
+	const std::string wrong = "{\"current\":\"not the one\",\"password\":\"a new pass phrase\",\"port\":8090}";
+
+	// Without it, nothing is written, the port beside the password included.
+	const Response bare = putWebserver("{\"password\":\"a new pass phrase\",\"port\":8090}");
+	REQUIRE(bare.code == 400);
+	REQUIRE(bare.body.find("missing-parameter") != std::string::npos);
+	REQUIRE(wholeOf(file.path) == untouched);
+	REQUIRE(wholeOf(file.server) == untouched_server);
+
+	// A wrong one is refused and counted against the address as a wrong login is.
+	setLoginClockForTest(1735689600);
+	for (int i = 0; i < 3; ++i)
+	{
+		const Response no = putWebserver(wrong);
+		REQUIRE(no.code == 403);
+		REQUIRE(no.body.find("wrong-current-password") != std::string::npos);
+	}
+	const Response waits = putWebserver(right);
+	REQUIRE(waits.code == 429);
+	REQUIRE(waits.body.find("too-many-attempts") != std::string::npos);
+	REQUIRE(wholeOf(file.path) == untouched);
+	REQUIRE(wholeOf(file.server) == untouched_server);
+	forgetLoginAttemptsForTest();
+
+	// Checked against an account a reset replaced before the write: nothing is written.
+	watchBoth(file);
+	const Response stale = putWebserver(right);
+	REQUIRE(resetBetween().ran);
+	REQUIRE(stale.code == 403);
+	REQUIRE(stale.body.find("account changed") != std::string::npos);
+	REQUIRE(wholeOf(file.path) == resetBetween().access_after);
+	REQUIRE(wholeOf(file.server) == resetBetween().server_after);
+	WebFile::put(file.path, std::string(kWebFileHead) + "password_hash=" + hashSecret(kPassword, 2000) + "\n");
+	REQUIRE(load(file.path, file.server));
+
+	// A new user name asks for it as the password does; the name there sent back does not.
+	const std::string before_name = wholeOf(file.path);
+	const Response unnamed = putWebserver("{\"user\":\"admin\"}");
+	REQUIRE(unnamed.code == 400);
+	REQUIRE(unnamed.body.find("missing-parameter") != std::string::npos);
+	const Response misnamed = putWebserver("{\"current\":\"not the one\",\"user\":\"admin\"}");
+	REQUIRE(misnamed.code == 403);
+	REQUIRE(misnamed.body.find("wrong-current-password") != std::string::npos);
+	REQUIRE(wholeOf(file.path) == before_name);
+	forgetLoginAttemptsForTest();
+	REQUIRE(putWebserver("{\"user\":\"root\",\"port\":8092}").code == 200);
+
+	/* Asked for none because the name was the one there, and a save naming another
+	   one landing before the lock: what this save then changes is the name, and that is
+	   not written without the password. */
+	watchBoth(file, &renameBeforeTheWrite);
+	const Response moved = putWebserver("{\"user\":\"root\",\"port\":8093}");
+	REQUIRE(resetBetween().ran);
+	REQUIRE(moved.code == 400);
+	REQUIRE(moved.body.find("missing-parameter") != std::string::npos);
+	REQUIRE(wholeOf(file.path) == resetBetween().access_after);
+	REQUIRE(wholeOf(file.server) == resetBetween().server_after);
+
+	// A port alone asks for none; the right one sets the password.
+	REQUIRE(putWebserver("{\"port\":8091}").code == 200);
+	const Response set = putWebserver(right);
+	REQUIRE(set.code == 200);
+	REQUIRE(load(file.path, file.server));
+	REQUIRE(verifySecret("a new pass phrase", loginInEffect().password_hash));
+}
+
+TEST_CASE("a box with no password sets one without the current one, but not over one set meanwhile", "[write][firstlogin]")
+{
+	ShippedRoutes shipped;
+	ConfigFixture cfg;
+	ResetProbeCleared cleared;
+	WebFile file("current-none", kWebFileHead);
+
+	// A password set at the box while the request waited for the lock is not written over.
+	watchBoth(file, &passwordAtTheBox);
+	const Response raced = putWebserver("{\"password\":\"a new pass phrase\"}");
+	REQUIRE(resetBetween().ran);
+	REQUIRE(raced.code == 403);
+	REQUIRE(raced.body.find("account changed") != std::string::npos);
+	REQUIRE(wholeOf(file.path) == resetBetween().access_after);
+	REQUIRE(wholeOf(file.server) == resetBetween().server_after);
+	REQUIRE(verifySecret("set-at-the-box", loginInEffect().password_hash));
+
+	// With nothing in between, the first one is set without any.
+	WebFile::put(file.path, kWebFileHead);
+	REQUIRE(load(file.path, file.server));
+	REQUIRE(loginInEffect().password_hash.empty());
+	const Response first = putWebserver("{\"password\":\"a new pass phrase\"}");
+	REQUIRE(first.code == 200);
+	REQUIRE(load(file.path, file.server));
+	REQUIRE(verifySecret("a new pass phrase", loginInEffect().password_hash));
 }

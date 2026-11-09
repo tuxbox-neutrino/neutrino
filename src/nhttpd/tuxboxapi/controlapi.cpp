@@ -5259,8 +5259,10 @@ void CControlAPI::ConfigCGI(CyhookHandler *hh)
 	   into nhttpd.conf, and an empty field leaves that half as it is, which is what a
 	   page that cannot show the password sends. With the page login off nothing in
 	   front of this asks who the caller is, and the account is what opens the REST
-	   layer, so a request naming it is taken only from a signed-in caller or from the
-	   box itself, where root can write nhttpd-access.conf anyway. That is decided
+	   layer, so a request naming it is taken only with the Basic pair of the account,
+	   which carries the password in effect, or from the box itself, where root can
+	   write nhttpd-access.conf anyway; a browser signed in changes the account in the
+	   settings of the web interface. That is decided
 	   here: login_bridge::mayChange before any lock is taken, so no key derivation
 	   runs under one, and then a second look under the account's lock, held to the
 	   last write, so a reset at the box or another change landing in between leaves

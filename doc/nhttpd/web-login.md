@@ -48,6 +48,10 @@ one, a signed-in browser can do nothing else:
   Every other browser and app signed in to the web interface is signed out
   and has to sign in again with the new password.
 
+To change the password or the user name later, in the settings of the web
+server or in the setup wizard, enter the current password as well: the one
+you sign in with. A wrong one counts like a wrong sign-in.
+
 Until you set your own password, the box also keeps the first password in
 `nhttpd-access.conf` in its configuration folder (usually
 `/var/tuxbox/config`), readable by root only. Setting your own password
@@ -76,15 +80,17 @@ reaches the box, without a password, whatever an app sends, except for a
 change to the account. The user name and the password change over
 `/control/` only for a request from a page of this box
 (`Sec-Fetch-Site: same-origin`, or an `Origin` or `Referer` naming the box)
-that signs in, with HTTP Basic authentication or in the web interface, or
-that comes from the box itself while no proxy is configured in front of it,
-whether Authentication is off or on. Any other request to change them is
-refused as a whole, also from the address range under **No-auth clients**,
-and so is every one while the box still waits for a password of your own:
-set that one in the web interface. A change that crosses a reset at the box
-or another change of the login, checked against the login before and arriving
-after, is refused as a whole as well; send it again with the login now in
-effect.
+that signs in with HTTP Basic authentication, or that comes from the box
+itself while no proxy is configured in front of it, whether Authentication
+is off or on. A browser signed in to the web interface changes them in the
+settings of the web server there, which ask for the current password; over
+`/control/` its sign-in alone is not enough. Any other request to change
+them is refused as a whole, also from the address range under **No-auth
+clients**, and so is every one while the box still waits for a password of
+your own: set that one in the web interface. A change that crosses a reset
+at the box or another change of the login, checked against the login before
+and arriving after, is refused as a whole as well; send it again with the
+login now in effect.
 
 With Authentication on, `/control/` answers with HTTP Basic authentication,
 as before, also while the first password is in effect. Calls from the box
@@ -166,7 +172,7 @@ nobody out.
   from the home network (`lan_read`), are not affected.
 - `PUT /api/v1/account/password` takes `{"current": "...", "password": "..."}`
   and answers `200` with the session state once the new password is in
-  effect.
+  effect. A wrong `current` is answered `403 wrong-current-password`.
 - A new password or user name ends every session opened before it, and every
   token drawn through a session (`POST /api/v1/token/media`), also one the
   asking session drew. The session the change was made with stays signed in
@@ -182,8 +188,12 @@ nobody out.
   `403 not-permitted`, and so does `PUT /api/v1/system/webserver` for a
   session that ended meanwhile.
 - `PUT /api/v1/system/webserver` holds a new `password` to the same rules,
-  except that it may be the current one. Only the reset at the box sets a
-  first password again.
+  except that it may be the current one. It sets a new `password` or a new
+  `user` only together with `current`, the password in effect, checked and
+  counted as at `PUT /api/v1/account/password`: without it
+  `400 missing-parameter`, with a wrong one `403 wrong-current-password`. The
+  user name sent back as it is needs none, and a box with no password at
+  all needs none. Only the reset at the box sets a first password again.
 - While the TV shows the message with the first password,
   `GET /api/v1/osd/screenshot` answers `409 password-on-screen`, and so do
   `GET /api/v1/osd/display/screenshot` and

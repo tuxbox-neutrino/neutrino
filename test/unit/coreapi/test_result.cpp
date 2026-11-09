@@ -209,6 +209,7 @@ const Walked kWalked[] = {
 	CODE(ConfigDocumentUnreadable),
 	CODE(WebserverNotConfigured),
 	CODE(PasswordChangeRequired),
+	CODE(WrongCurrentPassword),
 	CODE(ShareNotConfigured),
 	CODE(MountPointBusy),
 	CODE(FilesystemUnsupported),

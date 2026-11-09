@@ -79,9 +79,12 @@ bool basicAdmits(const Ask &a);
    naming the account is written, so a request refused here changes nothing at all.
    It may when all of these hold:
    - it comes from a page of this box, the rule change() holds it to as well;
-   - it carries the Basic pair of the account (basicAdmits) or a session
-     (sessionAdmits), or it comes from the box itself: a peer on the loopback while
-     no proxy is configured in front of this server;
+   - it carries the Basic pair of the account (basicAdmits), or it comes from the box
+     itself: a peer on the loopback while no proxy is configured in front of this
+     server. A session alone is not enough: it says who signed in and not that the
+     caller knows the password now, and a browser signed in changes the account in
+     the settings of the web interface, which ask for the current password. A session
+     beside the Basic pair is the one the change keeps signed in;
    - the box does not wait for a password of the owner's own (passwordOwed), which
      PUT /api/v1/account/password sets against the current one;
    - user and password, where given, pass httpd::usernameAcceptable and
