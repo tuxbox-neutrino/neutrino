@@ -5389,6 +5389,9 @@ void CControlAPI::ConfigCGI(CyhookHandler *hh)
 					std::string why;
 					if (!account->change(login_user, login_password, &why, &from))
 						error = "the login was not changed: " + why;
+					// a session that asked goes on under new tokens, the cookie sent here
+					else if (!account->session().empty())
+						hh->HookVarList["Set-Cookie"] = login_bridge::sessionCookie(account->session());
 				}
 				if (error.empty() && !httpd::saveServerFile(config_filename, Config->getConfigDataMap()))
 					error = "the settings were not written: " + config_filename;

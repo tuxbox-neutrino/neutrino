@@ -129,8 +129,11 @@ bool mayChange(const Ask &a, const std::string &user, const std::string &passwor
    checked against, the session that let it in is still live, and, where the check
    refuses a password still owed, none is owed. False, with why, and change refuses
    from then on. change is the change below, under the lock this holds, and keeps the
-   session admits found signed in; asked without admits it keeps nobody, which is the
-   screen at the box.
+   session admits found signed in, under new tokens (httpd::reissueSession) where the
+   change made a new account: session() is then the cookie token the caller is to be
+   handed, the old one naming nothing any more, and it is the one admits found where
+   nothing changed. Asked without admits it keeps nobody, which is the screen at the
+   box, and session() is empty, as it is where no new token could be drawn.
 
    A writer of more than the account holds this across that write as well and makes it
    only once the account went through: the old configuration route writes the other
@@ -147,6 +150,7 @@ public:
 	bool admits(const Admitted &a, std::string *why);
 	bool change(const std::string &user, const std::string &password, std::string *why,
 	            const Ask *from = 0);
+	const std::string &session() const;
 
 private:
 	Transaction(const Transaction &);
@@ -156,6 +160,10 @@ private:
 	std::string         keep_;
 	bool                refused_;
 };
+
+/* The Set-Cookie value that hands a session's token out, for the old configuration
+   route to send the one Transaction::session names. */
+std::string sessionCookie(const std::string &token);
 
 /* Closes the session the Cookie header names, and whether there was one. */
 bool closeSessionOf(const std::string &cookie_header);

@@ -69,11 +69,7 @@ namespace
    here. */
 std::string cookieFor(const std::string &token)
 {
-	std::string out = sessionCookieName();
-	out += "=";
-	out += token;
-	out += "; HttpOnly; SameSite=Lax; Path=/";
-	return out;
+	return sessionSetCookie(token);
 }
 
 /* What a caller holds, and the one shape both the route that opens a session and the
@@ -407,7 +403,31 @@ Response changePassword(const Request &r)
 	if (!account.change(std::string(), password, &why))
 		return problemResponse(StatusInternalServerError, coreapi::ErrorCode::WebserverNotConfigured,
 		                       "the password could not be changed: " + why);
-	return noContent();
+
+	/* The session that asked goes on under new tokens, and this answer is the one way
+	   its browser learns them: the cookie in a header, the second token in the body, in
+	   the shape the login answers with. A caller that came without a session is told
+	   what it is granted, as GET /api/v1/session tells it. One that came with a session
+	   for which no new tokens could be drawn holds nothing any more, the change having
+	   ended its old ones: it is told what its address is granted without one. */
+	const std::string &now = account.session();
+	Response out = okJson();
+	Json j(out.body, 224);
+	if (!now.empty())
+	{
+		out.headers.push_back(std::make_pair(std::string("Set-Cookie"), cookieFor(now)));
+		writeSessionState(j, true, sessionLevel(now), sessionUser(now), csrfFor(now),
+		                  sessionExpiresIn(now));
+	}
+	else if (!admitted.session.empty())
+	{
+		Credentials left;
+		left.peer = r.peer();
+		writeSessionState(j, false, granted(left), std::string(), std::string(), 0);
+	}
+	else
+		writeSessionState(j, false, r.granted(), std::string(), std::string(), 0);
+	return out;
 }
 
 /* A token that reaches the media this box holds and nothing else, for a program that can present a
@@ -600,8 +620,13 @@ const Endpoint kAuthEndpoints[] = {
 	  "password has at least 8 characters, holds no control characters, is none of the passwords "
 	  "these boxes have shipped with and is not the one it replaces. It is in effect for every login "
 	  "when this answers. Every other session ends with it, and so does every token drawn from a "
-	  "session, this one's included; the session this request arrived with stays signed in, its "
-	  "cookie and its second token unchanged.\n"
+	  "session, this one's included. The session this request arrived with stays signed in under a "
+	  "new cookie and a new second token: the answer sets the cookie with `Set-Cookie` and carries "
+	  "the session state the login answers with, the new `csrf` among it, and the cookie the request "
+	  "came with names nothing from then on, so a copy of it is signed out with the rest. A caller "
+	  "that came without a session is answered what it is granted, as `GET /api/v1/session` answers "
+	  "it; one whose session could not be given new tokens holds none any more and is answered as a "
+	  "caller presenting nothing, without `Set-Cookie`, and signs in with the new password.\n"
 	  "\n"
 	  "While the box still opens to a password it shipped with, or to the first password it set for "
 	  "itself and showed on its screen, this is the route a caller signed in with it is to use: every route but this one, `POST /api/v1/login`, `GET /api/v1/session` and "
@@ -615,8 +640,9 @@ const Endpoint kAuthEndpoints[] = {
 	  "**Refusals:**\n"
 	  "- `400 bad-string`: the new password is too short, holds a control character, is one these "
 	  "boxes have shipped with, or is the one it replaces; the detail says which.\n"
-	  "- `403 not-permitted`: `current` is not the password in effect, or the account changed or the "
-	  "session asking ended while the request was being checked; nothing is written then.\n"
+	  "- `403 not-permitted`: `current` is not the password in effect, or the account changed while "
+	  "the request was being checked, or the session asking ended after its password was checked; "
+	  "nothing is written then.\n"
 	  "- `429 too-many-attempts`: wrong passwords were sent from this address too often, too many "
 	  "are being checked at once, or too many wrong ones came from every address together; "
 	  "`Retry-After` says how long to wait.\n"
@@ -624,8 +650,8 @@ const Endpoint kAuthEndpoints[] = {
 	  "in effect.\n"
 	  "\n"
 	  "**Related:** `POST /api/v1/login`, `GET /api/v1/session`.",
-	  HTTPD_PARAMS(kPasswordParams), NULL, &changePassword, false,
-	  Answers204, HTTPD_REFUSALS_AND_BODY(kPasswordRefusals, "{\"current\":\"my own pass phrase\",\"password\":\"a new pass phrase\"}") },
+	  HTTPD_PARAMS(kPasswordParams), &kSessionStateSchema, &changePassword, false,
+	  Answers200, HTTPD_REFUSALS_AND_BODY(kPasswordRefusals, "{\"current\":\"my own pass phrase\",\"password\":\"a new pass phrase\"}") },
 	{ Method::Post, "/api/v1/token/media", AuthLevel::System,
 	  "draws a short lived token that reaches the media this box holds and nothing else, for a player that can carry a credential only in the address",
 	  "Mints a token scoped to the media this box holds, such as recordings, and answers it "

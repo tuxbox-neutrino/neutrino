@@ -546,7 +546,7 @@ namespace
    a reload installing a configuration in between would otherwise leave the published
    account older than the file. */
 bool changeHeld(const std::string &user, const std::string &password, std::string *why,
-                const Ask *from, const std::string &keep_session)
+                const Ask *from, std::string &keep_session)
 {
 	{
 		// the rules every writer of the password is held to
@@ -602,17 +602,41 @@ bool changeHeld(const std::string &user, const std::string &password, std::strin
 		now.username = s.username;
 		now.password_hash = s.change_password ? stored : before.password_hash;
 		/* Every session of the account before ends here; the one that asked goes on
-		   under the account it set. Both under the account's lock, so no other change
-		   lands in between and moves the account on again. */
+		   under the account it set, with new tokens, so a copy of its cookie ends with
+		   the rest. Both under the account's lock, so no other change lands in between
+		   and moves the account on again. keep_session is left naming the token the
+		   caller holds now. */
 		const unsigned long long revision = httpd::publishLogin(now, first);
 		forget(first);
 		if (revision != before.revision && !keep_session.empty())
-			(void) httpd::carrySession(keep_session, before.revision, revision);
+		{
+			std::string fresh = httpd::reissueSession(keep_session, before.revision, revision);
+			forget(keep_session);
+			keep_session = fresh;
+			forget(fresh);
+		}
 		return true;
 	}
 }
 
 } // namespace
+
+const std::string &Transaction::session() const
+{
+	return keep_;
+}
+
+std::string sessionCookie(const std::string &token)
+{
+	try
+	{
+		return httpd::sessionSetCookie(token);
+	}
+	catch (...)
+	{
+		return std::string();
+	}
+}
 
 Transaction::Transaction() : held_(NULL), refused_(false)
 {

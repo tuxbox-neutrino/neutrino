@@ -226,8 +226,10 @@ const char *csrfRefusedDetail();
    (webconfig.h, Login) the caller checked the password against. It answers for
    nothing once the account in effect is another one: a new password, a new name, the
    reset at the box or a first password put in place ends every session that was
-   opened before, and every token drawn from one, except the one session a change
-   carries across (carrySession). A reload that publishes the same account ends none.
+   opened before, and every token drawn from one. The session of the caller that made
+   the change goes on under new tokens (reissueSession), and the change the webserver
+   route saves carries that session across when the restart's read puts it in effect
+   (carrySession). A reload that publishes the same account ends none.
    A revision that is no longer the one in effect opens nothing, so a login whose
    check raced a change to the account hands out no session.
 
@@ -240,8 +242,31 @@ std::string openSessionForTest(const std::string &user);
 /* Keeps the session a change to the account was asked for by: moves it from the
    revision from, which it has to be live under, to the revision to, which the change
    published. False and nothing moved for a token naming no such session. What the
-   session drew before stays with from and ends there; it draws again under to. */
+   session drew before stays with from and ends there; it draws again under to.
+
+   For a session that has already been given new tokens: the change made by its
+   caller is put in effect later (the restart after PUT /api/v1/system/webserver),
+   and carrying is all that is left to do then. */
 bool carrySession(const std::string &token, unsigned long long from, unsigned long long to);
+
+/* Keeps the session a change to the account was asked for by under new tokens: a new
+   cookie token and a new second token, the session moved from the revision from, which
+   it has to be live under, to the revision to. The old token names nothing from then
+   on, and what it drew ends with it, so a copy of the cookie taken before the change
+   is signed out with every other session while the caller stays signed in. The user,
+   the moment it was opened and its end stay, so a reissue never takes a session past
+   its ceiling. Answers the new cookie token; empty, and nothing changed, for a token
+   naming no such session or where no token could be drawn. */
+std::string reissueSession(const std::string &token, unsigned long long from, unsigned long long to);
+
+/* Makes the next reissueSession find no token to draw, the one way it fails that no
+   case can bring about otherwise: the pool of the kernel does not run dry on demand.
+   Nothing in the product calls it. */
+void failNextReissueForTest();
+
+/* The Set-Cookie value that hands this token out as the session cookie, the one way
+   every route that does writes it (ep_auth.cpp, cookieFor, says why each attribute). */
+std::string sessionSetCookie(const std::string &token);
 
 /* What the route that hands that token out sets on the cookie is written where that route
    is: this file mints a token and knows nothing about the answer it travels in.

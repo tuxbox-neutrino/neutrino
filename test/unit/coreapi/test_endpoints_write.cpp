@@ -6241,7 +6241,7 @@ TEST_CASE("the body examples of the routes that write files are requests those r
 		WebFile file("example-password", std::string(kWebFileHead) + "password_hash=" +
 		             hashSecret("my own pass phrase", 2000) + "\n");
 		REQUIRE(sendBodyExample("PUT", "/api/v1/account/password",
-		                        std::map<std::string, std::string>()) == 204);
+		                        std::map<std::string, std::string>()) == 200);
 	}
 }
 
@@ -8068,7 +8068,7 @@ TEST_CASE("a box still opening to its shipped password asks for one of the owner
 	const Reply set = send(Put, "/api/v1/account/password",
 	                       std::string("{\"current\":\"") + kShippedPassword +
 	                       "\",\"password\":\"my own pass phrase\"}", AuthLevel::System, "127.0.0.1");
-	REQUIRE(set.code == 204);
+	REQUIRE(set.code == 200);
 	REQUIRE_FALSE(login_bridge::passwordOwed());
 	REQUIRE(verifySecret("my own pass phrase", loginInEffect().password_hash));
 	REQUIRE_FALSE(parsed(send(Get, "/api/v1/session", "", AuthLevel::System, "127.0.0.1").body)
@@ -8114,7 +8114,7 @@ TEST_CASE("a box opening to the first password it drew asks the same, and the ch
 	const Reply set = send(Put, "/api/v1/account/password",
 	                       "{\"current\":\"" + first + "\",\"password\":\"my own pass phrase\"}",
 	                       AuthLevel::System, "127.0.0.1");
-	REQUIRE(set.code == 204);
+	REQUIRE(set.code == 200);
 	REQUIRE_FALSE(firstPasswordStands());
 	REQUIRE_FALSE(login_bridge::passwordOwed());
 	const std::string after = ChannelFileFixture::read(file.path);
@@ -8214,11 +8214,23 @@ TEST_CASE("a new password over /api/v1 signs every other session out and keeps t
 	const Response put = dispatch(Put, "/api/v1/account/password", "",
 	                              std::string("{\"current\":\"") + kPassword + "\",\"password\":\"a new pass phrase\"}",
 	                              "127.0.0.1", AuthLevel::System, std::string(), asking);
-	REQUIRE(put.code == 204);
+	REQUIRE(put.code == 200);
 
-	// The page that asked goes on without signing in again.
-	REQUIRE(cookieAlone(asking) == AuthLevel::System);
-	REQUIRE(csrfFor(asking) == asking_csrf);
+	/* The page that asked goes on without signing in again, under the cookie and the
+	   second token the answer hands it, in the shape the login answers with; a copy of
+	   the cookie it came with is out with the rest. */
+	const Reply answered = replyOf(put);
+	const std::string renewed = tokenOf(answered);
+	REQUIRE(renewed != asking);
+	REQUIRE(headerOf(answered, "Set-Cookie").find("HttpOnly") != std::string::npos);
+	REQUIRE(cookieAlone(renewed) == AuthLevel::System);
+	const ::Json::Value state = parsed(answered.body);
+	REQUIRE(state["authenticated"].asBool());
+	REQUIRE(state["user"].asString() == std::string(kUser));
+	REQUIRE(state["csrf"].asString() == csrfFor(renewed));
+	REQUIRE(state["csrf"].asString() != asking_csrf);
+	REQUIRE_FALSE(state["password_change_required"].asBool());
+	REQUIRE(cookieAlone(asking) == AuthLevel::Public);
 	// Every other browser is a caller presenting nothing, and the player's token is
 	// worth nothing.
 	REQUIRE(cookieAlone(other) == AuthLevel::Public);
@@ -8227,6 +8239,73 @@ TEST_CASE("a new password over /api/v1 signs every other session out and keeps t
 	// The old password opens nothing, the new one opens a session as before.
 	REQUIRE(login(kUser, kPassword).code == 401);
 	REQUIRE(cookieAlone(tokenOf(login(kUser, "a new pass phrase"))) == AuthLevel::System);
+}
+
+TEST_CASE("a session given new tokens keeps the end it had and the ceiling of the one it was", "[write][revision]")
+{
+	/* The session clock a year ahead, so the walk of the table, which reads the real
+	   clock, never takes what this holds; ten days a session, so the ceiling of thirty
+	   is reached by sliding. */
+	ShippedRoutes shipped;
+	ConfigFixture cfg;
+	WebFile file("reissue-end", std::string(kWebFileHead) + "password_hash=" + hashSecret(kPassword, 2000) +
+	             "\nsession_lifetime_s=864000\n");
+	SessionClock clock;
+	const time_t day = 24 * 60 * 60;
+
+	const std::string asking = openSessionForTest(kUser);
+	REQUIRE(sessionExpiresIn(asking) == 10 * day);
+	// Five days in a request slides it to fifteen, and three days later it has seven left.
+	clock.move(5 * day);
+	REQUIRE(cookieAlone(asking) == AuthLevel::System);
+	clock.move(3 * day);
+	REQUIRE(sessionExpiresIn(asking) == 7 * day);
+
+	const Response put = dispatch(Put, "/api/v1/account/password", "",
+	                              std::string("{\"current\":\"") + kPassword + "\",\"password\":\"a new pass phrase\"}",
+	                              "127.0.0.1", AuthLevel::System, std::string(), asking);
+	REQUIRE(put.code == 200);
+	const std::string renewed = tokenOf(replyOf(put));
+	// The same end, not one counted from the change.
+	REQUIRE(sessionExpiresIn(renewed) == 7 * day);
+
+	// Busy every few days, it still ends thirty days after the session it was opened as.
+	for (int at = 8; at < 24; at += 4)
+	{
+		clock.move(4 * day);
+		REQUIRE(cookieAlone(renewed) == AuthLevel::System);
+	}
+	clock.move(2 * day);
+	REQUIRE(cookieAlone(renewed) == AuthLevel::System);
+	REQUIRE(sessionExpiresIn(renewed) == 4 * day);
+	clock.move(4 * day);
+	REQUIRE(cookieAlone(renewed) == AuthLevel::Public);
+}
+
+TEST_CASE("a change of the password whose new tokens could not be drawn answers what the caller is left with", "[write][revision]")
+{
+	ShippedRoutes shipped;
+	ConfigFixture cfg;
+	WebFile file("reissue-failed", std::string(kWebFileHead) + "password_hash=" + hashSecret(kPassword, 2000) + "\n");
+
+	const std::string asking = tokenOf(login(kUser, kPassword));
+	failNextReissueForTest();
+	const Response put = dispatch(Put, "/api/v1/account/password", "",
+	                              std::string("{\"current\":\"") + kPassword + "\",\"password\":\"a new pass phrase\"}",
+	                              "203.0.113.42", AuthLevel::System, std::string(), asking);
+	REQUIRE(put.code == 200);
+	REQUIRE(verifySecret("a new pass phrase", loginInEffect().password_hash));
+
+	/* The change ended the session it came with and handed out none: no cookie, and the
+	   state of a caller presenting nothing from that address, not the level the session
+	   let it in at. */
+	const Reply answered = replyOf(put);
+	REQUIRE(headerOf(answered, "Set-Cookie").empty());
+	const ::Json::Value state = parsed(answered.body);
+	REQUIRE_FALSE(state["authenticated"].asBool());
+	REQUIRE(state["level"].asString() == "public");
+	REQUIRE(state["csrf"].asString().empty());
+	REQUIRE(cookieAlone(asking) == AuthLevel::Public);
 }
 
 TEST_CASE("a new password over the webserver route signs the others out once the restart puts it in effect", "[write][revision]")
@@ -8244,9 +8323,18 @@ TEST_CASE("a new password over the webserver route signs the others out once the
 	REQUIRE(put.code == 200);
 	REQUIRE(put.reload_after == file.path);
 
+	/* The caller that asked has new tokens at once, the cookie in the answer's header
+	   and the second token in caller; the cookie it came with names nothing any more. */
+	const Reply answered = replyOf(put);
+	const std::string renewed = tokenOf(answered);
+	REQUIRE(renewed != asking);
+	REQUIRE(parsed(answered.body)["caller"]["csrf"].asString() == csrfFor(renewed));
+	REQUIRE_FALSE(csrfFor(renewed).empty());
+	REQUIRE(cookieAlone(asking) == AuthLevel::Public);
+
 	// Until the restart reads the file the old password is the one in effect, and so
-	// is everybody's session.
-	REQUIRE(cookieAlone(asking) == AuthLevel::System);
+	// is every other session.
+	REQUIRE(cookieAlone(renewed) == AuthLevel::System);
 	REQUIRE(cookieAlone(other) == AuthLevel::System);
 
 	// Another caller saving something else meanwhile does not take the place of the
@@ -8255,12 +8343,15 @@ TEST_CASE("a new password over the webserver route signs the others out once the
 	                                    "192.0.2.7", AuthLevel::System, std::string(), other,
 	                                    "box.example:8081");
 	REQUIRE(meanwhile.code == 200);
+	// which changed no login, and so left the other caller its cookie
+	REQUIRE(headerOf(replyOf(meanwhile), "Set-Cookie").empty());
+	REQUIRE(parsed(replyOf(meanwhile).body)["caller"]["csrf"].asString().empty());
 
 	// The restart's read: the caller that asked stays, the other is out, and what was
 	// drawn before is worth nothing.
 	REQUIRE(load(file.path, file.server));
 	REQUIRE(verifySecret("a new pass phrase", loginInEffect().password_hash));
-	REQUIRE(cookieAlone(asking) == AuthLevel::System);
+	REQUIRE(cookieAlone(renewed) == AuthLevel::System);
 	REQUIRE(cookieAlone(other) == AuthLevel::Public);
 	REQUIRE(playerHolding(drawn) == AuthLevel::Public);
 
@@ -8270,7 +8361,7 @@ TEST_CASE("a new password over the webserver route signs the others out once the
 	                               "192.0.2.7", AuthLevel::System, std::string(), later, "box.example:8081");
 	REQUIRE(port.code == 200);
 	REQUIRE(load(file.path, file.server));
-	REQUIRE(cookieAlone(asking) == AuthLevel::System);
+	REQUIRE(cookieAlone(renewed) == AuthLevel::System);
 	REQUIRE(cookieAlone(later) == AuthLevel::System);
 }
 

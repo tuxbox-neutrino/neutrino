@@ -380,9 +380,11 @@ const FieldDesc kCallerFields[] = {
 	HTTPD_MEMBER("port_moved", FieldType::Bool,
 		"whether the port changed, which is what decides whether an address already in a caller's hands is still one"),
 	HTTPD_MEMBER("password_changed", FieldType::Bool,
-		"whether the next sign in needs a different password; once the restart has put a new password or user name in effect, every session opened before it ends except the one this request arrived with"),
+		"whether the next sign in needs a different password; once the restart has put a new password or user name in effect, every session opened before it ends except the one of the caller that asked, which this answer gave new tokens"),
 	HTTPD_MEMBER("restarting", FieldType::Bool,
 		"whether the server is being put on what the file now says, which ends every connection it is holding, this one included, and false where the request asked for what was already in effect"),
+	HTTPD_MEMBER("csrf", FieldType::String,
+		"the second token of the session the caller holds from now on, where this change of the user name or the password gave the session it came with new tokens, the new cookie travelling in this answer's Set-Cookie and the old one naming nothing any more; empty where the request named neither or came without a session"),
 };
 
 const Schema kCallerSchema = { "webserver-caller", HTTPD_FIELDS(kCallerFields) };
@@ -547,10 +549,21 @@ Response webserverWrite(const Request &r)
 	}
 
 	/* A new name or password ends every session once the restart puts it in effect,
-	   except the one of the caller that asked, which the page goes on with. A caller
-	   let in by a token holds none, and then nobody's stays. */
+	   except the one of the caller that asked, which the page goes on with. That one
+	   gets new tokens now, under the account still in effect, and is the one the
+	   restart's read carries across; the cookie the request came with names nothing from
+	   here on, so a copy of it is signed out at once. A caller let in by a token holds
+	   none, and then nobody's stays. */
+	std::string successor;
 	if (s.change_password || s.username != before.username)
-		keepSessionAtLoad(sessionIsLive(r.session()) ? r.session() : std::string());
+	{
+		if (sessionIsLive(r.session()))
+		{
+			const unsigned long long now = accountRevision();
+			successor = reissueSession(r.session(), now, now);
+		}
+		keepSessionAtLoad(successor);
+	}
 
 	/* Measured against the server as it runs and not against `before`, which is
 	   where a save waiting for its restart left the file: the caller is told what
@@ -597,8 +610,12 @@ Response webserverWrite(const Request &r)
 	j.value(password_changed);
 	j.key("restarting");
 	j.value(restarting);
+	j.key("csrf");
+	j.value(successor.empty() ? std::string() : csrfFor(successor));
 	j.endObject();
 	j.endObject();
+	if (!successor.empty())
+		out.headers.push_back(std::make_pair(std::string("Set-Cookie"), sessionSetCookie(successor)));
 
 	// The last lines of the handler, and the only ones that arm anything.
 	if (moved)
@@ -689,7 +706,9 @@ const Endpoint kWebserverEndpoints[] = {
 	  "no host; `port_moved` says whether the port changed; `password_changed` says whether the next "
 	  "sign in needs a different password, and once the restart has put a new password or user name in "
 	  "effect every session opened before it ends, except the one this request arrived with, and so does "
-	  "every token drawn from a session; `restarting` "
+	  "every token drawn from a session; that session is given new tokens by this answer already, the "
+	  "cookie in `Set-Cookie` and the second token in `csrf`, and the cookie the request came with names "
+	  "nothing from then on, so a copy of it is signed out at once; `restarting` "
 	  "says whether anything changed enough to restart the server at all, since a request asking for "
 	  "what is already in effect changes nothing and restarts nothing.\n"
 	  "\n"

@@ -941,30 +941,40 @@ TEST_CASE("a change of the account signs everybody else out and what they drew, 
 	login_bridge::Admitted admitted;
 	REQUIRE(login_bridge::mayChange(from, "", kRequested, &why, &admitted));
 	REQUIRE(admitted.session == asking);
+	std::string renewed;
 	{
 		login_bridge::Transaction t;
 		REQUIRE(t.admits(admitted, &why));
 		REQUIRE(t.change("", kRequested, &why, &from));
+		renewed = t.session();
 	}
 	REQUIRE(accountRevision() != revision);
 
-	// The one that asked goes on as it was, cookie and second token alike.
-	REQUIRE(sessionIsLive(asking));
-	REQUIRE(csrfFor(asking) == asking_csrf);
+	// The one that asked goes on under new tokens, and a copy of its old cookie is out.
+	REQUIRE_FALSE(renewed.empty());
+	REQUIRE(renewed != asking);
+	REQUIRE(sessionIsLive(renewed));
+	REQUIRE_FALSE(csrfFor(renewed).empty());
+	REQUIRE(csrfFor(renewed) != asking_csrf);
+	REQUIRE(sessionUser(renewed) == kUser);
+	REQUIRE_FALSE(sessionIsLive(asking));
+	REQUIRE_FALSE(login_bridge::sessionAdmits(from));
+	from.cookie = cookieFor(renewed);
 	REQUIRE(login_bridge::sessionAdmits(from));
+	REQUIRE(login_bridge::sessionCookie(renewed).find(std::string(sessionCookieName()) + "=" + renewed + ";") == 0);
 	// Everybody else is out, and so is every token drawn before, its own included.
 	REQUIRE_FALSE(sessionIsLive(other));
 	REQUIRE_FALSE(sessionIsLive(third));
 	REQUIRE(playerWith(drawn) == AuthLevel::Public);
 	REQUIRE(playerWith(drawn_by_asking) == AuthLevel::Public);
 	// What it draws now stands.
-	const std::string drawn_after = openScopedToken(mediaScopeName(), AuthLevel::System, asking);
+	const std::string drawn_after = openScopedToken(mediaScopeName(), AuthLevel::System, renewed);
 	REQUIRE(playerWith(drawn_after) == AuthLevel::System);
 
 	// A new name at the box keeps nobody signed in.
 	const std::string later = openSessionForTest(kUser);
 	REQUIRE(login_bridge::change("admin", "", &why));
-	REQUIRE_FALSE(sessionIsLive(asking));
+	REQUIRE_FALSE(sessionIsLive(renewed));
 	REQUIRE_FALSE(sessionIsLive(later));
 	REQUIRE(playerWith(drawn_after) == AuthLevel::Public);
 

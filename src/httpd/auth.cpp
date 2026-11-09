@@ -1040,6 +1040,55 @@ bool carrySession(const std::string &token, unsigned long long from, unsigned lo
 	return true;
 }
 
+// Set by failNextReissueForTest and taken back by the reissue it fails.
+static bool reissue_draw_fails = false;
+
+std::string reissueSession(const std::string &token, unsigned long long from, unsigned long long to)
+{
+	if (token.empty())
+		return std::string();
+	std::string fresh = randomToken();
+	std::string csrf  = randomToken();
+	if (reissue_draw_fails)
+	{
+		reissue_draw_fails = false;
+		fresh.clear();
+	}
+	if (fresh.empty() || csrf.empty())
+		return std::string();
+
+	OpenThreads::ScopedLock<OpenThreads::Mutex> held(lock());
+	const std::map<std::string, Session>::iterator i = table().sessions.find(token);
+	if (i == table().sessions.end() || !standing(i->second, sessionNow(), from))
+		return std::string();
+	/* A token already in the table is not one to hand out twice; nothing is changed,
+	   and the session goes on under the old token until the change ends it. */
+	if (table().sessions.find(fresh) != table().sessions.end())
+		return std::string();
+
+	Session s = i->second;
+	s.csrf = csrf;
+	s.revision = to;
+	dropTokensOfLocked(token);
+	table().sessions.erase(i);
+	table().sessions.insert(std::make_pair(fresh, s));
+	return fresh;
+}
+
+void failNextReissueForTest()
+{
+	reissue_draw_fails = true;
+}
+
+std::string sessionSetCookie(const std::string &token)
+{
+	std::string out = sessionCookieName();
+	out += "=";
+	out += token;
+	out += "; HttpOnly; SameSite=Lax; Path=/";
+	return out;
+}
+
 bool closeSession(const std::string &token)
 {
 	if (token.empty())

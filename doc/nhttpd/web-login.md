@@ -43,7 +43,8 @@ one, a signed-in browser can do nothing else:
 - The new password needs at least 8 characters and no control characters.
   It may not be the current one, and it may not be one of the passwords
   these boxes have shipped with.
-- The new password is in effect at once. This browser stays signed in.
+- The new password is in effect at once. This browser stays signed in,
+  with a new sign-in cookie: a copy of the old one no longer works.
   Every other browser and app signed in to the web interface is signed out
   and has to sign in again with the new password.
 
@@ -140,7 +141,9 @@ sign-in over the web asks for a password of your own again.
 A new password or a new user name signs out everybody who signed in before
 it, wherever it was set: in the web interface, over `/control/`, in the menu
 at the box or with the reset at the box. A browser signed in to the web
-interface that made the change stays signed in, also over `/control/`. An app
+interface that made the change stays signed in, also over `/control/`, with
+a new sign-in cookie, so a copy of the one it had before is signed out with
+everybody else. An app
 that signs in with HTTP Basic holds no sign-in to keep and sends the new
 password from then on. A change in the menu at the box keeps nobody signed
 in. Saving the settings without changing the user name or the password signs
@@ -162,13 +165,18 @@ nobody out.
 - An API token of level `read`, and a caller that reads without a password
   from the home network (`lan_read`), are not affected.
 - `PUT /api/v1/account/password` takes `{"current": "...", "password": "..."}`
-  and answers `204` once the new password is in effect.
+  and answers `200` with the session state once the new password is in
+  effect.
 - A new password or user name ends every session opened before it, and every
   token drawn through a session (`POST /api/v1/token/media`), also one the
   asking session drew. The session the change was made with stays signed in
-  with its cookie and its `csrf` token. With `PUT /api/v1/system/webserver`
-  this happens when the restart puts the change in effect. API tokens named
-  in `nhttpd-access.conf` (`api_tokens`) are not affected.
+  under a new cookie and a new `csrf` token, which the answer carries:
+  `Set-Cookie`, and `csrf` in the session state `PUT /api/v1/account/password`
+  answers with (`200`) or in `caller` of `PUT /api/v1/system/webserver`. The
+  cookie it came with names nothing from then on. With
+  `PUT /api/v1/system/webserver` the other sessions end when the restart
+  puts the change in effect. API tokens named in `nhttpd-access.conf`
+  (`api_tokens`) are not affected.
 - A change to the login that crosses a reset at the box or another change of
   the login writes nothing: `PUT /api/v1/account/password` answers
   `403 not-permitted`, and so does `PUT /api/v1/system/webserver` for a

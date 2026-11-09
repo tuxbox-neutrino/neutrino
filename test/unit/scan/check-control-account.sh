@@ -22,6 +22,9 @@
 #  - the account is changed through the transaction before nhttpd.conf is saved,
 #    and that save is guarded by error.empty(), so it follows only an account that
 #    went through;
+#  - after that change the new cookie of the session that asked is sent, once and
+#    before the save: HookVarList["Set-Cookie"] set from
+#    login_bridge::sessionCookie(account->session());
 #  - the transaction is given up after that save and before the server's
 #    configuration is reloaded, which reads nhttpd.conf under its lock.
 set -e
@@ -87,6 +90,15 @@ awk -v keepstrings=0 -f "$STRIP" "$FILE" | awk '
 				fail("takes ServerFileLock before it has decided")
 		}
 		if ($0 ~ /account[ \t]*->[ \t]*change[ \t]*\(/) changes++
+		# the comment blanker leaves a literal as one digit, so the header name is
+		# read as the one literal a HookVarList index can be here
+		if ($0 ~ /HookVarList[ \t]*\[/) {
+			cookies++
+			if ($0 !~ /HookVarList[ \t]*\[[ \t]*[0-9][ \t]*\][ \t]*=[ \t]*login_bridge::sessionCookie[ \t]*\([ \t]*account[ \t]*->[ \t]*session[ \t]*\([ \t]*\)[ \t]*\)/)
+				fail("sends a cookie other than the one the transaction handed the session that asked: " $0)
+			if (!changes || saves_server)
+				fail("sends the cookie before the account changed or after nhttpd.conf was saved")
+		}
 		if ($0 ~ /httpd::saveServerFile[ \t]*\(/) {
 			saves_server++
 			if (!changes)
@@ -141,8 +153,16 @@ awk -v keepstrings=0 -f "$STRIP" "$FILE" | awk '
 			fail("keeps the transaction its second look refused until the end of the handler")
 		if (want_error != "")
 			fail("ends before the statement " want_error " guards")
+		if (cookies != 1)
+			fail("sends the cookie of the session that asked " cookies + 0 " times, not once")
 		if (!locks || !saves_server || !changes || !reloads || !saves_config || !saves_setup)
 			fail("no longer locks, saves, changes the account and reloads where the scan looks")
 		exit bad
 	}
 '
+
+# The header the rule above sees only as a blanked literal, read off the text.
+grep -qF 'hh->HookVarList["Set-Cookie"] = login_bridge::sessionCookie(account->session());' "$FILE" || {
+	echo "check-control-account.sh: ConfigCGI no longer sends the new cookie as Set-Cookie" >&2
+	exit 1
+}
