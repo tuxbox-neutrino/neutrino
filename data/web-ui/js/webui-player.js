@@ -827,8 +827,22 @@ function webuiPlayerOpen(channel) {
 	document.body.style.overflow = 'hidden';
 	if (p.release)
 		p.release();
-	p.release = webuiDialogA11y(p.dialog, {close: function() { webuiPlayerClose(); }});
+	p.release = webuiDialogA11y(p.dialog, {close: function() { _webuiPlayerEscape(p); }});
 	_webuiPlayerStart(p);
+}
+
+/* Escape in the video's own full screen ends only the full screen: a
+   browser that hands the key on to the page there would otherwise close
+   the player with it. */
+function _webuiPlayerEscape(p) {
+	var full = document.fullscreenElement || document.webkitFullscreenElement;
+	if (full && p.dialog.contains(full)) {
+		var left = (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+		if (left && typeof left.catch === 'function')
+			left.catch(function() {});
+		return;
+	}
+	webuiPlayerClose();
 }
 
 // Ends playback and every fetch, and closes the player.

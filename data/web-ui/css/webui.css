@@ -302,6 +302,18 @@ body {
 	overflow: hidden; /* Prevent body scroll, content scrolls in main */
 }
 
+/* While a modal dialog or a sheet is shown, the browser gets no
+   pull-to-refresh of its own: reloading the page would end what the
+   dialog holds, a stream or an unsaved edit. The open states: the
+   backdrops of the player, the guide's details and webuiModal
+   (.webui-epg-modal-backdrop.open), of About and the timer editor
+   (.webui-modal-backdrop.open), the question, the prompt and the sign-in
+   (.webui-confirm-backdrop, there only while open), the remote window
+   (body.webui-remote-open) and the sheets (dialog[open]) */
+html:has(.webui-epg-modal-backdrop.open, .webui-modal-backdrop.open, .webui-confirm-backdrop, body.webui-remote-open, dialog[open]) {
+	overscroll-behavior-y: none;
+}
+
 main {
 	flex: 1;
 	width: 100%;

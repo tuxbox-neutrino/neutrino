@@ -4416,9 +4416,34 @@ function webuiDefaultIsAtScrollTop() {
 	return true;
 }
 
+// Whether a modal dialog is shown: one marked aria-modal that is laid out
+// and visible (a closed one may keep the mark but is hidden), or an open
+// <dialog>, as a sheet is (shown modal, or in place where that is missing)
+function _webuiModalShown() {
+	return Array.prototype.some.call(document.querySelectorAll('[aria-modal="true"], dialog[open]'), function(el) {
+		return el.getClientRects().length > 0 && getComputedStyle(el).visibility === 'visible';
+	});
+}
+
+// Forgets a pull: one the browser cancelled (an edge gesture, say) ends in
+// no touchend, and one begun before a dialog opened does not count after it
+function webuiPullReset() {
+	webuiPullStartY = 0;
+	webuiPullCurrentY = 0;
+	webuiIsPulling = false;
+	if (!webuiIsRefreshing)
+		webuiHidePullIndicator();
+}
+
 function webuiPullTouchStart(e) {
 	if (webuiIsRefreshing) return;
 	if (window.innerWidth > 768) return;
+	// a pull over a modal dialog is the dialog's: its body scrolls, and the
+	// page behind it, out of reach, is not read again
+	if (_webuiModalShown()) {
+		webuiPullReset();
+		return;
+	}
 	if (!webuiDefaultIsAtScrollTop()) return;
 
 	webuiPullStartY = e.touches[0].clientY;
@@ -4498,6 +4523,7 @@ function webuiInitPullRefresh() {
 	document.addEventListener('touchstart', webuiPullTouchStart, { passive: true });
 	document.addEventListener('touchmove', webuiPullTouchMove, { passive: false });
 	document.addEventListener('touchend', webuiPullTouchEnd, { passive: true });
+	document.addEventListener('touchcancel', webuiPullReset, { passive: true });
 }
 
 // Initialize the header and its components
