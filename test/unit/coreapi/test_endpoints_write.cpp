@@ -8597,6 +8597,30 @@ std::string mediaTokenOf(const std::string &session)
 
 } // namespace
 
+TEST_CASE("a full session table gives up another session than the one a change holds", "[write][revision]")
+{
+	/* The session a change holds runs out first of all here, a minute after it was
+	   opened, and the table is filled past what it holds: it gives up the others, never
+	   that one, until the change lets it go. */
+	ShippedRoutes shipped;
+	ConfigFixture cfg;
+	WebConfig c = config();
+	c.session_lifetime_s = 60;
+	setConfigForTest(c);
+	const std::string held = openSessionForTest(kUser);
+	REQUIRE(holdSession(held, accountRevision()));
+	c.session_lifetime_s = 10 * 24 * 60 * 60;
+	setConfigForTest(c);
+	for (int i = 0; i < 64; ++i)
+		REQUIRE_FALSE(openSessionForTest(kUser).empty());
+	// asked without a request, which would move its end on
+	REQUIRE(sessionIsLive(held));
+
+	releaseSession(held);
+	REQUIRE_FALSE(openSessionForTest(kUser).empty());
+	REQUIRE_FALSE(sessionIsLive(held));
+}
+
 TEST_CASE("a new password over /api/v1 signs every other session out and keeps the one that asked", "[write][revision]")
 {
 	ShippedRoutes shipped;
@@ -9270,4 +9294,85 @@ TEST_CASE("a media token is drawn only for the session that let the request in, 
 	const std::string free = stringField(replyOf(bearer).body, "token");
 	REQUIRE(closeSession(beside));
 	REQUIRE(playerHolding(free) == AuthLevel::System);
+}
+
+namespace
+{
+
+// A request presenting nothing, from no network a rule lets read: it walks the session
+// table, as every request the gate answers does once the interval is up.
+void walkTheSessions()
+{
+	Credentials nobody;
+	nobody.peer = "203.0.113.50";
+	(void) granted(nobody);
+}
+
+struct WalkBetweenCleared
+{
+	~WalkBetweenCleared()
+	{
+		setPublishProbeForTest(NULL);
+		setSweepIntervalForTest(60);
+	}
+};
+
+// Whether a page holding this cookie and this second token gets a change through the gate.
+bool changesThrough(const std::string &cookie, const std::string &csrf)
+{
+	Credentials page;
+	page.peer = "203.0.113.40";
+	page.cookie_token = cookie;
+	page.csrf_header = csrf;
+	return allowed(AuthLevel::System, granted(page), Patch, page, NULL);
+}
+
+} // namespace
+
+TEST_CASE("a walk of the sessions between a change's publication and its new tokens keeps the session that asked",
+          "[write][revision]")
+{
+	/* Every request walks the table once the interval is up, and a walk reads the account
+	   in effect: one made by another connection right after a change published the new
+	   account, before the change moved the session it keeps, would take that session for
+	   one opened under the old account. The walk is made there, and the session that
+	   asked comes away with a cookie and a second token that work. */
+	ShippedRoutes shipped;
+	ConfigFixture cfg;
+	WalkBetweenCleared cleared;
+	WebFile file("walk", std::string(kWebFileHead) + "password_hash=" + hashSecret(kPassword, 2000) + "\n");
+	setSweepIntervalForTest(0);
+
+	const std::string asking = tokenOf(login(kUser, kPassword));
+	const std::string other = tokenOf(login(kUser, kPassword));
+	setPublishProbeForTest(&walkTheSessions);
+	const Response put = dispatch(Put, "/api/v1/account/password", "",
+	                              std::string("{\"current\":\"") + kPassword + "\",\"password\":\"a new pass phrase\"}",
+	                              "127.0.0.1", AuthLevel::System, std::string(), asking);
+	REQUIRE(put.code == 200);
+	const Reply answered = replyOf(put);
+	const std::string renewed = tokenOf(answered);
+	const std::string csrf = parsed(answered.body)["csrf"].asString();
+	REQUIRE(renewed != asking);
+	REQUIRE_FALSE(csrf.empty());
+	REQUIRE(cookieAlone(renewed) == AuthLevel::System);
+	REQUIRE(changesThrough(renewed, csrf));
+	REQUIRE(cookieAlone(asking) == AuthLevel::Public);
+	REQUIRE(cookieAlone(other) == AuthLevel::Public);
+
+	/* The restart after a save over the webserver route publishes the account the save
+	   wrote and then carries the session that asked across: the same walk in between. */
+	const Response ws = dispatch(Put, "/api/v1/system/webserver", "",
+	                             "{\"current\":\"a new pass phrase\",\"password\":\"another pass phrase\"}",
+	                             "192.0.2.7", AuthLevel::System, std::string(), renewed, "box.example:8081");
+	REQUIRE(ws.code == 200);
+	const Reply saved = replyOf(ws);
+	const std::string successor = tokenOf(saved);
+	const std::string successor_csrf = parsed(saved.body)["caller"]["csrf"].asString();
+	REQUIRE(successor != renewed);
+	setPublishProbeForTest(&walkTheSessions);
+	REQUIRE(load(file.path, file.server));
+	REQUIRE(verifySecret("another pass phrase", loginInEffect().password_hash));
+	REQUIRE(cookieAlone(successor) == AuthLevel::System);
+	REQUIRE(changesThrough(successor, successor_csrf));
 }

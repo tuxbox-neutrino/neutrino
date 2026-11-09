@@ -614,6 +614,11 @@ bool changeHeld(const std::string &user, const std::string &password, std::strin
 		   the rest. Both under the account's lock, so no other change lands in between
 		   and moves the account on again. keep_session is left naming the token the
 		   caller holds now. */
+		/* Held from before the new account is in effect to its new tokens, so a walk of
+		   the session table on another connection between the two cannot drop it for
+		   having been opened under the old one. */
+		if (!keep_session.empty())
+			(void) httpd::holdSession(keep_session, before.revision);
 		const unsigned long long revision = httpd::publishLogin(now, first);
 		forget(first);
 		if (revision != before.revision && !keep_session.empty())
@@ -623,6 +628,8 @@ bool changeHeld(const std::string &user, const std::string &password, std::strin
 			keep_session = fresh;
 			forget(fresh);
 		}
+		else if (!keep_session.empty())
+			httpd::releaseSession(keep_session);
 		return true;
 	}
 }

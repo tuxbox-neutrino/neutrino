@@ -371,6 +371,14 @@ std::string firstPasswordInEffect();
 bool firstPasswordStands();
 unsigned long long publishLogin(const Login &l, const std::string &first_password = std::string());
 
+/* Called once by the next publication that moves the account on, once the new account
+   is in effect and before publishLogin returns, outside the lock it publishes under, and
+   forgotten as it is called; NULL forgets one not yet called. For a case that walks the
+   session table between the publication and the move of the session a change keeps, a
+   moment no request can be made to stop at. Nothing in the product installs one. */
+typedef void (*PublishProbe)();
+void setPublishProbeForTest(PublishProbe p);
+
 /* Whether this run of the program wrote a first password into the file the
    server reads: on a start that found no file, or one holding a password these
    boxes shipped with, or at the menu of the box. Which is when the screen at the

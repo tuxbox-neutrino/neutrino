@@ -85,7 +85,10 @@ struct Session
 	// the account it answers for (webconfig.h, Login::revision)
 	unsigned long long revision;
 
-	Session() : opened(0), expires(0), revision(0) {}
+	// kept out of the walk by a change to the account that goes on with it (holdSession)
+	bool held;
+
+	Session() : opened(0), expires(0), revision(0), held(false) {}
 };
 
 /* The longest a session lasts however busy it is, which is also the longest
@@ -348,7 +351,10 @@ void dropTokensOfLocked(const std::string &session)
    publish and carry a session across in between. Such a session holds a revision
    newer than the reading, and dropping it would sign out the caller the change was
    made to keep. Revisions only grow, so a session older than the reading never
-   stands again. */
+   stands again.
+
+   A session a change holds (holdSession) is dropped only once it has run out: that
+   change has published the account it moves the session to, and is about to. */
 void expireLocked(time_t now, unsigned long long account)
 {
 	std::map<std::string, Session>::iterator i = table().sessions.begin();
@@ -356,7 +362,7 @@ void expireLocked(time_t now, unsigned long long account)
 	{
 		std::map<std::string, Session>::iterator here = i;
 		++i;
-		if (here->second.expires <= now || here->second.revision < account)
+		if (here->second.expires <= now || (here->second.revision < account && !here->second.held))
 		{
 			dropTokensOfLocked(here->first);
 			table().sessions.erase(here);
@@ -1010,11 +1016,15 @@ std::string openSession(const std::string &user, unsigned long long revision)
 		expireLocked(s.opened, account);
 	if (table().sessions.size() >= kMaxSessions)
 	{
-		std::map<std::string, Session>::iterator victim = table().sessions.begin();
+		// never one a change holds, which that change is about to move
+		std::map<std::string, Session>::iterator victim = table().sessions.end();
 		for (std::map<std::string, Session>::iterator i = table().sessions.begin();
 		     i != table().sessions.end(); ++i)
-			if (i->second.expires < victim->second.expires)
+			if (!i->second.held &&
+			    (victim == table().sessions.end() || i->second.expires < victim->second.expires))
 				victim = i;
+		if (victim == table().sessions.end())
+			return std::string();
 		dropTokensOfLocked(victim->first);
 		table().sessions.erase(victim);
 	}
@@ -1032,6 +1042,30 @@ bool sessionIsLive(const std::string &token)
 	return liveSession(token, NULL);
 }
 
+bool holdSession(const std::string &token, unsigned long long revision)
+{
+	if (token.empty())
+		return false;
+
+	OpenThreads::ScopedLock<OpenThreads::Mutex> held(lock());
+	const std::map<std::string, Session>::iterator i = table().sessions.find(token);
+	if (i == table().sessions.end() || !standing(i->second, sessionNow(), revision))
+		return false;
+	i->second.held = true;
+	return true;
+}
+
+void releaseSession(const std::string &token)
+{
+	if (token.empty())
+		return;
+
+	OpenThreads::ScopedLock<OpenThreads::Mutex> held(lock());
+	const std::map<std::string, Session>::iterator i = table().sessions.find(token);
+	if (i != table().sessions.end())
+		i->second.held = false;
+}
+
 bool carrySession(const std::string &token, unsigned long long from, unsigned long long to)
 {
 	if (token.empty())
@@ -1039,7 +1073,11 @@ bool carrySession(const std::string &token, unsigned long long from, unsigned lo
 
 	OpenThreads::ScopedLock<OpenThreads::Mutex> held(lock());
 	const std::map<std::string, Session>::iterator i = table().sessions.find(token);
-	if (i == table().sessions.end() || !standing(i->second, sessionNow(), from))
+	if (i == table().sessions.end())
+		return false;
+	// moved or not, the change that held it is done with it
+	i->second.held = false;
+	if (!standing(i->second, sessionNow(), from))
 		return false;
 	i->second.revision = to;
 	return true;
@@ -1060,11 +1098,18 @@ std::string reissueSession(const std::string &token, unsigned long long from, un
 		fresh.clear();
 	}
 	if (fresh.empty() || csrf.empty())
+	{
+		releaseSession(token);
 		return std::string();
+	}
 
 	OpenThreads::ScopedLock<OpenThreads::Mutex> held(lock());
 	const std::map<std::string, Session>::iterator i = table().sessions.find(token);
-	if (i == table().sessions.end() || !standing(i->second, sessionNow(), from))
+	if (i == table().sessions.end())
+		return std::string();
+	// given new tokens or not, the change that held it is done with it
+	i->second.held = false;
+	if (!standing(i->second, sessionNow(), from))
 		return std::string();
 	/* A token already in the table is not one to hand out twice; nothing is changed,
 	   and the session goes on under the old token until the change ends it. */

@@ -597,6 +597,10 @@ Response webserverWrite(const Request &r)
 		{
 			const unsigned long long now = accountRevision();
 			successor = reissueSession(r.session(), now, now);
+			/* Held until the restart's read carries it across: that read publishes the
+			   new account first, and a walk of the table in between would drop the
+			   session for being opened under the old one. */
+			(void) holdSession(successor, now);
 		}
 		keepSessionAtLoad(successor);
 	}

@@ -245,6 +245,23 @@ const char *csrfRefusedDetail();
 std::string openSession(const std::string &user, unsigned long long revision);
 std::string openSessionForTest(const std::string &user);
 
+/* The session a change to the account goes on with, held out of the walk of the table
+   (granted() walks it) from where the change takes it on until it is moved
+   (reissueSession, carrySession) or let go (releaseSession). The change publishes the
+   new account before it moves the session, and a walk in between, on another
+   connection's thread, would read the new account and drop the very session the change
+   keeps for being opened under the old one: its caller would come away with nothing.
+   A held session is dropped by the walk only once it has run out, and a full table
+   gives up another one first; it answers for nothing more than it did, a lookup
+   asking as before whether it stands under the account in effect.
+
+   holdSession takes it on where it stands under revision, and says whether it did; a
+   token naming no such session holds nothing. Moving it lets it go; releaseSession lets
+   go of one the change did not move, the account staying as it was or the write
+   failing. */
+bool holdSession(const std::string &token, unsigned long long revision);
+void releaseSession(const std::string &token);
+
 /* Keeps the session a change to the account was asked for by: moves it from the
    revision from, which it has to be live under, to the revision to, which the change
    published. False and nothing moved for a token naming no such session. What the

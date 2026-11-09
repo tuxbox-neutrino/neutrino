@@ -2201,28 +2201,55 @@ bool firstPasswordStands()
 	return !heldFirst().empty();
 }
 
+// Set by setPublishProbeForTest and taken back by the publication it runs after.
+static PublishProbe publish_probe = NULL;
+
 unsigned long long publishLogin(const Login &l, const std::string &first_password)
 {
-	OpenThreads::ScopedLock<OpenThreads::Mutex> held_lock(loginLock());
-	Login &in_effect = heldLogin();
-	/* A first password standing or gone alone is no new account: it goes with a stored
-	   form, and a stored form that changed is counted here already. */
-	const bool same = in_effect.username == l.username && in_effect.password_hash == l.password_hash;
-	const unsigned long long revision = same ? in_effect.revision : in_effect.revision + 1;
-	in_effect = l;
-	in_effect.revision = revision;
-	forget(heldFirst());
-	heldFirst() = first_password;
+	unsigned long long revision = 0;
+	bool moved = false;
+	{
+		OpenThreads::ScopedLock<OpenThreads::Mutex> held_lock(loginLock());
+		Login &in_effect = heldLogin();
+		/* A first password standing or gone alone is no new account: it goes with a stored
+		   form, and a stored form that changed is counted here already. */
+		const bool same = in_effect.username == l.username && in_effect.password_hash == l.password_hash;
+		revision = same ? in_effect.revision : in_effect.revision + 1;
+		moved = !same;
+		in_effect = l;
+		in_effect.revision = revision;
+		forget(heldFirst());
+		heldFirst() = first_password;
+	}
+	if (moved && publish_probe != NULL)
+	{
+		const PublishProbe p = publish_probe;
+		publish_probe = NULL;
+		p();
+	}
 	return revision;
+}
+
+void setPublishProbeForTest(PublishProbe p)
+{
+	publish_probe = p;
 }
 
 void keepSessionAtLoad(const std::string &token)
 {
-	OpenThreads::ScopedLock<OpenThreads::Mutex> held_lock(loginLock());
-	if (!pending().held)
-		return;
-	forget(pending().keep_session);
-	pending().keep_session = token;
+	std::string replaced;
+	{
+		OpenThreads::ScopedLock<OpenThreads::Mutex> held_lock(loginLock());
+		if (!pending().held)
+			return;
+		replaced = pending().keep_session;
+		forget(pending().keep_session);
+		pending().keep_session = token;
+	}
+	// one named before and not carried by this load any more is let go
+	if (replaced != token)
+		releaseSession(replaced);
+	forget(replaced);
 }
 
 bool firstPasswordWrittenThisRun()
@@ -2468,6 +2495,8 @@ bool load(const std::string &path, const std::string &server_path)
 	const unsigned long long now = publishLogin(l, first);
 	if (now != was && !keep.empty())
 		(void) carrySession(keep, was, now);
+	else if (!keep.empty())
+		releaseSession(keep);
 	forget(keep);
 	forget(first);
 	return true;
