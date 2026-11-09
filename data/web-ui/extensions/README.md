@@ -220,7 +220,28 @@ Key points:
 - **Tell the user why** with `webuiToastError(prefix, e)` from the header
   script: it names the refusal in the page's language (`webuiErrText(e)`
   returns that text for a message of your own) and says nothing when the
-  user cancelled the sign-in the refusal asked for.
+  user cancelled the sign-in the refusal asked for. `webuiShowToast(text,
+  kind)` says anything else: `'ok'` (done, the default), `'note'` (worth
+  knowing, nothing went wrong), `'warn'` (not done, or not yet), `'error'`.
+- **Stay current** (should): what the page shows of the box has a source,
+  an event while the event stream is open, else a read while the page is
+  shown, else a button. Open the stream with `webuiV1Events({name: fn})`
+  and keep each part current with `webuiFollow({reread, events, every})`
+  from the same script: it makes the part's first read itself, once the
+  stream has opened or been refused, on a page that opens none at most a
+  second after it loaded (`first: false` leaves that read to the page,
+  which then makes it after `webuiV1Events`), reads again exactly once
+  when the stream comes back after a refusal, a failure or the page being
+  hidden, and without a stream when the page comes into view and every
+  `every` ms. It opens no stream of its own, so a page that needs
+  none holds none of the box's few places. A hidden page lets its
+  stream go at once; a box that answers the stream with 501 carries none,
+  and the page lives on its reads until it is loaded again. An action whose
+  result the page shows as the box's state says it is done when the box
+  confirms it (an event or a read), not on a 202, which only says the box
+  took it on; one whose target is gone already counts as done, by the
+  refusal's `code` (`no-such-timer`, `no-such-recording`), not by a 404
+  alone.
 
 ## 4. Enable
 

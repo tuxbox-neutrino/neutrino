@@ -223,7 +223,30 @@ Kernpunkte:
   Kopf-Skript: es nennt die Ablehnung in der Sprache der Seite
   (`webuiErrText(e)` liefert den Text für eine eigene Meldung) und
   schweigt, wenn der Nutzer die Anmeldung abgebrochen hat, die die
-  Ablehnung verlangte.
+  Ablehnung verlangte. Alles andere sagt `webuiShowToast(text, art)`:
+  `'ok'` (erledigt, die Vorgabe), `'note'` (gut zu wissen, nichts ging
+  schief), `'warn'` (nicht erledigt oder noch nicht), `'error'`.
+- **Aktuell bleiben** (soll): Was die Seite von der Box zeigt, hat eine
+  Quelle, ein Ereignis, solange der Ereignisstrom offen ist, sonst ein
+  Lesen, solange die Seite zu sehen ist, sonst einen Knopf. Den Strom
+  öffnet `webuiV1Events({name: fn})`, jeden Teil hält
+  `webuiFollow({reread, events, every})` aus demselben Skript aktuell: Es
+  macht das erste Lesen des Teils selbst, sobald der Strom offen ist oder
+  abgelehnt wurde, auf einer Seite ohne Strom spätestens eine Sekunde nach
+  dem Laden (`first: false` überlässt dieses Lesen der Seite, die es dann
+  nach `webuiV1Events` macht), liest genau einmal nach, wenn der Strom
+  nach einer Ablehnung, einem Fehler oder einer versteckten Seite
+  wiederkommt, und ohne Strom, wenn die Seite sichtbar wird und alle
+  `every` ms. Es öffnet keinen eigenen Strom; eine Seite, die keinen
+  braucht, belegt also keinen der wenigen Plätze der Box. Eine versteckte
+  Seite gibt ihren Strom sofort ab; eine Box, die den Strom mit 501
+  beantwortet, trägt keine, und die Seite lebt bis zum Neuladen von ihren
+  Lesungen. Eine Aktion, deren Ergebnis die Seite als Zustand der Box
+  zeigt, gilt als erledigt, wenn die Box es bestätigt (Ereignis oder
+  Lesen), nicht schon bei 202, das nur sagt, dass die Box sie angenommen
+  hat; ist ihr Ziel schon weg, gilt sie als erledigt, entschieden am
+  `code` der Ablehnung (`no-such-timer`, `no-such-recording`), nicht am
+  404 allein.
 
 ## 4. Aktivieren
 
