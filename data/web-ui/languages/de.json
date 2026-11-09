@@ -88,6 +88,7 @@
 	"media.lock": "Am TV läuft „%s“. Erst stoppen.",
 	"media.lock_recording": "Am TV läuft eine Aufnahme. Erst stoppen.",
 	"media.lock_file": "Am TV läuft eine Datei. Erst stoppen.",
+	"media.lock_starting": "Am TV startet „%s“. Einen Moment bitte.",
 	"tools.files": "Dateien",
 	"tools.remote_sub": "Fernbedienung",
 	"rc.fav": "Fav",

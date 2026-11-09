@@ -277,9 +277,10 @@
 
 		/* with a mouse, Play shows while the pointer is on the tile or the
 		   focus in it (so the keyboard never lands on a hidden key), Stop
-		   always; by touch it is always there */
+		   always, and a Play that waits for the box too, so that the wait is
+		   seen; by touch it is always there */
 		@media (hover: hover) {
-			.webui-media-tile-play:not(.stops) {
+			.webui-media-tile-play:not(.stops):not([aria-busy="true"]) {
 				opacity: 0;
 			}
 

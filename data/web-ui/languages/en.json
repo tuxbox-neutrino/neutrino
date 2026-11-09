@@ -88,6 +88,7 @@
 	"media.lock": "“%s” is playing on the TV. Stop it first.",
 	"media.lock_recording": "A recording is playing on the TV. Stop it first.",
 	"media.lock_file": "A file is playing on the TV. Stop it first.",
+	"media.lock_starting": "“%s” is starting on the TV. Wait a moment.",
 	"tools.files": "Files",
 	"tools.remote_sub": "Remote control",
 	"rc.fav": "Fav",

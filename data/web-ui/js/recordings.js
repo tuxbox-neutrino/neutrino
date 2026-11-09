@@ -6,9 +6,11 @@
 // the one chosen with its details and actions in a column beside them on a
 // wide screen, in a sheet on a narrower one. Play on TV turns into Stop while
 // the TV plays the recording, on a box that has the route to stop it, and the
-// recording carries a "Playing" mark wherever it is shown; while the TV plays
-// a recording or a file, Play on TV of every other recording waits and says
-// why. Titles and texts come from the recording's metadata and go in as text.
+// recording carries a "Playing" mark wherever it is shown; Play on TV says it
+// started once the TV plays it, not when the box took the request on; while
+// the TV plays a recording or a file, or a start is under way, Play on TV of
+// every other recording waits and says why. Titles and texts come from the
+// recording's metadata and go in as text.
 const PAGE = 30;
 const SVG_FILM = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M7 4v16M17 4v16M2 9h5M2 15h5M17 9h5M17 15h5"/></svg>';
 const SVG_PLAY = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polygon points="5,3 19,12 5,21"/></svg>';
@@ -36,6 +38,7 @@ let tvPlays = null;		// what the TV's player plays, a recording or a file ({sour
 let playbackSeen = 0;		// counts reads and events of the playback, so an older read does not undo a newer event
 let stateSeq = 0;		// counts what changed what plays (an event, an answer of the playback), so a list that was on its way meanwhile is not taken for news
 let stopping = null;		// {id, timer} from a press of Stop until the playback ends
+let starting = null;		// {id, title} from a press of Play on TV until the box has said whether the TV plays it
 // how long a stop the box took on waits for the playback event before the
 // state is read once
 const STOP_WAIT = 8000;
@@ -387,7 +390,7 @@ function playButton(id, title, kind, leave) {
 	const cls = kind === 'tile' ? 'webui-btn webui-media-tile-play webui-media-play' :
 		kind === 'row' ? 'webui-btn webui-media-play' : 'webui-btn primary webui-media-act-play';
 	const btn = webuiEl('button', {type: 'button', className: cls, data: {play: id, kind: kind, title: title},
-		on: {click: () => playOrStop(id, leave)}});
+		on: {click: e => playOrStop(id, leave, e.currentTarget)}});
 	showPlay(btn);
 	return btn;
 }
@@ -412,28 +415,32 @@ function showPlay(btn) {
 	if (kind !== 'act') btn.setAttribute('aria-label', named + ': ' + btn.dataset.title);
 	// while the TV plays something else, Play waits and says why
 	webuiPlayLock(btn, lockFor(id), kind === 'tile' ? named : '');
-	// busy from the press until the box has ended the playback, without a
-	// second press meanwhile; the mark takes the colour and the position the
-	// button has in the page, so one built while a stop waits is marked once
-	// it is in
-	const busy = !!stopping && stopping.id === id;
+	// busy from the press until the box has ended the playback or has begun
+	// it, without a second press meanwhile; the mark takes the colour and the
+	// position the button has in the page, so one built while a stop or a
+	// start waits is marked once it is in
+	const busy = (!!stopping && stopping.id === id) || (!!starting && starting.id === id);
 	if (busy && !btn.isConnected) {
 		queueMicrotask(() => { if (btn.isConnected) showPlay(btn); });
 		return;
 	}
-	if (busy !== !!btn._stopMarked) {
-		btn._stopMarked = busy;
+	if (busy !== !!btn._busyMarked) {
+		btn._busyMarked = busy;
 		_webuiWaitMark(btn, busy);
 	}
 }
 
 // Why Play on TV of a recording waits, '' where it does not: the TV plays
-// a file or another recording. On a box without the route to stop it the
-// box's own question about stopping stays the way.
+// a file or another recording, or another recording is starting. On a box
+// without the route to stop it the box's own question about stopping stays
+// the way for the first, but a start under way holds the others back all the
+// same: a second start would only meet the question again.
 function lockFor(id) {
-	if (!tvPlays || (tvPlays.source === 'recording' && tvPlays.id === id))
+	if (starting && starting.id === id)
 		return '';
-	return webuiV1OffersNow('POST', '/playback/stop') === false ? '' : webuiPlayLockText(tvPlays);
+	if (tvPlays && !(tvPlays.source === 'recording' && tvPlays.id === id) && webuiV1OffersNow('POST', '/playback/stop') !== false)
+		return webuiPlayLockText(tvPlays);
+	return starting ? webuiL('media.lock_starting', '“%s” is starting on the TV. Wait a moment.').replace('%s', () => starting.title) : '';
 }
 
 // every Play and Stop and every mark of the page as the playback stands now,
@@ -457,16 +464,20 @@ function askStopRoute() {
 }
 
 let lockRead = null;		// the read a press of a waiting Play makes; a press meanwhile does nothing
-async function playOrStop(id, leave) {
-	if (stopping && stopping.id === id) return;
+async function playOrStop(id, leave, btn) {
+	if ((stopping && stopping.id === id) || (starting && starting.id === id)) return;
 	if (id === playingId && webuiV1OffersNow('POST', '/playback/stop') !== false) {
 		stop(id);
 		return;
 	}
-	// a press of a Play that waits reads what plays first, as an end may
-	// have gone by without its event; still waiting, it says why and starts
-	// nothing
+	// a press of a Play that waits for a start says why and starts nothing; one
+	// that waits for the TV's playback reads what plays first, as an end may
+	// have gone by without its event, and says why if it still waits
 	if (lockFor(id)) {
+		if (starting) {
+			webuiShowToast(lockFor(id), 'note');
+			return;
+		}
 		if (lockRead) return;
 		lockRead = readPlayback();
 		await lockRead;
@@ -478,7 +489,33 @@ async function playOrStop(id, leave) {
 		}
 	}
 	if (leave) leave();
-	play(id);
+	start(id, btn);
+}
+
+/* Plays the recording on the TV and says so once the TV plays it: the 202
+   says no more than that the box took the request on, and the box may need
+   seconds (a disk that spins up). Until the box has said, by its playback
+   event or by the reads of webuiPlayRecordingConfirmed, the recording's
+   buttons are busy and every other Play waits. Once the TV plays it the page
+   shows so at once, Stop, the mark and the waits, event or no event. A file
+   the player plays, or a box in standby, is asked about first. */
+async function start(id, btn) {
+	const rec = shown.find(r => r.id === id);
+	const mine = starting = {id: id, title: rec ? titleOf(rec) : (btn && btn.dataset.title) || id};
+	syncPlay();
+	let ok = false;
+	try {
+		ok = await webuiPlayRecordingConfirmed(id, {button: btn});
+	} finally {
+		if (starting === mine) starting = null;
+	}
+	if (ok && playingId !== id) {
+		playbackSeen++;
+		stateSeq++;
+		playingId = id;
+		tvPlays = {source: 'recording', id: id, title: mine.title};
+	}
+	syncPlay();
 }
 
 /* Stops the recording on the TV (POST /api/v1/playback/stop with its id).
@@ -706,9 +743,6 @@ async function showDetail(id) {
 	});
 	sheet.dialog.classList.add('webui-media-sheet');
 }
-
-// On the TV: a file the player plays, or a box in standby, is asked about first
-const play = webuiPlayRecording;
 
 // Delete with a question; the box says why it cannot (recording,
 // playing, a share it may not write)
