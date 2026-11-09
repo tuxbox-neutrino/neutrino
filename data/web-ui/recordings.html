@@ -227,13 +227,21 @@
 			font-variant-numeric: tabular-nums;
 		}
 
-		.webui-media-tile .webui-media-thumb .webui-pill {
+		/* the mark on a picture (a tile's, the column's): the dark ground under
+		   it is dense enough for its words to read on a white picture too */
+		.webui-media-tile .webui-media-thumb .webui-pill,
+		.webui-media-detail .webui-media-thumb .webui-pill {
 			position: absolute;
 			top: 0.6rem;
 			left: 0.6rem;
 			z-index: 1;
-			background: rgba(0, 0, 0, 0.6);
+			background: rgba(0, 0, 0, 0.72);
 			color: #7ee2a8;
+		}
+
+		/* the mark in the sheet, above its facts; hidden it takes no room */
+		dialog.webui-media-sheet .webui-sheet-body > .webui-pill {
+			margin-bottom: 0.6rem;
 		}
 
 		/* a tile's foot: its title and what it is, Play on TV beside them,
@@ -326,7 +334,6 @@
 			padding: 0.6rem 0.25rem 0.75rem 0.75rem;
 		}
 
-		.webui-media-title,
 		.webui-media-meta {
 			display: block;
 			overflow: hidden;
@@ -334,9 +341,27 @@
 			white-space: nowrap;
 		}
 
+		/* the title line: the title gives way to the mark of the recording
+		   that plays (an ellipsis), the mark stays whole */
 		.webui-media-title {
+			display: flex;
+			align-items: center;
+			gap: 0.4rem;
+			min-width: 0;
 			font-weight: 600;
 			font-size: 0.9rem;
+		}
+
+		.webui-media-title-text {
+			min-width: 0;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			white-space: nowrap;
+		}
+
+		.webui-media-title .webui-pill {
+			flex: none;
+			line-height: 1.2;
 		}
 
 		.webui-media-meta {
@@ -391,11 +416,6 @@
 			flex: 1;
 			min-width: 0;
 			line-height: 1.3;
-		}
-
-		.webui-media-row .webui-media-title .webui-pill {
-			margin-left: 0.4rem;
-			vertical-align: 1px;
 		}
 
 		.webui-media-actions {
