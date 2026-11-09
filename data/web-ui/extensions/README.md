@@ -213,8 +213,12 @@ Key points:
   `var done = webuiWaitBegin(webuiWaitButton());` … `done();` from the
   header script, called in the click handler before its first `await`
   (afterwards no button counts as clicked). Every route is described in
-  the box's own document, `/api/openapi.json`. The old `/api/v4/` and
-  `/control/` routes are not part of this contract.
+  the box's own document, `/api/openapi.json`, which matches that box's
+  version, and for the main branch in the API documentation at
+  https://tuxbox-neutrino.github.io/neutrino/. The interface links both:
+  the About window shows both, the side bar and "More" the documentation.
+  The old `/api/v4/` and `/control/` routes are not part of this
+  contract.
 - **Tell the user why** with `webuiToastError(prefix, e)` from the header
   script: it names the refusal in the page's language (`webuiErrText(e)`
   returns that text for a message of your own) and says nothing when the

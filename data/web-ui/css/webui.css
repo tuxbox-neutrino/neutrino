@@ -567,15 +567,41 @@ body:not(.has-subheader) .webui-header-spacer {
 	color: var(--webui-accent);
 }
 
-/* About and the switch side by side; the switch shows its icon alone */
+/* The API documentation on a line of its own above About; About and the
+   switch side by side below it, the switch showing its icon alone */
 .webui-side-foot {
-	display: flex;
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) auto;
 	align-items: center;
 	gap: 2px;
 }
 
+.webui-side-foot .webui-side-doc {
+	grid-column: 1 / -1;
+}
+
+/* The mark after the name of a link that leaves the interface, muted like
+   the icon before the name. In the side bar the name takes the room the
+   line has and the mark stands close behind it, so that the longest name
+   (the German one) fits whole beside the icon and the mark; in More the
+   mark stands at the end of the line. */
+.webui-side-doc .webui-side-label {
+	flex: 1 1 auto;
+}
+
+.webui-side-link svg.webui-link-out {
+	width: 12px;
+	height: 12px;
+	margin-left: -0.4rem;
+}
+
+.webui-more-menu a svg.webui-link-out {
+	width: 14px;
+	height: 14px;
+	margin-left: auto;
+}
+
 .webui-side .webui-side-toggle {
-	flex: none;
 	width: auto;
 }
 
@@ -623,8 +649,13 @@ html.webui-side-narrow .webui-side-toggle svg {
 }
 
 html.webui-side-narrow .webui-side-foot {
-	flex-direction: column;
+	grid-template-columns: minmax(0, 1fr);
 	align-items: stretch;
+}
+
+/* the mark goes with the name, which the narrow bar leaves to the tooltip */
+html.webui-side-narrow .webui-side .webui-link-out {
+	display: none;
 }
 
 html.webui-side-narrow .webui-side .webui-side-toggle {
@@ -927,6 +958,14 @@ html.webui-side-narrow .webui-side .webui-side-toggle {
 	border: 1px solid var(--pico-muted-border-color);
 	border-radius: var(--webui-radius-lg);
 	box-shadow: var(--webui-shadow-hover);
+	/* a window too low for every entry: the menu scrolls inside its box,
+	   which stays above the tab bar with a gap above it */
+	max-height: calc(100vh - var(--webui-tabbar-h) - env(safe-area-inset-bottom, 0px) - 1rem);
+	max-height: calc(100dvh - var(--webui-tabbar-h) - env(safe-area-inset-bottom, 0px) - 1rem);
+	overflow-y: auto;
+	overscroll-behavior: contain;
+	scroll-padding-block: 0.3rem;
+	scrollbar-width: thin;
 }
 
 .webui-more-menu a {
@@ -1695,10 +1734,6 @@ body ul.webui-side-list > li {
 	display: none;
 }
 
-.webui-about-label {
-	color: var(--pico-muted-color);
-}
-
 .webui-about-links {
 	display: flex;
 	flex-wrap: wrap;
@@ -1715,6 +1750,24 @@ body ul.webui-side-list > li {
 	.webui-about-links a:hover {
 		text-decoration: underline;
 	}
+}
+
+/* the description of this box's API beside its version: below the number
+   where the column is too narrow for both; underlined, as it stands in a
+   line of text */
+.webui-about-grid dd.webui-about-api {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: baseline;
+	gap: 0 0.75rem;
+}
+
+.webui-about-api a {
+	color: var(--webui-accent);
+	font-size: 0.85rem;
+	font-weight: 400;
+	text-decoration: underline;
+	text-underline-offset: 0.15em;
 }
 
 .webui-about-legal {

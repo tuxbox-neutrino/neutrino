@@ -6,7 +6,10 @@
 // Central configuration
 const WEBUI_CONFIG = {
 	logo: '/img/logo.png',
-	title: 'Neutrino-Web-UI'
+	title: 'Neutrino-Web-UI',
+	// where the API documentation is published: the side bar, More and the
+	// About window link it
+	apiDocs: 'https://tuxbox-neutrino.github.io/neutrino/'
 };
 
 // i18n helper: reads the texts webui-i18n.js loaded (window.WEBUI_L, the
@@ -43,8 +46,21 @@ const WEBUI_ICONS = {
 	puzzle: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3h4v3a2 2 0 1 0 4 0V3h3v7h-3a2 2 0 1 0 0 4h3v7H3V3h7z"/></svg>',
 	server: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg>',
 	info: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg>',
-	collapse: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="11 17 6 12 11 7"/><polyline points="18 17 13 12 18 7"/></svg>'
+	collapse: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="11 17 6 12 11 7"/><polyline points="18 17 13 12 18 7"/></svg>',
+	code: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>',
+	// the mark after the name of a link that leaves the interface
+	out: '<svg class="webui-link-out" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><path d="M15 3h6v6"/><path d="M10 14L21 3"/></svg>'
 };
+
+/* The link to the API documentation, as the side bar, More and the About
+   window show it: it leaves the interface, so it opens in a tab of its own
+   and gives that tab no handle on this one. The tooltip says what it leads
+   to. */
+function _webuiApiDocsLink(className, inner) {
+	return '<a' + (className ? ' class="' + className + '"' : '') + ' href="' + escapeHtml(WEBUI_CONFIG.apiDocs) +
+		'" target="_blank" rel="noopener noreferrer" title="' +
+		webuiLH('nav.api_docs_tip', 'The box\'s interface, described on GitHub (main branch)') + '">' + inner + '</a>';
+}
 
 // Shared modal close button; its name is set once the texts are in
 // (webuiDialogA11y), as some dialogs are built before
@@ -57,9 +73,11 @@ function _webuiCloseBtn(onclick) {
 /* The About window, built once the texts are in (Phase 4 C, as on the
    approved sample page): the interface's mark, name and version in a head
    tinted with the accent; the versions of the interface, its web server,
-   its API and Neutrino, and for a fork the version of Neutrino-Web-UI it is
-   based on; the box; the links the box names; the licence and the work of
-   others it ships. The name heads the window, so it names the dialog. */
+   its API, with the description of this box's API beside it, and Neutrino,
+   and for a fork the version of Neutrino-Web-UI it is based on; the box;
+   the links, the API documentation first and then those the box names; the
+   licence and the work of others it ships. The name heads the window, so it
+   names the dialog. */
 function webuiAboutHTML() {
 	return `
 <div class="webui-modal-backdrop" id="webui-about-modal" onclick="webuiCloseAbout(event)">
@@ -78,7 +96,8 @@ function webuiAboutHTML() {
 				<dl class="webui-about-grid">
 					<dt id="about-webui-name">${WEBUI_CONFIG.title}</dt><dd id="about-webui">--</dd>
 					<dt>${webuiLH('about.webserver', 'Web server')}</dt><dd id="about-webserver">--</dd>
-					<dt>${webuiLH('about.api', 'Interface (API)')}</dt><dd id="about-api">--</dd>
+					<dt>${webuiLH('about.api', 'Interface (API)')}</dt>
+					<dd class="webui-about-api"><span id="about-api">--</span> <a href="/api/openapi.json" target="_blank" rel="noopener noreferrer" title="${webuiLH('about.api_doc_box_tip', 'This box\'s own description of its interface, matching its version (OpenAPI, JSON)')}">${webuiLH('about.api_doc_box', 'Description of this box (openapi.json)')}</a></dd>
 					<dt>Neutrino</dt><dd id="about-neutrino">--</dd>
 				</dl>
 				<p class="webui-about-base" id="about-base" hidden></p>
@@ -94,7 +113,7 @@ function webuiAboutHTML() {
 			<section class="webui-about-section">
 				<h4>${webuiLH('about.links', 'Links')}</h4>
 				<div class="webui-about-links" id="about-links">
-					<span class="webui-about-label">${webuiLH('msg.loading', 'Loading...')}</span>
+					${_webuiApiDocsLink('', webuiLH('nav.api_docs', 'API documentation'))}
 				</div>
 			</section>
 			<section class="webui-about-section">
@@ -1153,6 +1172,10 @@ function webuiToggleMoreMenu(ev) {
 	menu = document.createElement('div');
 	menu.id = 'webui-more-menu';
 	menu.className = 'webui-more-menu';
+	// a window too low for every entry makes the menu scroll: a drag inside it
+	// is its own, and the page's pull to refresh, which looks at every touch of
+	// the page, does not take it
+	menu.addEventListener('touchstart', function(e) { e.stopPropagation(); }, {passive: true});
 	areas.filter(function(a) { return !a.tab; }).forEach(function(a) {
 		var item = document.createElement('a');
 		item.href = a.pages.length ? a.pages[0].href : '#';
@@ -1166,7 +1189,18 @@ function webuiToggleMoreMenu(ev) {
 		}
 		menu.appendChild(item);
 	});
-	// About, which the side bar of a wider screen has at its foot
+	// the API documentation and About, which the side bar of a wider screen
+	// has at its foot; the documentation opens a tab of its own, so the menu
+	// closes and More keeps the focus
+	menu.insertAdjacentHTML('beforeend', _webuiApiDocsLink('', WEBUI_ICONS.code + '<span>' +
+		webuiLH('nav.api_docs', 'API documentation') + '</span>' + WEBUI_ICONS.out));
+	menu.lastElementChild.addEventListener('click', function() {
+		menu.remove();
+		if (btn) {
+			btn.setAttribute('aria-expanded', 'false');
+			btn.focus();
+		}
+	});
 	var about = document.createElement('button');
 	about.type = 'button';
 	about.innerHTML = WEBUI_ICONS.info + '<span>' + webuiLH('about.link', 'About') + '</span>';
@@ -1215,8 +1249,9 @@ function webuiToggleMoreMenu(ev) {
 }
 
 /* The side bar of a wider screen: the interface's name and the box's, the
-   pages in their groups (webuiRenderNav), Settings, About and the switch to
-   a narrow bar of icons, which the browser keeps (webuiToggleSide). */
+   pages in their groups (webuiRenderNav), Settings, the API documentation,
+   About and the switch to a narrow bar of icons, which the browser keeps
+   (webuiToggleSide). */
 function webuiGetSideHTML() {
 	return `
 <aside class="webui-side" id="webui-side">
@@ -1229,6 +1264,8 @@ function webuiGetSideHTML() {
 		<ul class="webui-side-links webui-side-end" id="webui-side-end"></ul>
 	</nav>
 	<div class="webui-side-foot">
+		${_webuiApiDocsLink('webui-side-link webui-side-doc', WEBUI_ICONS.code + '<span class="webui-side-label">' +
+			webuiLH('nav.api_docs', 'API documentation') + '</span>' + WEBUI_ICONS.out)}
 		<button type="button" class="webui-side-link" onclick="webuiShowAbout()" title="${webuiLH('about.tip', 'Versions, licence and links')}">
 			${WEBUI_ICONS.info}<span class="webui-side-label">${webuiLH('about.link', 'About')}</span>
 		</button>
@@ -3982,7 +4019,9 @@ function webuiShowAbout() {
 				base.textContent = data.webui_base ? webuiL('about.based_on', 'based on Neutrino-Web-UI %s').replace('%s', data.webui_base) : '';
 			}
 
-			// Build links from API data
+			// the links the box names, after the API documentation, which
+			// stands there whatever the box says and stays the element it is,
+			// so that a focus on it is kept
 			const linksEl = document.getElementById('about-links');
 			if (linksEl && data.links) {
 				let html = '';
@@ -3991,7 +4030,9 @@ function webuiShowAbout() {
 				};
 				html += link(data.links.homepage, webuiLH('about.homepage', 'Homepage')) + link(data.links.docs, webuiLH('about.docs', 'Documentation')) +
 					link(data.links.forum, webuiLH('about.forum', 'Forum'));
-				linksEl.innerHTML = html || '<span class="webui-about-label">' + webuiLH('about.no_links', 'No links available') + '</span>';
+				while (linksEl.children.length > 1)
+					linksEl.lastElementChild.remove();
+				linksEl.insertAdjacentHTML('beforeend', html);
 			}
 
 			// Update copyright from API
@@ -3999,10 +4040,7 @@ function webuiShowAbout() {
 				setEl('about-copyright', data.copyright.text);
 		})
 		.catch(() => {
-			// nothing to offer then, instead of a loading text for good
-			const linksEl = document.getElementById('about-links');
-			if (linksEl)
-				linksEl.innerHTML = '<span class="webui-about-label">' + webuiLH('about.no_links', 'No links available') + '</span>';
+			// the box's links stay out; the API documentation is there already
 		});
 
 	// the box and its system, over /api/v1/system/info
