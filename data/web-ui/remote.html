@@ -31,7 +31,8 @@
 
 	/* the full-screen view: over the head and the side bar, the toggle in
 	   the top right corner, the remote in the middle of what is left and
-	   scrolled where the screen is lower than it */
+	   scrolled where the screen is lower than it; at the bottom no
+	   safe-area strip, as for the tab bar (css/webui.css, --webui-tabbar-h) */
 	.webui-remote-page.webui-remote-full {
 		position: fixed;
 		inset: 0;
@@ -40,7 +41,7 @@
 		flex-direction: column;
 		max-width: none;
 		margin: 0;
-		padding: max(0.5rem, env(safe-area-inset-top)) max(0.75rem, env(safe-area-inset-right)) max(1rem, env(safe-area-inset-bottom)) max(0.75rem, env(safe-area-inset-left));
+		padding: max(0.5rem, env(safe-area-inset-top)) max(0.75rem, env(safe-area-inset-right)) 1rem max(0.75rem, env(safe-area-inset-left));
 		overflow-y: auto;
 		overscroll-behavior: contain;
 		background: var(--pico-background-color);
