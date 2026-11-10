@@ -4360,6 +4360,24 @@ var _webuiWaitHide = null;	// the timer that takes it away
 var _webuiWaitSince = 0;	// when the bar came, 0 while it is away
 var _webuiClicked = null;	// the button of the click being handled
 
+/* A text area that takes the focus is shown whole where it fits in the
+   page's scrolling area: the browser brings only its caret into sight, so
+   one near the foot stayed mostly below the area's edge, on a phone behind
+   the tab bar. */
+document.addEventListener('focusin', function(e) {
+	var el = e.target;
+	if (!el || el.tagName !== 'TEXTAREA')
+		return;
+	requestAnimationFrame(function() {
+		var area = el.closest('main');
+		if (!area || document.activeElement !== el)
+			return;
+		var r = el.getBoundingClientRect(), a = area.getBoundingClientRect();
+		if (r.height <= a.height && (r.bottom > a.bottom || r.top < a.top))
+			el.scrollIntoView({block: 'nearest'});
+	});
+});
+
 /* The button of the click the page handles right now: known before the
    page's own handlers run, gone once they and what they started at once
    are through. */
