@@ -62,10 +62,11 @@ function _webuiApiDocsLink(className, inner) {
 		webuiLH('nav.api_docs_tip', 'The box\'s interface, described on GitHub (main branch)') + '">' + inner + '</a>';
 }
 
-// Shared modal close button; its name is set once the texts are in
-// (webuiDialogA11y), as some dialogs are built before
+// Shared modal close button, named in the page's language: a dialog built
+// after the texts are in (the remote) takes the name at once, one built
+// before gets it when the texts arrive (data-l-aria-label)
 function _webuiCloseBtn(onclick) {
-	return '<button type="button" class="webui-modal-close" aria-label="Close" data-l-aria-label="msg.close" onclick="' + onclick + '">' +
+	return '<button type="button" class="webui-modal-close" aria-label="' + webuiLH('msg.close', 'Close') + '" data-l-aria-label="msg.close" onclick="' + onclick + '">' +
 		'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" focusable="false"><path d="M6 18L18 6M6 6l12 12"/></svg>' +
 	'</button>';
 }
