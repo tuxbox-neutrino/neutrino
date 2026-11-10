@@ -1639,7 +1639,9 @@ async function webuiShowEpgModal(channelId, channelName, opts) {
 		}
 
 		// its short text under the title, its long text below; a short text
-		// that is the only and a long one goes below as well
+		// that is the only and a long one goes below as well. "No
+		// description" only where the programme has no text at all: a short
+		// text under the title is its description
 		const full = ev.id ? await _webuiV1Maybe('/epg/event', {id: ev.id, start: ev.start}).catch(function() { return null; }) : null;
 		if (token !== _webuiEpgModalToken) return;
 		const short = (full && full.description) || ev.description || '';
@@ -1647,7 +1649,7 @@ async function webuiShowEpgModal(channelId, channelName, opts) {
 		const shortUp = short && (long || short.length <= 120);
 		subEl.textContent = shortUp ? short : '';
 		subEl.hidden = !shortUp;
-		descEl.textContent = long || (shortUp ? '' : short) || webuiL('epg.no_desc', 'No description available');
+		descEl.textContent = long || (shortUp ? '' : short) || (short ? '' : webuiL('epg.no_desc', 'No description available'));
 
 		// the next two on the channel, each with a zap timer of its own
 		const win = await _webuiV1Maybe('/epg', {channel: channelId, from: end, to: end + 6 * 3600}).catch(function() { return null; });
