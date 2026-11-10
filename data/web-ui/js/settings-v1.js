@@ -1131,8 +1131,12 @@ function v1setCount(card) {
 	var all = card.querySelectorAll('[data-v1row]').length;
 	var drifting = card.querySelectorAll('[data-v1row].is-drift').length;
 	var p = card.querySelector('.webui-set-count');
+	// one setting, and one of them, in the singular
 	if (p)
-		p.textContent = webuiL('set.count', '{count} settings, {drifting} of them differ from delivery')
+		p.textContent = (all === 1 ? (drifting ? webuiL('set.count_single_drift', '1 setting, it differs from delivery') :
+				webuiL('set.count_single', '1 setting')) :
+			drifting === 1 ? webuiL('set.count_one', '{count} settings, 1 of them differs from delivery') :
+			webuiL('set.count', '{count} settings, {drifting} of them differ from delivery'))
 			.replace('{count}', all).replace('{drifting}', drifting);
 	card.querySelectorAll('details[data-v1group]').forEach(function(g) {
 		var pill = g.querySelector(':scope > summary > .webui-pill');
