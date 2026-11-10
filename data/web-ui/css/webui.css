@@ -1500,12 +1500,15 @@ body ul.webui-side-list > li {
 	border-top: 1px solid var(--pico-muted-border-color);
 }
 
+/* the page's text colour, not var(--pico-color): on a button Pico sets that
+   to the colour of text on its filled buttons, white in light and near
+   black in dark, which left "Cancel" unreadable on this grey */
 .webui-modal-footer button {
 	padding: 0.45rem 1.2rem;
 	border-radius: var(--webui-radius);
 	border: 1px solid var(--pico-muted-border-color);
 	background: var(--pico-card-sectioning-background-color);
-	color: var(--pico-color);
+	color: var(--webui-text-primary);
 	cursor: pointer;
 	font-size: var(--webui-font-sm);
 }
