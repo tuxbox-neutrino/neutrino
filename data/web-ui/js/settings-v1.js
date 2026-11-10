@@ -154,15 +154,28 @@ async function _v1setReadValues() {
 }
 
 // Reads the schema (once) and every section's values; false when the box
-// has no settings interface, and the page then keeps to the registry. Once
-// the schema is read it stays: a failed read of the values later keeps the
-// last ones and every refused input, and says so.
+// has no settings interface (it answers 404 or 405 for the schema), and the
+// page then keeps to the registry. Any other failure of the first read is
+// thrown, so the page says it and offers to read again, rather than showing
+// a smaller, older choice as if it were the box's. Once the schema is read
+// it stays: a failed read of the values later keeps the last ones and every
+// refused input, and says so.
+async function _v1setSchemaRead(path) {
+	try {
+		return await webuiV1('GET', path);
+	} catch (e) {
+		if (e && !e.cancelled && (e.status === 404 || e.status === 405))
+			e.noInterface = true;
+		throw e;
+	}
+}
+
 async function v1setLoad() {
 	var had = V1SET.ok;
 	try {
 		if (!had) {
-			var schema = await webuiV1('GET', '/settings/schema');
-			var sections = await webuiV1('GET', '/settings/sections');
+			var schema = await _v1setSchemaRead('/settings/schema');
+			var sections = await _v1setSchemaRead('/settings/sections');
 			V1SET.items = Object.create(null);
 			V1SET.unavailable = Object.create(null);
 			V1SET.bySection = Object.create(null);
@@ -208,10 +221,15 @@ async function v1setLoad() {
 			V1SET.values = values;
 		V1SET.ok = true;
 	} catch (e) {
-		if (had)
+		if (had) {
 			webuiShowToast(webuiL('set.reread_fail', 'Reading the settings again failed; they show what was read before'), true);
-		else
+		} else {
 			V1SET.ok = false;
+			if (!e || !e.noInterface) {
+				_v1setArrange();
+				throw e;
+			}
+		}
 	}
 	_v1setArrange();
 	return V1SET.ok;

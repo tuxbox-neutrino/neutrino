@@ -769,7 +769,6 @@
 	"set.plugins_loading": "Loading plugins...",
 	"set.plugins_none": "No plugins installed",
 	"set.plugins_reload": "Re-read the plugin list",
-	"set.plugins_notavail": "Plugins not available",
 	"set.plugin_requested": "Start requested",
 	"set.plugins_running": "A plugin is running",
 	"set.plugins_running_text": "The box starts no other until it has ended; it ends at the box or with the remote control.",

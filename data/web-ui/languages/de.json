@@ -769,7 +769,6 @@
 	"set.plugins_loading": "Lade Plugins...",
 	"set.plugins_none": "Keine Plugins installiert",
 	"set.plugins_reload": "Plugin-Liste neu einlesen",
-	"set.plugins_notavail": "Plugins nicht verfügbar",
 	"set.plugin_requested": "Start angefordert",
 	"set.plugins_running": "Ein Plugin läuft",
 	"set.plugins_running_text": "Die Box startet kein weiteres, bis es beendet ist; beenden lässt es sich an der Box oder mit der Fernbedienung.",

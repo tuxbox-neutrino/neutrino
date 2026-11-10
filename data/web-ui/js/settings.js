@@ -622,6 +622,15 @@ function settingsLoading(text) {
 	return webuiState('loading', text, '').outerHTML;
 }
 
+// A panel whose read failed says why and offers to read again (or to sign
+// in, where the sign-in was cancelled), loading in the meantime
+function settingsPanelFailed(el, e, again) {
+	el.replaceChildren(webuiStateFor(e, {retry: function() {
+		el.replaceChildren(webuiState('loading', webuiL('msg.loading', 'Loading...'), ''));
+		again();
+	}}));
+}
+
 function renderExtConfigPanel(cat) {
 	setTimeout(function() { loadExtConfigPanel(cat); }, 0);
 	return '<div class="settings-card">' + makeCardHeader(cat.label) +
@@ -677,7 +686,7 @@ async function loadExtConfigPanel(cat) {
 			}
 		}
 	} catch (e) {
-		el.innerHTML = '<div class="webui-form-row"><label>' + webuiLH('set.notavail', 'Not available') + ': ' + escapeHtml(webuiErrText(e)) + '</label></div>';
+		settingsPanelFailed(el, e, function() { loadExtConfigPanel(cat); });
 	}
 }
 
@@ -1352,8 +1361,7 @@ async function loadWolPanel() {
 		el.replaceChildren(section);
 		el.insertAdjacentHTML('beforeend', makePanelSaveRow('wolSave(this)'));
 	} catch (e) {
-		el.replaceChildren(webuiEl('div', {className: 'webui-form-row'},
-			webuiEl('label', {}, webuiL('set.notavail', 'Not available') + ': ' + webuiErrText(e))));
+		settingsPanelFailed(el, e, loadWolPanel);
 	}
 }
 
@@ -1451,7 +1459,7 @@ async function loadXmltvPanel() {
 			'<span class="webui-row-actions">' + settingsOwnNote() +
 			'<button type="button" class="webui-btn primary" onclick="saveXmltv(this)">' + SAVE_ICON + webuiLH('bqe.save_reload', 'Save and reload') + '</button></span></div>';
 	} catch (e) {
-		el.innerHTML = '<div class="webui-form-row"><label>' + webuiLH('set.notavail', 'Not available') + ': ' + escapeHtml(webuiErrText(e)) + '</label></div>';
+		settingsPanelFailed(el, e, loadXmltvPanel);
 	}
 }
 
@@ -1719,7 +1727,7 @@ async function loadPluginsPanel() {
 		webuiArrowKeys(installed, '.webui-plugin-start, .webui-plugin-hide', '', {near: true});
 		pluginShowRunning(!!data.running);
 	} catch (e) {
-		el.replaceChildren(pluginRow(webuiL('set.plugins_notavail', 'Plugins not available') + ': ' + webuiErrText(e)));
+		settingsPanelFailed(el, e, loadPluginsPanel);
 	}
 }
 
@@ -1815,7 +1823,7 @@ async function loadSharesPanel() {
 		var data = await webuiV1('GET', '/storage/shares');
 		drawShares(el, (data && data.items) || []);
 	} catch (e) {
-		el.replaceChildren(webuiEl('p', {}, webuiL('msg.error', 'Error') + ': ' + webuiErrText(e)));
+		settingsPanelFailed(el, e, loadSharesPanel);
 	}
 }
 
