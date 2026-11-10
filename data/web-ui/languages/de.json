@@ -483,6 +483,7 @@
 	"tm.expired": "Erledigt",
 	"tm.loading": "Lade Timer...",
 	"tm.none_found": "Keine Timer gefunden",
+	"tm.empty_hint": "Mit „Neuer Timer“ anlegen oder im EPG eine Sendung wählen.",
 	"tm.edit_title": "Timer bearbeiten",
 	"tm.edit": "Bearbeiten",
 	"tm.stop": "Beenden",

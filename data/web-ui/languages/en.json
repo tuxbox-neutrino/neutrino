@@ -483,6 +483,7 @@
 	"tm.expired": "Done",
 	"tm.loading": "Loading timers...",
 	"tm.none_found": "No timers found",
+	"tm.empty_hint": "Add one with “New timer”, or choose a programme in the EPG.",
 	"tm.edit_title": "Edit timer",
 	"tm.edit": "Edit",
 	"tm.stop": "Stop",
