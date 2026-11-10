@@ -2860,6 +2860,17 @@ input[type=week]:focus-within,
 	--pico-box-shadow: none;
 }
 
+/* A button no class gives a ring of its own (a round help button, the
+   head of a folded entry) takes the same one, below every rule of a
+   class; Pico gives it only a shadow at a quarter of the accent, under
+   3:1. The summary line of a folded section likewise: Pico draws its
+   outline in that pale accent. */
+:where(button, [role="button"]):focus-visible,
+details summary:focus-visible:not([role]) {
+	outline: 2px solid var(--webui-focus-color);
+	outline-offset: 2px;
+}
+
 /* The entries of menus and of the lists beside a page's content: the ring
    inside the entry, as the box around them scrolls or clips (the side
    bar's list, the row of pages, the bouquets) and cut it off at its edge */
