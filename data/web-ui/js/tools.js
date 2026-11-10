@@ -99,7 +99,8 @@ async function bcWait(kind, before, drops) {
 		return;
 	}
 	var title = webuiL(t.title[0], t.title[1]);
-	bcShowWait(title, webuiState('loading', webuiL(t.wait[0], t.wait[1]), webuiL('bc.wait_text', 'The page waits until the box answers again, and then loads anew.')));
+	bcShowWait(title, webuiState('loading', webuiL(t.wait[0], t.wait[1]), webuiL('bc.wait_text', 'The page waits until the box answers again, and then loads anew.'),
+		{patient: true}));
 	var away = false;
 	var answered = false;
 	var until = Date.now() + 180000;

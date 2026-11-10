@@ -243,6 +243,7 @@
 	"state.sign_in": "This needs a sign-in",
 	"state.sign_in_btn": "Sign in",
 	"state.failed": "Could not be read",
+	"state.late": "No answer from the box yet. It may be busy or out of reach.",
 	"err.kind_input": "The box did not accept the input",
 	"err.kind_refused": "Not allowed",
 	"err.kind_not_found": "Not found on the box",

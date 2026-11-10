@@ -243,6 +243,7 @@
 	"state.sign_in": "Dafür braucht es eine Anmeldung",
 	"state.sign_in_btn": "Anmelden",
 	"state.failed": "Ließ sich nicht lesen",
+	"state.late": "Noch keine Antwort von der Box. Sie ist vielleicht beschäftigt oder nicht erreichbar.",
 	"err.kind_input": "Die Box hat die Eingabe nicht angenommen",
 	"err.kind_refused": "Nicht erlaubt",
 	"err.kind_not_found": "Auf der Box nicht gefunden",

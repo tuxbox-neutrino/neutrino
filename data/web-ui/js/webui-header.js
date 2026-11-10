@@ -3952,14 +3952,24 @@ function webuiErrText(e) {
 
 /* A block that says why a list or a card holds nothing (Phase 4 S3): kind
    'loading', 'empty', 'error' or 'sign-in'. title and text are text;
-   opts.retry adds a Reload button, opts.action ({label, onClick}) another
-   one. An error is announced, a loading block marked busy. */
+   opts.retry adds a Reload button (to a loading block only once the box is
+   late, see below), opts.action ({label, onClick}) another one. An error
+   is announced, a loading block marked busy. */
 var WEBUI_STATE_ICONS = {
 	loading: '<path d="M21 12a9 9 0 1 1-6.2-8.6"/>',
 	empty: '<circle cx="12" cy="12" r="9"/><path d="M8 12h8"/>',
 	error: '<path d="M12 3 2 21h20zM12 10v4M12 18h.01"/>',
 	'sign-in': '<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>'
 };
+
+var WEBUI_STATE_LATE = 15000;	// ms a loading block waits before it says so
+var _webuiLateTimer = null;	// the one timer that looks for loading blocks left waiting
+var _webuiLateDue = 0;		// when it runs (ms)
+var _webuiLateMade = 0;		// when the newest loading block was made (ms)
+var _webuiLateObs = null;	// watches the page while a block waits or holds the focus
+var _webuiLateCleanup = null;	// ends that watch once a block made lately can no longer come
+var _webuiLateHeld = null;	// {block, at}: a told block with the focus, and the boxes it stood in
+var _webuiLateWaiting = '.webui-state.loading[data-webui-since]:not([data-webui-late])';
 
 function webuiState(kind, title, text, opts) {
 	opts = opts || {};
@@ -3993,10 +4003,191 @@ function webuiState(kind, title, text, opts) {
 	};
 	if (opts.action)
 		button(opts.action.label, opts.action.onClick, true, opts.action.tip);
-	if (opts.retry)
+	if (opts.retry && kind !== 'loading')
 		button(webuiL('bc.reload', 'Reload'), opts.retry, !opts.action, webuiL('tip.retry', 'Ask the box again'));
+	// a loading block says so when the box leaves it waiting (_webuiLateCheck);
+	// it is a status from the start, so what it adds then is announced.
+	// opts.patient: a wait known to take long (a restart) says nothing more
+	if (kind === 'loading' && !opts.patient) {
+		box.setAttribute('role', 'status');
+		_webuiLateMade = Date.now();
+		box.setAttribute('data-webui-since', String(_webuiLateMade));
+		if (opts.retry)
+			box._webuiRetry = opts.retry;
+		_webuiLateObserve();
+		_webuiLateWatch(_webuiLateMade + WEBUI_STATE_LATE);
+	}
 	return box;
 }
+
+/* A loading block the box leaves unanswered for WEBUI_STATE_LATE ms says so
+   and offers Reload; the read goes on, and its answer replaces the block as
+   before. A block carries the time it was made (data-webui-since), so one a
+   page puts in as markup (its outerHTML) is found as well, and one replaced
+   or taken away before is no longer in the page and drops out. One timer
+   looks for them, set for the next that is due, and none is left once no
+   block waits in the page; a block once told (data-webui-late) is not told
+   again. While a block was made lately (it may not be in the page yet), one
+   waits or a told one holds the focus, a MutationObserver follows the page.
+   The page hidden (pagehide) stops both; shown again from the browser's
+   cache (pageshow), the blocks still waiting are looked for again.
+
+   Reload runs the page's own retry (opts.retry) on the block it was given
+   to. On any other block it dispatches the cancelable, bubbling event
+   'webui-retry' (detail.block: the block) from the block: a page that can
+   read that part again listens on a box around it, calls preventDefault()
+   and reads again; where none does, the page is loaded anew.
+
+   The answer that replaces a told block while the focus is in it (on its
+   Reload) leaves the focus on the first control of the nearest box it stood
+   in that is still in the page, else on that box (tabindex -1); a focus the
+   page has put elsewhere by then is left alone. */
+function _webuiLateWatch(due) {
+	if (_webuiLateTimer && _webuiLateDue <= due)
+		return;
+	clearTimeout(_webuiLateTimer);
+	_webuiLateDue = due;
+	_webuiLateTimer = setTimeout(_webuiLateCheck, Math.max(50, due - Date.now()));
+}
+
+function _webuiLateCheck() {
+	_webuiLateTimer = null;
+	var now = Date.now();
+	document.querySelectorAll(_webuiLateWaiting).forEach(function(box) {
+		if (Number(box.getAttribute('data-webui-since')) + WEBUI_STATE_LATE <= now)
+			_webuiStateLate(box);
+	});
+	_webuiLateSync();
+}
+
+// the timer set for the next block waiting in the page, none without one
+function _webuiLateSync() {
+	clearTimeout(_webuiLateCleanup);
+	_webuiLateCleanup = null;
+	var next = Infinity;
+	document.querySelectorAll(_webuiLateWaiting).forEach(function(box) {
+		next = Math.min(next, Number(box.getAttribute('data-webui-since')) + WEBUI_STATE_LATE);
+	});
+	if (next !== Infinity) {
+		_webuiLateWatch(next);
+		return;
+	}
+	clearTimeout(_webuiLateTimer);
+	_webuiLateTimer = null;
+	if (!_webuiLateObs || _webuiLateHeld)
+		return;
+	// a block made lately may still be put in: the watch ends when it no longer can
+	var left = _webuiLateMade + WEBUI_STATE_LATE - Date.now();
+	if (left > 0) {
+		_webuiLateCleanup = setTimeout(_webuiLateSync, left);
+		return;
+	}
+	_webuiLateObs.disconnect();
+	_webuiLateObs = null;
+}
+
+function _webuiLateObserve() {
+	if (_webuiLateObs || typeof MutationObserver !== 'function')
+		return;
+	_webuiLateObs = new MutationObserver(_webuiLateChanged);
+	_webuiLateObs.observe(document.documentElement, {childList: true, subtree: true});
+}
+
+function _webuiLateChanged() {
+	// a block still held when it goes took the focus with it: a focus that
+	// moved on before let it go (focusin, focusout below)
+	var held = _webuiLateHeld;
+	if (held && !held.block.isConnected) {
+		_webuiLateHeld = null;
+		_webuiLateRefocus(held.at);
+	}
+	_webuiLateSync();
+}
+
+function _webuiLateRefocus(boxes) {
+	var box = boxes.filter(function(n) { return n.isConnected; })[0];
+	if (!box)
+		return;
+	var first = Array.prototype.filter.call(box.querySelectorAll('a[href], button, input, select, textarea, [tabindex]'), function(c) {
+		return !c.disabled && c.type !== 'hidden' && c.getAttribute('tabindex') !== '-1' && c.getClientRects().length > 0;
+	})[0];
+	if (!first) {
+		if (!box.hasAttribute('tabindex'))
+			box.setAttribute('tabindex', '-1');
+		first = box;
+	}
+	first.focus({preventScroll: true});
+}
+
+function _webuiStateLate(box) {
+	box.setAttribute('data-webui-late', '');
+	box.removeAttribute('aria-busy');
+	var p = document.createElement('p');
+	p.textContent = webuiL('state.late', 'No answer from the box yet. It may be busy or out of reach.');
+	box.appendChild(p);
+	var b = document.createElement('button');
+	b.type = 'button';
+	b.className = 'webui-btn primary';
+	b.textContent = webuiL('bc.reload', 'Reload');
+	b.title = webuiL('tip.retry', 'Ask the box again');
+	b.addEventListener('click', function() {
+		if (box._webuiRetry) {
+			box._webuiRetry();
+			return;
+		}
+		if (box.dispatchEvent(new CustomEvent('webui-retry', {bubbles: true, cancelable: true, detail: {block: box}})))
+			location.reload();
+	});
+	box.appendChild(b);
+}
+
+// a told block that takes the focus is held (_webuiLateChanged); a focus that
+// goes anywhere else, or to nothing while the block stays, lets it go
+document.addEventListener('focusin', function(e) {
+	var block = e.target && e.target.closest ? e.target.closest('.webui-state[data-webui-since]') : null;
+	if (!block) {
+		if (_webuiLateHeld) {
+			_webuiLateHeld = null;
+			_webuiLateSync();
+		}
+		return;
+	}
+	var at = [];
+	for (var n = block.parentElement; n && n !== document.documentElement; n = n.parentElement)
+		at.push(n);
+	_webuiLateHeld = {block: block, at: at};
+	_webuiLateObserve();
+});
+
+document.addEventListener('focusout', function(e) {
+	var held = _webuiLateHeld;
+	if (!held || e.relatedTarget)
+		return;
+	setTimeout(function() {
+		if (_webuiLateHeld === held && held.block.isConnected && !held.block.contains(document.activeElement)) {
+			_webuiLateHeld = null;
+			_webuiLateSync();
+		}
+	}, 0);
+});
+
+window.addEventListener('pagehide', function() {
+	clearTimeout(_webuiLateTimer);
+	_webuiLateTimer = null;
+	clearTimeout(_webuiLateCleanup);
+	_webuiLateCleanup = null;
+	if (_webuiLateObs) {
+		_webuiLateObs.disconnect();
+		_webuiLateObs = null;
+	}
+});
+
+window.addEventListener('pageshow', function(e) {
+	if (!e.persisted || !(document.querySelector(_webuiLateWaiting) || _webuiLateHeld))
+		return;
+	_webuiLateObserve();
+	_webuiLateSync();
+});
 
 /* The block for a read that failed: a sign-in to offer where the user
    cancelled it (and the read again once signed in), else why, in the page's
