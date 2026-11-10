@@ -540,6 +540,15 @@
 				max-height: calc(var(--webui-media-room, 100dvh) - var(--webui-media-bar-h, 3rem) - 2rem);
 				overflow-y: auto;
 			}
+
+			/* no recordings to choose from: no column, the list across */
+			.webui-media.webui-media-alone {
+				grid-template-columns: minmax(0, 1fr);
+			}
+
+			.webui-media-detail[hidden] {
+				display: none;
+			}
 		}
 
 		.webui-media-detail .webui-media-thumb {

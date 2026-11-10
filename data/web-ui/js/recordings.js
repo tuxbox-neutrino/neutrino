@@ -735,11 +735,20 @@ function choose(rec) {
 }
 
 // The column beside the list: the chosen recording's picture, title, facts
-// and text, Play on TV and the other actions; without one, how to choose
+// and text, Play on TV and the other actions; without one, how to choose.
+// A list without recordings offers nothing to choose: the column goes and
+// the list's own empty state stands alone.
 async function showBeside(id) {
 	const box = document.getElementById('mediaDetail');
 	if (!box) return;
 	const token = ++detailToken;
+	const none = !id && !shown.length;
+	box.hidden = none;
+	box.parentElement.classList.toggle('webui-media-alone', none);
+	if (none) {
+		box.replaceChildren();
+		return;
+	}
 	if (!id) {
 		box.replaceChildren(webuiState('empty', webuiL('media.choose', 'No recording chosen'),
 			webuiL('media.choose_hint', 'Choose a recording to see its details here.')));
