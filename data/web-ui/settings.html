@@ -553,6 +553,40 @@
 		.mount-slot-header .webui-pill[hidden] {
 			display: none;
 		}
+		/* the settings the box refused at the last save, each a way to its
+		   field; their categories marked in the menu */
+		.webui-set-problems {
+			margin-bottom: 0.5rem;
+			padding: 0.6rem 0.85rem;
+			border: 1px solid var(--webui-danger);
+			border-left-width: 4px;
+			border-radius: var(--webui-radius);
+			background: var(--pico-card-background-color);
+			color: var(--pico-color);
+			font-size: var(--webui-font-sm);
+		}
+		.webui-set-problems[hidden] {
+			display: none;
+		}
+		.webui-set-problems ul {
+			margin: 0.3rem 0 0;
+			padding-left: 1.1rem;
+		}
+		.webui-set-problems li {
+			margin: 0.15rem 0;
+		}
+		.webui-set-problems:focus-visible {
+			outline: 2px solid var(--webui-focus-color);
+			outline-offset: 2px;
+		}
+		#settingsSidebar .settings-nav-refused {
+			flex: none;
+			width: 0.5rem;
+			height: 0.5rem;
+			margin-left: auto;
+			border-radius: 50%;
+			background: var(--webui-danger);
+		}
 		/* a category the bar's changes are in, a way there */
 		.settings-bar-cat {
 			--pico-color: inherit;
@@ -806,6 +840,8 @@
 				<span id="settingsSearchCount" class="webui-set-hitcount" aria-live="polite"></span>
 			</search>
 			<div id="settingsHits" class="settings-card" hidden></div>
+			<!-- what the box refused at the last save (settingsProblemsShow) -->
+			<div id="settingsProblems" class="webui-set-problems" tabindex="-1" hidden></div>
 			<div id="settingsContent">
 				<!-- webuiState('loading'), here before the scripts are in -->
 				<div class="webui-state loading" aria-busy="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M21 12a9 9 0 1 1-6.2-8.6"/></svg><strong data-l="set.loading">Loading settings...</strong></div>

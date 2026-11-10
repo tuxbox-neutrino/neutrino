@@ -2263,6 +2263,11 @@ function switchCategory(catId) {
 		content.appendChild(panel);
 		renderedPanels[catId] = true;
 		v1setApplyConditions();
+		// a row the box refused is in sight, what folds it opened
+		panel.querySelectorAll('details').forEach(function(d) {
+			if (d.querySelector('.webui-set-error'))
+				d.open = true;
+		});
 	}
 	panel.classList.add('active');
 	// a folder of a row that is not there now, asked each time it shows
@@ -2389,6 +2394,7 @@ function discardSettings() {
 	var cat = activeCategory;
 	activeCategory = '';
 	switchCategory(cat);
+	settingsProblemsShow(false);
 	webuiUpdateSaveBar();
 }
 
@@ -2497,39 +2503,134 @@ function settingsBusy(on) {
 }
 
 async function saveSettingsNow(values, params, changed, v1dirty) {
-	var v1 = {saved: 0, failed: 0, restart: false};
+	var v1 = {saved: 0, failed: 0, restart: false, unsent: 0, why: null};
 	if (v1dirty.count)
 		v1 = await v1setSave(v1dirty);
+	// a request that failed as a whole ends the save: the old interface's
+	// part is not sent either, and stays as typed
 	var oldOk = true;
-	var why = null;
+	var why = v1.why;
 	if (changed) {
-		try {
-			await webuiApi('config', 'config=neutrino&' + params);
-		} catch (e) {
+		if (v1.why) {
 			oldOk = false;
-			why = e;
+		} else {
+			try {
+				await webuiApi('config', 'config=neutrino&' + params);
+				// what the old interface took is what it holds now
+				Object.keys(values).forEach(function(key) {
+					configData[key.replace(/\./g, '_dot_').replace(/-/g, '_bind_')] = values[key];
+				});
+			} catch (e) {
+				oldOk = false;
+				why = e;
+			}
 		}
 	}
-
 	var saved = v1.saved + (oldOk ? changed : 0);
+	var unsent = v1.unsent + (oldOk ? 0 : changed);
+	var savedText = saved + ' ' + (saved > 1 ? webuiL('set.saved_many', 'settings saved') : webuiL('set.saved_one', 'setting saved'));
 	// what a panel with a Save of its own holds is not part of this save
 	var own = settingsOwnPending().map(function(o) { return o.label; });
 	var left = own.length ? ' ' + webuiL('set.own_left', '{list}: not saved yet \u2013 use the Save button there.').replace('{list}', own.join(', ')) : '';
-	if (!oldOk)
-		webuiToastError(webuiL('tm.save_fail', 'Saving failed'), why);
-	else if (v1.failed)
-		webuiShowToast(webuiL('set.save_some_fail', 'Not every setting was saved, see the marked fields'), true);
-	else
-		webuiShowToast(saved + ' ' + (saved > 1 ? webuiL('set.saved_many', 'settings saved') : webuiL('set.saved_one', 'setting saved')) +
+	if (unsent) {
+		// no answer, a sign-in cancelled or refused, or the old interface's
+		// refusal: one message, no word at any field
+		var reason = why && why.cancelled ? webuiL('set.save_signin', 'saving needs a sign-in') : webuiErrText(why);
+		webuiShowToast(saved ? webuiL('set.save_part', '{saved}; {unsent} not: {why}').replace('{saved}', savedText)
+				.replace('{unsent}', unsent).replace('{why}', reason) :
+			webuiL('set.save_none', 'Nothing was saved: {why}').replace('{why}', reason), true);
+		if (why && why.message && why.message !== reason)
+			console.warn('settings not saved:', why.message);
+	} else if (v1.failed) {
+		var where = settingsRefusedPlaces().join(', ');
+		webuiShowToast((saved ? savedText + '. ' : '') +
+			(v1.failed === 1 ? webuiL('set.refused_one', 'The box did not take 1 setting \u2013 see the marked field in {where}') :
+				webuiL('set.refused_many', 'The box did not take {n} settings \u2013 see the marked fields in {where}').replace('{n}', v1.failed))
+				.replace('{where}', where), true);
+	} else {
+		webuiShowToast(savedText +
 			(v1.restart ? ' \u2013 ' + webuiL('set.saved_restart', 'some take effect after a restart') : '') +
 			(left ? '.' + left : ''), left ? 'note' : 'ok');
-	// a refused save of the old interface keeps the form as it is; a panel
-	// with a Save of its own keeps what was typed into it either way
-	if (oldOk)
+	}
+	// a save that did not go through keeps the form as it is; a panel with
+	// a Save of its own keeps what was typed into it either way
+	if (!unsent)
 		await loadSettings({keepOwn: true});
 	else
 		await v1setRefresh();
+	settingsProblemsShow(v1.failed > 0);
 	webuiUpdateSaveBar();
+}
+
+// The names of the categories that hold a setting the box refused
+function settingsRefusedPlaces() {
+	var labels = settingsCatLabels();
+	var out = [];
+	(typeof v1setRefused === 'function' ? v1setRefused() : []).forEach(function(r) {
+		var name = labels[r.cat] || r.cat;
+		if (out.indexOf(name) < 0)
+			out.push(name);
+	});
+	return out;
+}
+
+/* What the box refused at the last save, wherever it is drawn: a list at
+   the top of the settings, each entry a way to its field, focused after
+   the save so it is read out; its category marked in the menu, and a
+   folded group that holds such a row opened. Taken away with the last
+   refusal (edited again, saved, discarded). */
+function settingsProblemsShow(focus) {
+	var box = document.getElementById('settingsProblems');
+	var refused = typeof v1setRefused === 'function' ? v1setRefused() : [];
+	var labels = settingsCatLabels();
+	settingsMarkNav(refused);
+	refused.forEach(function(r) {
+		var el = _v1setControlOf(r.key);
+		for (var n = el && el.parentElement; n && !n.classList.contains('settings-panel'); n = n.parentElement)
+			if (n.tagName === 'DETAILS')
+				n.open = true;
+	});
+	if (!box)
+		return;
+	if (!refused.length) {
+		box.hidden = true;
+		box.replaceChildren();
+		return;
+	}
+	var list = webuiEl('ul', {});
+	refused.forEach(function(r) {
+		list.appendChild(webuiEl('li', {},
+			webuiEl('button', {type: 'button', className: 'settings-bar-cat',
+				on: {click: function() { settingsGo({cat: r.cat, row: '[data-v1key="' + CSS.escape(r.key) + '"]'}); }}},
+				(labels[r.cat] || r.cat) + ' \u203a ' + r.label),
+			': ' + r.reason));
+	});
+	box.replaceChildren(webuiEl('strong', {}, refused.length === 1 ? webuiL('set.refused_title_one', 'The box did not take this setting:') :
+		webuiL('set.refused_title', 'The box did not take these settings:')), list);
+	box.hidden = false;
+	if (focus)
+		box.focus();
+}
+
+// The menu marks a category that holds a refused setting
+function settingsMarkNav(refused) {
+	var cats = {};
+	refused.forEach(function(r) { cats[r.cat] = true; });
+	var word = webuiL('set.nav_refused', 'not taken');
+	document.querySelectorAll('#settingsSidebar button[data-cat]').forEach(function(b) {
+		var on = !!cats[b.getAttribute('data-cat')];
+		var mark = b.querySelector('.settings-nav-refused');
+		if (on && !mark)
+			b.appendChild(webuiEl('span', {className: 'settings-nav-refused', title: word},
+				webuiEl('span', {className: 'webui-visually-hidden'}, ' (' + word + ')')));
+		else if (!on && mark)
+			mark.remove();
+	});
+	document.querySelectorAll('#mobileCategorySelect option').forEach(function(o) {
+		if (!o.dataset.label)
+			o.dataset.label = o.textContent;
+		o.textContent = cats[o.value] ? o.dataset.label + ' (' + word + ')' : o.dataset.label;
+	});
 }
 
 // Werte, die ausserhalb der Domaene ihres Feldes liegen, auf den Wert
@@ -2741,8 +2842,17 @@ document.getElementById('settingsContent').addEventListener('change', function(e
 document.getElementById('settingsContent').addEventListener('input', settingsOwnInput);
 document.getElementById('settingsContent').addEventListener('change', settingsOwnInput);
 // ein abgelehnter Wert, den der Nutzer wieder bearbeitet, ist erledigt
-document.getElementById('settingsContent').addEventListener('input', function(e) { v1setEdited(e.target); });
-document.getElementById('settingsContent').addEventListener('change', function(e) { v1setEdited(e.target); });
+document.getElementById('settingsContent').addEventListener('input', function(e) { settingsEdited(e.target); });
+document.getElementById('settingsContent').addEventListener('change', function(e) { settingsEdited(e.target); });
+
+// a refusal taken away by an edit leaves the list of refusals and the menu
+function settingsEdited(el) {
+	var key = el && el.dataset && el.dataset.v1key;
+	var had = !!(key && V1SET.pending[key] && V1SET.pending[key].error);
+	v1setEdited(el);
+	if (had)
+		settingsProblemsShow(false);
+}
 // a field that may not go as it stands says so at once, and stops saying so
 // once it may (registered after v1setEdited, which takes a refusal away)
 document.getElementById('settingsContent').addEventListener('change', function(e) {

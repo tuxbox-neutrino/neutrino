@@ -1281,11 +1281,40 @@ function _v1setDescribe(el, id, on) {
 		el.setAttribute('aria-describedby', id);
 }
 
+/* A refusal of the one setting a request named, which the box answers at
+   that setting's own status and in its own words: not a request the box
+   never answered, a sign-in cancelled or refused, nor a fault of the
+   request as a whole. */
+var V1SET_REQUEST_CODES = {'missing-parameter': true, 'duplicate-parameter': true, 'no-such-name': true,
+	'body-too-large': true, 'too-many-attempts': true, 'server-stopping': true, 'not-permitted': true,
+	'password-change-required': true};
+
+function _v1setFieldRefusal(e) {
+	if (!e || e.cancelled || !e.status || !e.code || V1SET_REQUEST_CODES[e.code] === true)
+		return false;
+	if (e.status === 401 || e.status === 403)
+		return false;
+	return e.status < 500 || e.code === 'setting-not-written' || e.code === 'channel-list-unavailable';
+}
+
 // Writes each changed section. A key the box refuses goes into
 // V1SET.pending with its reason; the caller reads everything again after.
-// -> {saved, failed, restart}
+// A request that fails as a whole (no answer, a sign-in cancelled) ends the
+// save: what it and the sections after it hold stays as typed, with no
+// reason at a field, and the error is answered as why.
+// -> {saved, failed, restart, unsent, why}
 async function v1setSave(dirty) {
-	var res = {saved: 0, failed: 0, restart: false};
+	var res = {saved: 0, failed: 0, restart: false, unsent: 0, why: null};
+	// a key not sent stays as typed; the other half of a pair, brought
+	// along unchanged, is no change of its own
+	var hold = function(body, keys) {
+		keys.forEach(function(k) {
+			if (dirty.brought && dirty.brought[k])
+				return;
+			V1SET.pending[k] = {value: body[k], error: ''};
+			res.unsent++;
+		});
+	};
 	V1SET.saving = true;
 	++V1SET.saves;	// a read in flight predates what this writes
 	try {
@@ -1295,8 +1324,19 @@ async function v1setSave(dirty) {
 			var body = dirty.bySection[section];
 			var keys = Object.keys(body);
 			var failed = Object.create(null);
+			// a 200 is the section as it reads now, with what the box changed
+			// along (epg_read with epg_save); a 207 names no values
+			var confirmed = null;
+			if (res.why) {
+				hold(body, keys);
+				continue;
+			}
 			try {
 				var answer = await webuiV1('PATCH', '/settings/' + encodeURIComponent(section), {body: body});
+				if (answer && Array.isArray(answer.items)) {
+					confirmed = Object.create(null);
+					answer.items.forEach(function(it) { confirmed[it.id] = it.value; });
+				}
 				// 207: some keys landed, others name their refusal
 				if (answer && answer.results)
 					keys.forEach(function(k) {
@@ -1311,8 +1351,13 @@ async function v1setSave(dirty) {
 							failed[k] = named.detail || named.code || String(named.status);
 					});
 			} catch (e) {
-				// one key refused, or the request as a whole
-				keys.forEach(function(k) { failed[k] = e.message; });
+				// one key refused, at its own status; or the request as a whole
+				if (keys.length !== 1 || !_v1setFieldRefusal(e)) {
+					res.why = e;
+					hold(body, keys);
+					continue;
+				}
+				failed[keys[0]] = e.message || e.code || String(e.status);
 			}
 			keys.forEach(function(k) {
 				if (failed[k] !== undefined) {
@@ -1333,7 +1378,15 @@ async function v1setSave(dirty) {
 				var el = V1SET.items[k].secret ? _v1setControlOf(k) : null;
 				if (el && el.value === body[k])
 					el.value = '';
+				// what the box took is what it holds now, also where the read
+				// after the save fails and the form stays as it is
+				if (!V1SET.items[k].secret)
+					V1SET.values[k] = body[k];
 			});
+			// what the box answered is what it holds: a row it changed along,
+			// left as it was by the user, shows it and is no change
+			if (confirmed)
+				_v1setTake(Object.assign(Object.create(null), V1SET.values, confirmed));
 		}
 	} finally {
 		V1SET.saving = false;
@@ -1358,6 +1411,33 @@ async function v1setRefresh() {
 
 function v1setDiscard() {
 	V1SET.pending = Object.create(null);
+}
+
+// Every setting the box refused at the last save, with its reason, where
+// the page draws it: [{key, label, cat, reason}]
+function v1setRefused() {
+	var out = [];
+	Object.keys(V1SET.pending).forEach(function(key) {
+		var p = V1SET.pending[key];
+		var item = V1SET.items[key];
+		if (!p.error || !item)
+			return;
+		// the identifier's half of a start channel is named by its named half
+		var shown = item;
+		if (_v1setIdHalf(item)) {
+			var named = Object.keys(V1SET.items).map(function(k) { return V1SET.items[k]; }).filter(function(it) {
+				return it.pair === key && it.label;
+			})[0];
+			if (named)
+				shown = named;
+		}
+		var el = _v1setControlOf(key);
+		var panel = el && el.closest('#settingsContent > .settings-panel');
+		var group = _v1setGroupOf(shown);
+		out.push({key: key, label: (group ? group.title + ' \u203a ' : '') + _v1setLabel(shown), reason: p.error,
+			cat: panel ? panel.id.substring(6) : (V1SET.claimed[shown.id] || item.section)});
+	});
+	return out;
 }
 
 function _v1setAsk(text, title, ok) {
