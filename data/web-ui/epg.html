@@ -54,8 +54,9 @@
 		   always "HH:MM". Vertical padding matches .webui-btn so selects
 		   and buttons share one control height; buttons themselves keep
 		   the shared component size (no local shrinking). */
+		/* the right padding keeps room for Pico's arrow on both choices */
 		.webui-epg-toolbar .webui-select {
-			padding: 0.3rem 0.5rem;
+			padding: 0.3rem 1.6rem 0.3rem 0.5rem;
 			width: auto;
 			min-width: 0;
 		}
@@ -64,10 +65,8 @@
 			flex: 0 1 16rem;
 		}
 
-		/* keep room for Pico's dropdown chevron on the narrow select */
 		.webui-epg-toolbar #timeSelect {
 			flex: 0 0 auto;
-			padding-right: 1.6rem;
 		}
 
 		/* EPG Grid */

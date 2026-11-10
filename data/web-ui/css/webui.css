@@ -275,7 +275,7 @@ html.webui-i18n-pending body {
 }
 
 [data-theme="light"] .webui-epg-select {
-	background: #fff;
+	background-color: #fff;
 	border-color: #d0d7de;
 	color: #24292f;
 }
@@ -3324,7 +3324,9 @@ html.webui-side-narrow .webui-side .webui-side-link .webui-nav-count {
 	   Buttons derselben Zeile sichtbar zu hoch (EPG-Toolbar). */
 	margin: 0;
 	padding: 0.3rem 0.5rem;
-	background: var(--pico-card-sectioning-background-color);
+	/* the colour alone: the shorthand would clear Pico's arrow, the image
+	   that tells a choice from a text field (here and in light below) */
+	background-color: var(--pico-card-sectioning-background-color);
 	border: 1px solid var(--pico-muted-border-color);
 	border-radius: var(--webui-radius);
 	color: var(--pico-color);
@@ -3343,7 +3345,7 @@ html.webui-side-narrow .webui-side .webui-side-link .webui-nav-count {
 }
 
 [data-theme="light"] .webui-select {
-	background: #fff;
+	background-color: #fff;
 	border-color: #ced4da;
 	color: #212529;
 }
@@ -4646,6 +4648,15 @@ body.webui-remote-open {
 	margin-bottom: 0 !important;
 	height: auto !important;
 	line-height: 1.4;
+}
+/* A choice keeps Pico's arrow, the mark that tells it from a text field:
+   the shorthand above clears its image and the padding its room */
+.webui-form-row select:not([multiple], [size]) {
+	padding-right: 1.9rem !important;
+	background-image: var(--pico-icon-chevron);
+	background-position: center right 0.5rem;
+	background-size: 1rem auto;
+	background-repeat: no-repeat;
 }
 .webui-form-row select:focus,
 .webui-form-row input:focus {
