@@ -231,6 +231,30 @@
 		height: 1rem;
 	}
 
+	/* What the box shows could not be read: the band says why in place of
+	   channel and programme, and the actions on them wait for a read that
+	   succeeds, in the order of Tab still, greyed out (dashboard.js) */
+	.webui-now-fail {
+		grid-column: 1 / -1;
+	}
+
+	.webui-now.failed > :not(.webui-now-fail, .webui-now-actions) {
+		display: none;
+	}
+
+	.webui-now-actions .webui-btn[data-now-off],
+	.webui-now-actions .webui-btn[data-now-off]:is(:hover, :focus, :active),
+	.webui-now-actions .webui-seg button[data-now-off],
+	.webui-now-actions .webui-seg button[data-now-off]:is(:hover, :focus, :active) {
+		border-style: dashed;
+		border-color: var(--pico-muted-border-color);
+		background: none;
+		color: var(--pico-muted-color);
+		cursor: not-allowed;
+		transform: none;
+		box-shadow: none;
+	}
+
 	@media (max-width: 760px) {
 		.webui-now {
 			grid-template-columns: 72px minmax(0, 1fr);
@@ -845,12 +869,13 @@
 							<span class="webui-now-time" id="play-time"></span>
 						</div>
 					</div>
+					<div class="webui-now-fail" id="now-fail" hidden></div>
 					<div class="webui-now-actions">
 						<button title="Record the programme running now, or stop its recording" data-l-title="tip.rec_now" type="button" class="webui-btn webui-record-btn" id="rec-btn" onclick="toggleRecording()">
 							<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="12" cy="12" r="6"/></svg>
 							<span data-l="dash.record">Record</span>
 						</button>
-						<button title="Title, time and text of the programme running now" data-l-title="tip.epg_info_now" type="button" class="webui-btn" onclick="showCurrentEpgInfo()">
+						<button title="Title, time and text of the programme running now" data-l-title="tip.epg_info_now" type="button" class="webui-btn" id="now-info-btn" onclick="showCurrentEpgInfo()">
 							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg>
 							<span data-l="dash.epg_info">Programme info</span>
 						</button>

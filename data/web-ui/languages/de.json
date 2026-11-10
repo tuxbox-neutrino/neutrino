@@ -1033,6 +1033,7 @@
 	"about.link": "Über",
 	"msg.channel": "Sender",
 	"dash.no_channel": "Kein Sender",
+	"dash.now_unavail": "Der aktuelle Sender ließ sich nicht lesen",
 	"dash.no_tuner": "Kein Tuner",
 	"timer.unavail": "Timer nicht verfügbar",
 	"timer.new": "Neuer Timer",

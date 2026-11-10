@@ -162,12 +162,10 @@ async function refreshChannel(takeMode) {
 		dash.channel = null;
 		dash.shown = null;
 		dash.now = dash.next = null;
-		setText('now-channel', '--');
-		setText('now-show', webuiErrText(got.error));
-		setText('now-meta', '');
-		withEl('now-progress', function(el) { el.hidden = true; });
+		nowFailed(got.error);
 		return;
 	}
+	nowFailed(null);
 	if (!ch || !ch.id) {
 		dash.channel = null;
 		showChannel();
@@ -181,6 +179,63 @@ async function refreshChannel(takeMode) {
 		setMode(ch.kind === 'radio' || ch.kind === 'webradio' ? 'radio' : 'tv');
 	showChannel();
 	refreshGuide();
+}
+
+/* What the box shows could not be read (e, an error) or was read again
+   (null). The band says why with Reload in place of channel and programme,
+   and the actions on them, Record, Programme info, TV and radio, wait for
+   a read that succeeds: they stay in the order of Tab, marked unavailable
+   (aria-disabled), and a click on them does nothing. The channel list and
+   the guide stay open to go to. A read that fails again keeps the block
+   that says the same, with its Reload and the focus on it, so a failed
+   retry or poll neither moves the focus nor announces the failure again;
+   another reason changes its words only. A Reload that had the focus when
+   a read succeeds hands it to the band's first action. */
+const NOW_ACTS = ['rec-btn', 'now-info-btn', 'mode-tv', 'mode-radio'];
+function nowFailed(e) {
+	const band = document.querySelector('#card-now .webui-now');
+	const fail = document.getElementById('now-fail');
+	if (!band || !fail || (!e && !band.classList.contains('failed'))) return;
+	const held = fail.contains(document.activeElement);
+	if (e) {
+		const title = webuiL('dash.now_unavail', 'The current channel could not be read');
+		// the band is named by its heading, hidden with the rest
+		setText('now-channel', title);
+		const block = webuiStateFor(e, {title: title, retry: function() { refreshChannel(true); }});
+		const old = fail.firstElementChild;
+		const said = b => b.className + '\n' + !!b.querySelector('p') + '\n' +
+			Array.prototype.map.call(b.querySelectorAll('strong, button'), function(x) { return x.textContent; }).join('\n');
+		if (old && said(old) === said(block)) {
+			const was = old.querySelector('p'), now = block.querySelector('p');
+			if (was && was.textContent !== now.textContent)
+				was.textContent = now.textContent;
+		} else {
+			fail.replaceChildren(block);
+			const retry = held && block.querySelector('button');
+			if (retry) retry.focus();
+		}
+	} else {
+		fail.replaceChildren();
+	}
+	band.classList.toggle('failed', !!e);
+	fail.hidden = !e;
+	NOW_ACTS.forEach(function(id) {
+		withEl(id, function(b) {
+			if (e) {
+				b.setAttribute('aria-disabled', 'true');
+				b.dataset.nowOff = '1';
+			} else if (b.dataset.nowOff) {
+				delete b.dataset.nowOff;
+				// the mode switch keeps its mark while a change is under way
+				if (!(modeBusy && id.indexOf('mode-') === 0))
+					b.removeAttribute('aria-disabled');
+			}
+		});
+	});
+	if (!e && held) {
+		const first = document.querySelector('#card-now .webui-now-actions .webui-btn');
+		if (first) first.focus();
+	}
 }
 
 // Rebuilt only when the channel is another one, so a reread does not
@@ -740,7 +795,8 @@ async function switchMode(target) {
 		webuiToastError('', e);
 	}
 	modeBusy = false;
-	btns.forEach(function(b) { b.removeAttribute('aria-disabled'); });
+	// a band that could not be read keeps the switch unavailable (nowFailed)
+	btns.forEach(function(b) { if (!b.dataset.nowOff) b.removeAttribute('aria-disabled'); });
 }
 
 function updateModeUI() {
@@ -1351,6 +1407,16 @@ webuiAfterTexts(function() {
 	// it opens the system details), the quick actions
 	document.querySelectorAll('.webui-now-actions').forEach(function(row) { webuiArrowKeys(row, ':scope > .webui-btn'); });
 	document.querySelectorAll('.webui-now-actions .webui-seg').forEach(function(seg) { webuiArrowKeys(seg, 'button'); });
+	// an action of the band does nothing while what the box shows is not
+	// known (nowFailed): the click stops before the action's own handler
+	withEl('card-now', function(card) {
+		card.addEventListener('click', function(e) {
+			if (e.target.closest && e.target.closest('[data-now-off]')) {
+				e.preventDefault();
+				e.stopPropagation();
+			}
+		}, true);
+	});
 	withEl('gauges', function(el) { webuiArrowKeys(el, '.webui-ext-open'); });
 	document.querySelectorAll('#card-actions .webui-quick').forEach(function(row) { webuiArrowKeys(row, '.webui-btn'); });
 	NO_CHANNEL = webuiL('dash.no_channel', 'No channel');
