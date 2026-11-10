@@ -295,8 +295,15 @@ var SETTINGS_OWN_COUNT = {
 	extensions: function() { return Object.keys(extensionsChanges()).length; }
 };
 
+// Panels whose own Save the box has confirmed and that are still being drawn
+// again from what it holds: what they show was written and counts as no
+// change until then, so leaving meanwhile asks nothing. Until the box has
+// answered, a change sent counts as not saved; a save that fails counts
+// again. A share is drawn again with the box's answer and needs none.
+var _settingsOwnSaving = {};
+
 function settingsOwnCount(catId) {
-	if (!document.getElementById('panel-' + catId) || !settingsOwnCat(catId))
+	if (!document.getElementById('panel-' + catId) || !settingsOwnCat(catId) || _settingsOwnSaving[catId])
 		return 0;
 	if (SETTINGS_OWN_COUNT[catId])
 		return SETTINGS_OWN_COUNT[catId]();
@@ -633,9 +640,10 @@ async function saveExtConfig(catId, cfgName, btn) {
 	btn.disabled = true;
 	var after = '';
 	try {
-		if (webui)
+		if (webui) {
 			await webuiSettingsWrite(changes);
-		else if (webserver) {
+			_settingsOwnSaving[catId] = true;
+		} else if (webserver) {
 			/* A current password is sent once, a wrong one counting like a wrong
 			   sign-in; so the session it goes with is read first, and one that ended
 			   meanwhile (a deep standby, its lifetime) is signed in again before, and
@@ -646,6 +654,7 @@ async function saveExtConfig(catId, cfgName, btn) {
 				return;
 			}
 			var written = await webuiV1('PUT', '/system/webserver', {body: changes, once: checks});
+			_settingsOwnSaving[catId] = true;
 			// a new login hands this page's session new tokens
 			webuiV1Renewed(written && written.caller && written.caller.csrf);
 			after = await webserverAfterWrite(written);
@@ -657,11 +666,16 @@ async function saveExtConfig(catId, cfgName, btn) {
 			var refused = Object.keys(results).filter(function(k) { return results[k] && results[k].status >= 300; });
 			if (refused.length)
 				throw new Error(refused.map(function(k) { return k + ': ' + (results[k].detail || results[k].code || results[k].status); }).join('; '));
+			_settingsOwnSaving[catId] = true;
 		}
+		// the page follows the server to its new port: what it wrote is no
+		// change to ask about on the way
 		if (after === 'moving') return;
 		if (after !== 'restarting') webuiShowToast(changed + ' ' + (changed > 1 ? webuiL('set.saved_many', 'settings saved') : webuiL('set.saved_one', 'setting saved')));
 		await loadExtConfigPanel(SETTINGS_REGISTRY.find(function(c) { return c.id === catId; }) || EXT_SETTINGS_CATS[catId]);
+		_settingsOwnSaving[catId] = false;
 	} catch (e) {
+		_settingsOwnSaving[catId] = false;
 		// only the refusal that says so is a wrong current password
 		if (webserver && e && e.code === 'wrong-current-password')
 			webuiShowToast(webuiL('pw.wrong', 'The current password is not correct.'), true);
@@ -1135,9 +1149,11 @@ async function saveExtensions(btn) {
 	btn.disabled = true;
 	try {
 		await webuiSettingsWrite(changes);
+		_settingsOwnSaving.extensions = true;
 		webuiShowToast(webuiL('set.ext_saved', 'Saved - reload the page to apply'));
 		await loadExtensionsPanel();
 	} catch (e) { webuiToastError(webuiL('msg.error', 'Error'), e); }
+	_settingsOwnSaving.extensions = false;
 	btn.disabled = false;
 }
 
@@ -1222,9 +1238,11 @@ async function wolSave(btn) {
 	btn.disabled = true;
 	try {
 		await webuiSettingsWrite(changes);
+		_settingsOwnSaving.wol = true;
 		webuiShowToast(webuiL('msg.saved', 'Saved'));
 		await loadWolPanel();
 	} catch (e) { webuiToastError(webuiL('msg.error', 'Error'), e); }
+	_settingsOwnSaving.wol = false;
 	btn.disabled = false;
 }
 
@@ -1739,13 +1757,14 @@ async function onShare(i, request, saving) {
 		var res = await request();
 		updateShares((res && res.items) || [], i, saving);
 		if (body && body.isConnected) body.disabled = false;
-		sharesMark();
-		webuiUpdateSaveBar();
 		return true;
 	} catch (e) {
 		webuiToastError(webuiL('msg.error', 'Error'), e);
 		if (body) body.disabled = false;
 		return false;
+	} finally {
+		sharesMark();
+		webuiUpdateSaveBar();
 	}
 }
 
@@ -2148,7 +2167,7 @@ function collectValues() {
 // der Box-Einstellungen (settings-v1.js)
 function webuiCountDirty() {
 	var values = collectValues();
-	var dirty = v1setDirty().count;
+	var dirty = typeof v1setDirty === 'function' ? v1setDirty().count : 0;
 	for (var key in values) {
 		var origKey = key.replace(/\./g, '_dot_').replace(/-/g, '_bind_');
 		if (values[key] !== (configData[origKey] || '')) dirty++;
@@ -2311,13 +2330,18 @@ function settingsRisks(v1dirty) {
 }
 
 // Locks the form and the save bar while a write is answered (saving,
-// clearing a credential)
+// clearing a credential, writing the language). Counted: each write that
+// locks it releases its own lock, and the form opens only when none holds it.
+var _settingsBusy = 0;
+
 function settingsBusy(on) {
+	_settingsBusy = Math.max(0, _settingsBusy + (on ? 1 : -1));
+	var locked = _settingsBusy > 0;
 	var content = document.getElementById('settingsContent');
-	content.inert = on;
-	if (on) content.setAttribute('aria-busy', 'true');
+	content.inert = locked;
+	if (locked) content.setAttribute('aria-busy', 'true');
 	else content.removeAttribute('aria-busy');
-	document.querySelectorAll('#settingsSaveBar .webui-btn').forEach(function(b) { b.disabled = on; });
+	document.querySelectorAll('#settingsSaveBar .webui-btn').forEach(function(b) { b.disabled = locked; });
 }
 
 async function saveSettingsNow(values, params, changed, v1dirty) {
@@ -2583,6 +2607,90 @@ function settingsMarkRegistry(el) {
 	var v = el.type === 'checkbox' ? (el.checked ? el.getAttribute('data-on') : el.getAttribute('data-off')) : el.value;
 	var origKey = el.getAttribute('data-key').replace(/\./g, '_dot_').replace(/-/g, '_bind_');
 	row.classList.toggle('is-edited', v !== (configData[origKey] || ''));
+}
+
+/* A change not saved yet is not lost without a question. Leaving the page
+   (a link of the head, a reload, closing the tab) asks through the
+   browser's own question; switching the language, which reloads the page,
+   asks here first. Switching the category loses nothing: every panel drawn
+   stays with what was typed into it. */
+var _settingsLeaving = false;	// set only right before a reload the user agreed to
+
+function settingsUnsavedCount() {
+	var n = webuiCountDirty();
+	settingsOwnPending().forEach(function(o) { n += o.n; });
+	return n;
+}
+
+window.addEventListener('beforeunload', function(e) {
+	if (_settingsLeaving || !settingsUnsavedCount())
+		return;
+	e.preventDefault();
+	e.returnValue = '';
+});
+
+// true to go on: nothing unsaved, or the user lets it go
+function settingsMayLeave(one, many, go) {
+	var n = settingsUnsavedCount();
+	if (!n)
+		return Promise.resolve(true);
+	return new Promise(function(resolve) {
+		webuiSheet({
+			title: webuiL('set.leave_title', 'Discard unsaved changes?'),
+			body: webuiEl('p', {}, (n === 1 ? one : many).replace('{count}', n)),
+			actions: [
+				{label: webuiL('set.leave_stay', 'Keep editing'), value: false},
+				{label: go, value: true, danger: true}
+			],
+			onClose: function(result) { resolve(result === true); }
+		});
+	});
+}
+
+if (typeof webuiSetLanguage === 'function') {
+	var _settingsSetLanguage = webuiSetLanguage;
+	var _settingsSwitching = false;	// a language switch under way
+	webuiSetLanguage = async function(code) {
+		// one switch at a time: another chosen meanwhile is let go, as the
+		// page reloads in the first one's language or stays as it is
+		if (_settingsSwitching)
+			return;
+		_settingsSwitching = true;
+		var locked = false;
+		var reloading = false;
+		try {
+			var go = await settingsMayLeave(
+				webuiL('set.leave_lang_one', '1 change is not saved yet. Switching the language reloads the page, and it is lost.'),
+				webuiL('set.leave_lang', '{count} changes are not saved yet. Switching the language reloads the page, and they are lost.'),
+				webuiL('set.leave_lang_go', 'Discard and switch'));
+			if (!go)
+				return;
+			// the page writes the language itself, so that only the reload that
+			// follows a write the box took skips the question; a refusal or a
+			// cancelled sign-in keeps the page and its guard as they are
+			if (typeof webuiV1 !== 'function')
+				return _settingsSetLanguage(code);
+			// nothing is typed while the language is written: an edit then would
+			// be lost to the reload without a question
+			settingsBusy(true);
+			locked = true;
+			await webuiV1('PUT', '/webui/language', {body: {language: code}});
+			reloading = true;
+			_settingsLeaving = true;
+			location.reload();
+		} catch (e) {
+			// a refusal, no answer, or a fault on the way; a cancelled sign-in
+			// says nothing
+			webuiToastError(webuiL('msg.error', 'Error'), e);
+		} finally {
+			// the lock and the switch are held only through the reload that follows
+			if (!reloading) {
+				if (locked)
+					settingsBusy(false);
+				_settingsSwitching = false;
+			}
+		}
+	};
 }
 
 // The search: as typed; Escape empties it, Enter goes to the first hit and
