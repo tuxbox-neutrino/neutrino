@@ -4917,7 +4917,9 @@ dialog.webui-sheet footer button.danger:is(:hover, :active, :focus) {
 	height: 1rem;
 }
 
-.webui-row-actions button.danger {
+/* a plain icon button of a row says danger by its colour; a filled
+   danger button (.webui-btn.danger) keeps the white on its red */
+.webui-row-actions button.danger:not(.webui-btn) {
 	color: var(--pico-del-color);
 }
 
