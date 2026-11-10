@@ -1732,11 +1732,12 @@ async function pluginWatch() {
 	pluginShowRunning(!!data.running);
 }
 
-async function loadPluginsPanel() {
+// given: a list read already (setPluginHidden), drawn without a read of its own
+async function loadPluginsPanel(given) {
 	var el = document.getElementById('pluginsPanel');
 	if (!el) return;
 	try {
-		var data = await webuiV1('GET', '/plugins');
+		var data = given && Array.isArray(given.items) ? given : await webuiV1('GET', '/plugins');
 		// every plugin, the hidden ones too: hiding is about the box's menus,
 		// and this is the one place left to show one there again
 		var list = (data && data.items) || [];
@@ -1797,19 +1798,72 @@ function pluginHideButton(pl) {
 }
 
 /* The flag goes into the plugin's own file; the box's menus show it once
-   they are built again, which reading the plugin directories does. So the
-   panel has them read, and reads its list again a moment later. */
+   they are built again, which reading the plugin directories does, on the
+   box's own thread after it answered: seconds later on a slow box. So the
+   panel has them read and reads its list again until the plugin shows the
+   new state, at most PLUGIN_SETTLE_MS; meanwhile the button says it is being
+   applied. Each read is given up after PLUGIN_READ_MS, and within what is
+   left of the whole wait, as the box answers the list only once it has read
+   its directories. The list is then drawn from the last read that answered;
+   a box that has not shown the change by then is said so, and where no read
+   answered at all the button comes back as it was, usable, with a word why. */
+var PLUGIN_SETTLE_MS = 20000;
+var PLUGIN_READ_MS = 4000;
+
+// The plugin list, or null where the box does not answer within ms
+async function pluginsReadWithin(ms) {
+	var stop = new AbortController();
+	var timer = setTimeout(function() { stop.abort(); }, ms);
+	try {
+		var r = await webuiFetchBox('/api/v1/plugins', {credentials: 'same-origin', cache: 'no-store', signal: stop.signal});
+		return r.ok ? await r.json() : null;
+	} catch (e) {
+		return null;
+	} finally {
+		clearTimeout(timer);
+	}
+}
+
 async function setPluginHidden(pl, hidden, btn) {
+	var was = Array.prototype.slice.call(btn.childNodes);
 	btn.disabled = true;
+	btn.setAttribute('aria-busy', 'true');
+	btn.replaceChildren(webuiMarkup(REFRESH_ICON), webuiL('set.plugins_applying', 'Applying\u2026'));
 	try {
 		await webuiV1('PUT', '/plugins/' + encodeURIComponent(pl.name) + '/hidden', {body: {hidden: hidden}});
 		await webuiV1('POST', '/plugins/reload');
-		await new Promise(function(r) { setTimeout(r, 1500); });
-		await loadPluginsPanel();
-		webuiShowToast((hidden ? webuiL('set.plugins_now_hidden', '%s is hidden in the box\'s menus') :
-			webuiL('set.plugins_now_shown', '%s shows in the box\'s menus again')).replace('%s', pl.title || pl.name));
+		var shown = false;
+		var last = null;
+		for (var until = Date.now() + PLUGIN_SETTLE_MS; !shown;) {
+			await new Promise(function(r) { setTimeout(r, 1000); });
+			var left = until - Date.now();
+			if (left <= 0)
+				break;
+			var data = await pluginsReadWithin(Math.min(PLUGIN_READ_MS, left));
+			if (data)
+				last = data;
+			var now = data && (data.items || []).find(function(x) { return x.name === pl.name; });
+			shown = !!data && (!now || !!now.hidden === hidden);
+		}
+		var title = pl.title || pl.name;
+		if (!last) {
+			btn.replaceChildren.apply(btn, was);
+			btn.removeAttribute('aria-busy');
+			btn.disabled = false;
+			webuiShowToast(webuiL('set.plugins_no_answer', 'The box did not answer in time; the list may not show the change to %s yet').replace('%s', title), 'warn');
+			return;
+		}
+		await loadPluginsPanel(last);
+		if (shown)
+			webuiShowToast((hidden ? webuiL('set.plugins_now_hidden', '%s is hidden in the box\'s menus') :
+				webuiL('set.plugins_now_shown', '%s shows in the box\'s menus again')).replace('%s', title));
+		else
+			webuiShowToast((hidden ? webuiL('set.plugins_not_hidden', 'The box has not hidden %s yet; the list shows what it says now') :
+				webuiL('set.plugins_not_shown', 'The box does not show %s again yet; the list shows what it says now')).replace('%s', title), 'warn');
 	} catch (e) {
 		webuiToastError(webuiL('msg.error', 'Error'), e);
+		btn.replaceChildren.apply(btn, was);
+		btn.removeAttribute('aria-busy');
 		btn.disabled = false;
 	}
 }
