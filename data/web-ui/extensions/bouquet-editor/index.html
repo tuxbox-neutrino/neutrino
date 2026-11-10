@@ -23,7 +23,8 @@
 		   select 1rem-Schrift + Margins → 4px hoeher und 7px tiefer
 		   zentriert als die Speichern-Buttons daneben */
 		.bqe-mode { display: flex; align-items: center; gap: 0.3rem; margin: 0; font-size: var(--webui-font-xs); }
-		.bqe-mode select { margin: 0; padding: 0.3rem 0.5rem; height: auto; font-size: var(--webui-font-xs); line-height: normal; border-radius: var(--webui-radius); }
+		/* the right padding keeps room for Pico's arrow */
+		.bqe-mode select { margin: 0; padding: 0.3rem 1.6rem 0.3rem 0.5rem; height: auto; font-size: var(--webui-font-xs); line-height: normal; border-radius: var(--webui-radius); }
 		.bqe-dirty { display: none; align-items: center; gap: 0.3rem; color: var(--webui-accent); border: 1px solid var(--webui-accent); border-radius: 999px; padding: 0.1rem 0.6rem; font-size: 0.75rem; }
 		.bqe-dirty.on { display: inline-flex; }
 		.bqe-grid { display: grid; grid-template-columns: minmax(260px, 320px) 1fr 1fr; gap: 0.8rem; }
