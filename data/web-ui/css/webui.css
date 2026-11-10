@@ -1129,9 +1129,41 @@ html.webui-side-narrow .webui-side .webui-side-toggle {
 	display: none;
 }
 
+/* A phone's head gives the page's name its room: the box's name and Log
+   out move to the top and the foot of More (webuiToggleMoreMenu), and a
+   name still too long takes a second line rather than being cut off */
+.webui-more-menu .webui-more-host,
+.webui-more-menu .webui-more-logout {
+	display: none;
+}
+
 @media (max-width: 600px) {
-	.webui-header .webui-hostname {
-		max-width: 5.5rem;
+	.webui-header .webui-hostname,
+	.webui-header #webui-logout-btn {
+		display: none;
+	}
+
+	.webui-page-title {
+		display: -webkit-box;
+		-webkit-box-orient: vertical;
+		-webkit-line-clamp: 2;
+		white-space: normal;
+		overflow-wrap: break-word;
+	}
+
+	.webui-more-menu .webui-more-host {
+		display: block;
+		margin: 0;
+		padding: 0.4rem 0.75rem 0.5rem;
+		border-bottom: 1px solid var(--pico-muted-border-color);
+		color: var(--pico-muted-color);
+		font-size: 0.8rem;
+		font-weight: 600;
+		overflow-wrap: anywhere;
+	}
+
+	.webui-more-menu .webui-more-logout {
+		display: flex;
 	}
 }
 

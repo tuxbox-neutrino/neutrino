@@ -48,6 +48,7 @@ const WEBUI_ICONS = {
 	info: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg>',
 	collapse: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="11 17 6 12 11 7"/><polyline points="18 17 13 12 18 7"/></svg>',
 	code: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>',
+	logout: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>',
 	// the mark after the name of a link that leaves the interface
 	out: '<svg class="webui-link-out" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><path d="M15 3h6v6"/><path d="M10 14L21 3"/></svg>'
 };
@@ -1211,6 +1212,7 @@ function webuiToggleMoreMenu(ev) {
 		webuiShowAbout();
 	});
 	menu.appendChild(about);
+	_webuiMoreSync(menu);
 	document.body.appendChild(menu);
 	_webuiRecCountPaint();
 	// its pages take the focus back to the tab bar when Enter opened one
@@ -1248,6 +1250,61 @@ function webuiToggleMoreMenu(ev) {
 		});
 	}, 0);
 }
+
+/* The box's name at the head of More and Log out at its foot, where a
+   phone's head leaves them out (the CSS shows them only then): as they are
+   now, in the menu given or the one open. Both may come after the menu was
+   opened (the box's name and the session are read in the background), and
+   a session that ends takes Log out away; the focus on it goes to the entry
+   before it. */
+function _webuiMoreSync(menu) {
+	menu = menu || document.getElementById('webui-more-menu');
+	if (!menu)
+		return;
+	var named = (document.getElementById('webui-hostname') || {}).textContent || '';
+	var host = menu.querySelector(':scope > .webui-more-host');
+	if (named && !host) {
+		host = document.createElement('p');
+		host.className = 'webui-more-host';
+		menu.insertBefore(host, menu.firstChild);
+	}
+	if (host && named)
+		host.textContent = named;
+	else if (host)
+		host.remove();
+	var out = menu.querySelector(':scope > .webui-more-logout');
+	if (_webuiSignedIn && !out) {
+		out = document.createElement('button');
+		out.type = 'button';
+		out.className = 'webui-more-logout';
+		out.innerHTML = WEBUI_ICONS.logout + '<span>' + webuiLH('hdr.logout', 'Log out') + '</span>';
+		out.addEventListener('click', webuiLogout);
+		menu.appendChild(out);
+	} else if (!_webuiSignedIn && out) {
+		if (document.activeElement === out && out.previousElementSibling)
+			out.previousElementSibling.focus();
+		out.remove();
+	}
+}
+
+// A window that grows past a phone's width hides the box's name and Log out
+// in an open More (the CSS of _webuiMoreSync's entries): the focus on Log
+// out goes to About before it first, as when a session ends; a focus on any
+// other entry stays.
+(function() {
+	var phone = window.matchMedia ? window.matchMedia('(max-width: 600px)') : null;
+	if (!phone)
+		return;
+	var wider = function() {
+		var at = document.activeElement;
+		if (!phone.matches && at && at.classList && at.classList.contains('webui-more-logout') && at.previousElementSibling)
+			at.previousElementSibling.focus();
+	};
+	if (phone.addEventListener)
+		phone.addEventListener('change', wider);
+	else if (phone.addListener)
+		phone.addListener(wider);
+})();
 
 /* The side bar of a wider screen: the interface's name and the box's, the
    pages in their groups (webuiRenderNav), Settings, the API documentation,
@@ -1946,6 +2003,7 @@ function webuiLoadHostname() {
 				head.textContent = named;
 				// the whole name where a narrow header cuts it short
 				head.title = named;
+				_webuiMoreSync();
 			}
 			if (!el) return;
 			el.textContent = host;
@@ -2042,6 +2100,7 @@ function webuiUpdateLogoutBtn(show) {
 	_webuiSignedIn = !!show;
 	var btn = document.getElementById('webui-logout-btn');
 	if (btn) btn.hidden = !show;
+	_webuiMoreSync();
 }
 
 /* The session ends without the page taking part: a restart of the GUI
@@ -5033,8 +5092,11 @@ function webuiInit() {
 		webuiLoadHostname();
 		_webuiPowerInit();
 
-		// Calculate and set spacer height
+		// Calculate and set spacer height, and again whenever the head
+		// changes its own (a page's name on two lines on a phone)
 		webuiUpdateHeaderSpacer();
+		if (headerWrapper && typeof ResizeObserver === 'function')
+			new ResizeObserver(webuiUpdateHeaderSpacer).observe(headerWrapper);
 
 		// Update on window resize
 		window.addEventListener('resize', webuiUpdateHeaderSpacer);
