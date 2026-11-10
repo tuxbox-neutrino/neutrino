@@ -56,7 +56,8 @@ async function loadSysInfo() {
 		if (sys.disks && sys.disks.length) {
 			for (var d = 0; d < sys.disks.length; d++) {
 				var dsk = sys.disks[d];
-				var dlabel = (dsk.mount === '/') ? webuiLH('si.root', 'System (/)') : escapeHtml(dsk.mount);
+				// a long mount point may break after each slash
+				var dlabel = (dsk.mount === '/') ? webuiLH('si.root', 'System (/)') : escapeHtml(dsk.mount).replace(/\//g, '/<wbr>');
 				if (dsk.answered === false)
 					mem += '<span class="sysinfo-label">' + dlabel + '</span><span class="sysinfo-value webui-text-muted">' +
 						webuiLH('si.no_answer', 'not answering') + '</span>';

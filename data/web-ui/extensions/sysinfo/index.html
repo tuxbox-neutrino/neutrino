@@ -125,9 +125,12 @@
 			padding: 0.5rem 0.75rem;
 		}
 
+		/* the names take at most two fifths of the width: a long mount
+		   point wraps (after its slashes first), so its bar and figures
+		   keep their room on a phone */
 		.sysinfo-grid {
 			display: grid;
-			grid-template-columns: auto 1fr;
+			grid-template-columns: fit-content(40%) minmax(0, 1fr);
 			gap: 0.25rem 1rem;
 			align-items: center;
 		}
@@ -135,7 +138,7 @@
 		.sysinfo-label {
 			font-size: 0.82rem;
 			color: var(--pico-muted-color);
-			white-space: nowrap;
+			overflow-wrap: anywhere;
 		}
 
 		.sysinfo-value {
