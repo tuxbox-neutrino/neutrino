@@ -883,7 +883,7 @@ function renderBackupPanel() {
 async function doSettingsBackup(btn) {
 	btn.disabled = true;
 	try {
-		webuiShowToast('Backup: ' + await webuiV1Download('/system/backup', 'settings.tar.gz'));
+		webuiShowToast(webuiL('set.backup_done', 'Backup saved') + ': ' + await webuiV1Download('/system/backup', 'settings.tar.gz'));
 	} catch (e) {
 		webuiToastError(webuiL('set.backup_fail', 'Backup failed'), e);
 	}

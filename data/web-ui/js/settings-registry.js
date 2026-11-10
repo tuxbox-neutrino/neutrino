@@ -90,7 +90,7 @@ var SETTINGS_REGISTRY = [
 		v1section: 'video',
 		group: 'av',
 		icon: regIcon('<polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>'),
-		label: 'Video',
+		label: webuiL('reg.cat_video', 'Video'),
 		sections: [
 			{
 				title: webuiL('reg.video_format', 'Video format'),
@@ -120,7 +120,7 @@ var SETTINGS_REGISTRY = [
 		v1section: 'audio',
 		group: 'av',
 		icon: regIcon('<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>'),
-		label: 'Audio',
+		label: webuiL('reg.cat_audio', 'Audio'),
 		sections: [
 			{
 				title: webuiL('reg.analog_out', 'Analog output'),
@@ -178,7 +178,7 @@ var SETTINGS_REGISTRY = [
 		label: 'LCD',
 		sections: [
 			{
-				title: 'LCD Display',
+				title: webuiL('reg.lcd_display', 'LCD display'),
 				fields: [
 					{ key: 'lcd_power', label: webuiL('reg.lcd_power', 'LCD on/off'), type: 'bool01' },
 					{ key: 'lcd_inverse', label: webuiL('reg.lcd_invert', 'Invert the LCD'), type: 'bool01' },
@@ -188,7 +188,7 @@ var SETTINGS_REGISTRY = [
 					{ key: 'lcd_dim_time', label: webuiL('reg.dim_timeout', 'Dim timeout (sec.)'), type: 'number', min: 0 },
 					{ key: 'lcd_dim_brightness', label: webuiL('reg.dim_brightness', 'Dim brightness'), type: 'number', min: 0, max: 255 },
 					{ key: 'lcd_epgmode', label: webuiL('reg.epg_display', 'EPG display'), type: 'select',
-					  options: [{v:'0',l:'Standard'},{v:'1',l: webuiL('reg.epg_prog', 'Programme')},{v:'2',l: webuiL('reg.epg_ch_prog', 'Channel/programme')},
+					  options: [{v:'0',l: webuiL('reg.epg_standard', 'Standard')},{v:'1',l: webuiL('reg.epg_prog', 'Programme')},{v:'2',l: webuiL('reg.epg_ch_prog', 'Channel/programme')},
 					            {v:'3',l: webuiL('reg.epg_ch_sep_prog', 'Channel/sep./programme')},{v:'7',l: webuiL('reg.epg_chs_prog', 'Channel (short)/programme')},
 					            {v:'11',l: webuiL('reg.epg_chs_sep_prog', 'Channel (short)/sep./programme')},{v:'15',l: webuiL('reg.all', 'Everything')}] },
 					{ key: 'lcd_show_volume', label: webuiL('reg.status_line', 'Status line'), type: 'select',
@@ -205,7 +205,7 @@ var SETTINGS_REGISTRY = [
 		label: 'GLCD',
 		sections: [
 			{
-				title: 'Graphic LCD',
+				title: webuiL('reg.glcd_display', 'Graphic LCD'),
 				fields: [
 					{ key: 'glcd_enable', label: webuiL('reg.glcd_power', 'GLCD on/off'), type: 'bool01' },
 					{ key: 'glcd_inverse', label: webuiL('reg.glcd_invert', 'Invert the graphic LCD'), type: 'bool01' },
@@ -228,11 +228,11 @@ var SETTINGS_REGISTRY = [
 				title: 'HDMI-CEC',
 				fields: [
 					{ key: 'hdmi_cec_mode', label: webuiL('reg.cec_mode', 'CEC mode'), type: 'select',
-					  options: [{v:'0',l: webuiL('reg.off', 'Off')},{v:'1',l:'Tuner'},{v:'2',l:'Recorder'}] },
+					  options: [{v:'0',l: webuiL('reg.off', 'Off')},{v:'1',l:'Tuner'},{v:'2',l: webuiL('reg.cec_recorder', 'Recorder')}] },
 					{ key: 'hdmi_cec_view_on', label: webuiL('reg.tv_on', 'Turn TV on'), type: 'bool01' },
-					{ key: 'hdmi_cec_standby', label: 'TV Standby', type: 'bool01' },
+					{ key: 'hdmi_cec_standby', label: webuiL('reg.tv_standby', 'TV standby'), type: 'bool01' },
 					{ key: 'hdmi_cec_volume', label: webuiL('reg.volume', 'Volume'), type: 'select',
-					  options: [{v:'0',l: webuiL('reg.off', 'Off')},{v:'1',l:'Audiosystem'},{v:'2',l:'TV'}] }
+					  options: [{v:'0',l: webuiL('reg.off', 'Off')},{v:'1',l: webuiL('reg.cec_audio', 'Audio system')},{v:'2',l:'TV'}] }
 				]
 			}
 		]
@@ -287,7 +287,8 @@ var SETTINGS_REGISTRY = [
 		id: 'zapitupload',
 		group: 'sys',
 		icon: regIcon('<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>'),
-		label: 'Zapit-Upload',
+		// named as its panel is
+		label: webuiL('set.zapit_title', 'Channel list import'),
 		custom: true
 	},
 	{
@@ -470,7 +471,7 @@ var SETTINGS_REGISTRY = [
 		id: 'nhttpd',
 		group: 'web',
 		icon: regIcon('<rect x="2" y="2" width="20" height="8" rx="2" ry="2"/><rect x="2" y="14" width="20" height="8" rx="2" ry="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/>'),
-		label: 'Webserver',
+		label: webuiL('reg.cat_webserver', 'Web server'),
 		// read and written over /api/v1/system/webserver, by its member names
 		config: 'nhttpd',
 		sections: [
@@ -487,7 +488,7 @@ var SETTINGS_REGISTRY = [
 					// typed twice, the rule beside it; the repeat stays in the page (local)
 					{ key: 'password', label: webuiL('pw.new', 'New password (at least 8 characters)'), type: 'password' },
 					{ key: 'password_repeat', label: webuiL('pw.repeat', 'Repeat the new password'), type: 'password', local: true },
-					{ key: 'no_login_prefix', label: webuiL('reg.noauth_client', 'Without login (IP prefix)'), type: 'text',
+					{ key: 'no_login_prefix', label: webuiL('reg.noauth_client', 'Without sign-in (address prefix)'), type: 'text',
 					  hint: webuiL('reg.noauth_client_hint', 'callers whose address begins with this see the pages without the login, and so does the box itself, unless a proxy is entered in nhttpd-access.conf (trusted_proxies); a change made in the web interface still asks for the sign-in') },
 					// read only, kept in nhttpd-access.conf beside trusted_proxies, which no row shows
 					{ key: 'allowed_hosts', label: webuiL('reg.allowed_hosts', 'Other names of the box'), type: 'info',
@@ -502,9 +503,9 @@ var SETTINGS_REGISTRY = [
 			{
 				title: webuiL('reg.content', 'Content'),
 				fields: [
-					{ key: 'override_directory', label: webuiL('reg.override_dir', 'Override directory'), type: 'text', picker: true, hint: webuiL('reg.override_dir_hint', 'files here override the default web root') },
-					{ key: 'hosted_directory', label: webuiL('reg.hosted_dir', 'Hosted directory'), type: 'text', picker: true },
-					{ key: 'threading', label: 'Threading', type: 'bool',
+					{ key: 'override_directory', label: webuiL('reg.override_dir', 'Directory of replacement pages'), type: 'text', picker: true, hint: webuiL('reg.override_dir_hint', 'files here override the default web root') },
+					{ key: 'hosted_directory', label: webuiL('reg.hosted_dir', 'Directory for /hosted/'), type: 'text', picker: true },
+					{ key: 'threading', label: webuiL('reg.threading', 'Connection threading'), type: 'bool',
 					  hint: webuiL('reg.threading_hint', 'On: several requests at once; off: one after the other. The pages of the web interface update themselves either way') },
 					{ key: 'send_all_types', label: webuiL('reg.send_all_types', 'Send all file types'), type: 'bool',
 					  hint: webuiL('reg.send_all_types_hint', 'On: a file of a type the web server does not know is sent all the same; off: it is refused') }
