@@ -195,6 +195,12 @@ async function v1setLoad() {
 				// a list several rows share is stated once, beside the rows
 				if (item.values_from && Array.isArray(lists[item.values_from]))
 					item.values = lists[item.values_from];
+				// a bare number that stands for a choice offers it by name
+				var own = _v1setHas(V1SET_OWN_CHOICES, item.id);
+				if (own && item.type === 'int' && !(item.values && item.values.length)) {
+					item.values = own.map(function(c) { return {value: c[0], label: webuiL(c[1], c[2])}; });
+					item.listed = true;
+				}
 				V1SET.items[item.id] = item;
 				if (!V1SET.bySection[item.section]) {
 					V1SET.bySection[item.section] = [];
@@ -462,8 +468,19 @@ var V1SET_OWN_LABELS = {
 	'recording_type': ['set.own.recording_type', 'Recording'],
 	'recording_stopsectionsd': ['set.own.stop_epg', 'Stop the EPG service while recording'],
 	'recordingmenu.stream_pmt_pid': ['set.own.stream_pmt', 'Record the PMT PID too'],
-	'recording_choose_direct_rec_dir': ['set.own.rec_dir_choice', 'Choose the folder when recording from the guide (0 no, 1 from the shares, 2 any folder)'],
+	'recording_choose_direct_rec_dir': ['set.own.rec_dir_choice', 'Choose the folder when recording from the guide'],
 	'minimode': ['set.own.minimode', 'Simple mode: lists without recording and bouquet functions']
+};
+
+/* Settings the box declares as a bare number although each number stands for
+   a choice, which its own menu offers by name: the choices in our own words,
+   offered as a list. The box still checks the number that is sent. */
+var V1SET_OWN_CHOICES = {
+	'recording_choose_direct_rec_dir': [
+		[0, 'set.own.rec_dir_no', 'No'],
+		[1, 'set.own.rec_dir_shares', 'From the shares'],
+		[2, 'set.own.rec_dir_any', 'Any folder']
+	]
 };
 
 /* The words of a row whose name or help the box's language files lack: the
