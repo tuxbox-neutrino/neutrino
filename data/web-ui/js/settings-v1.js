@@ -826,6 +826,8 @@ function v1setRow(item) {
 				help.hidden = !help.hidden;
 				V1SET.helpOpen[item.id] = !help.hidden;
 				info.setAttribute('aria-expanded', help.hidden ? 'false' : 'true');
+				if (!help.hidden)
+					help.scrollIntoView({block: 'nearest'});
 			}}}, webuiMarkup(V1SET_INFO_ICON));
 		labelCell.appendChild(info);
 	}

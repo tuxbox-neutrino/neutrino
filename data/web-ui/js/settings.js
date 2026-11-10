@@ -104,16 +104,25 @@ function renderField(f, opts) {
 		val = String(f.default);
 	/* What a row says is text, wherever it came from (the registry, an
 	   extension's manifest, a translation), and escaped here, where it is put
-	   into markup; the optional (i) hint follows it (native title tooltip). */
-	var labelHtml = escapeHtml(f.label) +
-		(f.hint ? ' <span class="webui-hint" title="' + escapeHtml(f.hint) + '" aria-hidden="true">&#9432;</span>' : '');
+	   into markup. */
+	var labelHtml = escapeHtml(f.label);
 	var id = ('cfg_' + (opts.idPrefix || '') + String(f.key || f.id || '').replace(/\./g, '__')).replace(/[^A-Za-z0-9_-]/g, '_');	// a manifest's key too
-	/* A field is named by its row's label and described by the hint, which
-	   the (i) only shows to the mouse. */
-	var hintId = f.hint ? id + '_hint' : '';
+	/* A field is named by its row's label and described by its hint. The
+	   hint is opened below the row by an info button beside the name, as on
+	   the box's own rows: for the mouse, a finger and the keyboard alike. */
+	var hintId = f.hint ? id + '_help' : '';
 	var described = hintId ? ' aria-describedby="' + hintId + '"' : '';
-	var labelFor = '<label for="' + id + '">' + labelHtml + '</label>' +
-		(hintId ? '<span id="' + hintId + '" hidden>' + escapeHtml(f.hint) + '</span>' : '');
+	var help = webuiLH('set.help', 'Help');
+	var labelCell = function(tag) {
+		return hintId ? '<div class="webui-set-label">' + tag +
+			'<button type="button" class="webui-set-info" title="' + help + '" aria-label="' + help + ': ' + labelHtml + '"' +
+			' aria-expanded="false" aria-controls="' + hintId + '" onclick="settingsHelp(this)">' +
+			(typeof V1SET_INFO_ICON === 'string' ? V1SET_INFO_ICON : '&#9432;') + '</button></div>' : tag;
+	};
+	var labelFor = labelCell('<label for="' + id + '">' + labelHtml + '</label>');
+	var labelPlain = labelCell('<label>' + labelHtml + '</label>');
+	// the row's end: its help, below it across both columns
+	var end = (hintId ? '<div class="webui-set-help" id="' + hintId + '" hidden><p>' + escapeHtml(f.hint) + '</p></div>' : '') + '</div>';
 	var ext = opts.dataConfig ? ' data-extcfg="' + escapeHtml(opts.dataConfig) + '"' : '';
 	// a field of the page's own, never sent (the repeated password)
 	if (f.local)
@@ -134,9 +143,8 @@ function renderField(f, opts) {
 
 	if (f.type === 'info') {
 		var text = (f.text !== undefined) ? f.text : val;
-		return row + '<label>' + labelHtml + '</label>' +
-			(hintId ? '<span id="' + hintId + '" hidden>' + escapeHtml(f.hint) + '</span>' : '') +
-			'<span id="' + id + '"' + described + ' style="color:var(--pico-muted-color)">' + escapeHtml(text || '--') + '</span></div>';
+		return row + labelPlain +
+			'<span id="' + id + '"' + described + ' style="color:var(--pico-muted-color)">' + escapeHtml(text || '--') + '</span>' + end;
 	}
 	if (f.type === 'action') {
 		// Einzel-Action oder Button-Gruppe (f.actions) in einer Zeile
@@ -148,7 +156,7 @@ function renderField(f, opts) {
 			SETTINGS_ACTIONS[aid] = opts.extDir ? Object.assign({}, a, {extDir: opts.extDir}) : a;
 			btns += '<button type="button" class="webui-btn" onclick="runSettingsAction(' + escapeHtml(JSON.stringify(aid)) + ', this)">' + escapeHtml(a.button || a.label || f.label) + '</button> ';
 		});
-		return row + '<label>' + labelHtml + '</label><span>' + btns.trim() + '</span></div>';
+		return row + labelPlain + '<span>' + btns.trim() + '</span>' + end;
 	}
 
 	if (f.type === 'select') {
@@ -156,7 +164,7 @@ function renderField(f, opts) {
 			return '<option value="' + escapeHtml(o.v) + '"' + (val === o.v ? ' selected' : '') + '>' + escapeHtml(o.l) + '</option>';
 		}).join('');
 		return row + labelFor +
-			'<select id="' + id + '" data-key="' + escapeHtml(f.key) + '"' + ext + dis + described + '>' + opts + '</select></div>';
+			'<select id="' + id + '" data-key="' + escapeHtml(f.key) + '"' + ext + dis + described + '>' + opts + '</select>' + end;
 	}
 	// ACCESS-Domaene (personalize.h): nur 0 = ohne PIN und 2 = mit PIN.
 	// Der Eintrag ist immer sichtbar (personalize.cpp:1006), die 0 heisst
@@ -168,33 +176,33 @@ function renderField(f, opts) {
 			'<select id="' + id + '" data-key="' + escapeHtml(f.key) + '"' + ext + dis + described + '>' +
 			'<option value="0"' + (pin ? '' : ' selected') + '>' + webuiLH('pers.no', 'No') + '</option>' +
 			'<option value="2"' + (pin ? ' selected' : '') + '>' + webuiLH('pers.yes', 'Yes') + '</option>' +
-			'</select></div>';
+			'</select>' + end;
 	}
 	if (f.type === 'bool') {
 		var isTrue = (val === 'true' || val === '1');
 		return row + labelFor +
 			'<label class="webui-toggle"><input type="checkbox" id="' + id + '" data-key="' + escapeHtml(f.key) + '" data-on="true" data-off="false"' + ext + dis + described + (isTrue ? ' checked' : '') + '>' +
-			'<span class="webui-toggle-slider"></span></label></div>';
+			'<span class="webui-toggle-slider"></span></label>' + end;
 	}
 	if (f.type === 'bool01') {
 		var isOne = (val === '1');
 		return row + labelFor +
 			'<label class="webui-toggle"><input type="checkbox" id="' + id + '" data-key="' + escapeHtml(f.key) + '" data-on="1" data-off="0"' + ext + dis + described + (isOne ? ' checked' : '') + '>' +
-			'<span class="webui-toggle-slider"></span></label></div>';
+			'<span class="webui-toggle-slider"></span></label>' + end;
 	}
 	if (f.type === 'number') {
 		var attrs = 'type="number"';
 		if (f.min !== undefined) attrs += ' min="' + escapeHtml(String(f.min)) + '"';
 		if (f.max !== undefined) attrs += ' max="' + escapeHtml(String(f.max)) + '"';
 		return row + labelFor +
-			'<input ' + attrs + ' id="' + id + '" data-key="' + escapeHtml(f.key) + '"' + ext + dis + described + ' value="' + escapeHtml(val) + '"></div>';
+			'<input ' + attrs + ' id="' + id + '" data-key="' + escapeHtml(f.key) + '"' + ext + dis + described + ' value="' + escapeHtml(val) + '">' + end;
 	}
 	if (f.type === 'password') {
 		var pattr = f.pattern ? ' pattern="' + escapeHtml(f.pattern) + '"' + (f.rule ? ' data-rule="' + escapeHtml(f.rule) + '"' : '') : '';
 		if (f.maxlength) pattr += ' maxlength="' + escapeHtml(String(f.maxlength)) + '"';
 		return row + labelFor + '<span class="webui-set-field">' +
 			'<input type="password" id="' + id + '" data-key="' + escapeHtml(f.key) + '"' + ext + dis + described + pattr + ' autocomplete="' + escapeHtml(f.autocomplete || 'new-password') + '" value="' + val.replace(/"/g, '&quot;') + '">' +
-			' <button type="button" class="webui-btn" aria-pressed="false" aria-label="' + webuiLH('set.pw_show', 'Show password') + '" onclick="togglePwField(\'' + id + '\', this)">' + EYEOFF_ICON + '</button></span></div>';
+			' <button type="button" class="webui-btn" aria-pressed="false" aria-label="' + webuiLH('set.pw_show', 'Show password') + '" onclick="togglePwField(\'' + id + '\', this)">' + EYEOFF_ICON + '</button></span>' + end;
 	}
 	// text — optional mit Verzeichnis-Picker (f.picker: true)
 	var pick = '';
@@ -205,7 +213,7 @@ function renderField(f, opts) {
 			'" onclick="webuiPickInto(\'' + id + '\', ' + escapeHtml(JSON.stringify(pstart)) + ')">' + FOLDER_ICON + '</button>';
 	}
 	return row + labelFor + (pick ? '<span class="webui-set-field">' : '<span>') +
-		'<input type="text" id="' + id + '" data-key="' + escapeHtml(f.key) + '"' + ext + dis + described + ' value="' + val.replace(/"/g, '&quot;') + '">' + pick + '</span></div>';
+		'<input type="text" id="' + id + '" data-key="' + escapeHtml(f.key) + '"' + ext + dis + described + ' value="' + val.replace(/"/g, '&quot;') + '">' + pick + '</span>' + end;
 }
 
 /* What the browser knows about a field before it is sent: a number is a
@@ -304,6 +312,18 @@ function settingsHoldBack(fields) {
 	webuiShowToast((bad.length === 1 ? webuiL('set.hold_one', 'Nothing was saved: check the marked field') :
 		webuiL('set.hold_many', 'Nothing was saved: check the {n} marked fields').replace('{n}', bad.length)), true);
 	return true;
+}
+
+// The help of a row: shown below it and hidden again by its info button
+function settingsHelp(btn) {
+	var help = document.getElementById(btn.getAttribute('aria-controls'));
+	if (!help)
+		return;
+	help.hidden = !help.hidden;
+	btn.setAttribute('aria-expanded', help.hidden ? 'false' : 'true');
+	// clear of a save row or bar that sticks to the foot (scroll-margin)
+	if (!help.hidden)
+		help.scrollIntoView({block: 'nearest'});
 }
 
 // kleines Ordner-Icon fuer Picker-Buttons

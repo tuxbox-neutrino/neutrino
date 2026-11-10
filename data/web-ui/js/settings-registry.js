@@ -477,8 +477,10 @@ var SETTINGS_REGISTRY = [
 			{
 				title: webuiL('reg.access', 'Access'),
 				fields: [
-					{ key: 'page_login', label: webuiL('reg.auth', 'Password protection'), type: 'bool' },
-					{ key: 'user', label: webuiL('set.mnt_user', 'User'), type: 'text' },
+					{ key: 'page_login', label: webuiL('reg.auth', 'Password protection'), type: 'bool',
+					  hint: webuiL('reg.auth_hint', 'On: every page of the web interface asks for the sign-in. Off: looking needs none, only changing asks for it') },
+					{ key: 'user', label: webuiL('set.mnt_user', 'User'), type: 'text',
+					  hint: webuiL('reg.user_hint', 'User for the sign-in to the web interface and the API (mostly root)') },
 					// sent only with a new password or user name, which the box changes only with it
 					{ key: 'current', label: webuiL('set.pw_current', 'Current password'), type: 'password', autocomplete: 'current-password',
 					  hint: webuiL('set.pw_current_hint', 'needed to change the password or the user name: the password you sign in with') },
@@ -493,7 +495,8 @@ var SETTINGS_REGISTRY = [
 					// kept in nhttpd-access.conf beside allowed_hosts, and in effect at once
 					{ key: 'control_without_asking', label: webuiL('reg.control_without_asking', 'Run commands without asking'), type: 'bool',
 					  hint: webuiL('reg.control_without_asking_hint', 'a browser that opens a command of the old interface (an address under /control/ and the like) from a bookmark, a link or another site runs it without the box asking first; a page on another site could then run such commands too. Off, the box asks each time') },
-					{ key: 'port', label: 'Port', type: 'number', min: 1, max: 65535 }
+					{ key: 'port', label: 'Port', type: 'number', min: 1, max: 65535,
+					  hint: webuiL('reg.port_hint', 'Port of the web interface: opened as http://box:port, for 80 http://box is enough') }
 				]
 			},
 			{
@@ -501,8 +504,10 @@ var SETTINGS_REGISTRY = [
 				fields: [
 					{ key: 'override_directory', label: webuiL('reg.override_dir', 'Override directory'), type: 'text', picker: true, hint: webuiL('reg.override_dir_hint', 'files here override the default web root') },
 					{ key: 'hosted_directory', label: webuiL('reg.hosted_dir', 'Hosted directory'), type: 'text', picker: true },
-					{ key: 'threading', label: 'Threading', type: 'bool' },
-					{ key: 'send_all_types', label: webuiL('reg.send_all_types', 'Send all file types'), type: 'bool' }
+					{ key: 'threading', label: 'Threading', type: 'bool',
+					  hint: webuiL('reg.threading_hint', 'On: several requests at once; off: one after the other. The pages of the web interface update themselves either way') },
+					{ key: 'send_all_types', label: webuiL('reg.send_all_types', 'Send all file types'), type: 'bool',
+					  hint: webuiL('reg.send_all_types_hint', 'On: a file of a type the web server does not know is sent all the same; off: it is refused') }
 				]
 			}
 		]
