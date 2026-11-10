@@ -326,6 +326,17 @@
 		.webui-set-error {
 			color: var(--webui-danger);
 		}
+		/* what a field holds, below it in the size of the other notes (the
+		   web server's password: one is set, or none of the owner's own) */
+		.webui-set-note {
+			grid-column: 1 / -1;
+			margin: 0;
+			font-size: var(--webui-font-sm);
+			color: var(--pico-muted-color);
+		}
+		.webui-set-note.is-warn {
+			color: var(--webui-danger);
+		}
 		.settings-card .webui-form-row [aria-invalid="true"] {
 			border-color: var(--webui-danger);
 		}

@@ -115,6 +115,9 @@ function renderField(f, opts) {
 	var labelFor = '<label for="' + id + '">' + labelHtml + '</label>' +
 		(hintId ? '<span id="' + hintId + '" hidden>' + escapeHtml(f.hint) + '</span>' : '');
 	var ext = opts.dataConfig ? ' data-extcfg="' + escapeHtml(opts.dataConfig) + '"' : '';
+	// a field of the page's own, never sent (the repeated password)
+	if (f.local)
+		ext += ' data-local="1"';
 
 	// Observer-Abhaengigkeit: Zeile wird gerendert, aber gesperrt, solange
 	// der beobachtete Key nicht den Freigabewert traegt. Kein Zwangsschreiben
@@ -575,7 +578,9 @@ async function webserverAfterWrite(answer) {
 	var moving = !!caller.port_moved;
 	var target = new URL(location.href);
 	target.port = String(was.port);
-	webuiShowToast(moving ? webuiL('set.ws_moving', 'The web server moves to') + ' ' + target.origin + '/' : webuiL('set.ws_restarting', 'The web server restarts with the new settings'));
+	webuiShowToast(moving ? webuiL('set.ws_moving', 'The web server moves to') + ' ' + target.origin + '/' :
+		caller.password_changed ? webuiL('set.ws_pw_changed', 'Password changed. The web server restarts with the new settings.') :
+		webuiL('set.ws_restarting', 'The web server restarts with the new settings'));
 	// what answers here, or null where nothing does
 	var here = async function() {
 		try {
@@ -663,15 +668,12 @@ async function loadExtConfigPanel(cat) {
 			var pwEl = el.querySelector('#cfg_' + cat.id + '_password');
 			var pwDef = cfg.password_shipped === true;
 			var pwSet = cfg.has_password === true;
-			var pwMsg = pwDef ? webuiLH('set.pw_default', 'No password of your own yet (the first password or a factory default). Please set your own password.') : (pwSet ? webuiLH('set.pw_isset', 'A password is set. Enter a new one to change it.') : '');
+			var pwMsg = pwDef ? webuiL('set.pw_default', 'No password of your own yet (the first password or a factory default). Please set your own password.') : (pwSet ? webuiL('set.pw_isset', 'A password is set. Enter a new one to change it.') : '');
 			var pwRow = pwEl ? pwEl.closest('.webui-form-row') : null;
 			if (pwRow && pwMsg) {
-				var note = document.createElement('div');
-				note.className = 'webui-form-row';
-				note.innerHTML = '<label></label><small id="pw-status-note" style="color:' +
-					(pwDef ? 'var(--pico-del-color)' : 'var(--pico-muted-color)') + '">' + pwMsg + '</small>';
-				pwRow.insertAdjacentElement('afterend', note);
-				pwEl.setAttribute('aria-describedby', 'pw-status-note');
+				// below the field, in the size of the other notes of the panel
+				pwRow.appendChild(webuiEl('p', {className: 'webui-set-note' + (pwDef ? ' is-warn' : ''), id: 'pw-status-note'}, pwMsg));
+				settingsDescribed(pwEl, 'pw-status-note', true);
 			}
 		}
 	} catch (e) {
@@ -730,6 +732,8 @@ async function saveExtConfig(catId, cfgName, btn) {
 	if (settingsHoldBack(Object.keys(changes).map(function(key) {
 		return root.querySelector('[data-extcfg][data-key="' + CSS.escape(key) + '"]');
 	}).filter(Boolean)))
+		return;
+	if (webserver && webserverPasswordHeld(root))
 		return;
 	if (webserver) {
 		var asks = ('password' in changes) || ('user' in changes);
@@ -796,6 +800,32 @@ async function saveExtConfig(catId, cfgName, btn) {
 		}
 	}
 	btn.disabled = false;
+}
+
+/* A new password of the web server is typed twice and held to the rule the
+   box sets (at least 8 characters, as a person counts them); one of spaces
+   alone is no password, though the box would take it. A sign-in after a
+   typo would need the current password nobody knows. true while held. */
+function webserverPasswordHeld(root) {
+	var pw = root.querySelector('[data-extcfg][data-key="password"]');
+	var again = root.querySelector('[data-key="password_repeat"]');
+	if (!pw || (pw.value === '' && (!again || again.value === '')))
+		return false;
+	var at = pw;
+	var why = '';
+	if (pw.value.trim() === '')
+		why = webuiL('set.pw_spaces', 'The new password cannot be only spaces.');
+	else if (Array.from(pw.value).length < 8)
+		why = webuiL('pw.short', 'The new password needs at least 8 characters.');
+	else if (again && again.value !== pw.value) {
+		why = webuiL('pw.mismatch', 'The two new passwords do not match.');
+		at = again;
+	}
+	if (!why)
+		return false;
+	settingsMarkRefused(at, why);
+	webuiShowToast(webuiL('set.hold_one', 'Nothing was saved: check the marked field'), true);
+	return true;
 }
 
 // A field the box refused: its word below it, the focus on it

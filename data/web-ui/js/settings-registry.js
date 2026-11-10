@@ -482,7 +482,9 @@ var SETTINGS_REGISTRY = [
 					// sent only with a new password or user name, which the box changes only with it
 					{ key: 'current', label: webuiL('set.pw_current', 'Current password'), type: 'password', autocomplete: 'current-password',
 					  hint: webuiL('set.pw_current_hint', 'needed to change the password or the user name: the password you sign in with') },
-					{ key: 'password', label: webuiL('set.mnt_pass', 'Password'), type: 'password' },
+					// typed twice, the rule beside it; the repeat stays in the page (local)
+					{ key: 'password', label: webuiL('pw.new', 'New password (at least 8 characters)'), type: 'password' },
+					{ key: 'password_repeat', label: webuiL('pw.repeat', 'Repeat the new password'), type: 'password', local: true },
 					{ key: 'no_login_prefix', label: webuiL('reg.noauth_client', 'Without login (IP prefix)'), type: 'text',
 					  hint: webuiL('reg.noauth_client_hint', 'callers whose address begins with this see the pages without the login, and so does the box itself, unless a proxy is entered in nhttpd-access.conf (trusted_proxies); a change made in the web interface still asks for the sign-in') },
 					// read only, kept in nhttpd-access.conf beside trusted_proxies, which no row shows
