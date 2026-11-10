@@ -1066,13 +1066,15 @@ function extInstallDialog() {
 		'<button type="button" class="webui-btn primary" onclick="extInstallUpload(this)">' + UP_ICON + webuiLH('set.extinst_btn', 'Install') + '</button></span></div></div>');
 }
 
-// The browser loads it; an address that does not let a page read it is said.
+// The browser loads it. An address it cannot load is said with both causes
+// the browser cannot tell apart: not reachable from here (the box or the
+// browser offline), or not letting a page read it.
 async function extFetchArchive(url) {
 	var r;
 	try {
 		r = await fetch(url, {cache: 'no-cache'});
 	} catch (e) {
-		throw new Error(webuiL('set.extinst_cors', 'The browser cannot load this address (it does not let a page read it). Download the archive and install it as a file.'));
+		throw new Error(webuiL('set.extinst_cors', 'The browser could not load this address: it cannot be reached from here, or it does not let a page read it. Download the archive and install it as a file.'));
 	}
 	if (!r.ok) throw new Error('HTTP ' + r.status);
 	return r.blob();
@@ -1161,6 +1163,35 @@ async function extReadIndex(again) {
 	return _extIndex;
 }
 
+/* Why the box did not take an index or an archive. Busy, no key and not put
+   in place have their own codes and words (webuiErrText). A refusal 400 is
+   one code for every cause, which the box names in English only: a page in
+   English says the box's words, any other a sentence true for every cause:
+   of the index (its signature, its size, a form the box cannot read) that
+   the box cannot use it, of an archive taken unsigned that it is no
+   extension the box can install, of one from the index that it does not
+   match the index or is no such extension. */
+function extRefusalText(e, what) {
+	if (!e || e.code !== 'extension-refused' || e.status !== 400)
+		return webuiErrText(e);
+	if ((document.documentElement.lang || 'en') === 'en' && e.message)
+		return e.message;
+	return {
+		index: function() { return webuiL('set.extidx_bad', 'The box cannot use this index'); },
+		file: function() { return webuiL('set.extinst_bad', 'The archive is no extension the box can install'); },
+		offer: function() { return webuiL('set.extinst_bad_index', 'The archive does not match the index, or is no extension the box can install'); }
+	}[what]();
+}
+
+// A failed install or read of the list, said once (nothing after a cancelled sign-in)
+function extToastError(prefix, e, what) {
+	if (e && e.cancelled)
+		return;
+	webuiShowToast(prefix + ': ' + extRefusalText(e, what), true);
+	if (e && e.message && e.message !== extRefusalText(e, what))
+		console.warn(prefix + ':', e.message);
+}
+
 async function extInstallUpload(btn) {
 	var inp = document.getElementById('extInstFile');
 	if (!inp || !inp.files || !inp.files.length) { webuiShowToast(webuiL('inst.nofile', 'No file selected'), true); return; }
@@ -1175,7 +1206,7 @@ async function extInstallUpload(btn) {
 			webuiCloseModal('extInstallModal');
 			await loadExtensionsPanel();
 			extFocusInstall();
-		} catch (e) { webuiToastError(webuiL('set.extinst_fail', 'Installation failed'), e); }
+		} catch (e) { extToastError(webuiL('set.extinst_fail', 'Installation failed'), e, 'file'); }
 		btn.disabled = false;
 	}, {variant: 'ok'});
 }
@@ -1205,7 +1236,8 @@ async function extShowOffers(btn) {
 			box.appendChild(webuiEl('div', {className: 'webui-form-row'}, label, webuiEl('span', {className: 'webui-row-actions'}, action)));
 		});
 	} catch (e) {
-		webuiToastError(webuiL('set.extup_fail', 'Update check failed'), e);
+		// this is the index of what can be installed, not a look for updates
+		extToastError(webuiL('set.extidx_fail', 'Loading the index failed'), e, 'index');
 	}
 	btn.disabled = false;
 }
@@ -1222,7 +1254,7 @@ async function extInstallOffered(id, btn) {
 		webuiCloseModal('extInstallModal');
 		await loadExtensionsPanel();
 		extFocusInstall();
-	} catch (err) { webuiToastError(webuiL('set.extinst_fail', 'Installation failed'), err); }
+	} catch (err) { extToastError(webuiL('set.extinst_fail', 'Installation failed'), err, 'offer'); }
 	btn.disabled = false;
 }
 
@@ -1274,7 +1306,7 @@ async function extCheckUpdates(btn) {
 		});
 		webuiShowToast(found ? (webuiL('set.extup_avail', 'Update available') + ': ' + found) : webuiL('set.extup_none', 'Everything up to date'));
 		await loadExtensionsPanel();
-	} catch (e) { webuiToastError(webuiL('set.extup_fail', 'Update check failed'), e); }
+	} catch (e) { extToastError(webuiL('set.extup_fail', 'Update check failed'), e, 'index'); }
 	btn.disabled = false;
 }
 
@@ -1287,7 +1319,7 @@ async function extUpdate(dir, btn) {
 		delete _extUpdates[dir];
 		webuiShowToast(webuiL('set.extinst_ok', 'Installed') + ': ' + (res && res.dir) + ' v' + u.version);
 		await loadExtensionsPanel();
-	} catch (e) { webuiToastError(webuiL('set.extinst_fail', 'Installation failed'), e); }
+	} catch (e) { extToastError(webuiL('set.extinst_fail', 'Installation failed'), e, 'offer'); }
 	btn.disabled = false;
 }
 
