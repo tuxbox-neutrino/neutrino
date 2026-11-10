@@ -651,6 +651,34 @@ function settingsPanelFailed(el, e, again) {
 	}}));
 }
 
+/* Reload on the loading state of a panel drawn as markup, once the box has
+   left its read unanswered for a while ('webui-retry' from webuiState's
+   block): the panel reads again on its own, as after a failed read, and
+   the page stays with every other panel and what is typed into them. A
+   block in a panel without a loader here lets the page load anew. */
+var SETTINGS_PANEL_LOADERS = {
+	extPanel: loadExtensionsPanel,
+	wolPanel: loadWolPanel,
+	xmltvPanel: loadXmltvPanel,
+	pluginsPanel: loadPluginsPanel,
+	sharesPanel: loadSharesPanel
+};
+
+document.addEventListener('webui-retry', function(e) {
+	var panel = e.detail && e.detail.block && e.detail.block.parentElement;
+	if (!panel || !panel.id)
+		return;
+	var again = Object.prototype.hasOwnProperty.call(SETTINGS_PANEL_LOADERS, panel.id) ? SETTINGS_PANEL_LOADERS[panel.id] : null;
+	var cat = !again && panel.id.indexOf('extcfg-') === 0 ? settingsCatOf(panel.id.slice(7)) : null;
+	if (cat)
+		again = function() { loadExtConfigPanel(cat); };
+	if (!again)
+		return;
+	e.preventDefault();
+	panel.replaceChildren(webuiState('loading', webuiL('msg.loading', 'Loading...'), ''));
+	again();
+});
+
 function renderExtConfigPanel(cat) {
 	setTimeout(function() { loadExtConfigPanel(cat); }, 0);
 	return '<div class="settings-card">' + makeCardHeader(cat.label) +
