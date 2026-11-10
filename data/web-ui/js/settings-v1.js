@@ -60,6 +60,20 @@ async function _v1setReadFresh() {
 	return values;
 }
 
+// The values read again after a save, as v1setLoad reads them once the
+// schema is read, but a read that fails is thrown, so the page keeps the
+// form as it stands rather than drawing what was read before. They are
+// taken as a read from elsewhere is (_v1setTake): where the form is kept
+// because the old interface's read failed, a row the box changed along with
+// the save shows the box's value and is no change of the user's.
+async function v1setReadAgain() {
+	var values = await _v1setReadFresh();
+	if (values)
+		_v1setTake(values);
+	_v1setArrange();
+	return true;
+}
+
 // sidebar group of a section (SETTINGS_GROUPS): what Neutrino does under
 // Neutrino, the box's drives, updates and CI under System; one the page does
 // not know yet goes under System
@@ -1382,6 +1396,24 @@ function v1setChanged() {
 	_v1setRereadTimer = setTimeout(v1setReread, 400);
 }
 
+/* What the box holds now becomes what the page holds against: each control
+   that still shows what the box held before (the user has not changed it,
+   the box has not refused it) shows the new value first, so form and
+   baseline agree; a control the user changed keeps what it shows. */
+function _v1setTake(fresh) {
+	var old = V1SET.values;
+	_v1setControls().forEach(function(el) {
+		var key = el.dataset.v1key;
+		var item = V1SET.items[key];
+		if (!item || item.secret || V1SET.pending[key])
+			return;
+		if (_v1setNorm(item, _v1setControlValue(el)) !== _v1setNorm(item, old[key]))
+			return;
+		_v1setSetControl(el, item, fresh[key]);
+	});
+	V1SET.values = fresh;
+}
+
 async function v1setReread() {
 	var fresh;
 	try {
@@ -1396,17 +1428,7 @@ async function v1setReread() {
 		V1SET.rereadDue = true;
 		return;
 	}
-	var old = V1SET.values;
-	_v1setControls().forEach(function(el) {
-		var key = el.dataset.v1key;
-		var item = V1SET.items[key];
-		if (!item || item.secret || V1SET.pending[key])
-			return;
-		if (_v1setNorm(item, _v1setControlValue(el)) !== _v1setNorm(item, old[key]))
-			return;
-		_v1setSetControl(el, item, fresh[key]);
-	});
-	V1SET.values = fresh;
+	_v1setTake(fresh);
 	v1setApplyConditions();
 	v1setMarkAll();
 	v1setFolderCheck(document.querySelector('#settingsContent .settings-panel.active'));

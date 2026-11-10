@@ -257,9 +257,79 @@ function makeFileControl(inputId, accept) {
    a row at the foot of the panel that stays in view while the panel
    scrolls, as the save bar of the settings does */
 function makePanelSaveRow(onclick, label, tip) {
-	return '<div class="settings-panel-save">' +
+	return '<div class="settings-panel-save">' + settingsOwnNote() +
 		'<button type="button" class="webui-btn primary" onclick="' + onclick + '"' + (tip ? ' title="' + escapeHtml(tip) + '"' : '') + '>' +
 		SAVE_ICON + (label || webuiLH('bqe.save', 'Save')) + '</button></div>';
+}
+
+/* A panel with a Save of its own (the web interface, the web server, an
+   extension's settings, the extension list, Wake-on-LAN, the sources, the
+   network shares) keeps its own cycle: the bar at the foot saves only the
+   box's settings, and its save leaves these panels and what was typed into
+   them as they are. Beside the panel's Save a note says when the panel
+   holds a change that is not saved yet. */
+function settingsOwnNote() {
+	return '<span class="note settings-own-note" role="status" hidden></span>';
+}
+
+// The categories whose panel has a Save of its own
+function settingsOwnCat(catId) {
+	if (EXT_SETTINGS_CATS[catId])
+		return true;
+	if (typeof V1SET !== 'undefined' && V1SET.ok && V1SET.bySection[catId])
+		return false;
+	var cat = SETTINGS_REGISTRY.find(function(c) { return c.id === catId; });
+	return !!cat && (!!cat.custom || (!!cat.config && cat.config !== 'neutrino'));
+}
+
+function settingsCatOf(catId) {
+	return EXT_SETTINGS_CATS[catId] || SETTINGS_REGISTRY.find(function(c) { return c.id === catId; }) || null;
+}
+
+// How many changes the panel of a category holds that its own Save has not
+// written yet; 0 for a panel not drawn, or one without a Save of its own
+var SETTINGS_OWN_COUNT = {
+	wol: function() { return wolChanges().changed; },
+	xmltv: function() { return xmltvChanged().length + xmltvOwed().length; },
+	mounts: function() { return sharesChanged().length; },
+	extensions: function() { return Object.keys(extensionsChanges()).length; }
+};
+
+function settingsOwnCount(catId) {
+	if (!document.getElementById('panel-' + catId) || !settingsOwnCat(catId))
+		return 0;
+	if (SETTINGS_OWN_COUNT[catId])
+		return SETTINGS_OWN_COUNT[catId]();
+	var cat = settingsCatOf(catId);
+	return cat && cat.config ? extConfigChanges(catId, cat.config).changed : 0;
+}
+
+// Every panel drawn that holds a change its own Save has not written:
+// [{id, label, n}]
+function settingsOwnPending() {
+	var out = [];
+	document.querySelectorAll('#settingsContent > .settings-panel').forEach(function(p) {
+		var id = p.id.substring(6);
+		var n = settingsOwnCount(id);
+		var cat = n ? settingsCatOf(id) : null;
+		if (n)
+			out.push({id: id, label: cat ? cat.label : id, n: n});
+	});
+	return out;
+}
+
+// The note beside a panel's own Save, after an input in it
+function settingsOwnMark(panel) {
+	if (!panel)
+		return;
+	var id = panel.id.substring(6);
+	var n = settingsOwnCount(id);
+	panel.querySelectorAll('.settings-own-note').forEach(function(note) {
+		note.hidden = !n;
+		note.textContent = n ? webuiL('set.own_unsaved', 'Not saved yet. This section has its own Save button.') : '';
+	});
+	if (id === 'mounts')
+		sharesMark();
 }
 
 // Picker oeffnen und Ergebnis in das Textfeld schreiben
@@ -502,18 +572,20 @@ async function loadExtConfigPanel(cat) {
 	}
 }
 
-async function saveExtConfig(catId, cfgName, btn) {
+/* What a panel with a file of its own holds that differs from what it read:
+   the changes as its save sends them, and how many there are. A field of
+   the page's own (data-local, the repeated password) is never sent. The
+   current password goes only with a new password or user name, which the
+   box changes only with it, and is no change by itself. */
+function extConfigChanges(catId, cfgName) {
 	var root = document.getElementById('extcfg-' + catId);
 	var cfg = EXT_CONFIG_CACHE[cfgName] || {};
-	// the web interface's own file and the web server go over /api/v1,
-	// by their plain keys and member names
-	var webui = cfgName === 'webui';
 	var webserver = cfgName === 'nhttpd';
-	var section = extSettingsSection(cfgName);
-	if (!webui && !webserver && !section) return;
 	var changes = {};
 	var changed = 0;
-	root.querySelectorAll('[data-key][data-extcfg]').forEach(function(el) {
+	if (!root)
+		return {changes: changes, changed: 0};
+	root.querySelectorAll('[data-key][data-extcfg]:not([data-local])').forEach(function(el) {
 		var key = el.getAttribute('data-key');
 		var val = (el.type === 'checkbox') ? (el.checked ? el.getAttribute('data-on') : el.getAttribute('data-off')) : el.value;
 		if (webserver) {
@@ -528,14 +600,28 @@ async function saveExtConfig(catId, cfgName, btn) {
 			changed++;
 		}
 	});
+	if (webserver && 'current' in changes) {
+		if (!('password' in changes) && !('user' in changes))
+			delete changes.current;
+		changed--;
+	}
+	return {changes: changes, changed: changed};
+}
+
+async function saveExtConfig(catId, cfgName, btn) {
+	var root = document.getElementById('extcfg-' + catId);
+	var cfg = EXT_CONFIG_CACHE[cfgName] || {};
+	// the web interface's own file and the web server go over /api/v1,
+	// by their plain keys and member names
+	var webui = cfgName === 'webui';
+	var webserver = cfgName === 'nhttpd';
+	var section = extSettingsSection(cfgName);
+	if (!webui && !webserver && !section) return;
+	var diff = extConfigChanges(catId, cfgName);
+	var changes = diff.changes;
+	var changed = diff.changed;
 	if (webserver) {
-		// the current password goes only with a new password or user name, which the
-		// box changes only with it
 		var asks = ('password' in changes) || ('user' in changes);
-		if ('current' in changes) {
-			if (!asks) delete changes.current;
-			changed--;
-		}
 		if (asks && !('current' in changes) && cfg.has_password === true) {
 			webuiShowToast(webuiL('set.pw_current_need', 'Please enter the current password as well.'), true);
 			var cur = root.querySelector('[data-key="current"]');
@@ -708,6 +794,7 @@ async function loadExtensionsPanel() {
 	// the head shows what was installed, removed or moved, at once
 	if (typeof webuiNavKeepPlaces === 'function')
 		webuiNavKeepPlaces(exts, 'settings');
+	_extDrawn = exts.slice();
 	var html = '';
 	if (!exts.length) {
 		html = '<div class="webui-form-row"><label>' + webuiLH('set.ext_none', 'No extensions found') + ' ' +
@@ -1010,6 +1097,21 @@ async function extUpdate(dir, btn) {
 	btn.disabled = false;
 }
 
+// The rows of the list whose switch or place differ from what the list was
+// drawn with: {dir: true}
+var _extDrawn = [];
+
+function extensionsChanges() {
+	var out = {};
+	_extDrawn.forEach(function(m) {
+		var ena = document.getElementById('extena_' + m.dir);
+		var slot = document.getElementById('extslot_' + m.dir);
+		if ((ena && ena.checked !== !!m.enabled) || (slot && slot.value !== extPlaceOf(m)))
+			out[m.dir] = true;
+	});
+	return out;
+}
+
 async function saveExtensions(btn) {
 	var exts = await webuiDiscoverExtensions();
 	var changes = {};
@@ -1048,12 +1150,15 @@ function renderWolPanel() {
 		'<div id="wolPanel">' + settingsLoading(webuiL('msg.loading', 'Loading...')) + '</div></div>';
 }
 
+// what the Wake-on-LAN panel was drawn from
+var _wolLoaded = {};
+
 async function loadWolPanel() {
 	var el = document.getElementById('wolPanel');
 	if (!el) return;
 	try {
 		var cfg = await webuiSettingsRead();
-		EXT_CONFIG_CACHE['webui'] = cfg;
+		_wolLoaded = cfg;
 		var section = webuiEl('div', {className: 'webui-form-section'},
 			webuiEl('div', {className: 'webui-form-section-title'}, webuiL('set.wol_devices', 'Devices')));
 		[1, 2, 3].forEach(function(i) {
@@ -1093,16 +1198,26 @@ async function wolWake(i, btn) {
 	btn.disabled = false;
 }
 
-async function wolSave(btn) {
-	var cfg = EXT_CONFIG_CACHE['webui'] || {};
+// The fields of the Wake-on-LAN panel that differ from what it was drawn from
+function wolChanges() {
 	var changes = {};
 	var changed = 0;
+	if (!document.getElementById('wolPanel'))
+		return {changes: changes, changed: 0};
 	for (var i = 1; i <= 3; i++) {
 		['wol_desc_' + i, 'wol_mac_' + i].forEach(function(k) {
-			var v = (document.getElementById(k) || {}).value || '';
-			if (v !== (cfg[k] || '')) { changes[k] = v; changed++; }
+			var el = document.getElementById(k);
+			if (!el) return;
+			if (el.value !== (_wolLoaded[k] || '')) { changes[k] = el.value; changed++; }
 		});
 	}
+	return {changes: changes, changed: changed};
+}
+
+async function wolSave(btn) {
+	var diff = wolChanges();
+	var changes = diff.changes;
+	var changed = diff.changed;
 	if (!changed) { webuiShowToast(webuiL('set.nochanges', 'No changes')); return; }
 	btn.disabled = true;
 	try {
@@ -1157,7 +1272,7 @@ async function loadXmltvPanel() {
 			xmltvSection('webradio', 'WebRadio', true) +
 			xmltvSection('xmltv', webuiL('set.xmltv_guide', 'XMLTV programme guides'), false) +
 			'<div class="webui-form-row"><label><small style="color:var(--pico-muted-color)">' + webuiLH('set.xmltv_hint', 'Saving replaces the changed source lists and reloads the channel lists') + '</small></label>' +
-			'<span class="webui-row-actions">' +
+			'<span class="webui-row-actions">' + settingsOwnNote() +
 			'<button type="button" class="webui-btn primary" onclick="saveXmltv(this)">' + SAVE_ICON + webuiLH('bqe.save_reload', 'Save and reload') + '</button></span></div>';
 	} catch (e) {
 		el.innerHTML = '<div class="webui-form-row"><label>' + webuiLH('set.notavail', 'Not available') + ': ' + escapeHtml(webuiErrText(e)) + '</label></div>';
@@ -1195,6 +1310,7 @@ async function uploadXmltv(kind, btn) {
 			ta.value = (ta.value ? ta.value.replace(/\n*$/, '\n') : '') + savedPath;
 		webuiShowToast(webuiL('fm.uploaded', 'Uploaded') + ': ' + savedPath);
 		inp.value = '';
+		settingsOwnMark(document.getElementById('panel-xmltv'));
 	} catch (e) {
 		if (part) {
 			try { await webuiV1('DELETE', '/storage/path', {query: {path: part}}); } catch (e2) {}
@@ -1204,10 +1320,18 @@ async function uploadXmltv(kind, btn) {
 	btn.disabled = false;
 }
 
-async function saveXmltv(btn) {
-	var changed = XMLTV_KINDS.filter(function(kind) {
-		return JSON.stringify(xmltvEntries(kind)) !== JSON.stringify(XMLTV_LOADED[kind] || []);
+// The lists whose field differs from what the box holds
+function xmltvChanged() {
+	if (!XMLTV_LOADED)
+		return [];
+	return XMLTV_KINDS.filter(function(kind) {
+		return !!document.getElementById('xmltv_' + kind) &&
+			JSON.stringify(xmltvEntries(kind)) !== JSON.stringify(XMLTV_LOADED[kind] || []);
 	});
+}
+
+async function saveXmltv(btn) {
+	var changed = xmltvChanged();
 	var owed = xmltvOwed();
 	if (!changed.length && !owed.length) { webuiShowToast(webuiL('set.nochanges', 'No changes')); return; }
 	webuiShowConfirm(webuiL('bqe.save', 'Save'), webuiLH('set.xmltv_confirm', 'Replace the source lists and reload the channel lists?'),
@@ -1240,6 +1364,8 @@ async function saveXmltvNow(btn, changed, owed) {
 		webuiShowToast(webuiL('set.xmltv_saved', 'Sources saved, channel lists reloaded'));
 	} catch (e) { webuiToastError(webuiL('msg.error', 'Error'), e); }
 	btn.disabled = false;
+	settingsOwnMark(document.getElementById('panel-xmltv'));
+	webuiUpdateSaveBar();
 }
 
 // Zapit-Upload: Kanal-/Bouquet-XML hochladen und aktivieren
@@ -1522,8 +1648,41 @@ function shareSummary(sh) {
 		' · ' + shareStateName(sh.state);
 }
 
+// What each share's fields were drawn from, by slot: a field that differs is
+// a change its Save has not written yet
+var _sharesDrawn = {};
+
+function shareChanged(i) {
+	var sh = _sharesDrawn[i];
+	if (!sh || sh.type === 'lufs' || !document.getElementById('share_body_' + i))
+		return false;
+	var differs = ['type', 'host', 'remote_dir', 'local_dir', 'user', 'options1', 'options2', 'mac'].some(function(key) {
+		var el = document.getElementById('share_' + key + '_' + i);
+		var held = (sh[key] === undefined || sh[key] === null) ? '' : String(sh[key]);
+		return !!el && el.value.trim() !== held.trim();
+	});
+	var auto = document.getElementById('share_automount_' + i);
+	var pass = document.getElementById('share_password_' + i);
+	var clear = document.getElementById('share_clearpass_' + i);
+	return differs || (!!auto && auto.checked !== !!sh.automount) || (!!pass && pass.value !== '') || (!!clear && clear.checked);
+}
+
+function sharesChanged() {
+	return Object.keys(_sharesDrawn).map(Number).filter(shareChanged);
+}
+
+// Each share's head says when its fields hold a change not saved yet
+function sharesMark() {
+	Object.keys(_sharesDrawn).map(Number).forEach(function(i) {
+		var mark = document.getElementById('share_unsaved_' + i);
+		if (mark)
+			mark.hidden = !shareChanged(i);
+	});
+}
+
 // A share's place, opened and closed by its head, a button that says which
 function shareSlot(sh, open) {
+	_sharesDrawn[sh.slot] = sh;
 	var chevron = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>';
 	var head = webuiEl('button', {type: 'button', className: 'mount-slot-header',
 		attrs: {'aria-expanded': open ? 'true' : 'false', 'aria-controls': 'share_body_' + sh.slot},
@@ -1532,7 +1691,9 @@ function shareSlot(sh, open) {
 		}}},
 		// counted from one, as people count; the box numbers its shares not
 		webuiEl('span', {}, webuiL('set.mnt_slot', 'Share') + ' ' + (sh.slot + 1) + ' ',
-			webuiEl('span', {className: 'slot-summary', id: 'share_summary_' + sh.slot}, shareSummary(sh))),
+			webuiEl('span', {className: 'slot-summary', id: 'share_summary_' + sh.slot}, shareSummary(sh)), ' ',
+			webuiEl('span', {className: 'webui-pill warn', id: 'share_unsaved_' + sh.slot, hidden: true},
+				webuiL('set.mnt_unsaved', 'not saved'))),
 		webuiMarkup(chevron));
 	var slot = webuiEl('div', {className: 'mount-slot' + (open ? ' open' : ''), id: 'mount-slot-' + sh.slot},
 		head,
@@ -1550,15 +1711,17 @@ function drawShares(el, items) {
 			webuiEl('button', {type: 'button', className: 'webui-btn primary', title: webuiL('tip.mnt_all', 'Mount every share set to Auto-Mount now'),
 				on: {click: function() { mountAutomaticShares(this); }}},
 				webuiMarkup(MOUNT_ICON), webuiL('set.mnt_mount', 'Mount'))));
+	_sharesDrawn = {};
 	el.replaceChildren(all, ...items.map(function(sh) { return shareSlot(sh, false); }));
 }
 
 /* After an action: the slot acted on is drawn again from what the box
    answered, the others only get their summary, so what was typed into
-   them and not saved yet stays. */
-function updateShares(items, acted) {
+   them and not saved yet stays; so does what was typed into the slot acted
+   on, where the action was not its save (unmounting it). */
+function updateShares(items, acted, saved) {
 	items.forEach(function(sh) {
-		if (sh.slot === acted) {
+		if (sh.slot === acted && (saved || !shareChanged(acted))) {
 			var old = document.getElementById('mount-slot-' + sh.slot);
 			if (old) old.replaceWith(shareSlot(sh, true));
 			return;
@@ -1569,12 +1732,15 @@ function updateShares(items, acted) {
 }
 
 // The slot's own form is locked while the box answers for it.
-async function onShare(i, request) {
+async function onShare(i, request, saving) {
 	var body = document.getElementById('share_body_' + i);
 	if (body) body.disabled = true;
 	try {
 		var res = await request();
-		updateShares((res && res.items) || [], i);
+		updateShares((res && res.items) || [], i, saving);
+		if (body && body.isConnected) body.disabled = false;
+		sharesMark();
+		webuiUpdateSaveBar();
 		return true;
 	} catch (e) {
 		webuiToastError(webuiL('msg.error', 'Error'), e);
@@ -1652,7 +1818,7 @@ async function saveShare(i) {
 		body.password = pass;
 	else if (clear && clear.checked)
 		body.password = '';
-	if (await onShare(i, function() { return webuiV1('PUT', '/storage/shares/' + i, {body: body}); }))
+	if (await onShare(i, function() { return webuiV1('PUT', '/storage/shares/' + i, {body: body}); }, true))
 		webuiShowToast(webuiL('set.mnt_saved', 'Network share saved'));
 }
 
@@ -1990,20 +2156,89 @@ function webuiCountDirty() {
 	return dirty;
 }
 
+// The categories the bar's changes are in, in the order of the page: a
+// change in a category not in sight (another category, or a page of its
+// own such as the extensions) is named by the bar, which leads there
+function settingsDirtyPlaces() {
+	var out = [];
+	var add = function(id) { if (id && out.indexOf(id) < 0) out.push(id); };
+	var panelOf = function(el) {
+		var p = el && el.closest('#settingsContent > .settings-panel');
+		return p ? p.id.substring(6) : '';
+	};
+	if (typeof v1setDirty === 'function') {
+		var dirty = v1setDirty();
+		Object.keys(dirty.bySection).forEach(function(section) {
+			Object.keys(dirty.bySection[section]).forEach(function(key) {
+				if (dirty.brought[key])
+					return;
+				add(panelOf(_v1setControlOf(key)) || V1SET.claimed[key] || section);
+			});
+		});
+	}
+	document.querySelectorAll('#settingsContent [data-key]:not([data-extcfg])').forEach(function(el) {
+		if (!/^(SELECT|INPUT)$/.test(el.tagName))
+			return;
+		var v = el.type === 'checkbox' ? (el.checked ? el.getAttribute('data-on') : el.getAttribute('data-off')) : el.value;
+		var origKey = el.getAttribute('data-key').replace(/\./g, '_dot_').replace(/-/g, '_bind_');
+		if (v !== (configData[origKey] || ''))
+			add(panelOf(el));
+	});
+	return out;
+}
+
+// To a category the bar names, as a hit of the search leads to one
+function settingsShowCat(id) {
+	settingsGo({cat: id});
+}
+
+var _saveBarWhere = '';
+
 function webuiUpdateSaveBar() {
 	var bar = document.getElementById('settingsSaveBar');
 	if (!bar) return;
 	var n = webuiCountDirty();
 	document.getElementById('saveBarCount').textContent = n;
+	var word = document.getElementById('saveBarWord');
+	if (word)
+		word.textContent = n === 1 ? webuiL('set.unsaved_one', 'unsaved change') : webuiL('set.unsaved', 'unsaved changes');
+	var where = document.getElementById('saveBarWhere');
+	var places = n ? settingsDirtyPlaces() : [];
+	if (where && places.join(' ') !== _saveBarWhere) {
+		_saveBarWhere = places.join(' ');
+		var labels = settingsCatLabels();
+		where.replaceChildren();
+		places.forEach(function(id, k) {
+			where.appendChild(document.createTextNode(k ? ', ' : ' \u00b7 '));
+			where.appendChild(webuiEl('button', {type: 'button', className: 'settings-bar-cat',
+				title: webuiL('tip.bar_cat', 'Go to this category'),
+				on: {click: function() { settingsShowCat(id); }}}, labels[id] || id));
+		});
+	}
 	bar.hidden = (n === 0);
 }
 
-// Verwerfen: alle Panel-Caches wegwerfen und aktive Kategorie aus
+// After an input: the note of a panel with a Save of its own, and the bar
+function settingsOwnInput(e) {
+	var panel = e.target && e.target.closest && e.target.closest('#settingsContent > .settings-panel');
+	if (panel && settingsOwnCat(panel.id.substring(6)))
+		settingsOwnMark(panel);
+}
+
+// The panels a Discard of the bar takes away, to be drawn again from what
+// the box holds; a panel with a Save of its own stays as it is
+function settingsDropPanels() {
+	document.querySelectorAll('#settingsContent > .settings-panel').forEach(function(p) {
+		if (!settingsOwnCat(p.id.substring(6)))
+			p.remove();
+	});
+}
+
+// Verwerfen: die Panels der Leiste wegwerfen und die aktive Kategorie aus
 // configData neu rendern (die übrigen rendern beim nächsten Besuch)
 function discardSettings() {
 	v1setDiscard();
-	renderedPanels = {};
-	document.querySelectorAll('#settingsContent .settings-panel').forEach(function(p) { p.remove(); });
+	settingsDropPanels();
 	var cat = activeCategory;
 	activeCategory = '';
 	switchCategory(cat);
@@ -2101,16 +2336,21 @@ async function saveSettingsNow(values, params, changed, v1dirty) {
 	}
 
 	var saved = v1.saved + (oldOk ? changed : 0);
+	// what a panel with a Save of its own holds is not part of this save
+	var own = settingsOwnPending().map(function(o) { return o.label; });
+	var left = own.length ? ' ' + webuiL('set.own_left', '{list}: not saved yet \u2013 use the Save button there.').replace('{list}', own.join(', ')) : '';
 	if (!oldOk)
 		webuiToastError(webuiL('tm.save_fail', 'Saving failed'), why);
 	else if (v1.failed)
 		webuiShowToast(webuiL('set.save_some_fail', 'Not every setting was saved, see the marked fields'), true);
 	else
 		webuiShowToast(saved + ' ' + (saved > 1 ? webuiL('set.saved_many', 'settings saved') : webuiL('set.saved_one', 'setting saved')) +
-			(v1.restart ? ' \u2013 ' + webuiL('set.saved_restart', 'some take effect after a restart') : ''));
-	// a refused save of the old interface keeps the form as it is
+			(v1.restart ? ' \u2013 ' + webuiL('set.saved_restart', 'some take effect after a restart') : '') +
+			(left ? '.' + left : ''), left ? 'note' : 'ok');
+	// a refused save of the old interface keeps the form as it is; a panel
+	// with a Save of its own keeps what was typed into it either way
 	if (oldOk)
-		await loadSettings();
+		await loadSettings({keepOwn: true});
 	else
 		await v1setRefresh();
 	webuiUpdateSaveBar();
@@ -2145,20 +2385,31 @@ function normalizeDomains() {
 	});
 }
 
-async function loadSettings() {
+async function loadSettings(opts) {
+	opts = opts || {};
 	try {
 		// v4 liefert ein valides Envelope-Dokument - der historische
 		// Brace-Zaehler (Workaround fuer das alte Doppel-Dokument) entfaellt.
 		// Daneben die Einstellungen der Box ueber /api/v1 (settings-v1.js);
 		// ohne sie bleibt die Seite bei der Registry.
-		var both = await Promise.all([webuiApi('config', {config: 'neutrino'}), v1setLoad()]);
+		// after a save the box's values are read again strictly: a read that
+		// fails keeps the form as it stands (below)
+		var both = await Promise.all([webuiApi('config', {config: 'neutrino'}),
+			opts.keepOwn && V1SET.ok ? v1setReadAgain() : v1setLoad()]);
 		var resp = both[0];
 		configData = (resp && resp.data && resp.data.config) || {};
 	} catch (e) {
+		// after a save the form stays as it stands, with what is typed into
+		// it, and offers to read again; only a first read has nothing to keep
+		if (opts.keepOwn) {
+			settingsRereadFailed(e);
+			return;
+		}
 		document.getElementById('settingsContent').replaceChildren(
 			webuiStateFor(e, {title: webuiL('set.load_fail', 'Loading the settings failed'), retry: loadSettings}));
 		return;
 	}
+	settingsRereadFailed(null);
 
 	normalizeDomains();
 	originalValues = Object.assign({}, configData);
@@ -2195,10 +2446,25 @@ async function loadSettings() {
 		});
 	} catch (ignore) {}
 
-	// Clear cached panels — config changed
+	// Clear cached panels — config changed. After a save of the bar a panel
+	// with a Save of its own stays, with what was typed into it: the bar
+	// wrote nothing of it
+	var content = document.getElementById('settingsContent');
+	var kept = [];
+	if (opts.keepOwn)
+		content.querySelectorAll(':scope > .settings-panel').forEach(function(p) {
+			var id = p.id.substring(6);
+			if (settingsOwnCat(id) && settingsCatOf(id))
+				kept.push(p);
+		});
 	renderedPanels = {};
 	_settingsFindable = null;
-	document.getElementById('settingsContent').innerHTML = '';
+	content.innerHTML = '';
+	kept.forEach(function(p) {
+		p.classList.remove('active');
+		content.appendChild(p);
+		renderedPanels[p.id.substring(6)] = true;
+	});
 
 	// Determine active category from hash or default to first; an address
 	// that names a setting opens its category with the focus on its field
@@ -2216,6 +2482,49 @@ async function loadSettings() {
 	find.disabled = false;
 	if (find.value)
 		settingsSearch(find.value);
+}
+
+/* A read after a save that failed: the form stays as it is, a line above it
+   says so and offers to read again. What it shows now is held against what
+   was read before, so the marks and the bar count what differs. Reading
+   again draws the box's settings anew, so a change not saved since is asked
+   about first. null takes the line away. */
+var _settingsReread = null;
+
+function settingsRereadFailed(e) {
+	if (!e) {
+		if (_settingsReread)
+			_settingsReread.hidden = true;
+		return;
+	}
+	if (!_settingsReread) {
+		_settingsReread = webuiEl('div', {className: 'settings-reread', attrs: {role: 'status'}});
+		var content = document.getElementById('settingsContent');
+		content.parentNode.insertBefore(_settingsReread, content);
+	}
+	_settingsReread.replaceChildren(
+		webuiEl('span', {}, webuiL('set.reread_kept', 'Reading the settings again failed; the page keeps what it shows and what is typed') +
+			': ' + webuiErrText(e)),
+		webuiEl('button', {type: 'button', className: 'webui-btn', on: {click: settingsRereadRetry}}, webuiL('bc.reload', 'Reload')));
+	_settingsReread.hidden = false;
+	if (typeof v1setMarkAll === 'function') {
+		v1setApplyConditions();
+		v1setMarkAll();
+	}
+	document.querySelectorAll('#settingsContent [data-key]:not([data-extcfg])').forEach(settingsMarkRegistry);
+	webuiUpdateSaveBar();
+}
+
+function settingsRereadRetry() {
+	var n = webuiCountDirty();
+	var again = function() { return loadSettings({keepOwn: true}); };
+	if (!n)
+		return again();
+	webuiShowConfirm(webuiL('set.reread_title', 'Read the settings again?'),
+		webuiLH(n === 1 ? 'set.reread_lost_one' : 'set.reread_lost',
+			n === 1 ? 'The settings are drawn anew as the box holds them; 1 change not saved yet is lost.' :
+				'The settings are drawn anew as the box holds them; {count} changes not saved yet are lost.').replace('{count}', n),
+		webuiL('bc.reload', 'Reload'), again);
 }
 
 // The category the address names; one dissolved into a section of the
@@ -2252,6 +2561,9 @@ document.getElementById('settingsContent').addEventListener('change', webuiUpdat
 // die Zeilen der Box ihren Bedingungen
 document.getElementById('settingsContent').addEventListener('change', webuiApplyDeps);
 document.getElementById('settingsContent').addEventListener('change', function(e) { v1setApplyConditions(e); });
+// a panel with a Save of its own says when it holds a change not saved yet
+document.getElementById('settingsContent').addEventListener('input', settingsOwnInput);
+document.getElementById('settingsContent').addEventListener('change', settingsOwnInput);
 // ein abgelehnter Wert, den der Nutzer wieder bearbeitet, ist erledigt
 document.getElementById('settingsContent').addEventListener('input', function(e) { v1setEdited(e.target); });
 document.getElementById('settingsContent').addEventListener('change', function(e) { v1setEdited(e.target); });
