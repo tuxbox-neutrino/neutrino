@@ -192,7 +192,7 @@ function renderField(f, opts) {
 	if (f.type === 'password') {
 		var pattr = f.pattern ? ' pattern="' + escapeHtml(f.pattern) + '"' + (f.rule ? ' data-rule="' + escapeHtml(f.rule) + '"' : '') : '';
 		if (f.maxlength) pattr += ' maxlength="' + escapeHtml(String(f.maxlength)) + '"';
-		return row + labelFor + '<span>' +
+		return row + labelFor + '<span class="webui-set-field">' +
 			'<input type="password" id="' + id + '" data-key="' + escapeHtml(f.key) + '"' + ext + dis + described + pattr + ' autocomplete="' + escapeHtml(f.autocomplete || 'new-password') + '" value="' + val.replace(/"/g, '&quot;') + '">' +
 			' <button type="button" class="webui-btn" aria-pressed="false" aria-label="' + webuiLH('set.pw_show', 'Show password') + '" onclick="togglePwField(\'' + id + '\', this)">' + EYEOFF_ICON + '</button></span></div>';
 	}
@@ -204,7 +204,7 @@ function renderField(f, opts) {
 			'" aria-label="' + webuiLH('picker.title', 'Choose folder') +
 			'" onclick="webuiPickInto(\'' + id + '\', ' + escapeHtml(JSON.stringify(pstart)) + ')">' + FOLDER_ICON + '</button>';
 	}
-	return row + labelFor + '<span>' +
+	return row + labelFor + (pick ? '<span class="webui-set-field">' : '<span>') +
 		'<input type="text" id="' + id + '" data-key="' + escapeHtml(f.key) + '"' + ext + dis + described + ' value="' + val.replace(/"/g, '&quot;') + '">' + pick + '</span></div>';
 }
 

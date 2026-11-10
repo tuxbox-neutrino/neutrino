@@ -252,6 +252,7 @@
 		}
 		.webui-set-unit {
 			color: var(--pico-muted-color);
+			font-size: var(--webui-font-sm);
 		}
 		/* what a named number stands for, beside it */
 		.webui-set-named {
@@ -820,6 +821,19 @@
 			.settings-card .webui-form-row input[type="password"] {
 				width: 100%;
 				flex: auto;
+			}
+			/* a number keeps its unit beside it, a field its eye or folder
+			   button: the field gives way rather than the cell wrapping
+			   them below it (what a named number means may still wrap) */
+			.settings-card .webui-form-row > .webui-set-number > input[type="number"],
+			.settings-card .webui-form-row > .webui-set-field > input {
+				flex: 1 1 6rem;
+				width: auto;
+				min-width: 0;
+			}
+			.settings-card .webui-form-row > .webui-set-number > .webui-set-unit,
+			.settings-card .webui-form-row > .webui-set-field > .webui-btn {
+				flex: none;
 			}
 		}
 	</style>

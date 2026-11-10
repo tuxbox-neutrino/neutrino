@@ -744,7 +744,7 @@ function _v1setControl(item, id, val) {
 		// emptying it is a button of its own
 		var pw = webuiEl('input', {type: 'password', id: id, value: val, data: data,
 			attrs: _v1setTextAttrs(item, {autocomplete: 'new-password', placeholder: webuiL('set.secret_keep', 'unchanged')})});
-		var cell = webuiEl('span', {}, pw);
+		var cell = webuiEl('span', {className: 'webui-set-field'}, pw);
 		if (typeof togglePwField === 'function') {
 			var eye = webuiEl('button', {type: 'button', className: 'webui-btn webui-set-act',
 				attrs: {'aria-pressed': 'false', 'aria-label': webuiL('set.pw_show', 'Show password')},
@@ -758,7 +758,7 @@ function _v1setControl(item, id, val) {
 	var input = webuiEl('input', {type: 'text', id: id, value: val, data: data, attrs: _v1setTextAttrs(item, {})});
 	if (!_v1setIsFolder(item) || typeof webuiPickInto !== 'function')
 		return input;
-	return webuiEl('span', {}, input, webuiEl('button', {type: 'button', className: 'webui-btn webui-set-act',
+	return webuiEl('span', {className: 'webui-set-field'}, input, webuiEl('button', {type: 'button', className: 'webui-btn webui-set-act',
 		title: webuiL('picker.title', 'Choose folder'), attrs: {'aria-label': webuiL('picker.title', 'Choose folder')},
 		on: {click: function() { webuiPickInto(id, input.value || '/'); }}}, webuiMarkup(FOLDER_ICON)));
 }
