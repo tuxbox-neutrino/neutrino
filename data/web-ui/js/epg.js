@@ -445,6 +445,8 @@ webuiAfterTexts(function() {
 	webuiFollow({reread: streamBack, first: false});
 	setInterval(tickNow, 60000);
 	window.addEventListener('resize', () => placeNow(webuiBoxSec()));
+	// until the bouquets are in, the guide says it loads (loadEpg does the same)
+	document.getElementById('epgGrid').replaceChildren(webuiState('loading', webuiL('epg.loading', 'Loading EPG data...'), ''));
 	return loadBouquets().then(loadEpg);
 });
 

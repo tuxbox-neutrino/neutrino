@@ -486,6 +486,11 @@ webuiAfterTexts(() => {
 	// read once after the stream is back and, without one, when the page
 	// comes into view (webuiFollow); the read below makes the first
 	webuiFollow({reread: zapped, first: false});
+	// until the first answers: both lists say they load
+	const loading = () => webuiEl('li', {}, webuiState('loading', webuiL('msg.loading', 'Loading...'), ''));
+	document.getElementById('bouquetList').replaceChildren(loading());
+	document.getElementById('channelList').replaceChildren(webuiEl('li', {},
+		webuiState('loading', webuiL('bq.loading_channels', 'Loading channels...'), '')));
 	return loadCurrentChannel().then(loadBouquets);
 });
 
