@@ -609,6 +609,19 @@ function _v1setUnit(item) {
 	return (item.type === 'int' && item.unit && V1SET_UNITS[item.unit]) || '';
 }
 
+// The bounds a number row takes, said in its help; '' for any other row
+function _v1setRangeText(item) {
+	if ((item.type !== 'int' && item.type !== 'key') || item.listed || (item.type === 'key' && V1SET.keys && V1SET.keys.length))
+		return '';
+	var lo = typeof item.min === 'number' ? item.min : null;
+	var hi = typeof item.max === 'number' ? item.max : null;
+	if (lo === null && hi === null)
+		return '';
+	var unit = _v1setUnit(item);
+	var range = lo !== null && hi !== null ? lo + ' \u2013 ' + hi : (lo !== null ? '\u2265 ' + lo : '\u2264 ' + hi);
+	return webuiL('set.range', 'Allowed') + ': ' + range + (unit ? ' ' + unit : '');
+}
+
 function _v1setDefaultText(item) {
 	var d = (item.default === undefined || item.default === null) ? '' : String(item.default);
 	// the identifier of a start channel: none, or the number the box keeps
@@ -784,6 +797,7 @@ function v1setRow(item) {
 		help = webuiEl('div', {className: 'webui-set-help', id: id + '_help', hidden: !open},
 			webuiEl('p', {}, hint),
 			item.needs_restart ? webuiEl('p', {}, restart) : null,
+			_v1setRangeText(item) ? webuiEl('p', {className: 'webui-set-default'}, _v1setRangeText(item)) : null,
 			item.secret ? null : webuiEl('p', {className: 'webui-set-default'},
 				webuiL('set.default', 'Default') + ': ' + _v1setDefaultText(item)));
 		var info = webuiEl('button', {type: 'button', className: 'webui-set-info',
@@ -811,7 +825,7 @@ function v1setRow(item) {
 		var field = row.querySelector('[data-v1key]');
 		if (field) {
 			field.setAttribute('aria-invalid', 'true');
-			field.setAttribute('aria-describedby', id + '_err');
+			_v1setDescribe(field, id + '_err', true);
 		}
 	}
 	v1setMark(row);
@@ -1249,11 +1263,22 @@ function v1setEdited(el) {
 		return;
 	delete V1SET.pending[key];
 	el.removeAttribute('aria-invalid');
-	el.removeAttribute('aria-describedby');
 	var row = el.closest('[data-v1row]');
-	var err = row && row.querySelector('.webui-set-error');
-	if (err)
+	// the box's word only; one of the page's own is the page's to take away
+	var err = row && row.querySelector('.webui-set-error:not([data-own])');
+	if (err) {
+		_v1setDescribe(el, err.id, false);
 		err.remove();
+	}
+}
+
+// one id more or less in what describes a field (settings.js), so the
+// meaning of a named value and a missing folder stay described
+function _v1setDescribe(el, id, on) {
+	if (typeof settingsDescribed === 'function')
+		settingsDescribed(el, id, on);
+	else if (on)
+		el.setAttribute('aria-describedby', id);
 }
 
 // Writes each changed section. A key the box refuses goes into

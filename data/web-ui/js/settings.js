@@ -187,7 +187,7 @@ function renderField(f, opts) {
 			'<input ' + attrs + ' id="' + id + '" data-key="' + escapeHtml(f.key) + '"' + ext + dis + described + ' value="' + escapeHtml(val) + '"></div>';
 	}
 	if (f.type === 'password') {
-		var pattr = f.pattern ? ' pattern="' + escapeHtml(f.pattern) + '"' : '';
+		var pattr = f.pattern ? ' pattern="' + escapeHtml(f.pattern) + '"' + (f.rule ? ' data-rule="' + escapeHtml(f.rule) + '"' : '') : '';
 		if (f.maxlength) pattr += ' maxlength="' + escapeHtml(String(f.maxlength)) + '"';
 		return row + labelFor + '<span>' +
 			'<input type="password" id="' + id + '" data-key="' + escapeHtml(f.key) + '"' + ext + dis + described + pattr + ' autocomplete="' + escapeHtml(f.autocomplete || 'new-password') + '" value="' + val.replace(/"/g, '&quot;') + '">' +
@@ -203,6 +203,104 @@ function renderField(f, opts) {
 	}
 	return row + labelFor + '<span>' +
 		'<input type="text" id="' + id + '" data-key="' + escapeHtml(f.key) + '"' + ext + dis + described + ' value="' + val.replace(/"/g, '&quot;') + '">' + pick + '</span></div>';
+}
+
+/* What the browser knows about a field before it is sent: a number is a
+   whole number within its bounds, a text holds to the pattern and length
+   its rule sets. '' where the field may go; else what to enter, in the
+   page's words, naming the range or the rule (data-rule, else the field's
+   title). An empty number is never sent: the box would store or refuse an
+   empty value in its own words. */
+function settingsRangeText(lo, hi) {
+	if (lo !== null && hi !== null)
+		return webuiL('set.range_both', 'Enter a whole number from {min} to {max}').replace('{min}', lo).replace('{max}', hi);
+	if (lo !== null)
+		return webuiL('set.range_min', 'Enter a whole number of {min} or more').replace('{min}', lo);
+	if (hi !== null)
+		return webuiL('set.range_max', 'Enter a whole number up to {max}').replace('{max}', hi);
+	return webuiL('set.range_none', 'Enter a whole number');
+}
+
+function settingsFieldProblem(el) {
+	if (!el || el.disabled || !el.validity || el.tagName !== 'INPUT' || el.type === 'checkbox')
+		return '';
+	var v = el.validity;
+	if (el.type === 'number') {
+		if (v.badInput || el.value.trim() === '' || v.rangeUnderflow || v.rangeOverflow || v.stepMismatch)
+			return settingsRangeText(el.min !== '' ? el.min : null, el.max !== '' ? el.max : null);
+		return '';
+	}
+	if (v.patternMismatch || v.typeMismatch)
+		return el.getAttribute('data-rule') || el.title || webuiL('set.rule_form', 'Not in the form this setting takes');
+	if (v.tooShort)
+		return webuiL('set.rule_short', 'Enter at least {n} characters').replace('{n}', el.minLength);
+	if (v.tooLong)
+		return webuiL('set.rule_long', 'Enter at most {n} characters').replace('{n}', el.maxLength);
+	return '';
+}
+
+// One id more or less in what describes a field to a screen reader
+function settingsDescribed(el, id, on) {
+	var list = (el.getAttribute('aria-describedby') || '').split(/\s+/).filter(function(x) { return x && x !== id; });
+	if (on)
+		list.push(id);
+	if (list.length)
+		el.setAttribute('aria-describedby', list.join(' '));
+	else
+		el.removeAttribute('aria-describedby');
+}
+
+/* The page's own word at a field, below its row: text, or '' to take it
+   away. A refusal of the box beside it keeps the field marked. */
+function settingsFieldMark(el, text) {
+	var row = el && el.closest('.webui-form-row');
+	if (!row)
+		return;
+	var id = (el.id || 'settings_field') + '_problem';
+	var note = document.getElementById(id);
+	if (!text) {
+		if (note)
+			note.remove();
+		settingsDescribed(el, id, false);
+		if (!row.querySelector('.webui-set-error'))
+			el.removeAttribute('aria-invalid');
+		return;
+	}
+	if (!note) {
+		note = webuiEl('div', {className: 'webui-set-error', id: id, data: {own: '1'}});
+		row.appendChild(note);
+	}
+	note.textContent = text;
+	el.setAttribute('aria-invalid', 'true');
+	settingsDescribed(el, id, true);
+}
+
+/* Checks the fields about to be sent and marks each that may not go. The
+   first of them comes into sight, its category and what folds it opened,
+   and takes the focus; true while one is marked. */
+function settingsHoldBack(fields) {
+	var bad = fields.filter(function(el) {
+		var why = settingsFieldProblem(el);
+		settingsFieldMark(el, why);
+		return !!why;
+	});
+	if (!bad.length)
+		return false;
+	var first = bad[0];
+	var panel = first.closest('#settingsContent > .settings-panel');
+	if (panel && panel.id.substring(6) !== activeCategory)
+		switchCategory(panel.id.substring(6));
+	for (var n = first.parentElement; n && n !== panel; n = n.parentElement) {
+		if (n.hidden)
+			n.hidden = false;
+		if (n.tagName === 'DETAILS')
+			n.open = true;
+	}
+	first.scrollIntoView({block: 'center'});
+	first.focus({preventScroll: true});
+	webuiShowToast((bad.length === 1 ? webuiL('set.hold_one', 'Nothing was saved: check the marked field') :
+		webuiL('set.hold_many', 'Nothing was saved: check the {n} marked fields').replace('{n}', bad.length)), true);
+	return true;
 }
 
 // kleines Ordner-Icon fuer Picker-Buttons
@@ -455,7 +553,9 @@ function webserverFieldValue(cfg, key) {
 
 function webserverBodyValue(el, val) {
 	if (el.type === 'checkbox') return val === 'true';
-	if (el.type === 'number') return parseInt(val, 10);
+	// a number the page let through is one; anything else goes as typed and
+	// the box names what is wrong with it
+	if (el.type === 'number') return /^-?\d+$/.test(val.trim()) ? parseInt(val, 10) : val;
 	return val;
 }
 
@@ -627,6 +727,10 @@ async function saveExtConfig(catId, cfgName, btn) {
 	var diff = extConfigChanges(catId, cfgName);
 	var changes = diff.changes;
 	var changed = diff.changed;
+	if (settingsHoldBack(Object.keys(changes).map(function(key) {
+		return root.querySelector('[data-extcfg][data-key="' + CSS.escape(key) + '"]');
+	}).filter(Boolean)))
+		return;
 	if (webserver) {
 		var asks = ('password' in changes) || ('user' in changes);
 		if (asks && !('current' in changes) && cfg.has_password === true) {
@@ -677,12 +781,29 @@ async function saveExtConfig(catId, cfgName, btn) {
 	} catch (e) {
 		_settingsOwnSaving[catId] = false;
 		// only the refusal that says so is a wrong current password
-		if (webserver && e && e.code === 'wrong-current-password')
+		if (webserver && e && e.code === 'wrong-current-password') {
 			webuiShowToast(webuiL('pw.wrong', 'The current password is not correct.'), true);
-		else
+			settingsMarkRefused(root.querySelector('[data-key="current"]'), webuiL('pw.wrong', 'The current password is not correct.'));
+		} else {
 			webuiToastError(webuiL('msg.error', 'Error'), e);
+			// a refusal that names one of the fields sent (the web server's
+			// detail starts with the member) is said at that field too
+			var named = (webserver && e && e.status === 400) ? Object.keys(changes).filter(function(key) {
+				return String(e.message || '').indexOf(key + ' ') === 0 || String(e.message || '').indexOf(key + ':') === 0;
+			})[0] : '';
+			if (named)
+				settingsMarkRefused(root.querySelector('[data-extcfg][data-key="' + CSS.escape(named) + '"]'), webuiErrText(e));
+		}
 	}
 	btn.disabled = false;
+}
+
+// A field the box refused: its word below it, the focus on it
+function settingsMarkRefused(el, text) {
+	if (!el)
+		return;
+	settingsFieldMark(el, text);
+	el.focus();
 }
 
 // Backup and restore over /api/v1: the box packs its settings with its own
@@ -1188,7 +1309,12 @@ async function loadWolPanel() {
 							'aria-label': device + ': ' + webuiL('set.wol_desc_ph', 'Description')}, style: {'max-width': '140px'}}), ' ',
 					webuiEl('input', {type: 'text', id: 'wol_mac_' + i, value: cfg['wol_mac_' + i] || '',
 						attrs: {placeholder: 'aa:bb:cc:dd:ee:ff', 'aria-label': device + ': ' + webuiL('set.mnt_mac', 'MAC address'),
-							autocomplete: 'off', spellcheck: 'false'}, style: {'max-width': '160px'}}), ' ',
+							autocomplete: 'off', spellcheck: 'false',
+							// as the box takes one (parseMac): six pairs all by colons, all
+							// by dashes, or twelve digits without any
+							pattern: '([0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}|([0-9A-Fa-f]{2}-){5}[0-9A-Fa-f]{2}|[0-9A-Fa-f]{12}',
+							'data-rule': webuiL('set.wol_mac_rule', 'Enter six pairs of hexadecimal digits, such as aa:bb:cc:dd:ee:ff')},
+						style: {'max-width': '160px'}}), ' ',
 					webuiEl('button', {type: 'button', className: 'webui-btn', attrs: {'aria-label': webuiL('set.wol_wake', 'Wake') + ': ' + device},
 						on: {click: function() { wolWake(i, this); }}},
 						webuiMarkup(ZAP_ICON), webuiL('set.wol_wake', 'Wake')))));
@@ -1235,6 +1361,8 @@ async function wolSave(btn) {
 	var changes = diff.changes;
 	var changed = diff.changed;
 	if (!changed) { webuiShowToast(webuiL('set.nochanges', 'No changes')); return; }
+	if (settingsHoldBack(Object.keys(changes).map(function(k) { return document.getElementById(k); }).filter(Boolean)))
+		return;
 	btn.disabled = true;
 	try {
 		await webuiSettingsWrite(changes);
@@ -2267,7 +2395,31 @@ function discardSettings() {
 // Box settings go to PATCH /api/v1/settings/{section}, what only the
 // registry knows to config=neutrino. A key the box refuses keeps its
 // input and reason (settings-v1.js) through the redraw afterwards.
+// The fields the bar is about to send, as elements: the box's rows that
+// differ and are drawn, and the old interface's fields that differ
+function settingsBarFields() {
+	var out = [];
+	if (typeof v1setDirty === 'function') {
+		var dirty = v1setDirty();
+		Object.keys(dirty.bySection).forEach(function(section) {
+			Object.keys(dirty.bySection[section]).forEach(function(key) {
+				var el = _v1setControlOf(key);
+				if (el)
+					out.push(el);
+			});
+		});
+	}
+	document.querySelectorAll('#settingsContent input[data-key]:not([data-extcfg]):not([type="checkbox"])').forEach(function(el) {
+		var origKey = el.getAttribute('data-key').replace(/\./g, '_dot_').replace(/-/g, '_bind_');
+		if (el.value !== (configData[origKey] || ''))
+			out.push(el);
+	});
+	return out;
+}
+
 async function saveSettings() {
+	if (settingsHoldBack(settingsBarFields()))
+		return;
 	var values = collectValues();
 	var params = 'action=submit';
 	var changed = 0;
@@ -2591,6 +2743,18 @@ document.getElementById('settingsContent').addEventListener('change', settingsOw
 // ein abgelehnter Wert, den der Nutzer wieder bearbeitet, ist erledigt
 document.getElementById('settingsContent').addEventListener('input', function(e) { v1setEdited(e.target); });
 document.getElementById('settingsContent').addEventListener('change', function(e) { v1setEdited(e.target); });
+// a field that may not go as it stands says so at once, and stops saying so
+// once it may (registered after v1setEdited, which takes a refusal away)
+document.getElementById('settingsContent').addEventListener('change', function(e) {
+	var el = e.target;
+	if (el && el.tagName === 'INPUT' && (el.type === 'number' || el.pattern || el.minLength > 0 || el.maxLength > 0))
+		settingsFieldMark(el, settingsFieldProblem(el));
+});
+document.getElementById('settingsContent').addEventListener('input', function(e) {
+	var el = e.target;
+	if (el && el.id && document.getElementById(el.id + '_problem'))
+		settingsFieldMark(el, settingsFieldProblem(el));
+});
 // what a row differs in, from delivery and from what the box holds
 document.getElementById('settingsContent').addEventListener('input', function(e) { v1setMarkFor(e.target); settingsMarkRegistry(e.target); });
 document.getElementById('settingsContent').addEventListener('change', function(e) { v1setMarkFor(e.target); settingsMarkRegistry(e.target); });

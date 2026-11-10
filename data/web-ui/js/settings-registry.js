@@ -326,7 +326,7 @@ var SETTINGS_REGISTRY = [
 				fields: [
 					persBool('pinstatus', webuiL('pers.pin_in_use', 'PIN access for personalize setup')),
 					{ key: 'personalize_pincode', label: webuiL('pers.pincode', 'Personalization PIN'),
-					  type: 'password', pattern: '[0-9]{4}', maxlength: 4 }
+					  type: 'password', pattern: '[0-9]{4}', maxlength: 4, rule: webuiL('pers.pincode_rule', 'Enter four digits') }
 				]
 			},
 			{
