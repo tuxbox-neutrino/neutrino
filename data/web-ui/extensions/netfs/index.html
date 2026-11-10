@@ -92,6 +92,13 @@
 			--pico-color: inherit;
 		}
 
+		/* the ring inside the head: the entry's frame clips what lies outside */
+		.netfs-slot-head:focus-visible {
+			outline: 2px solid var(--webui-focus-color);
+			outline-offset: -2px;
+			box-shadow: none;
+		}
+
 		@media (hover: hover) {
 			.netfs-slot-head:hover {
 				background: rgba(255, 255, 255, 0.03);
