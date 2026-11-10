@@ -1961,13 +1961,28 @@ function sharesChanged() {
 	return Object.keys(_sharesDrawn).map(Number).filter(shareChanged);
 }
 
-// Each share's head says when its fields hold a change not saved yet
+/* Each share's head says when its fields hold a change not saved yet, and
+   its Mount says that it saves them first: the box mounts what it holds,
+   not what is typed. */
 function sharesMark() {
 	Object.keys(_sharesDrawn).map(Number).forEach(function(i) {
+		var changed = shareChanged(i);
 		var mark = document.getElementById('share_unsaved_' + i);
 		if (mark)
-			mark.hidden = !shareChanged(i);
+			mark.hidden = !changed;
+		var mount = document.getElementById('share_mount_' + i);
+		if (mount) {
+			mount.lastChild.textContent = changed ? webuiL('set.mnt_save_mount', 'Save and mount') : webuiL('set.mnt_mount', 'Mount');
+			mount.title = changed ? webuiL('tip.mnt_save_mount', 'Save what is typed here, then mount this share') : webuiL('tip.mnt_mount', 'Mount this share now');
+		}
 	});
+}
+
+// Mount: what was typed into the share is saved first, then mounted
+async function shareMount(i) {
+	if (shareChanged(i) && !(await saveShare(i)))
+		return;
+	await shareAction(i, 'mount');
 }
 
 // A share's place, opened and closed by its head, a button that says which
@@ -2071,8 +2086,8 @@ function shareFields(sh) {
 	});
 	var local = input('local_dir', sh.local_dir);
 	var auto = webuiEl('input', {type: 'checkbox', id: 'share_automount_' + i, checked: !!sh.automount});
-	var button = function(icon, text, onClick) {
-		return webuiEl('button', {type: 'button', className: 'webui-btn', on: {click: function() { onClick(this); }}},
+	var button = function(icon, text, onClick, id) {
+		return webuiEl('button', {type: 'button', className: 'webui-btn', id: id || null, on: {click: function() { onClick(this); }}},
 			webuiMarkup(icon), text);
 	};
 	return [
@@ -2090,7 +2105,7 @@ function shareFields(sh) {
 		credentials,
 		shareRow(webuiL('set.mnt_actions', 'Actions'), webuiEl('span', {className: 'webui-row-actions'},
 			webuiTitled(button(SAVE_ICON, webuiL('bqe.save', 'Save'), function() { saveShare(i); }), webuiL('tip.mnt_save', 'Keep this share as entered')), ' ',
-			webuiTitled(button(MOUNT_ICON, webuiL('set.mnt_mount', 'Mount'), function() { shareAction(i, 'mount'); }), webuiL('tip.mnt_mount', 'Mount this share now')), ' ',
+			webuiTitled(button(MOUNT_ICON, webuiL('set.mnt_mount', 'Mount'), function() { shareMount(i); }, 'share_mount_' + i), webuiL('tip.mnt_mount', 'Mount this share now')), ' ',
 			webuiTitled(button(EJECT_ICON, webuiL('set.mnt_umount', 'Unmount'), function() { shareAction(i, 'unmount'); }), webuiL('tip.mnt_umount', 'Unmount this share now'))))
 	];
 }
@@ -2109,8 +2124,10 @@ async function saveShare(i) {
 		body.password = pass;
 	else if (clear && clear.checked)
 		body.password = '';
-	if (await onShare(i, function() { return webuiV1('PUT', '/storage/shares/' + i, {body: body}); }, true))
+	var saved = await onShare(i, function() { return webuiV1('PUT', '/storage/shares/' + i, {body: body}); }, true);
+	if (saved)
 		webuiShowToast(webuiL('set.mnt_saved', 'Network share saved'));
+	return saved;
 }
 
 function shareAction(i, act) {
