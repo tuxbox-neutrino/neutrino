@@ -1202,6 +1202,15 @@ html.webui-side-narrow .webui-side .webui-side-toggle {
 	--pico-color: inherit;
 }
 
+/* A tap or a click leaves the focus on the button (the theme one stays
+   where it is, the others get it back from their menu or question), and
+   Pico rings every focused button: no ring then. The keyboard's ring is
+   the outline of :focus-visible. */
+.webui-theme-toggle:focus:not(:focus-visible) {
+	box-shadow: none;
+	--pico-box-shadow: none;
+}
+
 .webui-theme-toggle svg {
 	width: 18px;
 	height: 18px;
