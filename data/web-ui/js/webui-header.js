@@ -3266,8 +3266,12 @@ function webuiDialogA11y(dialog, opts) {
 			dialog.querySelectorAll('a[href], button, input, select, textarea, [tabindex]'),
 			function(el) { return !el.disabled && el.tabIndex >= 0 && el.offsetParent !== null; });
 	};
+	// Escape that something inside took already (a help text it closed) is
+	// not the dialog's
 	var onKey = function(e) {
 		if (e.key === 'Escape' && opts.close) {
+			if (e.defaultPrevented)
+				return;
 			e.preventDefault();
 			e.stopPropagation();
 			opts.close();
@@ -3289,6 +3293,7 @@ function webuiDialogA11y(dialog, opts) {
 		}
 	};
 	dialog.addEventListener('keydown', onKey);
+	var let_go = _webuiDialogHold(dialog, opts.close, controls);
 	var start = opts.focus || controls()[0];
 	if (start) {
 		start.focus();
@@ -3300,10 +3305,112 @@ function webuiDialogA11y(dialog, opts) {
 	// was hidden meanwhile leaves it to the caller
 	return function release() {
 		dialog.removeEventListener('keydown', onKey);
+		let_go();
 		if (before && typeof before.focus === 'function' && document.contains(before) && before.getClientRects().length)
 			before.focus();
 	};
 }
+
+/* The dialogs that are open, the one opened last at the end: those of
+   webuiDialogA11y and the sign-in (_webuiDialogHold); a dialog opened over
+   another (a question over the player) comes after it. A press on what in
+   a dialog takes no focus (its title, a line of its text) moves the focus
+   out of it, to the page, where the dialog no longer hears its keys:
+   - Escape then closes the topmost of them, unless a help text open in it
+     closes first, on its own Escape;
+   - Tab and Shift+Tab are left to the browser, which goes on from the text
+     pressed; where that leads out of the topmost dialog (to the page, or
+     into a dialog below it), the focus is moved to its first control (Tab)
+     or its last (Shift+Tab), so Tab stays in it. So is the focus a Tab
+     brings back from the browser's own bar, where a Tab from text after a
+     dialog's last control leads. A focus a script moves (the field a copy
+     goes through) is left where it is put.
+   The focus is left where the browser put it, so the arrows and Page Down
+   still scroll the text that was pressed. Keys inside a dialog, and keys
+   inside a menu (it opens on the page, outside its dialog), are left to
+   it, and while a modal dialog none of these is open (a sheet) its keys
+   are its own. */
+var _webuiDialogsOpen = [];
+var _webuiDialogTab = 0;	// a Tab being pressed: 1, with Shift -1, else 0
+
+// Keeps a dialog in the order: its close() and its controls(); returns
+// what takes it out again
+function _webuiDialogHold(dialog, close, controls) {
+	var held = {dialog: dialog, close: close, controls: controls};
+	_webuiDialogsOpen.push(held);
+	return function() {
+		var i = _webuiDialogsOpen.indexOf(held);
+		if (i >= 0)
+			_webuiDialogsOpen.splice(i, 1);
+	};
+}
+
+function _webuiDialogShown(el) {
+	return el.isConnected && el.getClientRects().length > 0 && getComputedStyle(el).visibility !== 'hidden';
+}
+
+function _webuiDialogTop() {
+	for (var i = _webuiDialogsOpen.length - 1; i >= 0; i--)
+		if (_webuiDialogShown(_webuiDialogsOpen[i].dialog))
+			return _webuiDialogsOpen[i];
+	return null;
+}
+
+// A modal dialog shown that is none of these: a sheet. The remote window
+// lies under any dialog, which opens from it.
+function _webuiOtherDialogShown() {
+	return Array.prototype.some.call(document.querySelectorAll('[aria-modal="true"], dialog[open]'), function(el) {
+		if (el.closest('#webui-remote-modal') || !_webuiDialogShown(el))
+			return false;
+		return !_webuiDialogsOpen.some(function(d) { return d.dialog === el; });
+	});
+}
+
+// The topmost dialog, unless a modal dialog that is none of these is
+// shown; else null
+function _webuiDialogFree() {
+	var top = _webuiDialogTop();
+	return top && !_webuiOtherDialogShown() ? top : null;
+}
+
+document.addEventListener('keydown', function(e) {
+	// the browser moves the focus for it before the next task
+	if (e.key === 'Tab') {
+		_webuiDialogTab = e.shiftKey ? -1 : 1;
+		setTimeout(function() { _webuiDialogTab = 0; }, 0);
+	}
+	if (e.defaultPrevented || e.key !== 'Escape' || e.altKey || e.ctrlKey || e.metaKey)
+		return;
+	var top = _webuiDialogFree(), at = document.activeElement;
+	if (!top || !top.close || (at && at.closest && at.closest('[role="dialog"], [role="alertdialog"], dialog, [role="menu"]')) ||
+	    top.dialog.querySelector('.webui-help-panel:not([hidden])'))
+		return;
+	e.preventDefault();
+	e.stopPropagation();
+	top.close();
+}, true);
+
+// the document taking the focus back from the browser's own bar (where
+// the page hears no key) counts as a Tab
+window.addEventListener('focus', function() {
+	if (_webuiDialogTab)
+		return;
+	_webuiDialogTab = 1;
+	setTimeout(function() { _webuiDialogTab = 0; }, 0);
+});
+
+document.addEventListener('focusin', function(e) {
+	if (!_webuiDialogTab)
+		return;
+	var top = _webuiDialogFree();
+	if (!top || top.dialog.contains(e.target))
+		return;
+	var all = top.controls();
+	if (all.length)
+		all[_webuiDialogTab < 0 ? all.length - 1 : 0].focus();
+	else if (top.dialog.hasAttribute('tabindex'))
+		top.dialog.focus();
+});
 
 // Generic modal on the EPG-modal backdrop pattern. Reuses the element
 // per id and replaces title/body on every call (reset on reopen).

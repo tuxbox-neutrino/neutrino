@@ -516,9 +516,11 @@ function _webuiV1SignInDialog() {
 		cancelBtn.textContent = webuiL('msg.cancel', 'Cancel');
 
 		var done = false;
+		var letGo = null;
 		function finish(result) {
 			if (done) return;
 			done = true;
+			if (letGo) letGo();
 			backdrop.remove();
 			if (before && before.focus) before.focus();
 			resolve(result);
@@ -573,6 +575,12 @@ function _webuiV1SignInDialog() {
 			}
 		};
 		document.body.appendChild(backdrop);
+		// in the order of the open dialogs (webui-header.js): after a press on
+		// its text, which leaves the focus on the page, Escape still closes it
+		// and Tab stays in it
+		if (typeof _webuiDialogHold === 'function')
+			letGo = _webuiDialogHold(backdrop.querySelector('.webui-confirm-dialog'), function() { finish(false); },
+				function() { return [user, pass, cancelBtn, okBtn].filter(function(el) { return !el.disabled; }); });
 		user.focus();
 	});
 }
