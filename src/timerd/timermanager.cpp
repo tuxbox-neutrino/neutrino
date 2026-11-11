@@ -331,6 +331,9 @@ bool CTimerManager::stopEvent(int peventID)
 		if( (events[peventID]->eventState == CTimerd::TIMERSTATE_ISRUNNING) && (events[peventID]->stopTime > 0) )
 			events[peventID]->stopEvent();	// if event is running an has stopTime
 		events[peventID]->eventState = CTimerd::TIMERSTATE_HASFINISHED;		// set the state to finished
+		/* Saved with the next sweep, or by shutdown() where the program ends
+		   before one: the file would keep the timer running otherwise. */
+		m_saveEvents = true;
 		res = true;															// so timerthread will do the rest for us
 	}
 	else

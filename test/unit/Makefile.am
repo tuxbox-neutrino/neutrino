@@ -325,6 +325,7 @@ EXTRA_DIST = interop/peer/README support/catch.hpp support/run-tests.sh support/
 	scan/check-live-displaced.sh \
 	scan/check-timer-epgid.sh \
 	scan/check-capture-exclusion.sh \
+	scan/check-timer-stop-saved.sh \
 	scan/check-record-shutdown.sh \
 	scan/strip-comments.awk scan/blank-if0.awk scan/bounds.awk scan/pairs.awk scan/fields.awk \
 	scan/keyvals.awk scan/choices.awk scan/enums.awk scan/labels.awk scan/branches.awk \
@@ -498,6 +499,7 @@ check-local: check-TESTS
 	@$(SHELL) $(srcdir)/scan/check-live-displaced.sh $(top_srcdir)
 	@$(SHELL) $(srcdir)/scan/check-timer-epgid.sh $(top_srcdir)
 	@$(SHELL) $(srcdir)/scan/check-capture-exclusion.sh $(top_srcdir)
+	@$(SHELL) $(srcdir)/scan/check-timer-stop-saved.sh $(top_srcdir)
 	@$(SHELL) $(srcdir)/scan/check-record-shutdown.sh $(top_srcdir)
 	@$(MAKE) $(AM_MAKEFLAGS) check-api-types
 	@$(MAKE) $(AM_MAKEFLAGS) -C $(top_builddir)/src/httpd check-api-doc
