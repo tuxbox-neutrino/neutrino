@@ -240,6 +240,37 @@ grep -q -E 'postMsg\(NeutrinoMessages::EVT_STREAM_STOP,[[:space:]]*added\.asked_
 	fail=1
 }
 
+#    The end of the last stream is announced once, by the hang-up that
+#    ended it, as CStreamManager::RemoveClient decides under the manager's
+#    lock. A hang-up of a stream that is gone already - stopped for a
+#    recording, which announces itself, or by another hang-up - announces
+#    nothing, and the loop reads the streams only under that lock.
+strip "$SRC/src/driver/streamts.cpp" | body 'bool CStreamManager::RemoveClient(' > "$tmp/remove"
+[ -s "$tmp/remove" ] || { echo "check-epgscan-resume.sh: no bool CStreamManager::RemoveClient in src/driver/streamts.cpp" >&2; exit 1; }
+awk '
+	{ line = $0 }
+	/ScopedLock<OpenThreads::Mutex>/ && !lockdepth { lockdepth = depth; inlock = 1 }
+	{ o = gsub(/\{/, "{"); c = gsub(/\}/, "}"); depth += o - c }
+	inlock { print "L " line } !inlock { print "U " line }
+	inlock && depth < lockdepth { inlock = 0 }
+' "$tmp/remove" > "$tmp/removelock"
+grep -q -E '^L .*idle[[:space:]]*=[[:space:]]*streams\.empty\(\)[[:space:]]*&&[[:space:]]*gate\.pendingLocked\(\)[[:space:]]*==[[:space:]]*0[[:space:]]*;' "$tmp/removelock" &&
+grep -q -E 'return[[:space:]]+idle[[:space:]]*;' "$tmp/remove" || {
+	echo "src/driver/streamts.cpp: CStreamManager::RemoveClient does not answer, under the manager's lock, whether it ended the last stream" >&2
+	fail=1
+}
+awk '/if[ \t]*\([ \t]*RemoveClient\(pfd\[i\]\.fd\)[ \t]*\)/ { f = NR } f && NR <= f + 3 && /postMsg\(NeutrinoMessages::EVT_STREAM_STOP,[ \t]*0[ \t]*\)/ { ok = 1 } END { exit !ok }' "$tmp/loop" &&
+[ `grep -c -F 'RemoveClient(' "$tmp/loop"` -eq 1 ] || {
+	echo "CStreamManager::run does not announce the end of streams by what RemoveClient answers" >&2
+	fail=1
+}
+if [ `grep -c -F 'streams.empty()' "$tmp/loop"` -ne 1 ] || ! grep -F 'streams.empty()' "$tmp/loop" | grep -q -F 'streamsetup::idleAfter(' ||
+   ! awk '/streams\.empty\(\)/ { exit !(prev ~ /^[ \t]*mutex\.lock\(\);[ \t]*$/) } { prev = $0 }' "$tmp/loop"; then
+	echo "CStreamManager::run reads whether streams run elsewhere than for streamsetup::idleAfter, under the lock:" >&2
+	grep -n -F 'streams.empty()' "$tmp/loop" | sed 's/^/  /' >&2
+	fail=1
+fi
+
 # 7. Whether anything keeps zapit awake reads the recordings themselves: an
 #    end of streams can come in after a recording started and before its
 #    record mode is known.

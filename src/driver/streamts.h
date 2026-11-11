@@ -166,7 +166,10 @@ class CStreamManager : public OpenThreads::Thread
 		void	PreparePids(CZapitChannel * channel, stream_pids_t &pids, bool is_e2);
 		void	CheckStandby(bool enter);
 		bool	StopAll();
-		void	RemoveClient(int fd);
+		/* Removes the client on fd; answers whether that ended the last
+		   stream with no setup under way, decided under the manager's
+		   lock. A descriptor whose stream is gone already ends nothing. */
+		bool	RemoveClient(int fd);
 		void	run();
 		CStreamManager();
 	public:
