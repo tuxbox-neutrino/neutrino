@@ -1136,6 +1136,40 @@ CRecordManager::~CRecordManager()
 	sm.unlock();
 }
 
+/* What the destructor did, under the lock the readers of the maps take. The
+   lock is tried for 2 s in steps of 10 ms, never waited for: from a signal
+   handler the thread the signal interrupted may be the one holding it, and
+   on the program's own end a loop a recording start runs may be. The
+   recordings then stay as they are on disc, and the end goes on. */
+bool CRecordManager::Shutdown()
+{
+	bool locked = false;
+	for (int i = 0; i < 200 && !locked; i++) {
+		locked = mutex.trylock() == 0;
+		if (!locked)
+			usleep(10 * 1000);
+	}
+	if (!locked) {
+		printf("[recordmanager] %s: the lock stays taken, the recordings are left as they are\n", __func__);
+		return false;
+	}
+	for (recmap_iterator_t it = recmap.begin(); it != recmap.end(); it++) {
+		CRecordInstance * inst = it->second;
+		inst->Stop();
+		delete inst;
+	}
+	recmap.clear();
+	for (nextmap_iterator_t it = nextmap.begin(); it != nextmap.end(); it++) {
+		/* Note: CTimerd::RecordingInfo is a class! => typecast to avoid destructor call */
+		delete[] (unsigned char *) (*it);
+	}
+	nextmap.clear();
+	durations.clear();
+	autoshift = false;
+	mutex.unlock();
+	return true;
+}
+
 CRecordManager * CRecordManager::getInstance()
 {
 	sm.lock();

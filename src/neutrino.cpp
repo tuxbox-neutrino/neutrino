@@ -5880,7 +5880,8 @@ void CNeutrinoApp::ExitRun(int exit_code)
 	frameBuffer->showFrame("shutdown.jpg");
 
 	delete cHddStat::getInstance();
-	delete CRecordManager::getInstance();
+	/* Stopped, not deleted: the web server's threads ask it until _exit(). */
+	CRecordManager::getInstance()->Shutdown();
 
 	CEpgScan::getInstance()->Stop();
 	if (g_settings.epg_save)
@@ -7027,7 +7028,7 @@ void stop_daemons(bool stopall, bool for_flash)
 
 	if (for_flash) {
 		delete cHddStat::getInstance();
-		delete CRecordManager::getInstance();
+		CRecordManager::getInstance()->Shutdown();
 		delete videoDemux;
 		int ret = my_system(4, "mount", "-no", "remount,ro", "/");
 		printf("remount rootfs readonly %s.\n", (ret == 0)?"successful":"failed"); fflush(stdout);
@@ -7061,7 +7062,7 @@ void sighandler (int signum)
 		CNeutrinoApp::getInstance()->OnShutDown();
 		CProgressBarCache::pbcClear();
 		delete cHddStat::getInstance();
-		delete CRecordManager::getInstance();
+		CRecordManager::getInstance()->Shutdown();
 		//CNeutrinoApp::getInstance()->saveSetup(NEUTRINO_SETTINGS_FILE);
 		stop_daemons();
 		CVFD::getInstance()->setMode(CVFD::MODE_SHUTDOWN);

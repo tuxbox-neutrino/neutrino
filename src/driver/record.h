@@ -38,6 +38,7 @@
 #include <OpenThreads/Mutex>
 #include <OpenThreads/Thread>
 
+
 #if 0
 extern "C" {
 #include <libavformat/avformat.h>
@@ -219,6 +220,11 @@ class CRecordManager : public CMenuTarget /*, public CChangeObserver*/
 		CRecordInstance * FindInstanceID(int recid);
 		CRecordInstance * FindTimeshift();
 
+		/* Private, so that nothing deletes the manager: threads of the web
+		   server, the stream server and the front display ask it until the
+		   process exits. Shutdown() ends what it holds instead. */
+		~CRecordManager();
+
 	public:
 		enum record_modes_t
 		{
@@ -229,9 +235,18 @@ class CRecordManager : public CMenuTarget /*, public CChangeObserver*/
 		};
 		
 		CRecordManager();
-		~CRecordManager();
 
 		static CRecordManager * getInstance();
+		/*
+		 * At the end of the program: every recording stopped and every
+		 * pending one forgotten, under this manager's lock, so a reader on
+		 * another thread finds either all of them or none. The lock is only
+		 * tried for a while, because the thread that ends the program may
+		 * hold it already (a signal interrupted it, or a loop a recording
+		 * start runs ends the program); the recordings then stay as they are
+		 * on disc, and false is answered.
+		 */
+		bool Shutdown();
 
 		bool Record(const CTimerd::RecordingInfo * const eventinfo, const char * dir = NULL, bool timeshift = false, bool silent = false);
 		bool Record(const t_channel_id channel_id, const char * dir = NULL, bool timeshift = false, bool silent = false);
