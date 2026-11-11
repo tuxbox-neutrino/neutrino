@@ -1377,12 +1377,16 @@ function _webuiEpgModalHTML() {
 				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="4" width="20" height="14" rx="2"/><path d="M10 8.5v5l4.5-2.5z"/><path d="M8 21h8"/></svg>
 				<span>${webuiLH('play.in_browser', 'Play in browser')}</span>
 			</button>
-			<button type="button" class="webui-epg-round" id="webuiEpgM3uBtn" onclick="webuiOpenInPlayer()" title="${webuiLH('play.external', 'Open in a player (M3U)')}" aria-label="${webuiLH('play.external', 'Open in a player (M3U)')}">
+			<span class="webui-epg-ways">
+			<button type="button" class="webui-epg-round labelled" id="webuiEpgM3uBtn" onclick="webuiOpenInPlayer()" title="${webuiLH('play.external', 'Open in a player (M3U)')}" aria-label="${webuiLH('play.external', 'Open in a player (M3U)')}">
 				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 17H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-1"/><polygon points="12 15 17 21 7 21"/></svg>
+				<span>${webuiLH('play.external_short', 'M3U')}</span>
 			</button>
-			<button type="button" class="webui-epg-round" id="webuiEpgCopyBtn" onclick="webuiCopyChannelAddress()" title="${webuiLH('play.copy', 'Copy address')}" aria-label="${webuiLH('play.copy', 'Copy address')}">
+			<button type="button" class="webui-epg-round labelled" id="webuiEpgCopyBtn" onclick="webuiCopyChannelAddress()" title="${webuiLH('play.copy', 'Copy address')}" aria-label="${webuiLH('play.copy', 'Copy address')}">
 				${WEBUI_COPY_SVG}
+				<span>${webuiLH('play.copy_short', 'Copy')}</span>
 			</button>
+			</span>
 		</footer>
 	</div>
 </div>

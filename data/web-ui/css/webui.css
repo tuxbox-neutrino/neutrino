@@ -2428,6 +2428,42 @@ audio.webui-player-media {
 	height: 2rem;
 }
 
+/* a round key with its word beside the symbol (the playlist, Copy in the
+   programme dialog): a pill as wide as the word, as tall as the round one */
+.webui-epg-round.labelled {
+	display: inline-flex;
+	gap: 0.4rem;
+	width: auto;
+	padding: 0 0.85rem;
+	border-radius: 999px;
+	font-size: var(--webui-font-sm);
+	white-space: nowrap;
+}
+
+/* the two ways out of the browser stay together at the end of the foot,
+   on a row of their own where the row is full; on a phone each half of it */
+.webui-epg-ways {
+	display: flex;
+	gap: 0.5rem;
+	margin-left: auto;
+}
+
+.webui-epg-show .webui-epg-modal-footer .webui-epg-ways .webui-epg-round {
+	margin-left: 0;
+}
+
+@media (max-width: 600px) {
+	.webui-epg-ways {
+		flex: 1 1 100%;
+		gap: 0.4rem;
+	}
+
+	.webui-epg-show .webui-epg-modal-footer .webui-epg-ways .webui-epg-round.labelled {
+		flex: 1;
+		justify-content: center;
+	}
+}
+
 .webui-epg-show .webui-epg-modal-footer {
 	justify-content: flex-start;
 	align-items: center;
