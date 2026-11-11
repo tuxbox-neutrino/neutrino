@@ -3,7 +3,9 @@
 `screenshot` takes a picture of what the box shows, the on-screen
 display, the video or both, through `/api/v1`, saves it, and offers the
 remote control beside it, so the box can be worked from the browser
-while watching the result.
+while watching the result. "Repeat every … s" takes a new picture every
+1 to 180 seconds; the browser keeps that choice (`localStorage`), and
+without it the repeat is off at 15 seconds.
 
 It takes the place of the page the interface had for this, so it is
 switched on until it is switched off under Settings → Extensions

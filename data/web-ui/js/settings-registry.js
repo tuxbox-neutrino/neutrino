@@ -522,13 +522,13 @@ var SETTINGS_REGISTRY = [
 		sections: [
 			{
 				/* Only what this interface reads. The box name and colour, the
-				   screenshot key, the framebuffer mode and the management address
-				   were read by the old pages alone and stay in webui.conf for
-				   whoever still asks for them. */
+				   screenshot key and timeout, the framebuffer mode and the
+				   management address were read by the old pages alone and stay
+				   in webui.conf for whoever still asks for them; the screenshot
+				   window and the LCD4Linux page keep their repeat in the browser. */
 				title: webuiL('reg.ui', 'User interface'),
 				fields: [
-					{ key: 'start_page', label: webuiL('reg.start_page', 'Start page'), type: 'select', options: webuiStartPages() },
-					{ key: 'screenshot_timeout', label: webuiL('reg.screenshot_timeout', 'Screenshot timeout (sec.)'), type: 'number', min: 0 }
+					{ key: 'start_page', label: webuiL('reg.start_page', 'Start page'), type: 'select', options: webuiStartPages() }
 				]
 			}
 		]

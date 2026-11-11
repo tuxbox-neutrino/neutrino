@@ -7,5 +7,8 @@
 	"lcd.no_picture": "Das Bild des Displays ließ sich nicht lesen.",
 	"lcd.full": "Vollbild",
 	"lcd.full_title": "Nur das Bild, auf dem ganzen Bildschirm",
-	"lcd.leave": "Vollbild verlassen"
+	"lcd.leave": "Vollbild verlassen",
+	"lcd.repeat": "Wiederholen alle",
+	"lcd.seconds": "Sekunden zwischen zwei Bildern",
+	"lcd.tip_repeat": "Alle paar Sekunden ein neues Bild holen"
 }

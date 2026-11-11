@@ -168,21 +168,52 @@ function shotSeconds() {
 function shotRepeat() {
 	clearInterval(reloadInterval);
 	reloadInterval = null;
+	// only while somebody can see it: a page left in a tab behind takes no pictures
 	if (document.getElementById('checkReload').checked)
-		reloadInterval = setInterval(doSnapshot, shotSeconds() * 1000);
+		reloadInterval = setInterval(function() {
+			if (document.visibilityState === 'visible') doSnapshot();
+		}, shotSeconds() * 1000);
+}
+
+/* This browser keeps the repeat as chosen last (localStorage); where it
+   cannot, or has none, the repeat is off at 15 seconds */
+var SHOT_REPEAT_KEY = 'webui-screenshot-repeat';
+
+function shotRepeatKeep() {
+	try {
+		localStorage.setItem(SHOT_REPEAT_KEY, JSON.stringify({on: document.getElementById('checkReload').checked, seconds: shotSeconds()}));
+	} catch (e) { /* the choice lasts as long as the page */ }
+}
+
+function shotRepeatLoad() {
+	var kept = null;
+	try {
+		kept = JSON.parse(localStorage.getItem(SHOT_REPEAT_KEY) || 'null');
+	} catch (e) { /* the default */ }
+	if (!kept || typeof kept !== 'object')
+		return;
+	var n = parseInt(kept.seconds, 10);
+	if (!isNaN(n))
+		document.getElementById('inputReload').value = Math.min(180, Math.max(1, n));
+	document.getElementById('checkReload').checked = kept.on === true;
+	document.getElementById('inputReload').disabled = kept.on !== true;
 }
 
 document.getElementById('checkReload').addEventListener('change', function() {
 	document.getElementById('inputReload').disabled = !this.checked;
 	shotRepeat();
+	shotRepeatKeep();
 });
 document.getElementById('inputReload').addEventListener('change', function() {
 	this.value = shotSeconds();
 	shotRepeat();
+	shotRepeatKeep();
 });
 
 // Initialize, once the texts are in
+shotRepeatLoad();
 webuiExtTexts('screenshot').then(function() {
 	document.getElementById('screenshot').alt = webuiL('shot.alt', 'What the box shows');
 	doSnapshot();
+	shotRepeat();
 });

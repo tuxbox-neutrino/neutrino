@@ -918,7 +918,6 @@
 	"reg.progress": "Fortschritt",
 	"reg.quickzap_down": "Quickzap runter",
 	"reg.quickzap_up": "Quickzap hoch",
-	"reg.screenshot_timeout": "Screenshot-Timeout (Sek.)",
 	"reg.send_all_types": "Alle Dateitypen senden",
 	"reg.threading": "Verbindungs-Threads",
 	"reg.standby_brightness": "Standby-Helligkeit",

@@ -2,9 +2,47 @@
 // LCD4Linux draws of the front display, taken again every few seconds, on a
 // page of the interface or full screen.
 
-// seconds between two pictures: the interface's screenshot timeout where it
-// names one of at least a second, else 15
-var lcdEvery = 15;
+/* The repeat, as the screenshot window has it: on or off, every 1 to 180
+   seconds. This browser keeps the choice (localStorage); where it cannot,
+   or has none, the page repeats every 15 seconds. */
+var LCD_REPEAT_KEY = 'webui-lcd4linux-repeat';
+var lcdTimer = null;
+
+function lcdSeconds() {
+	var n = parseInt(document.getElementById('lcd-every').value, 10);
+	return isNaN(n) ? 15 : Math.min(180, Math.max(1, n));
+}
+
+function lcdRepeat() {
+	clearInterval(lcdTimer);
+	lcdTimer = null;
+	var on = document.getElementById('lcd-repeat').checked;
+	document.getElementById('lcd-every').disabled = !on;
+	// only while somebody can see it
+	if (on)
+		lcdTimer = setInterval(function() {
+			if (document.visibilityState === 'visible') lcdShow();
+		}, lcdSeconds() * 1000);
+}
+
+function lcdRepeatKeep() {
+	try {
+		localStorage.setItem(LCD_REPEAT_KEY, JSON.stringify({on: document.getElementById('lcd-repeat').checked, seconds: lcdSeconds()}));
+	} catch (e) { /* the choice lasts as long as the page */ }
+}
+
+function lcdRepeatLoad() {
+	var kept = null;
+	try {
+		kept = JSON.parse(localStorage.getItem(LCD_REPEAT_KEY) || 'null');
+	} catch (e) { /* the default */ }
+	if (kept && typeof kept === 'object') {
+		document.getElementById('lcd-repeat').checked = kept.on !== false;
+		var n = parseInt(kept.seconds, 10);
+		if (!isNaN(n))
+			document.getElementById('lcd-every').value = Math.min(180, Math.max(1, n));
+	}
+}
 
 // the picture, or in its place what keeps it away
 function lcdShown(on, text) {
@@ -63,22 +101,22 @@ document.getElementById('lcd-picture').addEventListener('error', function() {
 	lcdShown(false, webuiL('lcd.no_picture', 'The picture of the display could not be read.'));
 });
 
+document.getElementById('lcd-repeat').addEventListener('change', function() {
+	lcdRepeat();
+	lcdRepeatKeep();
+});
+document.getElementById('lcd-every').addEventListener('change', function() {
+	this.value = lcdSeconds();
+	lcdRepeat();
+	lcdRepeatKeep();
+});
+
 (async function() {
+	lcdRepeatLoad();
 	await webuiExtTexts('lcd4linux');
 	if (!document.getElementById('lcd-stage').requestFullscreen)
 		document.getElementById('lcd-full').hidden = true;
 	document.getElementById('lcd-picture').alt = webuiL('lcd.alt', 'The front display as LCD4Linux draws it');
-	try {
-		var r = await lcdRead('/webui/settings');
-		((r && r.items) || []).forEach(function(it) {
-			var n = parseInt(it.value, 10);
-			if (it.key === 'screenshot_timeout' && n >= 1)
-				lcdEvery = n;
-		});
-	} catch (e) { /* the default */ }
 	lcdShow();
-	// only while somebody can see it
-	setInterval(function() {
-		if (document.visibilityState === 'visible') lcdShow();
-	}, lcdEvery * 1000);
+	lcdRepeat();
 })();

@@ -7,5 +7,8 @@
 	"lcd.no_picture": "The picture of the display could not be read.",
 	"lcd.full": "Full screen",
 	"lcd.full_title": "The picture alone, full screen",
-	"lcd.leave": "Leave full screen"
+	"lcd.leave": "Leave full screen",
+	"lcd.repeat": "Repeat every",
+	"lcd.seconds": "Seconds between two pictures",
+	"lcd.tip_repeat": "Fetch a new picture every few seconds"
 }

@@ -26,9 +26,58 @@
 
 		.lcd-card .webui-card-header {
 			display: flex;
+			flex-wrap: wrap;
 			align-items: center;
 			justify-content: space-between;
 			gap: 0.5rem;
+		}
+
+		.lcd-acts {
+			display: flex;
+			flex-wrap: wrap;
+			align-items: center;
+			gap: 0.5rem;
+		}
+
+		/* the repeat, as the screenshot window has it: a switch, the number
+		   of seconds in a field without a frame of its own, and its unit */
+		.lcd-repeat {
+			display: flex;
+			align-items: center;
+			gap: 0.3rem;
+			padding: 0 0.6rem 0 0.1rem;
+			border-radius: 999px;
+			background: var(--webui-bg-elevated);
+			font-size: var(--webui-font-sm);
+		}
+
+		.lcd-repeat input[type="number"] {
+			width: 3.2em;
+			margin: 0;
+			padding: 0.15rem 0.2rem;
+			border: 0;
+			background: none;
+			color: inherit;
+			font-size: inherit;
+			text-align: center;
+			-moz-appearance: textfield;
+		}
+
+		.lcd-repeat input[type="number"]::-webkit-inner-spin-button,
+		.lcd-repeat input[type="number"]::-webkit-outer-spin-button {
+			-webkit-appearance: none;
+			margin: 0;
+		}
+
+		.lcd-repeat input[type="number"]:disabled {
+			color: var(--pico-muted-color);
+		}
+
+		.lcd-repeat input[type="number"]:focus-visible {
+			outline: 2px solid var(--webui-focus-color);
+			outline-offset: 1px;
+			border-radius: 4px;
+			box-shadow: none;
 		}
 
 		.lcd-stage {
@@ -82,12 +131,25 @@
 		<article class="webui-card lcd-card">
 			<header class="webui-card-header">
 				<h3 class="webui-card-title" data-l="manifest.name">LCD4Linux</h3>
-				<button type="button" class="webui-btn" id="lcd-full" onclick="lcdFullscreen(true)" title="The picture alone, full screen" data-l-title="lcd.full_title">
-					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-						<path d="M8 3H5a2 2 0 0 0-2 2v3M21 8V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3M16 21h3a2 2 0 0 0 2-2v-3"/>
-					</svg>
-					<span data-l="lcd.full">Full screen</span>
-				</button>
+				<div class="lcd-acts">
+					<div class="lcd-repeat">
+						<label class="webui-toggle-field" title="Fetch a new picture every few seconds" data-l-title="lcd.tip_repeat">
+							<span class="webui-toggle">
+								<input type="checkbox" id="lcd-repeat" checked>
+								<span class="webui-toggle-slider"></span>
+							</span>
+							<span class="webui-toggle-text" data-l="lcd.repeat">Repeat every</span>
+						</label>
+						<input type="number" id="lcd-every" value="15" min="1" max="180" aria-label="Seconds between two pictures" data-l-aria-label="lcd.seconds">
+						<span aria-hidden="true">s</span>
+					</div>
+					<button type="button" class="webui-btn" id="lcd-full" onclick="lcdFullscreen(true)" title="The picture alone, full screen" data-l-title="lcd.full_title">
+						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+							<path d="M8 3H5a2 2 0 0 0-2 2v3M21 8V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3M16 21h3a2 2 0 0 0 2-2v-3"/>
+						</svg>
+						<span data-l="lcd.full">Full screen</span>
+					</button>
+				</div>
 			</header>
 			<div class="lcd-stage" id="lcd-stage">
 				<img id="lcd-picture" alt="The front display as LCD4Linux draws it" hidden>

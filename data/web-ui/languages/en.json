@@ -918,7 +918,6 @@
 	"reg.progress": "Progress",
 	"reg.quickzap_down": "Quickzap down",
 	"reg.quickzap_up": "Quickzap up",
-	"reg.screenshot_timeout": "Screenshot timeout (sec.)",
 	"reg.send_all_types": "Send all file types",
 	"reg.threading": "Connection threading",
 	"reg.standby_brightness": "Standby brightness",
