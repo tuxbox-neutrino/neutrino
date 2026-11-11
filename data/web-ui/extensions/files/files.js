@@ -30,7 +30,7 @@ function formatFileSize(bytes) {
 	const units = ['B', 'KB', 'MB', 'GB', 'TB'];
 	const k = 1024;
 	const i = Math.floor(Math.log(bytes) / Math.log(k));
-	return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + units[i];
+	return webuiNumber(bytes / Math.pow(k, i), 1, true) + ' ' + units[i];
 }
 
 // Format timestamp to readable date
@@ -315,8 +315,10 @@ async function loadDiskInfo(mine) {
 				best = m;
 		});
 		if (best && best.total > 0) {
-			const pct = Math.round((best.total - best.free) * 100 / best.total) + '%';
-			el.textContent = formatFileSize(best.free) + ' ' + webuiL('fm.free', 'free') + ' / ' + formatFileSize(best.total) + ' (' + pct + ')';
+			// the part used with its word, beside what is left free of the whole
+			const pct = webuiNumber(Math.round((best.total - best.free) * 100 / best.total)) + ' %';
+			el.textContent = webuiL('fm.used_free', '{pct} used, {free} free of {total}').replace('{pct}', pct)
+				.replace('{free}', formatFileSize(best.free)).replace('{total}', formatFileSize(best.total));
 		} else {
 			el.textContent = '';
 		}

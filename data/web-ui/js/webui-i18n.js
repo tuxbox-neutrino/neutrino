@@ -128,6 +128,26 @@ function webuiKindText(s) {
 	return webuiL('err.kind_' + kind, WEBUI_ERR_KINDS[kind]);
 }
 
+/* A number as the page's language writes it (a decimal comma in German):
+   digits after the point as asked (none without), fewer where trim is set
+   and they are noughts. The language is the one the page is shown in, so a
+   number made before the texts are in is written the English way. */
+var _webuiNumberFormats = {};
+
+function webuiNumber(n, digits, trim) {
+	digits = digits || 0;
+	var lang = document.documentElement.lang || 'en';
+	var key = lang + '/' + digits + (trim ? 't' : '');
+	try {
+		if (!_webuiNumberFormats[key])
+			_webuiNumberFormats[key] = new Intl.NumberFormat(lang, {minimumFractionDigits: trim ? 0 : digits, maximumFractionDigits: digits});
+		return _webuiNumberFormats[key].format(n);
+	} catch (e) {
+		var s = Number(n).toFixed(digits);
+		return trim ? String(parseFloat(s)) : s;
+	}
+}
+
 // Runs fn once the document is parsed and the texts are in.
 function webuiAfterTexts(fn) {
 	return Promise.all([_webuiDomReady(), window.webuiTexts]).then(function() { return fn(); });

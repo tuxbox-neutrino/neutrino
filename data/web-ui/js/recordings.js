@@ -706,7 +706,7 @@ function factsOf(rec) {
 	fact(webuiL('media.sort_size', 'Size'), bytes(rec.size));
 	fact(webuiL('media.year', 'Year'), rec.year);
 	fact(webuiL('media.country', 'Country'), rec.country);
-	if (rec.rating) fact(webuiL('media.rating', 'Rating'), (rec.rating / 10).toFixed(1));
+	if (rec.rating) fact(webuiL('media.rating', 'Rating'), webuiNumber(rec.rating / 10, 1));
 	if (rec.age && rec.age !== 99) fact(webuiL('media.age', 'Approved from'), rec.age);
 	if (rec.audio && rec.audio.length) fact(webuiL('media.audio', 'Sound tracks'), rec.audio.join(', '));
 	return webuiEl('dl', {className: 'webui-media-detail-facts'}, facts);

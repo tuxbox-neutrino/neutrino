@@ -10,8 +10,19 @@ function bar(label, percent, text) {
 	return '<span class="sysinfo-label">' + label + '</span>' +
 		'<span class="sysinfo-value">' +
 			'<div class="sysinfo-bar" aria-hidden="true"><div class="sysinfo-bar-fill" style="width:' + percent + '%"></div></div>' +
-			'<small>' + text + ' (' + percent + '%)</small>' +
+			'<small>' + text + '</small>' +
 		'</span>';
+}
+
+// what a bar fills, the part used, in words: with the total, or with what is free of it
+function usedOf(percent, used, total) {
+	return webuiLH('si.used_of', '{pct} used: {used} of {total}').replace('{pct}', webuiNumber(percent) + ' %')
+		.replace('{used}', webuiFormatKB(used)).replace('{total}', webuiFormatKB(total));
+}
+
+function usedFree(percent, free, total) {
+	return webuiLH('si.used_free', '{pct} used, {free} free of {total}').replace('{pct}', webuiNumber(percent) + ' %')
+		.replace('{free}', webuiFormatKB(free)).replace('{total}', webuiFormatKB(total));
 }
 
 /* The cards stand once the box has answered; until then, and when it does
@@ -40,17 +51,17 @@ async function loadSysInfo() {
 		if (sys.cpu_model) hw += row('CPU', escapeHtml(sys.cpu_model));
 		hw += row(webuiL('si.cores', 'Cores'), sys.cpu && sys.cpu.cores !== undefined ? sys.cpu.cores : '–');
 		// the load where the box could measure it, else its average, else nothing
-		hw += row(webuiL('si.load', 'Load'), sys.cpu && sys.cpu.percent !== undefined ? sys.cpu.percent + '%'
-			: (sys.load ? sys.load[0].toFixed(2) : '–'));
+		hw += row(webuiL('si.load', 'Load'), sys.cpu && sys.cpu.percent !== undefined ? webuiNumber(sys.cpu.percent) + ' %'
+			: (sys.load ? webuiNumber(sys.load[0], 2) : '–'));
 		if (sys.temperature !== null && sys.temperature !== undefined)
-			hw += row(webuiL('si.temperature', 'Temperature'), sys.temperature + '°C');
+			hw += row(webuiL('si.temperature', 'Temperature'), webuiNumber(sys.temperature, 1, true) + ' °C');
 		if (sys.box) hw += row('Box', escapeHtml(sys.box.vendor + ' ' + sys.box.name + ' (' + sys.box.arch + ')'));
 		document.getElementById('sysinfo-hw').innerHTML = hw;
 
 		// Speicher
 		var mem = '';
 		if (sys.memory)
-			mem += bar('RAM', sys.memory.percent, webuiFormatKB(sys.memory.used) + ' / ' + webuiFormatKB(sys.memory.total));
+			mem += bar('RAM', sys.memory.percent, usedOf(sys.memory.percent, sys.memory.used, sys.memory.total));
 		// One bar per mounted storage filesystem; older backends only
 		// deliver the single root-fs "disk" object
 		if (sys.disks && sys.disks.length) {
@@ -62,10 +73,10 @@ async function loadSysInfo() {
 					mem += '<span class="sysinfo-label">' + dlabel + '</span><span class="sysinfo-value webui-text-muted">' +
 						webuiLH('si.no_answer', 'not answering') + '</span>';
 				else
-					mem += bar(dlabel, dsk.percent, webuiFormatKB(dsk.free) + ' ' + webuiLH('si.free_of', 'free of') + ' ' + webuiFormatKB(dsk.total));
+					mem += bar(dlabel, dsk.percent, usedFree(dsk.percent, dsk.free, dsk.total));
 			}
 		} else if (sys.disk)
-			mem += bar(webuiLH('si.root', 'System (/)'), sys.disk.percent, webuiFormatKB(sys.disk.free) + ' ' + webuiLH('si.free_of', 'free of') + ' ' + webuiFormatKB(sys.disk.total));
+			mem += bar(webuiLH('si.root', 'System (/)'), sys.disk.percent, usedFree(sys.disk.percent, sys.disk.free, sys.disk.total));
 		document.getElementById('sysinfo-mem').innerHTML = mem;
 
 		// System
@@ -74,7 +85,7 @@ async function loadSysInfo() {
 		s += row(webuiL('si.uptime', 'Uptime'), webuiFormatUptime(sys.uptime));
 		s += row(webuiL('si.kernel', 'Kernel'), escapeHtml(sys.kernel || ''));
 		if (sys.os) s += row('OS', escapeHtml(sys.os));
-		if (sys.load) s += row(webuiL('si.load_avg', 'Load average'), sys.load[0].toFixed(2) + ' / ' + sys.load[1].toFixed(2) + ' / ' + sys.load[2].toFixed(2));
+		if (sys.load) s += row(webuiL('si.load_avg', 'Load average'), sys.load.slice(0, 3).map(function(l) { return webuiNumber(l, 2); }).join(' / '));
 		if (sys.processes) s += row(webuiL('si.processes', 'Processes'), sys.processes.running + ' ' + webuiLH('si.active', 'active') + ' / ' + sys.processes.total + ' ' + webuiLH('si.total', 'total'));
 		document.getElementById('sysinfo-sys').innerHTML = s;
 

@@ -3915,9 +3915,9 @@ async function webuiSendMessage(mode) {
 
 // Format helpers (shared across pages)
 function webuiFormatKB(kb) {
-	if (kb < 1024) return kb + ' KB';
-	if (kb < 1048576) return (kb / 1024).toFixed(1) + ' MB';
-	return (kb / 1048576).toFixed(1) + ' GB';
+	if (kb < 1024) return webuiNumber(kb) + ' KB';
+	if (kb < 1048576) return webuiNumber(kb / 1024, 1) + ' MB';
+	return webuiNumber(kb / 1048576, 1) + ' GB';
 }
 
 function webuiFormatUptime(seconds) {

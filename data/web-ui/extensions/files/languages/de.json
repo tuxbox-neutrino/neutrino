@@ -18,7 +18,7 @@
 	"fm.folder_created": "Ordner erstellt",
 	"fm.folder_name": "Ordnername...",
 	"fm.folder_name_label": "Ordnername",
-	"fm.free": "frei",
+	"fm.used_free": "{pct} belegt, {free} frei von {total}",
 	"fm.new_folder": "Neuer Ordner",
 	"fm.not_replaced": "die vorhandene Datei bleibt",
 	"fm.rename": "Umbenennen",

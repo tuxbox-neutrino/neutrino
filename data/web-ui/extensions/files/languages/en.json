@@ -18,7 +18,7 @@
 	"fm.folder_created": "Folder created",
 	"fm.folder_name": "Folder name...",
 	"fm.folder_name_label": "Folder name",
-	"fm.free": "free",
+	"fm.used_free": "{pct} used, {free} free of {total}",
 	"fm.new_folder": "New folder",
 	"fm.not_replaced": "the existing file was kept",
 	"fm.rename": "Rename",

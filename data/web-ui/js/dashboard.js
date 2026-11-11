@@ -427,23 +427,23 @@ function loadSystemInfo() {
 
 		// CPU - show real CPU usage percentage, else the load
 		if (data.cpu && data.cpu.percent !== undefined) {
-			setGauge('gauge-cpu', data.cpu.percent, data.cpu.percent + ' %',
+			setGauge('gauge-cpu', data.cpu.percent, webuiNumber(data.cpu.percent) + ' %',
 				data.cpu.cores ? data.cpu.cores + ' ' + webuiL('dash.cores', 'cores') : '');
 		} else if (data.load && data.load.length >= 1) {
 			const load1 = data.load[0];
-			setGauge('gauge-cpu', Math.min(100, Math.round(load1 * 12.5)), load1.toFixed(2),
+			setGauge('gauge-cpu', Math.min(100, Math.round(load1 * 12.5)), webuiNumber(load1, 2),
 				webuiL('dash.load_1m', 'Load (1 min)'), getCpuLevel(load1));
 		}
 
-		// Memory - used of the total
+		// Memory and disk: the ring holds what is used, and the line below
+		// says so, with the total or what is left free
 		if (data.memory)
-			setGauge('gauge-ram', data.memory.percent || 0, (data.memory.percent || 0) + ' %',
-				formatKB(data.memory.used) + ' / ' + formatKB(data.memory.total));
-
-		// Disk - what is free
+			setGauge('gauge-ram', data.memory.percent || 0, webuiNumber(data.memory.percent || 0) + ' %',
+				webuiL('dash.used_of', '{used} of {total} used').replace('{used}', formatKB(data.memory.used))
+					.replace('{total}', formatKB(data.memory.total)));
 		if (data.disk)
-			setGauge('gauge-disk', data.disk.percent || 0, (data.disk.percent || 0) + ' %',
-				formatKB(data.disk.free) + ' ' + webuiL('dash.free', 'free'));
+			setGauge('gauge-disk', data.disk.percent || 0, webuiNumber(data.disk.percent || 0) + ' %',
+				webuiL('dash.used_free', 'used, {free} free').replace('{free}', formatKB(data.disk.free)));
 
 		// The temperature, warm from 60 and hot from 70 °C on, and how long
 		// the box has run below it; where it tells no temperature, the box's
@@ -456,7 +456,7 @@ function loadSystemInfo() {
 			el.querySelector('.webui-gauge-facts').hidden = known;
 			el.querySelector('h3').textContent = known ? webuiL('dash.temp', 'Temperature') : webuiL('dash.system', 'System');
 			if (known) {
-				setGauge('gauge-temp', t, t + ' °C', webuiL('dash.up_for', 'up for %s').replace('%s', up), t >= 70 ? 'danger' : t >= 60 ? 'warn' : 'ok');
+				setGauge('gauge-temp', t, webuiNumber(t, 1, true) + ' °C', webuiL('dash.up_for', 'up for %s').replace('%s', up), t >= 70 ? 'danger' : t >= 60 ? 'warn' : 'ok');
 			} else {
 				setText('gauge-host', data.hostname || '--');
 				setText('gauge-uptime', up);
@@ -1317,7 +1317,7 @@ async function loadStreamInfo() {
 	if (pic) {
 		const shown = !!pic.shown && pic.width > 0 && pic.height > 0;
 		updateStreamInfoUI(shown ? pic.width + ' × ' + pic.height : '', shown ? pic.height : 0,
-			shown ? pic.aspect : '', shown && pic.frame_rate ? pic.frame_rate + ' fps' : '', soundOf(ch));
+			shown ? pic.aspect : '', shown && pic.frame_rate ? webuiNumber(pic.frame_rate, 3, true) + ' fps' : '', soundOf(ch));
 	} else {
 		// the picture as it was, the sound from the channel read beside it
 		setText('stream-audio', soundOf(ch) || '--');
