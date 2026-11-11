@@ -391,12 +391,13 @@ async function webuiV1UploadPieces(file, path, onProgress) {
 	}
 }
 
-// Every page of a paged list (items + next_cursor), as one array.
-async function webuiV1All(path, query) {
+// Every page of a paged list (items + next_cursor), as one array; opts
+// as webuiV1's ({once: true}: a read of its own that asks for no sign-in).
+async function webuiV1All(path, query, opts) {
 	var items = [];
 	var q = Object.assign({}, query || {}, {limit: 500});
 	for (;;) {
-		var page = await webuiV1('GET', path, {query: q});
+		var page = await webuiV1('GET', path, Object.assign({}, opts, {query: q}));
 		items = items.concat((page && page.items) || []);
 		if (!page || !page.next_cursor) return items;
 		q.cursor = page.next_cursor;

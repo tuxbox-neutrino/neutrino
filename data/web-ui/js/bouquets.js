@@ -67,25 +67,37 @@ function recordingsSeen(view) {
 	markCurrent();
 }
 
+// The bouquets of the list the box plays from that hold channels of it,
+// hidden ones left out
+function bouquetsOf(r) {
+	return ((r && r.items) || []).filter(b =>
+		!b.hidden && (currentMode === 'radio' ? b.radio_count : b.tv_count) > 0);
+}
+
+// The bouquet to show first: the one holding the channel the box plays,
+// else the first; opts as webuiV1's
+async function startBouquet(opts) {
+	if (currentChannelId) {
+		const holding = await webuiV1('GET', '/bouquets', Object.assign({query: {holds: currentChannelId}}, opts)).catch(() => null);
+		const found = holding && (holding.items || []).find(x => bouquetsData.some(b => b.id === x.id));
+		if (found) return String(found.id);
+	}
+	return bouquetsData[0] ? String(bouquetsData[0].id) : '';
+}
+
 // The bouquets of that list, and the one holding the current channel; a
 // list that cannot be read says why where the bouquets would stand, and
 // the channels of the whole list are shown all the same
+let bouquetsShown = false;	// the bouquets were drawn (not loading, not failed)
 async function loadBouquets() {
 	const list = document.getElementById('bouquetList');
 	try {
 		const r = await webuiV1('GET', '/bouquets');
-		bouquetsData = ((r && r.items) || []).filter(b =>
-			!b.hidden && (currentMode === 'radio' ? b.radio_count : b.tv_count) > 0);
-
-		let active = '';
-		if (currentChannelId) {
-			const holding = await webuiV1('GET', '/bouquets', {query: {holds: currentChannelId}}).catch(() => null);
-			const found = holding && (holding.items || []).find(x => bouquetsData.some(b => b.id === x.id));
-			if (found) active = String(found.id);
-		}
-		renderBouquetList(active || (bouquetsData[0] ? String(bouquetsData[0].id) : ''));
+		bouquetsData = bouquetsOf(r);
+		renderBouquetList(await startBouquet());
 	} catch (e) {
 		bouquetsData = [];
+		bouquetsShown = false;
 		list.replaceChildren(webuiEl('li', {}, webuiStateFor(e, {retry: loadBouquets})));
 		renderBouquetPick('');
 		currentBouquetNumber = '';
@@ -93,15 +105,24 @@ async function loadBouquets() {
 	}
 }
 
-// The bouquets as a list beside the channels and as a choice above them
-// (the one a phone shows); both name the bouquet shown
-function renderBouquetList(activeBouquet) {
-	const list = document.getElementById('bouquetList');
-	const entries = [{id: '', name: webuiL('bq.all_channels', 'All channels')}].concat(bouquetsData.map(b => ({id: String(b.id), name: b.name})));
+// The entries of both: All channels, then the bouquets
+function bouquetEntries() {
+	return [{id: '', name: webuiL('bq.all_channels', 'All channels')}].concat(bouquetsData.map(b => ({id: String(b.id), name: b.name})));
+}
+
+function bouquetButtons(list, entries, activeBouquet) {
 	list.replaceChildren.apply(list, entries.map(b => webuiEl('li', {},
 		webuiEl('button', {type: 'button', data: {bouquet: b.id}, attrs: {'aria-current': b.id === activeBouquet ? 'true' : 'false'},
 			on: {click: () => selectBouquet(b.id)}}, b.name))));
 	webuiArrowKeys(list, 'button');
+}
+
+// The bouquets as a list beside the channels and as a choice above them
+// (the one a phone shows); both name the bouquet shown
+function renderBouquetList(activeBouquet) {
+	const list = document.getElementById('bouquetList');
+	bouquetButtons(list, bouquetEntries(), activeBouquet);
+	bouquetsShown = true;
 	renderBouquetPick(activeBouquet);
 	currentBouquetNumber = activeBouquet;
 	const activeItem = list.querySelector('[aria-current="true"]');
@@ -112,10 +133,39 @@ function renderBouquetList(activeBouquet) {
 function renderBouquetPick(activeBouquet) {
 	const sel = document.getElementById('bouquetSelect');
 	if (!sel) return;
-	const entries = [{id: '', name: webuiL('bq.all_channels', 'All channels')}].concat(bouquetsData.map(b => ({id: String(b.id), name: b.name})));
-	sel.replaceChildren.apply(sel, entries.map(b => webuiEl('option', {value: b.id}, b.name)));
+	sel.replaceChildren.apply(sel, bouquetEntries().map(b => webuiEl('option', {value: b.id}, b.name)));
 	sel.value = activeBouquet;
 	sel.onchange = () => selectBouquet(sel.value);
+}
+
+/* The bouquets drawn again in place, where they changed: the list beside
+   the channels and the phone's choice, the bouquet shown marked and named
+   above the channels. A focus on a bouquet of the list goes back to the
+   same bouquet, shown as before. */
+function showBouquets(activeBouquet) {
+	const list = document.getElementById('bouquetList');
+	const entries = bouquetEntries();
+	const want = entries.map(b => b.id + '\u0000' + b.name).join('\u0001');
+	const had = Array.from(list.querySelectorAll('button[data-bouquet]'), b => (b.dataset.bouquet || '') + '\u0000' + b.textContent).join('\u0001');
+	if (want !== had) {
+		const at = document.activeElement;
+		const focused = at && list.contains(at) && at.matches('button') ? at.textContent : null;
+		let shown = true;
+		try { shown = at.matches(':focus-visible'); } catch (e) { /* an old browser: shown */ }
+		bouquetButtons(list, entries, activeBouquet);
+		const again = focused === null ? null : Array.from(list.querySelectorAll('button')).find(b => b.textContent === focused);
+		if (again) again.focus({preventScroll: true, focusVisible: shown});
+		renderBouquetPick(activeBouquet);
+	} else {
+		list.querySelectorAll('button[data-bouquet]').forEach(b =>
+			b.setAttribute('aria-current', (b.dataset.bouquet || '') === activeBouquet ? 'true' : 'false'));
+		const sel = document.getElementById('bouquetSelect');
+		if (sel && sel.value !== activeBouquet) sel.value = activeBouquet;
+	}
+	currentBouquetNumber = activeBouquet;
+	const bq = bouquetsData.find(b => String(b.id) === activeBouquet);
+	document.getElementById('currentBouquetName').textContent = activeBouquet === '' ? webuiL('bq.all_channels', 'All channels') :
+		bq ? bq.name : webuiL('nav.sub_channels', 'Channels');
 }
 
 function selectBouquet(bouquet) {
@@ -157,7 +207,8 @@ function channelRow(ch) {
 		];
 	});
 	channelsShown[ch.id] = ch;
-	return webuiEl('li', {className: 'webui-channel-row', data: {id: ch.id}},
+	// keyed for webuiSync, which lays a list read again over the rows
+	return webuiEl('li', {className: 'webui-channel-row', data: {id: ch.id, webuiKey: ch.id}},
 		webuiEl('span', {className: 'webui-channel-num'}, ch.number > 0 ? String(ch.number) : ''),
 		logo,
 		webuiEl('span', {className: 'webui-channel-name', title: ch.name}, ch.name),
@@ -299,9 +350,12 @@ async function loadChannels(bouquet) {
 const epgNow = {};	// channel id -> the event running now
 let progressUpdateInterval = null;
 
+// Stops once another list was begun (token) or the bouquet shown got
+// another number (it is read by the channels' ids then, rereadBouquets)
 async function loadEpgInfo(channels, bouquet, token) {
 	const now = webuiBoxSec();
 	const pages = [];
+	const stale = () => token !== channelsToken || (bouquet && bouquet !== currentBouquetNumber);
 	if (bouquet) {
 		pages.push({bouquet: bouquet});
 	} else {
@@ -311,7 +365,7 @@ async function loadEpgInfo(channels, bouquet, token) {
 	for (const base of pages) {
 		let cursor = null;
 		do {
-			if (token !== channelsToken) return;
+			if (stale()) return;
 			const query = Object.assign({from: now, to: now + 60, limit: 20}, base);
 			if (cursor) query.cursor = cursor;
 			let page;
@@ -320,7 +374,7 @@ async function loadEpgInfo(channels, bouquet, token) {
 			} catch (e) {
 				break;	// no guide for this page; the rows stay without one
 			}
-			if (token !== channelsToken) return;
+			if (stale()) return;
 			((page && page.items) || []).forEach(row => showNow(row.channel_id, row.events || [], now));
 			cursor = page && page.next_cursor;
 		} while (cursor);
@@ -475,23 +529,162 @@ async function zapped() {
 	else markCurrent();
 }
 
+/* The bouquets changed: at the TV, in the bouquet editor or in another tab
+   (bouquets-changed), or perhaps while the page had no stream (webuiFollow).
+   Both lists are read again and follow in place. The bouquet shown stays
+   shown, found again by its name, as a move or a delete before it changes
+   its number; its rows stay, with what they show of the guide and the focus
+   on them. One that is gone (deleted, hidden, emptied) makes way for the one
+   holding the channel the box plays, as at the start. A read that fails
+   leaves the lists as they are. One reading at a time: news meanwhile, or
+   during the first load, make one more after it. */
+let bouquetsBusy = null;
+let bouquetsAgain = false;
+let bouquetsLoading = true;	// the first load of the page is on its way
+function bouquetsChanged() {
+	if (bouquetsBusy || bouquetsLoading) {
+		bouquetsAgain = true;
+		return bouquetsBusy || undefined;
+	}
+	bouquetsBusy = (async () => {
+		let ok = true;
+		try {
+			do {
+				bouquetsAgain = false;
+				ok = await rereadBouquets();
+			} while (bouquetsAgain);
+		} finally {
+			bouquetsBusy = null;
+		}
+		return ok;
+	})();
+	return bouquetsBusy;
+}
+
+/* The bouquet shown before (was, {id, name}) among those read now: the same
+   one at its place; else the one of its name, moved, or moved up as one
+   before it went (of several of that name, the one nearest its place);
+   else the one at its place under a name none had before, renamed. null
+   when it is gone. names: the names before. */
+function sameBouquet(bouquets, was, names) {
+	if (!was)
+		return null;
+	const near = (a, b) => Math.abs(a.id - was.id) - Math.abs(b.id - was.id);
+	return bouquets.find(b => String(b.id) === String(was.id) && b.name === was.name) ||
+		bouquets.filter(b => b.name === was.name).sort(near)[0] ||
+		bouquets.find(b => String(b.id) === String(was.id) && !names.has(b.name)) || null;
+}
+
+async function rereadBouquets() {
+	// none drawn, as the last read failed: read them whole
+	if (!bouquetsShown) {
+		await loadBouquets();
+		return bouquetsShown;
+	}
+	const token = channelsToken, mode = currentMode, shown = currentBouquetNumber;
+	const was = bouquetsData.find(b => String(b.id) === shown);
+	let r;
+	try {
+		r = await webuiV1('GET', '/bouquets', {once: true});
+	} catch (e) {
+		return false;
+	}
+	// another bouquet chosen meanwhile, or the box switched lists: those reads
+	// are newer, and the bouquets are read once more for them
+	if (token !== channelsToken || mode !== currentMode) {
+		bouquetsAgain = true;
+		return true;
+	}
+	const names = new Set(bouquetsData.map(b => b.name));
+	bouquetsData = bouquetsOf(r);
+	let active = '';
+	if (shown !== '') {
+		const same = sameBouquet(bouquetsData, was, names);
+		if (!same) {
+			const start = await startBouquet({once: true});
+			if (token === channelsToken && mode === currentMode) renderBouquetList(start);
+			else bouquetsAgain = true;
+			return true;
+		}
+		active = String(same.id);
+	}
+	showBouquets(active);
+	return syncChannels(active, token, active !== shown);
+}
+
+/* The channels of the bouquet shown, read again and laid over its rows in
+   place (webuiSync): a row that stays keeps its node, what it shows of the
+   guide and the focus, its number put right; one whose name changed is
+   drawn anew. The guide is asked for the rows that are new and, where the
+   bouquet got another number (moved), for those that show no programme: a
+   read by the old number may have stopped before them. A list that showed
+   no rows (empty, or why it failed) is drawn whole. */
+async function syncChannels(bouquet, token, moved) {
+	const list = document.getElementById('channelList');
+	let channels;
+	try {
+		const query = {mode: currentMode};
+		if (bouquet) query.bouquet = bouquet;
+		channels = await webuiV1All('/channels', query, {once: true});
+	} catch (e) {
+		return false;
+	}
+	if (token !== channelsToken) return true;
+	if (!channels.length || !list.querySelector('.webui-channel-row')) {
+		loadChannels(bouquet);
+		return true;
+	}
+	const before = new Set(Array.from(list.querySelectorAll('.webui-channel-row'), row => row.dataset.id));
+	const renamed = [];
+	keepChannelFocus(() => {
+		webuiSync(list, channels, ch => ch.id, channelRow, (row, ch) => {
+			const num = row.querySelector('.webui-channel-num');
+			const n = ch.number > 0 ? String(ch.number) : '';
+			if (num.textContent !== n) num.textContent = n;
+			if (row.querySelector('.webui-channel-name').textContent !== ch.name) renamed.push([row, ch]);
+			else channelsShown[ch.id] = Object.assign(channelsShown[ch.id] || {}, ch);
+		});
+		renamed.forEach(([row, ch]) => {
+			const fresh = channelRow(ch);
+			fresh.dataset.webuiKey = row.dataset.webuiKey;
+			row.replaceWith(fresh);
+		});
+	});
+	const ids = new Set(channels.map(ch => ch.id));
+	Object.keys(epgNow).forEach(id => { if (!ids.has(id)) delete epgNow[id]; });
+	document.getElementById('channelCount').textContent = channels.length + ' ' + webuiL('bq.channels_unit', 'channels');
+	markCurrent();
+	const news = new Set(renamed.map(([, ch]) => ch.id));
+	channels.forEach(ch => { if (!before.has(ch.id) || (moved && !epgNow[ch.id])) news.add(ch.id); });
+	if (news.size) {
+		refreshNow(Array.from(news));
+		startProgressUpdateTimer();
+	}
+	return true;
+}
+
 // Initialize once the texts are in; a zap from anywhere else (remote
 // control, timer) moves the mark, a recording that starts or stops marks
-// its row (the shared read follows the record events), and news of the
-// guide updates the rows it concerns
+// its row (the shared read follows the record events), news of the guide
+// updates the rows it concerns, and a change of the bouquets the lists
 webuiAfterTexts(() => {
 	webuiOnRecordings(recordingsSeen);
-	webuiV1Events({zap: zapped, 'epg-updated': epgUpdated});
+	webuiV1Events({zap: zapped, 'epg-updated': epgUpdated, 'bouquets-changed': bouquetsChanged});
 	// a zap the stream did not carry (it was gone, or the page hidden) is
 	// read once after the stream is back and, without one, when the page
-	// comes into view (webuiFollow); the read below makes the first
+	// comes into view (webuiFollow); the read below makes the first. The
+	// bouquets likewise.
 	webuiFollow({reread: zapped, first: false});
+	webuiFollow({reread: bouquetsChanged, first: false});
 	// until the first answers: both lists say they load
 	const loading = () => webuiEl('li', {}, webuiState('loading', webuiL('msg.loading', 'Loading...'), ''));
 	document.getElementById('bouquetList').replaceChildren(loading());
 	document.getElementById('channelList').replaceChildren(webuiEl('li', {},
 		webuiState('loading', webuiL('bq.loading_channels', 'Loading channels...'), '')));
-	return loadCurrentChannel().then(loadBouquets);
+	return loadCurrentChannel().then(loadBouquets).finally(() => {
+		bouquetsLoading = false;
+		if (bouquetsAgain) bouquetsChanged();
+	});
 });
 
 if (typeof webuiSetRefreshCallback === 'function') {

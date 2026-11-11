@@ -42,6 +42,34 @@ function initTimeSelect() {
 	currentStartTime = parseInt(select.value);
 }
 
+// The bouquets of the list the box plays from, hidden and empty ones left out
+function bouquetsOf(r) {
+	return ((r && r.items) || []).filter(b =>
+		!b.hidden && (currentMode === 'radio' ? b.radio_count : b.tv_count) > 0);
+}
+
+// The bouquet to show first: the one holding the channel the box plays,
+// else the first; opts as webuiV1's
+async function startBouquet(bouquets, opts) {
+	if (currentChannelId) {
+		const holding = await webuiV1('GET', '/bouquets', Object.assign({query: {holds: currentChannelId}}, opts)).catch(() => null);
+		const found = holding && (holding.items || []).find(x => bouquets.some(b => b.id === x.id));
+		if (found) return String(found.id);
+	}
+	return bouquets.length ? String(bouquets[0].id) : '';
+}
+
+// The choice of bouquets, drawn anew only where it changed
+function showBouquetChoice(bouquets, value) {
+	const select = document.getElementById('bouquetSelect');
+	const want = bouquets.map(b => b.id + '\u0000' + b.name).join('\u0001');
+	const had = Array.from(select.options, o => o.value + '\u0000' + o.textContent).join('\u0001');
+	if (want !== had)
+		select.replaceChildren.apply(select, bouquets.map(b => webuiEl('option', {value: String(b.id)}, b.name)));
+	select.value = value;
+	currentBouquet = value;
+}
+
 // The bouquets of the list the box plays from, hidden and empty ones left out;
 // shown first is the one holding the channel the box plays, as in the channel list
 async function loadBouquets() {
@@ -52,16 +80,8 @@ async function loadBouquets() {
 		currentChannelId = ch ? ch.id : null;
 		currentMode = ch && (ch.kind === 'radio' || ch.kind === 'webradio') ? 'radio' : 'tv';
 		const r = await webuiV1('GET', '/bouquets');
-		const bouquets = ((r && r.items) || []).filter(b =>
-			!b.hidden && (currentMode === 'radio' ? b.radio_count : b.tv_count) > 0);
-		select.replaceChildren.apply(select, bouquets.map(b => webuiEl('option', {value: String(b.id)}, b.name)));
-		let found = null;
-		if (ch && ch.id) {
-			const holding = await webuiV1('GET', '/bouquets', {query: {holds: ch.id}}).catch(() => null);
-			found = holding && (holding.items || []).find(x => bouquets.some(b => b.id === x.id));
-		}
-		currentBouquet = found ? String(found.id) : (bouquets.length ? String(bouquets[0].id) : '');
-		select.value = currentBouquet;
+		const bouquets = bouquetsOf(r);
+		showBouquetChoice(bouquets, await startBouquet(bouquets));
 	} catch (e) {
 		bouquetError = e;
 		select.replaceChildren(webuiEl('option', {value: ''}, webuiL('epg.load_fail', 'Loading failed')));
@@ -89,6 +109,22 @@ function timerFor(channelId, ev) {
 
 function nowPercentOf(start, now) {
 	return ((now - start) / 60) / TOTAL_MINUTES * 100;
+}
+
+// A channel's row of the grid: its number and logo, a click on them zaps,
+// and its programmes, filled in when its guide arrives
+function gridRow(channel) {
+	const programs = webuiEl('div', {className: 'webui-epg-programs'});
+	gridRows[channel.id] = {channel: channel, el: programs, events: null};
+	const zapLabel = webuiL('epg.zap_to', 'Switch to') + ' ' + channel.name;
+	return webuiEl('div', {className: 'webui-epg-row' + (channel.id === currentChannelId ? ' playing' : ''), data: {id: channel.id}},
+		webuiEl('div', {className: 'webui-epg-channel-name', title: zapLabel, tabIndex: 0,
+			attrs: {role: 'button', 'aria-label': zapLabel},
+			on: {click: () => zapTo(channel.id), keydown: ev => pressed(ev, () => zapTo(channel.id))}},
+			// its number and its logo, its name where it has none
+			channel.number > 0 ? webuiEl('span', {className: 'webui-epg-channel-num'}, String(channel.number)) : null,
+			webuiChannelLogo(channel.id, channel.name)),
+		programs);
 }
 
 async function loadEpg() {
@@ -140,19 +176,7 @@ async function loadEpg() {
 		// stop of its own; a click into it and an arrow go to the stop
 		const rows = webuiEl('div', {className: 'webui-epg-channels', tabIndex: -1, style: {position: 'relative'}},
 			webuiEl('div', {className: 'webui-epg-now-line', hidden: true}));
-		channels.forEach(channel => {
-			const programs = webuiEl('div', {className: 'webui-epg-programs'});
-			gridRows[channel.id] = {channel: channel, el: programs, events: null};
-			const zapLabel = webuiL('epg.zap_to', 'Switch to') + ' ' + channel.name;
-			rows.appendChild(webuiEl('div', {className: 'webui-epg-row' + (channel.id === currentChannelId ? ' playing' : ''), data: {id: channel.id}},
-				webuiEl('div', {className: 'webui-epg-channel-name', title: zapLabel, tabIndex: 0,
-					attrs: {role: 'button', 'aria-label': zapLabel},
-					on: {click: () => zapTo(channel.id), keydown: ev => pressed(ev, () => zapTo(channel.id))}},
-					// its number and its logo, its name where it has none
-					channel.number > 0 ? webuiEl('span', {className: 'webui-epg-channel-num'}, String(channel.number)) : null,
-					webuiChannelLogo(channel.id, channel.name)),
-				programs));
-		});
+		channels.forEach(channel => rows.appendChild(gridRow(channel)));
 		grid.replaceChildren(header, rows);
 		// the guide is one stop of Tab: the arrows go from channel to
 		// channel and from programme to programme as they lie on the
@@ -178,16 +202,19 @@ async function loadEpg() {
 // The guide for the rows of the grid shown, a page of channels at a time,
 // each row drawn as its page arrives; a channel the guide gave no row for
 // has nothing in the window. Stops quietly once another grid was begun
-// (token) or, where it is given, once superseded() says that a newer read of
-// the same rows was.
+// (token), once the bouquet shown is not the one read (its number changed:
+// it is read again under the new one) or, where it is given, once
+// superseded() says that a newer read of the same rows was. A row drawn
+// after it began (a channel the bouquet gained) is left to its own read.
 async function fillGrid(token, bouquet, startTime, stopTime, superseded) {
 	let cursor = null;
 	const filled = new Set();
+	const known = new Set(Object.values(gridRows));
 	do {
 		const query = {bouquet: bouquet, from: startTime, to: stopTime, limit: 20};
 		if (cursor) query.cursor = cursor;
 		const page = await webuiV1('GET', '/epg/grid', {query: query});
-		if (token !== gridToken || (superseded && superseded())) return;
+		if (token !== gridToken || bouquet !== currentBouquet || (superseded && superseded())) return;
 		((page && page.items) || []).forEach(row => {
 			const target = gridRows[row.channel_id];
 			if (!target) return;
@@ -198,7 +225,7 @@ async function fillGrid(token, bouquet, startTime, stopTime, superseded) {
 		cursor = page && page.next_cursor;
 	} while (cursor);
 	Object.keys(gridRows).forEach(id => {
-		if (!filled.has(id)) {
+		if (!filled.has(id) && known.has(gridRows[id])) {
 			gridRows[id].events = [];
 			fillRow(gridRows[id]);
 		}
@@ -376,6 +403,166 @@ function streamBack() {
 	refreshGrid();
 }
 
+/* The bouquets changed: at the TV, in the bouquet editor or in another tab
+   (bouquets-changed), or perhaps while the page had no stream (webuiFollow).
+   The choice of bouquets is read again and the bouquet shown found again by
+   its name, as a move or a delete before it changes its number; its channels
+   are read again and laid over the grid's rows in place (syncGrid). A
+   bouquet that is gone makes way for the one holding the channel the box
+   plays, whose grid is drawn then. A read that fails leaves the choice and
+   the grid as they are. One reading at a time: news meanwhile, or during the
+   first load, make one more after it. */
+let bouquetsBusy = null;
+let bouquetsAgain = false;
+let bouquetsLoading = true;	// the first load of the page is on its way
+function bouquetsChanged() {
+	if (bouquetsBusy || bouquetsLoading) {
+		bouquetsAgain = true;
+		return bouquetsBusy || undefined;
+	}
+	bouquetsBusy = (async () => {
+		let ok = true;
+		try {
+			do {
+				bouquetsAgain = false;
+				ok = await rereadBouquets();
+			} while (bouquetsAgain);
+		} finally {
+			bouquetsBusy = null;
+		}
+		return ok;
+	})();
+	return bouquetsBusy;
+}
+
+/* The bouquet shown before (was, {id, name}) among those read now: the same
+   one at its place; else the one of its name, moved, or moved up as one
+   before it went (of several of that name, the one nearest its place);
+   else the one at its place under a name none had before, renamed. null
+   when it is gone. names: the names before. */
+function sameBouquet(bouquets, was, names) {
+	if (!was)
+		return null;
+	const near = (a, b) => Math.abs(a.id - was.id) - Math.abs(b.id - was.id);
+	return bouquets.find(b => String(b.id) === String(was.id) && b.name === was.name) ||
+		bouquets.filter(b => b.name === was.name).sort(near)[0] ||
+		bouquets.find(b => String(b.id) === String(was.id) && !names.has(b.name)) || null;
+}
+
+async function rereadBouquets() {
+	// the last read of the bouquets failed, and the grid says so: all anew
+	if (bouquetError) {
+		await loadBouquets();
+		await loadEpg();
+		return !bouquetError;
+	}
+	const select = document.getElementById('bouquetSelect');
+	const token = gridToken, mode = currentMode;
+	const opt = select.selectedOptions && select.selectedOptions[0];
+	const was = opt ? {id: opt.value, name: opt.textContent} : null;
+	const names = new Set(Array.from(select.options, o => o.textContent));
+	let r;
+	try {
+		r = await webuiV1('GET', '/bouquets', {once: true});
+	} catch (e) {
+		return false;
+	}
+	// another bouquet or time chosen meanwhile: that grid is the newer, and
+	// the bouquets are read once more for it
+	if (token !== gridToken || mode !== currentMode) {
+		bouquetsAgain = true;
+		return true;
+	}
+	const bouquets = bouquetsOf(r);
+	const same = sameBouquet(bouquets, was, names);
+	if (!same) {
+		const start = await startBouquet(bouquets, {once: true});
+		if (token !== gridToken || mode !== currentMode) {
+			bouquetsAgain = true;
+			return true;
+		}
+		showBouquetChoice(bouquets, start);
+		loadEpg();
+		return true;
+	}
+	const moved = String(same.id) !== was.id;
+	showBouquetChoice(bouquets, String(same.id));
+	const ok = await syncGrid(token);
+	// under a new number: what was read under the old one (on the stream's
+	// return, by a fill still on its way) is read again
+	if (moved && token === gridToken)
+		refreshGrid();
+	return ok;
+}
+
+/* The channels of the bouquet shown, read again and laid over the grid's
+   rows in place: a row that stays keeps its node, its guide and the focus
+   on one of its cells, its number put right; rows of new channels, or of a
+   channel whose name changed, are drawn and get their guide; the rows of
+   channels gone leave. A grid that showed no rows (the bouquet was empty,
+   or a read failed) is drawn whole. */
+async function syncGrid(token) {
+	let channels;
+	try {
+		channels = await webuiV1All('/channels', {mode: currentMode, bouquet: currentBouquet}, {once: true});
+	} catch (e) {
+		return false;
+	}
+	if (token !== gridToken) return true;
+	const rows = document.querySelector('#epgGrid .webui-epg-channels');
+	if (!rows || !gridWindow || !channels.length) {
+		loadEpg();
+		return true;
+	}
+	const at = document.activeElement;
+	const atRow = at && rows.contains(at) ? at.closest('.webui-epg-row') : null;
+	const atStart = atRow && at.dataset ? at.dataset.start : undefined;
+	let shown = true;
+	if (atRow)
+		try { shown = at.matches(':focus-visible'); } catch (e) { /* an old browser: shown */ }
+	const old = Object.create(null);
+	rows.querySelectorAll(':scope > .webui-epg-row').forEach(row => { old[row.dataset.id] = row; });
+	const ids = new Set(channels.map(ch => ch.id));
+	const news = [];
+	const order = channels.map(ch => {
+		const row = old[ch.id], kept = gridRows[ch.id];
+		if (row && kept && kept.channel.name === ch.name) {
+			delete old[ch.id];
+			// the same object, which the row's cells hand to the dialog
+			Object.assign(kept.channel, ch);
+			const num = row.querySelector('.webui-epg-channel-num');
+			const n = ch.number > 0 ? String(ch.number) : '';
+			if (num && num.textContent !== n) num.textContent = n;
+			return row;
+		}
+		news.push(ch.id);
+		return gridRow(ch);
+	});
+	Object.keys(old).forEach(id => {
+		old[id].remove();
+		if (!ids.has(id)) delete gridRows[id];
+	});
+	const live = rows.getElementsByClassName('webui-epg-row');
+	order.forEach((row, i) => {
+		if (live[i] !== row) rows.insertBefore(row, live[i] || null);
+	});
+	// a row moved takes the focus with it: back on the cell of the same
+	// programme, or on the channel, shown as before
+	if (atRow && document.activeElement !== at) {
+		const again = rows.querySelector('.webui-epg-row[data-id="' + CSS.escape(atRow.dataset.id) + '"]');
+		const cell = !again ? null : atStart !== undefined ?
+			again.querySelector('.webui-epg-program[data-start="' + CSS.escape(atStart) + '"]') : again.querySelector('.webui-epg-channel-name');
+		if (cell) cell.focus({preventScroll: true, focusVisible: shown});
+	}
+	placeNow(webuiBoxSec());
+	if (news.length) {
+		news.forEach(id => newsFor.add(id));
+		clearTimeout(newsSoon);
+		refreshRows();
+	}
+	return true;
+}
+
 // A programme in the shared dialog, the marks of the grid following a
 // timer set from it. The dialog gives the focus back to the cell it was
 // opened from; rows drawn anew while it was open (a timer set from it, news
@@ -437,17 +624,22 @@ webuiAfterTexts(function() {
 	webuiV1Events({
 		'epg-updated': epgUpdated,
 		'timer-changed': timersChanged,
-		zap: zapped
+		zap: zapped,
+		'bouquets-changed': bouquetsChanged
 	});
 	// what a gap of the stream may have missed, read again once the stream
 	// is back and, without one, when the page comes into view (webuiFollow);
 	// the guide's first read below brings all of it
 	webuiFollow({reread: streamBack, first: false});
+	webuiFollow({reread: bouquetsChanged, first: false});
 	setInterval(tickNow, 60000);
 	window.addEventListener('resize', () => placeNow(webuiBoxSec()));
 	// until the bouquets are in, the guide says it loads (loadEpg does the same)
 	document.getElementById('epgGrid').replaceChildren(webuiState('loading', webuiL('epg.loading', 'Loading EPG data...'), ''));
-	return loadBouquets().then(loadEpg);
+	return loadBouquets().then(loadEpg).finally(() => {
+		bouquetsLoading = false;
+		if (bouquetsAgain) bouquetsChanged();
+	});
 });
 
 if (typeof webuiSetRefreshCallback === 'function') {
