@@ -3984,6 +3984,13 @@ var WEBUI_ERR_TEXTS = {
 	'wake-not-sent': 'The wake-up packet was not sent',
 	'script-missing': 'The box has no script for this',
 	'bouquet-not-editable': 'The box builds this bouquet itself, it cannot be changed',
+	'no-tuner': 'No tuner is receiving anything',
+	'key-not-sent': 'The key did not reach the box',
+	'screen-not-captured': 'The picture could not be taken; try again in a moment',
+	'display-not-captured': 'The picture of the display could not be taken',
+	'timer-not-created': 'The box did not set the timer',
+	'clock-unavailable': 'The box does not know the time yet',
+	'channel-file-refused.400': 'The box did not take this file as a channel list: larger than 16 MiB, or not a list of this kind',
 	// one code for several refusals: its words by the kind of answer too
 	'extension-refused.400': 'Signature or archive do not match',
 	'extension-refused.409': 'Another extension is being installed or removed',

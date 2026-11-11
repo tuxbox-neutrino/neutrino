@@ -1338,6 +1338,35 @@ function _v1setFieldRefusal(e) {
 	return e.status < 500 || e.code === 'setting-not-written' || e.code === 'channel-list-unavailable';
 }
 
+/* The reason the box gave for refusing one setting ({status, code, detail,
+   depends_on}), as its field shows it: on an English page the box's own
+   words, which name the range or the settings it waits for; in another
+   language the page's words for its code, with the range from the schema
+   and the names of the settings it depends on, and the kind of answer where
+   the page has no words for the code. */
+function _v1setRefusalText(key, r) {
+	r = r || {};
+	var detail = r.detail || '';
+	if ((document.documentElement.lang || 'en') === 'en' && detail)
+		return detail;
+	var item = V1SET.items[key] || {};
+	if (r.code === 'out-of-range' && (typeof item.min === 'number' || typeof item.max === 'number') && typeof settingsRangeText === 'function')
+		return settingsRangeText(typeof item.min === 'number' ? item.min : null, typeof item.max === 'number' ? item.max : null);
+	if (r.code === 'setting-condition-not-met') {
+		var names = (r.depends_on || []).map(function(k) {
+			return V1SET.items[k] ? _v1setLabel(V1SET.items[k]) : '';
+		}).filter(Boolean);
+		return names.length ? webuiL('set.ref_condition_list', 'Only together with: {list}').replace('{list}', names.join(', '))
+			: webuiL('set.ref_condition', 'Only together with another setting');
+	}
+	var own = {'setting-locked': ['set.ref_locked', 'The box\'s image fixes this setting'],
+		'setting-not-on-this-box': ['set.ref_not_here', 'This box lacks what the setting controls'],
+		'setting-not-written': ['set.ref_not_written', 'The box could not store the value']}[r.code];
+	if (own)
+		return webuiL(own[0], own[1]);
+	return webuiErrText(webuiResultError(r)) || detail || r.code || String(r.status || '');
+}
+
 // Writes each changed section. A key the box refuses goes into
 // V1SET.pending with its reason; the caller reads everything again after.
 // A request that fails as a whole (no answer, a sign-in cancelled) ends the
@@ -1383,13 +1412,13 @@ async function v1setSave(dirty) {
 					keys.forEach(function(k) {
 						var r = answer.results[k];
 						if (r && r.status >= 300)
-							failed[k] = r.detail || r.code || String(r.status);
+							failed[k] = _v1setRefusalText(k, r);
 						// a start channel whose name the box could not store
 						// is not the channel the box starts on
 						var p = _v1setPair(V1SET.items[k]);
 						var named = p && p.writes === 'id' ? answer.results[p.partner] : null;
 						if (failed[k] === undefined && named && named.status >= 300)
-							failed[k] = named.detail || named.code || String(named.status);
+							failed[k] = _v1setRefusalText(p.partner, named);
 					});
 			} catch (e) {
 				// one key refused, at its own status; or the request as a whole
@@ -1398,7 +1427,7 @@ async function v1setSave(dirty) {
 					hold(body, keys);
 					continue;
 				}
-				failed[keys[0]] = e.message || e.code || String(e.status);
+				failed[keys[0]] = _v1setRefusalText(keys[0], {status: e.status, code: e.code, detail: e.message, depends_on: e.dependsOn});
 			}
 			keys.forEach(function(k) {
 				if (failed[k] !== undefined) {

@@ -1456,9 +1456,26 @@ async function loadWolPanel() {
 	}
 }
 
+// A pasted address loses the spaces at its ends before it is checked or sent,
+// as the box takes it
+function wolTrim(field) {
+	if (field && field.value !== field.value.trim())
+		field.value = field.value.trim();
+}
+
 async function wolWake(i, btn) {
-	var mac = (document.getElementById('wol_mac_' + i) || {}).value || '';
+	var field = document.getElementById('wol_mac_' + i);
+	wolTrim(field);
+	var mac = (field || {}).value || '';
 	if (!mac.trim()) { webuiShowToast(webuiL('set.wol_nomac', 'No MAC address'), true); return; }
+	// an address the box would refuse is said at the field, in the page's words
+	var why = settingsFieldProblem(field);
+	settingsFieldMark(field, why);
+	if (why) {
+		field.focus();
+		webuiShowToast(webuiL('set.wol_not_sent', 'Not sent') + ': ' + why, true);
+		return;
+	}
 	btn.disabled = true;
 	try {
 		await webuiV1('POST', '/network/wake', {body: {mac: mac.trim()}});
@@ -1486,6 +1503,8 @@ function wolChanges() {
 }
 
 async function wolSave(btn) {
+	for (var i = 1; i <= 3; i++)
+		wolTrim(document.getElementById('wol_mac_' + i));
 	var diff = wolChanges();
 	var changes = diff.changes;
 	var changed = diff.changed;
@@ -1605,10 +1624,72 @@ function xmltvChanged() {
 	});
 }
 
+/* What the box would refuse in a list, as it checks one: at most 32
+   entries, each an address beginning with http:// or https:// or a path
+   beginning with /, without a control character or a number sign, and up to
+   1024 bytes (100 for a guide). The first problem, with the number of its
+   line in the field; '' where the list may go. */
+function xmltvLineProblem(kind) {
+	var ta = document.getElementById('xmltv_' + kind);
+	var raw = ((ta && ta.value) || '').split('\n');
+	var most = kind === 'xmltv' ? 100 : 1024;
+	if (xmltvEntries(kind).length > 32)
+		return webuiL('set.xmltv_too_many', 'A list holds at most {max} lines').replace('{max}', 32);
+	for (var i = 0; i < raw.length; i++) {
+		var l = raw[i].trim();
+		var n = String(i + 1);
+		if (!l)
+			continue;
+		if (/[\u0000-\u001f\u007f#]/.test(l))
+			return webuiL('set.xmltv_bad_char', 'Line {n} holds a # or a control character').replace('{n}', n);
+		if (!/^(https?:\/\/|\/)/.test(l))
+			return webuiL('set.xmltv_bad_line', 'Line {n} is neither an address beginning with http:// or https:// nor a path beginning with /').replace('{n}', n);
+		if (new TextEncoder().encode(l).length > most)
+			return webuiL('set.xmltv_too_long', 'Line {n} is longer than {max} bytes').replace('{n}', n).replace('{max}', most);
+	}
+	return '';
+}
+
+function xmltvMark(kind, text) {
+	var ta = document.getElementById('xmltv_' + kind);
+	if (!ta)
+		return;
+	var id = 'xmltv_' + kind + '_problem';
+	var note = document.getElementById(id);
+	if (!text) {
+		if (note)
+			note.remove();
+		settingsDescribed(ta, id, false);
+		ta.removeAttribute('aria-invalid');
+		return;
+	}
+	if (!note) {
+		note = webuiEl('div', {className: 'webui-set-error', id: id, data: {own: '1'}});
+		ta.insertAdjacentElement('afterend', note);
+		ta.addEventListener('input', function() { xmltvMark(kind, ''); }, {once: true});
+	}
+	note.textContent = text;
+	ta.setAttribute('aria-invalid', 'true');
+	settingsDescribed(ta, id, true);
+}
+
 async function saveXmltv(btn) {
 	var changed = xmltvChanged();
 	var owed = xmltvOwed();
 	if (!changed.length && !owed.length) { webuiShowToast(webuiL('set.nochanges', 'No changes')); return; }
+	var bad = changed.filter(function(kind) {
+		var why = xmltvLineProblem(kind);
+		xmltvMark(kind, why);
+		return !!why;
+	});
+	if (bad.length) {
+		var first = document.getElementById('xmltv_' + bad[0]);
+		first.scrollIntoView({block: 'center'});
+		first.focus({preventScroll: true});
+		webuiShowToast(bad.length === 1 ? webuiL('set.hold_one', 'Nothing was saved: check the marked field') :
+			webuiL('set.hold_many', 'Nothing was saved: check the {n} marked fields').replace('{n}', bad.length), true);
+		return;
+	}
 	webuiShowConfirm(webuiL('bqe.save', 'Save'), webuiLH('set.xmltv_confirm', 'Replace the source lists and reload the channel lists?'),
 		webuiL('bqe.save', 'Save'), function() { return saveXmltvNow(btn, changed, owed); }, {variant: 'ok'});
 }
