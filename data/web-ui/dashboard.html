@@ -708,6 +708,53 @@
 		display: none;
 	}
 
+	/* a message to the TV, opened below the tiles: it pushes what follows
+	   down and covers nothing; what each way of sending does stands above
+	   the two buttons */
+	.dash-message {
+		display: grid;
+		gap: 0.4rem;
+		margin: 0;
+		border-top: 1px solid var(--pico-muted-border-color);
+	}
+
+	.dash-message[hidden] {
+		display: none;
+	}
+
+	.dash-message label {
+		margin: 0;
+		font-size: var(--webui-font-sm);
+	}
+
+	.dash-message input {
+		margin: 0;
+	}
+
+	.dash-message-help {
+		margin: 0;
+		color: var(--pico-muted-color);
+		font-size: var(--webui-font-sm);
+	}
+
+	.dash-message-acts {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		justify-content: flex-end;
+		gap: 0.4rem;
+	}
+
+	.dash-message-acts small {
+		flex: 1 1 8rem;
+		min-height: 1em;
+		font-size: var(--webui-font-sm);
+	}
+
+	.dash-message-acts .webui-btn {
+		margin: 0;
+	}
+
 	/* the sound: its name, the slider with Mute beside it, and a line that
 	   says the sound is off or a level is on its way. The slider's part up
 	   to the level is drawn in the accent, the rest in the muted border
@@ -972,7 +1019,7 @@
 						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
 						<span data-l="tools.files">Files</span>
 					</a>
-					<button title="Show a message on the TV" data-l-title="tip.message" type="button" class="webui-btn" onclick="webuiShowMessageDialog()">
+					<button title="Show a message on the TV" data-l-title="tip.message" type="button" class="webui-btn" id="dash-message-btn" onclick="dashMessage()" aria-expanded="false" aria-controls="dash-message">
 						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
 						<span data-l="tools.message">Message</span>
 					</button>
@@ -985,6 +1032,16 @@
 						<span data-l="dash.standby">Standby</span>
 					</button>
 				</div>
+				<form class="webui-card-body dash-message" id="dash-message" hidden onsubmit="return false">
+					<label for="webui-msg-text" data-l="dash.message_label">Message to the TV</label>
+					<input type="text" id="webui-msg-text" maxlength="255" aria-describedby="dash-message-help" placeholder="Enter message…" data-l-placeholder="tools.message_ph">
+					<p class="dash-message-help" id="dash-message-help" data-l="dash.message_help">A hint goes away by itself after a few seconds. A window stays on the TV until someone closes it at the box.</p>
+					<div class="dash-message-acts">
+						<small id="webui-msg-result" role="status">&nbsp;</small>
+						<button type="button" class="webui-btn" onclick="webuiSendMessage('nmsg')" data-l="dash.send_hint">Send as a hint</button>
+						<button type="button" class="webui-btn primary" onclick="webuiSendMessage('popup')" data-l="dash.send_window">Send as a window</button>
+					</div>
+				</form>
 			</section>
 
 			<!-- the sound: how loud the box is, and mute -->

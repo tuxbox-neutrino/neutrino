@@ -735,6 +735,39 @@ function stopShownRecording() {
 	}, {button: document.getElementById('rec-btn')});
 }
 
+/* A message to the TV: Message opens its form below the tiles and closes
+   it again, as does Escape in it, with the focus back on Message. Enter
+   sends it as a hint, the buttons say which way it goes (webuiSendMessage). */
+function dashMessage(open) {
+	const form = document.getElementById('dash-message');
+	const btn = document.getElementById('dash-message-btn');
+	if (!form || !btn) return;
+	const show = open !== undefined ? open : form.hidden;
+	// whether the focus is in the form, read while the form is still shown
+	const inside = form.contains(document.activeElement);
+	form.hidden = !show;
+	btn.setAttribute('aria-expanded', show ? 'true' : 'false');
+	if (show)
+		document.getElementById('webui-msg-text').focus();
+	else if (inside)
+		btn.focus();
+}
+
+webuiAfterTexts(function() {
+	const form = document.getElementById('dash-message');
+	if (!form) return;
+	form.addEventListener('keydown', function(e) {
+		if (e.key === 'Escape') {
+			e.preventDefault();
+			e.stopPropagation();
+			dashMessage(false);
+		} else if (e.key === 'Enter' && e.target.id === 'webui-msg-text') {
+			e.preventDefault();
+			webuiSendMessage('nmsg');
+		}
+	});
+});
+
 // Standby: wake a sleeping box, put an awake one to sleep after asking,
 // the same way as the power key in the head
 function sendStandby() {
