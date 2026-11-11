@@ -1292,7 +1292,6 @@ html.webui-side-narrow .webui-side .webui-side-toggle {
 	}
 }
 
-/* Compact popover for inline forms (e.g. message send) */
 /* A list of choices at the side of a page (the channel list's bouquets,
    the recordings' sources, the timers' filters): its entries buttons
    across its width, the chosen one (aria-current, or aria-pressed for a
@@ -1417,77 +1416,6 @@ body ul.webui-side-list > li {
 
 .webui-help-panel p:last-child {
 	margin-bottom: 0;
-}
-
-.webui-popover {
-	display: none;
-	position: fixed;
-	top: 50%;
-	left: 50%;
-	transform: translate(-50%, -50%);
-	z-index: 1001;
-	background: var(--pico-card-background-color);
-	border: 1px solid var(--webui-border-subtle);
-	border-radius: var(--webui-radius-lg);
-	box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
-	padding: 1.8rem 1.25rem 1rem;
-	width: min(360px, 90vw);
-	animation: modalSlideIn 0.15s ease;
-}
-
-.webui-popover.open {
-	display: block;
-}
-
-.webui-popover-close {
-	position: absolute;
-	top: 0.25rem;
-	right: 0.25rem;
-	background: none;
-	border: none;
-	font-size: 1.2rem;
-	line-height: 1;
-	padding: 0.2rem 0.4rem;
-	color: var(--pico-muted-color);
-	cursor: pointer;
-	margin: 0;
-	width: auto;
-	border-radius: var(--webui-radius);
-	transition: var(--webui-transition);
-}
-
-@media (hover: hover) {
-	.webui-popover-close:hover {
-		background: var(--webui-accent-light);
-	}
-}
-
-.webui-popover form {
-	margin-bottom: 0;
-}
-
-.webui-popover input {
-	margin-bottom: 0.5rem;
-}
-
-.webui-popover-actions {
-	display: flex;
-	align-items: center;
-	gap: 0.4rem;
-}
-
-.webui-popover-actions small {
-	flex: 1;
-	font-size: 0.75rem;
-	min-height: 1em;
-}
-
-.webui-popover-actions button {
-	padding: 0.25rem 0.75rem;
-	font-size: 0.8rem;
-	margin: 0;
-	width: auto;
-	--pico-font-size: 0.8rem;
 }
 
 .webui-modal-header {
@@ -2988,7 +2916,6 @@ audio.webui-player-media {
 .webui-more-menu a:focus-visible,
 .webui-more-menu button:focus-visible,
 .webui-theme-toggle:focus-visible,
-.webui-popover-close:focus-visible,
 .webui-modal-close:focus-visible,
 .webui-remote-full-toggle:focus-visible,
 .webui-remote .webui-rc-btn:focus-visible,

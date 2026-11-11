@@ -3857,21 +3857,6 @@ function webuiShowPrompt(title, label, value, onOk) {
 	inp.select();
 }
 
-// Message popover — send ticker or popup messages to the box. A small
-// dialog beside the page: named, the field labelled, Escape closes it and
-// gives the focus back.
-var _webuiMessageOpener = null;
-
-function _webuiCloseMessage() {
-	var pop = document.getElementById('webui-message-pop');
-	if (!pop || !pop.classList.contains('open'))
-		return;
-	pop.classList.remove('open');
-	if (_webuiMessageOpener && document.contains(_webuiMessageOpener))
-		_webuiMessageOpener.focus();
-	_webuiMessageOpener = null;
-}
-
 // An element with a tip (title) of what it does, handed back for a list
 // of children
 function webuiTitled(el, text) {
@@ -3931,70 +3916,8 @@ function webuiHelpToggle(btn) {
 	document.addEventListener('keydown', key, true);
 }
 
-function webuiShowMessageDialog() {
-	var pop = document.getElementById('webui-message-pop');
-	if (pop && pop.classList.contains('open')) {
-		_webuiCloseMessage();
-		return;
-	}
-	_webuiMessageOpener = document.activeElement;
-	if (pop) {
-		pop.classList.add('open');
-		pop.querySelector('#webui-msg-text').focus();
-		return;
-	}
-
-	pop = document.createElement('div');
-	pop.id = 'webui-message-pop';
-	pop.className = 'webui-popover open';
-	pop.setAttribute('role', 'dialog');
-	pop.setAttribute('aria-label', webuiL('tools.message', 'Message'));
-	pop.innerHTML =
-		'<button type="button" class="webui-popover-close" onclick="_webuiCloseMessage()" aria-label="' + webuiLH('msg.close', 'Close') + '">\u00d7</button>' +
-		'<form onsubmit="return false">' +
-			'<input type="text" id="webui-msg-text" aria-label="' + webuiLH('tools.message', 'Message') + '" placeholder="' + webuiLH('tools.message_ph', 'Enter message\u2026') + '" maxlength="255">' +
-			'<div class="webui-popover-actions">' +
-				'<small id="webui-msg-result" role="status">\u00a0</small>' +
-				'<button type="button" class="webui-btn" onclick="webuiSendMessage(\'nmsg\')">' + webuiLH('tools.message', 'Message') + '</button>' +
-				'<button type="button" class="webui-btn primary" onclick="webuiSendMessage(\'popup\')">' + webuiLH('msg.popup', 'Popup') + '</button>' +
-			'</div>' +
-		'</form>';
-	document.body.appendChild(pop);
-	// Escape closes it; Tab and Shift+Tab go round its controls, as in
-	// every other dialog
-	pop.addEventListener('keydown', function(e) {
-		if (e.key === 'Escape') {
-			e.preventDefault();
-			_webuiCloseMessage();
-			return;
-		}
-		if (e.key !== 'Tab')
-			return;
-		var all = Array.prototype.filter.call(pop.querySelectorAll('button, input'), function(el) { return !el.disabled && el.getClientRects().length > 0; });
-		if (!all.length)
-			return;
-		if (e.shiftKey && document.activeElement === all[0]) {
-			e.preventDefault();
-			all[all.length - 1].focus();
-		} else if (!e.shiftKey && document.activeElement === all[all.length - 1]) {
-			e.preventDefault();
-			all[0].focus();
-		}
-	});
-
-	var input = pop.querySelector('#webui-msg-text');
-	input.onkeydown = function(e) { if (e.key === 'Enter') webuiSendMessage('nmsg'); };
-	input.focus();
-
-	// Close on outside click; listened for after the click that opened it
-	setTimeout(function() {
-		document.addEventListener('click', function(e) {
-			if (pop.classList.contains('open') && !pop.contains(e.target) && !e.target.closest('[onclick*="webuiShowMessageDialog"]'))
-				_webuiCloseMessage();
-		});
-	}, 10);
-}
-
+// The dashboard's message to the TV (dashboard.html): 'nmsg' a hint that goes
+// by itself, 'popup' a window that waits
 async function webuiSendMessage(mode) {
 	var input = document.getElementById('webui-msg-text');
 	var text = input.value.trim();

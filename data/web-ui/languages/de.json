@@ -172,7 +172,6 @@
 	"msg.close": "Schließen",
 	"msg.ok": "OK",
 	"msg.empty_field": "Bitte ausfüllen",
-	"msg.popup": "Popup",
 	"msg.sent": "Gesendet",
 	"epg.after": "Danach",
 	"about.version": "Version %s",

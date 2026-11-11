@@ -172,7 +172,6 @@
 	"msg.close": "Close",
 	"msg.ok": "OK",
 	"msg.empty_field": "Please fill this in",
-	"msg.popup": "Popup",
 	"msg.sent": "Sent",
 	"epg.after": "Next",
 	"about.version": "Version %s",
