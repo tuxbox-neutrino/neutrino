@@ -54,6 +54,12 @@
 
 static const char *kDefaultConfigFile = "/etc/graphlcd.conf";
 static cGLCD *cglcd = NULL;
+/* Held while the display is made and while it is deleted, and by a caller off
+   its threads while it looks at it (displayReady, dumpDisplay), so that caller
+   never meets a display being deleted. Taken before the display's own lock,
+   never inside it. Exit() joins the display's threads first: they find the
+   display made, so they never wait for this lock. */
+static pthread_mutex_t display_life = PTHREAD_MUTEX_INITIALIZER;
 
 extern CRemoteControl *g_RemoteControl;
 extern CPictureViewer *g_PicViewer;
@@ -175,13 +181,43 @@ cGLCD::~cGLCD()
 cGLCD *cGLCD::getInstance()
 {
 	if (!cglcd)
-		cglcd = new cGLCD;
+	{
+		pthread_mutex_lock(&display_life);
+		if (!cglcd)
+			cglcd = new cGLCD;
+		pthread_mutex_unlock(&display_life);
+	}
 	return cglcd;
 }
 
-cGLCD *cGLCD::peekInstance()
+bool cGLCD::displayReady()
 {
-	return cglcd;
+	pthread_mutex_lock(&display_life);
+	bool ready = false;
+	if (cglcd)
+	{
+		cglcd->Lock();
+		ready = cglcd->bitmap != NULL;
+		cglcd->Unlock();
+	}
+	pthread_mutex_unlock(&display_life);
+	return ready;
+}
+
+bool cGLCD::dumpDisplay(int format, const char *filename)
+{
+	pthread_mutex_lock(&display_life);
+	bool written = false;
+	if (cglcd)
+	{
+		cglcd->Lock();
+		GLCD::cBitmap *picture = cglcd->bitmap;
+		cglcd->Unlock();
+		// dumpBuffer takes the display's lock itself while it reads the bitmap.
+		written = picture != NULL && cglcd->dumpBuffer((fb_pixel_t *) picture->Data(), format, filename);
+	}
+	pthread_mutex_unlock(&display_life);
+	return written;
 }
 
 uint32_t cGLCD::ColorConvert3to1(uint32_t red, uint32_t green, uint32_t blue)
@@ -970,7 +1006,13 @@ void cGLCD::Run(void)
 		lcd->SetBrightness(0);
 
 		if (!bitmap)
-			bitmap = new GLCD::cBitmap(lcd->Width(), lcd->Height(), ColorConvert3to1(t.glcd_background_color_red, t.glcd_background_color_green, t.glcd_background_color_blue));
+		{
+			// Set under the lock displayReady and dumpDisplay read it under.
+			GLCD::cBitmap *made = new GLCD::cBitmap(lcd->Width(), lcd->Height(), ColorConvert3to1(t.glcd_background_color_red, t.glcd_background_color_green, t.glcd_background_color_blue));
+			Lock();
+			bitmap = made;
+			Unlock();
+		}
 
 		UpdateBrightness();
 		Update();
@@ -1469,8 +1511,10 @@ void cGLCD::Exit()
 		void *res;
 		pthread_join(cglcd->thrGLCD, &res);
 		pthread_join(cglcd->thrTimeThread, NULL);
+		pthread_mutex_lock(&display_life);
 		delete cglcd;
 		cglcd = NULL;
+		pthread_mutex_unlock(&display_life);
 	}
 }
 

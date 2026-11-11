@@ -106,10 +106,7 @@ class RealScreenshotSource : public ScreenshotSource
 			// Looked up and never made: a request must not start a display, and
 			// a Respawn in progress has none to find.
 			if (name == "graphlcd")
-			{
-				cGLCD *display = cGLCD::peekInstance();
-				return display != NULL && display->bitmap != NULL;
-			}
+				return cGLCD::displayReady();
 #endif
 			return false;
 		}
@@ -121,19 +118,18 @@ class RealScreenshotSource : public ScreenshotSource
 #ifdef ENABLE_GRAPHLCD
 			if (name == "graphlcd")
 			{
-				cGLCD *display = cGLCD::peekInstance();
-				if (display == NULL || display->bitmap == NULL)
+				if (!cGLCD::displayReady())
 					return Status::NotSupported;
 				/* The display can mirror the OSD, so it is pictured like the
 				   screen (captureguard): the bitmap is written into a file no
 				   name reaches, and that is given the name only once
-				   captureguard still agrees. */
+				   captureguard still agrees. Written by the display's own
+				   call, which keeps it from being deleted meanwhile. */
 				captureguard::Capture capture;
 				if (!capture.admitted())
 					return Status::Conflict;
 				captureguard::Staging staging;
-				if (!staging.ok() || !display->dumpBuffer((fb_pixel_t *) display->bitmap->Data(),
-									 cGLCD::PNG, staging.path().c_str()))
+				if (!staging.ok() || !cGLCD::dumpDisplay(cGLCD::PNG, staging.path().c_str()))
 					return Status::Internal;
 				if (!capture.clean())
 					return Status::Conflict;

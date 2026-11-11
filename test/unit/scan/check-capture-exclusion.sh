@@ -23,7 +23,9 @@
 #     captureguard::drawShared under the lock the bitmap is read under;
 #  5. the GraphLCD bitmap, which can hold that mirror, is pictured only
 #     through the two captures that ask the guard, dump it under that lock
-#     into a Staging file and publish that only after captureguard agreed;
+#     into a Staging file and publish that only after captureguard agreed,
+#     and they dump it through cGLCD::dumpDisplay, under the lock the
+#     display is made and deleted under, holding no pointer to it;
 #  6. GET /api/v1/osd/screenshot and both display routes answer 409
 #     password-on-screen, and /control/screenshot and /control/glcdscreenshot
 #     their error with a reason, and take no name with a control character.
@@ -286,14 +288,46 @@ if [ -z "$locked" ] || [ -z "$wrote" ] || [ "$locked" -gt "$wrote" ]; then
 	fail=1
 fi
 
-# 5. The GraphLCD bitmap is written out by these two and nothing else.
+# 5. The GraphLCD bitmap is written out by these two and nothing else, each
+# through cGLCD::dumpDisplay, which keeps the display from being deleted while
+# it writes; the web server's threads never hold the display itself. (The
+# display's setup menu does, on the thread that also deletes it.)
 find "$SRC/src" \( -name '*.cpp' -o -name '*.h' -o -name '*.c' \) ! -path "$SRC/src/driver/glcd/*" \
-	-exec grep -l -E 'dumpBuffer[[:blank:]]*\(' {} + | sed "s|^$SRC/||" | sort > "$tmp/dumpers" || true
+	-exec grep -l -E 'dump(Buffer|Display)[[:blank:]]*\(' {} + | sed "s|^$SRC/||" | sort > "$tmp/dumpers" || true
 if [ "`cat "$tmp/dumpers"`" != "`printf '%s\n%s\n' "$REAL" "$CONTROL" | sort`" ]; then
 	echo "the GraphLCD bitmap is written out elsewhere than $REAL and $CONTROL:" >&2
 	sed 's/^/  /' "$tmp/dumpers" >&2
 	fail=1
 fi
+find "$SRC/src/coreapi" "$SRC/src/httpd" "$SRC/src/nhttpd" \( -name '*.cpp' -o -name '*.h' -o -name '*.c' \) \
+	-exec grep -n -H -E 'cGLCD[[:blank:]]*\*|peekInstance[[:blank:]]*\(|dumpBuffer[[:blank:]]*\(|cGLCD::getInstance[[:blank:]]*\(' {} + \
+	| sed "s|^$SRC/||" > "$tmp/holders" || true
+if [ -s "$tmp/holders" ]; then
+	echo "the web server holds the GraphLCD display, which Exit() may delete under it:" >&2
+	sed 's/^/  /' "$tmp/holders" >&2
+	fail=1
+fi
+# In the display, the lock that guards its life is taken where it is made,
+# where it is deleted and where a caller off its threads looks at it.
+lifelock='pthread_mutex_lock[[:blank:]]*\([[:blank:]]*&display_life[[:blank:]]*\)'
+for fn in 'cGLCD *cGLCD::getInstance()' 'bool cGLCD::displayReady()' 'bool cGLCD::dumpDisplay(' 'void cGLCD::Exit()'; do
+	body "$fn" < "$tmp/glcd" > "$tmp/lifefn"
+	if [ ! -s "$tmp/lifefn" ]; then
+		echo "$GLCD: no $fn" >&2
+		fail=1
+		continue
+	fi
+	taken=`first "$tmp/lifefn" "$lifelock"`
+	case "$fn" in
+	*getInstance*) at=`first "$tmp/lifefn" 'new[[:blank:]]+cGLCD'` ;;
+	*Exit*) at=`first "$tmp/lifefn" 'delete[[:blank:]]+cglcd'` ;;
+	*) at=`first "$tmp/lifefn" 'cglcd->Lock\(\)'` ;;
+	esac
+	if [ -z "$taken" ] || [ -z "$at" ] || [ "$taken" -gt "$at" ]; then
+		echo "$GLCD: $fn does not take display_life before it makes, deletes or reads the display" >&2
+		fail=1
+	fi
+done
 # Asked before the dump and after it, dumped into a Staging file, and that
 # published only when captureguard still agrees. $1 the function, $2 what a
 # refusal answers, $3 what publishes it.
@@ -301,7 +335,7 @@ glcdcapture() {
 	what="$1"
 	taken=`first "$tmp/glcdcap" "$CAPTURE"`
 	asked=`first "$tmp/glcdcap" 'if[[:blank:]]*\([[:blank:]]*!capture\.admitted\(\)[[:blank:]]*\)'`
-	dump=`first "$tmp/glcdcap" 'dumpBuffer[[:blank:]]*\('`
+	dump=`first "$tmp/glcdcap" 'cGLCD::dumpDisplay[[:blank:]]*\('`
 	clean=`first "$tmp/glcdcap" '!capture\.clean\(\)'`
 	named=`first "$tmp/glcdcap" "$3"`
 	if [ -z "$taken" ] || [ -z "$asked" ] || [ -z "$dump" ] || [ -z "$clean" ] || [ -z "$named" ] \

@@ -3441,29 +3441,31 @@ void CControlAPI::GlcdScreenshotCGI(CyhookHandler *hh)
 
 	filename = "/tmp/" + filename + ".png";
 
-	cGLCD *cglcd = cGLCD::getInstance();
-	if (cglcd) {
-		/* The display can mirror the OSD, so it is pictured like the
-		   screen (captureguard): the bitmap is written into a file no name
-		   reaches, and that is given the name only once captureguard still
-		   agrees. */
-		captureguard::Capture capture;
-		if (!capture.admitted()) {
-			hh->SendError("the screen shows a password");
-			return;
-		}
-		captureguard::Staging staging;
-		const bool written = staging.ok()
-			&& cglcd->dumpBuffer((uint32_t*)cglcd->bitmap->Data(), cGLCD::PNG, staging.path().c_str());
-		if (written && !capture.clean()) {
-			hh->SendError("the screen shows a password");
-			return;
-		}
-		if (written && staging.publish(filename))
-			hh->SendOk();
-		else
-			hh->SendError();
+	/* Never made by a request, and written by the display's own call, which
+	   keeps it from being deleted meanwhile. */
+	if (!cGLCD::displayReady()) {
+		hh->SendError();
+		return;
 	}
+	/* The display can mirror the OSD, so it is pictured like the screen
+	   (captureguard): the bitmap is written into a file no name reaches,
+	   and that is given the name only once captureguard still agrees. */
+	captureguard::Capture capture;
+	if (!capture.admitted()) {
+		hh->SendError("the screen shows a password");
+		return;
+	}
+	captureguard::Staging staging;
+	const bool written = staging.ok()
+		&& cGLCD::dumpDisplay(cGLCD::PNG, staging.path().c_str());
+	if (written && !capture.clean()) {
+		hh->SendError("the screen shows a password");
+		return;
+	}
+	if (written && staging.publish(filename))
+		hh->SendOk();
+	else
+		hh->SendError();
 }
 #endif
 
