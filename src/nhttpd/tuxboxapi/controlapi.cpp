@@ -696,22 +696,22 @@ void CControlAPI::SetModeCGI(CyhookHandler *hh)
 		}
 		else if (hh->ParamList["record"] == "stop")	// stop record mode
 		{
-			CRecordManager * recManager = CRecordManager::getInstance();
-			if (recManager)
+			/* Values taken under the manager's lock, and the stop asked for
+			   by number: a copy of the map would hold pointers to recordings
+			   the loop may be deleting meanwhile. */
+			std::vector<rec_running_t> running;
+			CRecordManager::getInstance()->GetRunningRecordings(running);
+			for (size_t i = 0; i < running.size(); ++i)
 			{
-				recmap_t recmap = recManager->GetRecordMap();
-				for (recmap_iterator_t it = recmap.begin(); it != recmap.end(); ++it)
-				{
-					if (it->second->Timeshift())
-						continue;
-					CTimerd::RecordingStopInfo stopinfo;
-					stopinfo.eventID = it->second->GetRecordingId();
-					stopinfo.channel_id = it->second->GetChannelId();
-					NeutrinoAPI->EventServer->sendEvent(NeutrinoMessages::RECORD_STOP,
-						CEventServer::INITID_HTTPD, (void *)&stopinfo,
-						sizeof(CTimerd::RecordingStopInfo));
-					break; // stop first non-timeshift recording
-				}
+				if (running[i].timeshift)
+					continue;
+				CTimerd::RecordingStopInfo stopinfo;
+				stopinfo.eventID = running[i].recording_id;
+				stopinfo.channel_id = running[i].channel_id;
+				NeutrinoAPI->EventServer->sendEvent(NeutrinoMessages::RECORD_STOP,
+					CEventServer::INITID_HTTPD, (void *)&stopinfo,
+					sizeof(CTimerd::RecordingStopInfo));
+				break; // stop first non-timeshift recording
 			}
 		}
 		hh->SendOk();

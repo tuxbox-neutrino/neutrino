@@ -284,7 +284,8 @@ class CRecordManager : public CMenuTarget /*, public CChangeObserver*/
 		bool SameTransponder(const t_channel_id channel_id);
 		int  handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data);
 		// mimic old behavior for start/stop menu option chooser, still actual ?
-		int GetRecordCount() { return recmap.size(); };
+		// Under the lock: the LCD4Linux thread asks it too.
+		int GetRecordCount() { mutex.lock(); const int n = recmap.size(); mutex.unlock(); return n; };
 		/*
 		 * Every running recording as plain values, taken while the lock is
 		 * held. GetRecordMap() above cannot answer this from another thread:
