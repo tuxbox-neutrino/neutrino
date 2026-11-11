@@ -80,6 +80,13 @@ void setInjectedKeyNodeForTest(const char *path);
 bool nodeCarriesKey(int fd, unsigned int code);
 void setNodeCarriesKeyForTest(bool (*probe)(int fd, unsigned int code));
 
+/* For a case that checks what is written to an event node, which no test
+   machine has one of to hand: path is opened as one in every build, beside
+   what /dev/input holds, and the next wait for a message checks the nodes
+   again, as a change of /dev/input makes it do. NULL takes the node away
+   from the next check on. */
+void setEventNodeForTest(const char *path);
+
 /* The reading of the bits an event node answers EVIOCGBIT(EV_KEY) with, kept
    apart from the ioctl so the reading can be checked without a node. In longs
    and not in bytes, because that is how the kernel lays them out, and on a
@@ -120,6 +127,10 @@ class CRCInput
 		int fd_pipe_low_priority[2];
 		int fd_gamerc;
 		std::vector<in_dev> indev;
+		// What setKeyRepeatDelay() was given last, for nodes opened later.
+		unsigned int repeat_start_ms;
+		unsigned int repeat_period_ms;
+		bool repeat_given;
 		int fd_keyb;
 		int fd_event;
 		int fd_max;
@@ -134,6 +145,7 @@ class CRCInput
 		int translate(int code);
 		int translate_revert(int code);
 		void calculateMaxFd(void);
+		void writeKeyRepeatDelay(size_t first);
 		int checkTimers();
 		bool mayRepeat(uint32_t key, bool bAllowRepeatLR = false);
 		bool mayLongPress(uint32_t key, bool bAllowRepeatLR = false);

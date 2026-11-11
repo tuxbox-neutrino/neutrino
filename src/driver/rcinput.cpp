@@ -160,8 +160,17 @@ void setNodeCarriesKeyForTest(bool (*probe)(int fd, unsigned int code))
 	node_carries_key = probe ? probe : probeNode;
 }
 
-static unsigned int _start_ms = 0;
-static unsigned int _repeat_ms = 0;
+/* A node open() opens as it opens an event node under /dev/input, in every
+   build, and a recheck of the nodes on the next wait for a message, as a
+   change of /dev/input brings one. */
+static const char *test_event_node = NULL;
+static bool test_recheck = false;
+
+void setEventNodeForTest(const char *path)
+{
+	test_event_node = path;
+	test_recheck = path != NULL;
+}
 
 #ifdef RCDEBUG
 #define d_printf printf
@@ -232,6 +241,8 @@ CRCInput::CRCInput()
 		exit( -1 );
 	}
 	repeat_block = repeat_block_generic = 0;
+	repeat_start_ms = repeat_period_ms = 0;
+	repeat_given = false;
 	checkdev();
 	open();
 	rc_last_key =  KEY_MAX;
@@ -247,6 +258,10 @@ bool CRCInput::checkdev()
 	/* stat()ing the directory is fast and cheap. If a device gets added or
 	 * removed, the mtime of /dev/input/ will change, which in turn
 	 * warrants a more thorough investigation */
+	if (test_recheck) {
+		test_recheck = false;
+		return true;
+	}
 	struct stat st;
 	if (stat("/dev/input/", &st) == 0) {
 		if (st.st_mtim.tv_sec != devinput_mtime.tv_sec ||
@@ -282,6 +297,8 @@ void CRCInput::open(bool recheck)
 	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
 
 	struct in_dev id;
+	// The nodes this call adds are the ones from here on.
+	const size_t first_new = indev.size();
 
 #if !HAVE_GENERIC_HARDWARE
 	DIR *dir;
@@ -333,7 +350,18 @@ void CRCInput::open(bool recheck)
 	}
 	closedir(dir);
 #endif
-	setKeyRepeatDelay(0, 0);
+	if (test_event_node) {
+		id.path = test_event_node;
+		if (!checkpath(id)) {
+			id.fd = ::open(id.path.c_str(), O_RDWR|O_NONBLOCK|O_CLOEXEC);
+			if (id.fd != -1)
+				indev.push_back(id);
+		}
+	}
+	/* What the settings gave, for the nodes just added, such as a keyboard
+	   plugged in: a node keeps what it was given, so the ones open before
+	   are left alone. */
+	writeKeyRepeatDelay(first_new);
 	id.path = loop_input_node;
 	if (! checkpath(id)) {
 		id.fd = ::open(id.path.c_str(), O_RDWR|O_NONBLOCK|O_CLOEXEC);
@@ -1997,9 +2025,24 @@ int CRCInput::translate_revert(int code)
 
 void CRCInput::setKeyRepeatDelay(unsigned int start_ms, unsigned int repeat_ms)
 {
+	repeat_start_ms = start_ms;
+	repeat_period_ms = repeat_ms;
+	repeat_given = true;
+	writeKeyRepeatDelay(0);
+}
+
+/* The delays setKeyRepeatDelay() was given last, written to the nodes from
+   index first on. Nothing before it was called, so a node opened before the
+   settings are applied keeps the driver's own. */
+void CRCInput::writeKeyRepeatDelay(size_t first)
+{
+	if (!repeat_given)
+		return;
+	const unsigned int start_ms = repeat_start_ms;
+	const unsigned int repeat_ms = repeat_period_ms;
 	/* iterate backwards or the vector will be corrupted by the indev.erase(i) */
 	std::vector<in_dev>::iterator it = indev.end();
-	while (it != indev.begin()) {
+	while (it != indev.begin() + first) {
 		--it;
 		int fd = (*it).fd;
 		std::string path = (*it).path;

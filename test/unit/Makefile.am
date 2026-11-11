@@ -81,6 +81,7 @@ coreapi_tests_SOURCES = \
 	driver/test_scanpause.cpp \
 	driver/test_tsgrid.cpp \
 	driver/test_captureguard.cpp \
+	driver/test_keyrepeat.cpp \
 	coreapi/test_eventbus.cpp \
 	coreapi/test_messagebridge.cpp \
 	coreapi/test_channels.cpp \
