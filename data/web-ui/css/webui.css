@@ -3043,6 +3043,28 @@ input[type=week]:focus-within,
 	--pico-box-shadow: none;
 }
 
+/* A field the browser filled in from what it saved (a sign-in) keeps the
+   theme's colours. Browsers paint it pale blue or yellow, dark olive in
+   Firefox's dark theme, with !important rules a page cannot outweigh: a
+   shadow inside the field covers that with the field's own ground, and
+   the text keeps the field's colour. The keyboard's ring is the outline
+   and stays. :is() leaves out a name a browser does not know, so the one
+   rule serves those that know only one of the two. Without the easing of
+   the shadow the browser's colour does not flash up while it covers it.
+   The rule below that takes a focused field's shadow away in a form row
+   is outweighed for a filled field. */
+input:is(:autofill, :-webkit-autofill),
+input:is(:autofill, :-webkit-autofill):focus-visible,
+select:is(:autofill, :-webkit-autofill),
+textarea:is(:autofill, :-webkit-autofill),
+.webui-form-row input:is(:autofill, :-webkit-autofill):focus {
+	-webkit-box-shadow: inset 0 0 0 100vmax var(--pico-background-color);
+	box-shadow: inset 0 0 0 100vmax var(--pico-background-color);
+	-webkit-text-fill-color: var(--pico-color);
+	caret-color: var(--pico-color);
+	transition: none;
+}
+
 /* A button no class gives a ring of its own (a round help button, the
    head of a folded entry) takes the same one, below every rule of a
    class; Pico gives it only a shadow at a quarter of the accent, under
