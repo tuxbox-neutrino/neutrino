@@ -73,14 +73,16 @@ function netfsFields(table, e) {
 			}}}, webuiMarkup(NETFS_FOLDER)));
 	var active = webuiEl('input', {type: 'checkbox', id: id('active'), checked: !!e.active});
 	return [
-		netfsRow(webuiL('netfs.active', 'Active'), webuiEl('label', {className: 'webui-toggle'},
+		// at start, an entry switched on is one mounted at start; for the
+		// automounter, one it offers
+		netfsRow(table === 'automount' ? webuiL('netfs.active', 'Active') : webuiL('netfs.at_start', 'Mount on startup'), webuiEl('label', {className: 'webui-toggle'},
 			active, webuiEl('span', {className: 'webui-toggle-slider'})), id('active')),
 		netfsRow(webuiL('netfs.type', 'Type'), type, id('type')),
 		netfsRow(webuiL('netfs.host', 'Server'), input('host', e.host), id('host')),
 		netfsRow(webuiL('netfs.remote_dir', 'Directory or share on the server'), input('remote_dir', e.remote_dir), id('remote_dir')),
 		netfsRow(table === 'automount' ? webuiL('netfs.local_name', 'Name under /mnt/autofs') :
 			webuiL('netfs.local_dir', 'Local directory'), where, id('local_dir')),
-		netfsRow(webuiL('netfs.options', 'Options'), input('options', e.options), id('options')),
+		netfsRow(webuiL('netfs.options', 'Mount options'), input('options', e.options), id('options')),
 		credentials,
 		netfsRow('', webuiEl('span', {className: 'webui-row-actions'},
 			webuiEl('button', {type: 'button', className: 'webui-btn primary',
@@ -291,8 +293,8 @@ function netfsMountAll(btn) {
 }
 
 function netfsUnmountAll(btn) {
-	webuiShowConfirm(webuiL('netfs.umount_title', 'Unmount all network filesystems?'),
-		webuiLH('netfs.umount_text', 'Every network filesystem the box has mounted is unmounted, also one this file does not name. A recording on one loses it.'),
+	webuiShowConfirm(webuiL('netfs.umount_title', 'Unmount all shares?'),
+		webuiLH('netfs.umount_text', 'Every share the box has mounted is unmounted, also one this file does not name. A recording on one loses it.'),
 		webuiL('netfs.umount_all', 'Unmount all'),
 		function() { return netfsRun(btn, 'fstab', '/storage/netfs/fstab/unmount'); });
 }

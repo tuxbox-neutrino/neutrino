@@ -3,7 +3,7 @@
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title data-l="manifest.name" data-l-prefix="Neutrino-Web-UI - ">Neutrino-Web-UI - Network filesystems</title>
+	<title data-l="manifest.name" data-l-prefix="Neutrino-Web-UI - ">Neutrino-Web-UI - System shares</title>
 	<link rel="icon" href="/favicon/favicon.ico">
 	<link rel="apple-touch-icon" href="/favicon/apple-touch-icon.png">
 	<script>
@@ -171,8 +171,8 @@
 	<div class="webui-header-spacer"></div>
 
 	<main class="netfs-content">
-		<p class="netfs-lead"><span data-l="netfs.lead">The box's own files for network filesystems: what it mounts when it starts, and what the automounter offers under /mnt/autofs once somebody looks there.</span>
-			<a href="/settings.html#mounts" data-l="netfs.lead_link">The shares Neutrino mounts itself are in the settings.</a></p>
+		<p class="netfs-lead"><span data-l="netfs.lead">Shares the box's system mounts itself, also without Neutrino: at start, or on demand through the automounter under /mnt/autofs.</span>
+			<a href="/settings.html#mounts" data-l="netfs.lead_link">The shares Neutrino mounts are under Network shares.</a></p>
 
 		<div class="netfs-tabs" role="tablist">
 			<button type="button" class="webui-btn" role="tab" id="netfs-tab-fstab" data-netfs-table="fstab" aria-controls="netfs-slots" data-l="netfs.tab_fstab">Mounted at start</button>

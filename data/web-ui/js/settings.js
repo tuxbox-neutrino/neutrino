@@ -1957,7 +1957,8 @@ function shareStateName(state) {
 
 function renderMountsPanel() {
 	setTimeout(loadSharesPanel, 0);
-	return '<div class="settings-card">' + makeCardHeader(webuiL('reg.mounts', 'Network mounts')) +
+	return '<div class="settings-card">' + makeCardHeader(webuiL('reg.mounts', 'Network shares')) +
+		'<p class="webui-set-lead">' + webuiLH('set.mnt_lead', 'The shares Neutrino mounts itself, as in the TV menu under \u201cEdit network shares\u201d, for recordings and the like.') + '</p>' +
 		'<div id="sharesPanel">' + settingsLoading(webuiL('msg.loading', 'Loading...')) + '</div></div>';
 }
 
@@ -2050,9 +2051,9 @@ function shareSlot(sh, open) {
 
 function drawShares(el, items) {
 	var all = webuiEl('div', {className: 'webui-form-row'},
-		webuiEl('label', {}, webuiL('set.mnt_mount_auto', 'All set to Auto-Mount')),
+		webuiEl('label', {}, webuiL('set.mnt_mount_auto', 'All set to mount on startup')),
 		webuiEl('span', {className: 'webui-row-actions'},
-			webuiEl('button', {type: 'button', className: 'webui-btn primary', title: webuiL('tip.mnt_all', 'Mount every share set to Auto-Mount now'),
+			webuiEl('button', {type: 'button', className: 'webui-btn primary', title: webuiL('tip.mnt_all', 'Mount every share set to mount on startup now'),
 				on: {click: function() { mountAutomaticShares(this); }}},
 				webuiMarkup(MOUNT_ICON), webuiL('set.mnt_mount', 'Mount'))));
 	_sharesDrawn = {};
@@ -2131,13 +2132,13 @@ function shareFields(sh) {
 	};
 	return [
 		shareRow(webuiL('tm.type', 'Type'), type),
-		shareRow(webuiL('set.mnt_ip', 'Server IP'), input('host', sh.host)),
+		shareRow(webuiL('set.mnt_ip', 'Server'), input('host', sh.host)),
 		shareRow(webuiL('set.mnt_dir', 'Server directory'), input('remote_dir', sh.remote_dir)),
-		shareRow(webuiL('set.mnt_local', 'Local mount point'), webuiEl('span', {}, local, ' ',
+		shareRow(webuiL('set.mnt_local', 'Local directory'), webuiEl('span', {}, local, ' ',
 			webuiEl('button', {type: 'button', className: 'webui-btn', title: webuiL('picker.title', 'Choose folder'),
 				attrs: {'aria-label': webuiL('picker.title', 'Choose folder')},
 				on: {click: function() { webuiPickInto(local.id, local.value || '/media'); }}}, webuiMarkup(FOLDER_ICON)))),
-		shareRow(webuiL('set.mnt_automount', 'Mount automatically'), webuiEl('label', {className: 'webui-toggle'}, auto, webuiEl('span', {className: 'webui-toggle-slider'}))),
+		shareRow(webuiL('set.mnt_automount', 'Mount on startup'), webuiEl('label', {className: 'webui-toggle'}, auto, webuiEl('span', {className: 'webui-toggle-slider'}))),
 		shareRow(webuiL('set.mnt_opts', 'Mount options') + ' 1', input('options1', sh.options1)),
 		shareRow(webuiL('set.mnt_opts', 'Mount options') + ' 2', input('options2', sh.options2)),
 		shareRow(webuiL('set.mnt_mac', 'MAC address'), input('mac', sh.mac)),
@@ -2165,7 +2166,7 @@ async function saveShare(i) {
 		body.password = '';
 	var saved = await onShare(i, function() { return webuiV1('PUT', '/storage/shares/' + i, {body: body}); }, true);
 	if (saved)
-		webuiShowToast(webuiL('set.mnt_saved', 'Network share saved'));
+		webuiShowToast(webuiL('set.mnt_saved', 'Share saved'));
 	return saved;
 }
 
@@ -2180,7 +2181,7 @@ async function mountAutomaticShares(btn) {
 		var items = (res && res.items) || [];
 		var failed = items.filter(function(o) { return !o.mounted; });
 		if (items.length === 0)
-			webuiShowToast(webuiL('set.mnt_auto_none', 'No Auto-Mount share is left to mount'));
+			webuiShowToast(webuiL('set.mnt_auto_none', 'No unmounted share is set to mount on startup'));
 		else if (failed.length === 0)
 			webuiShowToast(items.length + ' ' + webuiL('set.mnt_auto_done', 'mounted'));
 		else

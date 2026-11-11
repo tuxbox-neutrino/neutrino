@@ -166,7 +166,7 @@ const WEBUI_AREAS = [
 	{id: 'recordings', key: 'nav.recordings', en: 'Recordings', icon: 'recordings',
 	 pages: [{page: 'recordings', href: '/recordings.html', key: 'nav.sub_archive', en: 'Recordings', icon: 'recordings'}]},
 	{id: 'files', key: 'nav.area_files', en: 'Files', icon: 'files', extFirst: true, home: 'ext-files',
-	 pages: [{page: 'settings#mounts', href: '/settings.html#mounts', key: 'reg.mounts', en: 'Network mounts', icon: 'server'}]},
+	 pages: [{page: 'settings#mounts', href: '/settings.html#mounts', key: 'reg.mounts', en: 'Network shares', icon: 'server'}]},
 	{id: 'system', key: 'nav.area_system', en: 'System', icon: 'tools',
 	 pages: [{page: 'tools', href: '/tools.html', key: 'nav.sub_boxcontrol', en: 'Box control', icon: 'power'},
 		{page: 'settings#plugins', href: '/settings.html#plugins', key: 'nav.sub_plugins', en: 'Plugins', icon: 'plug'},
@@ -180,7 +180,7 @@ const WEBUI_EXT_AREAS = ['now', 'channels', 'epg', 'timers', 'recordings', 'file
 /* The groups of the side bar: the interface's own television pages; the
    tools, which are the extensions' pages of the television areas, the file
    manager and those with an area of their own; the system with its own
-   pages, the extensions that set up network shares beside Network mounts,
+   pages, the extensions that set up network shares beside Network shares,
    and its extensions. Settings stands at the foot, About below it. core
    names the areas whose own pages a group takes, ext those whose extension
    pages: 'own' the areas of their own, 'files:home' the page Files opens

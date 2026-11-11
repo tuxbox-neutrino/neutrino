@@ -1,7 +1,8 @@
-# Network filesystems – what the box mounts at start and on demand
+# System shares – what the box's system mounts at start and on demand
 
-`netfs` edits the box's two files for network filesystems through
-`/api/v1/storage/netfs`:
+`netfs` edits the box's two files for the network shares its system
+mounts itself, also without Neutrino, through `/api/v1/storage/netfs`
+(the shares Neutrino mounts are under Settings → Network shares):
 
 - **Mounted at start** (`/var/etc/fstab`): what the box mounts when it
   starts. Mount all and Unmount all run the box's own start up script,
@@ -19,7 +20,7 @@ slot's summary says whether its entry is mounted now
 
 The shares Neutrino mounts itself, the eight the screen at the box
 edits, are not these: they are in the interface's settings under
-network mounts, and the page links there.
+Network shares, and the page links there.
 
 It takes the place of the interface's former page for these files, so
 it is switched on until it is switched off under Settings → Extensions
