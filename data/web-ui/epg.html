@@ -76,7 +76,8 @@
 			overflow: hidden;
 		}
 
-		/* Time header */
+		/* Time header: the first row of the box that scrolls the grid,
+		   kept at its top */
 		.webui-epg-time-header {
 			display: flex;
 			background: var(--pico-card-sectioning-background-color);
@@ -84,7 +85,6 @@
 			position: sticky;
 			top: 0;
 			z-index: 10;
-			position: relative;
 		}
 
 		.webui-epg-channel-header {
@@ -116,10 +116,13 @@
 			color: var(--webui-text-secondary);
 		}
 
-		/* Channel rows */
+		/* Channel rows, below the times (their row is part of the box). A
+		   cell the keys move to is scrolled clear of the times and of the
+		   channels, which stay in place where the grid scrolls sideways. */
 		.webui-epg-channels {
-			max-height: calc(100vh - 160px);
+			max-height: calc(100vh - 130px);
 			overflow-y: auto;
+			scroll-padding-top: 2rem;
 		}
 
 		.webui-epg-row {
@@ -217,6 +220,8 @@
 			display: flex;
 			flex-direction: column;
 			justify-content: center;
+			/* the queries below ask the cell's own width */
+			container-type: inline-size;
 		}
 
 		@media (hover: hover) {
@@ -342,11 +347,27 @@
 			white-space: nowrap;
 		}
 
-		/* a sliver at the edge of the window (a programme that began before
-		   it, or ends just after it begins): its title and time would only
-		   break into pieces, its name is in its label */
-		.webui-epg-program.tiny > * {
-			visibility: hidden;
+		/* A short programme shows what fits whole: no title where only a
+		   letter or two of it would fit, then only its start; a sliver
+		   shows nothing. Its name is in its label, and a tap or a click on
+		   it opens it. Without size queries, a programme under ten minutes
+		   of the window shows nothing. */
+		@container (max-width: 34px) {
+			.webui-epg-program-title {
+				display: none;
+			}
+		}
+
+		@container (max-width: 25px) {
+			.webui-epg-program > * {
+				visibility: hidden;
+			}
+		}
+
+		@supports not (container-type: inline-size) {
+			.webui-epg-program.tiny > * {
+				visibility: hidden;
+			}
 		}
 
 		.webui-epg-program.current .webui-epg-program-time {
@@ -413,8 +434,79 @@
 				width: 80px;
 			}
 
+			/* About an hour to a phone's width: five pixels to the minute,
+			   for the times and the programmes alike, so that most titles
+			   can be read and a programme of five minutes is still wide
+			   enough to tap. The grid scrolls sideways under the channels,
+			   which stay at its left, and below the times. */
+			.webui-epg-grid {
+				--epg-px: 5px;
+			}
+
+			.webui-epg-time-header,
+			.webui-epg-row {
+				width: max-content;
+				min-width: 100%;
+			}
+
+			.webui-epg-times,
+			.webui-epg-programs {
+				flex: none;
+				width: calc(var(--epg-minutes, 240) * var(--epg-px));
+			}
+
 			.webui-epg-time-slot {
-				flex: 0 0 60px;
+				flex: 0 0 calc(var(--epg-slot-minutes, 30) * var(--epg-px));
+			}
+
+			.webui-epg-channel-header,
+			.webui-epg-channel-name,
+			.webui-epg-channel-name[role="button"] {
+				position: sticky;
+				left: 0;
+				z-index: 8;
+				background: var(--pico-card-background-color);
+			}
+
+			.webui-epg-channel-header {
+				background: var(--pico-card-sectioning-background-color);
+			}
+
+			.webui-epg-channels {
+				scroll-padding-left: 80px;
+			}
+
+			/* the mark of now passes under the channels' head */
+			.webui-epg-now-marker {
+				z-index: 7;
+			}
+
+			/* A programme begun left of the sight (what runs now, as the grid
+			   opens a quarter of an hour before now) keeps its title, start
+			   and marks in sight beside the channels, as does a row's "No
+			   programme data": they stick there inside their cell. The cells
+			   clip rather than scroll, so the box that scrolls the grid stays
+			   the one they stick in; a browser without clip keeps them where
+			   they begin. */
+			.webui-epg-programs,
+			.webui-epg-program {
+				overflow: hidden;
+				overflow: clip;
+			}
+
+			.webui-epg-program > *,
+			.webui-epg-none {
+				position: sticky;
+				left: calc(80px + 0.4rem);
+			}
+
+			.webui-epg-program > * {
+				align-self: flex-start;
+				max-width: 100%;
+			}
+
+			.webui-epg-none {
+				width: max-content;
 			}
 		}
 	</style>

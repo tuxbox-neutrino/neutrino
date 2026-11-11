@@ -173,11 +173,15 @@ async function loadEpg() {
 			webuiEl('div', {className: 'webui-epg-times'}, slots));
 
 		// tabindex -1: Firefox would make the box that scrolls the guide a
-		// stop of its own; a click into it and an arrow go to the stop
+		// stop of its own; a click into it and an arrow go to the stop. The
+		// times are its first row, so they stay above the rows and move
+		// sideways with them where the grid is wider than the screen.
 		const rows = webuiEl('div', {className: 'webui-epg-channels', tabIndex: -1, style: {position: 'relative'}},
-			webuiEl('div', {className: 'webui-epg-now-line', hidden: true}));
+			header, webuiEl('div', {className: 'webui-epg-now-line', hidden: true}));
 		channels.forEach(channel => rows.appendChild(gridRow(channel)));
-		grid.replaceChildren(header, rows);
+		grid.style.setProperty('--epg-minutes', String(TOTAL_MINUTES));
+		grid.style.setProperty('--epg-slot-minutes', String(MINUTES_PER_SLOT));
+		grid.replaceChildren(rows);
 		// the guide is one stop of Tab: the arrows go from channel to
 		// channel and from programme to programme as they lie on the
 		// screen, Enter opens one; Tab starts on what runs now on the
@@ -187,6 +191,7 @@ async function loadEpg() {
 		drawn = true;
 		gridWindow = {start: startTime, stop: stopTime};
 		placeNow(now);
+		startAtNow(rows, now);
 
 		await fillGrid(token, currentBouquet, startTime, stopTime);
 	} catch (e) {
@@ -320,7 +325,8 @@ function markNow(scope, now) {
 
 /* The line of now and its mark in the head, where now lies over the
    programmes: past the channel column, whose width differs with the
-   screen, by its share of the programme area */
+   screen, by its share of the programme area. The line runs down all the
+   rows, those scrolled into sight as well. */
 function placeNow(now) {
 	const win = gridWindow;
 	const programs = document.querySelector('.webui-epg-programs');
@@ -331,6 +337,23 @@ function placeNow(now) {
 		el.hidden = !inWindow;
 		el.style.left = x + 'px';
 	});
+	// measured without the line, which counts for the height scrolled over
+	const line = document.querySelector('.webui-epg-now-line'), rows = line && line.parentElement;
+	if (rows) {
+		line.style.height = '';
+		line.style.height = rows.scrollHeight + 'px';
+	}
+}
+
+/* A grid wider than its box (on a phone, an hour to its width) starts at
+   now, with a quarter of an hour before it, where the window holds now,
+   else at its start */
+function startAtNow(rows, now) {
+	const win = gridWindow, programs = rows.querySelector('.webui-epg-programs');
+	if (!win || !programs || rows.scrollWidth <= rows.clientWidth + 1)
+		return;
+	const into = now >= win.start && now < win.stop ? Math.max(0, (now - win.start) / 60 - 15) : 0;
+	rows.scrollLeft = programs.clientWidth * into / TOTAL_MINUTES;
 }
 
 // By the minute: the line of now and what runs now move on
