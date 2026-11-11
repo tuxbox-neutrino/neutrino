@@ -147,7 +147,7 @@ function channelRow(ch) {
 		const doubt = webuiPlayDoubt(ch.id, ch.name);
 		return [
 			{label: webuiL('dash.epg_info', 'Programme info'), icon: SVG_INFO, onClick: () => showInfo(ch)},
-			{label: webuiL('bq.rec_title', 'Record programme'), icon: SVG_REC, onClick: () => webuiRecordEvent(ch.id, ch.name, epgNow[ch.id])},
+			{label: webuiL('bq.rec_title', 'Record programme'), icon: SVG_REC, rec: true, onClick: () => webuiRecordEvent(ch.id, ch.name, epgNow[ch.id])},
 			{label: webuiL('play.in_browser', 'Play in browser'), icon: SVG_PLAY,
 				unavailable: doubt && doubt.sure ? doubt.text : '', note: doubt ? doubt.text : '',
 				onClick: () => webuiPlayInBrowser(ch.id, ch.name, ch.kind)},

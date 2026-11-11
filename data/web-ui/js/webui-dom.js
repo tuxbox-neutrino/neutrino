@@ -364,14 +364,15 @@ function webuiRowActions(actions) {
 
 // webuiMenuButton(label, items) -> a "more" button that opens a menu of the
 //   actions a row has beside its main one. items: [{label, icon, onClick,
-//   danger, disabled, unavailable, note, suggested}], null for a rule, or a
+//   danger, disabled, unavailable, note, suggested, rec}], null for a rule, or a
 //   function that answers them when the menu opens. unavailable, a text,
 //   greys an entry out with the text as its tooltip; it stays among the
 //   entries the arrows reach, and a click on it still calls onClick, which
 //   says why. note, a text, stands below the entry's label and describes it;
-//   suggested marks the entry as the one to take. label names the button for a screen reader and as
+//   suggested marks the entry as the one to take, rec gives its symbol the
+//   colour of recording. label names the button for a screen reader and as
 //   its tooltip. The menu (role menu) opens below the button, above it where
-//   the window ends; arrows, Home and End move between its entries, Escape
+//   the window or the tab bar ends; arrows, Home and End move between its entries, Escape
 //   and Tab close it with the focus back on the button, and a click
 //   elsewhere, a scroll or a resize close it too. A click on an entry closes
 //   it and calls onClick(event).
@@ -414,7 +415,7 @@ function _webuiMenuOpen(btn, items) {
 			attrs['aria-label'] = it.label;
 			attrs['aria-describedby'] = note.id;
 		}
-		menu.appendChild(webuiEl('button', {type: 'button', className: (it.danger ? 'danger' : '') + (it.suggested ? ' suggested' : ''),
+		menu.appendChild(webuiEl('button', {type: 'button', className: (it.danger ? 'danger' : '') + (it.suggested ? ' suggested' : '') + (it.rec ? ' rec' : ''),
 			disabled: !!it.disabled, title: it.unavailable || null, attrs: attrs,
 			on: {click: function(ev) {
 				ev.stopPropagation();
@@ -425,9 +426,15 @@ function _webuiMenuOpen(btn, items) {
 			note ? webuiEl('span', {className: 'webui-menu-text'}, webuiEl('span', {}, it.label), note) : webuiEl('span', {}, it.label)));
 	});
 	document.body.appendChild(menu);
+	// below its button, else above it; on a phone the tab bar at the foot
+	// is the end of the room, not the window's edge
 	var r = btn.getBoundingClientRect();
+	var bar = document.getElementById('webui-tabbar');
+	var foot = window.innerHeight;
+	if (bar && bar.getClientRects().length)
+		foot = Math.min(foot, bar.getBoundingClientRect().top);
 	var top = r.bottom + 4;
-	if (top + menu.offsetHeight > window.innerHeight - 8 && r.top - menu.offsetHeight - 4 > 8)
+	if (top + menu.offsetHeight > foot - 8 && r.top - menu.offsetHeight - 4 > 8)
 		top = r.top - menu.offsetHeight - 4;
 	menu.style.top = top + 'px';
 	menu.style.left = Math.max(8, Math.min(window.innerWidth - menu.offsetWidth - 8, r.right - menu.offsetWidth)) + 'px';

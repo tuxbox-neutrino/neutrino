@@ -5264,6 +5264,11 @@ dialog.webui-sheet footer button.danger:is(:hover, :active, :focus) {
 	color: var(--webui-danger);
 }
 
+/* the dot of an entry that records, in the red of every record button */
+.webui-menu button.rec svg {
+	color: var(--webui-recording);
+}
+
 .webui-menu button[disabled] {
 	opacity: 0.5;
 }
