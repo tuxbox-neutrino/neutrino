@@ -401,8 +401,10 @@ body:not(.has-subheader) .webui-header-spacer {
 	object-fit: contain;
 }
 
+/* it keeps its size beside a long page name: the name gives way */
 .webui-head-brand {
 	display: none;
+	flex: none;
 	text-decoration: none;
 }
 
