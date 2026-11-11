@@ -6993,10 +6993,11 @@ TEST_CASE("the file the web interface kept before is taken over once, and nobody
 	ShippedRoutes shipped;
 	WebuiFixture webui;
 
-	// a box that never set anything: the shipped values, and a file holding nothing of them
+	// a box that never set anything: the shipped values, and a file holding nothing of them;
+	// nobody went through the welcome page on it yet
 	std::remove(webui.path.c_str());
 	coreapi::webui::Settings now = coreapi::webui::read();
-	REQUIRE(now["startup"] == "true");
+	REQUIRE(now["startup"] == "false");
 	REQUIRE(now["start_page"] == "none");
 	REQUIRE(now["yweb_box_color"] == "fd6d13");
 	REQUIRE(access(webui.path.c_str(), F_OK) != 0);
@@ -7033,10 +7034,46 @@ TEST_CASE("the file the web interface kept before is taken over once, and nobody
 	REQUIRE(webui.file() == taken);
 	REQUIRE(access(webui.former.c_str(), R_OK) == 0);
 
-	// the routes answer the file as it now reads
+	// the routes answer the file as it now reads; a box that took the old file over was set
+	// up there, so its startup is answered as shipped
 	const Reply read = authedGet("/api/v1/webui/settings");
 	REQUIRE(read.body.find("{\"key\":\"start_page\",\"value\":\"epg.html\"}") != std::string::npos);
 	REQUIRE(read.body.find("{\"key\":\"startup\",\"value\":\"true\"}") != std::string::npos);
+}
+
+TEST_CASE("startup is false until the welcome page writes it, unless the old file was taken over", "[write][webui]")
+{
+	ShippedRoutes shipped;
+	WebuiFixture webui;
+
+	// a file of the new interface's own, nothing taken over: not set up yet
+	REQUIRE(coreapi::webui::read()["startup"] == "false");
+	REQUIRE(authedGet("/api/v1/webui/settings").body.find("{\"key\":\"startup\",\"value\":\"false\"}") != std::string::npos);
+	REQUIRE(webui.file().find("startup=") == std::string::npos);
+
+	// the welcome page gone through: written, and answered so from then on
+	const Reply done = authedPatch("/api/v1/webui/settings", "{\"startup\":\"true\"}");
+	REQUIRE(done.code == 200);
+	REQUIRE(done.body.find("{\"key\":\"startup\",\"value\":\"true\"}") != std::string::npos);
+	REQUIRE(webui.file().find("startup=true\n") != std::string::npos);
+	REQUIRE(coreapi::webui::read()["startup"] == "true");
+
+	// an old file that says the welcome is still to come keeps saying so once taken over
+	std::remove(webui.path.c_str());
+	FILE *f = std::fopen(webui.former.c_str(), "w");
+	REQUIRE(f != NULL);
+	std::fputs("startup=false\n", f);
+	std::fclose(f);
+	REQUIRE(coreapi::webui::read()["startup"] == "false");
+	REQUIRE(webui.file().find("migrated_from=yWeb.conf\n") != std::string::npos);
+
+	// and one that names no startup at all is answered as shipped
+	std::remove(webui.path.c_str());
+	f = std::fopen(webui.former.c_str(), "w");
+	REQUIRE(f != NULL);
+	std::fputs("start_page=epg.yhtm\n", f);
+	std::fclose(f);
+	REQUIRE(coreapi::webui::read()["startup"] == "true");
 }
 
 TEST_CASE("only the interface's own pages are taken over under their new names", "[write][webui]")

@@ -231,6 +231,11 @@ bool migrateHeld()
 Settings withShipped(const Settings &set)
 {
 	Settings all = set;
+	/* startup says whether the welcome page was gone through, and it writes the
+	   key once it is. A box that took over the former file was set up there and
+	   answers as that file was shipped; any other box has not been yet. */
+	if (set.count(kTakenOver) == 0)
+		all.insert(std::make_pair(std::string("startup"), std::string("false")));
 	for (size_t i = 0; i < sizeof(kShipped) / sizeof(kShipped[0]); ++i)
 		all.insert(std::make_pair(std::string(kShipped[i][0]), std::string(kShipped[i][1])));
 	return all;

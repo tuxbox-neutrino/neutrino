@@ -29,7 +29,9 @@ namespace webui
    The file holds only what somebody set; no image ships it, since a package
    update would write over a file it ships. What nobody set is answered as the
    file the interface kept before (yWeb.conf) was shipped. That file is taken
-   over once into this one (migrate below) and left where it is. */
+   over once into this one (migrate below) and left where it is. One key is
+   answered by whether that happened: startup, which the welcome page writes once
+   somebody went through it, is false on a box that took nothing over. */
 typedef std::map<std::string, std::string> Settings;
 
 /* Long enough for the keys of any extension the installer takes: ext_, a
