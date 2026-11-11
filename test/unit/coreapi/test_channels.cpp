@@ -625,17 +625,15 @@ TEST_CASE("an awake box takes a zap whether or not it may be switched on", "[cha
 	FakeCommandSink sink;
 	InstalledSink installed_sink(&sink);
 
-	// Television, radio, and a box that has not picked a mode while it starts.
+	// Television and radio; a box still starting is refused, see below.
 	const int modes[] = { NeutrinoModes::mode_tv, NeutrinoModes::mode_radio };
 	for (size_t i = 0; i < sizeof(modes) / sizeof(modes[0]); i++)
 	{
 		fake.mode = modes[i];
 		REQUIRE(channels::zap(ERSTE, false, false).ok());
 	}
-	fake.mode_status = Status::NotFound;
-	REQUIRE(channels::zap(ERSTE, false, false).ok());
 
-	REQUIRE(sink.posted.size() == 3);
+	REQUIRE(sink.posted.size() == 2);
 	for (size_t i = 0; i < sink.posted.size(); i++)
 		REQUIRE(takePayload(sink.posted[i].second).channel_id == ERSTE);
 }
@@ -661,6 +659,45 @@ TEST_CASE("a box whose mode cannot be read is not woken by a zap or a mode chang
 	REQUIRE(m.error().code == ErrorCode::ModeUnavailable);
 
 	REQUIRE(sink.posted.empty());
+}
+
+TEST_CASE("a box still starting refuses a zap and a mode change and posts nothing", "[channels]")
+{
+	FakeChannelSource fake;
+	fake.channels.push_back(mk(ERSTE, ERSTE_NAME, ServiceKind::Tv));
+	fake.mode_status = Status::NotFound;
+	InstalledChannelSource installed_source(&fake);
+
+	FakeCommandSink sink;
+	InstalledSink installed_sink(&sink);
+
+	// The loop would zap through channel lists the box has not built until it settles on a mode.
+	const bool leave[] = { false, true };
+	for (size_t i = 0; i < 2; ++i)
+	{
+		Result<void> z = channels::zap(ERSTE, leave[i], leave[i]);
+		REQUIRE_FALSE(z.ok());
+		REQUIRE(z.error().status == Status::Conflict);
+		REQUIRE(z.error().code == ErrorCode::ModeUnavailable);
+		REQUIRE(z.error().message == std::string("the box has not finished starting"));
+
+		Result<void> m = channels::setMode(channels::Mode::Radio, leave[i]);
+		REQUIRE_FALSE(m.ok());
+		REQUIRE(m.error().status == Status::Conflict);
+		REQUIRE(m.error().code == ErrorCode::ModeUnavailable);
+		REQUIRE(m.error().message == std::string("the box has not finished starting"));
+	}
+	REQUIRE(sink.posted.empty());
+
+	// Settled on a mode, both go out.
+	fake.mode_status = Status::Ok;
+	fake.mode = NeutrinoModes::mode_tv;
+	REQUIRE(channels::zap(ERSTE, false, false).ok());
+	REQUIRE(channels::setMode(channels::Mode::Radio, false).ok());
+	REQUIRE(sink.posted.size() == 2);
+	REQUIRE(sink.posted[0].first == NeutrinoMessages::ZAPTO);
+	REQUIRE(takePayload(sink.posted[0].second).channel_id == ERSTE);
+	REQUIRE(sink.posted[1].first == NeutrinoMessages::CHANGEMODE);
 }
 
 TEST_CASE("a zap a recording holds the tuner for is refused before it is posted", "[channels]")

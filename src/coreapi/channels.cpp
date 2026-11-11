@@ -434,6 +434,11 @@ Result<void> zap(ChannelId id, bool wake, bool stop_playback)
 	if (!free.ok())
 		return free;
 
+	// The loop zaps through channel lists the box builds only once it has a mode.
+	int box_mode = 0;
+	if (channelSource().currentMode(box_mode) == Status::NotFound)
+		return fail(Status::Conflict, ErrorCode::ModeUnavailable, "the box has not finished starting");
+
 	Result<void> allowed = standbyAllows(wake);
 	if (!allowed.ok())
 		return allowed;
@@ -448,6 +453,11 @@ Result<void> zap(ChannelId id, bool wake, bool stop_playback)
 
 Result<void> setMode(Mode m, bool wake)
 {
+	// The loop zaps for a mode change as well, through the same lists as zap().
+	int box_mode = 0;
+	if (channelSource().currentMode(box_mode) == Status::NotFound)
+		return fail(Status::Conflict, ErrorCode::ModeUnavailable, "the box has not finished starting");
+
 	Result<void> allowed = standbyAllows(wake);
 	if (!allowed.ok())
 		return allowed;

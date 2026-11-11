@@ -1464,11 +1464,15 @@ const RouteRefusal kZapRefusals[] = {
 		"a recording holds the tuner this channel needs"),
 	HTTPD_REFUSES(Conflict, PlaybackRunning,
 		"something is playing in the movie player"),
+	HTTPD_REFUSES(Conflict, ModeUnavailable,
+		"the box has not finished starting"),
 };
 
 const RouteRefusal kSetModeRefusals[] = {
 	HTTPD_REFUSES(Conflict, BoxInStandby,
 		"the box is in standby"),
+	HTTPD_REFUSES(Conflict, ModeUnavailable,
+		"the box has not finished starting"),
 };
 
 const RouteRefusal kMakeBouquetRefusals[] = {
@@ -1647,6 +1651,7 @@ const Endpoint kChannelEndpoints[] = {
 	  "- `404 no-such-channel`: no channel has that id. Take ids from `GET /api/v1/channels`.\n"
 	  "- `409 recording-holds-tuner`: a recording occupies the tuner this channel needs. This is checked first, so neither `stop_playback` nor `wake` helps. Pick a channel the free tuner receives, or end the recording with `DELETE /api/v1/recordings/{id}`.\n"
 	  "- `409 playback-running`: the movie player is playing a file, such as a finished recording, and `stop_playback` was not `true`. A web channel or the timeshift playing is not refused. Send again with `stop_playback: true` to end the playback and play the channel.\n"
+	  "- `409 mode-unavailable`: the box is still starting and has not settled on a mode. Send again once it has.\n"
 	  "- `409 box-in-standby`: the box is in standby and `wake` was not `true`. Send again with `wake: true` to switch the box on and play the channel.\n\n"
 	  "**Related:** `POST /api/v1/mode`, `GET /api/v1/system/standby`, `POST /api/v1/system/standby`.",
 	  HTTPD_PARAMS(kZapParams), NULL, &zap, false,
@@ -1656,6 +1661,7 @@ const Endpoint kChannelEndpoints[] = {
 	  "Switches the box between television and radio mode, as the TV and radio keys of the remote control do; the box then plays from that list. `202` means the box has queued the change: watch for the `mode` event on `GET /api/v1/events`.\n\n"
 	  "**Preconditions:** the box is not in standby, or `wake` is `true`.\n\n"
 	  "**Refusals:**\n"
+	  "- `409 mode-unavailable`: the box is still starting and has not settled on a mode. Send again once it has.\n"
 	  "- `409 box-in-standby`: the box is in standby and `wake` was not `true`. Send again with `wake: true` to switch the box on in that mode.\n\n"
 	  "**Related:** `POST /api/v1/zap`, `GET /api/v1/system/standby`.",
 	  HTTPD_PARAMS(kModeParams), NULL, &setMode, false,

@@ -405,6 +405,9 @@
 							},
 							"playback-running": {
 								"$ref": "#/components/examples/playback-running"
+							},
+							"mode-unavailable": {
+								"$ref": "#/components/examples/mode-unavailable"
 							}
 						}
 					}
@@ -492,6 +495,9 @@
 						"examples": {
 							"box-in-standby": {
 								"$ref": "#/components/examples/box-in-standby"
+							},
+							"mode-unavailable": {
+								"$ref": "#/components/examples/mode-unavailable"
 							}
 						}
 					}
@@ -4891,6 +4897,14 @@
 					"detail": "something is playing in the movie player"
 				}
 			},
+			"mode-unavailable": {
+				"value": {
+					"type": "/errors/mode-unavailable",
+					"title": "Conflict",
+					"status": 409,
+					"detail": "the box has not finished starting"
+				}
+			},
 			"not-permitted-without-token": {
 				"value": {
 					"type": "/errors/not-permitted",
@@ -7721,14 +7735,6 @@
 					"title": "Conflict",
 					"status": 409,
 					"detail": "the box is playing back its timeshift"
-				}
-			},
-			"mode-unavailable": {
-				"value": {
-					"type": "/errors/mode-unavailable",
-					"title": "Conflict",
-					"status": 409,
-					"detail": "the box has not finished starting"
 				}
 			},
 			"not-permitted-5": {
@@ -11917,7 +11923,7 @@
 					"channels"
 				],
 				"summary": "asks the box to play one channel; refused with recording-holds-tuner while a recording holds the tuner the channel needs, with playback-running while the movie player plays a file unless stop_playback is set, and with box-in-standby in standby unless wake is set",
-				"description": "Switches live playback to the channel `channel_id` names, as choosing it on the remote control would. `202` means the box has queued the switch, not that it has happened: watch for the `zap` event on `GET /api/v1/events`, or read `GET /api/v1/channels/current`.\n\n**Preconditions:** the box is not in standby, or `wake` is `true`. The movie player plays no file, or `stop_playback` is `true`. No running recording holds the tuner the channel needs.\n\n**Refusals:**\n- `404 no-such-channel`: no channel has that id. Take ids from `GET /api/v1/channels`.\n- `409 recording-holds-tuner`: a recording occupies the tuner this channel needs. This is checked first, so neither `stop_playback` nor `wake` helps. Pick a channel the free tuner receives, or end the recording with `DELETE /api/v1/recordings/{id}`.\n- `409 playback-running`: the movie player is playing a file, such as a finished recording, and `stop_playback` was not `true`. A web channel or the timeshift playing is not refused. Send again with `stop_playback: true` to end the playback and play the channel.\n- `409 box-in-standby`: the box is in standby and `wake` was not `true`. Send again with `wake: true` to switch the box on and play the channel.\n\n**Related:** `POST /api/v1/mode`, `GET /api/v1/system/standby`, `POST /api/v1/system/standby`.",
+				"description": "Switches live playback to the channel `channel_id` names, as choosing it on the remote control would. `202` means the box has queued the switch, not that it has happened: watch for the `zap` event on `GET /api/v1/events`, or read `GET /api/v1/channels/current`.\n\n**Preconditions:** the box is not in standby, or `wake` is `true`. The movie player plays no file, or `stop_playback` is `true`. No running recording holds the tuner the channel needs.\n\n**Refusals:**\n- `404 no-such-channel`: no channel has that id. Take ids from `GET /api/v1/channels`.\n- `409 recording-holds-tuner`: a recording occupies the tuner this channel needs. This is checked first, so neither `stop_playback` nor `wake` helps. Pick a channel the free tuner receives, or end the recording with `DELETE /api/v1/recordings/{id}`.\n- `409 playback-running`: the movie player is playing a file, such as a finished recording, and `stop_playback` was not `true`. A web channel or the timeshift playing is not refused. Send again with `stop_playback: true` to end the playback and play the channel.\n- `409 mode-unavailable`: the box is still starting and has not settled on a mode. Send again once it has.\n- `409 box-in-standby`: the box is in standby and `wake` was not `true`. Send again with `wake: true` to switch the box on and play the channel.\n\n**Related:** `POST /api/v1/mode`, `GET /api/v1/system/standby`, `POST /api/v1/system/standby`.",
 				"x-auth-level": "write",
 				"security": [
 					{
@@ -12005,7 +12011,7 @@
 					"channels"
 				],
 				"summary": "asks the box to change between television and radio; refused with box-in-standby in standby unless wake is set",
-				"description": "Switches the box between television and radio mode, as the TV and radio keys of the remote control do; the box then plays from that list. `202` means the box has queued the change: watch for the `mode` event on `GET /api/v1/events`.\n\n**Preconditions:** the box is not in standby, or `wake` is `true`.\n\n**Refusals:**\n- `409 box-in-standby`: the box is in standby and `wake` was not `true`. Send again with `wake: true` to switch the box on in that mode.\n\n**Related:** `POST /api/v1/zap`, `GET /api/v1/system/standby`.",
+				"description": "Switches the box between television and radio mode, as the TV and radio keys of the remote control do; the box then plays from that list. `202` means the box has queued the change: watch for the `mode` event on `GET /api/v1/events`.\n\n**Preconditions:** the box is not in standby, or `wake` is `true`.\n\n**Refusals:**\n- `409 mode-unavailable`: the box is still starting and has not settled on a mode. Send again once it has.\n- `409 box-in-standby`: the box is in standby and `wake` was not `true`. Send again with `wake: true` to switch the box on in that mode.\n\n**Related:** `POST /api/v1/zap`, `GET /api/v1/system/standby`.",
 				"x-auth-level": "write",
 				"security": [
 					{

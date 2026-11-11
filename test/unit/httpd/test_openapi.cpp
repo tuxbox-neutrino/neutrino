@@ -1515,13 +1515,15 @@ TEST_CASE("the conflicts a zap can meet are one 409 with an example each", "[ope
 	REQUIRE(op["responses"].isMember("202"));
 	const ::Json::Value conflict =
 		resolved(doc, op["responses"]["409"])["content"][problemContentType()]["examples"];
-	REQUIRE(conflict.getMemberNames().size() == 3u);
+	REQUIRE(conflict.getMemberNames().size() == 4u);
 	REQUIRE(resolved(doc, conflict["box-in-standby"])["value"]["type"].asString() ==
 	        "/errors/box-in-standby");
 	REQUIRE(resolved(doc, conflict["recording-holds-tuner"])["value"]["type"].asString() ==
 	        "/errors/recording-holds-tuner");
 	REQUIRE(resolved(doc, conflict["playback-running"])["value"]["type"].asString() ==
 	        "/errors/playback-running");
+	REQUIRE(resolved(doc, conflict["mode-unavailable"])["value"]["type"].asString() ==
+	        "/errors/mode-unavailable");
 
 	const ::Json::Value body = op["requestBody"]["content"]["application/json"]["example"];
 	REQUIRE(body["wake"].asBool());

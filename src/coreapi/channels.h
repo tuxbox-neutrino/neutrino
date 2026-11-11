@@ -75,10 +75,11 @@ enum class Mode { Tv, Radio };
 // reports nothing back and a zap to an id nobody has would otherwise be
 // unobservable. NotFound then, and nothing is posted. Conflict while a recording
 // holds the tuner the channel needs, while the movie player plays a file unless
-// stop_playback is set, and in standby unless wake is set, in that order.
+// stop_playback is set, while the box starts, and in standby unless wake is set,
+// in that order.
 Result<void> zap(ChannelId id, bool wake, bool stop_playback);
 
-// Conflict in standby unless wake is set.
+// Conflict while the box starts, and in standby unless wake is set.
 Result<void> setMode(Mode m, bool wake);
 
 // The standby rule of the two above, for any other command the loop wakes the box for.
