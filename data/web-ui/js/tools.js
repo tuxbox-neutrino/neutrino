@@ -210,6 +210,7 @@ function bcRecStop() {
 // The video modes this box offers, from its settings schema, with the one
 // it uses selected; the card stays hidden on a box that offers none
 var bcVideoSection = null;
+var bcVideoBox = null;	// the mode the box uses, as last read
 async function bcVideoLoad() {
 	try {
 		var schema = await webuiV1('GET', '/settings/schema?section=video');
@@ -228,9 +229,36 @@ async function bcVideoLoad() {
 			sel.appendChild(webuiEl('option', {value: String(c.value)}, c.label || String(c.value)));
 		});
 		if (cur) sel.value = String(cur.value);
+		bcVideoBox = cur ? String(cur.value) : null;
 		bcVideoSection = item.section;
 		document.getElementById('bcVideo').hidden = false;
 	} catch (e) {}
+}
+
+/* The mode the box uses, read again after a change of its settings
+   (settings-changed, which a change in the TV's menu sends as the pages'
+   do) and once the page's stream is back after a gap or, without one, when
+   the page comes into view (webuiFollow). The choice follows the box, unless
+   a mode was chosen here and not applied yet: that one stays chosen. Read
+   without asking for a sign-in; a refusal leaves the choice as it is. */
+async function bcVideoReread() {
+	if (!bcVideoSection)
+		return;
+	var now;
+	try {
+		now = await _webuiV1Read('/settings/' + encodeURIComponent(bcVideoSection));
+	} catch (e) {
+		return false;
+	}
+	var cur = now && (now.items || []).find(function(it) { return it.id === 'video_Mode'; });
+	var sel = document.getElementById('bcVideoMode');
+	if (!cur || !sel)
+		return !!now;
+	var chosen = bcVideoBox !== null && sel.value !== bcVideoBox;
+	bcVideoBox = String(cur.value);
+	if (!chosen && sel.value !== bcVideoBox)
+		sel.value = bcVideoBox;
+	return true;
 }
 
 // The box switches to the chosen mode when the setting is written, so it
@@ -250,6 +278,7 @@ async function bcVideoApplyNow(sel) {
 		var r = answer && answer.results && answer.results.video_Mode;
 		if (r && r.status >= 300)
 			throw webuiResultError(r);
+		bcVideoBox = sel.value;
 		webuiShowToast(webuiL('bc.resolution', 'Resolution') + ': ' + label);
 	} catch (e) {
 		webuiToastError(webuiL('bc.resolution', 'Resolution'), e);
@@ -262,6 +291,8 @@ webuiAfterTexts(function() {
 	webuiBalanceGrid('.webui-boxcontrol', {tracks: 60, cardMin: 380, maxPer: 4, breakpoint: 760, watch: true});
 	webuiOnRecordings(bcRecState);
 	bcVideoLoad();
-	// the stream the shared read follows the record events on
-	webuiV1Events({drop: function() { bcStreamDrops++; }});
+	// the stream the shared read follows the record events on, and the
+	// resolution a change of the settings
+	webuiV1Events({drop: function() { bcStreamDrops++; }, 'settings-changed': bcVideoReread});
+	webuiFollow({reread: bcVideoReread, first: false});
 });
