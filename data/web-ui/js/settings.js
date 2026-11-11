@@ -1016,6 +1016,17 @@ async function loadExtensionsPanel() {
 	// the head shows what was installed, removed or moved, at once
 	if (typeof webuiNavKeepPlaces === 'function')
 		webuiNavKeepPlaces(exts, 'settings');
+	// a switched-off extension by its name in the page's language too: the
+	// discovery reads the language pack of the switched-on ones only
+	for (var x = 0; x < exts.length; x++) {
+		if (exts[x].enabled)
+			continue;
+		var own = await webuiExtLangLoad(exts[x].dir);
+		if (own['manifest.name'])
+			exts[x].name = own['manifest.name'];
+		if (own['manifest.description'])
+			exts[x].description = own['manifest.description'];
+	}
 	_extDrawn = exts.slice();
 	var html = '';
 	if (!exts.length) {
@@ -1055,7 +1066,7 @@ async function loadExtensionsPanel() {
 				(upd ? '<button type="button" class="webui-btn primary" title="' + webuiLH('set.extup_avail', 'Update available') + '"' +
 					' aria-label="' + webuiLH('set.extup_to', 'Update') + ': ' + escapeHtml(m.name) + ' v' + escapeHtml(upd.version) + '" onclick="extUpdate(\'' + m.dir + '\', this)">' +
 					DL_ICON + 'v' + escapeHtml(upd.version) + '</button>' : '') +
-				'<button type="button" class="webui-btn danger" title="' + webuiLH('set.extuninst_btn', 'Uninstall') + '"' +
+				'<button type="button" class="webui-btn ext-uninstall" title="' + webuiLH('set.extuninst_btn', 'Uninstall') + '"' +
 					' aria-label="' + webuiLH('set.extuninst_btn', 'Uninstall') + ': ' + escapeHtml(m.name) + '" onclick="extUninstall(\'' + m.dir + '\')">' + TRASH_ICON + '</button>' +
 				'</div>';
 		});
@@ -1290,7 +1301,7 @@ function extUninstall(dir) {
 	var m = (_webuiExtensions || []).filter(function(x) { return x.dir === dir; })[0];
 	var name = m ? m.name : dir;
 	// the dialog takes markup; the name is the manifest's
-	webuiShowConfirm(webuiL('set.extuninst_btn', 'Uninstall'), escapeHtml(name) + ' — ' + webuiLH('set.extuninst_confirm', 'Remove this extension from the box? Its settings keys are cleared.'),
+	webuiShowConfirm(webuiL('set.extuninst_title', 'Uninstall %s?').replace('%s', name), webuiLH('set.extuninst_confirm', 'The extension and its settings are removed from the box. It comes back only through Install, from the signed index or as an archive.'),
 		webuiL('set.extuninst_btn', 'Uninstall'), async function() {
 		try {
 			await webuiV1('DELETE', '/webui/extensions/' + encodeURIComponent(dir));
