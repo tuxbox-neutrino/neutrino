@@ -1254,6 +1254,8 @@ html.webui-side-narrow .webui-side .webui-side-toggle {
 	display: flex;
 }
 
+/* the head and the foot stay in place, only the body between them
+   scrolls, so Close and Save are in sight on a phone held either way */
 .webui-modal {
 	background: var(--pico-card-background-color);
 	border-radius: var(--webui-radius-lg);
@@ -1261,8 +1263,22 @@ html.webui-side-narrow .webui-side .webui-side-toggle {
 	max-width: 480px;
 	width: 90%;
 	max-height: 85vh;
-	overflow-y: auto;
+	max-height: 85dvh;
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
 	animation: modalSlideIn 0.2s ease;
+}
+
+.webui-modal > * {
+	flex: none;
+}
+
+.webui-modal > .webui-modal-body {
+	flex: 1 1 auto;
+	min-height: 0;
+	overflow-y: auto;
+	overscroll-behavior: contain;
 }
 
 @keyframes modalSlideIn {
@@ -1586,18 +1602,43 @@ body ul.webui-side-list > li {
 	z-index: 1300;
 }
 
+/* A question longer than the screen, or the sign-in on a phone held
+   across, scrolls between its title and its buttons, which stay in sight;
+   they carry the dialog's padding above and below, on its ground */
 .webui-confirm-dialog {
 	background: var(--pico-card-background-color);
 	border-radius: var(--webui-radius);
-	padding: 1.5rem;
+	padding: 0 1.5rem;
 	max-width: 400px;
 	width: 90%;
+	max-height: calc(100vh - 2rem);
+	max-height: calc(100dvh - 2rem);
+	overflow-y: auto;
+	overscroll-behavior: contain;
 	box-shadow: var(--webui-shadow);
 }
 
 .webui-confirm-dialog h4 {
 	margin: 0 0 0.5rem;
 	font-size: 1rem;
+}
+
+.webui-confirm-dialog > h4:first-child {
+	position: sticky;
+	top: 0;
+	z-index: 1;
+	margin: 0;
+	padding: 1.5rem 0 0.5rem;
+	background: var(--pico-card-background-color);
+}
+
+.webui-confirm-dialog > .webui-confirm-actions:last-child {
+	position: sticky;
+	bottom: 0;
+	z-index: 1;
+	margin-top: -0.5rem;
+	padding: 0.5rem 0 1.5rem;
+	background: var(--pico-card-background-color);
 }
 
 .webui-confirm-dialog p {
@@ -1903,6 +1944,9 @@ body ul.webui-side-list > li {
 	visibility: visible;
 }
 
+/* Its head and its foot stay in place and the body between them scrolls.
+   Only where head and foot alone are taller than the window does the
+   whole dialog scroll, the foot with its buttons kept at its bottom. */
 .webui-epg-modal {
 	background: var(--pico-card-background-color);
 	border-radius: var(--webui-radius-lg);
@@ -1910,11 +1954,45 @@ body ul.webui-side-list > li {
 	width: 90%;
 	max-width: 560px;
 	max-height: 85vh;
-	overflow: hidden;
+	max-height: 85dvh;
+	overflow-x: hidden;
+	overflow-y: auto;
+	overscroll-behavior: contain;
 	display: flex;
 	flex-direction: column;
 	transform: scale(0.95);
 	transition: transform 0.2s ease;
+}
+
+.webui-epg-modal > * {
+	flex: none;
+}
+
+.webui-epg-modal > .webui-epg-modal-body {
+	flex: 1 1 auto;
+	min-height: 0;
+}
+
+.webui-epg-modal > .webui-epg-modal-footer {
+	position: sticky;
+	bottom: 0;
+	z-index: 1;
+	background: var(--pico-card-background-color);
+}
+
+/* the folder picker: its list gets lower where the window is short, so
+   that the button choosing the folder stays in sight below it */
+#webui-picker .webui-epg-modal-body {
+	display: flex;
+	flex-direction: column;
+}
+
+#webui-picker-list {
+	flex: 0 1 auto;
+	min-height: 2.5rem;
+	max-height: 50vh;
+	overflow: auto;
+	overscroll-behavior: contain;
 }
 
 .webui-epg-modal-backdrop.open .webui-epg-modal {
@@ -2001,7 +2079,9 @@ body ul.webui-side-list > li {
 	flex-direction: column;
 }
 
-/* the picture keeps its shape while it loads; sound needs a line */
+/* the picture keeps its shape while it loads; sound needs a line. Where
+   the window is short (a phone held across) the picture gets lower, framed
+   in black, so that the line and the buttons below it stay in sight. */
 .webui-player-stage {
 	background: #000;
 	aspect-ratio: 16 / 9;
@@ -2009,6 +2089,8 @@ body ul.webui-side-list > li {
 	display: flex;
 	align-items: center;
 	justify-content: center;
+	flex: 0 1 auto;
+	min-height: 0;
 }
 
 .webui-player-stage.radio {
@@ -2031,6 +2113,7 @@ audio.webui-player-media {
 
 .webui-player-foot {
 	display: flex;
+	flex: none;
 	flex-wrap: wrap;
 	align-items: center;
 	gap: 0.5rem 0.75rem;
@@ -2519,6 +2602,59 @@ audio.webui-player-media {
 
 	.webui-epg-show .webui-epg-modal-footer .webui-epg-round {
 		flex: none;
+	}
+}
+
+/* A short window, a phone held across: the dialogs take nearly its whole
+   height, and the programme's window draws its head and foot closer and
+   grows wider, so its buttons fit in fewer lines and its text keeps room
+   between them */
+@media (max-height: 500px) {
+	.webui-modal,
+	.webui-epg-modal,
+	dialog.webui-sheet > article {
+		max-height: calc(100vh - 1rem);
+		max-height: calc(100dvh - 1rem);
+	}
+
+	.webui-epg-modal.webui-epg-show {
+		width: 94%;
+		max-width: 760px;
+	}
+
+	.webui-epg-hero {
+		padding: 0.6rem 1.2rem 0.6rem;
+	}
+
+	.webui-epg-hero .webui-modal-close {
+		top: 0.5rem;
+		right: 0.6rem;
+	}
+
+	.webui-epg-show .webui-epg-time {
+		margin: 0.4rem 0 0.1rem;
+		font-size: 0.85rem;
+	}
+
+	.webui-epg-show .webui-epg-title {
+		font-size: 1.15rem;
+	}
+
+	.webui-epg-sub {
+		margin-top: 0.15rem;
+		font-size: 0.85rem;
+	}
+
+	.webui-epg-run {
+		margin-top: 0.4rem;
+	}
+
+	.webui-epg-show .webui-epg-modal-body {
+		padding: 0.6rem 1.2rem 0.3rem;
+	}
+
+	.webui-epg-show .webui-epg-modal-footer {
+		padding: 0.5rem 1.2rem 0.7rem;
 	}
 }
 
@@ -4942,10 +5078,33 @@ body.webui-remote-open {
 /* ============================================
    webui-dom.js: sheet, dock, row actions
    ============================================ */
+/* its head with the close button and its foot with the answers stay in
+   place, the body between them scrolls */
 dialog.webui-sheet > article {
 	width: min(32rem, 92vw);
 	max-height: 85vh;
+	max-height: 85dvh;
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+}
+
+dialog.webui-sheet > article > * {
+	flex: none;
+}
+
+/* the body reaches a little past its place, so the ring of a field at its
+   edge is not cut off where it scrolls; it scrolls only up and down, so
+   content wider than it (a bar drawn across the sheet) cannot move it
+   sideways */
+dialog.webui-sheet > article > .webui-sheet-body {
+	flex: 1 1 auto;
+	min-height: 0;
+	margin: -0.25rem;
+	padding: 0.25rem;
+	overflow-x: hidden;
 	overflow-y: auto;
+	overscroll-behavior: contain;
 }
 
 dialog.webui-sheet > article > header h3 {

@@ -605,11 +605,18 @@
 		}
 
 		/* the sheet (where there is no column): the actions at its foot,
-		   in sight while its text scrolls, across the whole sheet */
+		   in sight while its text scrolls, across the whole sheet. The box
+		   that scrolls is the sheet's body (webui.css): here it reaches the
+		   sheet's sides and its foot, the text keeping the sheet's margins */
+		dialog.webui-sheet.webui-media-sheet > article > .webui-sheet-body {
+			margin: -0.25rem calc(-1 * var(--pico-block-spacing-horizontal)) calc(-1 * var(--pico-block-spacing-vertical));
+			padding: 0.25rem var(--pico-block-spacing-horizontal) 0;
+		}
+
 		dialog.webui-media-sheet .webui-media-detail-acts {
 			position: sticky;
-			bottom: calc(-1 * var(--pico-block-spacing-vertical));
-			margin: 1rem calc(-1 * var(--pico-block-spacing-horizontal)) calc(-1 * var(--pico-block-spacing-vertical));
+			bottom: 0;
+			margin: 1rem calc(-1 * var(--pico-block-spacing-horizontal)) 0;
 			padding: 0.75rem var(--pico-block-spacing-horizontal) var(--pico-block-spacing-vertical);
 			border-top: 1px solid var(--pico-muted-border-color);
 			background: var(--pico-card-background-color);

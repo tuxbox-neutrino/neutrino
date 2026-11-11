@@ -3372,7 +3372,7 @@ function webuiShowPathPicker(startPath, onPick, opts) {
 	_webuiPickerState = {onPick: onPick, filesToo: !!opts.filesToo, path: startPath || '/'};
 	webuiModal('webui-picker', webuiL('picker.title', 'Choose folder'),
 		'<div id="webui-picker-crumb" style="font-size:0.8rem;color:var(--pico-muted-color);margin-bottom:0.5rem;word-break:break-all"></div>' +
-		'<ul id="webui-picker-list" style="list-style:none;margin:0;padding:0;max-height:50vh;overflow:auto"></ul>' +
+		'<ul id="webui-picker-list" style="list-style:none;margin:0;padding:0"></ul>' +
 		'<div class="webui-form-row" style="margin-top:0.8rem"><span></span>' +
 		'<button type="button" class="webui-btn primary" onclick="webuiPickerChoose()">' +
 		webuiLH('picker.choose_folder', 'Choose this folder') + '</button></div>');
