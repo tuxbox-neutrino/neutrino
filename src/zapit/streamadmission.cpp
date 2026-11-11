@@ -25,13 +25,20 @@ Facts::Facts()
 	: variant(Plain), standby(false), live_dvb(false), live_tuned(false),
 	  live_channel(0), live_fe(-1), slots(0), avinput_pip(false), recording_starting(false),
 	  box_standby(false), live_tp(0), channel_tp(0), no_same_fe(false), scanning(false),
-	  live_ci(false), channel_ci(false), ci_one_service(false)
+	  live_ci(false), channel_ci(false), ci_mode(0), ci_tuner(-1), stream_fe(-1), ci_count(0),
+	  ci_more(false)
 {
 	for (int i = 0; i < kMaxSlots; ++i)
 	{
 		slot[i].active = false;
 		slot[i].channel = 0;
 		slot[i].fe = -1;
+	}
+	for (int i = 0; i < kMaxCi; ++i)
+	{
+		ci_channel[i] = 0;
+		ci_tp[i] = 0;
+		ci_streamed[i] = false;
 	}
 }
 
@@ -66,7 +73,107 @@ bool liveDemuxFree(const Facts &f)
 	return !(f.avinput_pip && f.live_fe == 0);
 }
 
+int ciCountOf(const Facts &f)
+{
+	if (f.ci_count < 0)
+		return 0;
+	return f.ci_count > kMaxCi ? kMaxCi : f.ci_count;
+}
+
+bool ciListed(const Facts &f, uint64_t channel)
+{
+	for (int i = 0; i < ciCountOf(f); ++i)
+		if (f.ci_channel[i] == channel)
+			return true;
+	return false;
+}
+
+// Takes channel out of the services the module serves, unless a stream's
+// hold carries it.
+void ciLeave(Facts &f, uint64_t channel)
+{
+	int kept = 0;
+	for (int i = 0; i < ciCountOf(f); ++i)
+	{
+		if (f.ci_channel[i] == channel && !f.ci_streamed[i])
+			continue;
+		f.ci_channel[kept] = f.ci_channel[i];
+		f.ci_tp[kept] = f.ci_tp[i];
+		f.ci_streamed[kept] = f.ci_streamed[i];
+		kept++;
+	}
+	f.ci_count = kept;
+}
+
+bool pipShows(const Facts &f, uint64_t channel)
+{
+	for (int i = 0; i < slotsOf(f); ++i)
+		if (f.slot[i].active && f.slot[i].channel == channel)
+			return true;
+	return false;
+}
+
+enum CiJoin
+{
+	CiFree,       // nothing the module serves stands in the way
+	CiShareOnly,  // only on the live frontend, on the transponder of all it serves
+	CiNever
+};
+
+/* Whether the module would descramble the channel asked for from frontend
+   fe: one the module is bound to, or any where it is bound to none; a
+   frontend not picked yet (-1) counts as the bound one. */
+bool ciFrom(const Facts &f, int fe)
+{
+	return f.channel_ci && (f.ci_tuner < 0 || fe < 0 || fe == f.ci_tuner);
+}
+
+/* Whether channel may come to the CI module beside the services it serves,
+   from frontend fe. picture: the live channel counts as served while the
+   picture runs; not where the picture is about to show channel itself. */
+CiJoin ciJoin(const Facts &f, uint64_t channel, bool picture, int fe)
+{
+	if (!ciFrom(f, fe) || f.ci_mode == 0)
+		return CiFree;
+	const bool shown = picture && liveRuns(f) && f.live_ci;
+	// A service the module serves already adds none.
+	if ((shown && channel == f.live_channel) || ciListed(f, channel))
+		return CiFree;
+	const bool other = shown || f.ci_more || ciCountOf(f) > 0;
+	bool elsewhere = f.ci_more || (shown && f.live_tp != f.channel_tp);
+	for (int i = 0; i < ciCountOf(f); ++i)
+		if (f.ci_tp[i] != f.channel_tp)
+			elsewhere = true;
+	if (!other)
+		return CiFree;
+	if (f.ci_mode == 1 && !elsewhere)
+		return CiShareOnly;
+	return CiNever;
+}
+
 } // namespace
+
+void addCiService(Facts &f, uint64_t channel, uint64_t tp, bool streamed)
+{
+	for (int i = 0; i < ciCountOf(f); ++i)
+	{
+		if (f.ci_channel[i] == channel)
+		{
+			f.ci_streamed[i] = f.ci_streamed[i] || streamed;
+			return;
+		}
+	}
+	if (ciCountOf(f) == kMaxCi)
+	{
+		f.ci_more = true;
+		return;
+	}
+	const int i = ciCountOf(f);
+	f.ci_channel[i] = channel;
+	f.ci_tp[i] = tp;
+	f.ci_streamed[i] = streamed;
+	f.ci_count = i + 1;
+}
 
 bool liveRuns(const Facts &f)
 {
@@ -86,8 +193,17 @@ Way decide(const Facts &f, uint64_t channel)
 	if (f.variant == Cst && anyPip(f))
 		return Refuse;
 
+	/* A CI channel the module may not serve beside what it serves takes
+	   no frontend at all, the live one, a shared one or an idle one. Each
+	   way asks it for the frontend it gives the stream, which need not be
+	   the tuner the module is bound to. */
+	const CiJoin on_live = ciJoin(f, channel, true, f.live_fe);
+	const CiJoin on_own = ciJoin(f, channel, true, f.stream_fe);
+
 	if (liveRuns(f) && channel == f.live_channel)
 	{
+		if (on_live == CiNever)
+			return Refuse;
 		if (f.variant == DynamicDemux && anyPip(f))
 			return Refuse;
 		/* Refused outright when the live demux is not free: an idle
@@ -106,17 +222,19 @@ Way decide(const Facts &f, uint64_t channel)
 	   transponder id need not be the one it is tuned to (a tune outside
 	   a zap, as the signal test and motor control send, does not wait
 	   for the lock and leaves the frontend untuned, which liveRuns
-	   refuses until the next zap); and where the CI
-	   module may serve one channel marked for it only, a second such channel
-	   would take it from the picture. Where it may not share, the channel is
+	   refuses until the next zap). Where it may not share, the channel is
 	   any other channel and goes on below, as it binds only its own
 	   demuxes. */
 	if (liveRuns(f) && f.live_tp != 0 && f.channel_tp == f.live_tp && !f.scanning &&
-	    f.variant != DynamicDemux && !f.no_same_fe && liveDemuxFree(f) &&
-	    !(f.ci_one_service && f.live_ci && f.channel_ci))
-		return Shared;
+	    f.variant != DynamicDemux && !f.no_same_fe && liveDemuxFree(f))
+		return on_live == CiNever ? Refuse : Shared;
 
-	if (f.variant == DynamicDemux)
+	/* An idle frontend takes it only where nothing the module serves stands
+	   in the way: where only one on the same transponder may join the
+	   module, it joins on the live frontend, as another frontend tuned there
+	   would be another input for the module. With dynamic demux no frontend
+	   is idle. */
+	if (on_own != CiFree || f.variant == DynamicDemux)
 		return Refuse;
 	return Idle;
 }
@@ -151,6 +269,18 @@ Way afterSwitch(const Facts &f, uint64_t channel, int zap_fe)
 			g.slot[i].channel = 0;
 			g.slot[i].fe = -1;
 		}
+	}
+	if (channel != f.live_channel)
+	{
+		/* The module stops serving the channel the picture leaves, unless a
+		   PiP still shows it or a stream's hold carries it. The zap brings
+		   the channel asked for to it as the picture's, from the frontend
+		   the zap takes, which the setting has to allow beside the services
+		   that stay. */
+		if (!pipShows(g, f.live_channel))
+			ciLeave(g, f.live_channel);
+		if (ciJoin(g, channel, false, zap_fe) != CiFree)
+			return Refuse;
 	}
 	return decide(g, channel);
 }

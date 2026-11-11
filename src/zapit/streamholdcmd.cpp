@@ -157,6 +157,31 @@ Reply run(Ops &ops, uint64_t channel, int64_t deadline_ms, bool probe, bool lock
 		return send(ops, refusal(Failed));
 	}
 
+	/* Tuning and reading read the PMT, which may show scrambled what the
+	   scan saw free: one the CI module would then descramble, if it comes
+	   from the tuner the module is bound to. Asked again on the facts as
+	   they are now and on the frontend it was given, the hold goes ahead
+	   only the way it was decided; any other answer gives the frontend
+	   back. */
+	if (way != streamadmission::Live)
+	{
+		streamadmission::Way again;
+		ops.lockFrontends();
+		{
+			streamadmission::Facts f;
+			ops.facts(f);
+			f.stream_fe = fenumber;
+			again = streamadmission::decide(f, channel);
+		}
+		ops.unlockFrontends();
+		if (again != way)
+		{
+			if (lock)
+				ops.unlockFrontend(fe);
+			return send(ops, refusal(Busy));
+		}
+	}
+
 	const uint32_t id = ops.offer(fe);
 	if (!id)
 	{

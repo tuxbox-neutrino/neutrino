@@ -93,7 +93,7 @@ CStreamInstance::CStreamInstance(int clientfd, t_channel_id chid, stream_pids_t 
 	dmx = NULL;
 	buf = NULL;
 	frontend = NULL;
-	is_e2_stream = false;
+	uses_ca = true;
 }
 
 CStreamInstance::~CStreamInstance()
@@ -233,12 +233,7 @@ void CStreamInstance::run()
 
 	dmx->Start(true);
 
-	if (is_e2_stream)
-	{
-		if (g_settings.streaming_decryptmode)
-			CCamManager::getInstance()->Start(channel_id, CCamManager::STREAM);
-	}
-	else
+	if (uses_ca)
 		CCamManager::getInstance()->Start(channel_id, CCamManager::STREAM);
 
 	while (running) {
@@ -251,12 +246,7 @@ void CStreamInstance::run()
 		grid.next(buf);
 	}
 
-	if (is_e2_stream)
-	{
-		if (g_settings.streaming_decryptmode)
-			CCamManager::getInstance()->Stop(channel_id, CCamManager::STREAM);
-	}
-	else
+	if (uses_ca)
 		CCamManager::getInstance()->Stop(channel_id, CCamManager::STREAM);
 
 	printf("CStreamInstance::run: exiting %" PRIx64 " (%d fds)\n", channel_id, (int)fds.size());
@@ -459,9 +449,17 @@ void CStreamManager::PreparePids(CZapitChannel *channel, stream_pids_t &pids, bo
 class CStreamManager::SetupOps : public streamsetup::Ops
 {
 	public:
-		explicit SetupOps(CStreamManager &m) : sm(m) {}
+		explicit SetupOps(CStreamManager &m) : sm(m), uses_ca(true) {}
 
-		Read readTarget(int fd, streamsetup::Target &t) { return sm.Parse(fd, t); }
+		/* Whether the box will descramble the stream, an e2 stream only with
+		   streaming_decryptmode: read once, told to zapit with the hold and
+		   handed to the instance, which starts the CA by it. */
+		Read readTarget(int fd, streamsetup::Target &t)
+		{
+			const Read r = sm.Parse(fd, t);
+			uses_ca = !t.e2 || g_settings.streaming_decryptmode;
+			return r;
+		}
 		bool writeOk(int fd) { return streamsetup::writeOk(fd); }
 		void refuse(int fd, int status, const char *reason)
 		{
@@ -494,7 +492,7 @@ class CStreamManager::SetupOps : public streamsetup::Ops
 		   asked for again: the stream takes the picture's frontend. */
 		Hold hold(int fd, uint64_t channel, uint64_t since)
 		{
-			HoldSteps steps(sm, fd, channel, since);
+			HoldSteps steps(sm, fd, channel, since, uses_ca);
 			const Hold h = streamsetup::holdWithSwitch(steps, kHoldBudgetMs, kHoldsAfterSwitch, kHoldRetryMs);
 			if (!h.id)
 				printf("CStreamManager::AddClient: no frontend for %" PRIx64 " (verdict %d%s)\n", channel,
@@ -526,7 +524,7 @@ class CStreamManager::SetupOps : public streamsetup::Ops
 			} else {
 				stream = new CStreamInstance(fd, t.channel, pids);
 				stream->frontend = static_cast<CFrontend *>(fe);
-				stream->is_e2_stream = t.e2;
+				stream->uses_ca = uses_ca;
 				stream->hold_id = hold_id;
 			}
 			streamsetup::setSendBuffer(fd, SEND_BUFFER_SIZE);
@@ -558,6 +556,7 @@ class CStreamManager::SetupOps : public streamsetup::Ops
 		static const unsigned kHoldRetryMs = 250;
 		CStreamManager &sm;
 		stream_pids_t pids;
+		bool uses_ca;
 
 		/* The steps of a hold over zapit, the GUI and the client. */
 		struct HoldSteps : public streamsetup::HoldOps
@@ -566,9 +565,11 @@ class CStreamManager::SetupOps : public streamsetup::Ops
 			int fd;
 			uint64_t channel;
 			uint64_t since;
+			bool uses_ca;
 			Answer last;
 
-			HoldSteps(CStreamManager &m, int f, uint64_t c, uint64_t s) : sm(m), fd(f), channel(c), since(s) {}
+			HoldSteps(CStreamManager &m, int f, uint64_t c, uint64_t s, bool ca)
+				: sm(m), fd(f), channel(c), since(s), uses_ca(ca) {}
 
 			int64_t nowMs() { return CZapitMessages::streamHoldClockMs(); }
 			bool eligible() { return CStreamManager::SwitchEligible(channel); }
@@ -582,7 +583,7 @@ class CStreamManager::SetupOps : public streamsetup::Ops
 					return false;
 				CBasicClient::Deadline deadline((unsigned) left);
 				CZapitClient::responseStreamHold reply;
-				const bool got = sm.zapit.holdForStream(channel, (unsigned) left, reply, ask_switch);
+				const bool got = sm.zapit.holdForStream(channel, (unsigned) left, reply, ask_switch, uses_ca);
 				if (got) {
 					a.verdict = reply.verdict;
 					a.hold_id = reply.hold_id;

@@ -56,6 +56,7 @@ struct Box : public SwitchOps
 	bool tune_ok;
 	bool pids_ok;
 	bool stop_while_reading;   // zapit begins to stop while PAT and PMT are read
+	bool scrambled_in_pmt;     // the PMT read shows the channel scrambled, for the module
 	bool answer_ok;
 	uint32_t next_id;
 
@@ -80,7 +81,8 @@ struct Box : public SwitchOps
 
 	Box()
 		: serving_now(true), stop_while_tuning(false), clock(1000), clock_after_tune(-1), room(true), tune_ok(true),
-		  pids_ok(true), stop_while_reading(false), answer_ok(true), next_id(9), lock_depth(0), collects(0),
+		  pids_ok(true), stop_while_reading(false), scrambled_in_pmt(false), answer_ok(true), next_id(9),
+		  lock_depth(0), collects(0),
 		  opens(0), binds(0), live_holds(0), picks(0), tunes(0), pid_reads(0), unlocks(0), offers(0),
 		  drops(0), answers(0), facts_locked(true), bind_locked(true), tune_unlocked(true),
 		  read_unlocked(true), zap_fe(-1), zap_turns_dish(false), zap_asks(0), zap_locked(true),
@@ -215,6 +217,8 @@ struct Box : public SwitchOps
 			serving_now = false;
 		if (clock_after_tune >= 0)
 			clock = clock_after_tune;
+		if (scrambled_in_pmt)
+			f.channel_ci = true;
 		return tune_ok;
 	}
 	bool readPids(void *)
@@ -225,6 +229,8 @@ struct Box : public SwitchOps
 			serving_now = false;
 		if (clock_after_tune >= 0)
 			clock = clock_after_tune;
+		if (scrambled_in_pmt)
+			f.channel_ci = true;
 		return pids_ok;
 	}
 	void unlockFrontend(void *p)
@@ -609,6 +615,99 @@ TEST_CASE("a register that cannot take the hold gives the frontend back", "[zapi
 	REQUIRE(box.uses() == 0);
 	REQUIRE(run(box, kOther, 5000, false, true).verdict == Busy);
 	REQUIRE(box.uses() == 0);
+}
+
+TEST_CASE("P1: a channel the PMT shows scrambled is asked again, and refused where the module may serve no other", "[zapit][streamholdcmd][ci]")
+{
+	// The module serves a recording; no other CI service is allowed.
+	const uint64_t kRec = 0x6006;
+	for (int shared = 0; shared < 2; ++shared)
+	{
+		Box box;
+		box.f.ci_mode = 2;
+		streamadmission::addCiService(box.f, kRec, kLiveTp, false);
+		box.scrambled_in_pmt = true;
+		const uint64_t channel = shared ? kShared : kOther;
+		const Reply r = run(box, channel, 5000, false, true);
+		REQUIRE(r.verdict == Busy);
+		REQUIRE(r.hold_id == 0);
+		REQUIRE(box.offers == 0);
+		REQUIRE(box.uses() == 0);        // the frontend went back
+		REQUIRE(box.unlocks == 1);
+		REQUIRE(box.lock_depth == 0);
+		REQUIRE(box.facts_locked);       // asked again under the lock
+		REQUIRE((shared ? box.pid_reads : box.tunes) == 1);
+	}
+}
+
+TEST_CASE("P2: a channel the PMT leaves as it was, or one the setting allows beside the others, is held as decided", "[zapit][streamholdcmd][ci]")
+{
+	const uint64_t kRec = 0x6006;
+	{
+		Box box;
+		box.f.ci_mode = 2;
+		streamadmission::addCiService(box.f, kRec, kLiveTp, false);
+		const Reply r = run(box, kOther, 5000, false, true);
+		REQUIRE(r.verdict == Granted);
+		REQUIRE(box.offers == 1);
+	}
+	{
+		Box box;
+		box.f.ci_mode = 0;
+		streamadmission::addCiService(box.f, kRec, kLiveTp, false);
+		box.scrambled_in_pmt = true;
+		const Reply r = run(box, kOther, 5000, false, true);
+		REQUIRE(r.verdict == Granted);
+		REQUIRE(box.offers == 1);
+	}
+	{
+		// The live channel is not read again: its PMT is the picture's.
+		Box box;
+		box.f.ci_mode = 2;
+		box.f.live_ci = true;
+		box.scrambled_in_pmt = true;
+		const Reply r = run(box, kLive, 5000, false, true);
+		REQUIRE(r.verdict == Granted);
+	}
+}
+
+TEST_CASE("P3: a channel from a tuner the module is not bound to is held, also once the PMT shows it scrambled", "[zapit][streamholdcmd][ci]")
+{
+	// The module serves a recording on the tuner it is bound to; no other CI service is allowed.
+	const uint64_t kRec = 0x6006;
+	{
+		// Scrambled kLive through the software CA on frontend 0, the module bound to tuner 1.
+		Box box;
+		box.f.ci_mode = 2;
+		box.f.ci_tuner = 1;
+		box.f.channel_ci = true;
+		streamadmission::addCiService(box.f, kRec, kOtherTp, false);
+		const Reply r = run(box, kLive, 5000, false, true);
+		REQUIRE(r.verdict == Granted);
+		REQUIRE(r.fenumber == 0);
+		REQUIRE(box.offers == 1);
+	}
+	/* Shared reads on frontend 0, Idle tunes frontend 1: held with the
+	   module bound to tuner 2, refused with it bound to that frontend. */
+	for (int shared = 0; shared < 2; ++shared)
+	{
+		const int given = shared ? 0 : 1;
+		for (int bound = 0; bound < 2; ++bound)
+		{
+			Box box;
+			box.f.ci_mode = 2;
+			box.f.ci_tuner = bound ? given : 2;
+			streamadmission::addCiService(box.f, kRec, kOtherTp, false);
+			box.scrambled_in_pmt = true;
+			const Reply r = run(box, shared ? kShared : kOther, 5000, false, true);
+			REQUIRE(r.verdict == (bound ? Busy : Granted));
+			REQUIRE(r.fenumber == (bound ? -1 : given));
+			REQUIRE(box.offers == (bound ? 0 : 1));
+			REQUIRE(box.uses() == (bound ? 0 : 1));
+			REQUIRE((shared ? box.pid_reads : box.tunes) == 1);
+			REQUIRE(box.lock_depth == 0);
+		}
+	}
 }
 
 TEST_CASE("a hold whose answer did not go out is dropped and collected at once", "[zapit][streamholdcmd]")

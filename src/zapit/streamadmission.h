@@ -36,6 +36,15 @@
  *
  * The facts are read in the same hold of the frontend manager's lock as the
  * frontend is then bound, so the decision and the binding see one state.
+ *
+ * A stream the CI module would descramble from the frontend of its way is
+ * refused, and not sent another way, where its service would be one the
+ * module does not descramble yet and the setting allows no other beside
+ * those it descrambles (the picture's, a PiP's, a recording's, a stream's,
+ * also one a stream was granted and has not asked the CA manager for yet):
+ * with ci_mode 2 none, with ci_mode 1 only one on the transponder all of
+ * them lie on, and that one only through the live frontend, the one input
+ * they come through.
  */
 
 #ifndef __zapit_streamadmission_h__
@@ -48,6 +57,8 @@ namespace streamadmission
 {
 
 const int kMaxSlots = 3;
+// Services the CI module serves that the facts list; past that, ci_more.
+const int kMaxCi = 16;
 
 enum Variant
 {
@@ -92,15 +103,40 @@ struct Facts
 	   channel, until a zap sets one again. A reload of the channels clears
 	   it as well. */
 	bool     scanning;
-	/* Marked for the CI module: the channel the picture shows, and the one
-	   asked for. With ci_one_service the module serves one of them only,
-	   and the picture keeps it. */
+	/* Descrambled by the CI module: the channel the picture shows, and the
+	   one asked for, where the stream has the box descramble it. A channel
+	   that is not scrambled, or one an e2 stream passes on scrambled, is
+	   not. ci_mode is the setting for another such service beside one the
+	   module descrambles: 0 allowed, 1 on the same transponder only,
+	   anything else not allowed. */
 	bool     live_ci;
 	bool     channel_ci;
-	bool     ci_one_service;
+	int      ci_mode;
+	/* channel_ci holds from ci_tuner, the tuner the module is bound to
+	   (-1: none, every tuner reaches it); from another tuner the module
+	   does not descramble the channel. Each way weighs it on its own
+	   frontend: Live and Shared on the live one, Idle on stream_fe, the
+	   frontend the stream was given, counted as ci_tuner while it has
+	   none (-1). */
+	int      ci_tuner;
+	int      stream_fe;
+	/* The services the module descrambles now, by channel and transponder:
+	   what the CA manager has it descramble (the picture, a PiP, a
+	   recording, a stream), and what a stream's hold promises it before the
+	   stream asks the CA manager; ci_streamed: a stream's hold carries it.
+	   ci_more: there were more than kMaxCi. Filled through addCiService. */
+	int      ci_count;
+	uint64_t ci_channel[kMaxCi];
+	uint64_t ci_tp[kMaxCi];
+	bool     ci_streamed[kMaxCi];
+	bool     ci_more;
 
 	Facts();
 };
+
+/* Adds a service the CI module descrambles to f, once per channel; one a
+   stream's hold carries is marked so, also where the CA manager lists it. */
+void addCiService(Facts &f, uint64_t channel, uint64_t tp, bool streamed);
 
 enum Way
 {

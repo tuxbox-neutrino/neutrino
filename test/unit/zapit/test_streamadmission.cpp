@@ -422,45 +422,308 @@ TEST_CASE("while a channel scan may tune the live frontend its transponder is no
 	REQUIRE(decide(f, kOther) == Refuse);
 }
 
-TEST_CASE("where the CI module serves one channel only, a second CI channel does not share", "[zapit][admission][shared]")
+TEST_CASE("where no other CI channel may join, a second CI channel takes no frontend at all", "[zapit][admission][shared][ci]")
 {
-	// Both marked for the module and no other CI channel allowed: as any other channel.
+	// Both marked for the module, the setting "not allowed" (2).
 	Facts f = sharingOn(0, kLiveTp);
 	f.live_ci = true;
 	f.channel_ci = true;
-	f.ci_one_service = true;
-	REQUIRE(decide(f, kOther) == Idle);
-	REQUIRE(decide(f, kLive) == Live);   // the live channel is its own service
+	f.ci_mode = 2;
+	REQUIRE(decide(f, kOther) == Refuse);   // not shared, and not sent to another tuner
+	REQUIRE(decide(f, kLive) == Live);      // the live channel is its own service
+
+	f.channel_tp = kOtherTp;
+	REQUIRE(decide(f, kOther) == Refuse);
 
 	f.variant = DynamicDemux;
 	REQUIRE(decide(f, kOther) == Refuse);
 }
 
-TEST_CASE("CI channels share the live transponder where the module may serve more", "[zapit][admission][shared]")
+TEST_CASE("CI channels share the live transponder where the module may serve more", "[zapit][admission][shared][ci]")
 {
-	// All channels (0) and the same transponder (1) are the one setting: false.
+	// "allowed" (0) and "same transponder only" (1), on the live transponder.
 	Facts f = sharingOn(0, kLiveTp);
 	f.live_ci = true;
 	f.channel_ci = true;
-	f.ci_one_service = false;
+	f.ci_mode = 0;
+	REQUIRE(decide(f, kOther) == Shared);
+	f.ci_mode = 1;
 	REQUIRE(decide(f, kOther) == Shared);
 }
 
-TEST_CASE("a channel shares with one CI channel when only one of the two is marked", "[zapit][admission][shared]")
+TEST_CASE("a channel shares with one CI channel when only one of the two is marked", "[zapit][admission][shared][ci]")
 {
 	Facts f = sharingOn(0, kLiveTp);
-	f.ci_one_service = true;
+	f.ci_mode = 2;
 	f.live_ci = true;
 	REQUIRE(decide(f, kOther) == Shared);
 
 	f = sharingOn(0, kLiveTp);
-	f.ci_one_service = true;
+	f.ci_mode = 2;
 	f.channel_ci = true;
 	REQUIRE(decide(f, kOther) == Shared);
 
 	f = sharingOn(0, kLiveTp);
-	f.ci_one_service = true;
+	f.ci_mode = 2;
 	REQUIRE(decide(f, kOther) == Shared);
+}
+
+namespace
+{
+
+const uint64_t kRec = 0x4004;
+
+// A service the CA manager has the module descramble: a recording's, a PiP's.
+void served(Facts &f, uint64_t channel, uint64_t tp)
+{
+	addCiService(f, channel, tp, false);
+}
+
+// A service a stream's hold carries, listed by the CA manager or not yet.
+void streamed(Facts &f, uint64_t channel, uint64_t tp)
+{
+	addCiService(f, channel, tp, true);
+}
+
+} // namespace
+
+TEST_CASE("with no other CI channel allowed, one on another transponder gets no idle tuner either", "[zapit][admission][ci]")
+{
+	Facts f = sharingOn(0, kOtherTp);
+	f.live_ci = true;
+	f.channel_ci = true;
+	f.ci_mode = 2;
+	REQUIRE(decide(f, kOther) == Refuse);
+
+	// Without the picture's CI channel the module serves nothing: the idle tuner it was.
+	f.live_ci = false;
+	REQUIRE(decide(f, kOther) == Idle);
+}
+
+TEST_CASE("a recording's, a PiP's and a stream's CI service count as the picture's does", "[zapit][admission][ci]")
+{
+	// The picture shows a channel not marked; the CA manager serves kRec.
+	Facts f = sharingOn(0, kOtherTp);
+	f.channel_ci = true;
+	f.ci_mode = 2;
+	served(f, kRec, kOtherTp);
+	REQUIRE(decide(f, kOther) == Refuse);
+
+	// A channel not marked for the module is not held to it.
+	f.channel_ci = false;
+	REQUIRE(decide(f, kOther) == Idle);
+
+	// The service the module serves already adds none.
+	f.channel_ci = true;
+	REQUIRE(decide(f, kRec) == Idle);
+
+	// A PiP's channel is on the CA manager's list as well.
+	Facts p = sharingOn(0, kOtherTp);
+	p.channel_ci = true;
+	p.ci_mode = 2;
+	pipOn(p, 0, 1, kPip);
+	served(p, kPip, kOtherTp);
+	REQUIRE(decide(p, kOther) == Refuse);
+	REQUIRE(decide(p, kPip) == Refuse);   // the PiP's own channel, refused for the PiP
+}
+
+TEST_CASE("in standby only what the CA manager serves counts, not the picture's channel", "[zapit][admission][ci]")
+{
+	Facts f = sharingOn(0, kOtherTp);
+	f.live_ci = true;
+	f.channel_ci = true;
+	f.ci_mode = 2;
+	f.box_standby = true;
+	REQUIRE(decide(f, kOther) == Idle);
+
+	served(f, kRec, kLiveTp);   // a recording runs in standby
+	REQUIRE(decide(f, kOther) == Refuse);
+}
+
+TEST_CASE("with the same transponder only, a CI channel joins there and only on the live frontend", "[zapit][admission][ci]")
+{
+	Facts f = sharingOn(0, kLiveTp);
+	f.live_ci = true;
+	f.channel_ci = true;
+	f.ci_mode = 1;
+	REQUIRE(decide(f, kOther) == Shared);
+
+	// The live frontend carries its own service only: another frontend there
+	// would be another input for the module.
+	f.no_same_fe = true;
+	REQUIRE(decide(f, kOther) == Refuse);
+
+	// On another transponder than the picture's CI channel.
+	f = sharingOn(0, kOtherTp);
+	f.live_ci = true;
+	f.channel_ci = true;
+	f.ci_mode = 1;
+	REQUIRE(decide(f, kOther) == Refuse);
+
+	// A recording on kOtherTp, the picture not marked: a CI channel there
+	// would need another frontend, one on the live transponder lies elsewhere.
+	f = sharingOn(0, kOtherTp);
+	f.channel_ci = true;
+	f.ci_mode = 1;
+	served(f, kRec, kOtherTp);
+	REQUIRE(decide(f, kOther) == Refuse);
+	f.channel_tp = kLiveTp;
+	REQUIRE(decide(f, kOther) == Refuse);
+}
+
+TEST_CASE("with every CI channel allowed the module's services change nothing", "[zapit][admission][ci]")
+{
+	Facts f = sharingOn(0, kOtherTp);
+	f.live_ci = true;
+	f.channel_ci = true;
+	f.ci_mode = 0;
+	served(f, kRec, kLiveTp);
+	REQUIRE(decide(f, kOther) == Idle);
+}
+
+TEST_CASE("more services than the facts list count as one on another transponder", "[zapit][admission][ci]")
+{
+	Facts f = sharingOn(0, kLiveTp);
+	f.channel_ci = true;
+	f.ci_more = true;
+	f.ci_mode = 1;
+	REQUIRE(decide(f, kOther) == Refuse);
+	f.ci_mode = 2;
+	REQUIRE(decide(f, kOther) == Refuse);
+	f.ci_mode = 0;
+	REQUIRE(decide(f, kOther) == Shared);
+}
+
+TEST_CASE("a switch for a CI channel frees the module only where the picture alone had it", "[zapit][streamadmission][switch][ci]")
+{
+	// The picture's CI channel, which the CA manager lists as well.
+	Facts f = sharingOn(0, kOtherTp);
+	f.live_ci = true;
+	f.channel_ci = true;
+	f.ci_mode = 2;
+	served(f, kLive, kLiveTp);
+	REQUIRE(decide(f, kOther) == Refuse);
+	REQUIRE(afterSwitch(f, kOther, 0) == Live);
+
+	// A stream of the picture's channel keeps it at the module.
+	Facts s = f;
+	streamed(s, kLive, kLiveTp);
+	REQUIRE(afterSwitch(s, kOther, 0) == Refuse);
+
+	// So does a PiP that shows it; one that shows another channel does not.
+	// Slot 1 reads demux 2, so the demux of the picture's frontend stays free.
+	Facts p = f;
+	p.slots = 2;
+	pipOn(p, 1, 2, kLive);
+	REQUIRE(afterSwitch(p, kOther, 0) == Refuse);
+	p.slot[1].channel = kPip;
+	REQUIRE(afterSwitch(p, kOther, 0) == Live);
+
+	// Another service the module serves stays: a stream of kRec.
+	Facts r = f;
+	served(r, kRec, kOtherTp);
+	REQUIRE(afterSwitch(r, kOther, 0) == Refuse);
+	r.ci_mode = 0;
+	REQUIRE(afterSwitch(r, kOther, 0) == Live);
+}
+
+TEST_CASE("a stream of another service on the picture's frontend keeps nothing at the module", "[zapit][streamadmission][switch][ci]")
+{
+	/* The picture shows CI channel kLive; an unscrambled channel of its
+	   transponder is streamed from the picture's frontend, which puts nothing
+	   in the list. Switching the picture to kOther frees the module of
+	   kLive, and the stream goes on. */
+	Facts f = sharingOn(0, kOtherTp);
+	f.live_ci = true;
+	f.channel_ci = true;
+	f.ci_mode = 2;
+	served(f, kLive, kLiveTp);
+	REQUIRE(afterSwitch(f, kOther, 1) == Live);
+
+	// A stream that has the module descramble another service of it does keep that one.
+	streamed(f, kRec, kLiveTp);
+	REQUIRE(afterSwitch(f, kOther, 1) == Refuse);
+}
+
+TEST_CASE("a service a stream was granted counts before the CA manager lists it, and once", "[zapit][admission][ci]")
+{
+	// Stream A granted, not started yet: only its hold carries it.
+	Facts f = sharingOn(0, kLiveTp);
+	f.channel_ci = true;
+	f.ci_mode = 2;
+	streamed(f, kRec, kLiveTp);
+	REQUIRE(decide(f, kOther) == Refuse);     // B is refused,
+	REQUIRE(decide(f, kRec) == Shared);       // A's own service adds none
+
+	// Started: the CA manager lists it as well, and it is one service.
+	served(f, kRec, kLiveTp);
+	REQUIRE(f.ci_count == 1);
+	REQUIRE(f.ci_streamed[0]);
+	served(f, kPip, kOtherTp);
+	streamed(f, kPip, kOtherTp);
+	REQUIRE(f.ci_count == 2);
+	REQUIRE(f.ci_streamed[1]);
+}
+
+TEST_CASE("more services than the facts list say so instead of being dropped", "[zapit][admission][ci]")
+{
+	Facts f = sharingOn(0, kLiveTp);
+	for (int i = 0; i < kMaxCi; ++i)
+		served(f, 0x9000 + i, kLiveTp);
+	REQUIRE(f.ci_count == kMaxCi);
+	REQUIRE_FALSE(f.ci_more);
+	served(f, 0x9000, kLiveTp);               // listed already
+	REQUIRE_FALSE(f.ci_more);
+	streamed(f, 0x9100, kLiveTp);
+	REQUIRE(f.ci_more);
+	REQUIRE(f.ci_count == kMaxCi);
+}
+
+TEST_CASE("a CI channel counts on the frontend of its way, which need not be the one the module is bound to", "[zapit][admission][ci]")
+{
+	/* The module is bound to tuner 0 and descrambles a recording there, no
+	   other CI channel allowed beside it. The picture shows scrambled kLive
+	   on frontend 1 through the software CA, which the module does not
+	   descramble. */
+	Facts f = sharingOn(1, kLiveTp);
+	f.channel_ci = true;
+	f.ci_mode = 2;
+	f.ci_tuner = 0;
+	served(f, kRec, kOtherTp);
+	REQUIRE(decide(f, kLive) == Live);
+	REQUIRE(decide(f, kOther) == Shared);   // another channel of the live transponder
+
+	// An idle frontend not picked yet counts as tuner 0; one picked counts as itself.
+	f.channel_tp = kOtherTp;
+	REQUIRE(decide(f, kOther) == Refuse);
+	f.stream_fe = 2;
+	REQUIRE(decide(f, kOther) == Idle);
+	f.stream_fe = 0;
+	REQUIRE(decide(f, kOther) == Refuse);
+
+	// With the same transponder only as well: frontend 2 is no input for the module.
+	f.ci_mode = 1;
+	f.stream_fe = 2;
+	REQUIRE(decide(f, kOther) == Idle);
+	f.stream_fe = 0;
+	REQUIRE(decide(f, kOther) == Refuse);
+
+	// A switch is weighed on the frontend the zap takes.
+	f.ci_mode = 2;
+	f.stream_fe = -1;
+	REQUIRE(afterSwitch(f, kOther, 2) == Live);
+	REQUIRE(afterSwitch(f, kOther, 0) == Refuse);
+
+	// The picture on tuner 0: sharing its frontend brings the channel to the module.
+	Facts b = sharingOn(0, kLiveTp);
+	b.channel_ci = true;
+	b.ci_mode = 2;
+	b.ci_tuner = 0;
+	served(b, kRec, kOtherTp);
+	REQUIRE(decide(b, kOther) == Refuse);
+	REQUIRE(decide(b, kLive) == Refuse);   // so does the live way, while the module does not serve the picture
+	b.live_ci = true;   // the picture's own service, which the module serves already
+	REQUIRE(decide(b, kLive) == Live);
 }
 
 TEST_CASE("with no_same_fe the live frontend carries only its own service", "[zapit][admission][shared]")

@@ -372,6 +372,36 @@ TEST_CASE("a hold and a probe ask about a switch of the picture only when told, 
 	}
 }
 
+TEST_CASE("a hold says when the box does not descramble the stream, a probe asks for one it does", "[zapit][client][streamhold][ci]")
+{
+	{
+		Peer peer(bytesOf(granted(1, 0)), sizeof(CZapitClient::responseStreamHold), 0);
+		ZapitClientHere client;
+		CZapitClient::responseStreamHold r;
+		REQUIRE(client.holdForStream(0x1001, 10000, r));
+		peer.finish();
+		REQUIRE(peer.body.no_ca == 0);
+	}
+	{
+		// An e2 stream passed on scrambled.
+		Peer peer(bytesOf(granted(1, 0)), sizeof(CZapitClient::responseStreamHold), 0);
+		ZapitClientHere client;
+		CZapitClient::responseStreamHold r;
+		REQUIRE(client.holdForStream(0x1001, 10000, r, true, false));
+		peer.finish();
+		REQUIRE(peer.body.no_ca == 1);
+		REQUIRE(peer.body.ask_switch == 1);
+	}
+	{
+		Peer peer(bytesOf(granted(0, -1)), sizeof(CZapitClient::responseStreamHold), 0);
+		ZapitClientHere client;
+		CZapitClient::responseStreamHold r;
+		REQUIRE(client.probeStream(0x1001, r));
+		peer.finish();
+		REQUIRE(peer.body.no_ca == 0);
+	}
+}
+
 TEST_CASE("a switch for a stream sends its channel and reads whether the picture was switched", "[zapit][client][streamhold][switch]")
 {
 	CZapitClient::responseStreamSwitch yes;

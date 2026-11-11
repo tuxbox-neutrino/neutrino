@@ -174,12 +174,13 @@ bool CZapitClient::streamHoldAnswer(bool sent, responseStreamHold &reply)
 }
 
 bool CZapitClient::holdForStream(const t_channel_id channel_id, unsigned budget_ms, responseStreamHold &reply,
-				 bool ask_switch)
+				 bool ask_switch, bool uses_ca)
 {
 	CZapitMessages::commandStreamHold msg;
 	msg.channel_id = channel_id;
 	msg.deadline_ms = CZapitMessages::streamHoldClockMs() + budget_ms;
 	msg.ask_switch = ask_switch ? 1 : 0;
+	msg.no_ca = uses_ca ? 0 : 1;
 
 	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex);
 	const bool sent = send(CZapitMessages::CMD_STREAM_HOLD, (const char *) &msg, sizeof(msg));

@@ -26,6 +26,7 @@
 #include <basicclient.h>
 #include <OpenThreads/Mutex>
 #include <atomic>
+#include <vector>
 #include "channel.h"
 #include "types.h"
 #include <dvbsi++/ca_program_map_section.h>
@@ -119,6 +120,17 @@ class CCamManager
 		   the program's settings, read on zapit's thread. */
 		void SetCIMode(int mode) { ci_mode = mode; };
 		int  GetCIMode(void) { return ci_mode; };
+		/* The channels the manager serves now, for whatever it serves them
+		   (the picture, a PiP, a recording, a stream), each with the
+		   frontend its demux reads from, the one SetMode() compares with the
+		   tuner the CI module is bound to. Under the manager's lock, inside
+		   which it takes no other. */
+		struct Served
+		{
+			t_channel_id channel;
+			int          source;
+		};
+		void GetServices(std::vector<Served> &out);
 		void EnableChannelFilter(bool enable) { filter_channels = enable; };
 		bool getUseCI() { return useCI; };
 		bool getChannelFilter() { return filter_channels; };

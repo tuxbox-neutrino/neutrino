@@ -1208,6 +1208,37 @@ static void streamHoldFrontends(std::vector<CFrontend *> &out)
 			out.push_back(static_cast<CFrontend *>(fes[i]));
 }
 
+/* Whether a CI module is in a slot and ready: without one nothing reaches a
+   module, and no service holds one. */
+static bool ciModuleReady()
+{
+	cCA *slots = cCA::GetInstance();
+	if (slots == NULL)
+		return false;
+	for (unsigned int i = 0; i < slots->GetNumberCISlots(); i++)
+		if (slots->ModulePresent(CA_SLOT_TYPE_CI, i))
+			return true;
+	return false;
+}
+
+/* Whether the CA manager has the CI module descramble a channel's service
+   from frontend source, as CCamManager::SetMode decides for one it serves: a
+   module is ready, the channel is scrambled, with the channel filter on it is
+   marked for the module, and with the module bound to a tuner it comes from
+   that one. source -1: not known yet, counted as that tuner. A channel
+   scrambled or not is known from the scan before it is tuned, and from its
+   PMT after. */
+static bool ciDescrambles(const CZapitChannel *c, int source, bool module)
+{
+	if (!module || c == NULL || !c->scrambled)
+		return false;
+	CCamManager *cam = CCamManager::getInstance();
+	if (cam->getChannelFilter() && !c->bUseCI)
+		return false;
+	const int tuner = cam->GetCITuner();
+	return tuner < 0 || source < 0 || source == tuner;
+}
+
 void CZapit::StreamFacts(streamadmission::Facts &f)
 {
 #if ENABLE_QUADPIP
@@ -1228,9 +1259,35 @@ void CZapit::StreamFacts(streamadmission::Facts &f)
 	f.live_tp = live_fe ? live_fe->getTsidOnid() : 0;
 	f.no_same_fe = config.noSameFE;
 	f.scanning = current_channel == NULL || CServiceScan::getInstance()->Scanning();
+	const bool module = ciModuleReady();
 	f.live_ci = current_channel != NULL && current_channel->getChannelID() == live_channel_id &&
-		    current_channel->bUseCI;
-	f.ci_one_service = CCamManager::getInstance()->GetCIMode() == 2;
+		    ciDescrambles(current_channel, live_fe ? live_fe->getNumber() : -1, module);
+	f.ci_mode = CCamManager::getInstance()->GetCIMode();
+	f.ci_tuner = CCamManager::getInstance()->GetCITuner();
+	/* What the module descrambles, off the CA manager's list, and what a
+	   stream's hold promises it before the stream has asked the CA manager
+	   (streamhold::ciServices): an admission made earlier on this thread
+	   counts from the moment it was granted. The CA manager's lock is taken
+	   inside the frontend manager's, and it takes neither that one nor any
+	   of zapit's inside its own. The channels are read on zapit's thread,
+	   the one that reloads them. */
+	std::vector<CCamManager::Served> served;
+	CCamManager::getInstance()->GetServices(served);
+	f.ci_count = 0;
+	f.ci_more = false;
+	for (size_t i = 0; i < served.size(); ++i) {
+		CZapitChannel *c = CServiceManager::getInstance()->FindChannel(served[i].channel);
+		if (ciDescrambles(c, served[i].source, module))
+			streamadmission::addCiService(f, served[i].channel, c->getTransponderId(), false);
+	}
+	/* Reserved by a hold for the frontend it holds, which ciService() went
+	   by; without a module nothing holds one. */
+	uint64_t promised[streamadmission::kMaxCi];
+	const size_t n = module ? streamhold::ciServices(promised, streamadmission::kMaxCi) : 0;
+	for (size_t i = 0; i < n; ++i) {
+		CZapitChannel *c = CServiceManager::getInstance()->FindChannel(promised[i]);
+		streamadmission::addCiService(f, promised[i], c ? c->getTransponderId() : 0, true);
+	}
 	f.recording_starting = CFEManager::getInstance()->recordingStarting();
 #if ENABLE_PIP
 	int slots = g_info.hw_caps->pip_devs;
@@ -1251,7 +1308,10 @@ void CZapit::StreamFacts(streamadmission::Facts &f)
 class CZapit::StreamHoldOps : public streamholdcmd::Ops
 {
 	public:
-		StreamHoldOps(CZapit &z, int fd) : zapit(z), connfd(fd), channel_obj(NULL) {}
+		/* uses_ca: the box descrambles the stream, which it does not for an
+		   e2 stream with streaming_decryptmode off (commandStreamHold::no_ca). */
+		StreamHoldOps(CZapit &z, int fd, bool uses_ca = true)
+			: zapit(z), connfd(fd), channel_obj(NULL), ca(uses_ca) {}
 
 		void collect() { collectStreamHolds(); }
 		bool serving() { return zapit.started && !zapit.stopping; }
@@ -1276,7 +1336,8 @@ class CZapit::StreamHoldOps : public streamholdcmd::Ops
 		{
 			zapit.StreamFacts(f);
 			f.channel_tp = channel_obj ? channel_obj->getTransponderId() : 0;
-			f.channel_ci = channel_obj != NULL && channel_obj->bUseCI;
+			// As from the tuner the module is bound to; decide() weighs it per way.
+			f.channel_ci = ciService(-1) != 0;
 		}
 
 		void heldByStreams(std::vector<int> &out)
@@ -1367,7 +1428,11 @@ class CZapit::StreamHoldOps : public streamholdcmd::Ops
 			CFEManager::getInstance()->unlockFrontend(static_cast<CFrontend *>(fe));
 		}
 
-		uint32_t offer(void *fe) { return streamhold::offer(fe, streamhold::nowMs()); }
+		// The stream's CI service is promised to it with the hold.
+		uint32_t offer(void *fe)
+		{
+			return streamhold::offer(fe, streamhold::nowMs(), ciService(number(fe)));
+		}
 		void drop(uint32_t id) { streamhold::drop(id); }
 
 		bool answer(const streamholdcmd::Reply &r)
@@ -1380,6 +1445,14 @@ class CZapit::StreamHoldOps : public streamholdcmd::Ops
 		CZapit &zapit;
 		int connfd;
 		CZapitChannel *channel_obj;
+		bool ca;
+
+		/* The service the CI module would descramble for this stream from
+		   frontend source (-1: not known yet), or 0. */
+		uint64_t ciService(int source)
+		{
+			return ca && ciDescrambles(channel_obj, source, ciModuleReady()) ? channel_obj->getChannelID() : 0;
+		}
 };
 
 void CZapit::StreamKeep(std::vector<CFrontend *> &keep)
@@ -1401,7 +1474,7 @@ void CZapit::HoldForStream(int connfd, bool probe)
 	if (!CBasicServer::receive_data(connfd, &msg, sizeof(msg)))
 		return;
 
-	StreamHoldOps ops(*this, connfd);
+	StreamHoldOps ops(*this, connfd, msg.no_ca == 0);
 	const streamholdcmd::Reply r = streamholdcmd::run(ops, msg.channel_id, msg.deadline_ms,
 							  probe, kHoldLocksFrontend, msg.ask_switch != 0);
 	INFO("stream %s %" PRIx64 ": verdict %d hold %u fe %d%s", probe ? "probe" : "hold",

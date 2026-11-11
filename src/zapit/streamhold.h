@@ -44,7 +44,8 @@
  * with revoke. The owner of such a number finds it done with: adopt answers
  * NULL, drop does nothing.
  *
- * offer, collect, shutdown, revoke and held run on zapit's thread only.
+ * offer, collect, shutdown, revoke, held and ciServices run on zapit's
+ * thread only.
  * adopt and drop run on any thread; drop also in a signal handler, so
  * neither takes a lock nor reads a clock. Each of their loops ends after at most three
  * rounds, because a failed compare and swap means the place moved on within
@@ -73,8 +74,12 @@ uint32_t nowMs();
 /* zapit's thread only. */
 
 /* Enters a hold on fe and answers its number, or 0 when no place is free or
-   the register is closed. The owner has kAdoptWithinMs to adopt it. */
-HoldId offer(void *fe, uint32_t now_ms);
+   the register is closed. The owner has kAdoptWithinMs to adopt it.
+   ci_service: the service the stream has the CI module descramble, 0 for
+   none. It counts (ciServices) for as long as the hold does: from before
+   the stream asks the CA manager for it until the hold is given back,
+   whether the stream ended, failed to start or never came for it. */
+HoldId offer(void *fe, uint32_t now_ms, uint64_t ci_service = 0);
 
 // Whether offer would find a place now.
 bool canOffer();
@@ -95,6 +100,10 @@ size_t revoke(void *fe, void (*release)(void *fe));
 /* Writes the frontend of every place in use to out, at most max of them, and
    answers how many. A dropped hold counts until it is collected. */
 size_t held(void **out, size_t max);
+
+/* The CI service of every place in use that has one, at most max of them,
+   and how many. A dropped hold counts until it is collected. */
+size_t ciServices(uint64_t *out, size_t max);
 
 /* Any thread. */
 

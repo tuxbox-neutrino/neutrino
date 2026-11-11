@@ -103,7 +103,9 @@ public:
 	virtual int zapFrontend(std::vector<void *> &keep, bool &turns_dish) = 0;
 
 	virtual int number(void *fe) = 0;
-	virtual bool tune(void *fe) = 0;     // on the bound frontend, PAT and PMT read
+	/* On the bound frontend, PAT and PMT read: what the PMT says of the
+	   channel, scrambled or not, is in the facts that follow. */
+	virtual bool tune(void *fe) = 0;
 	/* PAT and PMT read on the live frontend as it stands, for another
 	   channel on its transponder; never tunes. */
 	virtual bool readPids(void *fe) = 0;

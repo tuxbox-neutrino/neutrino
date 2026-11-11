@@ -366,13 +366,15 @@ class CZapitMessages
 	   request (CMD_STREAM_YIELD), and the GUI asks for the picture to be
 	   switched for a stream (CMD_STREAM_SWITCH). With ask_switch a refused
 	   hold or probe says whether switching the picture would free a
-	   frontend. */
+	   frontend. no_ca: the box does not descramble the stream (an e2 stream
+	   with streaming_decryptmode off), so it does not need the CI module. */
 	struct commandStreamHold
 	{
 		t_channel_id channel_id;
 		int64_t      deadline_ms;
 		int32_t      ask_switch;
-		commandStreamHold() : channel_id(0), deadline_ms(0), ask_switch(0) {}
+		int32_t      no_ca;
+		commandStreamHold() : channel_id(0), deadline_ms(0), ask_switch(0), no_ca(0) {}
 	};
 
 	struct responseZapComplete

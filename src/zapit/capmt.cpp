@@ -202,6 +202,18 @@ CCamManager * CCamManager::getInstance(void)
 	return manager;
 }
 
+void CCamManager::GetServices(std::vector<Served> &out)
+{
+	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
+	out.clear();
+	for (cammap_iterator_t it = channel_map.begin(); it != channel_map.end(); ++it) {
+		Served s;
+		s.channel = it->first;
+		s.source = cDemux::GetSource(it->second->getSource());
+		out.push_back(s);
+	}
+}
+
 void CCamManager::StopCam(t_channel_id channel_id, CCam *cam)
 {
 	cam->sendMessage(NULL, 0, false);

@@ -301,9 +301,10 @@ class CZapitClient:public CBasicClient
 	/* Has zapit hold a frontend for a stream of channel_id, giving it
 	   budget_ms from now to have it tuned. False when no whole answer
 	   came; reply is then a failure without a hold. A Deadline on the
-	   calling thread bounds the exchange itself. */
+	   calling thread bounds the exchange itself. uses_ca: the box
+	   descrambles the stream (commandStreamHold::no_ca). */
 	bool holdForStream(const t_channel_id channel_id, unsigned budget_ms, responseStreamHold &reply,
-			   bool ask_switch = false);
+			   bool ask_switch = false, bool uses_ca = true);
 	/* Whether a stream of channel_id would get a frontend now, without
 	   holding one. */
 	bool probeStream(const t_channel_id channel_id, responseStreamHold &reply, bool ask_switch = false);

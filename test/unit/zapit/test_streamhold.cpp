@@ -651,3 +651,76 @@ TEST_CASE("R4: the old number of a revoked place misses the hold offered there n
 	REQUIRE(adopt(new_id, InTime) == B);
 	REQUIRE(givenBack(A) == 1);
 }
+
+namespace
+{
+
+const uint64_t kCiA = 0x1001;
+const uint64_t kCiB = 0x2002;
+
+int ciListed(uint64_t service)
+{
+	uint64_t out[8];
+	const size_t n = ciServices(out, 8);
+	int found = 0;
+	for (size_t i = 0; i < n; ++i)
+		if (out[i] == service)
+			found++;
+	return found;
+}
+
+} // namespace
+
+TEST_CASE("C1: a hold's CI service counts from the offer until the hold is given back", "[zapit][streamhold][ci]")
+{
+	Fresh fresh;
+	uint64_t out[8];
+	const HoldId plain = offer(A, T0);              // a stream the module has nothing to do with
+	REQUIRE(plain != 0);
+	REQUIRE(ciServices(out, 8) == 0);
+
+	const HoldId id = offer(A, T0, kCiA);
+	REQUIRE(ciListed(kCiA) == 1);                   // granted, not come for yet
+	REQUIRE(adopt(id, InTime) == A);
+	REQUIRE(ciListed(kCiA) == 1);                   // adopted, the CA manager may not have it yet
+	drop(id);
+	REQUIRE(ciListed(kCiA) == 1);                   // dropped, its frontend not given back yet
+	collect(InTime, &release);
+	REQUIRE(ciListed(kCiA) == 0);
+	REQUIRE(ciServices(out, 8) == 0);
+
+	// The place used next does not carry the service it had before.
+	const HoldId again = offer(B, T0);
+	REQUIRE((again & 7u) == (id & 7u));
+	REQUIRE(ciServices(out, 8) == 0);
+	drop(plain);
+	drop(again);
+	collect(InTime, &release);
+}
+
+TEST_CASE("C2: a hold nobody came for, a revoked one and one shutdown ended stop counting", "[zapit][streamhold][ci]")
+{
+	Fresh fresh;
+	uint64_t out[8];
+	offer(A, T0, kCiA);
+	collect(InTime, &release);
+	REQUIRE(ciListed(kCiA) == 1);                   // still in time
+	collect(TooLate, &release);
+	REQUIRE(ciListed(kCiA) == 0);                   // nobody came: given back, not counted
+
+	const HoldId on_a = offer(A, T0, kCiA);
+	const HoldId on_b = offer(B, T0, kCiB);
+	REQUIRE(adopt(on_a, InTime) == A);
+	REQUIRE(revoke(A, &release) == 1);              // a recording took frontend A
+	REQUIRE(ciListed(kCiA) == 0);
+	REQUIRE(ciListed(kCiB) == 1);
+
+	// At most as many as asked for.
+	offer(B, T0, kCiA);
+	REQUIRE(ciServices(out, 1) == 1);
+	REQUIRE(ciServices(out, 8) == 2);
+
+	shutdown(&release);
+	REQUIRE(ciServices(out, 8) == 0);
+	REQUIRE(adopt(on_b, InTime) == 0);
+}

@@ -55,6 +55,7 @@ struct Place
 	std::atomic<uint32_t> word;     // generation << 2 | state
 	std::atomic<void *>   fe;
 	std::atomic<uint32_t> adopt_by; // nowMs() by which the owner has to come
+	uint64_t              ci_service; // written and read on zapit's thread only
 };
 
 Place places[kPlaces];
@@ -106,7 +107,7 @@ uint32_t nowMs()
 	return (uint32_t) ts.tv_sec * 1000u + (uint32_t) (ts.tv_nsec / 1000000L);
 }
 
-HoldId offer(void *fe, uint32_t now_ms)
+HoldId offer(void *fe, uint32_t now_ms, uint64_t ci_service)
 {
 	if (closed.load(std::memory_order_acquire))
 		return 0;
@@ -124,6 +125,7 @@ HoldId offer(void *fe, uint32_t now_ms)
 		const uint32_t gen = generationOf(w) + 1;
 		p.fe.store(fe, std::memory_order_relaxed);
 		p.adopt_by.store(now_ms + kAdoptWithinMs, std::memory_order_relaxed);
+		p.ci_service = ci_service;
 		// Published together with the two fields above.
 		p.word.store(wordOf(gen, Offered), std::memory_order_release);
 		return (gen << kPlaceBits) | i;
@@ -294,6 +296,18 @@ size_t held(void **out, size_t max)
 	return n;
 }
 
+size_t ciServices(uint64_t *out, size_t max)
+{
+	size_t n = 0;
+	for (unsigned i = 0; i < kPlaces && n < max; ++i)
+	{
+		const uint32_t w = places[i].word.load(std::memory_order_acquire);
+		if (stateOf(w) != Free && places[i].ci_service != 0)
+			out[n++] = places[i].ci_service;
+	}
+	return n;
+}
+
 #ifdef STREAMHOLD_TEST_POINTS
 void setTestHook(void (*hook)(TestPoint, unsigned))
 {
@@ -314,6 +328,7 @@ void resetForTest()
 		places[i].word.store(0);
 		places[i].fe.store(0);
 		places[i].adopt_by.store(0);
+		places[i].ci_service = 0;
 	}
 }
 #endif
