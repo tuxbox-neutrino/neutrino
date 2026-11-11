@@ -9,10 +9,12 @@
 # waits on another thread - no call to the
 # channel daemon's client, no join of a thread, no exchange over a socket - for
 # a thread that waits on this lock while the hold waits on it would be the same
-# stop by two threads. And the other way round: a function whose name ends in
-# Locked, which the scans trust to be called with the lock held, is called only
-# from a hold, or from one of the two functions named below whose callers hold
-# it.
+# stop by two threads. Nor does a hold ask the recorder, or the zap rule that
+# asks it: a recording that starts holds the recorder's lock while zapit tunes
+# for it and reads the new PMT under this lock. And the other way round: a
+# function whose name ends in Locked, which the scans trust to be called with
+# the lock held, is called only from a hold, or from one of the two functions
+# named below whose callers hold it.
 #
 # The functions that take the lock are read out of the files that define them,
 # members and free functions alike, so one that starts taking it is held to
@@ -45,7 +47,7 @@ HOLDERS="src/zapit/getservices.cpp src/zapit/bouquets.cpp src/zapit/zapit.cpp \
 	src/driver/scanepg.cpp src/driver/pictureviewer/pictureviewer.cpp \
 	src/gui/channellist.cpp src/gui/bedit/bouqueteditor_bouquets.cpp \
 	src/gui/bedit/bouqueteditor_channels.cpp src/coreapi/box/channelsource_real.cpp \
-	src/neutrino.cpp"
+	src/neutrino.cpp src/driver/record.cpp"
 
 # Functions that call a Locked form outside a hold of their own, because every
 # way to them holds the lock: ParseChannels is reached only from the service
@@ -172,6 +174,8 @@ for f in $HOLDERS; do
 			}
 			if (text ~ /g_Zapit->|Zapit->|(^|[^A-Za-z_0-9]|pthread_)join[ \t]*\(|LogoStop[ \t]*\(|send_data[ \t]*\(|receive_[a-z]+[ \t]*\(/)
 				print "  " file ":" $1 ": waits on another thread under the lock: " text
+			if (text ~ /CRecordManager::|(^|[^A-Za-z_0-9])(applicationCanZap|zapPossible|SameTP)[ \t]*\(/)
+				print "  " file ":" $1 ": asks the recorder under the lock: " text
 		}
 	' "$tmp/marked" >> "$tmp/findings"
 done

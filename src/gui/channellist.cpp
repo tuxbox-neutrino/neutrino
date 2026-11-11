@@ -2528,11 +2528,22 @@ bool CChannelList::SameTP(t_channel_id channel_id)
 		if (IS_WEBCHAN(channel_id))
 			return true;
 
-		CZapitChannel * channel = CServiceManager::getInstance()->FindChannel(channel_id);
-		if(channel)
-			iscurrent = SameTP(channel);
-		else
-			iscurrent = false;
+		/* A copy, taken under the channel lock and read without it: the web
+		   API asks this on a thread of its own, where a reload may free the
+		   channel, and the rule asks the recorder, whose lock a recording
+		   that starts holds while zapit reads its PMT under the channel
+		   lock. */
+		CZapitChannel copy(std::string(), channel_id, 0, 0, 0);
+		bool found = false;
+		{
+			CServiceManager::ChannelGuard guard;
+			CZapitChannel *channel = CServiceManager::getInstance()->FindChannel(channel_id);
+			if (channel) {
+				copy = *channel;
+				found = true;
+			}
+		}
+		iscurrent = found && SameTP(&copy);
 	}
 	return iscurrent;
 }

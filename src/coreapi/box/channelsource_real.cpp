@@ -349,10 +349,12 @@ class RealChannelSource : public ChannelSource
 			return Status::Ok;
 		}
 
+		/* Without the channel lock: the rule asks the recorder, and a
+		   recording that starts holds the recorder's lock while zapit tunes
+		   for it and reads the new PMT under the channel lock. The rule reads
+		   the channel from a copy it takes under that lock alone. */
 		Status canZap(ChannelId id, bool &out) const
 		{
-			// The rule looks the channel up, and a reload may be freeing it.
-			CServiceManager::ChannelGuard guard;
 			out = applicationCanZap(id);
 			return Status::Ok;
 		}

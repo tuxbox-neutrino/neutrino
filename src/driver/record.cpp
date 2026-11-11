@@ -2222,8 +2222,17 @@ CRecordInstance* CRecordManager::getUseCI()
 	mutex.lock();
 	for(recmap_iterator_t it = recmap.begin(); it != recmap.end(); it++) {
 		CRecordInstance * inst = it->second;
-		CZapitChannel * channel = CServiceManager::getInstance()->FindChannel(inst->GetChannelId());
-		if (channel->bUseCI) {
+		/* Read under the channel lock, which a reload frees the channels
+		   under, inside this manager's lock: the order a recording that
+		   starts has them, holding this one while zapit reads its PMT under
+		   the channel lock. Nothing is taken inside it. */
+		bool ci;
+		{
+			CServiceManager::ChannelGuard guard;
+			CZapitChannel * channel = CServiceManager::getInstance()->FindChannel(inst->GetChannelId());
+			ci = channel != NULL && channel->bUseCI;
+		}
+		if (ci) {
 			mutex.unlock();
 			return inst;
 		}
