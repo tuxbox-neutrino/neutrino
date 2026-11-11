@@ -22,7 +22,9 @@
  * on the grid here: a reader hands on whole packets only, and a client
  * that took part of a packet gets the rest of that packet first and
  * otherwise loses whole packets only. A client that falls behind stays
- * connected.
+ * connected; one that takes nothing at all for kStallMs, also while the
+ * reader brings no packet, or whose send fails for good, is handed back to
+ * be ended.
  */
 
 #ifndef __tsgrid_h__
@@ -100,13 +102,18 @@ class Sink
 public:
 	virtual ~Sink() {}
 	virtual ssize_t send(int fd, const unsigned char *p, size_t n) = 0;
+	/* The bytes sent to fd that its peer has not taken yet, or -1 where
+	   that is not known. */
+	virtual long queued(int fd) { (void) fd; return -1; }
 };
 
-/* send(2) on a socket, without waiting and without SIGPIPE. */
+/* send(2) on a socket, without waiting and without SIGPIPE; what is
+   queued is what SIOCOUTQ answers. */
 class SocketSink : public Sink
 {
 public:
 	ssize_t send(int fd, const unsigned char *p, size_t n);
+	long queued(int fd);
 };
 
 /* How often one client is offered one buffer, the rest of a packet it
@@ -116,6 +123,14 @@ const int kTries = 11;
 /* A client that keeps falling behind is reported once, then at most this
    often, with the packets it lost since the last report. */
 const int64_t kReportMs = 10000;
+/* A client that takes nothing of what it is offered for this long is ended,
+   as one whose send fails for good is: a stopped player or a lost network
+   keeps the connection open, and with it the stream and the tuner it holds.
+   Above the gaps a working client leaves - a player refilling its buffer,
+   TCP backing off over a short outage, whose first seven retransmissions
+   take about 25 s - and short enough that a picture waiting for that tuner
+   gets it back about half a minute after the client stopped taking. */
+const int64_t kStallMs = 30000;
 
 /* What each client of one stream is still owed. The caller keeps it under
    the lock that guards its set of clients and holds that lock over send(),
@@ -129,9 +144,23 @@ public:
 	   buffer. A client that cannot take that rest skips the whole buffer;
 	   one that takes part of the buffer is owed the rest of the packet it
 	   stopped in, and loses the packets after it. Report lines are added
-	   to report, for the caller to print once it let go of its lock. */
+	   to report, for the caller to print once it let go of its lock.
+	   A client that took nothing it was offered for kStallMs, or whose
+	   send failed for good (anything but a full socket, a signal or a
+	   lack of buffers), is offered nothing more and added to ended, once,
+	   for the caller to end the way a hang-up is ended. */
 	void send(const std::set<int> &fds, const unsigned char *buf, size_t n,
-		  Sink &sink, int64_t now_ms, std::vector<std::string> &report);
+		  Sink &sink, int64_t now_ms, std::vector<std::string> &report,
+		  std::vector<int> &ended);
+	/* For a round of the reader that brought no whole packet, as when the
+	   tuner lost its signal: a client that took none of an offer kStallMs
+	   ago, and nothing its socket held since, is ended as send ends it.
+	   One whose socket emptied took everything and is not idle any more;
+	   one whose socket holds less than at the last look took some, and its
+	   kStallMs start again from there; one whose socket cannot tell counts
+	   as having taken nothing. */
+	void expire(const std::set<int> &fds, Sink &sink, int64_t now_ms,
+		    std::vector<std::string> &report, std::vector<int> &ended);
 	/* A client that is removed: its state goes with it, so a new client
 	   on the same descriptor starts on a packet. */
 	void forget(int fd);
@@ -147,14 +176,23 @@ private:
 		bool          reported;
 		int64_t       reported_ms;
 		unsigned long dropped;    // packets lost since the last report
+		int64_t       idle_ms;    // first offer it took none of since it took any, or -1
+		long          idle_queued; // its socket's queue at the last look while idle, or -1
+		bool          ended;      // offered nothing more
 
-		Client() : rest_len(0), reported(false), reported_ms(0), dropped(0) {}
+		Client() : rest_len(0), reported(false), reported_ms(0), dropped(0),
+			   idle_ms(-1), idle_queued(-1), ended(false) {}
 	};
 
 	void sendTo(int fd, Client &c, const unsigned char *buf, size_t n,
-		    Sink &sink, int64_t now_ms, std::vector<std::string> &report);
+		    Sink &sink, int64_t now_ms, std::vector<std::string> &report,
+		    std::vector<int> &ended);
 	void lost(int fd, Client &c, unsigned long packets, int64_t now_ms,
 		  std::vector<std::string> &report);
+	void settle(int fd, Client &c, size_t moved, int err, int64_t now_ms,
+		    std::vector<std::string> &report, std::vector<int> &ended);
+	void stalled(int fd, Client &c, int64_t now_ms, std::vector<std::string> &report,
+		     std::vector<int> &ended);
 
 	std::map<int, Client> clients;
 };

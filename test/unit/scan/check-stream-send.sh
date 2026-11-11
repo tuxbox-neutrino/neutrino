@@ -138,6 +138,36 @@ if grep -n -E 'Send\([[:space:]]*r[[:space:]]*\)' "$tmp/run" > "$tmp/hits"; then
 	fail=1
 fi
 
+# 4b. A read that brings no whole packet, as when the tuner lost its signal,
+#     still holds the clients to the stall: tsgrid's expire runs under the
+#     stream's lock, the clients it ends are shut down under it, and nothing
+#     is printed while it is held.
+s=`grep -n -E 'Send\([[:space:]]*whole[[:space:]]*\)' "$tmp/run" | head -1 | cut -d: -f1`
+e=`grep -n -E 'Expire\([[:space:]]*\)' "$tmp/run" | head -1 | cut -d: -f1`
+if [ -z "$s" ] || [ -z "$e" ] || [ "$e" -ne $((s + 2)) ] || ! sed -n "$((s + 1))p" "$tmp/run" | grep -q -E '^[[:space:]]*else[[:space:]]*$'; then
+	echo "src/driver/streamts.cpp: CStreamInstance::run does not hold the clients to the stall in a round without a whole packet" >&2
+	fail=1
+fi
+body 'void CStreamInstance::Expire(' < "$tmp/streamts" > "$tmp/expire"
+[ -s "$tmp/expire" ] || { echo "check-stream-send.sh: no CStreamInstance::Expire in src/driver/streamts.cpp" >&2; exit 1; }
+awk '
+	{ line = $0 }
+	/ScopedLock<OpenThreads::Mutex>/ && !lockdepth { lockdepth = depth; inlock = 1 }
+	{ o = gsub(/\{/, "{"); c = gsub(/\}/, "}"); depth += o - c }
+	inlock { print "L " line } !inlock { print "U " line }
+	inlock && depth < lockdepth { inlock = 0 }
+' "$tmp/expire" > "$tmp/expirelock"
+grep -q -E '^L .*clients\.expire\([[:space:]]*fds[[:space:]]*,' "$tmp/expirelock" &&
+grep -q -E '^L .*::shutdown\([[:space:]]*ended\[i\][[:space:]]*,[[:space:]]*SHUT_RDWR[[:space:]]*\)' "$tmp/expirelock" || {
+	echo "src/driver/streamts.cpp: CStreamInstance::Expire does not end stalled clients through tsgrid with the stream's lock held" >&2
+	fail=1
+}
+if grep -n -E '^L .*(printf|perror|fprintf|dprintf)' "$tmp/expirelock" > "$tmp/hits"; then
+	echo "src/driver/streamts.cpp: CStreamInstance::Expire prints while it holds the stream's lock:" >&2
+	sed 's/^/  /' "$tmp/hits" >&2
+	fail=1
+fi
+
 # 5. ffmpeg's output goes through the collector with its own buffer; the
 #    avio buffer itself is not sent from.
 awk '/^int CStreamStream::write_packet\(/ { f = 1 } f { print } f && /^}/ { exit }' "$tmp/streamts" > "$tmp/write"

@@ -67,6 +67,9 @@ class CStreamInstance : public OpenThreads::Thread
 		tsgrid::Collector grid;
 		/* r bytes of whole packets, at _buf or else at buf. */
 		virtual bool Send(ssize_t r, const unsigned char * _buf = NULL);
+		/* A read that brought no whole packet: the clients that stopped
+		   taking are still held to the stall (tsgrid::Clients::expire). */
+		void Expire();
 		virtual void Close();
 		virtual void run();
 		friend class CStreamManager;

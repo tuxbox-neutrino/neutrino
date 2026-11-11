@@ -16,6 +16,7 @@
 
 #include <driver/tsgrid.h>
 
+#include <cerrno>
 #include <cstring>
 #include <deque>
 #include <map>
@@ -89,8 +90,11 @@ std::vector<unsigned> operator+(std::vector<unsigned> a, const std::vector<unsig
 }
 
 /* A send whose answers a case scripts per descriptor: each call takes the
-   next entry, at most that many bytes, -1 for none (a full socket). With
+   next entry, at most that many bytes, -1 for none (a full socket, EAGAIN),
+   kFail for a send that fails with the descriptor's failure errno. With
    no entry left a call takes all it is offered. */
+const ssize_t kFail = -2;
+
 class ScriptedSink : public tsgrid::Sink
 {
 public:
@@ -103,8 +107,16 @@ public:
 		{
 			take = s.front();
 			s.pop_front();
-			if (take < 0)
+			if (take == kFail)
+			{
+				errno = failure[fd];
 				return -1;
+			}
+			if (take < 0)
+			{
+				errno = EAGAIN;
+				return -1;
+			}
 			if ((size_t) take > n)
 				take = (ssize_t) n;
 		}
@@ -114,18 +126,38 @@ public:
 	void takes(int fd, ssize_t n) { script[fd].push_back(n); }
 	// A full socket for the rest of one buffer.
 	void full(int fd) { for (int i = 0; i < tsgrid::kTries; ++i) takes(fd, -1); }
+	// A send that fails with err, then a full socket for the rest of the buffer.
+	void fails(int fd, int err)
+	{
+		failure[fd] = err;
+		takes(fd, kFail);
+		for (int i = 1; i < tsgrid::kTries; ++i)
+			takes(fd, -1);
+	}
+
+	// What a descriptor's socket holds that its peer has not taken; unknown where unset.
+	long queued(int fd)
+	{
+		std::map<int, long>::const_iterator it = queue.find(fd);
+		return it == queue.end() ? -1 : it->second;
+	}
 
 	std::map<int, std::deque<ssize_t> > script;
 	std::map<int, Bytes> got;
 	std::map<int, int> calls;
+	std::map<int, int> failure;
+	std::map<int, long> queue;
 };
 
 /* Offers one buffer to the clients; the script written for it ends with
-   it, whatever of it was not used. */
+   it, whatever of it was not used. The clients it ended go to ended where
+   a case asks for them. */
 void offer(tsgrid::Clients &clients, ScriptedSink &sink, const std::set<int> &fds,
-	   const Bytes &b, int64_t now_ms, std::vector<std::string> &report)
+	   const Bytes &b, int64_t now_ms, std::vector<std::string> &report,
+	   std::vector<int> *ended = NULL)
 {
-	clients.send(fds, &b[0], b.size(), sink, now_ms, report);
+	std::vector<int> none;
+	clients.send(fds, &b[0], b.size(), sink, now_ms, report, ended ? *ended : none);
 	sink.script.clear();
 }
 
@@ -402,4 +434,238 @@ TEST_CASE("the socket send gives up at once on a full socket", "[driver][tsgrid]
 	// A peer that is gone does not raise a signal.
 	REQUIRE(sink.send(sv[0], &chunk[0], chunk.size()) < 0);
 	close(sv[0]);
+}
+
+TEST_CASE("G8: a client that takes nothing for kStallMs is ended once and offered nothing more", "[driver][tsgrid][stall]")
+{
+	tsgrid::Clients clients;
+	ScriptedSink sink;
+	std::vector<std::string> report;
+	std::vector<int> ended;
+	const Bytes three = packets(0, 3);
+
+	// fd 5 takes nothing from its first offer on, fd 6 keeps up.
+	const int64_t at[] = { 1000, 10000, 20000, 1000 + tsgrid::kStallMs - 1 };
+	for (size_t i = 0; i < 4; ++i)
+	{
+		sink.full(5);
+		offer(clients, sink, fdSet(5, 6), three, at[i], report, &ended);
+	}
+	REQUIRE(ended.empty());
+
+	sink.full(5);
+	offer(clients, sink, fdSet(5, 6), three, 1000 + tsgrid::kStallMs, report, &ended);
+	REQUIRE(ended == std::vector<int>(1, 5));
+	REQUIRE(report.back() == "fd 5 ended: it took nothing for 30 s");
+
+	// Ended: no send to it any more, and not ended twice.
+	const int calls = sink.calls[5];
+	offer(clients, sink, fdSet(5, 6), three, 40000, report, &ended);
+	REQUIRE(sink.calls[5] == calls);
+	REQUIRE(ended.size() == 1);
+	REQUIRE(numbers(sink.got[6]) == range(0, 3) + range(0, 3) + range(0, 3) + range(0, 3) +
+					range(0, 3) + range(0, 3));
+}
+
+TEST_CASE("G9: a client that takes any of an offer is not idle", "[driver][tsgrid][stall]")
+{
+	tsgrid::Clients clients;
+	ScriptedSink sink;
+	std::vector<std::string> report;
+	std::vector<int> ended;
+	const Bytes three = packets(0, 3);
+
+	sink.full(5);
+	offer(clients, sink, fdSet(5), three, 0, report, &ended);
+	// One byte at 25 s, then nothing: idle again from the next offer on.
+	sink.takes(5, 1);
+	for (int i = 1; i < tsgrid::kTries; ++i)
+		sink.takes(5, -1);
+	offer(clients, sink, fdSet(5), three, 25000, report, &ended);
+	sink.full(5);
+	offer(clients, sink, fdSet(5), three, 26000, report, &ended);
+	sink.full(5);
+	offer(clients, sink, fdSet(5), three, 26000 + tsgrid::kStallMs - 1, report, &ended);
+	REQUIRE(ended.empty());
+	sink.full(5);
+	offer(clients, sink, fdSet(5), three, 26000 + tsgrid::kStallMs, report, &ended);
+	REQUIRE(ended == std::vector<int>(1, 5));
+}
+
+TEST_CASE("G10: a send that fails for good ends the client at once, a full socket or a signal does not", "[driver][tsgrid][stall]")
+{
+	const int transient[] = { EAGAIN, EINTR, ENOBUFS };
+	for (size_t i = 0; i < 3; ++i)
+	{
+		tsgrid::Clients clients;
+		ScriptedSink sink;
+		std::vector<std::string> report;
+		std::vector<int> ended;
+		sink.fails(5, transient[i]);
+		offer(clients, sink, fdSet(5), packets(0, 3), 0, report, &ended);
+		REQUIRE(ended.empty());
+	}
+
+	const int fatal[] = { EPIPE, ECONNRESET, EBADF };
+	for (size_t i = 0; i < 3; ++i)
+	{
+		tsgrid::Clients clients;
+		ScriptedSink sink;
+		std::vector<std::string> report;
+		std::vector<int> ended;
+		sink.fails(5, fatal[i]);
+		offer(clients, sink, fdSet(5, 6), packets(0, 3), 0, report, &ended);
+		REQUIRE(ended == std::vector<int>(1, 5));
+		REQUIRE(report.back() == std::string("fd 5 ended: ") + strerror(fatal[i]));
+		// One try, not the eleven a full socket is given.
+		REQUIRE(sink.calls[5] == 1);
+		REQUIRE(numbers(sink.got[6]) == range(0, 3));
+	}
+}
+
+TEST_CASE("G11: a client forgotten after it was ended starts afresh on its descriptor", "[driver][tsgrid][stall]")
+{
+	tsgrid::Clients clients;
+	ScriptedSink sink;
+	std::vector<std::string> report;
+	std::vector<int> ended;
+	sink.fails(5, EPIPE);
+	offer(clients, sink, fdSet(5), packets(0, 3), 0, report, &ended);
+	REQUIRE(ended.size() == 1);
+
+	clients.forget(5);
+	sink.got.clear();
+	offer(clients, sink, fdSet(5), packets(3, 3), 1000, report, &ended);
+	REQUIRE(numbers(sink.got[5]) == range(3, 3));
+	REQUIRE(ended.size() == 1);
+}
+
+TEST_CASE("G12: over a socket, a peer that reads nothing is ended after kStallMs, one that is gone at once", "[driver][tsgrid][stall]")
+{
+	int sv[2];
+	REQUIRE(socketpair(AF_UNIX, SOCK_STREAM, 0, sv) == 0);
+	tsgrid::SocketSink sink;
+	tsgrid::Clients clients;
+	std::vector<std::string> report;
+	std::vector<int> ended;
+	const Bytes chunk = packets(0, 64);
+
+	// The peer reads nothing: the socket fills, and then takes nothing.
+	int64_t now = 0;
+	for (int i = 0; i < 100000 && ended.empty() && now <= tsgrid::kStallMs + 1000; ++i, now += 10)
+		clients.send(fdSet(sv[0]), &chunk[0], chunk.size(), sink, now, report, ended);
+	REQUIRE(ended == std::vector<int>(1, sv[0]));
+	REQUIRE(now > tsgrid::kStallMs);
+	clients.forget(sv[0]);
+
+	// The peer closes: the next send fails for good.
+	close(sv[1]);
+	ended.clear();
+	clients.send(fdSet(sv[0]), &chunk[0], chunk.size(), sink, now, report, ended);
+	REQUIRE(ended == std::vector<int>(1, sv[0]));
+	close(sv[0]);
+}
+
+TEST_CASE("G13: a client that stopped taking is ended after kStallMs though no packet comes any more", "[driver][tsgrid][stall]")
+{
+	tsgrid::Clients clients;
+	ScriptedSink sink;
+	std::vector<std::string> report;
+	std::vector<int> ended;
+
+	// fd 5's socket is full from this offer on, fd 6 takes everything.
+	sink.full(5);
+	offer(clients, sink, fdSet(5, 6), packets(0, 3), 1000, report, &ended);
+	sink.queue[5] = 4096;
+	sink.queue[6] = 0;
+
+	// Then the tuner loses its signal: the reader's rounds bring nothing.
+	clients.expire(fdSet(5, 6), sink, 1100, report, ended);
+	clients.expire(fdSet(5, 6), sink, 1000 + tsgrid::kStallMs - 1, report, ended);
+	REQUIRE(ended.empty());
+	clients.expire(fdSet(5, 6), sink, 1000 + tsgrid::kStallMs, report, ended);
+	REQUIRE(ended == std::vector<int>(1, 5));
+	REQUIRE(report.back() == "fd 5 ended: it took nothing for 30 s");
+
+	// Once; and a client that never stopped taking is not looked at.
+	clients.expire(fdSet(5, 6), sink, 1000 + 2 * tsgrid::kStallMs, report, ended);
+	REQUIRE(ended.size() == 1);
+
+	// A descriptor the clients were never offered anything on is left alone.
+	clients.expire(fdSet(9), sink, 1000 + 3 * tsgrid::kStallMs, report, ended);
+	REQUIRE(ended.size() == 1);
+}
+
+TEST_CASE("G14: without packets, a client that took some is held to kStallMs from then, one that took all is not idle, one whose socket cannot tell is ended", "[driver][tsgrid][stall]")
+{
+	tsgrid::Clients clients;
+	ScriptedSink sink;
+	std::vector<std::string> report;
+	std::vector<int> ended;
+
+	sink.full(5);
+	sink.full(7);
+	sink.full(8);
+	offer(clients, sink, fdSet(5, 7), packets(0, 3), 0, report, &ended);
+	offer(clients, sink, fdSet(8), packets(0, 3), 0, report, &ended);
+	sink.queue[5] = 4096;
+	sink.queue[8] = 4096;
+	clients.expire(fdSet(5, 7), sink, 100, report, ended);
+	clients.expire(fdSet(8), sink, 100, report, ended);
+	sink.queue[5] = 1024;      // the player took some, then stops again
+	sink.queue[8] = 0;         // took all
+	clients.expire(fdSet(5, 7), sink, 200, report, ended);
+	clients.expire(fdSet(8), sink, 200, report, ended);
+	clients.expire(fdSet(5, 7), sink, tsgrid::kStallMs, report, ended);
+	clients.expire(fdSet(8), sink, tsgrid::kStallMs, report, ended);
+	REQUIRE(ended == std::vector<int>(1, 7));
+
+	// fd 5: kStallMs from what it took last, though no packet comes.
+	clients.expire(fdSet(5), sink, 200 + tsgrid::kStallMs - 1, report, ended);
+	REQUIRE(ended.size() == 1);
+	clients.expire(fdSet(5), sink, 200 + tsgrid::kStallMs, report, ended);
+	REQUIRE(ended.size() == 2);
+	REQUIRE(ended[1] == 5);
+	REQUIRE(report.back() == "fd 5 ended: it took nothing for 30 s");
+
+	// fd 8 took all it was given: nothing to hold it to without packets.
+	clients.expire(fdSet(8), sink, 100000, report, ended);
+	REQUIRE(ended.size() == 2);
+}
+
+TEST_CASE("G15: over a socket, the stall runs on without packets, and a peer that reads up is not idle", "[driver][tsgrid][stall]")
+{
+	tsgrid::SocketSink sink;
+	const Bytes chunk = packets(0, 64);
+	for (int reads_up = 0; reads_up < 2; ++reads_up)
+	{
+		int sv[2];
+		REQUIRE(socketpair(AF_UNIX, SOCK_STREAM, 0, sv) == 0);
+		tsgrid::Clients clients;
+		std::vector<std::string> report;
+		std::vector<int> ended;
+
+		// The peer reads nothing until the socket is full and an offer is taken none of.
+		for (int i = 0; i < 100000 && sink.send(sv[0], &chunk[0], chunk.size()) > 0; ++i)
+			;
+		clients.send(fdSet(sv[0]), &chunk[0], chunk.size(), sink, 0, report, ended);
+		REQUIRE(sink.queued(sv[0]) > 0);
+		REQUIRE(ended.empty());
+
+		if (reads_up)
+		{
+			std::vector<unsigned char> into(65536);
+			while (recv(sv[1], &into[0], into.size(), MSG_DONTWAIT) > 0)
+				;
+			REQUIRE(sink.queued(sv[0]) == 0);
+		}
+		clients.expire(fdSet(sv[0]), sink, 100, report, ended);
+		clients.expire(fdSet(sv[0]), sink, tsgrid::kStallMs, report, ended);
+		if (reads_up)
+			REQUIRE(ended.empty());
+		else
+			REQUIRE(ended == std::vector<int>(1, sv[0]));
+		close(sv[1]);
+		close(sv[0]);
+	}
 }

@@ -149,14 +149,39 @@ bool CStreamInstance::Send(ssize_t r, const unsigned char *_buf)
 	   its descriptor cannot reach a new client in the middle of it. */
 	tsgrid::SocketSink sink;
 	std::vector<std::string> report;
+	std::vector<int> ended;
 	{
 		OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
-		clients.send(fds, b, (size_t) r, sink, time_monotonic_ms(), report);
+		clients.send(fds, b, (size_t) r, sink, time_monotonic_ms(), report, ended);
+		/* A client that stopped taking, or whose send failed for good, is
+		   ended the way a hang-up is: the manager's poll sees the socket
+		   shut down and removes the client, which closes it, gives the hold
+		   back with the last client and announces the end. Shut down under
+		   this lock, which the descriptor is closed under, so it cannot be
+		   a new client's by then. */
+		for (size_t i = 0; i < ended.size(); ++i)
+			::shutdown(ended[i], SHUT_RDWR);
 	}
 	for (size_t i = 0; i < report.size(); ++i)
 		printf("CStreamInstance::%s: %s\n", __FUNCTION__, report[i].c_str());
 
 	return true;
+}
+
+void CStreamInstance::Expire()
+{
+	tsgrid::SocketSink sink;
+	std::vector<std::string> report;
+	std::vector<int> ended;
+	{
+		OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
+		clients.expire(fds, sink, time_monotonic_ms(), report, ended);
+		// Ended as Send ends them, under the lock the descriptors are closed under.
+		for (size_t i = 0; i < ended.size(); ++i)
+			::shutdown(ended[i], SHUT_RDWR);
+	}
+	for (size_t i = 0; i < report.size(); ++i)
+		printf("CStreamInstance::%s: %s\n", __FUNCTION__, report[i].c_str());
 }
 
 void CStreamInstance::Close()
@@ -243,6 +268,8 @@ void CStreamInstance::run()
 		const size_t whole = grid.add(r);
 		if (whole)
 			Send(whole);
+		else
+			Expire();
 		grid.next(buf);
 	}
 
