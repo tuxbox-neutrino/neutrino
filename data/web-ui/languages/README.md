@@ -59,7 +59,7 @@ calls itself; `en`, `de`, `cs`, `pl`, `pt` and `sk` have one.
 ## Runtime notes
 
 - The active language is stored as `Language.selected` in `nhttpd.conf`
-  and switched at runtime via the header globe button or the setup wizard
+  and switched at runtime via the header globe button or the welcome page
   (→ `PUT /api/v1/webui/language`, by the language's code).
   `GET /api/v1/session` says the active
   language's code to anybody, so the sign-in page is shown in it.

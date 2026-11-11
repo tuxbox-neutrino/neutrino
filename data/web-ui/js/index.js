@@ -1,8 +1,9 @@
 // The script of index.html.
 
-// First run (webui.conf startup != true) -> setup wizard,
-// otherwise jump to the configured start page. Any error
-// falls back to the dashboard so the UI is always reachable.
+// Until somebody went through the welcome page (startup is not true;
+// the box answers false where it took no former file over) -> the
+// welcome page, otherwise the configured start page. Any error falls
+// back to the dashboard so the UI is always reachable.
 (function () {
 	var fallback = '/dashboard.html';
 	// the interface's own pages a start page can be

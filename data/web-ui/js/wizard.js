@@ -1,40 +1,26 @@
-// The script of wizard.html.
+// The script of wizard.html, the welcome page.
 
-// Auge-Icons lokal: die Wizard-Seite laedt webui-header.js bewusst nicht
-var WIZ_EYE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:1rem;height:1rem;vertical-align:middle" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';
-var WIZ_EYEOFF = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:1rem;height:1rem;vertical-align:middle" aria-hidden="true"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>';
-// The icon mirrors the state: crossed-out eye while masked
-document.querySelectorAll('.wiz-pw-row .webui-btn').forEach(function(b) { b.innerHTML = WIZ_EYEOFF; });
+// index.js sends a browser here while the web interface's settings answer
+// startup other than true. The page asks for the language and the start page
+// and writes startup=true only when it is left by Get started, Skip or its
+// link to the web server's settings, so it is shown until somebody went
+// through it, and never after.
 
-function wizTogglePw(id, btn) {
-	var el = document.getElementById(id);
-	var show = el.type === 'password';
-	el.type = show ? 'text' : 'password';
-	btn.setAttribute('aria-pressed', show ? 'true' : 'false');
-	btn.innerHTML = show ? WIZ_EYE : WIZ_EYEOFF;
-}
-
-var wizParams = new URLSearchParams(location.search);
-var wizLoginOnly = wizParams.get('step') === 'login';
-var wizTarget = 'dashboard.html';
-var wizPwShipped = false;
-// whether a password is set, which a new one is set only with the current one of
-var wizHasPw = true;
-// the user name the box has, which a new one is set only with the current password for
-var wizUserWas = 'root';
-
-// The active language, by its code, so it is only written when it
+// The language in effect, by its code, so it is only written when it
 // changes (a write has the web server read its file again).
 var wizStartLang = '';
-
-/* /api/v1 with the session this page has, and its second token for a
-   change. Without one, the sign-in; with one that still owes the
-   owner's own password, the page that sets it. Both come back here. */
 var WIZ_AWAY = 'away';
-async function wizV1(method, path, body) {
+// a write under way: the buttons and the link wait for it
+var wizBusy = false;
+
+/* The session this page writes with. A browser without one signs in
+   first, and one that still owes the owner's own password sets it first;
+   both come back here, so the choices are made once, by a session that
+   may write them. */
+async function wizSession() {
 	var sr = await fetch('/api/v1/session', {credentials: 'same-origin', cache: 'no-store'});
 	var s = sr.ok ? await sr.json() : null;
-	var back = encodeURIComponent(location.pathname + location.search);
+	var back = encodeURIComponent(location.pathname);
 	if (s && s.authenticated && s.password_change_required) {
 		location.replace('/password.html?next=' + back);
 		throw new Error(WIZ_AWAY);
@@ -43,6 +29,12 @@ async function wizV1(method, path, body) {
 		location.replace('/login.html?next=' + back);
 		throw new Error(WIZ_AWAY);
 	}
+	return s;
+}
+
+// /api/v1 with the session this page has, and its second token for a change.
+async function wizV1(method, path, body) {
+	var s = await wizSession();
 	var headers = {};
 	if (method !== 'GET') headers[s.csrf_header] = s.csrf;
 	if (body !== undefined) headers['Content-Type'] = 'application/json';
@@ -53,7 +45,6 @@ async function wizV1(method, path, body) {
 	if (!r.ok) {
 		var e = new Error((data && (data.detail || data.title)) || ('HTTP ' + r.status));
 		e.status = r.status;
-		e.code = (data && typeof data.type === 'string' && data.type.indexOf('/errors/') === 0) ? data.type.substring(8) : '';
 		throw e;
 	}
 	return data;
@@ -65,11 +56,20 @@ function wizErrText(e) {
 	return e && e.status ? webuiKindText(e.status) : webuiL('err.no_answer', 'The box did not answer');
 }
 
-// The languages the pages can be shown in, the active one chosen.
+function wizError(msg) {
+	var el = document.getElementById('wizErr');
+	el.hidden = !msg;
+	if (!msg)
+		return;
+	el.textContent = msg;
+	el.focus();
+}
+
+// The languages the pages can be shown in, the one in effect chosen.
 async function wizLoadLanguages() {
+	var sel = document.getElementById('wizLang');
 	try {
 		var l = await wizV1('GET', '/webui/language');
-		var sel = document.getElementById('wizLang');
 		(l.items || []).forEach(function(it) {
 			var o = document.createElement('option');
 			o.value = it.code;
@@ -79,152 +79,97 @@ async function wizLoadLanguages() {
 		});
 		wizStartLang = l.selected || '';
 	} catch (e) {
+		if (e.message === WIZ_AWAY)
+			return;
 		// no list to choose from: said in the field, which then stays as it is
-		var none = document.getElementById('wizLang');
 		var o = document.createElement('option');
 		o.value = '';
 		o.textContent = webuiL('state.failed', 'Could not be read');
-		none.replaceChildren(o);
-		none.disabled = true;
+		sel.replaceChildren(o);
+		sel.disabled = true;
 	}
 }
 
-async function wizLoadLogin() {
+// The start page set so far chosen, where it is one of the list.
+async function wizLoadStartPage() {
 	try {
-		var w = await wizV1('GET', '/system/webserver');
-		document.getElementById('wizAuth').checked = !!w.page_login;
-		document.getElementById('wizUser').value = w.user || 'root';
-		wizUserWas = w.user || 'root';
-		wizPwShipped = !!w.password_shipped;
-		wizHasPw = w.has_password !== false;
-	} catch (e) {}
+		var w = await wizV1('GET', '/webui/settings');
+		var page = '';
+		((w && w.items) || []).forEach(function(it) { if (it.key === 'start_page') page = String(it.value).replace(/^\//, ''); });
+		var sel = document.getElementById('wizPage');
+		if (Array.prototype.some.call(sel.options, function(o) { return o.value === page; }))
+			sel.value = page;
+	} catch (e) { /* the first of the list stays chosen */ }
 }
 
-function wizShowLogin() {
-	document.getElementById('wizCardBasics').hidden = true;
-	document.getElementById('wizCardLogin').hidden = false;
-}
-
-async function wizNext(btn) {
-	btn.disabled = true;
-	var lang = document.getElementById('wizLang').value;
-	wizTarget = document.getElementById('wizPage').value;
-	try {
-		await wizV1('PATCH', '/webui/settings', {startup: 'true', start_page: wizTarget});
-		if (lang && lang !== wizStartLang)
-			await wizV1('PUT', '/webui/language', {language: lang});
-		wizShowLogin();
-	} catch (e) {
-		btn.disabled = false;
-		wizError(e.message === WIZ_AWAY ? WIZ_AWAY : wizErrText(e), 'wizErr0');
-	}
-}
-
-function wizError(msg, id) {
-	if (msg === WIZ_AWAY) return;
-	var el = document.getElementById(id || 'wizErr');
-	el.hidden = false;
-	el.textContent = msg;
-	el.focus();
-}
-
-/* A change of the login restarts the web server once the answer is out;
-   the next page is asked for only once it answers again, which its
-   start count says. Port and address are not the wizard's to change.
-   Not back within half a minute, each question given two seconds:
-   said, the note as it was, and the page stays, the change being
-   saved all the same. */
-async function wizAfterRestart(answer) {
-	var caller = (answer && answer.caller) || {};
-	var was = (answer && answer.webserver) || {};
-	if (!caller.restarting) return;
-	// the note under the card, by its name: the hint of the current password is one too
-	var note = document.getElementById('wizLoginNote');
-	var noteWas = note ? note.textContent : '';
-	if (note) note.textContent = webuiL('set.ws_restarting', 'The web server restarts with the new settings');
-	var end = Date.now() + 30000;
-	while (Date.now() < end) {
-		await new Promise(function(r) { setTimeout(r, 300); });
-		// a question left hanging is given up after two seconds, and
-		// cut off where the browser can: the deadline holds either way
-		var opts = {credentials: 'same-origin', cache: 'no-store'};
-		var ask = typeof AbortController === 'function' ? new AbortController() : null;
-		if (ask) opts.signal = ask.signal;
-		var timer = 0;
-		var poll = fetch('/api/v1/system/webserver', opts)
-			.then(function(r) { return r.ok ? r.json() : null; });
-		poll.catch(function() {});
-		var cut = new Promise(function(done) {
-			timer = setTimeout(function() { if (ask) ask.abort(); done(null); }, 2000);
-		});
-		try {
-			var now = await Promise.race([poll, cut]);
-			if (now && typeof now.restarts === 'number' && now.restarts > was.restarts)
-				return;
-		} catch (e) { /* not back yet */ }
-		finally { clearTimeout(timer); }
-	}
-	if (note) note.textContent = noteWas;
-	var late = new Error(webuiL('wiz.login_not_back', 'Saved, but the web server does not answer again yet. Please press Save again in a moment.'));
-	late.wizSaid = true;
-	throw late;
-}
-
-function wizLoginDone() {
-	location.href = '/' + wizTarget;
-}
-
-async function wizLoginSave(btn) {
-	var auth = document.getElementById('wizAuth').checked;
-	var user = document.getElementById('wizUser').value;
-	var pw = document.getElementById('wizPass').value;
-	var pw2 = document.getElementById('wizPass2').value;
-	if (pw !== pw2) { wizError(webuiL('wiz.login_mismatch', 'Passwords do not match.')); return; }
-	// the page login on and still the password every box ships with: not saved
-	if (auth && !pw && wizPwShipped) { wizError(webuiL('wiz.login_needpw', 'Please enter your own password.')); return; }
-	// skipping while the server restarts would ask for the next page
-	// in the gap: both wait for the save
-	var skip = document.getElementById('wizSkip');
-	btn.disabled = skip.disabled = true;
-	var current = document.getElementById('wizCurrent').value;
-	// a new password or user name is set only with the current password
-	var asks = !!pw || user !== wizUserWas;
-	if (asks && wizHasPw && !current) {
-		btn.disabled = skip.disabled = false;
-		wizError(webuiL('wiz.login_needcurrent', 'Please enter the current password as well.'));
-		document.getElementById('wizCurrent').focus();
+// The page shown in the language chosen, before anything is written.
+async function wizPreviewLanguage() {
+	var code = document.getElementById('wizLang').value;
+	if (!code)
 		return;
-	}
-	var body = {page_login: auth, user: user};
-	if (pw)
-		body.password = pw;
-	if (asks && current)
-		body.current = current;
+	await webuiI18nLoad(code);
+	webuiI18nApply();
+}
+
+function wizSetBusy(on) {
+	wizBusy = on;
+	document.getElementById('wizForm').setAttribute('aria-busy', on ? 'true' : 'false');
+	['wizGo', 'wizSkip'].forEach(function(id) {
+		document.getElementById(id).setAttribute('aria-disabled', on ? 'true' : 'false');
+	});
+}
+
+/* Leaves the page for where: with the choices (Get started, the link) or
+   without them (Skip). startup is written last, with the start page, so
+   it says true only once the rest went through. */
+async function wizLeave(withChoices, where) {
+	if (wizBusy)
+		return;
+	wizSetBusy(true);
+	wizError('');
+	var body = {startup: 'true'};
 	try {
-		var answer = await wizV1('PUT', '/system/webserver', body);
-		// saved: a second save after a server slow to come back asks
-		// for what is in effect, and sending the password again would
-		// count as a change and restart the server once more
-		if (pw) {
-			document.getElementById('wizPass').value = '';
-			document.getElementById('wizPass2').value = '';
-			document.getElementById('wizCurrent').value = '';
-			wizPwShipped = false;
+		if (withChoices) {
+			var lang = document.getElementById('wizLang').value;
+			if (lang && lang !== wizStartLang) {
+				await wizV1('PUT', '/webui/language', {language: lang});
+				wizStartLang = lang;
+			}
+			body.start_page = document.getElementById('wizPage').value;
 		}
-		await wizAfterRestart(answer);
-		wizLoginDone();
+		await wizV1('PATCH', '/webui/settings', body);
+		location.replace(where === undefined ? '/' + body.start_page : where);
 	} catch (e) {
-		btn.disabled = skip.disabled = false;
-		// the one this page writes itself (not back in time) is its own text, and a
-		// current password that is not the one in effect says so
-		wizError(e.message === WIZ_AWAY ? WIZ_AWAY : e.wizSaid ? e.message
-			: e.code === 'wrong-current-password' ? webuiL('pw.wrong', 'The current password is not correct.') : wizErrText(e));
+		wizSetBusy(false);
+		if (e.message !== WIZ_AWAY)
+			wizError(wizErrText(e));
 	}
 }
 
-webuiAfterTexts(function() {
-	if (wizLoginOnly)
-		wizShowLogin();
-	wizLoadLanguages();
-	wizLoadLogin();
+document.getElementById('wizForm').addEventListener('submit', function(e) {
+	e.preventDefault();
+	wizLeave(true);
+});
+// the start page as it is set: index.js picks it
+document.getElementById('wizSkip').addEventListener('click', function() { wizLeave(false, '/'); });
+document.getElementById('wizProtectLink').addEventListener('click', function(e) {
+	// a new tab or window opens the settings and leaves this page as it is
+	if (e.button !== 0 || e.ctrlKey || e.metaKey || e.shiftKey || e.altKey)
+		return;
+	e.preventDefault();
+	wizLeave(true, this.getAttribute('href'));
+});
+document.getElementById('wizLang').addEventListener('change', function() { wizPreviewLanguage(); });
+
+webuiAfterTexts(async function() {
+	try {
+		await wizSession();
+	} catch (e) {
+		// on the way to the sign-in or the password page; a box that did not
+		// answer gets the page all the same, and a write then says so
+		if (e.message === WIZ_AWAY)
+			return;
+	}
+	document.getElementById('wizCard').hidden = false;
+	await Promise.all([wizLoadLanguages(), wizLoadStartPage()]);
 });

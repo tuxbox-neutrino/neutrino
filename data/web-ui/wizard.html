@@ -3,7 +3,7 @@
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title data-l="wiz.title" data-l-prefix="Neutrino-Web-UI - ">Neutrino-Web-UI - Setup</title>
+	<title data-l="wiz.title" data-l-prefix="Neutrino-Web-UI - ">Neutrino-Web-UI - Welcome</title>
 	<link rel="icon" href="/favicon/favicon.ico">
 	<link rel="apple-touch-icon" href="/favicon/apple-touch-icon.png">
 	<script>
@@ -14,128 +14,69 @@
 	<link rel="stylesheet" href="/css/pico.min.css?v=1">
 	<link rel="stylesheet" href="/css/webui.css?v=90">
 	<style>
-		.wiz-wrap {
-			max-width: 26rem;
-			margin: 3rem auto;
-			padding: 1.5rem;
-		}
-		.wiz-wrap h1 {
-			font-size: 1.4rem;
-			margin-bottom: 0.3rem;
-		}
-		.wiz-wrap p.sub {
-			color: var(--pico-muted-color);
-			margin-bottom: 1.5rem;
-		}
-		.wiz-wrap label {
-			display: block;
-			margin-bottom: 0.3rem;
-			font-weight: 600;
-		}
+		/* the card of the sign-in pages (webui.css), with two choices and two ways on */
 		.wiz-wrap select {
-			width: 100%;
-			margin-bottom: 1.2rem;
-		}
-		.wiz-wrap .wiz-check {
-			display: flex;
-			align-items: center;
-			gap: 0.5rem;
-			font-weight: 600;
-			margin-bottom: 1.2rem;
-		}
-		.wiz-wrap .wiz-pw-row {
-			display: flex;
-			gap: 0.4rem;
-			align-items: center;
-			margin-bottom: 1.2rem;
-		}
-		.wiz-wrap .wiz-pw-row input {
-			flex: 1;
 			margin-bottom: 0;
 		}
-		.wiz-wrap .wiz-actions {
+		.wiz-actions {
 			display: flex;
-			gap: 0.6rem;
+			flex-direction: column;
+			gap: 0.5rem;
+			margin-top: 4px;
 		}
-		.wiz-wrap .wiz-actions .webui-btn {
-			flex: 1;
+		.wiz-actions .webui-btn {
+			width: 100%;
+			padding: 9px 18px;
+			font-size: 0.95rem;
 		}
-		.wiz-wrap .wiz-err {
-			display: block;
-			color: var(--pico-del-color);
-			margin-bottom: 1rem;
+		.wiz-wrap .wiz-actions button[type=submit] {
+			margin-top: 0;
 		}
-		.wiz-wrap .wiz-note {
-			display: block;
-			color: var(--pico-muted-color);
-			margin-bottom: 1rem;
+		.wiz-wrap p.login-first {
+			margin-bottom: 0;
+		}
+		/* the place in the settings it names stays on one line */
+		#wizProtectLink {
+			white-space: nowrap;
 		}
 	</style>
 </head>
-<body>
-	<!-- webui-card statt settings-card: letztere ist settings.html-lokal
-	     und hier wirkungslos — die Karte war randlos/unsichtbar -->
-	<main>
-	<section class="wiz-wrap webui-card" id="wizCardBasics" aria-labelledby="wizBasicsTitle">
-		<h1 id="wizBasicsTitle" data-l="wiz.welcome">Welcome to the Neutrino-Web-UI</h1>
+<body class="webui-signin">
+	<!-- Shown once a session may write: the page writes startup when it is
+	     left by one of its buttons or its link, and not before. -->
+	<main class="login-wrap webui-card wiz-wrap" id="wizCard" aria-labelledby="wizTitle" hidden>
+		<h1 id="wizTitle" data-l="wiz.welcome">Welcome to the Neutrino-Web-UI</h1>
 		<p class="sub" data-l="wiz.intro">Choose your language and start page to get going.</p>
 
-		<label for="wizLang" data-l="lang.title">Language</label>
-		<select id="wizLang"></select>
+		<form id="wizForm" novalidate>
+			<!-- in the DOM up front, so the alert is announced when unhidden -->
+			<div class="login-flash err" id="wizErr" role="alert" tabindex="-1" hidden></div>
 
-		<label for="wizPage" data-l="wiz.start_page">Start page</label>
-		<select id="wizPage">
-			<option value="dashboard.html" data-l="nav.sub_overview">Dashboard</option>
-			<option value="remote.html" data-l="tools.remote_sub">Remote control</option>
-			<option value="bouquets.html" data-l="nav.sub_channels">Channels</option>
-			<option value="epg.html" data-l="nav.sub_guide">EPG</option>
-			<option value="timer.html" data-l="nav.sub_timers">Timers</option>
-			<option value="recordings.html" data-l="nav.sub_archive">Recordings</option>
-			<option value="tools.html" data-l="nav.sub_boxcontrol">Box control</option>
-			<option value="settings.html" data-l="nav.settings">Settings</option>
-		</select>
+			<div class="login-field">
+				<label for="wizLang" data-l="lang.title">Language</label>
+				<select id="wizLang"></select>
+			</div>
 
-		<small class="wiz-err" id="wizErr0" role="alert" tabindex="-1" hidden></small>
-		<button type="button" class="webui-btn primary" id="wizGo" style="width:100%" onclick="wizNext(this)" data-l="wiz.next">Continue</button>
-	</section>
+			<div class="login-field">
+				<label for="wizPage" data-l="wiz.start_page">Start page</label>
+				<select id="wizPage">
+					<option value="dashboard.html" data-l="nav.sub_overview">Dashboard</option>
+					<option value="remote.html" data-l="tools.remote_sub">Remote control</option>
+					<option value="bouquets.html" data-l="nav.sub_channels">Channels</option>
+					<option value="epg.html" data-l="nav.sub_guide">EPG</option>
+					<option value="timer.html" data-l="nav.sub_timers">Timers</option>
+					<option value="recordings.html" data-l="nav.sub_archive">Recordings</option>
+					<option value="tools.html" data-l="nav.sub_boxcontrol">Box control</option>
+					<option value="settings.html" data-l="nav.settings">Settings</option>
+				</select>
+			</div>
 
-	<section class="wiz-wrap webui-card" id="wizCardLogin" aria-labelledby="wizLoginTitle" hidden>
-		<h1 id="wizLoginTitle" data-l="wiz.login_title">Web interface login</h1>
-		<p class="sub" id="wizLoginIntro" data-l="wiz.login_intro">Protect the web interface with a login. Optional, can be changed later in the settings.</p>
-
-		<label class="wiz-check"><input type="checkbox" id="wizAuth" role="switch"><span data-l="wiz.login_enable">Require login</span></label>
-
-		<label for="wizUser" data-l="wiz.login_user">Username</label>
-		<input type="text" id="wizUser" autocomplete="username" value="root" style="margin-bottom:1.2rem">
-
-		<label for="wizCurrent" data-l="wiz.login_current">Current password</label>
-		<div class="wiz-pw-row">
-			<input type="password" id="wizCurrent" autocomplete="current-password" aria-describedby="wizCurrentHint">
-			<button type="button" class="webui-btn" aria-pressed="false" aria-label="Show password" data-l-aria-label="set.pw_show" onclick="wizTogglePw('wizCurrent', this)"></button>
-		</div>
-		<small class="wiz-note" id="wizCurrentHint" data-l="wiz.login_current_hint" style="display:block;margin-bottom:1.2rem">Needed to change the password or the user name: the password you signed in with.</small>
-
-		<label for="wizPass" data-l="wiz.login_pass">Password</label>
-		<div class="wiz-pw-row">
-			<input type="password" id="wizPass" autocomplete="new-password">
-			<button type="button" class="webui-btn" aria-pressed="false" aria-label="Show password" data-l-aria-label="set.pw_show" onclick="wizTogglePw('wizPass', this)"></button>
-		</div>
-
-		<label for="wizPass2" data-l="wiz.login_pass2">Repeat password</label>
-		<div class="wiz-pw-row">
-			<input type="password" id="wizPass2" autocomplete="new-password">
-			<button type="button" class="webui-btn" aria-pressed="false" aria-label="Show password" data-l-aria-label="set.pw_show" onclick="wizTogglePw('wizPass2', this)"></button>
-		</div>
-
-		<!-- Fehlerelement existiert vorab im DOM, sonst wird nichts angesagt -->
-		<small class="wiz-err" id="wizErr" role="alert" tabindex="-1" hidden></small>
-		<small class="wiz-note" id="wizLoginNote" data-l="wiz.login_note">A changed login keeps you signed in here; other browsers and apps sign in again with it. Access from the box itself stays open.</small>
-
-		<div class="wiz-actions">
-			<button type="button" class="webui-btn ghost" id="wizSkip" onclick="wizLoginDone()" data-l="wiz.login_skip">Skip</button>
-			<button type="button" class="webui-btn primary" onclick="wizLoginSave(this)" data-l="wiz.login_save">Save</button>
-		</div>
-	</section>
+			<div class="wiz-actions">
+				<button type="submit" class="webui-btn primary" id="wizGo" data-l="wiz.finish">Get started</button>
+				<button type="button" class="webui-btn" id="wizSkip" data-l="wiz.skip">Skip</button>
+			</div>
+		</form>
+		<p class="sub login-first" id="wizProtect"><span data-l="wiz.protect">To protect every page with a sign-in, see</span> <a href="/settings.html#nhttpd" id="wizProtectLink" data-l="wiz.protect_link">Settings › Web server</a>.</p>
 	</main>
 
 	<script src="/js/webui-i18n.js?v=2"></script>

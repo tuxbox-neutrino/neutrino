@@ -51,9 +51,17 @@ one, a signed-in browser can do nothing else:
   Every other browser and app signed in to the web interface is signed out
   and has to sign in again with the new password.
 
+Then a new box shows its welcome page once: the language and the start
+page of the web interface, **Get started** or **Skip**. It asks for the
+sign-in and the password of your own first, whichever is still due, with
+Authentication off as well, so nothing is asked twice. Get started, Skip and
+its link to the web server's settings each end it for good; closing the
+page without one of them leaves it to come again. A box whose web interface
+settings came over from the former interface (`yWeb.conf`) does not show it.
+
 To change the password or the user name later, in the settings of the web
-server or in the setup wizard, enter the current password as well: the one
-you sign in with. A wrong one counts like a wrong sign-in.
+server, enter the current password as well: the one you sign in with. A
+wrong one counts like a wrong sign-in.
 
 Until you set your own password, the box also keeps the first password in
 `nhttpd-access.conf` in its configuration folder (usually
