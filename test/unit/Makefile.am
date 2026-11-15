@@ -415,6 +415,17 @@ openapi.json: FORCE
 	@$(MAKE) $(AM_MAKEFLAGS) -C $(top_builddir)/src/httpd openapi.json >/dev/null
 	@cp -f $(top_builddir)/src/httpd/openapi.json $@.tmp && mv -f $@.tmp $@ || { rm -f $@.tmp $@; exit 1; }
 
+# The program's objects among the cases' inputs are made by the directory
+# that builds the program, with the program's flags. Left to make's built-in
+# rule, one whose source changed would be compiled here, with the flags of the
+# cases and their include paths, and the program would link that object too.
+# The source as a prerequisite keeps the rule to objects that have one, so
+# make finds no way through it to an archive.
+$(top_builddir)/src/%.o: $(top_srcdir)/src/%.cpp FORCE
+	@$(MAKE) $(AM_MAKEFLAGS) -C $(@D) $(@F)
+$(top_builddir)/src/%.o: $(top_srcdir)/src/%.c FORCE
+	@$(MAKE) $(AM_MAKEFLAGS) -C $(@D) $(@F)
+
 FORCE:
 .PHONY: FORCE
 
