@@ -18,22 +18,35 @@
 	   screen, a choice above them on a phone; each channel a row with its
 	   number, logo, name, what runs now, its state, one main action and the
 	   others in a menu. */
+	/* Only the lists scroll, each in its own box: the bouquets beside the
+	   channels, and the head of the channel list with the choice of bouquet
+	   on a phone, stand still under the page's head from the start. */
+	main {
+		display: flex;
+		flex-direction: column;
+		overflow: hidden;
+	}
+
 	.webui-channels {
 		display: grid;
 		grid-template-columns: 260px minmax(0, 1fr);
+		grid-template-rows: minmax(0, 1fr);
 		gap: 1rem;
 		align-items: start;
+		flex: 1 1 auto;
+		min-height: 0;
+		width: 100%;
 		max-width: var(--webui-page-max);
 		margin: 0 auto;
 		padding: 1rem;
 	}
 
-	.webui-bouquet-side {
-		position: sticky;
-		top: 0;
+	.webui-bouquet-side,
+	.webui-channel-side {
 		display: flex;
 		flex-direction: column;
-		max-height: calc(100dvh - 9rem);
+		max-height: 100%;
+		min-height: 0;
 	}
 
 	.webui-bouquet-list,
@@ -45,7 +58,38 @@
 
 	.webui-bouquet-list {
 		overflow-y: auto;
+		min-height: 0;
 		padding: 0.35rem;
+	}
+
+	.webui-channel-list {
+		overflow-y: auto;
+		min-height: 0;
+	}
+
+	/* A screen too low to give the list a height of its own (a phone held
+	   across, a page zoomed far, a large font) scrolls the page as a whole
+	   again; the threshold in em grows with the browser's font size, the
+	   one in px holds for parts that do not */
+	@media (max-height: 400px), (max-height: 25em) {
+		main {
+			overflow: auto;
+		}
+
+		.webui-channels {
+			flex: none;
+			grid-template-rows: auto;
+		}
+
+		.webui-bouquet-side,
+		.webui-channel-side {
+			max-height: none;
+		}
+
+		.webui-bouquet-list,
+		.webui-channel-list {
+			overflow-y: visible;
+		}
 	}
 
 	/* Pico sets a list in a nav as a row of links: here it is a column */
