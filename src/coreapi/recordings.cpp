@@ -197,7 +197,9 @@ Result<void> startInstant(bool wake)
 	/* No event behind it, which is what tells the loop to record the channel it
 	   is showing rather than a timer's (src/neutrino.cpp, RECORD_START). */
 	CTimerd::RecordingInfo info;
-	memset(&info, 0, sizeof(info));
+	/* Every byte zero, the padding too: the event carries the object's bytes
+	   as they are. Its constructor clears only the two texts. */
+	memset(static_cast<void *>(&info), 0, sizeof(info));
 	info.eventID = 0;
 	info.channel_id = live.value().id;
 	return postEvent(BoxEvent::StartRecording, &info, sizeof(info));
