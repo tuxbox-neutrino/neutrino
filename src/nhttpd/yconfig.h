@@ -30,7 +30,7 @@
 /* The one version the server reports. The yhttpd core it grew from was last
    versioned 1.3.2 and has changed a great deal here since, so it is no line of
    its own any more. */
-#define HTTPD_VERSION 			"4.0.0"		// Webserver version  (can be overloaded)
+#define HTTPD_VERSION 			"4.0.1"		// Webserver version  (can be overloaded)
 #define IADDR_LOCAL			"127.0.0.1"	// local IP
 #define HTTPD_NAME			"yhttpd"	// Webserver name (can be overloaded)
 #define AUTH_NAME_MSG			"yhttpd"	// Name in Authentication Dialogue
