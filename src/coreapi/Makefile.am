@@ -180,7 +180,8 @@ check-layering:
 # A textual check cannot see a consumer header reached through a permitted one,
 # so the recorded dependencies are checked too. They are only complete once the
 # objects are built, hence the prerequisite. A dependency file the build has
-# never written holds one comment line, which reads the same as a clean answer,
+# never written is empty or holds one dummy comment line, depending on the
+# automake that generated the Makefile. Either reads the same as a clean answer,
 # so an object standing beside one of those is refused first.
 #
 # Two spellings of one path, because how a dependency is written down is the
@@ -193,7 +194,7 @@ all-local: check-layering $(LIBRARIES)
 	@blind=; for o in *.$(OBJEXT) base/*.$(OBJEXT) box/*.$(OBJEXT) settings/*.$(OBJEXT); do \
 		test -f "$$o" || continue; \
 		p=`dirname "$$o"`/$(DEPDIR)/`basename "$${o%.$(OBJEXT)}"`.Po; \
-		if test ! -f "$$p" || grep -q '^# dummy$$' "$$p"; then blind="$$blind $$o"; fi; \
+		if test ! -s "$$p" || grep -q '^# *dummy$$' "$$p"; then blind="$$blind $$o"; fi; \
 	done; \
 	test -z "$$blind" || { echo "coreapi objects whose dependencies were never recorded:$$blind" >&2; \
 		echo "the check below reads nothing for them, build them again" >&2; exit 1; }
