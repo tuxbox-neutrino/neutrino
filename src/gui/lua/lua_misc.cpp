@@ -161,12 +161,23 @@ int CLuaInstMisc::strSub(lua_State *L)
 	size_t pos=0, len=std::string::npos;
 	std::string ret="";
 	s1 = luaL_checkstring(L, 2);
-	pos = luaL_checkint(L, 3);
-	if (numargs > 3)
-		len = (size_t)luaL_checkint(L, 4);
+	/* Read as numbers and held to the text before they become sizes: a value
+	   beyond the range of an int would come out of a conversion to one as
+	   another position. */
+	lua_Number p = luaL_checknumber(L, 3);
+	lua_Number n = (numargs > 3) ? luaL_checknumber(L, 4) : -1;
 
 	std::string str(s1);
-	ret = str.substr(pos, len);
+	/* substr() throws std::out_of_range for a position past the end of the
+	   text. Such a position, and a negative one, gives an empty string, as the
+	   position at the end does; a negative length, or one past the end, takes
+	   the rest of the text. */
+	if (p >= 0 && p <= (lua_Number) str.length()) {
+		pos = (size_t) p;
+		if (n >= 0 && n < (lua_Number) (str.length() - pos))
+			len = (size_t) n;
+		ret = str.substr(pos, len);
+	}
 
 	LUA_DEBUG("####[%s:%d] str_len: %d, pos: %d, len: %d, ret_len: %d\n", __func__, __LINE__, str.length(), pos, len, ret.length());
 	lua_pushstring(L, ret.c_str());
