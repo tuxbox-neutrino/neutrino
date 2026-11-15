@@ -92,6 +92,7 @@ int CLuaInstHourGlass::HourGlassNew(lua_State *L)
 	*udata = new CLuaHourGlass();
 
 	(*udata)->h = new CHourGlass(x, y, dx, dy, image_basename, (int64_t)interval, parent_container, shadow_mode, (fb_pixel_t)color_frame, (fb_pixel_t)color_background, (fb_pixel_t)color_shadow);
+	(*udata)->parent = parent_container;
 
 	luaL_getmetatable(L, "hourglass");
 	lua_setmetatable(L, -2);
@@ -144,7 +145,11 @@ int CLuaInstHourGlass::HourGlassDelete(lua_State *L)
 	CLuaHourGlass *D = HourGlassCheck(L, 1);
 	if (!D)
 		return 0;
-	D->h->kill();
+	/* An hourglass in a window belongs to the window's form, which deletes
+	   it, possibly before this handle is collected: only one without a form
+	   is taken off the screen and deleted here. */
+	if (D->parent == NULL)
+		D->h->kill();
 	delete D;
 	return 0;
 }
