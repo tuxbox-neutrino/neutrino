@@ -94,12 +94,14 @@ int CLuaInstCCHeader::CCHeaderNew(lua_State *L)
 	color_body   = checkMagicMask(color_body);
 	color_shadow = checkMagicMask(color_shadow);
 
+	/* The header joins the form it is given and is deleted with it: that is
+	   the window's body, not the script's window handle, which is no form. */
 	CComponentsForm* pw = (parent && parent->w) ? parent->w->getBodyObject() : NULL;
 	CLuaCCHeader **udata = (CLuaCCHeader **) lua_newuserdata(L, sizeof(CLuaCCHeader *));
 	*udata = new CLuaCCHeader();
 	(*udata)->ch = new CComponentsHeader((const int&)x, (const int&)y, (const int&)dx, (const int&)dy,
-					     caption, (std::string)"", (const int&)buttons,
-					     (CComponentsForm*)parent, (int)shadow_mode,
+					     caption, icon, (const int&)buttons,
+					     pw, (int)shadow_mode,
 					     (fb_pixel_t)color_frame, (fb_pixel_t)color_body, (fb_pixel_t)color_shadow);
 	(*udata)->parent = pw;
 	luaL_getmetatable(L, LUA_HEADER_CLASSNAME);
