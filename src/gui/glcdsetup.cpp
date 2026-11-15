@@ -698,8 +698,6 @@ int GLCD_Menu::GLCD_Theme_Settings()
 
 	gts->addItem(new CMenuOptionNumberChooser(LOCALE_GLCD_ICON_DD_X_POSITION, &t.glcd_icon_dd_x_position, true, 0, oled_width, this));
 
-	gts->addItem(new CMenuOptionNumberChooser(LOCALE_GLCD_ICON_ECM_X_POSITION, &t.glcd_icon_ecm_x_position, true, 0, oled_width, this));
-
 	gts->addItem(new CMenuOptionNumberChooser(LOCALE_GLCD_ICON_MUTE_X_POSITION, &t.glcd_icon_mute_x_position, true, 0, oled_width, this));
 
 	gts->addItem(new CMenuOptionNumberChooser(LOCALE_GLCD_ICON_REC_X_POSITION, &t.glcd_icon_rec_x_position, true, 0, oled_width, this));
