@@ -25,7 +25,8 @@ class CLuaHourGlass
 	public:
 		CHourGlass *h;
 		CComponentsForm *parent;
-		CLuaHourGlass() { h = NULL; parent = NULL; }
+		int parent_ref;
+		CLuaHourGlass() { h = NULL; parent = NULL; parent_ref = LUA_NOREF; }
 		~CLuaHourGlass() { if (parent == NULL) delete h; }
 };
 

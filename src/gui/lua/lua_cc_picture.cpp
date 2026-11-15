@@ -78,6 +78,7 @@ int CLuaInstCCPicture::CCPictureNew(lua_State *L)
 	lua_assert(lua_istable(L,1));
 
 	CLuaCCWindow* parent = NULL;
+	int parent_slot = 0;
 	lua_Integer x=10, y=10, dx=100, dy=100;
 	std::string image_name        = "";
 	lua_Integer alignment         = 0;
@@ -91,7 +92,7 @@ int CLuaInstCCPicture::CCPictureNew(lua_State *L)
 	*/
 	lua_Integer transparency     = CFrameBuffer::TM_NONE;
 
-	tableLookup(L, "parent",    (void**)&parent);
+	parent = CLuaInstCCWindow::ParentLookup(L, parent_slot);
 	tableLookup(L, "x",         x);
 	tableLookup(L, "y",         y);
 	tableLookup(L, "dx",        dx);
@@ -131,6 +132,7 @@ int CLuaInstCCPicture::CCPictureNew(lua_State *L)
 	(*udata)->parent = pw;
 	luaL_getmetatable(L, LUA_CPICTURE);
 	lua_setmetatable(L, -2);
+	(*udata)->parent_ref = CLuaInstCCWindow::ParentHold(L, parent_slot, parent);
 	return 1;
 }
 
@@ -239,6 +241,7 @@ int CLuaInstCCPicture::CCPictureDelete(lua_State *L)
 	LUA_DEBUG("CLuaInstCCPicture::%s %d\n", __func__, lua_gettop(L));
 	CLuaCCPicture *D = CCPictureCheck(L, 1);
 	if (!D) return 0;
+	CLuaInstCCWindow::ParentRelease(L, D->parent_ref);
 	delete D;
 	return 0;
 }

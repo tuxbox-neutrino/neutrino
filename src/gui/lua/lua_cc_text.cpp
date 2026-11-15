@@ -89,6 +89,7 @@ int CLuaInstCCText::CCTextNew(lua_State *L)
 	lua_assert(lua_istable(L,1));
 
 	CLuaCCWindow* parent = NULL;
+	int parent_slot = 0;
 	lua_Integer x=OFFSET_INNER_MID, y=OFFSET_INNER_SMALL, dx=-1, dy=-1;
 	std::string text = "";
 	std::string tmpMode       = "";
@@ -99,7 +100,7 @@ int CLuaInstCCText::CCTextNew(lua_State *L)
 	lua_Unsigned color_body   = (lua_Unsigned)COL_MENUCONTENT_PLUS_0;
 	lua_Unsigned color_shadow = (lua_Unsigned)COL_SHADOW_PLUS_0;
 
-	tableLookup(L, "parent",    (void**)&parent);
+	parent = CLuaInstCCWindow::ParentLookup(L, parent_slot);
 	tableLookup(L, "x",         x);
 	tableLookup(L, "y",         y);
 	tableLookup(L, "dx",        dx);
@@ -172,6 +173,7 @@ int CLuaInstCCText::CCTextNew(lua_State *L)
 	(*udata)->font_text = font_text;
 	luaL_getmetatable(L, "ctext");
 	lua_setmetatable(L, -2);
+	(*udata)->parent_ref = CLuaInstCCWindow::ParentHold(L, parent_slot, parent);
 	return 1;
 }
 
@@ -353,6 +355,7 @@ int CLuaInstCCText::CCTextDelete(lua_State *L)
 	LUA_DEBUG("CLuaInstCCText::%s %d\n", __func__, lua_gettop(L));
 	CLuaCCText *D = CCTextCheck(L, 1);
 	if (!D) return 0;
+	CLuaInstCCWindow::ParentRelease(L, D->parent_ref);
 	delete D;
 	return 0;
 }

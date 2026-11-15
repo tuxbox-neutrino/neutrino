@@ -69,6 +69,7 @@ int CLuaInstCCHeader::CCHeaderNew(lua_State *L)
 	lua_assert(lua_istable(L,1));
 
 	CLuaCCWindow* parent = NULL;
+	int parent_slot = 0;
 	lua_Integer x=10, y=10, dx=100, dy=100;
 	lua_Integer buttons = 0;
 	lua_Integer shadow_mode = CC_SHADOW_OFF;
@@ -78,7 +79,7 @@ int CLuaInstCCHeader::CCHeaderNew(lua_State *L)
 	lua_Unsigned color_body   = (lua_Unsigned)COL_MENUCONTENT_PLUS_0;
 	lua_Unsigned color_shadow = (lua_Unsigned)COL_SHADOW_PLUS_0;
 
-	tableLookup(L, "parent",       (void**)&parent);
+	parent = CLuaInstCCWindow::ParentLookup(L, parent_slot);
 	tableLookup(L, "x",            x);
 	tableLookup(L, "y",            y);
 	tableLookup(L, "dx",           dx);
@@ -106,6 +107,7 @@ int CLuaInstCCHeader::CCHeaderNew(lua_State *L)
 	(*udata)->parent = pw;
 	luaL_getmetatable(L, LUA_HEADER_CLASSNAME);
 	lua_setmetatable(L, -2);
+	(*udata)->parent_ref = CLuaInstCCWindow::ParentHold(L, parent_slot, parent);
 	return 1;
 }
 
@@ -135,6 +137,7 @@ int CLuaInstCCHeader::CCHeaderDelete(lua_State *L)
 {
 	CLuaCCHeader *D = CCHeaderCheck(L, 1);
 	if (!D) return 0;
+	CLuaInstCCWindow::ParentRelease(L, D->parent_ref);
 	delete D;
 	return 0;
 }

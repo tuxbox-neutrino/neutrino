@@ -74,12 +74,13 @@ int CLuaInstCCSignalbox::CCSignalBoxNew(lua_State *L)
 	lua_Integer x = 110, y = 150, dx = 430, dy = 150;
 	lua_Integer vertical = true;
 	CLuaCCWindow* parent = NULL;
+	int parent_slot = 0;
 	tableLookup(L, "x", x);
 	tableLookup(L, "y", y);
 	tableLookup(L, "dx", dx);
 	tableLookup(L, "dy", dy);
 	tableLookup(L, "vertical", vertical);
-	tableLookup(L, "parent", (void**)&parent);
+	parent = CLuaInstCCWindow::ParentLookup(L, parent_slot);
 
 	CComponentsForm* pw = (parent && parent->w) ? parent->w->getBodyObject() : NULL;
 	CLuaCCSignalBox **udata = (CLuaCCSignalBox **) lua_newuserdata(L, sizeof(CLuaCCSignalBox *));
@@ -88,6 +89,7 @@ int CLuaInstCCSignalbox::CCSignalBoxNew(lua_State *L)
 	(*udata)->parent = pw;
 	luaL_getmetatable(L, "signalbox");
 	lua_setmetatable(L, -2);
+	(*udata)->parent_ref = CLuaInstCCWindow::ParentHold(L, parent_slot, parent);
 	return 1;
 }
 
@@ -127,6 +129,7 @@ int CLuaInstCCSignalbox::CCSignalBoxDelete(lua_State *L)
 {
 	CLuaCCSignalBox *D = CCSignalBoxCheck(L, 1);
 	if (!D) return 0;
+	CLuaInstCCWindow::ParentRelease(L, D->parent_ref);
 	delete D;
 	return 0;
 }

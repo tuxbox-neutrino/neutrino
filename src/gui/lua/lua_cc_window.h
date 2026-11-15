@@ -36,6 +36,20 @@ class CLuaInstCCWindow : CCHeaderTypes
 		~CLuaInstCCWindow() {};
 		static CLuaInstCCWindow* getInstance();
 		static void CCWindowRegister(lua_State *L);
+		/* The window a widget's table, on top of the stack, names under
+		   "parent": a cwindow handle, NULL where there is none or the value
+		   is no userdata, and a Lua error for a userdata of another class.
+		   The value, or nil, is left below the table at slot: on the stack
+		   the window cannot be collected while the widget is made, whatever
+		   the table's other fields run. */
+		static CLuaCCWindow *ParentLookup(lua_State *L, int &slot);
+		/* The window deletes the widgets in its body when it goes, so a
+		   widget's handle holds the window's handle, the one at slot, in the
+		   registry for as long as it lives. Taken once the widget's userdata
+		   has its metatable, so that whatever fails before leaves no hold
+		   behind, and given back by the widget's __gc with ParentRelease(). */
+		static int ParentHold(lua_State *L, int slot, CLuaCCWindow *parent);
+		static void ParentRelease(lua_State *L, int &ref);
 
 	private:
 		static int CCWindowNew(lua_State *L);

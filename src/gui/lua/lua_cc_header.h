@@ -25,7 +25,8 @@ class CLuaCCHeader
 	public:
 		CComponentsHeader *ch;
 		CComponentsForm *parent;
-		CLuaCCHeader() { ch = NULL; parent = NULL; }
+		int parent_ref;
+		CLuaCCHeader() { ch = NULL; parent = NULL; parent_ref = LUA_NOREF; }
 		~CLuaCCHeader() { if (parent == NULL) delete ch; }
 };
 

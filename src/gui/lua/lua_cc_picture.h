@@ -27,7 +27,8 @@ class CLuaCCPicture
 	public:
 		CComponentsPicture *cp;
 		CComponentsForm *parent;
-		CLuaCCPicture() { cp = NULL; parent = NULL; }
+		int parent_ref;
+		CLuaCCPicture() { cp = NULL; parent = NULL; parent_ref = LUA_NOREF; }
 		~CLuaCCPicture() { if (parent == NULL) delete cp; }
 };
 

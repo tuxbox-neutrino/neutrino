@@ -26,7 +26,8 @@ class CLuaCCSignalBox
 	public:
 		CSignalBox *s;
 		CComponentsForm *parent;
-		CLuaCCSignalBox() { s = NULL; parent = NULL;}
+		int parent_ref;
+		CLuaCCSignalBox() { s = NULL; parent = NULL; parent_ref = LUA_NOREF; }
 		~CLuaCCSignalBox() { if (parent == NULL) delete s; }
 };
 

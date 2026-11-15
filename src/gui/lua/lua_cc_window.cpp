@@ -300,6 +300,41 @@ CLuaCCWindow *CLuaInstCCWindow::CCWindowCheck(lua_State *L, int n)
 	return *(CLuaCCWindow **) luaL_checkudata(L, n, "cwindow");
 }
 
+CLuaCCWindow *CLuaInstCCWindow::ParentLookup(lua_State *L, int &slot)
+{
+	lua_pushstring(L, "parent");
+	lua_gettable(L, -2);
+	CLuaCCWindow *parent = NULL;
+	if (lua_isuserdata(L, -1)) {
+		CLuaCCWindow **w = (CLuaCCWindow **) luaL_testudata(L, -1, "cwindow");
+		if (w == NULL) {
+			luaL_error(L, "parent: a cwindow expected");
+			return NULL;
+		}
+		parent = *w;
+	} else {
+		lua_pop(L, 1);
+		lua_pushnil(L);
+	}
+	lua_insert(L, -2);
+	slot = lua_gettop(L) - 1;
+	return parent;
+}
+
+int CLuaInstCCWindow::ParentHold(lua_State *L, int slot, CLuaCCWindow *parent)
+{
+	if (parent == NULL)
+		return LUA_NOREF;
+	lua_pushvalue(L, slot);
+	return luaL_ref(L, LUA_REGISTRYINDEX);
+}
+
+void CLuaInstCCWindow::ParentRelease(lua_State *L, int &ref)
+{
+	luaL_unref(L, LUA_REGISTRYINDEX, ref);
+	ref = LUA_NOREF;
+}
+
 int CLuaInstCCWindow::CCWindowPaint(lua_State *L)
 {
 	lua_assert(lua_istable(L,1));

@@ -73,8 +73,8 @@ int CLuaInstHourGlass::HourGlassNew(lua_State *L)
 	lua_Integer interval = HG_AUTO_PAINT_INTERVAL;
 	tableLookup(L, "interval", interval);
 
-	CLuaCCWindow *parent = NULL;
-	tableLookup(L, "parent", (void **)&parent);
+	int parent_slot = 0;
+	CLuaCCWindow *parent = CLuaInstCCWindow::ParentLookup(L, parent_slot);
 
 	lua_Integer shadow_mode = CC_SHADOW_OFF;
 	tableLookup(L, "shadow_mode", shadow_mode);
@@ -96,6 +96,7 @@ int CLuaInstHourGlass::HourGlassNew(lua_State *L)
 
 	luaL_getmetatable(L, "hourglass");
 	lua_setmetatable(L, -2);
+	(*udata)->parent_ref = CLuaInstCCWindow::ParentHold(L, parent_slot, parent);
 	return 1;
 }
 
@@ -150,6 +151,7 @@ int CLuaInstHourGlass::HourGlassDelete(lua_State *L)
 	   is taken off the screen and deleted here. */
 	if (D->parent == NULL)
 		D->h->kill();
+	CLuaInstCCWindow::ParentRelease(L, D->parent_ref);
 	delete D;
 	return 0;
 }

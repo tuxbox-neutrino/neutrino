@@ -28,8 +28,9 @@ class CLuaCCText
 	public:
 		CComponentsText *ct;
 		CComponentsForm *parent;
+		int parent_ref;
 		int mode, font_text;
-		CLuaCCText() { ct = NULL; parent = NULL; mode = 0; font_text = 0;}
+		CLuaCCText() { ct = NULL; parent = NULL; parent_ref = LUA_NOREF; mode = 0; font_text = 0;}
 		~CLuaCCText() { if (parent == NULL) delete ct; }
 };
 
