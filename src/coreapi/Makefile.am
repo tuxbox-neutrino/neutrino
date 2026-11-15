@@ -188,6 +188,7 @@ check-layering:
 # tree and records an absolute path, and a build made inside the tree records
 # ../httpd/json.h for the same header. Reading only the first of them would
 # leave the rule holding for the way this is built today and for no other.
+if AMDEP
 all-local: check-layering $(LIBRARIES)
 	@blind=; for o in *.$(OBJEXT) base/*.$(OBJEXT) box/*.$(OBJEXT) settings/*.$(OBJEXT); do \
 		test -f "$$o" || continue; \
@@ -198,3 +199,13 @@ all-local: check-layering $(LIBRARIES)
 		echo "the check below reads nothing for them, build them again" >&2; exit 1; }
 	@bad=`cat $(DEPDIR)/*.Po base/$(DEPDIR)/*.Po box/$(DEPDIR)/*.Po settings/$(DEPDIR)/*.Po 2>/dev/null | tr ' ' '\n' | grep -E '(^|/)\.\./(gui|nhttpd|httpd)/|/src/(gui|nhttpd|httpd)/|/lua[^/]*\.h' || true`; \
 	test -z "$$bad" || { echo "coreapi pulls a consumer header transitively:" >&2; echo "$$bad" >&2; exit 1; }
+else
+# Configured with --disable-dependency-tracking, the usual choice of a build
+# that compiles the tree once, such as a package build, no object records its
+# dependencies, and configure writes no dependency file either. There is then
+# nothing for the rule above to read, and refusing every object would make such
+# a build impossible. The textual check still runs, and the build says that the
+# other one did not.
+all-local: check-layering
+	@echo "coreapi: dependency tracking is disabled, the recorded dependencies are not checked"
+endif
