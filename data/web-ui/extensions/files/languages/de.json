@@ -20,7 +20,7 @@
 	"fm.folder_name_label": "Ordnername",
 	"fm.used_free": "{pct} belegt, {free} frei von {total}",
 	"fm.new_folder": "Neuer Ordner",
-	"fm.not_replaced": "die vorhandene Datei bleibt",
+	"fm.not_replaced": "Nicht hochgeladen, die vorhandene Datei bleibt",
 	"fm.rename": "Umbenennen",
 	"fm.renamed": "Umbenannt",
 	"fm.rename_fail": "Fehler beim Umbenennen",

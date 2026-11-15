@@ -442,8 +442,16 @@ function toggleUpload() {
    under that name stays whole until the last piece is in, and a name in use
    is only replaced after asking. An upload that fails takes its pieces away
    again. */
+// The progress area shows the upload begun last: one begun before it no
+// longer writes there, and the area goes a moment after the last one ended.
+let uploadSeq = 0;
+let uploadHide = null;
+
 async function uploadFile(file) {
 	if (!file || !currentPath) return;
+	const mine = ++uploadSeq;
+	const shown = () => mine === uploadSeq;
+	clearTimeout(uploadHide);
 	const dir = currentPath;
 	const target = joinPath(dir, file.name);
 	const part = joinPath(dir, '.' + file.name + '.' + Math.random().toString(36).slice(2, 8) + '.upload');
@@ -460,7 +468,8 @@ async function uploadFile(file) {
 	let uploaded = false;
 	try {
 		await webuiV1UploadPieces(file, part, (sent, total) => {
-			bar.value = total ? Math.round(sent * 100 / total) : 100;
+			if (shown())
+				bar.value = total ? Math.round(sent * 100 / total) : 100;
 		});
 		uploaded = true;
 
@@ -469,20 +478,34 @@ async function uploadFile(file) {
 		} catch (e) {
 			if (e.code !== 'name-taken') throw e;
 			const replace = await askFirst(webuiL('fm.upload', 'Upload'), webuiL('fm.replace_ask', '"%s" already exists here. Replace it?').replace('%s', file.name), webuiL('fm.replace', 'Replace'));
-			if (!replace) throw new Error(webuiL('fm.not_replaced', 'the existing file was kept'));
+			if (!replace) {
+				// keeping the file that is there is the user's choice, not
+				// a failure: the pieces go, and nothing is said as an error
+				uploaded = false;
+				webuiV1('DELETE', '/storage/path', {query: {path: part}}).catch(() => {});
+				if (shown()) {
+					status.textContent = webuiL('fm.not_replaced', 'Not uploaded, the existing file stays') + ': ' + file.name;
+					uploadHide = setTimeout(() => progress.classList.remove('active'), 2000);
+				}
+				document.getElementById('fileInput').value = '';
+				return;
+			}
 			await webuiV1('POST', '/storage/rename', {body: {from: part, to: target, overwrite: true}});
 		}
 		uploaded = false;
 
-		status.textContent = webuiL('fm.done', 'Done') + ': ' + file.name;
 		webuiShowToast(webuiL('fm.uploaded', 'Uploaded') + ': ' + file.name);
-		setTimeout(() => {
-			progress.classList.remove('active');
-			document.getElementById('uploadArea').classList.remove('active');
-		}, 2000);
+		if (shown()) {
+			status.textContent = webuiL('fm.done', 'Done') + ': ' + file.name;
+			uploadHide = setTimeout(() => {
+				progress.classList.remove('active');
+				document.getElementById('uploadArea').classList.remove('active');
+			}, 2000);
+		}
 		if (currentPath === dir) refreshDir();
 	} catch (e) {
-		status.textContent = webuiL('msg.error', 'Error') + ': ' + webuiErrText(e);
+		if (shown())
+			status.textContent = webuiL('msg.error', 'Error') + ': ' + webuiErrText(e);
 		webuiToastError(webuiL('fm.upload_fail', 'Upload error'), e);
 		if (uploaded)
 			webuiV1('DELETE', '/storage/path', {query: {path: part}}).catch(() => {});
