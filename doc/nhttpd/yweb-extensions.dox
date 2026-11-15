@@ -115,9 +115,10 @@ Die Installation (`POST /api/v1/webui/extensions`) erzwingt:
 - absolute Pfade oder `..`-Komponenten im Archiv werden abgewiesen, ebenso
   Links und Geraete; hoechstens 16 MiB gepackt, 2000 Namen, 64 MiB
   entpackt; Dateien 0644, Verzeichnisse 0755;
-- ein Release heisst `<ordner>.tar.gz` und enthaelt `<ordner>/`; ein Update
-  behaelt den Ordnernamen, die Verwaltung nennt ihn (`"dir"`), und die Box
-  weist ein Archiv mit einer anderen Erweiterung ab;
+- ein Archiv enthaelt `<ordner>/`; das Index-Repo haelt das Archiv jeder
+  Version als `archives/<ordner>-<version>.tar.gz` und aendert es nie; ein
+  Update behaelt den Ordnernamen, die Verwaltung nennt ihn (`"dir"`), und
+  die Box weist ein Archiv mit einer anderen Erweiterung ab;
 - die Shell-Scripts, die die Box ausfuehrt, nennt `manifest.json` unter
   `scripts` (Namen ohne `.sh`, hoechstens 64); jedes muss als
   `<ordner>/scripts/<name>.sh` im Archiv liegen. Nur diese werden
@@ -130,7 +131,8 @@ Die Installation (`POST /api/v1/webui/extensions`) erzwingt:
   make install des Kerns) — eigene Dateien via `$0`-Pfad finden
   (`SCRIPTDIR=$(cd -- "$(dirname -- "$0")" && pwd)`).
 
-Bau-Kommando (identisch im Release-Workflow):
+Bau-Kommando fuer ein Archiv, das als Datei installiert wird (die Archive
+des Index packt `tools/build-index.py` im Index-Repo):
 \code{.sh}
 mkdir -p /tmp/stage/<ordner> && \
 rsync -a --exclude .git --exclude .github ./ /tmp/stage/<ordner>/ && \
@@ -142,18 +144,24 @@ tar -czf <ordner>.tar.gz -C /tmp/stage <ordner>
 \code{.json}
 {"format": 1, "extensions": [
   {"id": "m3u-converter", "name": "m3u Converter", "version": "1.0.0",
-   "url": "https://github.com/tuxbox-neutrino/neutrino-webui-ext-m3u-converter/releases/download/v1.0.0/m3u-converter.tar.gz",
+   "url": "https://raw.githubusercontent.com/tuxbox-neutrino/neutrino-webui-ext/HEAD/archives/m3u-converter-1.0.0.tar.gz",
    "sha256": "<64 Hex-Ziffern>", "description": "..."}
 ]}
 \endcode
 
 `id` = Ordnername (einmal je Index), `url` https, `sha256` die des
-Archivs; `name` und `description` optional. Weil die SHA-256 genau ein
-Archiv festhaelt, zeigt `url` auf das versionierte Release, nicht auf
-`releases/latest`. Signatur: Ed25519 ueber die Bytes der Datei, base64,
-als `index.json.sig`. Oeffentlicher Schluessel im Image als PEM unter
-`<datadir>/tuxbox/neutrino/webui-index.pub`; der private ist ein Secret
-des Index-Repos. Ohne Schluessel installiert ein Image aus keinem Index.
+Archivs, `version` die im Manifest des Archivs (die Verwaltung vergleicht
+sie mit der des installierten Manifests); `name` und `description`
+optional. Der Browser laedt Index, Signatur und Archiv, jede dieser
+Adressen muss das einer Webseite erlauben (`Access-Control-Allow-Origin`):
+Raw-Dateien von GitHub und GitHub Pages tun das, ein Release-Download
+nicht. Die Archive liegen deshalb im Index-Repo, und weil die SHA-256
+genau eines festhaelt, aendert sich ein veroeffentlichtes nie. Signatur:
+Ed25519 ueber die Bytes der Datei, base64, als `index.json.sig`.
+Oeffentlicher Schluessel im Image als PEM unter
+`<datadir>/tuxbox/neutrino/webui-index.pub`; der private bleibt bei dem,
+der den Index signiert, und gehoert in kein Repo. Ohne Schluessel
+installiert ein Image aus keinem Index.
 
 \code{.sh}
 openssl genpkey -algorithm ed25519 -out index-key.pem
@@ -161,31 +169,18 @@ openssl pkey -in index-key.pem -pubout -out webui-index.pub
 openssl pkeyutl -sign -rawin -inkey index-key.pem -in index.json | base64 -w0 > index.json.sig
 \endcode
 
-\section ywebext_repos Repo-Vorlage und Versionierung
+\section ywebext_repos Herkunft und Versionen
 
-Offizielle Erweiterungen haben je ein eigenes Repo
-`github.com/tuxbox-neutrino/neutrino-webui-ext-<name>`. Die bisherigen
-`github.com/tuxbox-neutrino/yweb-extension-<name>` (installer,
-m3u-converter, camds, infoicons, hallo-yweb) samt Meta-Repo
-`yweb-extensions` gehören zum alten Skript-Vertrag und laufen mit dieser
-Version nicht. Repo-Layout:
+Die Erweiterungen in `data/web-ui/extensions` kommen mit der Oberflaeche.
+Der Index `tuxbox-neutrino/neutrino-webui-ext` bietet sie zusaetzlich an,
+seine Archive packt `tools/build-index.py` aus diesem Ordner: eine
+deinstallierte laesst sich wieder installieren, eine neue Version erreicht
+eine Box vor dem naechsten Image. Erweiterungen fuer den Skript-Vertrag
+der alten yWeb-Oberflaeche laufen mit dieser Version nicht.
 
-\code{.unparsed}
-neutrino-webui-ext-<name>/
-├── manifest.json            (kanonische Version)
-├── <entry>.html             (entfaellt bei settings-only)
-├── languages/en.json + de.json
-├── scripts/*.sh             (optional, siehe tar.gz-Vertrag)
-├── README.md + README.de.md, LICENSE (GPL-2.0)
-└── .github/workflows/{version-bump,version-line}.yaml
-\endcode
-
-Versionierung semantisch `v<major>.<minor>.<patch>`: version-line
-(manuell) setzt `<maj>.<min>.0` und erzeugt das annotierte Anker-Tag
-`v<maj>.<min>`; version-bump errechnet bei jedem Push auf `main` den
-Patch als `git rev-list --count v<maj>.<min>..HEAD + 1` (jq auf
-manifest.json), taggt, baut den Tarball und veroeffentlicht das Release
-im selben Job (GITHUB_TOKEN-Pushes triggern keine Folge-Workflows).
+Die Version in `manifest.json` ist semantisch, `<major>.<minor>.<patch>`,
+und steigt mit jeder Aenderung, die in den Index kommt: dort aendert sich
+das Archiv einer Version nie.
 Erweiterungs-Seiten referenzieren Kern-Assets (`/css/webui.css`,
 `/js/webui-i18n.js`, `/js/webui-header.js`) OHNE `?v=`-Parameter — sie koennen
 Kern-Bumps nicht tracken.
@@ -193,7 +188,7 @@ Kern-Bumps nicht tracken.
 \section ywebext_ref Referenz & Einsteiger-Doku
 
 - Einsteiger-Anleitung ("Erweiterung in 10 Minuten"):
-  `data/y-web/extensions/README.md` (englisch) bzw. `README.de.md`
+  `data/web-ui/extensions/README.md` (englisch) bzw. `README.de.md`
   (deutsch).
 */
 
@@ -314,9 +309,10 @@ The install (`POST /api/v1/webui/extensions`) enforces:
 - archives with absolute paths or `..` components are rejected, and so
   are links and devices; at most 16 MiB packed, 2000 names, 64 MiB
   unpacked; files 0644, directories 0755;
-- a release is `<folder>.tar.gz` holding `<folder>/`; an update keeps the
-  folder name, the manager names it (`"dir"`), and the box refuses an
-  archive holding another extension;
+- an archive holds `<folder>/`; the index repo keeps the archive of each
+  version as `archives/<folder>-<version>.tar.gz` and never changes it; an
+  update keeps the folder name, the manager names it (`"dir"`), and the
+  box refuses an archive holding another extension;
 - the shell scripts the box runs are named by `manifest.json` under
   `scripts` (names without `.sh`, at most 64); each has to be
   `<folder>/scripts/<name>.sh` in the archive. Only these are made
@@ -329,7 +325,8 @@ The install (`POST /api/v1/webui/extensions`) enforces:
   make install does that) — find the extension's own files via the `$0`
   path (`SCRIPTDIR=$(cd -- "$(dirname -- "$0")" && pwd)`).
 
-Build command (identical in the release workflow):
+Build command for an archive installed as a file (the index's archives
+are packed by `tools/build-index.py` in the index repo):
 \code{.sh}
 mkdir -p /tmp/stage/<folder> && \
 rsync -a --exclude .git --exclude .github ./ /tmp/stage/<folder>/ && \
@@ -341,18 +338,24 @@ tar -czf <folder>.tar.gz -C /tmp/stage <folder>
 \code{.json}
 {"format": 1, "extensions": [
   {"id": "m3u-converter", "name": "m3u Converter", "version": "1.0.0",
-   "url": "https://github.com/tuxbox-neutrino/neutrino-webui-ext-m3u-converter/releases/download/v1.0.0/m3u-converter.tar.gz",
+   "url": "https://raw.githubusercontent.com/tuxbox-neutrino/neutrino-webui-ext/HEAD/archives/m3u-converter-1.0.0.tar.gz",
    "sha256": "<64 hex digits>", "description": "..."}
 ]}
 \endcode
 
 `id` = folder name (once per index), `url` https, `sha256` that of the
-archive; `name` and `description` optional. As the SHA-256 pins exactly
-one archive, `url` points at the versioned release, not at
-`releases/latest`. Signature: Ed25519 over the file's bytes, base64, as
-`index.json.sig`. Public key in the image as PEM in
-`<datadir>/tuxbox/neutrino/webui-index.pub`; the private one is a secret
-of the index repo. Without the key an image installs from no index.
+archive, `version` the one in the archive's manifest (the manager
+compares it with the installed manifest's); `name` and `description`
+optional. The browser loads index, signature and archive, and each of
+these addresses has to let a web page do so
+(`Access-Control-Allow-Origin`): GitHub raw files and GitHub Pages do, a
+release download does not. The archives therefore lie in the index repo,
+and as the SHA-256 pins exactly one, a published archive never changes.
+Signature: Ed25519 over the file's bytes, base64, as `index.json.sig`.
+Public key in the image as PEM in
+`<datadir>/tuxbox/neutrino/webui-index.pub`; the private one stays with
+whoever signs the index and belongs in no repo. Without the key an image
+installs from no index.
 
 \code{.sh}
 openssl genpkey -algorithm ed25519 -out index-key.pem
@@ -360,31 +363,18 @@ openssl pkey -in index-key.pem -pubout -out webui-index.pub
 openssl pkeyutl -sign -rawin -inkey index-key.pem -in index.json | base64 -w0 > index.json.sig
 \endcode
 
-\section ywebext_en_repos Repo template and versioning
+\section ywebext_en_repos Where they come from, and versions
 
-Official extensions each have a repo of their own,
-`github.com/tuxbox-neutrino/neutrino-webui-ext-<name>`. The earlier
-`github.com/tuxbox-neutrino/yweb-extension-<name>` (installer,
-m3u-converter, camds, infoicons, hallo-yweb) and the `yweb-extensions`
-meta repo belong to the old script contract and do not work with this
-version. Repo layout:
+The extensions in `data/web-ui/extensions` come with the interface. The
+index `tuxbox-neutrino/neutrino-webui-ext` offers them as well, its
+archives packed from this folder by `tools/build-index.py`: one that was
+uninstalled can be installed again, a new version reaches a box before
+the next image. Extensions written for the script contract of the old
+yWeb interface do not work with this version.
 
-\code{.unparsed}
-neutrino-webui-ext-<name>/
-├── manifest.json            (canonical version)
-├── <entry>.html             (omitted for settings-only)
-├── languages/en.json + de.json
-├── scripts/*.sh             (optional, see tar.gz contract)
-├── README.md + README.de.md, LICENSE (GPL-2.0)
-└── .github/workflows/{version-bump,version-line}.yaml
-\endcode
-
-Semantic versioning `v<major>.<minor>.<patch>`: version-line (manual)
-sets `<maj>.<min>.0` and creates the annotated anchor tag
-`v<maj>.<min>`; version-bump computes the patch on every push to
-`main` as `git rev-list --count v<maj>.<min>..HEAD + 1` (jq on
-manifest.json), tags, builds the tarball and publishes the release in
-the same job (GITHUB_TOKEN pushes trigger no follow-up workflows).
+The version in `manifest.json` is semantic, `<major>.<minor>.<patch>`,
+and rises with every change that goes into the index: there the archive
+of a version never changes.
 Extension pages reference core assets (`/css/webui.css`, `/js/webui-i18n.js`,
 `/js/webui-header.js`) WITHOUT `?v=` parameters — they cannot track core
 bumps.
@@ -392,6 +382,6 @@ bumps.
 \section ywebext_en_ref Reference & getting-started docs
 
 - Getting-started guide ("an extension in 10 minutes"):
-  `data/y-web/extensions/README.md` (English) or `README.de.md`
+  `data/web-ui/extensions/README.md` (English) or `README.de.md`
   (German).
 */

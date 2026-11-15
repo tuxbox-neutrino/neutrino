@@ -305,29 +305,38 @@ herunter):
 
 Der Index liegt unter `ext_index_url` in `webui.conf` (Default: das
 Repository `tuxbox-neutrino/neutrino-webui-ext`), seine Signatur daneben
-als `<index-url>.sig`; beide müssen das Lesen aus einer Webseite
-erlauben (Raw-Dateien auf GitHub tun das).
+als `<index-url>.sig`. Der Browser lädt den Index, die Signatur und das
+Archiv, das ein Eintrag nennt; jede dieser Adressen muss das Lesen aus
+einer Webseite erlauben (der Server antwortet mit
+`Access-Control-Allow-Origin`). Raw-Dateien auf GitHub und GitHub Pages
+tun das, ein Download aus einem GitHub-Release nicht; deshalb hält das
+Index-Repository die Archive, die es anbietet, selbst.
 
 ```json
 {
 	"format": 1,
 	"extensions": [
 		{ "id": "meine-erweiterung", "name": "Meine Erweiterung", "version": "1.2.0",
-		  "url": "https://github.com/…/releases/download/v1.2.0/meine-erweiterung.tar.gz",
+		  "url": "https://raw.githubusercontent.com/tuxbox-neutrino/neutrino-webui-ext/HEAD/archives/meine-erweiterung-1.2.0.tar.gz",
 		  "sha256": "<64 Hex-Ziffern dieses Archivs>",
 		  "description": "Kurzer Untertitel" }
 	]
 }
 ```
 
-`id` ist der Ordnername (einmal je Index), `url` eine https-Adresse,
-`version` Buchstaben, Ziffern, Punkte, Plus- und Bindestriche; `name`
-und `description` sind optional. Die Signatur ist Ed25519 über die
+`id` ist der Ordnername (einmal je Index), `url` eine https-Adresse, die
+eine Seite lesen darf (siehe oben), `version` Buchstaben, Ziffern, Punkte,
+Plus- und Bindestriche, und zwar die Version, die das Manifest des
+Archivs nennt: Die Verwaltung vergleicht sie mit der Version des
+installierten Manifests, Zahl für Zahl zwischen den Punkten; ein Eintrag,
+dessen Version höher vergleicht als die seines Archivs, böte dasselbe
+Update nach der Installation also erneut an. `name` und `description`
+sind optional. Die Signatur ist Ed25519 über die
 Bytes der Datei, wie sie veröffentlicht ist, in base64. Der öffentliche
 Schlüssel gehört zum Image, als PEM in
 `<datadir>/tuxbox/neutrino/webui-index.pub`; der private bleibt bei
-dem, der den Index veröffentlicht (ein Secret des Index-Repositorys).
-Ein Image ohne den Schlüssel installiert aus keinem Index.
+dem, der den Index signiert, und gehört in kein Repository. Ein Image
+ohne den Schlüssel installiert aus keinem Index.
 
 ```sh
 openssl genpkey -algorithm ed25519 -out index-key.pem       # privat, geheim halten
@@ -346,8 +355,10 @@ openssl pkeyutl -sign -rawin -inkey index-key.pem -in index.json | base64 -w0 > 
   16 MiB gepackt, 2000 Namen und 64 MiB entpackt.
 - Es entpackt nach `<webroot>/extensions/<ordner>/`, Dateien für alle
   lesbar (0644), Verzeichnisse 0755.
-- Ein Release erscheint als `<ordner>.tar.gz` mit `<ordner>/` darin.
-  Ein Update behält den Ordnernamen: die Verwaltung nennt die
+- Das Index-Repository hält das Archiv jeder Version als
+  `archives/<ordner>-<version>.tar.gz` und ändert es nie, weil seine
+  SHA-256 im Index steht: Eine Änderung an der Erweiterung bekommt eine
+  neue Version. Ein Update behält den Ordnernamen: die Verwaltung nennt die
   Erweiterung, die sie aktualisiert (`"dir"` in
   `POST /api/v1/webui/extensions`), und die Box weist ein Archiv ab,
   das eine andere enthält.
@@ -371,7 +382,8 @@ openssl pkeyutl -sign -rawin -inkey index-key.pem -in index.json | base64 -w0 > 
   SCRIPTDIR=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)
   EXTDIR=$(dirname -- "$SCRIPTDIR")
   ```
-- Bau-Kommando (nutzen auch die Release-Workflows):
+- Ein Archiv, das als Datei installiert wird, entsteht so; das
+  Index-Repository packt seine Archive mit `tools/build-index.py`:
 
 ```sh
 mkdir -p /tmp/stage/<ordner> && \
@@ -392,11 +404,10 @@ tar -czf <ordner>.tar.gz -C /tmp/stage <ordner>
 
 ## Offizielle Erweiterungen
 
-Jede offizielle Erweiterung hat ein eigenes versioniertes Repository,
-`github.com/tuxbox-neutrino/neutrino-webui-ext-<name>`, und einen Eintrag
-im Update-Index, den die Verwaltung liest, `tuxbox-neutrino/neutrino-webui-ext`.
-Die bisherigen Repositories
-`github.com/tuxbox-neutrino/yweb-extension-<name>` (installer,
-m3u-converter, camds, infoicons, hallo-yweb) samt ihrem Index
-`yweb-extensions` gehören zum alten Skript-Vertrag; ihre Erweiterungen
-laufen mit dieser Version nicht.
+Die Erweiterungen in diesem Ordner kommen mit der Oberfläche und werden
+mit ihr installiert. Der Index, den die Verwaltung liest,
+`tuxbox-neutrino/neutrino-webui-ext`, bietet sie zusätzlich an, seine
+Archive entstehen aus diesem Ordner: Eine deinstallierte Erweiterung
+lässt sich wieder installieren, und eine neue Version kann eine Box vor
+dem nächsten Image erreichen. Erweiterungen für den Skript-Vertrag der
+alten yWeb-Oberfläche laufen mit dieser Version nicht.

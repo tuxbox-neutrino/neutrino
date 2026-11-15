@@ -296,28 +296,35 @@ anything):
 
 The index lives at `ext_index_url` in `webui.conf` (default: the
 `tuxbox-neutrino/neutrino-webui-ext` repository), its signature beside it
-as `<index-url>.sig`; both have to let a web page read them (GitHub
-raw files do).
+as `<index-url>.sig`. The browser loads the index, the signature and
+the archive an entry names, so each of these addresses has to let a web
+page read it (the server answers with `Access-Control-Allow-Origin`).
+GitHub raw files and GitHub Pages do; a download from a GitHub release
+does not, so the index repository keeps the archives it offers itself.
 
 ```json
 {
 	"format": 1,
 	"extensions": [
 		{ "id": "my-extension", "name": "My Extension", "version": "1.2.0",
-		  "url": "https://github.com/…/releases/download/v1.2.0/my-extension.tar.gz",
+		  "url": "https://raw.githubusercontent.com/tuxbox-neutrino/neutrino-webui-ext/HEAD/archives/my-extension-1.2.0.tar.gz",
 		  "sha256": "<64 hex digits of that archive>",
 		  "description": "Short subtitle" }
 	]
 }
 ```
 
-`id` is the folder name (once per index), `url` an https address,
-`version` letters, digits, dots, pluses and dashes; `name` and
-`description` are optional. The signature is Ed25519 over the file's
-bytes as published, in base64. The public key is part of the image, as
-PEM in `<datadir>/tuxbox/neutrino/webui-index.pub`; the private key
-stays with whoever publishes the index (a secret of the index
-repository). An image without the key installs from no index.
+`id` is the folder name (once per index), `url` an https address a
+page may read (see above), `version` letters, digits, dots, pluses and
+dashes, the version the archive's manifest gives: the manager compares
+it with the version of the installed manifest, number by number between
+the dots, so an entry whose version compares higher than its archive's
+would offer the same update again after it was installed.
+`name` and `description` are optional. The signature is Ed25519 over
+the file's bytes as published, in base64. The public key is part of
+the image, as PEM in `<datadir>/tuxbox/neutrino/webui-index.pub`; the
+private key stays with whoever signs the index and belongs in no
+repository. An image without the key installs from no index.
 
 ```sh
 openssl genpkey -algorithm ed25519 -out index-key.pem       # private, keep it secret
@@ -336,10 +343,12 @@ openssl pkeyutl -sign -rawin -inkey index-key.pem -in index.json | base64 -w0 > 
   names and 64 MiB unpacked.
 - It unpacks to `<webroot>/extensions/<folder>/`, files readable by
   all (0644), directories 0755.
-- A release is published as `<folder>.tar.gz` holding `<folder>/`.
-  An update keeps the folder name: the manager names the extension it
-  updates (`"dir"` in `POST /api/v1/webui/extensions`), and the box
-  refuses an archive that holds another one.
+- The index repository keeps the archive of each version as
+  `archives/<folder>-<version>.tar.gz` and never changes it, as its
+  SHA-256 stands in the index: a change to the extension gets a new
+  version. An update keeps the folder name: the manager names the
+  extension it updates (`"dir"` in `POST /api/v1/webui/extensions`),
+  and the box refuses an archive that holds another one.
 - The shell scripts the box runs for it are the ones `manifest.json`
   names under `scripts`: a list of at most 64 names of letters, digits,
   dots, dashes and underscores, not beginning with a dash or a dot;
@@ -357,7 +366,8 @@ openssl pkeyutl -sign -rawin -inkey index-key.pem -in index.json | base64 -w0 > 
   SCRIPTDIR=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)
   EXTDIR=$(dirname -- "$SCRIPTDIR")
   ```
-- Build command (used by the release workflows):
+- An archive to install as a file is made like this; the index
+  repository packs its archives with `tools/build-index.py`:
 
 ```sh
 mkdir -p /tmp/stage/<folder> && \
@@ -377,11 +387,10 @@ tar -czf <folder>.tar.gz -C /tmp/stage <folder>
 
 ## Official extensions
 
-Each official extension has a versioned repository of its own,
-`github.com/tuxbox-neutrino/neutrino-webui-ext-<name>`, and an entry
-in the update index the manager reads, `tuxbox-neutrino/neutrino-webui-ext`.
-The earlier repositories
-`github.com/tuxbox-neutrino/yweb-extension-<name>` (installer,
-m3u-converter, camds, infoicons, hallo-yweb) and their index
-`yweb-extensions` were written for the old script contract; their
-extensions do not work with this version.
+The extensions in this folder come with the interface and are
+installed with it. The index the manager reads,
+`tuxbox-neutrino/neutrino-webui-ext`, offers them as well, its archives
+made from this folder: an extension that was uninstalled can be
+installed again, and a new version can reach a box before the next
+image. Extensions written for the script contract of the old yWeb
+interface do not work with this version.
