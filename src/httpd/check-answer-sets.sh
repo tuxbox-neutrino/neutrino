@@ -291,7 +291,6 @@ END {
 	}
 	if (fail)
 		exit 1
-	print "answer sets held to their writer                    " nm
 }
 ' "$tmp/blank"
 exit 0
