@@ -8,6 +8,10 @@ SUBDIRS = \
 
 installdir = $(PRIVATE_HTTPDDIR)
 
+# the public key the box checks the extension index's signature with
+indexkeydir = $(DATADIR)/neutrino
+dist_indexkey_DATA = webui-index.pub
+
 nobase_install_DATA = \
 	extensions/README.md \
 	extensions/README.de.md
