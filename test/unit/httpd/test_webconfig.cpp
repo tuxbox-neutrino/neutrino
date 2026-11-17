@@ -273,7 +273,7 @@ TEST_CASE("the values a box that was never configured runs on", "[webconf]")
 	REQUIRE(c.session_lifetime_s == 86400);
 	REQUIRE(c.sse_max_streams == 16);
 	REQUIRE(c.legacy_enabled);
-	REQUIRE(c.docroot == std::string(PRIVATE_HTTPDDIR) + "/ni-web");
+	REQUIRE(c.docroot == std::string(PRIVATE_HTTPDDIR) + "/htdocs");
 	REQUIRE(c.trusted_proxies.empty());
 
 	// Six and not five. Loopback is two addresses and a browser running on the
@@ -953,7 +953,7 @@ TEST_CASE("the migration does not carry the old page directory", "[webconf]")
 	// Not carried and not left empty either: a key the migrated file does not
 	// name falls back to this server's own default, which is its own docs
 	// page and never the site the migration just refused to carry.
-	REQUIRE(httpd::config().docroot == std::string(PRIVATE_HTTPDDIR) + "/ni-web");
+	REQUIRE(httpd::config().docroot == std::string(PRIVATE_HTTPDDIR) + "/htdocs");
 }
 
 TEST_CASE("the written file is readable by its owner alone", "[webconf]")

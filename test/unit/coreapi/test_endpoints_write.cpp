@@ -3739,7 +3739,7 @@ struct WebFile
 	        const std::string &server_text = kServerFileHead) : before(config())
 	{
 		char name[160];
-		std::snprintf(name, sizeof(name), "/tmp/ni-webroute-%s-%d", tag, (int) getpid());
+		std::snprintf(name, sizeof(name), "/tmp/webroute-%s-%d", tag, (int) getpid());
 		path = name;
 		server = path + ".nhttpd";
 
@@ -7233,7 +7233,7 @@ struct LanguagePages
 
 	LanguagePages()
 	{
-		char dir[] = "/tmp/ni-webroute-pages-XXXXXX";
+		char dir[] = "/tmp/webroute-pages-XXXXXX";
 		REQUIRE(::mkdtemp(dir) != NULL);
 		root = dir;
 		const std::string langs = root + "/languages";

@@ -603,7 +603,7 @@ TEST_CASE("a source that runs out is a failure and not a shorter secret", "[cred
 		   where every failure passes through it. */
 		const char *const unopenable[] =
 		{
-			"/nonexistent/ni-web-random",
+			"/nonexistent/webroot-random",
 			"/nonexistent/deeper/still",
 			""
 		};

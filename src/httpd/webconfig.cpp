@@ -2111,7 +2111,7 @@ WebConfig defaultWebConfig()
 	   PRIVATE_HTTPDDIR itself: that directory is also where the old server's
 	   pages land, and naming it here would serve those out of this one as
 	   well, which nobody asked this server to do. */
-	c.docroot = PRIVATE_HTTPDDIR "/ni-web";
+	c.docroot = PRIVATE_HTTPDDIR "/htdocs";
 	c.session_lifetime_s = kSessionLifetimeDefault;
 	c.sse_max_streams = kSseMaxStreamsDefault;
 	c.legacy_enabled = true;
